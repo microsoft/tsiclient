@@ -1,0 +1,142 @@
+// global gray colors mixin based on theme
+// Array of [text color, hover color, element color, background color, alt element]
+@function grays($theme){
+    @if $theme == 'dark'{
+        @return #fff, #62666c, #1f2328, #3d4147, #31373e;
+    }
+    @if $theme == 'light'{
+        @return #000, #b3d6f2, #f4f4f4, #eaeaea, #dcdcdc;
+    }
+}
+
+@mixin chartColors($grays){
+    $gray1: nth($grays, 1); // text
+    $gray2: nth($grays, 2); // hover
+    $gray3: nth($grays, 3); // element
+    $gray4: nth($grays, 4); // background
+    
+    .yAxis, .xAxis{
+        path{
+            stroke: $gray1;
+        }
+        .tick{
+            text{
+                fill: $gray1;
+            }
+            line{
+                stroke: $gray1;
+            }
+        }
+    }
+    .vHoverBox, .hHoverBox {
+        fill: $gray3;
+        stroke: $gray1;
+    }
+    .hoverText{
+        fill: $gray1;
+    }
+    .stacked, .tsi-gridButton{
+        g{  
+            path{
+                fill: $gray1 !important;
+            }
+        }
+    }
+    .tsi-gridButton{
+        rect{
+            &:active, &:focus{
+                stroke: $gray1 !important;
+            }
+        }
+    }    
+
+    .tooltip {
+        rect {
+            fill: $gray2;
+        }
+        text {
+            fill: $gray1;
+        }
+    }
+
+
+    .yAxis, .xAxis{
+        path{
+            stroke-width: 1px !important;
+        }
+        .tick{
+            text{
+                user-select: none;
+            }
+        }
+    }
+    
+    rect, line {
+        shape-rendering: crispedges !important;
+    }
+    
+    .hHoverText {
+        text-anchor: middle;
+    }
+    
+    .vHoverText {
+        text-anchor: end;
+    }
+    
+    .hoverText {
+        stroke: none;
+    }
+    
+    .stacked, .tsi-gridButton{
+        g{  
+            path{
+                stroke-width: 1;
+                pointer-events: all;
+                stroke: none;
+            }
+        }
+        rect{
+            cursor: pointer;
+            fill: transparent;
+            stroke-width: 1;
+        }
+    }
+    .tsi-gridButton{
+        g{
+            transform: scale(1) translate(0,0);
+            fill-opacity: .8;
+        }
+    }
+    
+    .tooltip {
+        pointer-events: none;
+    
+        rect {
+            stroke: none;
+            fill-opacity: .9;
+        }
+        text {
+            alignment-baseline: hanging;
+        }
+        .title {
+            font-weight: bold;
+            font-size: 13px;
+        } 
+        .value {
+            font-weight: normal;
+            font-size: 12px;
+            font-weight: lighter;
+            &.visibleValue {
+                font-weight: bold;
+            }
+        }
+    }
+    
+    .focus{
+        display: none;
+    }
+
+    svg {
+        display: block;
+    }
+}

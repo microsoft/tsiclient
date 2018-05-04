@@ -1,0 +1,50 @@
+@import "../../styles";
+
+@mixin tColors($grays){
+    $gray1: nth($grays, 1); // text
+    $gray2: nth($grays, 2); // hover
+    $gray3: nth($grays, 3); // element
+    $gray4: nth($grays, 4); // background
+
+    text {
+        fill: $gray1;
+    }
+
+    rect {
+        fill: $gray2;
+    }
+    @include chartColors($grays);
+}
+
+.tsi-tooltip {
+    pointer-events: none;
+
+    &.tsi-dark{
+        $grays: grays('dark');
+        @include tColors($grays);
+    }
+    &.tsi-light{
+        $grays: grays('light');
+        @include tColors($grays);
+    }
+
+    rect {
+        stroke: none;
+        fill-opacity: .9;
+    }
+    text {
+        alignment-baseline: hanging;
+    }
+    .title {
+        font-weight: bold;
+        font-size: 13px;
+    } 
+    .value {
+        font-weight: normal;
+        font-size: 12px;
+        font-weight: lighter;
+        &.visibleValue {
+            font-weight: bold;
+        }
+    }
+}

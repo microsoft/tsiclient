@@ -1,0 +1,98 @@
+@import "../../styles";
+
+@mixin lcColors($grays){
+    $gray1: nth($grays, 1); // text
+    $gray2: nth($grays, 2); // hover
+    $gray3: nth($grays, 3); // element
+    $gray4: nth($grays, 4); // background
+    
+    color: $gray1;
+    background: $gray4;
+    .lineChartSVG{
+        text{
+            fill: $gray1;
+        }
+        circle{
+            fill: $gray1;
+        }
+        .focusLine{
+            stroke: $gray2;
+        }
+        .guideLine{
+            stroke: $gray1;
+        }
+
+        .standardYAxisText {
+            font-weight: lighter !important;
+            fill: $gray1 !important;
+        }
+    }
+    @include chartColors($grays);
+}
+
+.tsi-lineChart {
+    
+    
+    &.tsi-dark{
+        $grays: grays('dark');
+        @include lcColors($grays);
+    }
+    &.tsi-light{
+        $grays: grays('light');
+        @include lcColors($grays);
+    }
+        
+    display: flex;
+    position: relative;
+
+    .tsi-lineChartEventsWrapper, .tsi-lineChartStatesWrapper {
+        position: absolute;
+        pointer-events: none;
+        svg {
+            display: block;
+        }
+    }
+
+    .lineChartSVG {
+
+        .voronoiRect {
+            fill-opacity: 0;
+            cursor: crosshair;
+        }
+
+        .voronoi path {
+            fill: none;
+            pointer-events: all;
+            cursor: crosshair;
+        }
+
+        text {
+            font-size:12px;
+        }
+
+        path {
+            stroke-width: 2px;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            pointer-events: none;
+        }
+        circle {
+            stroke-width: 1px;
+            pointer-events: none;
+        }
+        .focusLine {
+            stroke-width: 1px !important;
+            pointer-events: none;
+        }
+
+        .valueLine {
+            stroke-width: 3px !important;
+        }
+
+        .gapLine {
+            stroke: grey !important;
+            stroke-width: 1px !important;
+        }
+    }
+}

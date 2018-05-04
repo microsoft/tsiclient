@@ -1,0 +1,102 @@
+@import "../../styles";
+
+@mixin hierarchyColors($grays){
+    $gray1: nth($grays, 1);
+    $gray2: nth($grays, 2); 
+    $gray4: nth($grays, 4); 
+    color: $gray1;
+    background: $gray4;
+    .tsi-navTabWrapper{
+        border-bottom: 1px solid $gray1;
+    }
+    .tsi-hierarchyList{
+        li{
+            span{
+                &:hover{
+                    cursor: pointer;
+                    text-decoration: underline;
+                }
+            }
+            &.tsi-selected{
+                background: $gray1;
+                color: $gray4;
+            }
+        }
+    }    
+    .tsi-navTab{
+        &.tsi-selected{
+            border-bottom: 2px solid $gray1;
+        }
+    }
+}   
+
+.tsi-hierarchy{
+    &.tsi-dark{
+        $grays: grays('dark');
+        @include hierarchyColors($grays);
+    }
+    &.tsi-light{
+        $grays: grays('light');
+        @include hierarchyColors($grays);
+    }
+
+    .tsi-filterWrapper{
+        padding: 12px;
+        padding-bottom: 4px;
+        input{
+            width: calc(100% - 12px);
+            padding: 4px;
+        }
+    }
+
+    .tsi-navTabWrapper{
+        .tsi-navTab{
+            border-bottom: 2px solid transparent;
+            display: inline-block;
+            margin: 0 12px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+    }
+
+    .tsi-hierarchyList{
+        ul{
+            list-style: none;
+            padding-left: 24px;
+            &.tsi-noPad{
+                padding: 8px;
+                margin: 0;
+                overflow: auto;
+                height: calc(100% - 68px);
+            }
+        }
+        li{
+            &:before{
+                content: '\25FF';
+                position: relative;
+                transform: rotate(-45deg);
+                display: inline-block;
+                margin-right: 6px;
+                font-size: 14px;
+                top: -1px;
+                cursor: pointer;
+            }
+            &.tsi-expanded{
+                &:before{
+                    content: '\25E2';
+                    transform: rotate(0deg);
+                    font-size: 12px;
+                    margin-left: 2px;
+                    cursor: pointer;
+                }
+            }
+            &.tsi-leaf{
+                font-weight: 600;
+                &:before{
+                    content: '\00B7 ';
+                    padding: 0 4px;
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,279 @@
+@import "../../styles";
+
+
+@mixin tableColors($grays){
+    $gray1: nth($grays, 1); // text
+    $gray2: nth($grays, 2); // hover
+    $gray3: nth($grays, 3); // element
+    $gray4: nth($grays, 4); // background
+
+    background-color: $gray3;
+    .tsi-eventsTable {
+        background-color: $gray3;
+        color: $gray1;
+        .tsi-eventRowsContainer {
+            .tsi-eventRows {
+                tr {
+                    &:hover {
+                        background-color: $gray2;
+                    } 
+                    td {
+                        border: 1px solid $gray1;
+                    }
+                }
+            }
+        }
+        .tsi-columnHeaders {
+            .tsi-columnHeader {
+                border-right: 1px solid $gray1;
+                border-bottom: 1px solid $gray1;
+                background-color: $gray4;
+                &:hover{
+                    background-color: $gray2;
+                }
+            }
+        }
+    }
+    .tsi-tableLegend {
+        border-right-color: $gray1;
+        background-color: $gray3;
+        .tsi-selectAllColumns {
+            .tsi-selectAllSomeState {
+                background-color: $gray1;
+            }
+        }
+
+
+        .tsi-columnToggle, .tsi-selectAllColumns {
+            color: $gray1;
+            &:hover {
+                background-color: $gray2; 
+            }
+        }
+    }
+}
+
+.tsi-tableComponent {
+    position: relative;
+	&.tsi-dark{
+		$grays: grays('dark');
+		@include tableColors($grays);
+	}
+	&.tsi-light{
+		$grays: grays('light');
+		@include tableColors($grays);
+    }
+
+    .tsi-columnTypeIcon {
+        width: 16px;
+        height: 16px;
+        pointer-events: none;
+        &.String {
+            background-image: url('../../Icons/abc.svg');
+        }
+        &.DateTime {
+            background-image: url('../../Icons/date.svg');
+        }
+        &.Double {
+            background-image: url('../../Icons/number.svg');
+        }
+    }
+    
+    .tsi-eventsTable {
+        position: absolute;
+        right: 0px;
+        top: 0px;
+        width: calc(100% - 250px);
+        height: 100%;
+        font-family: consolas;
+        font-size: 12px;
+
+        .tsi-columnHeaders {
+            overflow-x: hidden;
+            font-size: 14px;
+            white-space: nowrap;
+            position:absolute;
+            width: 100%;
+            top: 0px;
+            left: 0px;
+            z-index: 1;    
+            .tsi-columnHeader {
+                display: inline-block;
+                top: 0px;
+                height: 20px;
+                padding-left: 6px;
+                padding-right: 12px;
+                position:relative;
+                &:hover{
+                    cursor: pointer;
+                }
+                .tsi-columnHeaderName {
+                    display: inline-block;
+                    font-weight: bold;
+                }
+                .tsi-columnTypeIcon {
+                    display: inline-flex;
+                    vertical-align: bottom;
+                    margin-left: 6px;
+                }
+                .tsi-sortDirection {
+                    display: inline-block;
+                    margin-left: 6px;
+                    width: 10px;
+                    height: 10px;
+                    right: 5px;
+                    position: absolute;
+                }
+                .tsi-sortColumnButton {
+                    background-color: transparent;
+                    display: block;
+                    width: 100%;
+                    left: 0px;
+                    top: 0px;
+                    height: 100%;
+                    position: absolute;
+                    border: none;
+                    cursor: pointer;
+                }
+            }
+        }
+        .tsi-eventRowsContainer {
+            top: 0px;
+            overflow-y: scroll;
+            position: absolute;
+            left: 0px;
+            width: 100%;
+            height: 100%;
+            .tsi-eventRows {
+                margin-left: -1px;
+                white-space: nowrap; 
+                border-collapse: collapse;
+                position:absolute;
+                top: 0px;
+                left: 0px;
+                tr {
+                    height: 20px;
+                    td {
+                        min-width: 60px;
+                        padding-left: 5px;
+                        padding-right: 5px;
+                    }
+                }
+            }
+        }
+    }
+
+    .tsi-tableLegend {
+        overflow-y: scroll;
+        position: absolute;
+        left: 0px;
+        top: 0px;
+        width: 244px;
+        border-right-width: 1px;
+        border-right-style: solid;
+        height: 100%;
+        ul{
+            padding: 0;
+            margin: 8px;
+        }
+
+        .tsi-selectAllColumns {
+            .tsi-selectAllText {
+                left: 28px;
+                position: absolute;
+                pointer-events: none;
+                width: 124px;
+                text-overflow: ellipsis;
+                overflow: hidden;
+            }
+        }
+
+        .tsi-selectAllColumns {
+            margin-bottom: 8px !important;
+            .tsi-columnToggleName {
+                left: 24px !important;
+            }
+
+            .tsi-selectAllSomeState {
+                pointer-events: none;
+                position: absolute;
+                width: 9.5px;
+                height: 9.5px;
+                left: 7px;
+                top: 7px;
+            }
+        }
+
+        .tsi-columnToggle, .tsi-selectAllColumns {
+            height: 24px;
+            overflow: hidden;
+            list-style-type: none;
+            position: relative;
+            overflow-y: hidden;
+
+            .tsi-columnToggleName {
+                left: 20px;
+                position: relative;
+                pointer-events: none;
+                width: calc(100% - 88px);
+                text-overflow: ellipsis;
+                overflow: hidden;
+                display: inline-block;
+            }
+
+            &:hover{
+                .tsi-onlyLabel {
+                    display: block;
+                }
+            }
+
+            .tsi-columnToggleCheckbox {
+                pointer-events: none;
+                display: inline-block;
+                width: 16px;
+                height: 16px;
+                left: 4px;
+                bottom: 1px;
+                position: relative;
+                background-size: 16px 160px;
+                background-image: url('../../Icons/checkboxes.svg');
+            }
+
+            .tsi-columnTypeIcon {
+                display: inline-block;
+                bottom: 2px;
+                position: relative;
+                left: 12px;
+            }
+
+            .tsi-columnToggleButton {
+                z-index: 0;
+
+                .tsi-onlyLabel {
+                    display: none;
+                    opacity: .6;
+                    right: 4px;
+                    position: absolute;
+                    display: none;
+                    cursor: pointer;
+                    margin-top: -7px;
+                    font-size: 14px;
+                    &:hover {
+                        text-decoration: underline;
+                    }
+                }
+                &:hover {
+                    .tsi-onlyLabel {
+                        display: block !important;
+                    }
+                }
+                background-color: transparent;
+                width: 100%;
+                left: 0px;
+                height: 100%;
+                position: absolute;
+                border: none;
+            }
+        }
+    }
+}

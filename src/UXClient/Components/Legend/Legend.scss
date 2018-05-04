@@ -1,0 +1,199 @@
+@import "../../styles";
+
+@mixin legendColors($grays){
+	$gray1: nth($grays, 1); // text
+    $gray2: nth($grays, 2); // hover
+    $gray3: nth($grays, 3); // element
+    $gray4: nth($grays, 4); // background
+    $gray5: nth($grays, 5); // alt element
+	
+	color: $gray1;
+	fill: $gray1;
+	path {
+		stroke: $gray1;
+	}
+
+	border-right: 1px solid $gray1; 
+	.seriesLabel{
+		&:not(.shown) {
+			border: 1px solid $gray1;
+		}
+		.seriesNameLabel, .splitByLabel {
+			select {
+				background: $gray5;
+				color: $gray1;
+				fill: $gray1;
+			}			
+		}
+		.seriesNameLabel {
+			&.shown {
+				background-color: $gray3;
+				border-bottom: 1px solid $gray5;
+			}
+		}
+		.splitByLabel, .seriesNameLabel {
+			&:hover, &.inFocus {
+				background-color: $gray2;              
+			}
+		}						
+	}
+}
+
+.tsi-legend {
+	overflow-y: auto;
+	overflow-x: hidden;
+	height: 100%;
+	
+	&.tsi-dark{
+        $grays: grays('dark');
+        @include legendColors($grays);
+    }
+    &.tsi-light{
+        $grays: grays('light');
+        @include legendColors($grays);
+    }
+	
+	&.compact{
+		height: 40px !important;
+		width: 100% !important;
+		position: absolute;
+		overflow: visible;
+		display: flex;
+		justify-content: center;
+		border-right: none;
+		.seriesLabel, .eventSeriesLabel{
+			border: none;
+			padding: 0;
+			text-align: center;
+			margin: 4px;
+			&:not(.shown) {
+				border: none;
+			}
+			.seriesNameLabel{
+				display: none;
+			}
+			select{
+				display: none;
+			}
+			.splitByLabel{
+				display: inline-block;
+				margin: 0 4px;
+				padding: 0 4px 1px 4px;
+				border-radius: 3px;
+				.colorKey{
+					display: block;
+					position: absolute;
+					border-radius: 6px;
+					height: 12px;
+				}
+				h5{
+					max-width: 100px;
+					margin-left: 16px;
+					text-align: left;
+					width: initial;
+				}
+			}
+		}
+	}
+	
+	.seriesLabel, .eventSeriesLabel, .stateSeriesLabel {
+		border-width: 1px;
+		border-style: solid;
+		margin: 8px;
+		
+		.seriesNameLabel, .splitByLabel {
+			display:flex;
+
+			&:not(.shown) {
+				opacity:.3;
+			}
+			&.shown {
+				opacity:1;
+			}
+
+			h4, h5 {
+				text-overflow: ellipsis;
+				white-space: nowrap;
+				overflow: hidden;
+				margin-top:2px;
+				margin-bottom:2px;
+				cursor: pointer;
+				font-weight: 400;
+			}
+
+			h4 {
+				width: calc(100% - 70px);
+			}
+
+			h5 {
+				width:190px;
+				overflow-x:hidden;
+				text-overflow: ellipsis;
+				font-size: 12px;
+			}
+			select {
+				width:60px;
+				margin: 2px;
+				border: none;
+			}
+		}
+		.seriesNameLabel {
+			svg {
+				display: inline-block;
+			}
+			cursor: pointer;
+			padding: 4px;
+			position: relative;
+			select{
+				height: 17px;
+				width: 50px;
+				position: absolute;
+				right: 4px;
+				top: 6px;
+			}
+		}
+		.splitByLabel {
+			font-size: 12px;
+			padding: 2px 4px;
+
+			&.hidden {
+				height:0px;
+				display: none;
+				padding: 0;
+			}
+			
+			.colorKey {
+				width: 12px;
+				height: 10px;
+				margin-top: 5px;
+				margin-right: 6px;
+			}
+		}
+		.seriesTypeLabel {
+			margin: 0;
+			cursor: pointer;
+			font-weight: normal;
+			padding-left: 8px;
+			
+			&.disabled {
+				display: none;
+			}
+		}
+	}
+	.eventSeriesLabel, .stateSeriesLabel { 
+		&:not(.shown) {
+			opacity:.3;
+		}
+		&.shown {
+			opacity:1;
+		}
+
+		.seriesNameLabel {
+			opacity: 1 !important;
+			h4 {
+				width: 100% !important;
+			}
+		}
+	}
+	
+}

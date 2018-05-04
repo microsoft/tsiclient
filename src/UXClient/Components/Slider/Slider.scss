@@ -1,0 +1,59 @@
+@import "../../styles";
+
+@mixin sliderColors($grays){
+	$gray1: nth($grays, 1); // text
+    $gray4: nth($grays, 4); // text
+    
+   
+    .tsi-sliderTrack {
+        stroke: $gray1;
+    }
+
+	.tsi-sliderLine{
+		border-bottom: 1px solid $gray1;
+    }
+
+    .tsi-sliderHandle{
+        fill: $gray1;	
+    }
+
+    .tsi-sliderLabel {
+        background: $gray4;
+        color: $gray1;
+    }
+}
+
+.tsi-sliderComponent {
+    position: absolute;
+    height: 55px;
+    bottom: 0px;
+    right: 0px;
+
+	&.tsi-dark{
+		$grays: grays('dark');
+		@include sliderColors($grays);
+	}
+	&.tsi-light{
+		$grays: grays('light');
+		@include sliderColors($grays);
+    }
+    
+    .tsi-sliderG {
+        .tsi-sliderTrack {
+            stroke-width: 1px;
+        }
+        .tsi-sliderTrackOverlay {
+            pointer-events: stroke;
+            stroke-width: 50px;
+            stroke: transparent;
+            cursor: pointer;
+        }
+    }
+}
+
+.tsi-sliderLabel {
+    position: absolute;
+    bottom: 5px;
+    right: 0px;
+    font-size: 11px;
+}
