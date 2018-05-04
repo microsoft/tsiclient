@@ -135,6 +135,12 @@
                 <div id="chart17" style="flex-shrink: 1; height: 100%; width: 90%; border: 1px solid silver;"></div>
             </div>
 
+            <div class="rowOfCardsTitle">A Table of Events</div>
+            <div class="rowOfCards">
+                <div id="chart18" style="flex-shrink: 1; height: 100%; width: 90%; border: 1px solid silver;"></div>
+            </div>
+
+
         </div>
         
     <script type="text/javascript">
@@ -571,6 +577,27 @@
                 heatmap.render(transformedResult, {timestamp: '2017-04-15T13:00:00Z', theme: "dark"}, aggregateExpressions11);
             });
         });
+
+        // Example 18 Events Table
+
+        var startDate4 = new Date('2017-04-15T13:00:00Z');
+        var endDate6 = new Date(startDate4.valueOf() + 1000*60*60*5);
+
+        authContext.getTsiToken().then(function(token){
+            tsiClient.server.getEvents(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com', 
+                                        {predicateString: "Factory = 'Factory1'"},  {}, startDate4.valueOf(), 
+                                       endDate6.valueOf(), function (events) {
+                var transformedEvents = tsiClient.ux.transformTSXToEventsArray (events, {});
+                var eventsTable = tsiClient.ux.EventsTable(document.getElementById('chart18'));
+                eventsTable.render(transformedEvents, {theme: 'light'}, true);
+            });
+            // tsiClient.server.getAggregates(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com', aggregateExpressions11.map(function(ae){return ae.toTsx()})).then(function(result){
+            //     var transformedResult = tsiClient.ux.transformAggregatesForVisualization(result, aggregateExpressions11);
+            //     var heatmap = new tsiClient.ux.Heatmap(document.getElementById('chart17'));
+            //     heatmap.render(transformedResult, {timestamp: '2017-04-15T13:00:00Z', theme: "dark"}, aggregateExpressions11);
+            // });
+        });
+
     </script>
 </body>
 </html>
