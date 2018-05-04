@@ -1,0 +1,53 @@
+@import "../../styles";
+
+@mixin pcColors($grays){
+    $gray1: nth($grays, 1); // text
+    $gray2: nth($grays, 2); // hover
+    $gray3: nth($grays, 3); // element
+    $gray4: nth($grays, 4); // background
+    
+    color: $gray1;
+    background: $gray4;
+
+    .tsi-pieChartSVG{
+        text{
+            fill: $gray1;
+        }
+
+        path {
+            stroke: $gray1;
+        }
+    }
+    @include chartColors($grays);
+}
+
+
+.tsi-pieChart {
+
+    &.tsi-dark{
+        $grays: grays('dark');
+        @include pcColors($grays);
+    }
+    &.tsi-light{
+        $grays: grays('light');
+        @include pcColors($grays);
+    }
+
+    display: flex;
+    position: relative;
+
+    .tsi-sliderWrapper{
+        opacity: .4;
+        width: calc(100% - 500px);
+        position: absolute;
+        bottom: 4px;
+        height: 50px;
+        right: 100px;
+        &.tsi-legendCompact{
+            width: calc(100% - 200px);
+        }
+        &:hover{
+            opacity: 1;
+        }
+    }
+}

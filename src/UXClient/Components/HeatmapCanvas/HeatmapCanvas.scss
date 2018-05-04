@@ -1,0 +1,61 @@
+@import "../../styles";
+
+@mixin hmcColors($grays){
+    $gray1: nth($grays, 1); // text
+    $gray2: nth($grays, 2); // hover
+    $gray3: nth($grays, 3); // element
+    $gray4: nth($grays, 4); // background
+    
+    color: $gray1;
+    background: $gray4;
+    @include chartColors($grays);
+
+    .tsi-heatmapCanvas {
+        background-color: $gray4;
+    }
+    .tsi-heatmapColorLegend {
+        .highlightedValueLine {
+            stroke: $gray1;
+        }
+
+        text {
+            fill: $gray1;
+        }
+    }
+}
+
+.tsi-heatmapCanvasWrapper {
+    overflow: visible;
+    &.tsi-dark{
+        $grays: grays('dark');
+        @include hmcColors($grays);
+    }
+    &.tsi-light{
+        $grays: grays('light');
+        @include hmcColors($grays);
+    }
+    .tsi-heatmapColorLegend {
+        top: 0px;
+        position: absolute;
+        overflow: visible;
+
+        text {
+            font-size: 11px;
+            text-anchor: end;
+            dominant-baseline: middle;
+            stroke: none;
+        }
+
+        .highlightedValueLine {
+            fill: none;
+            stroke-width: 2px;
+            pointer-events: none;
+        }
+
+        .highlightedValueText {
+            font-size: 12px;
+        }
+    }
+}
+
+

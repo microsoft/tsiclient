@@ -1,0 +1,68 @@
+@import "../../styles";
+
+@mixin bcColors($grays){
+    $gray1: nth($grays, 1);
+    $gray2: nth($grays, 2); 
+    $gray3: nth($grays, 3); 
+    $gray4: nth($grays, 4); 
+    
+    text {
+        fill: $gray1;
+    }    
+    color: $gray1;
+    background: $gray4;
+    .tsi-barChartSVG {
+        .tsi-baseLine{
+            stroke: $gray1;
+        }
+        .focusLine {
+            stroke: $gray2;
+        }
+        .aggregateLabelBox{
+            fill: $gray3;
+        }        
+    }    
+    @include chartColors($grays);
+}
+
+.tsi-barChart {
+    
+    &.tsi-dark{
+        $grays: grays('dark');
+        @include bcColors($grays);
+    }
+    &.tsi-light{
+        $grays: grays('light');
+        @include bcColors($grays);
+    }
+    
+    .tsi-barChartSliderWrapper{
+        opacity: .4;
+        width: calc(100% - 500px);
+        position: absolute;
+        bottom: 4px;
+        height: 50px;
+        right: 100px;
+        &.tsi-legendCompact{
+            width: calc(100% - 200px);
+        }
+        &:hover{
+            opacity: 1;
+        }
+    }
+    text {
+        font-size:12px;
+    }
+    display: flex;
+    position: relative;
+    .tsi-barChartSVG {
+        .valueElement {
+            cursor: pointer;
+            stroke: none;
+        }
+        .focusLine {
+            stroke-width: 1px;
+            pointer-events: none;
+        }
+    }
+}

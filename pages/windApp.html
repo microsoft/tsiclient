@@ -1,0 +1,170 @@
+
+<!DOCTYPE html> 
+<html><head>
+    <title>Time Series Insights Sample App</title>
+    <meta charset="utf-8">
+    <meta http-equiv="cache-control" content="no-cache" />
+
+    <link rel="stylesheet" href="https://atlas.microsoft.com/sdk/css/atlas.min.css?api-version=1.0" type="text/css" />
+    <script src="https://atlas.microsoft.com/sdk/js/atlas.min.js?api-version=1.0"></script>
+
+
+    <script src="https://secure.aadcdn.microsoftonline-p.com/lib/1.0.11/js/adal.min.js"></script>
+    
+    <!--bluebird for Promise polyfill to support IE in sample client-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bluebird/3.3.4/bluebird.min.js"></script>    
+
+    <!-- PROD RESOURCE LINKS -->
+    <!-- <script src="windApp.js" defer></script>
+    <link rel="stylesheet" type="text/css" href="sampleStyles.css"></link>
+    <link rel="stylesheet" type="text/css" href="windApp.css"></link>
+    <script src="https://unpkg.com/tsiclient@1.1.4/tsiclient.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://unpkg.com/tsiclient@1.1.4/tsiclient.css"></link> -->
+
+
+    <!-- DEV RESOURCE LINKS -->
+    <script src="pages/windApp.js" defer></script>
+    <link rel="stylesheet" type="text/css" href="pages/sampleStyles.css"></link>
+    <link rel="stylesheet" type="text/css" href="pages/windApp.css"></link>
+    <script src="dist/tsiclient.js"></script>
+    <link rel="stylesheet" type="text/css" href="dist/tsiclient.css"></link>
+    
+</head>
+<body>
+    <div id="loginModal" style="display: none">
+        <div>
+            <span id="api_response"></span>
+            <a href="#" onclick="authContext.login(); return false;">Log in</a>
+        </div>
+    </div>
+    <div style="height: 100%; position: absolute; top: 0; width: 100%;">
+        <div class="header">
+            <img src="http://cdn.marketplaceimages.windowsphone.com/v8/images/6e04c950-e28a-46fc-bc83-fe244d8a9de9?imageType=ws_icon_large" />
+            <span>Contoso Wind</span>
+            <pre id="api_response2"></pre>
+            <div class="rightSide">
+                <div id="username"></div>
+                <div class="loginLogout">
+                    <p>
+                        <a href="#" onclick="authContext.logOut(); return false;">Log out</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+       
+        <div class="chartsWrapper">
+            
+            <div class="rowOfCards" style="padding: 0; margin: 0; height: 100%; border-bottom: none;">
+                <div style="flex-shrink: 1; height: 100%; width: 30%; border: none; border-right: 1px solid silver; padding-right: 40px;">
+                    <div class="rowOfCardsTitle">Overview</div>
+                    <div class="card mapCard" id="windmillMap" style="height: 50%; width: 100%; border: 1px solid silver;"></div>
+                    <div class="card" style="height: calc(44% - 80px); width: 100%; border: 1px solid silver; margin-top: 5%;">
+                        <div class="cardTitle">Total Output by Windmill, Last 7 Days</div>
+                        <div class="cardChart" id="chart0" ></div>
+                    </div>
+                </div>  
+                <div style="width: calc(70% - 100px)">
+                    <div id="windmillTitle" class="rowOfCardsTitle">Click a windmill in the map to explore</div>
+
+<!-- Process Graphic -->
+                    <div id="windmillCharts1" style="flex-shrink: 1; width: 40%; float: left; display: none; height: calc(100% - 80px)">
+                        <div class="card pgCard" style="height: calc(100% - 20px); width: 100%;">
+                            <div class="cardTitle">Current Values</div>
+                            <div class="cardChart" id="chart1">
+                                <img src="//cdn.onlinewebfonts.com/svg/img_450570.png" />
+                                <div class="measurement ws">
+                                    <div class="measurementTitle">Wind Speed (m/s)</div>
+                                    <div class="measurementValue wsv"></div>
+                                </div>
+                                <div class="measurement rs">
+                                    <div class="measurementTitle">Rotor RPM</div>
+                                    <div class="measurementValue rsv"></div>
+                                </div>
+                                <div class="measurement gp">
+                                    <div class="measurementTitle">Grid Power (kW)</div>
+                                    <div class="measurementValue gpv"></div>
+                                </div>
+                            </div>
+                        </div>  
+                    </div>
+<!--End Process Graphic -->
+
+                    <div id="windmillCharts2" class="card visCard" style="flex-shrink: 1; width: 55%; border: none; height: calc(100% - 80px); float: right; display: none;">
+                        <div class="card" style="width: 100%; height: 45%;">
+                            <div class="cardTitle">Ambient Values, Last 24h
+                            </div>
+                            <div class="cardChart" id="chart2"></div>
+                        </div>
+                        <div class="card" style="width: 100%; margin-top: 5%; height: 45%;">
+                                <div class="cardTitle">Output, Last 24h
+                                    <a id="tsilink" style="margin: 0 40px;" target="_blank">View in TSI Explorer</a>
+                                </div>
+                                <div class="cardChart" id="chart3"></div>
+                        </div>
+                    </div>       
+                </div>
+            </div>
+        </div>
+        
+    <script type="text/javascript">
+        
+        // START: AUTHENTICATION RELATED CODE USING ADAL.JS
+            // Set up ADAL
+            var authContext = new AuthenticationContext({
+                clientId: 'b54d43ab-4c7d-41cc-bea4-f39016158011',
+                postLogoutRedirectUri: 'https://tsiclientsample.azurewebsites.net',
+                cacheLocation: 'localStorage'
+            });
+            
+            if (authContext.isCallback(window.location.hash)) {
+            
+                // Handle redirect after token requests
+                authContext.handleWindowCallback();
+                var err = authContext.getLoginError();
+                if (err) {
+                    // TODO: Handle errors signing in and getting tokens
+                    document.getElementById('api_response').textContent = err;
+                    document.getElementById('loginModal').style.display = "block";
+                }
+            
+            } else {
+                var user = authContext.getCachedUser();
+                if (user) {
+                    document.getElementById('username').textContent = user.userName;
+                    
+                } else {
+                    document.getElementById('username').textContent = 'Not signed in.';
+                }
+            }
+            
+            authContext.getTsiToken = function(){
+                document.getElementById('api_response2').textContent = 'Getting tsi token...';
+                
+                // Get an access token to the Microsoft TSI API
+                var promise = new Promise(function(resolve,reject){
+                    authContext.acquireToken(
+                    'https://api.timeseries.azure.com/',
+                    function (error, token) {
+            
+                        if (error || !token) {
+                            // TODO: Handle error obtaining access token
+                            document.getElementById('api_response').textContent = error;
+                            document.getElementById('loginModal').style.display = "block";
+                            document.getElementById('api_response2').textContent = '';
+                            return;
+                        }
+            
+                        // Use the access token
+                        document.getElementById('api_response').textContent = '';
+                        document.getElementById('api_response2').textContent = '';
+                        document.getElementById('loginModal').style.display = "none";
+                        resolve(token);
+                        }
+                    );
+                });
+                
+                return promise;
+            }
+        </script>
+    </body>
+</html>

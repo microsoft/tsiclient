@@ -1,0 +1,74 @@
+@import "../../styles";
+
+@mixin hmColors($grays){
+    $gray1: nth($grays, 1); // text
+    $gray2: nth($grays, 2); // hover
+    $gray3: nth($grays, 3); // element
+    $gray4: nth($grays, 4); // background
+    
+    color: $gray1;
+    background: $gray4;
+    @include chartColors($grays);
+
+    .tsi-heatmapWrapper {
+        .tsi-heatmapTimeLabels {
+            stroke: $gray1;
+            .tsi-heatmapTimeLabelTextBox {
+                text {
+                    fill: $gray1 !important;
+                    stroke: none;
+                    font-size: 11px;
+                }
+                rect {
+                    fill: $gray4 !important;
+                }
+            }
+        }
+    }
+}
+.tsi-heatmapComponent {
+
+    svg {
+        shape-rendering: crispEdges;
+    }
+
+    &.tsi-dark{
+        $grays: grays('dark');
+        @include hmColors($grays);
+    }
+    &.tsi-light{
+        $grays: grays('light');
+        @include hmColors($grays);
+    }
+
+    .tsi-heatmapWrapper {
+        height: calc(100% - 10px);
+        position: absolute;
+        right: 0px;
+        top: 10px;
+        overflow: visible;
+    
+        .tsi-heatmapTimeLabels {
+            width: calc(100% - 2px);
+            height: 100%;
+            pointer-events: none;
+            position: absolute;
+            bottom: 0px;
+            left: 02px;
+    
+            .tsi-heatmapFocusLine {
+                stroke-width: 1px;
+            }
+
+            .tsi-heatmapTimeLabelTextBox {
+                text-anchor: middle;
+            }
+        }
+    
+        .tsi-heatmapCanvasWrapper {
+            left: 2px;
+            width: calc(100% - 2px);
+            position: absolute;
+        }
+    }
+}
