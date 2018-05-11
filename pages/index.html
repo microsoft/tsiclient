@@ -1,4 +1,3 @@
-
 <!DOCTYPE html> 
 <html><head>
     <title>Time Series Insights Sample App</title>
@@ -586,16 +585,11 @@
         authContext.getTsiToken().then(function(token){
             tsiClient.server.getEvents(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com', 
                                         {predicateString: "Factory = 'Factory1'"},  {}, startDate4.valueOf(), 
-                                       endDate6.valueOf(), function (events) {
+                                       endDate6.valueOf()).then(function (events) {
                 var transformedEvents = tsiClient.ux.transformTSXToEventsArray (events, {});
                 var eventsTable = tsiClient.ux.EventsTable(document.getElementById('chart18'));
                 eventsTable.render(transformedEvents, {theme: 'light'}, true);
             });
-            // tsiClient.server.getAggregates(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com', aggregateExpressions11.map(function(ae){return ae.toTsx()})).then(function(result){
-            //     var transformedResult = tsiClient.ux.transformAggregatesForVisualization(result, aggregateExpressions11);
-            //     var heatmap = new tsiClient.ux.Heatmap(document.getElementById('chart17'));
-            //     heatmap.render(transformedResult, {timestamp: '2017-04-15T13:00:00Z', theme: "dark"}, aggregateExpressions11);
-            // });
         });
 
     </script>
