@@ -73,31 +73,36 @@ class ServerClient {
         });        
     }
 
-    public getEvents(token: string, environmentFqdn: string, predicateObject,  options: any, minMillis, maxMillis, callBack) {
+    public getEvents(token: string, environmentFqdn: string, predicateObject,  options: any, minMillis, maxMillis) {
         var timezoneOffset = 0;
         var receivedNoData = false;
 
-        var xhr = new XMLHttpRequest();
-        xhr.onreadystatechange = () => {
-           if(xhr.readyState != 4) return;
-                
-            if(xhr.status == 200){
-                var message = JSON.parse(xhr.responseText);
-                callBack(message.events);
-                return;
+        return new Promise((resolve: any, reject: any) => {
+            var xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = () => {
+                if(xhr.readyState != 4) return;
+                    
+                if(xhr.status == 200){
+                    if (xhr.responseText.length == 0)
+                        resolve({}); 
+                    else {
+                        var message = JSON.parse(xhr.responseText);
+                        resolve(message.events);
+                    }
+                }
             }
-        }
 
-        var uri = 'https://' + environmentFqdn + '/events' + this.apiVersionUrlParam;
-        xhr.open('POST', uri);
-        var take = 10000;
-        var searchSpan = { from: new Date(minMillis).toISOString(), to: new Date(maxMillis).toISOString() };
+            var uri = 'https://' + environmentFqdn + '/events' + this.apiVersionUrlParam;
+            xhr.open('POST', uri);
+            var take = 10000;
+            var searchSpan = { from: new Date(minMillis).toISOString(), to: new Date(maxMillis).toISOString() };
 
-        xhr.setRequestHeader('Authorization', 'Bearer ' + token);
-        var messageObject = {};
-        var topObject = { sort: [{ input: { builtInProperty: '$ts' }, order: 'Asc' }], count: take };
-        messageObject= { predicate: predicateObject, top: topObject, searchSpan: searchSpan };
-        xhr.send(JSON.stringify(messageObject));
+            xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+            var messageObject = {};
+            var topObject = { sort: [{ input: { builtInProperty: '$ts' }, order: 'Asc' }], count: take };
+            messageObject= { predicate: predicateObject, top: topObject, searchSpan: searchSpan };
+            xhr.send(JSON.stringify(messageObject));
+        });
     }
 
 }
