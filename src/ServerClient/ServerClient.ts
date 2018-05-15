@@ -73,6 +73,28 @@ class ServerClient {
         });        
     }
 
+    public getAvailability(token: string, environmentFqdn: string) {
+        return new Promise((resolve: any, reject: any) => {
+            var xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = () => {
+                if(xhr.readyState != 4) return;
+                    
+                if(xhr.status == 200){
+                    if (xhr.responseText.length == 0)
+                        resolve({}); 
+                    else {
+                        var message = JSON.parse(xhr.responseText);
+                        resolve(message);
+                    }
+                }
+            }
+            var uri = 'https://' + environmentFqdn + '/availability' + this.apiVersionUrlParam;
+            xhr.open('GET', uri);
+            xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+            xhr.send({});
+        });
+    }
+
     public getEvents(token: string, environmentFqdn: string, predicateObject,  options: any, minMillis, maxMillis) {
         var timezoneOffset = 0;
         var receivedNoData = false;
