@@ -72,104 +72,37 @@ class ServerClient {
             getDatasetBatch(resolve);
         });        
     }
-    
-    public destroyWebSocket (webSocket: WebSocket, shouldCancel: boolean): void {
-        if (webSocket != null) {
-            webSocket.onerror = null;
-            webSocket.onmessage = null;
-            if (webSocket.readyState === webSocket.OPEN && shouldCancel) {
-                webSocket.send('{ "command" : "cancel" }');
-            }
-            webSocket.close();
-            webSocket.onclose = null;
-            console.log("WebSocket: cancelling and closing previous connection");
-            webSocket = null;
-        }
-    }
 
-    private nukeContent() {
-
-    }
-
-    private sortColumnNameAndType(t = null) {
-        return 0;
-    }
-
-    public getEvents(token: string, environmentFqdn: string, predicateObject,  options: any, minMillis, maxMillis, callBack) {
-        this.streamEvents(predicateObject, minMillis, maxMillis, 10000, environmentFqdn, token, callBack);
-    }
-
-    public stripForConcat(text) {
-        var specialCharacters = ['"', "'", '?', '<', '>', ';'];
-        specialCharacters.forEach(c => { text = text.split(c).join('') });
-        return text;
-    }
-
-    // streams events to grid
-    private streamEvents(predicateObject : any, minMillis: number, maxMillis: number, take: number, 
-                         environmentFqdn: string, token, callBack): void {
-        //TODO turn this into an option
+    public getEvents(token: string, environmentFqdn: string, predicateObject,  options: any, minMillis, maxMillis) {
         var timezoneOffset = 0;
-        var progressPercentage = 0;
-        var startStreamMs;
-        var rows = [];
+        var receivedNoData = false;
 
-        this.destroyWebSocket(this.eventsWebsocket, true);
-        var uri = 'wss://' + environmentFqdn + '/events' + this.apiVersionUrlParam;
-        this.eventsWebsocket = new WebSocket(uri);
-        this.nukeContent();
-        this.sortColumnNameAndType('timestamp');
-        var sortAscending = true;
-        var isFirstPacket = true;
-
-        this.eventsWebsocket.onclose = e => {
-        }
-
-        this.eventsWebsocket.onerror = e => {
-            isFirstPacket = false;
-            progressPercentage = 100;
-        }
-
-        // parses response for rows
-        this.eventsWebsocket.onmessage = e => {
-
-            var message = JSON.parse(e.data ? e.data : false);
-            if (message && message.content) {
-                if (isFirstPacket) {
-                    isFirstPacket = false;
+        return new Promise((resolve: any, reject: any) => {
+            var xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = () => {
+                if(xhr.readyState != 4) return;
+                    
+                if(xhr.status == 200){
+                    if (xhr.responseText.length == 0)
+                        resolve({}); 
+                    else {
+                        var message = JSON.parse(xhr.responseText);
+                        resolve(message.events);
+                    }
                 }
-                var events = message.content.events;
-                progressPercentage = Math.max(1, Math.floor(1.0 * rows.length / take * 100));
-                if (message.percentCompleted) {
-                    progressPercentage = message.percentCompleted;
-                }
-
-                if (message.percentCompleted ? message.percentCompleted == 100 : false) {
-                    var firstText = events.length == take ? 'First ' : '';
-                    this.destroyWebSocket(this.eventsWebsocket, false);
-                    callBack(events);
-                }
-            } else {
-                progressPercentage = 100;
-                this.destroyWebSocket(this.eventsWebsocket, false);
             }
-        }
 
-        // constructs selection and opens the websocket to stream events
-        this.eventsWebsocket.onopen = () => {
+            var uri = 'https://' + environmentFqdn + '/events' + this.apiVersionUrlParam;
+            xhr.open('POST', uri);
+            var take = 10000;
+            var searchSpan = { from: new Date(minMillis).toISOString(), to: new Date(maxMillis).toISOString() };
 
-            var smallerSearchSpan = { from: new Date(minMillis).toISOString(), to: new Date(maxMillis).toISOString() };
-
-            // log this event
-            startStreamMs = (new Date()).valueOf();
-            isFirstPacket = true;
-           
+            xhr.setRequestHeader('Authorization', 'Bearer ' + token);
             var messageObject = {};
             var topObject = { sort: [{ input: { builtInProperty: '$ts' }, order: 'Asc' }], count: take };
-            messageObject['headers'] = { 'Authorization': 'Bearer ' + token }; 
-            messageObject['content'] = { predicate: predicateObject, top: topObject, searchSpan: smallerSearchSpan };
-            this.eventsWebsocket.send(JSON.stringify(messageObject));
-        }
+            messageObject= { predicate: predicateObject, top: topObject, searchSpan: searchSpan };
+            xhr.send(JSON.stringify(messageObject));
+        });
     }
 
 }
