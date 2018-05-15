@@ -121,6 +121,23 @@ class UXClient {
         return rows;
     }
     
+    public transformAvailabilityForVisualization(availabilityTSX: any, maxBuckets: number, options): Array<any> {
+        var result = [];
+        var from = new Date(availabilityTSX.range.from);
+        var to =  new Date(availabilityTSX.range.to);
+        var rawBucketSize = Utils.parseTimeInput(availabilityTSX.intervalSize);
+        var rawBucketNumber = (from.valueOf() - to.valueOf()) / rawBucketSize;
+        var sizePerBucket;
+        if (rawBucketNumber < maxBuckets)
+            sizePerBucket = rawBucketSize;
+        else 
+            sizePerBucket = Math.ceil(rawBucketNumber / maxBuckets) * rawBucketSize;
+
+        var startDate = from.toISOString()
+
+        return result;
+    }
+
     public transformAggregatesForVisualization(aggregates: Array<any>, options): Array<any> {
         var result = [];
         aggregates.forEach((agg, i) => {
