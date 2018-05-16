@@ -6,6 +6,26 @@ class ServerClient {
     
     Server () {
     }
+
+    private createPromiseFromXhr (uri, httpMethod, payload, token, responseTextFormat) {
+        return new Promise((resolve: any, reject: any) => {
+            var xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = () => {
+                if(xhr.readyState != 4) return;
+                    
+                if(xhr.status == 200){
+                    if (xhr.responseText.length == 0)
+                        resolve({}); 
+                    else {
+                        resolve(responseTextFormat(xhr.responseText));
+                    }
+                }
+            }
+            xhr.open(httpMethod, uri);
+            xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+            xhr.send(payload);
+        });
+    }
  
     public getAggregates(token: string, uri: string, tsxArray: Array<any>, options: any) {
 
@@ -42,8 +62,6 @@ class ServerClient {
 
     public getReferenceDatasetRows(token: string, environmentFqdn: string, datasetId: string) {
         var rows = [];
-        var receivedNoData = false;
-
         var getDatasetBatch = (resolve, continuationToken: string = null) => {
             var xhr = new XMLHttpRequest();
             xhr.onreadystatechange = () => {
@@ -73,36 +91,31 @@ class ServerClient {
         });        
     }
 
+    public getEnvironments(token: string, environmentFqdn){
+        var uri = 'https://api.timeseries.azure.com/environments' + this.apiVersionUrlParam;
+        return this.createPromiseFromXhr(uri, "GET", {}, token, (responseText) => {return JSON.parse(responseText);});
+    }
+
+    public getMetadata(token: string, environmentFqdn: string, minMillis: number, maxMillis: number) {
+        var uri = 'https://' + environmentFqdn + '/metadata' + this.apiVersionUrlParam;
+        var searchSpan = {searchSpan: { from: new Date(minMillis).toISOString(), to: new Date(maxMillis).toISOString() }};
+        var payload = JSON.stringify(searchSpan);
+        return this.createPromiseFromXhr(uri, "POST", payload, token, (responseText) => {return JSON.parse(responseText).properties;});
+    }
+
+    public getAvailability(token: string, environmentFqdn: string) {
+        var uri = 'https://' + environmentFqdn + '/availability' + this.apiVersionUrlParam;
+        return this.createPromiseFromXhr(uri, "GET", {}, token, (responseText) => {return JSON.parse(responseText);});
+    }
+
     public getEvents(token: string, environmentFqdn: string, predicateObject,  options: any, minMillis, maxMillis) {
-        var timezoneOffset = 0;
-        var receivedNoData = false;
-
-        return new Promise((resolve: any, reject: any) => {
-            var xhr = new XMLHttpRequest();
-            xhr.onreadystatechange = () => {
-                if(xhr.readyState != 4) return;
-                    
-                if(xhr.status == 200){
-                    if (xhr.responseText.length == 0)
-                        resolve({}); 
-                    else {
-                        var message = JSON.parse(xhr.responseText);
-                        resolve(message.events);
-                    }
-                }
-            }
-
-            var uri = 'https://' + environmentFqdn + '/events' + this.apiVersionUrlParam;
-            xhr.open('POST', uri);
-            var take = 10000;
-            var searchSpan = { from: new Date(minMillis).toISOString(), to: new Date(maxMillis).toISOString() };
-
-            xhr.setRequestHeader('Authorization', 'Bearer ' + token);
-            var messageObject = {};
-            var topObject = { sort: [{ input: { builtInProperty: '$ts' }, order: 'Asc' }], count: take };
-            messageObject= { predicate: predicateObject, top: topObject, searchSpan: searchSpan };
-            xhr.send(JSON.stringify(messageObject));
-        });
+        var uri = 'https://' + environmentFqdn + '/events' + this.apiVersionUrlParam;
+        var take = 10000;
+        var searchSpan = { from: new Date(minMillis).toISOString(), to: new Date(maxMillis).toISOString() };
+        var topObject = { sort: [{ input: { builtInProperty: '$ts' }, order: 'Asc' }], count: take };
+        var messageObject= { predicate: predicateObject, top: topObject, searchSpan: searchSpan };
+        var payload = JSON.stringify(messageObject);
+        return this.createPromiseFromXhr(uri, "POST", payload, token, (responseText) => {return JSON.parse(responseText).events;});
     }
 
 }

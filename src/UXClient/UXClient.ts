@@ -121,6 +121,49 @@ class UXClient {
         return rows;
     }
     
+    public transformAvailabilityForVisualization(availabilityTSX: any, maxBuckets: number, options): Array<any> {
+        var result = [];
+        var from = new Date(availabilityTSX.range.from);
+        var to =  new Date(availabilityTSX.range.to);
+        var rawBucketSize = Utils.parseTimeInput(availabilityTSX.intervalSize);
+        var rawBucketNumber = (to.valueOf() - from.valueOf()) / rawBucketSize;
+        var sizePerBucket;
+        if (rawBucketNumber < maxBuckets)
+            sizePerBucket = rawBucketSize;
+        else 
+            sizePerBucket = Math.ceil(rawBucketNumber / maxBuckets) * rawBucketSize;
+
+        // pair of dates and values
+        var sortedKeys = Object.keys(availabilityTSX.distribution).sort((a, b) => {
+            const valueOfA = (new Date(a)).valueOf();
+            const valueOfB = (new Date(b)).valueOf();
+            if (valueOfA < valueOfB) 
+                return -1;
+            if (valueOfA > valueOfB)
+                return 1;
+            return 0;
+        });
+
+        var buckets = {};
+        for (var i = from.valueOf(); i <= to.valueOf(); i += sizePerBucket) {
+            buckets[(new Date(i)).toISOString()] = {count: 0};
+        }
+
+        sortedKeys.forEach(key => {
+            var formattedISO = (new Date(key)).toISOString();
+            if (buckets[formattedISO] != null) 
+                buckets[formattedISO].count += availabilityTSX.distribution[key];
+            else {
+                var offset = ((new Date(key)).valueOf() - from.valueOf()) % sizePerBucket;
+                var roundedTime = new Date((new Date(key)).valueOf() - offset);
+                buckets[roundedTime.toISOString()].count += availabilityTSX.distribution[key];
+            }
+        });
+        return [{"availabilityCount" : {"" : buckets}}];
+    }
+
+
+
     public transformAggregatesForVisualization(aggregates: Array<any>, options): Array<any> {
         var result = [];
         aggregates.forEach((agg, i) => {
