@@ -26,6 +26,12 @@
             font-weight: lighter !important;
             fill: $gray1 !important;
         }
+
+        .xAxis {
+            .xAxisBaseline {
+                stroke: $gray1;
+            }
+        }
     }
     @include chartColors($grays);
 }

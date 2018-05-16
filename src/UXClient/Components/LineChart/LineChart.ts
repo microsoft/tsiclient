@@ -222,8 +222,9 @@ class LineChart extends ChartComponent {
                 this.svgSelection.selectAll('.valueElement').style("visibility", "hidden");
                 this.svgSelection.selectAll(".yAxis").style("visibility", "hidden");    
 
+                var xOffset = 8;
                 var x = d3.scaleTime()
-                            .rangeRound([0, chartWidth]);
+                            .rangeRound([xOffset, chartWidth - (2 * xOffset)]);
         
                 var y = d3.scaleLinear()
                         .range([chartHeight, 20]);
@@ -233,9 +234,10 @@ class LineChart extends ChartComponent {
                 var xExtent: any = (this.chartComponentData.allValues.length != 0) ? d3.extent(this.chartComponentData.allValues, (d: any) => d.dateTime) : [0,1];
                 var timeSet = d3.set(this.chartComponentData.allValues, (d: any) => d.dateTime);
                 var xRange = (this.chartComponentData.allValues.length != 0) ? Math.max(2, (xExtent[1].valueOf() - xExtent[0].valueOf())) : 2;
-                var xOffsetPercentage = Math.min(.5, 10 / chartWidth);
-                x.domain([new Date(xExtent[0].valueOf() - (xRange * xOffsetPercentage)), 
-                        new Date(xExtent[1].valueOf() + (xRange * xOffsetPercentage))]);
+                var xOffsetPercentage = xOffset / chartWidth;
+                x.domain([xExtent[0], xExtent[1]]);
+                var xLowerBound = x(xExtent[0]);
+                var xUpperBound = x(xExtent[1]);
 
                 var timeSet = d3.set(this.chartComponentData.allValues, (d: any) => d.dateTime);
                 var possibleTimesArray = timeSet.values().sort().map((ts: string) => {
@@ -251,8 +253,8 @@ class LineChart extends ChartComponent {
 
                 if (brush) {
                     brush.call(d3.brushX()
-                        .extent([[xOffsetPercentage * chartWidth, 20], 
-                                 [chartWidth - (xOffsetPercentage * chartWidth), chartHeight]])
+                        .extent([[xLowerBound, 20], 
+                                 [xUpperBound, chartHeight]])
                         .on("end", function () {
                             if (!d3.event.sourceEvent) return; 
                             if (!d3.event.selection) return; 
@@ -313,19 +315,25 @@ class LineChart extends ChartComponent {
                     
                     var xAxis: any = g.selectAll(".xAxis").data([x]);
         
-                    xAxis.enter()
+                    var xAxisEntered = xAxis.enter()
                         .append("g")
                         .attr("class", "xAxis")
                         .merge(xAxis)
                         .attr("transform", "translate(0," + (chartHeight + timelineHeight) + ")")
                         .call(d3.axisBottom(x)
                                 .ticks(Math.floor(chartWidth / 150))
-                                .tickFormat(Utils.timeFormat(this.chartComponentData.usesSeconds, this.chartComponentData.usesMillis)))
-                        .selectAll('text')
+                                .tickFormat(Utils.timeFormat(this.chartComponentData.usesSeconds, this.chartComponentData.usesMillis)));
+                    xAxisEntered.selectAll('text')
                         .call(Utils.splitTimeLabel);
-        
+
+                    xAxisEntered.select(".domain").style("display", "none");
+                    xAxisEntered.append("line")
+                        .attr("class", "xAxisBaseline")
+                        .attr("x1", .5)
+                        .attr("x2", chartWidth)
+                        .attr("y1", .5)
+                        .attr("y2", .5);
                     xAxis.exit().remove();
-        
             
                     /******************** Draw Line and Points ************************/
                     var tsIterator = 0;
@@ -396,7 +404,7 @@ class LineChart extends ChartComponent {
                             .append("g")
                             .attr("class", "yAxis yAxis" + aggKey)
                             .merge(yAxis)
-                            .style("visibility", (visibleYAxis ? "visible" : "hidden"));;
+                            .style("visibility", (visibleYAxis ? "visible" : "hidden"));
                         if (this.yAxisState == "overlap" && visibleAggCount > 1) {
                             yAxis.call(d3.axisLeft(aggY).tickFormat(Utils.formatYAxisNumber).tickValues(yExtent))
                                 .selectAll("text")
@@ -637,7 +645,7 @@ class LineChart extends ChartComponent {
                     })
 
                     if (brush) {
-                        brush.select(".selection").on("contextmenu", function (d) {
+                        brush.selectAll(".selection, .handle").on("contextmenu", function (d) {
                             if (!self.brushContextMenu)
                                 return;
                             var mousePosition = d3.mouse(<any>targetElement.node());
