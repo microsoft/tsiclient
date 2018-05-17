@@ -327,13 +327,17 @@ class LineChart extends ChartComponent {
                         .call(Utils.splitTimeLabel);
 
                     xAxisEntered.select(".domain").style("display", "none");
-                    xAxisEntered.append("line")
+                    xAxis.exit().remove();
+
+                    var xAxisBaseline =  g.selectAll(".xAxisBaseline").data([x]);
+                    var xAxisBaselineEntered = xAxisBaseline.enter().append("line")
                         .attr("class", "xAxisBaseline")
                         .attr("x1", .5)
-                        .attr("x2", chartWidth)
-                        .attr("y1", .5)
-                        .attr("y2", .5);
-                    xAxis.exit().remove();
+                        .merge(xAxisBaseline)
+                        .attr("y2", chartHeight + .5)
+                        .attr("y1", chartHeight + .5)
+                        .attr("x2", chartWidth - xOffset);
+                    xAxisBaseline.exit().remove();
             
                     /******************** Draw Line and Points ************************/
                     var tsIterator = 0;

@@ -27,10 +27,10 @@
             fill: $gray1 !important;
         }
 
-        .xAxis {
-            .xAxisBaseline {
-                stroke: $gray1;
-            }
+        .xAxisBaseline {
+            // .xAxisBaseline {
+                stroke: $gray1 !important;
+            // }
         }
     }
     @include chartColors($grays);
