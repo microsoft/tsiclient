@@ -28,9 +28,7 @@
         }
 
         .xAxisBaseline {
-            // .xAxisBaseline {
-                stroke: $gray1 !important;
-            // }
+            stroke: $gray1 !important;
         }
     }
     @include chartColors($grays);
