@@ -13,9 +13,9 @@ class EventsTableData {
         
     }
 
-    public mergeEvents (rawEvents, fromTSX) {
+    public mergeEvents (rawEvents, fromTsx) {
         rawEvents.forEach((rawEvent) => {
-            if (!fromTSX) {
+            if (!fromTsx) {
                 rawEvent = Object.keys(rawEvent).reduce((newEventMap, currColName) => {
                     newEventMap[currColName] = {
                         name: currColName, 

@@ -32,12 +32,12 @@ class EventsTable extends ChartComponent{
 	EventsTable() {
     }
     
-    public renderFromEventsTSX(eventsFromTSX: any, chartOptions: any) {
-        this.render(eventsFromTSX, chartOptions, true);
+    public renderFromEventsTsx(eventsFromTsx: any, chartOptions: any) {
+        this.render(eventsFromTsx, chartOptions, true);
     }
 	
-    public render(events: any, chartOptions: any, fromTSX: boolean = false) {
-        this.eventsTableData.mergeEvents(events, fromTSX);
+    public render(events: any, chartOptions: any, fromTsx: boolean = false) {
+        this.eventsTableData.mergeEvents(events, fromTsx);
 
         var componentContainer = d3.select(this.renderTarget)
             .classed("tsi-tableComponent", true);
