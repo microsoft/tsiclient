@@ -116,7 +116,7 @@
         const fqdn = '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com';
         var tsiClient = new TsiClient();
         authContext.getTsiToken().then(function(token){
-            tsiClient.server.getEnvironments(token, fqdn).then(function(environments) {
+            tsiClient.server.getEnvironments(token).then(function(environments) {
                 console.log(environments);
             });
         });

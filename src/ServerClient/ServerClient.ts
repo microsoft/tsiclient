@@ -91,7 +91,7 @@ class ServerClient {
         });        
     }
 
-    public getEnvironments(token: string, environmentFqdn){
+    public getEnvironments(token: string){
         var uri = 'https://api.timeseries.azure.com/environments' + this.apiVersionUrlParam;
         return this.createPromiseFromXhr(uri, "GET", {}, token, (responseText) => {return JSON.parse(responseText);});
     }

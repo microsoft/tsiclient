@@ -121,7 +121,7 @@ class UXClient {
         return rows;
     }
     
-    public transformAvailabilityForVisualization(availabilityTSX: any, maxBuckets: number, options): Array<any> {
+    public transformAvailabilityForVisualization(availabilityTSX: any, maxBuckets: number = 500): Array<any> {
         var result = [];
         var from = new Date(availabilityTSX.range.from);
         var to =  new Date(availabilityTSX.range.to);
