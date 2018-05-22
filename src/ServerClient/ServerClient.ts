@@ -20,6 +20,9 @@ class ServerClient {
                         resolve(responseTextFormat(xhr.responseText));
                     }
                 }
+                else{
+                    reject(xhr);
+                }
             }
             xhr.open(httpMethod, uri);
             xhr.setRequestHeader('Authorization', 'Bearer ' + token);
@@ -62,7 +65,7 @@ class ServerClient {
 
     public getReferenceDatasetRows(token: string, environmentFqdn: string, datasetId: string) {
         var rows = [];
-        var getDatasetBatch = (resolve, continuationToken: string = null) => {
+        var getDatasetBatch = (resolve, reject, continuationToken: string = null) => {
             var xhr = new XMLHttpRequest();
             xhr.onreadystatechange = () => {
                 if(xhr.readyState != 4) return;
@@ -75,10 +78,12 @@ class ServerClient {
                     if(!continuationToken)
                         resolve(rows);
                     else
-                        getDatasetBatch(resolve, continuationToken);
+                        getDatasetBatch(resolve, reject, continuationToken);
+                }
+                else{
+                    reject(xhr);
                 }
             }
-
             xhr.open('POST', "https://" + environmentFqdn + "/referencedatasets/" + datasetId + "/items?api-version=2016-12-12&format=stream");
             xhr.setRequestHeader('Authorization', 'Bearer ' + token);
             if (continuationToken)
@@ -87,7 +92,7 @@ class ServerClient {
         }
 
         return new Promise((resolve: any, reject: any) => {
-            getDatasetBatch(resolve);
+            getDatasetBatch(resolve, reject);
         });        
     }
 
