@@ -13,9 +13,10 @@ class EventsTableData {
         
     }
 
-    public mergeEvents (rawEvents, fromTSX) {
+    public setEvents (rawEvents, fromTsx) {
+        this.events = [];
         rawEvents.forEach((rawEvent) => {
-            if (!fromTSX) {
+            if (!fromTsx) {
                 rawEvent = Object.keys(rawEvent).reduce((newEventMap, currColName) => {
                     newEventMap[currColName] = {
                         name: currColName, 
@@ -71,19 +72,23 @@ class EventsTableData {
     }
 
     public constructColumns () {
+        var newColumns = {};
         this.events.forEach((event: TimeSeriesEvent) => {
             Object.keys(event.cells).forEach((cellKey: string) => {
                 var cell = event.cells[cellKey];
                 if (this.columns[cell.key] == null) {
-                    this.columns[cell.key] = { 
+                    newColumns[cell.key] = { 
                         key:  cell.key,
                         name: cell.name,
                         visible: true,
                         type: cell.type
                     }
+                } else {
+                    newColumns[cell.key] = this.columns[cell.key];
                 }
             })
         });
+        this.columns = newColumns;
     }
 
 }

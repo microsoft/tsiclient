@@ -32,17 +32,18 @@ class EventsTable extends ChartComponent{
 	EventsTable() {
     }
     
-    public renderFromEventsTSX(eventsFromTSX: any, chartOptions: any) {
-        this.render(eventsFromTSX, chartOptions, true);
+    public renderFromEventsTsx(eventsFromTsx: any, chartOptions: any) {
+        this.render(eventsFromTsx, chartOptions, true);
     }
 	
-    public render(events: any, chartOptions: any, fromTSX: boolean = false) {
-        this.eventsTableData.mergeEvents(events, fromTSX);
+    public render(events: any, chartOptions: any, fromTsx: boolean = false) {
+        this.maxVisibleIndex = 100;
+        this.eventsTableData.setEvents(events, fromTsx);
 
         var componentContainer = d3.select(this.renderTarget)
             .classed("tsi-tableComponent", true);
+        super.themify(componentContainer, chartOptions.theme);
         if (this.eventsTable == null) {
-            super.themify(componentContainer, chartOptions.theme);
             this.eventsLegend = componentContainer.append("div")
                 .classed("tsi-tableLegend", true);
             this.eventsLegend.append("ul");
@@ -55,9 +56,28 @@ class EventsTable extends ChartComponent{
         }
         this.renderLegend();
         this.buildTable();
+         //listen for table scroll and adjust the headers accordingly
+        var self = this;
+
+        this.eventsTable.select('.tsi-eventRowsContainer').node().scrollLeft = 0;
+        this.eventsTable.select('.tsi-eventRowsContainer').node().scrollTop = 0;
+
+        this.eventsTable.select('.tsi-eventRowsContainer').node().addEventListener('scroll', function(evt) {
+            self.eventsTable.select('.tsi-columnHeaders').node().scrollLeft = this.scrollLeft;
+            //check to see if need to infiniteScroll
+            if ((this.scrollTop + this.clientHeight) > (this.scrollHeight - 100)) {
+                let oldVisibleIndex = self.maxVisibleIndex
+                self.maxVisibleIndex += (Math.min(100, self.eventsTableData.events.length - self.maxVisibleIndex));
+                if (self.maxVisibleIndex != oldVisibleIndex)
+                    self.buildTable();
+            }
+        }, false);
     }
 
     public renderLegend() {
+        this.eventsLegend.html("");
+        this.eventsLegend.append("ul");
+
         var columns = Object.keys(this.eventsTableData.columns)
             .filter((cIdx) => { return cIdx != "timestamp_DateTime"; }) // filter out timestamp
             .map((cIdx) => this.eventsTableData.columns[cIdx]);
@@ -279,16 +299,6 @@ class EventsTable extends ChartComponent{
         }
         rows.exit().remove();
         this.adjustHeaderWidth(widthDictionary);
-
-        //listen for table scroll and adjust the headers accordingly
-        this.eventsTable.select('.tsi-eventRowsContainer').node().addEventListener('scroll', function(evt) {
-            self.eventsTable.select('.tsi-columnHeaders').node().scrollLeft = this.scrollLeft;
-            //check to see if need to infiniteScroll
-            if ((this.scrollTop + this.clientHeight) > (this.scrollHeight - 100)) {
-                self.maxVisibleIndex += 100;
-                self.buildTable();
-            }
-        }, false);
     }
 }
 

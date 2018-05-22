@@ -61,7 +61,7 @@ class UXClient {
         return new EventsTable(renderTarget);
     }
 
-    public transformTSXToEventsArray (events, options) {
+    public transformTsxToEventsArray (events, options) {
         var timezoneOffset = options.timezoneOffset ? options.timezoneOffset : 0;
         var rows = [];
         var eventSourceProperties = {};
@@ -121,11 +121,11 @@ class UXClient {
         return rows;
     }
     
-    public transformAvailabilityForVisualization(availabilityTSX: any, maxBuckets: number = 500): Array<any> {
+    public transformAvailabilityForVisualization(availabilityTsx: any, maxBuckets: number = 500): Array<any> {
         var result = [];
-        var from = new Date(availabilityTSX.range.from);
-        var to =  new Date(availabilityTSX.range.to);
-        var rawBucketSize = Utils.parseTimeInput(availabilityTSX.intervalSize);
+        var from = new Date(availabilityTsx.range.from);
+        var to =  new Date(availabilityTsx.range.to);
+        var rawBucketSize = Utils.parseTimeInput(availabilityTsx.intervalSize);
         var rawBucketNumber = (to.valueOf() - from.valueOf()) / rawBucketSize;
         var sizePerBucket;
         if (rawBucketNumber < maxBuckets)
@@ -134,7 +134,7 @@ class UXClient {
             sizePerBucket = Math.ceil(rawBucketNumber / maxBuckets) * rawBucketSize;
 
         // pair of dates and values
-        var sortedKeys = Object.keys(availabilityTSX.distribution).sort((a, b) => {
+        var sortedKeys = Object.keys(availabilityTsx.distribution).sort((a, b) => {
             const valueOfA = (new Date(a)).valueOf();
             const valueOfB = (new Date(b)).valueOf();
             if (valueOfA < valueOfB) 
@@ -152,11 +152,11 @@ class UXClient {
         sortedKeys.forEach(key => {
             var formattedISO = (new Date(key)).toISOString();
             if (buckets[formattedISO] != null) 
-                buckets[formattedISO].count += availabilityTSX.distribution[key];
+                buckets[formattedISO].count += availabilityTsx.distribution[key];
             else {
                 var offset = ((new Date(key)).valueOf() - from.valueOf()) % sizePerBucket;
                 var roundedTime = new Date((new Date(key)).valueOf() - offset);
-                buckets[roundedTime.toISOString()].count += availabilityTSX.distribution[key];
+                buckets[roundedTime.toISOString()].count += availabilityTsx.distribution[key];
             }
         });
         return [{"availabilityCount" : {"" : buckets}}];

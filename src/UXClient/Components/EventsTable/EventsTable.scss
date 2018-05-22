@@ -55,6 +55,7 @@
 
 .tsi-tableComponent {
     position: relative;
+    text-align: left;
 	&.tsi-dark{
 		$grays: grays('dark');
 		@include tableColors($grays);
@@ -77,13 +78,16 @@
         &.Double {
             background-image: url('../../Icons/number.svg');
         }
+        &.Bool {
+            background-image: url('../../Icons/boolean.svg');
+        }
     }
     
     .tsi-eventsTable {
         position: absolute;
         right: 0px;
         top: 0px;
-        width: calc(100% - 250px);
+        width: calc(100% - 245px);
         height: 100%;
         font-family: consolas;
         font-size: 12px;
@@ -103,7 +107,8 @@
                 height: 20px;
                 padding-left: 6px;
                 padding-right: 12px;
-                position:relative;
+                position: relative;
+                box-sizing: content-box;
                 &:hover{
                     cursor: pointer;
                 }
@@ -210,6 +215,7 @@
             list-style-type: none;
             position: relative;
             overflow-y: hidden;
+            white-space: nowrap;
 
             .tsi-columnToggleName {
                 left: 20px;
