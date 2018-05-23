@@ -7,7 +7,8 @@
         "url": "https://github.com/matdarMsft/tsiclient"
     },
     "scripts": {
-        "build": "webpack"
+        "build": "webpack",
+        "watch": "webpack --watch"
     },
     "devDependencies": {
         "css-loader": "^0.28.10",
