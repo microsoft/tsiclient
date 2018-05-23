@@ -85,6 +85,13 @@ class LineChart extends ChartComponent {
         });
     }
 
+    private getXPosition (d, x) {
+        var bucketSize = this.chartComponentData.displayState[d.aggregateKey].bucketSize;
+        if (bucketSize)
+            return (x(d.dateTime) + x((new Date(d.dateTime.valueOf() + bucketSize)))) / 2
+        return x(d.dateTime);
+    }
+
     public render(data: any, options: any, aggregateExpressionOptions: any) {
 
         this.data = data;
@@ -173,16 +180,23 @@ class LineChart extends ChartComponent {
             var hHoverBox: any = hHoverG.append("rect")
                 .attr("class", 'hHoverBox')
                 .attr("x", 0)
-                .attr("y", 1)
+                .attr("y", 4)
                 .attr("width", 0)
                 .attr("height", 0);
     
             var hHoverText: any = hHoverG.append("text")
                 .attr("class", "hHoverText")
                 .attr("dy", ".71em")
-                .attr("y", 9)
+                .attr("transform", "translate(0,4)")
                 .text(d => d);
-    
+
+            var hHoverBar: any = hHoverG.append("line")
+                .attr("class", "hHoverValueBar")
+                .attr("x1", 0)
+                .attr("x2", 0)
+                .attr("y1", 2)
+                .attr("y2", 2);
+
             var vHoverG: any = this.focus.append("g")
                 .attr("class", 'vHoverG')
                 .attr("transform", "translate(0," + (chartHeight + 20) + ")");
@@ -322,7 +336,9 @@ class LineChart extends ChartComponent {
                                     return (d.measures !== null) && 
                                            (d.measures[this.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy)] !== null);
                                 })
-                                .x((d: any) => this.x(d.dateTime))
+                                .x((d: any) => {
+                                    return this.getXPosition(d, this.x);
+                                })
                                 .y((d: any) => { 
                                     return d.measures ? y(d.measures[this.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy)]) : 90000;
                                 });
@@ -406,7 +422,7 @@ class LineChart extends ChartComponent {
                                     return (d.measures !== null) && 
                                            (d.measures[this.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy)] !== null);
                                 })
-                                .x((d: any) => this.x(d.dateTime))
+                                .x((d: any) => { return this.getXPosition(d, this.x); })
                                 .y((d: any) => {                 
                                     return d.measures ? aggY(d.measures[this.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy)]) : null;
                                 });
@@ -533,7 +549,7 @@ class LineChart extends ChartComponent {
                             
                         var yScale = yMap[d.aggregateKey];
                         var xValue = d.dateTime;
-                        var xPos = this.x(xValue);
+                        var xPos = this.getXPosition(d, this.x);
                         var yValue = getValueOfVisible(d);
                         var yPos = yScale(yValue);
 
@@ -543,10 +559,29 @@ class LineChart extends ChartComponent {
                         this.focus.select('.vLine').attr("transform", "translate(0,-" + yPos + ")");
                         
                         this.focus.select('.hHoverG')
-                            .attr("transform", "translate(0," + (chartHeight + timelineHeight - yPos) + ")")
-                            .select("text")
-                            .text(Utils.timeFormat(this.chartComponentData.usesSeconds, this.chartComponentData.usesMillis)(xValue))
-                            .call(Utils.splitTimeLabel);
+                            .attr("transform", "translate(0," + (chartHeight + timelineHeight - yPos) + ")");
+                        var text = this.focus.select('.hHoverG').select("text").text("");
+
+                        var bucketSize = this.chartComponentData.displayState[d.aggregateKey].bucketSize;
+                        var endValue = bucketSize ? (new Date(xValue.valueOf() + bucketSize)) : null;
+                        
+                        text.append("tspan").text(Utils.timeFormat(false, false)(xValue))
+                            .attr("x", 0)
+                            .attr("y", 4);
+                        if (endValue) {
+                            text.append("tspan").text(Utils.timeFormat(false, false)(endValue))
+                                .attr("x", 0)
+                                .attr("y", 24);
+                            var barWidth = this.x(endValue) - this.x(xValue);
+                            this.focus.select('.hHoverG').select('.hHoverValueBar')
+                                .attr("x1", (-barWidth / 2))
+                                .attr("x2", (barWidth / 2));
+                        }
+                        else {
+                            this.focus.select('.hHoverG').select('.hHoverValueBar')
+                                .attr("x2", 0);
+                        }
+
                         var textElemDimensions = (<any>this.focus.select('.hHoverG').select("text")
                             .node()).getBoundingClientRect();
                         this.focus.select(".hHoverG").select("rect")

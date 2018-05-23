@@ -32,6 +32,9 @@
         fill: $gray3;
         stroke: $gray1;
     }
+    .hHoverValueBar {
+        stroke: $gray1;
+    }
     .hoverText{
         fill: $gray1;
     }
@@ -130,6 +133,10 @@
                 font-weight: bold;
             }
         }
+    }
+
+    .hHoverValueBar {
+        stroke-width: 4px;
     }
     
     .focus{

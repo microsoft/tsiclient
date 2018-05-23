@@ -126,7 +126,7 @@ class UXClient {
         var from = new Date(availabilityTsx.range.from);
         var to =  new Date(availabilityTsx.range.to);
         var rawBucketSize = Utils.parseTimeInput(availabilityTsx.intervalSize);
-        var rawBucketNumber = (to.valueOf() - from.valueOf()) / rawBucketSize;
+        var rawBucketNumber = Math.ceil((to.valueOf() - from.valueOf()) / rawBucketSize);
         var sizePerBucket;
         if (rawBucketNumber < maxBuckets)
             sizePerBucket = rawBucketSize;
@@ -145,13 +145,26 @@ class UXClient {
         });
 
         var buckets = {};
-        for (var i = from.valueOf(); i <= to.valueOf(); i += sizePerBucket) {
+
+        var startBucket = Math.round(Math.floor(from.valueOf() / sizePerBucket) * sizePerBucket);
+        var firstKey = (new Date(startBucket)).toISOString();
+        var firstCount = availabilityTsx.distribution[firstKey] ? availabilityTsx.distribution[firstKey] : 0;
+        buckets[from.toISOString()] = {count: firstCount }
+
+        var i;
+        for (i = startBucket + rawBucketSize; i <= to.valueOf(); i += sizePerBucket) {
             buckets[(new Date(i)).toISOString()] = {count: 0};
         }
+        i += -sizePerBucket;
 
         sortedKeys.forEach(key => {
             var formattedISO = (new Date(key)).toISOString();
-            if (buckets[formattedISO] != null) 
+            //set to to time if the last bucket
+            if ((new Date(key)).valueOf() == i) {
+                formattedISO = to.toISOString();
+                buckets[formattedISO] = {count : availabilityTsx.distribution[key]};
+            }
+            else if (buckets[formattedISO] != null) 
                 buckets[formattedISO].count += availabilityTsx.distribution[key];
             else {
                 var offset = ((new Date(key)).valueOf() - from.valueOf()) % sizePerBucket;
