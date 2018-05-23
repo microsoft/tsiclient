@@ -365,8 +365,8 @@ class LineChart extends ChartComponent {
                         .attr("class", "xAxisBaseline")
                         .attr("x1", .5)
                         .merge(xAxisBaseline)
-                        .attr("y2", chartHeight + .5)
-                        .attr("y1", chartHeight + .5)
+                        .attr("y2", chartHeight + timelineHeight +  .5)
+                        .attr("y1", chartHeight + timelineHeight + .5)
                         .attr("x2", chartWidth - xOffset);
                     xAxisBaseline.exit().remove();
             
@@ -571,7 +571,7 @@ class LineChart extends ChartComponent {
                         if (endValue) {
                             text.append("tspan").text(Utils.timeFormat(false, false)(endValue))
                                 .attr("x", 0)
-                                .attr("y", 24);
+                                .attr("y", 27);
                             var barWidth = this.x(endValue) - this.x(xValue);
                             this.focus.select('.hHoverG').select('.hHoverValueBar')
                                 .attr("x1", (-barWidth / 2))
@@ -587,7 +587,7 @@ class LineChart extends ChartComponent {
                         this.focus.select(".hHoverG").select("rect")
                             .attr("x", -(textElemDimensions.width / 2) - 3)
                             .attr("width", textElemDimensions.width + 6)
-                            .attr("height", textElemDimensions.height + 4);
+                            .attr("height", textElemDimensions.height + 1);
                 
                         this.focus.select('.vHoverG')
                             .attr("transform", "translate(" + (-xPos) + ",0)")
