@@ -122,6 +122,13 @@
         });
 
 
+        var brushActions = [{
+            name: "Print From and to",
+            action: function(fromTime, toTime) {
+                console.log(fromTime);
+                console.log(toTime);
+            }
+        }];
         //line chart
         var aggregateExpressions2 = [];
         var startDate = new Date('2017-04-14T13:00:00Z');
@@ -137,25 +144,12 @@
                 var transformedResult = tsiClient.ux.transformAggregatesForVisualization(result, aggregateExpressions2);
                 var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart1'));
                 var theme = 'light';
-                lineChart.render(transformedResult, {theme: theme, grid: true, tooltip: true}, aggregateExpressions2);
+                lineChart.render(transformedResult, {theme: theme, grid: true, tooltip: false, brushContextMenuActions: brushActions, snapBrush: true}, aggregateExpressions2);
             });
         });
 
-        var brushActions = [{
-            name: "Get metadata for this time range",
-            action: function(fromTime, toTime) {
-                authContext.getTsiToken().then(function(token) {
-                    var minMillis = fromTime.valueOf();
-                    var maxMillis = toTime.valueOf();
-                    tsiClient.server.getMetadata(token, fqdn, minMillis, maxMillis).then(function(metadata) {
-                        console.log(metadata);
-                    });
-                });
-            }
-        }];
-
         authContext.getTsiToken().then(function(token){
-            tsiClient.server.getAvailability(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com').then(function(result){
+            tsiClient.server.getAvailability(token, 'b1e52739-f4b1-4491-8c76-e4046637235d.env.timeseries.azure.com').then(function(result){
                 var transformedResult = tsiClient.ux.transformAvailabilityForVisualization(result, 500);
                 var ae = [new tsiClient.ux.AggregateExpression({predicateString: ""}, {property: 'Count', type: "Double"}, ['count'],
             { from: new Date(result.range.from), to: new Date(result.range.to.valueOf()), bucketSize: result.intervalSize }, null, 'green', 'Availability')];
