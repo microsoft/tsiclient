@@ -187,7 +187,7 @@ class LineChart extends ChartComponent {
             var hHoverText: any = hHoverG.append("text")
                 .attr("class", "hHoverText")
                 .attr("dy", ".71em")
-                .attr("transform", "translate(0,4)")
+                .attr("transform", "translate(0,6)")
                 .text(d => d);
 
             var hHoverBar: any = hHoverG.append("line")
@@ -587,7 +587,7 @@ class LineChart extends ChartComponent {
                         this.focus.select(".hHoverG").select("rect")
                             .attr("x", -(textElemDimensions.width / 2) - 3)
                             .attr("width", textElemDimensions.width + 6)
-                            .attr("height", textElemDimensions.height + 1);
+                            .attr("height", textElemDimensions.height + 5);
                 
                         this.focus.select('.vHoverG')
                             .attr("transform", "translate(" + (-xPos) + ",0)")
