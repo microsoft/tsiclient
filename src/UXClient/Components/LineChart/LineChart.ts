@@ -88,7 +88,7 @@ class LineChart extends ChartComponent {
     private getXPosition (d, x) {
         var bucketSize = this.chartComponentData.displayState[d.aggregateKey].bucketSize;
         if (bucketSize)
-            return Math.min(x.range()[1], (x(d.dateTime) + x((new Date(d.dateTime.valueOf() + bucketSize)))) / 2);
+            return (x(d.dateTime) + x((new Date(d.dateTime.valueOf() + bucketSize)))) / 2
         return x(d.dateTime);
     }
 
