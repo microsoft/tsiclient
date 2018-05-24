@@ -252,15 +252,15 @@ class LineChart extends ChartComponent {
                 var y = d3.scaleLinear()
                         .range([chartHeight, 20]);
 
-                this.chartComponentData.setAllValuesAndVisibleTAs();
-     
+                var fromAndTo: any = this.chartComponentData.setAllValuesAndVisibleTAs();
+
                 var xExtent: any = (this.chartComponentData.allValues.length != 0) ? d3.extent(this.chartComponentData.allValues, (d: any) => d.dateTime) : [0,1];
                 var timeSet = d3.set(this.chartComponentData.allValues, (d: any) => d.dateTime);
                 var xRange = (this.chartComponentData.allValues.length != 0) ? Math.max(2, (xExtent[1].valueOf() - xExtent[0].valueOf())) : 2;
                 var xOffsetPercentage = xOffset / chartWidth;
-                this.x.domain([xExtent[0], xExtent[1]]);
-                var xLowerBound = this.x(xExtent[0]);
-                var xUpperBound = this.x(xExtent[1]);
+                this.x.domain(fromAndTo);
+                var xLowerBound = this.x(fromAndTo[0]);
+                var xUpperBound = this.x(fromAndTo[1]);
 
                 var timeSet = d3.set(this.chartComponentData.allValues, (d: any) => d.dateTime);
                 var possibleTimesArray = timeSet.values().sort().map((ts: string) => {

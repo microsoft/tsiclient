@@ -11,6 +11,8 @@ class ChartComponentData {
     public filteredAggregates: any;
     public usesSeconds: boolean = false;
     public usesMillis: boolean = false;
+    public fromMillis: number = Infinity;
+    public toMillis: number = 0;
     
 	constructor(){
     }
@@ -48,6 +50,8 @@ class ChartComponentData {
         this.visibleTAs = {};
         this.allValues = [];
         this.visibleTSCount = 0;
+        this.fromMillis = Infinity;
+        this.toMillis = 0;
         var aggregateCounterMap = {};
 
         this.usesSeconds = false;
@@ -171,7 +175,10 @@ class ChartComponentData {
         }, false);
     }
 
+    //returns the from and to of all values
     public setAllValuesAndVisibleTAs () {
+        var toMillis = 0;
+        var fromMillis = Infinity;
         this.allValues = [];
         this.visibleTAs = [];
         this.visibleTSCount = 0;
@@ -184,19 +191,52 @@ class ChartComponentData {
                         this.visibleTAs[aggKey][splitBy] = this.timeArrays[aggKey][splitBy];
                         this.visibleTSCount += 1;
 
+                        this.timeArrays[aggKey][splitBy].forEach((d) => {
+                            var millis = d.dateTime.valueOf();
+                            var bucketSize = this.displayState[aggKey].bucketSize;
+                            if (millis < fromMillis)
+                                fromMillis = millis;
+                            var endValue = bucketSize ? millis + bucketSize : millis;
+                            console.log(bucketSize);
+                            if (endValue > toMillis)
+                                toMillis = endValue;
+                        });
                         this.usesSeconds = this.usesSeconds || this.doesTimeArrayUseSeconds(this.timeArrays[aggKey][splitBy]);
                         this.usesMillis = this.usesMillis || this.doesTimeArrayUseMillis(this.timeArrays[aggKey][splitBy]);
                     }
                 });
             }            
-        }); 
+        });
+        //set this.toMillis and this.fromMillis if new values are more extreme 
+        this.toMillis = (toMillis > this.toMillis) ? toMillis : this.toMillis;
+        this.fromMillis = (fromMillis < this.fromMillis) ? fromMillis : this.fromMillis;
+        return [new Date(this.fromMillis), new Date(this.toMillis)];
+    }
+
+    private findFirstBucket (agg, fromMillis, bucketSize) {
+        if (agg == null || Object.keys(agg).length == 0)
+            return null;
+        var firstKey = Object.keys(agg).sort((a, b) => {
+            if ((new Date(a)).valueOf() < (new Date(b)).valueOf())
+                return -1;
+            if ((new Date(a)).valueOf() > (new Date(b)).valueOf())
+                return 1;
+            return 0;
+        })[0];
+
+        var currMillis = firstKey.valueOf();
+        if (currMillis <= fromMillis)
+            return currMillis;
+        while(currMillis > fromMillis) {
+            currMillis += -bucketSize;
+        }
+        return currMillis;
     }
 
     //aggregates object => array of objects containing timestamp and values. Pad with 
     public convertAggregateToArray (agg: any, aggKey: string, aggName: string, splitBy: string, 
                                     from: Date = null, to: Date = null, bucketSize: number = null): Array<any> {
         var aggArray: Array<any> = [];
-
         var createTimeValueObject = () => {
             var timeValueObject: any = {};
             timeValueObject["aggregateKey"] = aggKey;
@@ -207,23 +247,27 @@ class ChartComponentData {
         }
 
         if (from && to && bucketSize) {
-            //round down to nearest bucket size
-            from = new Date(Math.floor(from.valueOf() / bucketSize) * bucketSize);
-            to = new Date(Math.floor(to.valueOf() / bucketSize) * bucketSize);
-            for (var currTime = from; (currTime.valueOf() <= to.valueOf()); currTime = new Date(currTime.valueOf() + bucketSize)) {
-                var timeValueObject: any = createTimeValueObject();
-                timeValueObject["dateTime"] = currTime;
-                var currTimeString = currTime.toISOString();
-                var strippedTimeString = currTimeString.slice(0, -5) + "Z"; // without second decimals
-                if (agg[currTimeString] || agg[strippedTimeString]) {
-                    var currMeasures = agg[currTimeString] ? agg[currTimeString] : agg[strippedTimeString];
-                    Object.keys(currMeasures).forEach((measure: string) => {
-                        timeValueObject["measures"][measure] = currMeasures[measure];
-                    });
-                } else {
-                    timeValueObject["measures"] = null;
+            this.fromMillis = Math.min(from.valueOf(), this.fromMillis);
+            this.toMillis = Math.max(to.valueOf(), this.toMillis);
+            var firstBucketMillis = this.findFirstBucket(agg, from.valueOf(), bucketSize);
+            if (firstBucketMillis != null) {
+                for (var currTime = new Date(firstBucketMillis); (currTime.valueOf() < to.valueOf()); currTime = new Date(currTime.valueOf() + bucketSize)) {
+                    var timeValueObject: any = createTimeValueObject();
+                    timeValueObject["dateTime"] = currTime;
+                    var currTimeString = currTime.toISOString();
+                    var strippedTimeString = currTimeString.slice(0, -5) + "Z"; // without second decimals
+                    if (agg[currTimeString] || agg[strippedTimeString]) {
+                        var currMeasures = agg[currTimeString] ? agg[currTimeString] : agg[strippedTimeString];
+                        Object.keys(currMeasures).forEach((measure: string) => {
+                            timeValueObject["measures"][measure] = currMeasures[measure];
+                        });
+                    } else {
+                        timeValueObject["measures"] = null;
+                    }
+                    aggArray.push(timeValueObject);
+                    this.fromMillis = Math.min(from.valueOf(), currTime.valueOf());
+                    this.toMillis = Math.max(to.valueOf(), currTime.valueOf() + bucketSize);
                 }
-                aggArray.push(timeValueObject);
             }
         } else {
             Object.keys(agg).sort().forEach((dateTime: string) => {
