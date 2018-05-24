@@ -1,0 +1,45 @@
+@import "../../styles";
+
+@mixin tableColors($grays){
+    $gray1: nth($grays, 1); // text
+    $gray2: nth($grays, 2); // hover
+    $gray3: nth($grays, 3); // element
+    $gray4: nth($grays, 4); // background
+
+    background-color: $gray3;
+    color: $gray1;
+
+    .tsi-timePickerContainer {
+        background-color: $gray3;
+        .tsi-timePickerChart {
+            background-color: $gray3;
+        }
+    }
+}
+
+.tsi-availabilityChart {
+
+    &.tsi-dark{
+		$grays: grays('dark');
+		@include tableColors($grays);
+	}
+	&.tsi-light{
+		$grays: grays('light');
+		@include tableColors($grays);
+    }
+
+    width: 100%;
+    .tsi-timePickerContainer {
+        width: 100%;
+        height: calc(100% - 40px);
+        .tsi-timePickerChart {
+            height: calc(100% - 24px);
+            top: 24px;
+        }
+    }
+
+    .tsi-sparklineContainer {
+        width: 100%;
+        height: 40px;
+    }
+}

@@ -1,4 +1,5 @@
 import {LineChart} from "./Components/LineChart/LineChart";
+import {AvailabilityChart} from "./Components/AvailabilityChart/AvailabilityChart";
 import {PieChart} from "./Components/PieChart/PieChart";
 import {GroupedBarChart} from "./Components/GroupedBarChart/GroupedBarChart";
 import {Grid} from "./Components/Grid/Grid";
@@ -26,6 +27,10 @@ class UXClient {
 
     public LineChart(renderTarget){
         return new LineChart(renderTarget);
+    }
+
+    public AvailabilityChart(renderTarget){
+        return new AvailabilityChart(renderTarget);
     }
     
     public Grid(renderTarget){
@@ -121,7 +126,7 @@ class UXClient {
         return rows;
     }
     
-    public transformAvailabilityForVisualization(availabilityTsx: any, maxBuckets: number = 500): Array<any> {
+    public transformAvailabilityForVisualization(availabilityTsx: any, maxBuckets: number = 500, minBucket: number, maxMucket: number): Array<any> {
         var result = [];
         var from = new Date(availabilityTsx.range.from);
         var to =  new Date(availabilityTsx.range.to);
