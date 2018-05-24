@@ -1,4 +1,5 @@
 import {LineChart} from "./Components/LineChart/LineChart";
+import {AvailabilityChart} from "./Components/AvailabilityChart/AvailabilityChart";
 import {PieChart} from "./Components/PieChart/PieChart";
 import {GroupedBarChart} from "./Components/GroupedBarChart/GroupedBarChart";
 import {Grid} from "./Components/Grid/Grid";
@@ -26,6 +27,10 @@ class UXClient {
 
     public LineChart(renderTarget){
         return new LineChart(renderTarget);
+    }
+
+    public AvailabilityChart(renderTarget){
+        return new AvailabilityChart(renderTarget);
     }
     
     public Grid(renderTarget){
@@ -121,7 +126,7 @@ class UXClient {
         return rows;
     }
     
-    public transformAvailabilityForVisualization(availabilityTsx: any, maxBuckets: number = 500): Array<any> {
+    public transformAvailabilityForVisualization(availabilityTsx: any, maxBuckets: number = 500, minBucket: number, maxMucket: number): Array<any> {
         var result = [];
         var from = new Date(availabilityTsx.range.from);
         var to =  new Date(availabilityTsx.range.to);
@@ -151,8 +156,8 @@ class UXClient {
         var firstCount = availabilityTsx.distribution[firstKey] ? availabilityTsx.distribution[firstKey] : 0;
         buckets[from.toISOString()] = {count: firstCount }
 
-        var i;
-        for (i = startBucket + rawBucketSize; i <= to.valueOf(); i += sizePerBucket) {
+        var i = (startBucket % rawBucketSize == 0) ? startBucket : startBucket + rawBucketSize;
+        for (i; i <= to.valueOf(); i += sizePerBucket) {
             buckets[(new Date(i)).toISOString()] = {count: 0};
         }
         i += -sizePerBucket;
@@ -167,7 +172,7 @@ class UXClient {
             else if (buckets[formattedISO] != null) 
                 buckets[formattedISO].count += availabilityTsx.distribution[key];
             else {
-                var offset = ((new Date(key)).valueOf() - from.valueOf()) % sizePerBucket;
+                var offset = ((new Date(key)).valueOf() - startBucket) % sizePerBucket;
                 var roundedTime = new Date((new Date(key)).valueOf() - offset);
                 buckets[roundedTime.toISOString()].count += availabilityTsx.distribution[key];
             }
