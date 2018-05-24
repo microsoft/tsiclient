@@ -262,7 +262,12 @@ class LineChart extends ChartComponent {
                 var xLowerBound = this.x(fromAndTo[0]);
                 var xUpperBound = this.x(fromAndTo[1]);
 
-                var timeSet = d3.set(this.chartComponentData.allValues, (d: any) => d.dateTime);
+                //allPossibleTimes -> a combination of the beginning and end of buckets
+                var startOfBuckets = this.chartComponentData.allValues.map((d: any) => {return d.dateTime});
+                var endOfBuckets = this.chartComponentData.allValues.filter((d: any) => {return d.bucketSize != null})
+                                        .map((d: any) => {return new Date(d.dateTime.valueOf() + d.bucketSize)});
+                var allPossibleTimes = startOfBuckets.concat(endOfBuckets);
+                var timeSet = d3.set(allPossibleTimes);
                 var possibleTimesArray = timeSet.values().sort().map((ts: string) => {
                     return new Date(ts);
                 });

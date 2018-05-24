@@ -242,6 +242,7 @@ class ChartComponentData {
             timeValueObject["aggregateName"] = aggName;
             timeValueObject["splitBy"] = splitBy;
             timeValueObject["measures"] = {};
+            timeValueObject["bucketSize"] = bucketSize;
             return timeValueObject;
         }
 
