@@ -197,7 +197,6 @@ class ChartComponentData {
                             if (millis < fromMillis)
                                 fromMillis = millis;
                             var endValue = bucketSize ? millis + bucketSize : millis;
-                            console.log(bucketSize);
                             if (endValue > toMillis)
                                 toMillis = endValue;
                         });
