@@ -151,8 +151,8 @@ class UXClient {
         var firstCount = availabilityTsx.distribution[firstKey] ? availabilityTsx.distribution[firstKey] : 0;
         buckets[from.toISOString()] = {count: firstCount }
 
-        var i;
-        for (i = startBucket + rawBucketSize; i <= to.valueOf(); i += sizePerBucket) {
+        var i = (startBucket % rawBucketSize == 0) ? startBucket : startBucket + rawBucketSize;
+        for (i; i <= to.valueOf(); i += sizePerBucket) {
             buckets[(new Date(i)).toISOString()] = {count: 0};
         }
         i += -sizePerBucket;
@@ -167,11 +167,12 @@ class UXClient {
             else if (buckets[formattedISO] != null) 
                 buckets[formattedISO].count += availabilityTsx.distribution[key];
             else {
-                var offset = ((new Date(key)).valueOf() - from.valueOf()) % sizePerBucket;
+                var offset = ((new Date(key)).valueOf() - startBucket) % sizePerBucket;
                 var roundedTime = new Date((new Date(key)).valueOf() - offset);
                 buckets[roundedTime.toISOString()].count += availabilityTsx.distribution[key];
             }
         });
+
         return [{"availabilityCount" : {"" : buckets}}];
     }
 
