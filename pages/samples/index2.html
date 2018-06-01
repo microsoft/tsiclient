@@ -39,16 +39,15 @@
                 </div>
             </div>
         </div>
-       
-        <div class="chartsWrapper">
-            <div class="rowOfCardsTitle">A Line Chart from Aggregates</div>
-            <div class="rowOfCards" style="height:70%;">
-                <div id="chart1" style="flex-shrink: 1; height: 100%; width: 90%; border: 1px solid silver;"></div>
-            </div>
-        </div>
         <div class="chartsWrapper" style="height:190px;">
             <div class="rowOfCardsTitle">A Line Chart from Availability</div>
             <div class="rowOfCards" style="height:150px;">
+                <div id="chart1" style="flex-shrink: 1; height: 100%; width: 90%; border: 1px solid silver;"></div>
+            </div>
+        </div>
+        <div class="chartsWrapper">
+            <div class="rowOfCardsTitle">A Line Chart from Aggregates</div>
+            <div class="rowOfCards" style="height:70%;">
                 <div id="chart2" style="flex-shrink: 1; height: 100%; width: 90%; border: 1px solid silver;"></div>
             </div>
         </div>
@@ -154,6 +153,16 @@
             console.log("brush move - from: " + fromTime);
             console.log("brush move - to: " + toTime);
         }
+
+        authContext.getTsiToken().then(function(token){
+            tsiClient.server.getAvailability(token, 'bec25c6b-ed2e-4416-856d-5057957a1575.env.timeseries.azure.com').then(function(result){
+                var transformedResult = tsiClient.ux.transformAvailabilityForVisualization(result, 500);
+                var availabilityChart = new tsiClient.ux.AvailabilityChart(document.getElementById('chart1'));
+                availabilityChart.render(transformedResult, {theme: 'light', grid: false, tooltip: false, legend: "hidden", 
+                   brushContextMenuActions: brushActions, snapBrush: false, brushMoveAction: brushMoveAction}, result);
+            });
+        });
+
         //line chart
         var aggregateExpressions2 = [];
         var startDate = new Date('2017-04-14T13:00:00Z');
@@ -167,7 +176,7 @@
         authContext.getTsiToken().then(function(token){
             tsiClient.server.getAggregates(token, fqdn, aggregateExpressions2.map(function(ae){return ae.toTsx()})).then(function(result){
                 var transformedResult = tsiClient.ux.transformAggregatesForVisualization(result, aggregateExpressions2);
-                var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart1'));
+                var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart2'));
                 var theme = 'light';
                 lineChart.render(transformedResult, {theme: theme, grid: true, brushContextMenuActions: brushActions, yAxisHidden: true, snapBrush: true, tooltip: false, noAnimate: true, brushClearable: true}, aggregateExpressions2);
                 var counter = 0;
@@ -185,20 +194,6 @@
                         counter++;
                     }
                 }, 3000);          
-            });
-        });
-
-        authContext.getTsiToken().then(function(token){
-            tsiClient.server.getAvailability(token, 'bec25c6b-ed2e-4416-856d-5057957a1575.env.timeseries.azure.com').then(function(result){
-                var transformedResult = tsiClient.ux.transformAvailabilityForVisualization(result, 500);
-                var availabilityChart = new tsiClient.ux.AvailabilityChart(document.getElementById('chart2'));
-                availabilityChart.render(transformedResult, {theme: 'light', grid: false, tooltip: false, legend: "hidden", 
-                   brushContextMenuActions: brushActions, snapBrush: false, brushMoveAction: brushMoveAction}, result);
-
-            //     var ae = [new tsiClient.ux.AggregateExpression({predicateString: ""}, {property: 'Count', type: "Double"}, ['count'],
-            // { from: new Date(result.range.from), to: new Date(result.range.to.valueOf()), bucketSize: result.intervalSize }, null, 'green', 'Availability')];
-            //     var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart2'));
-
             });
         });
 

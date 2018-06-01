@@ -170,7 +170,7 @@ class UXClient {
 
         //filter out keys not in the from - to range
         var lastBucket = Math.round(Math.floor(to.valueOf() / sizePerBucket) * sizePerBucket);
-        var filteredKeys = sortedKeys.filter((key) => {
+        var filteredKeys = sortedKeys.filter((key) => { 
             var keyMillis = new Date(key).valueOf(); 
             return (keyMillis >= startBucket && keyMillis <= lastBucket);  
         });

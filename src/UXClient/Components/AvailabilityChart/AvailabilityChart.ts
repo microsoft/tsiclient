@@ -22,7 +22,19 @@ class AvailabilityChart extends ChartComponent{
     private timePickerContainer: any;
     private timePickerTextContainer: any;
     private sparkLineChart: any;
+    private ae: any;
     private rawAvailability: any;
+    private quickTimeArray: Array<any> = [
+        ["Last 30 mins", 30 * 60 * 1000],
+        ["Last Hour", 60 * 60 * 1000],
+        ["Last 2 Hours", 2 * 60 * 60 * 1000],
+        ["Last 4 Hours", 4 * 60 * 60 * 1000],
+        ["Last 12 Hours", 12 * 60 * 60 * 1000],
+        ["Last 24 Hours", 24 * 60 * 60 * 1000],
+        ["Last 7 Days", 7 * 24 * 60 * 60 * 1000],
+        ["Last 30 Days", 30 * 24 * 60 * 60 * 1000],
+        ["Custom", null]
+    ];
 	
 	constructor(renderTarget: Element){
         super(renderTarget);
@@ -36,8 +48,8 @@ class AvailabilityChart extends ChartComponent{
         this.chartOptions = chartOptions;
         this.fromMillis = (new Date(rawAvailability.range.from)).valueOf();
         this.toMillis = (new Date(rawAvailability.range.to)).valueOf();
-        var ae = [new this.uxClient.AggregateExpression({predicateString: ""}, {property: 'Count', type: "Double"}, ['count'],
-        { from: new Date(this.fromMillis), to: new Date(this.toMillis), bucketSize: rawAvailability.intervalSize }, null, 'green', 'Availability')];
+        this.ae = [new this.uxClient.AggregateExpression({predicateString: ""}, {property: 'Count', type: "Double"}, ['count'],
+        { from: new Date(this.fromMillis), to: new Date(this.toMillis) }, null, 'green', 'Availability')];
 
         var targetElement = d3.select(this.renderTarget)
             .classed("tsi-availabilityChart", true);
@@ -48,6 +60,7 @@ class AvailabilityChart extends ChartComponent{
         var timePickerOptions = { ...chartOptions, ...{brushMoveAction: (from, to) => {
             chartOptions.brushMoveAction(from, to);
             this.drawGhost(from, to);
+            console.log(this.isCustomTime(from.valueOf(), to.valueOf()));
             this.setFromAndToTimes(from.valueOf(), to.valueOf());
         }}};
 
@@ -65,15 +78,23 @@ class AvailabilityChart extends ChartComponent{
             this.buildFromAndTo();
             this.sparkLineChart = new tsiClient.ux.LineChart(sparkLineContainer.node());
             var sparkLineOptions: any = this.createSparkLineOptions(chartOptions);
-            this.sparkLineChart.render(transformedAvailability, sparkLineOptions, [{color: 'teal'}]);
+            this.sparkLineChart.render(transformedAvailability, sparkLineOptions, this.ae);
             this.sparkLineChart.setBrushEndTime(new Date(this.toMillis));
             this.sparkLineChart.setBrushStartTime(new Date(this.fromMillis));
             this.sparkLineChart.setBrush();
             this.setBrush(this.toMillis - (24 * 60 * 60 * 1000), this.toMillis);
         }
 
-        this.timePickerLineChart.render(transformedAvailability, timePickerOptions, [{color: 'teal'}]);
+        this.timePickerLineChart.render(transformedAvailability, timePickerOptions, this.ae);
         this.setFromAndToTimes(this.toMillis - (24 * 60 * 60 * 1000), this.toMillis);
+    }
+
+    private isCustomTime (fromMillis, toMillis) {
+        if (toMillis != this.toMillis)
+            return true;
+        return !this.quickTimeArray.reduce((isQuickTime, currQuickTime) => {
+            return isQuickTime || (currQuickTime[1] == (toMillis - fromMillis));
+        }, false);
     }
 
     private setFromAndToTimes (fromMillis, toMillis) {
@@ -107,14 +128,6 @@ class AvailabilityChart extends ChartComponent{
         svgGroup.select(".overlay").style("fill", "white");
     }
 
-    // private isValidDate (dateString) {
-
-    // }
-
-    // private isValidTime (dateString) {
-    //     let timeRegEx = /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/;  
-    // }
-
     private buildFromAndTo () {
         ["From", "To"].forEach((fromOrTo) => {
             var inputDiv = this.timePickerTextContainer.append("div")
@@ -131,17 +144,6 @@ class AvailabilityChart extends ChartComponent{
 
 
     private createQuickTimePicker () {
-        var possibleTimes = [
-            ["Last 30 mins", 30 * 60 * 1000],
-            ["Last Hour", 60 * 60 * 1000],
-            ["Last 2 Hours", 2 * 60 * 60 * 1000],
-            ["Last 4 Hours", 4 * 60 * 60 * 1000],
-            ["Last 12 Hours", 12 * 60 * 60 * 1000],
-            ["Last 24 Hours", 24 * 60 * 60 * 1000],
-            ["Last 7 Days", 7 * 24 * 60 * 60 * 1000],
-            ["Last 30 Days", 30 * 24 * 60 * 60 * 1000],
-            ["Custom", null]
-        ];
 
         var select = this.timePickerTextContainer
             .append("div")
@@ -149,7 +151,7 @@ class AvailabilityChart extends ChartComponent{
             .attr('class', 'select tsi-TimePicker');
 
         var options = select.selectAll('option')
-            .data(possibleTimes).enter()
+            .data(this.quickTimeArray).enter()
             .append('option')
             .text(function (d) { return d[0]; })
             .property("value", function (d) { return d[1]; });

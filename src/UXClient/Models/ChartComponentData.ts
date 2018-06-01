@@ -57,7 +57,6 @@ class ChartComponentData {
         this.usesSeconds = false;
         this.usesMillis = false;
         aggregateExpressionOptions = this.fillColors(aggregateExpressionOptions);
-        
         this.data.forEach((aggregate: any, i: number) => {
             var aggName: string = Object.keys(aggregate)[0];
             
@@ -105,7 +104,9 @@ class ChartComponentData {
             if (newDisplayState[aggKey].aggregateExpression && newDisplayState[aggKey].aggregateExpression.searchSpan) {
                 newDisplayState[aggKey].from = new Date(newDisplayState[aggKey].aggregateExpression.searchSpan.from);
                 newDisplayState[aggKey].to = new Date(newDisplayState[aggKey].aggregateExpression.searchSpan.to);
-                newDisplayState[aggKey].bucketSize = Utils.parseTimeInput(newDisplayState[aggKey].aggregateExpression.searchSpan.bucketSize);
+                newDisplayState[aggKey].bucketSize = newDisplayState[aggKey].aggregateExpression.searchSpan.bucketSize ?
+                    Utils.parseTimeInput(newDisplayState[aggKey].aggregateExpression.searchSpan.bucketSize) : 
+                    null;
             }
 
             var aggregateVisible = newDisplayState[aggKey].visible;
