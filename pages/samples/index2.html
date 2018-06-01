@@ -169,17 +169,18 @@
                 var transformedResult = tsiClient.ux.transformAggregatesForVisualization(result, aggregateExpressions2);
                 var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart1'));
                 var theme = 'light';
-                lineChart.render(transformedResult, {theme: theme, grid: true, brushContextMenuActions: brushActions, yAxisHidden: true, snapBrush: true, tooltip: false, noAnimate: true}, aggregateExpressions2);
+                lineChart.render(transformedResult, {theme: theme, grid: true, brushContextMenuActions: brushActions, yAxisHidden: true, snapBrush: true, tooltip: false, noAnimate: true, brushClearable: true}, aggregateExpressions2);
                 var counter = 0;
                 setInterval(function () {
-                    if(counter < 2){  // so this doesnt just DDOS the backend if the tab is left open
+                    if(counter < 0){  // so this doesnt just DDOS the backend if the tab is left open
                         startDate = new Date(startDate.valueOf() + 1000 * 60 * 60 * .5);
                         endDate = new Date(endDate.valueOf() + 1000 * 60 * 60 * .5);
                         aggregateExpressions2.forEach(function(ae){ae.searchSpan.from = startDate; ae.searchSpan.to = endDate});
                         tsiClient.server.getAggregates(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com', aggregateExpressions2.map(function(ae){return ae.toTsx()})).then(function(result){
                             var transformedResult = tsiClient.ux.transformAggregatesForVisualization(result, aggregateExpressions2);
                             lineChart.render(transformedResult, {theme: theme, grid: true, brushContextMenuActions: brushActions, 
-                                snapBrush: true, tooltip: false, noAnimate: true, yAxisHidden: true, focusHidden: true}, aggregateExpressions2);
+                                snapBrush: true, tooltip: false, noAnimate: true, yAxisHidden: true, focusHidden: true,
+                                brushClearable: true}, aggregateExpressions2);
                         });
                         counter++;
                     }
@@ -188,7 +189,7 @@
         });
 
         authContext.getTsiToken().then(function(token){
-            tsiClient.server.getAvailability(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com').then(function(result){
+            tsiClient.server.getAvailability(token, 'bec25c6b-ed2e-4416-856d-5057957a1575.env.timeseries.azure.com').then(function(result){
                 var transformedResult = tsiClient.ux.transformAvailabilityForVisualization(result, 500);
                 var availabilityChart = new tsiClient.ux.AvailabilityChart(document.getElementById('chart2'));
                 availabilityChart.render(transformedResult, {theme: 'light', grid: false, tooltip: false, legend: "hidden", 

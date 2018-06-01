@@ -126,10 +126,15 @@ class UXClient {
         return rows;
     }
     
-    public transformAvailabilityForVisualization(availabilityTsx: any, maxBuckets: number = 500, minBucket: number, maxMucket: number): Array<any> {
+    //specifiedRange gives the subset of availability buckets to be returned. If not included, will return all buckets
+    public transformAvailabilityForVisualization(availabilityTsx: any, maxBuckets: number = 500, specifiedRange: any = null): Array<any> {
         var result = [];
-        var from = new Date(availabilityTsx.range.from);
-        var to =  new Date(availabilityTsx.range.to);
+        var from = (specifiedRange && specifiedRange.from) ? 
+                        new Date(specifiedRange.from) : 
+                        new Date(availabilityTsx.range.from);
+        var to = (specifiedRange && specifiedRange.to) ? 
+                        new Date(specifiedRange.to) : 
+                        new Date(availabilityTsx.range.to);
         var rawBucketSize = Utils.parseTimeInput(availabilityTsx.intervalSize);
         var rawBucketNumber = Math.ceil((to.valueOf() - from.valueOf()) / rawBucketSize);
         var sizePerBucket;
@@ -137,6 +142,7 @@ class UXClient {
             sizePerBucket = rawBucketSize;
         else 
             sizePerBucket = Math.ceil(rawBucketNumber / maxBuckets) * rawBucketSize;
+
 
         // pair of dates and values
         var sortedKeys = Object.keys(availabilityTsx.distribution).sort((a, b) => {
@@ -154,7 +160,7 @@ class UXClient {
         var startBucket = Math.round(Math.floor(from.valueOf() / sizePerBucket) * sizePerBucket);
         var firstKey = (new Date(startBucket)).toISOString();
         var firstCount = availabilityTsx.distribution[firstKey] ? availabilityTsx.distribution[firstKey] : 0;
-        buckets[from.toISOString()] = {count: firstCount }
+        buckets[firstKey] = {count: firstCount }
 
         var i = (startBucket % rawBucketSize == 0) ? startBucket : startBucket + rawBucketSize;
         for (i; i <= to.valueOf(); i += sizePerBucket) {
@@ -162,14 +168,21 @@ class UXClient {
         }
         i += -sizePerBucket;
 
-        sortedKeys.forEach(key => {
+        //filter out keys not in the from - to range
+        var lastBucket = Math.round(Math.floor(to.valueOf() / sizePerBucket) * sizePerBucket);
+        var filteredKeys = sortedKeys.filter((key) => {
+            var keyMillis = new Date(key).valueOf(); 
+            return (keyMillis >= startBucket && keyMillis <= lastBucket);  
+        });
+
+        filteredKeys.forEach(key => {
             var formattedISO = (new Date(key)).toISOString();
             //set to to time if the last bucket
             if ((new Date(key)).valueOf() == i) {
-                formattedISO = to.toISOString();
-                buckets[formattedISO] = {count : availabilityTsx.distribution[key]};
+                // formattedISO = to.toISOString();
+                buckets[to.toISOString()] = {count : availabilityTsx.distribution[key]};
             }
-            else if (buckets[formattedISO] != null) 
+            if (buckets[formattedISO] != null) 
                 buckets[formattedISO].count += availabilityTsx.distribution[key];
             else {
                 var offset = ((new Date(key)).valueOf() - startBucket) % sizePerBucket;
