@@ -96,7 +96,22 @@
                     content: '\00B7 ';
                     padding: 0 4px;
                 }
+                &.draggable {
+                    cursor: move; 
+                    span{
+                        cursor: move; 
+                    }
+                }
+                &.draggable:active {
+                    cursor: move;
+                    span{
+                        cursor: move;
+                    }
+                }
             }
         }
+    }
+    .tsi-noBefore:before{
+        content: '' !important;
     }
 }
