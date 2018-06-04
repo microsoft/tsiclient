@@ -8,6 +8,8 @@ class Hierarchy extends Component {
     private filterText = '';
     private root: HierarchyNode;
     private dnd: boolean = false;
+    private ondragstart;
+    private ondragend;
 
     constructor(renderTarget: Element){
         super(renderTarget);
@@ -19,6 +21,8 @@ class Hierarchy extends Component {
         targetElement.html('');
         super.themify(targetElement, options.theme);
         this.dnd = !!options.dnd;
+        this.ondragstart = options.hasOwnProperty('ondragstart') ? options.ondragstart : () => {};
+        this.ondragend = options.hasOwnProperty('ondragend') ? options.ondragend : () => {};
         this.root = this.buildTree(data);
         this.root.isExpanded = true;
 
@@ -134,9 +138,29 @@ class Hierarchy extends Component {
 
                     if(n.isLeaf){
                         li.node().addEventListener('dragstart', (event) => {
+                                        // set drag element
+                                        var crt = event.target.cloneNode(true);
+                                        crt.style.background = n.color(n);
+                                        crt.style.position = "fixed";
+                                        crt.style.top = "-100px";
+                                        crt.style.listStyle = "none"; 
+                                        crt.classList.add('tsi-noBefore')
+                                        crt.style.padding = '4px';
+                                        crt.style.borderRadius = '4px'; 
+                                        document.body.appendChild(crt);
+                                        var testVar = (window as any).DataTransfer || (window as any).Clipboard;  // Clipboard is for Chrome
+                                        if("setDragImage" in testVar.prototype)
+                                            event.dataTransfer.setDragImage(crt, 0, 0);
+
                                         var key = '__tsi_dragend__';
                                         window[key] = () => n.click(n);
                                         event.dataTransfer.setData('text', key);
+                                        n['_crt'] = crt;
+                                        this.ondragstart();
+                                    });
+                        li.node().addEventListener('dragend', (event) => {
+                                        this.ondragend();
+                                        n['_crt'].remove();
                                     });
                     }
                     li.append('span').html(n.markedName);
@@ -148,7 +172,7 @@ class Hierarchy extends Component {
                 }
             })
             node.isExpanded = (node.isExpanded || isFromClick) || (node == this.root);
-            el.classed('tsi-expanded', true)
+            el.classed('tsi-expanded', true);
         }
     }
 

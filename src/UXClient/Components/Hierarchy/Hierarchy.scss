@@ -111,4 +111,7 @@
             }
         }
     }
+    .tsi-noBefore:before{
+        content: '' !important;
+    }
 }
