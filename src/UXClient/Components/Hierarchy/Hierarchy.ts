@@ -8,11 +8,8 @@ class Hierarchy extends Component {
     private filterText = '';
     private root: HierarchyNode;
     private dnd: boolean = false;
-<<<<<<< HEAD
     private ondragstart;
     private ondragend;
-=======
->>>>>>> 7126e383b11326475d5882766f248917d168bc78
 
     constructor(renderTarget: Element){
         super(renderTarget);
@@ -24,11 +21,8 @@ class Hierarchy extends Component {
         targetElement.html('');
         super.themify(targetElement, options.theme);
         this.dnd = !!options.dnd;
-<<<<<<< HEAD
         this.ondragstart = options.hasOwnProperty('ondragstart') ? options.ondragstart : () => {};
         this.ondragend = options.hasOwnProperty('ondragend') ? options.ondragend : () => {};
-=======
->>>>>>> 7126e383b11326475d5882766f248917d168bc78
         this.root = this.buildTree(data);
         this.root.isExpanded = true;
 
@@ -144,7 +138,6 @@ class Hierarchy extends Component {
 
                     if(n.isLeaf){
                         li.node().addEventListener('dragstart', (event) => {
-<<<<<<< HEAD
                                         // set drag element
                                         var crt = event.target.cloneNode(true);
                                         crt.style.background = n.color(n);
@@ -168,11 +161,9 @@ class Hierarchy extends Component {
                         li.node().addEventListener('dragend', (event) => {
                                         this.ondragend();
                                         n['_crt'].remove();
-=======
                                         var key = '__tsi_dragend__';
                                         window[key] = () => n.click(n);
                                         event.dataTransfer.setData('text', key);
->>>>>>> 7126e383b11326475d5882766f248917d168bc78
                                     });
                     }
                     li.append('span').html(n.markedName);
