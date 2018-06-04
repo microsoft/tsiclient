@@ -142,6 +142,7 @@ class UXClient {
             sizePerBucket = rawBucketSize;
         else 
             sizePerBucket = Math.ceil(rawBucketNumber / maxBuckets) * rawBucketSize;
+        sizePerBucket = rawBucketSize;
 
 
         // pair of dates and values

@@ -10,6 +10,8 @@ class AvailabilityChart extends ChartComponent{
 
     private fromMillis: number;
     private toMillis: number;
+    private selectedFromMillis: number;
+    private selectedToMillis: number;
 
     private margins = {
         left: 10,
@@ -44,6 +46,8 @@ class AvailabilityChart extends ChartComponent{
     public render(transformedAvailability: any, chartOptions: any, rawAvailability: any) {
         chartOptions.keepBrush = false;
         chartOptions.noAnimate = true;
+        chartOptions.minutesForTimeLabels = true;
+        chartOptions.aggTopMargin = 0;
         this.rawAvailability = rawAvailability;
         this.chartOptions = chartOptions;
         this.fromMillis = (new Date(rawAvailability.range.from)).valueOf();
@@ -59,9 +63,11 @@ class AvailabilityChart extends ChartComponent{
 
         var timePickerOptions = { ...chartOptions, ...{brushMoveAction: (from, to) => {
             chartOptions.brushMoveAction(from, to);
-            this.drawGhost(from, to);
-            console.log(this.isCustomTime(from.valueOf(), to.valueOf()));
+            if (this.isCustomTime(from.valueOf(), to.valueOf()))
+                this.timePickerTextContainer.select('.tsi-TimePicker')
+                    .node().value = "Custom";
             this.setFromAndToTimes(from.valueOf(), to.valueOf());
+            this.drawGhost();
         }}};
 
         super.themify(targetElement, chartOptions.theme);
@@ -85,8 +91,17 @@ class AvailabilityChart extends ChartComponent{
             this.setBrush(this.toMillis - (24 * 60 * 60 * 1000), this.toMillis);
         }
 
+        window.addEventListener('resize', () => {
+            this.drawGhost();
+        });
+
         this.timePickerLineChart.render(transformedAvailability, timePickerOptions, this.ae);
         this.setFromAndToTimes(this.toMillis - (24 * 60 * 60 * 1000), this.toMillis);
+    }
+
+    private setSelectedMillis (fromMillis, toMillis) {
+        this.selectedFromMillis = fromMillis;
+        this.selectedToMillis = toMillis;
     }
 
     private isCustomTime (fromMillis, toMillis) {
@@ -105,22 +120,23 @@ class AvailabilityChart extends ChartComponent{
             let minutes = date.getUTCMinutes() < 10 ? "0" + date.getUTCMinutes() : date.getUTCMinutes();
             let year = date.getUTCFullYear();
             let month = (date.getUTCMonth() + 1) < 10 ? "0" + (date.getUTCMonth() + 1) : (date.getUTCMonth() + 1);
-            let day = date.getUTCDate() < 10 ? "0" + date.getUTCDay() : date.getUTCDate();
+            let day = date.getUTCDate() < 10 ? "0" + date.getUTCDate() : date.getUTCDate();
             this.timePickerTextContainer.select(".tsi-timeInput" + fromOrToText)
                 .node().value = hours + ":" + minutes;
             this.timePickerTextContainer.select(".tsi-dateInput" + fromOrToText)
                 .node().value = year + "/" + month + "/" + day;
-        })
+        });
+        this.setSelectedMillis(fromMillis, toMillis);
     }
 
-    private drawGhost (fromMillis, toMillis) {
+    private drawGhost() {
         var svgGroup = d3.select('.tsi-sparklineContainer').select(".lineChartSVG").select(".svgGroup");
         svgGroup.selectAll(".ghostRect").remove();
         svgGroup.append("rect")
             .classed("ghostRect", true)
-            .attr("x", this.sparkLineChart.x(new Date(fromMillis)))
+            .attr("x", this.sparkLineChart.x(new Date(this.selectedFromMillis)))
             .attr("y", 0)
-            .attr("width", this.sparkLineChart.x(new Date(toMillis)) - this.sparkLineChart.x(new Date(fromMillis)))
+            .attr("width", this.sparkLineChart.x(new Date(this.selectedToMillis)) - this.sparkLineChart.x(new Date(this.selectedFromMillis)))
             .attr("height", 18)
             .attr("fill", "blue")
             .attr("fill-opacity", .3)
@@ -172,7 +188,11 @@ class AvailabilityChart extends ChartComponent{
         var transformedAvailability = this.uxClient.transformAvailabilityForVisualization(this.rawAvailability, 
                                             500, {from: fromMillis, to: toMillis});
         this.chartOptions.keepBrush = true;
-        this.timePickerLineChart.render(transformedAvailability, this.chartOptions, [{color: 'teal'}]);
+        var aeWithNewTimeSpan = {...this.ae[0], ...{searchSpan: {
+            from: (new Date(fromMillis)),
+            to: (new Date(toMillis))
+        }}};
+        this.timePickerLineChart.render(transformedAvailability, this.chartOptions, [aeWithNewTimeSpan]);
         this.timePickerLineChart.setBrush();   
     }
 
@@ -180,12 +200,13 @@ class AvailabilityChart extends ChartComponent{
         this.timePickerLineChart.setBrushEndTime(new Date(toMillis));
         this.timePickerLineChart.setBrushStartTime(new Date(fromMillis));
         this.timePickerLineChart.setBrush();
-        this.drawGhost(fromMillis, toMillis);
         this.setFromAndToTimes(fromMillis, toMillis);
+        this.drawGhost();
     }
 
     private createSparkLineOptions (chartOptions) {
         return {
+            aggTopMargin: 0,
             theme: chartOptions.theme, 
             grid: false, 
             tooltip: false, 

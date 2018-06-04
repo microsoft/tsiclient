@@ -18,6 +18,7 @@
 }
 
 .tsi-availabilityChart {
+    min-height:132px;
 
     &.tsi-dark{
 		$grays: grays('dark');
@@ -30,8 +31,9 @@
 
     width: 100%;
     .tsi-timePickerContainer {
-        width: 100%;
-        height: calc(100% - 40px);
+        width: calc(100% - 4px);
+        height: calc(100% - 28px);
+        overflow: hidden;
         .tsi-timePickerChart {
             height: calc(100% - 24px);
         }
@@ -45,6 +47,9 @@
 
             .tsi-TimePicker {
                 padding: 2px;
+                option {
+                    padding: 2px;
+                }
             }
 
             .tsi-dateTimeInputLabel {
@@ -68,7 +73,7 @@
 
     .tsi-sparklineContainer {
         width: 100%;
-        height: 32px;
+        height: 28px;
         path {
             stroke: none !important;
         }
