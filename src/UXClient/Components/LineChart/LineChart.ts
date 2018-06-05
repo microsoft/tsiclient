@@ -301,7 +301,7 @@ class LineChart extends ChartComponent {
                             .rangeRound([this.xOffset, Math.max(this.xOffset, this.chartWidth - (2 * this.xOffset))]);
         
                 var y = d3.scaleLinear()
-                        .range([chartHeight, this.aggTopMargin]);
+                        .range([Math.max(chartHeight, this.aggTopMargin), this.aggTopMargin]);
 
                 var fromAndTo: any = this.chartComponentData.setAllValuesAndVisibleTAs();
                 var xExtent: any = (this.chartComponentData.allValues.length != 0) ? d3.extent(this.chartComponentData.allValues, (d: any) => d.dateTime) : [0,1];

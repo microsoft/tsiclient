@@ -12,6 +12,8 @@ class AvailabilityChart extends ChartComponent{
     private toMillis: number;
     private selectedFromMillis: number;
     private selectedToMillis: number;
+    private zoomedFromMillis: number;
+    private zoomedToMillis: number;
 
     private margins = {
         left: 10,
@@ -89,14 +91,37 @@ class AvailabilityChart extends ChartComponent{
             this.sparkLineChart.setBrushStartTime(new Date(this.fromMillis));
             this.sparkLineChart.setBrush();
             this.setBrush(this.toMillis - (24 * 60 * 60 * 1000), this.toMillis);
+            window.addEventListener('resize', () => {
+                this.drawGhost();
+            });
+            this.zoomedFromMillis = this.fromMillis;
+            this.zoomedToMillis = this.toMillis;
         }
-
-        window.addEventListener('resize', () => {
-            this.drawGhost();
-        });
 
         this.timePickerLineChart.render(transformedAvailability, timePickerOptions, this.ae);
         this.setFromAndToTimes(this.toMillis - (24 * 60 * 60 * 1000), this.toMillis);
+        let self = this;
+        timePickerChart.select(".brushElem").on("wheel.zoom", function (d) {
+            var direction = d3.event.wheelDelta < 0 ? 'down' : 'up';
+            var range = (self.zoomedToMillis - self.zoomedFromMillis);
+            let xPos = (d3.mouse(<any>this)[0]);
+            let percentile = (xPos - self.sparkLineChart.x.range()[0]) / 
+                             (self.sparkLineChart.x.range()[1] - self.sparkLineChart.x.range()[0]);
+            let leftImpact = percentile * .2 * range;
+            let rightImpact = (1 - percentile) * .2 * range;
+            if (direction == 'down') {
+                self.zoomedFromMillis = Math.max(self.zoomedFromMillis - leftImpact, self.fromMillis);
+                self.zoomedToMillis = Math.min(self.zoomedToMillis + rightImpact, self.toMillis);
+            } else {
+                self.zoomedFromMillis = Math.max(self.zoomedFromMillis + leftImpact, self.fromMillis);
+                self.zoomedToMillis = Math.min(self.zoomedToMillis - rightImpact, self.toMillis);
+            }
+            self.setAvailabilityRange(self.zoomedFromMillis, self.zoomedToMillis);
+            self.sparkLineChart.setBrushEndTime(new Date(self.zoomedToMillis));
+            self.sparkLineChart.setBrushStartTime(new Date(self.zoomedFromMillis));
+            self.sparkLineChart.setBrush();
+            d3.event.preventDefault && d3.event.preventDefault();
+        });
     }
 
     private setSelectedMillis (fromMillis, toMillis) {
@@ -185,8 +210,10 @@ class AvailabilityChart extends ChartComponent{
     }
 
     private setAvailabilityRange (fromMillis, toMillis) {
+        this.zoomedFromMillis = fromMillis;
+        this.zoomedToMillis = toMillis;
         var transformedAvailability = this.uxClient.transformAvailabilityForVisualization(this.rawAvailability, 
-                                            500, {from: fromMillis, to: toMillis});
+                                            50, {from: fromMillis, to: toMillis});
         this.chartOptions.keepBrush = true;
         var aeWithNewTimeSpan = {...this.ae[0], ...{searchSpan: {
             from: (new Date(fromMillis)),

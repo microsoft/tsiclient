@@ -6,6 +6,6 @@
         "target": "es5",
         "jsx": "react",
         "allowJs": true,
-        "lib" : ["es5", "es2015.promise", "dom"]
+        "lib" : ["es5", "es2015.promise", "dom", "es6"]
     }
 }
