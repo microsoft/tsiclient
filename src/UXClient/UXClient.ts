@@ -61,7 +61,7 @@ class UXClient {
         return new EventsTable(renderTarget);
     }
 
-    public transformTSXToEventsArray (events, options) {
+    public transformTsxToEventsArray (events, options) {
         var timezoneOffset = options.timezoneOffset ? options.timezoneOffset : 0;
         var rows = [];
         var eventSourceProperties = {};
@@ -121,6 +121,63 @@ class UXClient {
         return rows;
     }
     
+    public transformAvailabilityForVisualization(availabilityTsx: any, maxBuckets: number = 500): Array<any> {
+        var result = [];
+        var from = new Date(availabilityTsx.range.from);
+        var to =  new Date(availabilityTsx.range.to);
+        var rawBucketSize = Utils.parseTimeInput(availabilityTsx.intervalSize);
+        var rawBucketNumber = Math.ceil((to.valueOf() - from.valueOf()) / rawBucketSize);
+        var sizePerBucket;
+        if (rawBucketNumber < maxBuckets)
+            sizePerBucket = rawBucketSize;
+        else 
+            sizePerBucket = Math.ceil(rawBucketNumber / maxBuckets) * rawBucketSize;
+
+        // pair of dates and values
+        var sortedKeys = Object.keys(availabilityTsx.distribution).sort((a, b) => {
+            const valueOfA = (new Date(a)).valueOf();
+            const valueOfB = (new Date(b)).valueOf();
+            if (valueOfA < valueOfB) 
+                return -1;
+            if (valueOfA > valueOfB)
+                return 1;
+            return 0;
+        });
+
+        var buckets = {};
+
+        var startBucket = Math.round(Math.floor(from.valueOf() / sizePerBucket) * sizePerBucket);
+        var firstKey = (new Date(startBucket)).toISOString();
+        var firstCount = availabilityTsx.distribution[firstKey] ? availabilityTsx.distribution[firstKey] : 0;
+        buckets[from.toISOString()] = {count: firstCount }
+
+        var i = (startBucket % rawBucketSize == 0) ? startBucket : startBucket + rawBucketSize;
+        for (i; i <= to.valueOf(); i += sizePerBucket) {
+            buckets[(new Date(i)).toISOString()] = {count: 0};
+        }
+        i += -sizePerBucket;
+
+        sortedKeys.forEach(key => {
+            var formattedISO = (new Date(key)).toISOString();
+            //set to to time if the last bucket
+            if ((new Date(key)).valueOf() == i) {
+                formattedISO = to.toISOString();
+                buckets[formattedISO] = {count : availabilityTsx.distribution[key]};
+            }
+            else if (buckets[formattedISO] != null) 
+                buckets[formattedISO].count += availabilityTsx.distribution[key];
+            else {
+                var offset = ((new Date(key)).valueOf() - startBucket) % sizePerBucket;
+                var roundedTime = new Date((new Date(key)).valueOf() - offset);
+                buckets[roundedTime.toISOString()].count += availabilityTsx.distribution[key];
+            }
+        });
+
+        return [{"availabilityCount" : {"" : buckets}}];
+    }
+
+
+
     public transformAggregatesForVisualization(aggregates: Array<any>, options): Array<any> {
         var result = [];
         aggregates.forEach((agg, i) => {

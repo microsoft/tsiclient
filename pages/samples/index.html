@@ -15,8 +15,8 @@
 
     <!-- DEV RESOURCE LINKS -->
     <link rel="stylesheet" type="text/css" href="pages/samples/sampleStyles.css"></link>
-    <script src="../dist/tsiclient.js"></script>
-    <link rel="stylesheet" type="text/css" href="../dist/tsiclient.css"></link>
+    <script src="dist/tsiclient.js"></script>
+    <link rel="stylesheet" type="text/css" href="dist/tsiclient.css"></link>
 </head>
 <body>
     <div id="loginModal" style="display: none">
@@ -585,7 +585,7 @@
             tsiClient.server.getEvents(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com', 
                                         {predicateString: "Factory = 'Factory1'"},  {}, startDate4.valueOf(), 
                                        endDate7.valueOf()).then(function (events) {
-                var transformedEvents = tsiClient.ux.transformTSXToEventsArray (events, {});
+                var transformedEvents = tsiClient.ux.transformTsxToEventsArray (events, {});
                 var eventsTable = tsiClient.ux.EventsTable(document.getElementById('chart18'));
                 eventsTable.render(transformedEvents, {theme: 'light'}, true);
             });

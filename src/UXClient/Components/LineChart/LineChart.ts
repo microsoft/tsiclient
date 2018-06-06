@@ -23,6 +23,8 @@ class LineChart extends ChartComponent {
     private states: any;
     chartComponentData = new LineChartData();
 
+    private x: any;
+    private brush: any;
     private brushStartTime: Date;
     private brushEndTime: Date;
     
@@ -83,6 +85,13 @@ class LineChart extends ChartComponent {
         });
     }
 
+    private getXPosition (d, x) {
+        var bucketSize = this.chartComponentData.displayState[d.aggregateKey].bucketSize;
+        if (bucketSize)
+            return (x(d.dateTime) + x((new Date(d.dateTime.valueOf() + bucketSize)))) / 2
+        return x(d.dateTime);
+    }
+
     public render(data: any, options: any, aggregateExpressionOptions: any) {
 
         this.data = data;
@@ -101,6 +110,12 @@ class LineChart extends ChartComponent {
         var timelineHeight = (this.chartComponentData.visibleEventsAndStatesCount * 10);
         var chartHeight = height - this.chartMargins.bottom - this.chartMargins.top - timelineHeight; 
         var chartWidth = Math.max(0, width - this.chartMargins.left - this.chartMargins.right - (legendState == "shown" ? this.CONTROLSWIDTH : 0));
+
+        if (this.brush && this.svgSelection.select('.svgGroup').select(".brushElem")) {
+            this.svgSelection.select('.svgGroup').select(".brushElem").call(this.brush.move, null);
+            this.brushStartTime = null;
+            this.brushEndTime = null;
+        }
         
         if(this.svgSelection == null){
             
@@ -115,9 +130,9 @@ class LineChart extends ChartComponent {
             stackedButton.on("click", () => {
                 if (this.yAxisState == "stacked") 
                     this.yAxisState = "shared";
-                else if (this.yAxisState == "shared") 
+                else if (this.yAxisState == "shared")
                     this.yAxisState = "overlap";
-                else 
+                else  
                     this.yAxisState = "stacked";
                 draw();
             });  
@@ -126,15 +141,16 @@ class LineChart extends ChartComponent {
                                                          this.chartComponentData.usesMillis);                
     
             var g = this.svgSelection.append("g")
+                        .classed("svgGroup", true)
                         .attr("transform", "translate(" + this.chartMargins.left + "," + this.chartMargins.top + ")");
             
-            var brush; 
+            var brushElem; 
             var voronoiRegion
             if (options.brushContextMenuActions) {
-                brush = g.append("g")
-                    .attr("class", "brush");
+                brushElem = g.append("g")
+                    .attr("class", "brushElem");
             } else {
-                //if there is no brush, the voronoi lives here
+                //if there is no brushElem, the voronoi lives here
                 voronoiRegion = g.append("rect").classed("voronoiRect", true);
             }
     
@@ -164,16 +180,23 @@ class LineChart extends ChartComponent {
             var hHoverBox: any = hHoverG.append("rect")
                 .attr("class", 'hHoverBox')
                 .attr("x", 0)
-                .attr("y", 1)
+                .attr("y", 4)
                 .attr("width", 0)
                 .attr("height", 0);
     
             var hHoverText: any = hHoverG.append("text")
                 .attr("class", "hHoverText")
                 .attr("dy", ".71em")
-                .attr("y", 9)
+                .attr("transform", "translate(0,6)")
                 .text(d => d);
-    
+
+            var hHoverBar: any = hHoverG.append("line")
+                .attr("class", "hHoverValueBar")
+                .attr("x1", 0)
+                .attr("x2", 0)
+                .attr("y1", 2)
+                .attr("y2", 2);
+
             var vHoverG: any = this.focus.append("g")
                 .attr("class", 'vHoverG')
                 .attr("transform", "translate(0," + (chartHeight + 20) + ")");
@@ -222,22 +245,29 @@ class LineChart extends ChartComponent {
                 this.svgSelection.selectAll('.valueElement').style("visibility", "hidden");
                 this.svgSelection.selectAll(".yAxis").style("visibility", "hidden");    
 
-                var x = d3.scaleTime()
-                            .rangeRound([0, chartWidth]);
+                var xOffset = 8;
+                this.x = d3.scaleTime()
+                            .rangeRound([xOffset, chartWidth - (2 * xOffset)]);
         
                 var y = d3.scaleLinear()
                         .range([chartHeight, 20]);
 
-                this.chartComponentData.setAllValuesAndVisibleTAs();
-     
+                var fromAndTo: any = this.chartComponentData.setAllValuesAndVisibleTAs();
+
                 var xExtent: any = (this.chartComponentData.allValues.length != 0) ? d3.extent(this.chartComponentData.allValues, (d: any) => d.dateTime) : [0,1];
                 var timeSet = d3.set(this.chartComponentData.allValues, (d: any) => d.dateTime);
                 var xRange = (this.chartComponentData.allValues.length != 0) ? Math.max(2, (xExtent[1].valueOf() - xExtent[0].valueOf())) : 2;
-                var xOffsetPercentage = Math.min(.5, 10 / chartWidth);
-                x.domain([new Date(xExtent[0].valueOf() - (xRange * xOffsetPercentage)), 
-                        new Date(xExtent[1].valueOf() + (xRange * xOffsetPercentage))]);
+                var xOffsetPercentage = xOffset / chartWidth;
+                this.x.domain(fromAndTo);
+                var xLowerBound = this.x(fromAndTo[0]);
+                var xUpperBound = this.x(fromAndTo[1]);
 
-                var timeSet = d3.set(this.chartComponentData.allValues, (d: any) => d.dateTime);
+                //allPossibleTimes -> a combination of the beginning and end of buckets
+                var startOfBuckets = this.chartComponentData.allValues.map((d: any) => {return d.dateTime});
+                var endOfBuckets = this.chartComponentData.allValues.filter((d: any) => {return d.bucketSize != null})
+                                        .map((d: any) => {return new Date(d.dateTime.valueOf() + d.bucketSize)});
+                var allPossibleTimes = startOfBuckets.concat(endOfBuckets);
+                var timeSet = d3.set(allPossibleTimes);
                 var possibleTimesArray = timeSet.values().sort().map((ts: string) => {
                     return new Date(ts);
                 });
@@ -249,46 +279,52 @@ class LineChart extends ChartComponent {
                         .attr("height", chartHeight - 20);
                 }
 
-                if (brush) {
-                    brush.call(d3.brushX()
-                        .extent([[xOffsetPercentage * chartWidth, 20], 
-                                 [chartWidth - (xOffsetPercentage * chartWidth), chartHeight]])
-                        .on("end", function () {
-                            if (!d3.event.sourceEvent) return; 
-                            if (!d3.event.selection) return; 
-                            if (snapBrush) {
-                                //find the closest possible value and set to that
-                                if (possibleTimesArray.length > 0) {
-                                    var findClosestTime = (rawXValue): Date => {
-                                        var closestDate = null;
-                                        possibleTimesArray.reduce((prev, curr) => {
-                                            var prospectiveDiff = Math.abs(rawXValue - x(curr));
-                                            var currBestDiff = Math.abs(rawXValue - prev);
-                                            if (prospectiveDiff < currBestDiff) {
-                                                closestDate = curr;
-                                                return x(curr)
-                                            }
-                                            return prev;
-                                        }, Infinity);
-                                        return closestDate;
-                                    }
-                                    self.brushStartTime = findClosestTime(d3.event.selection[0]);
-                                    self.brushEndTime = findClosestTime(d3.event.selection[1]);
-                                    var endX = findClosestTime(d3.event.selection[1]);
-                                    d3.select(this).transition().call(d3.event.target.move, [x(self.brushStartTime), x(self.brushEndTime)]);
+                if (brushElem) {
+
+                    var self = this;
+                    this.brush = d3.brushX()
+                    .extent([[xLowerBound, 20], 
+                             [xUpperBound, chartHeight]])
+                    .on("end", function () {
+                        if (!d3.event.sourceEvent) return; 
+                        if (!d3.event.selection) return; 
+                        if (snapBrush) {
+                            //find the closest possible value and set to that
+                            if (possibleTimesArray.length > 0) {
+                                var findClosestTime = (rawXValue): Date => {
+                                    var closestDate = null;
+                                    possibleTimesArray.reduce((prev, curr) => {
+                                        var prospectiveDiff = Math.abs(rawXValue - self.x(curr));
+                                        var currBestDiff = Math.abs(rawXValue - prev);
+                                        if (prospectiveDiff < currBestDiff) {
+                                            closestDate = curr;
+                                            return self.x(curr)
+                                        }
+                                        return prev;
+                                    }, Infinity);
+                                    return closestDate;
                                 }
-                            } else {
-                                self.brushStartTime = x.invert(d3.event.selection[0]);
-                                self.brushEndTime = x.invert(d3.event.selection[1]);
+                                self.brushStartTime = findClosestTime(d3.event.selection[0]);
+                                self.brushEndTime = findClosestTime(d3.event.selection[1]);
+                                var endX = findClosestTime(d3.event.selection[1]);
+                                d3.select(this).transition().call(d3.event.target.move, [self.x(self.brushStartTime), self.x(self.brushEndTime)]);
                             }
-                        })
-                        .on("start", function () {
-                            if (self.contextMenu)
-                                self.contextMenu.hide();
-                            if (self.brushContextMenu)
-                                self.brushContextMenu.hide();
-                        })
-                    );
+                        } else {
+                            self.brushStartTime = self.x.invert(d3.event.selection[0]);
+                            self.brushEndTime = self.x.invert(d3.event.selection[1]);
+                        }
+                    })
+                    .on("start", function () {
+                        if (self.contextMenu)
+                            self.contextMenu.hide();
+                        if (self.brushContextMenu)
+                            self.brushContextMenu.hide();
+                    });
+
+                    brushElem.call(this.brush);
+                    if (this.brushStartTime && this.brushEndTime) {
+                        brushElem.call(this.brush.move, [this.x(this.brushStartTime), this.x(this.brushEndTime)])
+                    }
                 }
                     
                 var yExtent: any = this.getYExtent(this.chartComponentData.allValues);
@@ -297,7 +333,7 @@ class LineChart extends ChartComponent {
                 y.domain([yExtent[0] - (yRange * yOffsetPercentage), yExtent[1] + (yRange * yOffsetPercentage)]);
 
                 if (this.chartComponentData.visibleTAs && this.chartComponentData.visibleTSCount != 0) {
-                    /******************** Creating x, y and line **********************/
+                    /******************** Creating this.x, y and line **********************/
         
                     var line = d3.line()
                                 .curve(d3.curveMonotoneX)
@@ -305,27 +341,39 @@ class LineChart extends ChartComponent {
                                     return (d.measures !== null) && 
                                            (d.measures[this.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy)] !== null);
                                 })
-                                .x((d: any) => x(d.dateTime))
+                                .x((d: any) => {
+                                    return this.getXPosition(d, this.x);
+                                })
                                 .y((d: any) => { 
                                     return d.measures ? y(d.measures[this.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy)]) : 90000;
                                 });
                     
                     
-                    var xAxis: any = g.selectAll(".xAxis").data([x]);
+                    var xAxis: any = g.selectAll(".xAxis").data([this.x]);
         
-                    xAxis.enter()
+                    var xAxisEntered = xAxis.enter()
                         .append("g")
                         .attr("class", "xAxis")
                         .merge(xAxis)
                         .attr("transform", "translate(0," + (chartHeight + timelineHeight) + ")")
-                        .call(d3.axisBottom(x)
+                        .call(d3.axisBottom(this.x)
                                 .ticks(Math.floor(chartWidth / 150))
-                                .tickFormat(Utils.timeFormat(this.chartComponentData.usesSeconds, this.chartComponentData.usesMillis)))
-                        .selectAll('text')
+                                .tickFormat(Utils.timeFormat(this.chartComponentData.usesSeconds, this.chartComponentData.usesMillis)));
+                    xAxisEntered.selectAll('text')
                         .call(Utils.splitTimeLabel);
-        
+
+                    xAxisEntered.select(".domain").style("display", "none");
                     xAxis.exit().remove();
-        
+
+                    var xAxisBaseline =  g.selectAll(".xAxisBaseline").data([this.x]);
+                    var xAxisBaselineEntered = xAxisBaseline.enter().append("line")
+                        .attr("class", "xAxisBaseline")
+                        .attr("x1", .5)
+                        .merge(xAxisBaseline)
+                        .attr("y2", chartHeight + timelineHeight +  .5)
+                        .attr("y1", chartHeight + timelineHeight + .5)
+                        .attr("x2", chartWidth - xOffset);
+                    xAxisBaseline.exit().remove();
             
                     /******************** Draw Line and Points ************************/
                     var tsIterator = 0;
@@ -379,7 +427,7 @@ class LineChart extends ChartComponent {
                                     return (d.measures !== null) && 
                                            (d.measures[this.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy)] !== null);
                                 })
-                                .x((d: any) => x(d.dateTime))
+                                .x((d: any) => { return this.getXPosition(d, this.x); })
                                 .y((d: any) => {                 
                                     return d.measures ? aggY(d.measures[this.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy)]) : null;
                                 });
@@ -396,7 +444,7 @@ class LineChart extends ChartComponent {
                             .append("g")
                             .attr("class", "yAxis yAxis" + aggKey)
                             .merge(yAxis)
-                            .style("visibility", (visibleYAxis ? "visible" : "hidden"));;
+                            .style("visibility", (visibleYAxis ? "visible" : "hidden"));
                         if (this.yAxisState == "overlap" && visibleAggCount > 1) {
                             yAxis.call(d3.axisLeft(aggY).tickFormat(Utils.formatYAxisNumber).tickValues(yExtent))
                                 .selectAll("text")
@@ -413,7 +461,7 @@ class LineChart extends ChartComponent {
                             visibleAggI += 1;
                         
                         var guideLinesData = {
-                            x: x,
+                            x: this.x,
                             y: aggY,
                             visible: visibleYAxis
                         };
@@ -489,7 +537,7 @@ class LineChart extends ChartComponent {
                     }
                     var self = this;
                     var voronoi = d3.voronoi()
-                        .x(function(d: any) { return x(d.dateTime); })
+                        .x(function(d: any) { return self.x(d.dateTime); })
                         .y(function(d: any) { 
                             if (d.measures) {
                                 var value = getValueOfVisible(d)
@@ -506,7 +554,7 @@ class LineChart extends ChartComponent {
                             
                         var yScale = yMap[d.aggregateKey];
                         var xValue = d.dateTime;
-                        var xPos = x(xValue);
+                        var xPos = this.getXPosition(d, this.x);
                         var yValue = getValueOfVisible(d);
                         var yPos = yScale(yValue);
 
@@ -516,16 +564,35 @@ class LineChart extends ChartComponent {
                         this.focus.select('.vLine').attr("transform", "translate(0,-" + yPos + ")");
                         
                         this.focus.select('.hHoverG')
-                            .attr("transform", "translate(0," + (chartHeight + timelineHeight - yPos) + ")")
-                            .select("text")
-                            .text(Utils.timeFormat(this.chartComponentData.usesSeconds, this.chartComponentData.usesMillis)(xValue))
-                            .call(Utils.splitTimeLabel);
+                            .attr("transform", "translate(0," + (chartHeight + timelineHeight - yPos) + ")");
+                        var text = this.focus.select('.hHoverG').select("text").text("");
+
+                        var bucketSize = this.chartComponentData.displayState[d.aggregateKey].bucketSize;
+                        var endValue = bucketSize ? (new Date(xValue.valueOf() + bucketSize)) : null;
+                        
+                        text.append("tspan").text(Utils.timeFormat(false, false)(xValue))
+                            .attr("x", 0)
+                            .attr("y", 4);
+                        if (endValue) {
+                            text.append("tspan").text(Utils.timeFormat(false, false)(endValue))
+                                .attr("x", 0)
+                                .attr("y", 27);
+                            var barWidth = this.x(endValue) - this.x(xValue);
+                            this.focus.select('.hHoverG').select('.hHoverValueBar')
+                                .attr("x1", (-barWidth / 2))
+                                .attr("x2", (barWidth / 2));
+                        }
+                        else {
+                            this.focus.select('.hHoverG').select('.hHoverValueBar')
+                                .attr("x2", 0);
+                        }
+
                         var textElemDimensions = (<any>this.focus.select('.hHoverG').select("text")
                             .node()).getBoundingClientRect();
                         this.focus.select(".hHoverG").select("rect")
                             .attr("x", -(textElemDimensions.width / 2) - 3)
                             .attr("width", textElemDimensions.width + 6)
-                            .attr("height", textElemDimensions.height + 4);
+                            .attr("height", textElemDimensions.height + 5);
                 
                         this.focus.select('.vHoverG')
                             .attr("transform", "translate(" + (-xPos) + ",0)")
@@ -593,15 +660,15 @@ class LineChart extends ChartComponent {
                         labelMouseover(d.aggregateKey, d.splitBy);
                     }
 
-                    //if brush present then use the overlay, otherwise create a rect to put the voronoi on
+                    //if brushElem present then use the overlay, otherwise create a rect to put the voronoi on
                     var voronoiSelection;
                     var filteredValueExist = () => {
                         var filteredValues = self.getFilteredValues(self.chartComponentData.allValues);
                         return !(filteredValues == null || filteredValues.length == 0)
                     }
         
-                    if (brush) {
-                        voronoiSelection = brush.select(".overlay");
+                    if (brushElem) {
+                        voronoiSelection = brushElem.select(".overlay");
                     } else {
                         voronoiSelection = voronoiRegion;
                     }
@@ -636,8 +703,8 @@ class LineChart extends ChartComponent {
                         }
                     })
 
-                    if (brush) {
-                        brush.select(".selection").on("contextmenu", function (d) {
+                    if (brushElem) {
+                        brushElem.selectAll(".selection, .handle").on("contextmenu", function (d) {
                             if (!self.brushContextMenu)
                                 return;
                             var mousePosition = d3.mouse(<any>targetElement.node());

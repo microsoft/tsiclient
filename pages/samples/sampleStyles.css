@@ -75,7 +75,7 @@ body{
 	width: 100%;
 }
 .header{ 
-	z-index: 1; 
+	z-index: 2; 
 	background: black; 
 	position: fixed; 
 	top: 0; 

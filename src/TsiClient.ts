@@ -6,7 +6,7 @@ class TsiClient {
     public server = new ServerClient();
     public ux = new UXClient();
 }
-export {TsiClient}
+export default TsiClient;
 
 (<any>window).TsiClient = TsiClient;
 

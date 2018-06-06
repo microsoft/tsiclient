@@ -37,7 +37,8 @@ module.exports = {
   },
   output: {
     filename: 'tsiclient.js',
-    path: path.resolve(__dirname, 'dist')
+    path: path.resolve(__dirname, 'dist'),
+    libraryTarget: 'umd'
   },
   plugins: [
     new ExtractTextPlugin('tsiclient.css')
