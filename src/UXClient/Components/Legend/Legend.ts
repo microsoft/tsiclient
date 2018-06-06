@@ -47,7 +47,7 @@ class Legend extends Component {
             if (legendState == "hidden") {
                 legend.style("display", "none");
                 legend.style("width", "0px"); 
-                return;
+                return; 
             }
             if(legendState == "compact")
                 legend.classed("compact", true)

@@ -7,6 +7,9 @@ import {HierarchyNode} from "./../../Models/HierarchyNode";
 class Hierarchy extends Component {
     private filterText = '';
     private root: HierarchyNode;
+    private dnd: boolean = false;
+    private ondragstart;
+    private ondragend;
 
     constructor(renderTarget: Element){
         super(renderTarget);
@@ -17,6 +20,9 @@ class Hierarchy extends Component {
         var targetElement = d3.select(this.renderTarget).classed('tsi-hierarchy', true);
         targetElement.html('');
         super.themify(targetElement, options.theme);
+        this.dnd = !!options.dnd;
+        this.ondragstart = options.hasOwnProperty('ondragstart') ? options.ondragstart : () => {};
+        this.ondragend = options.hasOwnProperty('ondragend') ? options.ondragend : () => {};
         this.root = this.buildTree(data);
         this.root.isExpanded = true;
 
@@ -108,7 +114,7 @@ class Hierarchy extends Component {
                 if(isFromClick || n.selfInFilter || n.childrenInFilter || (node.isExpanded && this.filterText.length == 0)){
                     var self = this;
                     var clickMethod = function(){
-                        if(n.isLeaf){
+                        if(n.isLeaf && !self.dnd){
                             var parent = n.parent;
                             while(parent != this.root){
                                 parent.isExpanded = true;
@@ -126,7 +132,40 @@ class Hierarchy extends Component {
                         d3.event.stopPropagation();
                     }
 
-                    var li = list.append('li').classed('tsi-leaf', n.isLeaf).classed('tsi-selected', n.isSelected).on('click', clickMethod);
+                    var li = list.append('li').classed('tsi-leaf', n.isLeaf)
+                                .classed('draggable', n.isLeaf && self.dnd).classed('tsi-selected', n.isSelected).on('click', clickMethod)
+                                .attr('draggable', n.isLeaf && self.dnd);
+
+                    if(n.isLeaf){
+                        li.node().addEventListener('dragstart', (event) => {
+                                        // set drag element
+                                        var crt = event.target.cloneNode(true);
+                                        crt.style.background = n.color(n);
+                                        crt.style.position = "fixed";
+                                        crt.style.top = "-100px";
+                                        crt.style.listStyle = "none"; 
+                                        crt.classList.add('tsi-noBefore')
+                                        crt.style.padding = '4px';
+                                        crt.style.borderRadius = '4px'; 
+                                        document.body.appendChild(crt);
+                                        var testVar = (window as any).DataTransfer || (window as any).Clipboard;  // Clipboard is for Chrome
+                                        if("setDragImage" in testVar.prototype)
+                                            event.dataTransfer.setDragImage(crt, 0, 0);
+
+                                        var key = '__tsi_dragend__';
+                                        window[key] = () => n.click(n);
+                                        event.dataTransfer.setData('text', key);
+                                        n['_crt'] = crt;
+                                        this.ondragstart();
+                                    });
+                        li.node().addEventListener('dragend', (event) => {
+                                        this.ondragend();
+                                        n['_crt'].remove();
+                                        var key = '__tsi_dragend__';
+                                        window[key] = () => n.click(n);
+                                        event.dataTransfer.setData('text', key);
+                                    });
+                    }
                     li.append('span').html(n.markedName);
                     n.colorify(li);
 
@@ -136,7 +175,7 @@ class Hierarchy extends Component {
                 }
             })
             node.isExpanded = (node.isExpanded || isFromClick) || (node == this.root);
-            el.classed('tsi-expanded', true)
+            el.classed('tsi-expanded', true);
         }
     }
 

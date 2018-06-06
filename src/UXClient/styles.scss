@@ -32,6 +32,25 @@
         fill: $gray3;
         stroke: $gray1;
     }
+
+    .hHoverText {
+        text-anchor: middle;
+    }
+    
+    .vHoverText {
+        text-anchor: end;
+    }
+    
+    .hoverText {
+        stroke: none;
+    }
+    .hHoverText, .vHoverText {
+        font-size: 11px !important;
+    }
+
+    .hHoverValueBar {
+        stroke: $gray1;
+    }
     .hoverText{
         fill: $gray1;
     }
@@ -73,18 +92,6 @@
     
     rect, line {
         shape-rendering: crispedges !important;
-    }
-    
-    .hHoverText {
-        text-anchor: middle;
-    }
-    
-    .vHoverText {
-        text-anchor: end;
-    }
-    
-    .hoverText {
-        stroke: none;
     }
     
     .stacked, .tsi-gridButton{
@@ -130,6 +137,10 @@
                 font-weight: bold;
             }
         }
+    }
+
+    .hHoverValueBar {
+        stroke-width: 4px;
     }
     
     .focus{
