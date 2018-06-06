@@ -17,3 +17,10 @@ Used as:
 
 Used as:  
 - the basis for the build-your-own TSI Sample Application source in the [Tutorial: Create an Azure Time Series Insights single-page web app](https://docs.microsoft.com/azure/time-series-insights/tutorial-create-tsi-sample-spa.md) article. 
+
+
+## Change log
+
+5/15/18 - Initial creation for "Explore the Time Series Insights JavaScript client library" article. Added this repo/branch to the OPS config for azure-docs-pr.
+
+6/6/18 - Synced 'tutorial' branch with 'master'; synced pages/tutorial files with pages/samples files on 'tutorial' branch
