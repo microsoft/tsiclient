@@ -158,7 +158,7 @@ function explore(windmillName, plantName){
     document.getElementById("windmillCharts2").style.display = "block"
     getCurrentValues(windmillName, plantName);
     getAmbientAndOutput(windmillName, plantName);
-    document.getElementById("windmillTitle").innerHTML = "Windmill: Ardinville " + windmillName;
+    document.getElementById("windmillTitle").innerHTML = "Turbine: " + plantName + " / " + windmillName;  
     windmillPopup.close();
     var url = 'https://insights.timeseries.azure.com/?environmentId=01a94e6c-6d32-4f8c-8511-1058fe2b1dbd&relativeMillis=86400000&timeBucketUnit=Minutes&timeBucketSize=20&multiChartStack=false&multiChartSameScale=true&timeSeriesDefinitions=[{%20%22name%22%20:%20%22GridFrequency%22,%20%22measureName%22%20:%20%22Value.Value%22,%20%22predicate%22%20:%20%22%27Ardenville.'+windmillName+'.Grid.Frequency%27%22%20},%20{%20%22name%22%20:%20%22GridPower%22,%20%22measureName%22%20:%20%22Value.Value%22,%20%22predicate%22%20:%20%22%27Ardenville.'+windmillName+'.Grid.Power%27%22%20},%20{%20%22name%22%20:%20%22GridPossiblePower%22,%20%22measureName%22%20:%20%22Value.Value%22,%20%22predicate%22%20:%20%22%27Ardenville.'+windmillName+'.Grid.PossiblePower%27%22%20}%20]'
     document.getElementById('tsilink').href = url;
