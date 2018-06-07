@@ -44,6 +44,7 @@
             display: inline-flex;
             margin-top: 4px;
             margin-left: 4px;
+            position: relative;
 
             .tsi-TimePicker {
                 padding: 2px;
@@ -67,6 +68,19 @@
                     padding-left: 4px;
                     margin-left: 4px;
                 }
+            }
+
+            .tsi-zoomButtonContainer {
+                display: inline-flex;
+                position: absolute;
+                right: 8px;
+
+                .tsi-zoomButton {
+                    margin-left: 8px;
+                    width: 20px;
+                    height: 20px;
+                }
+
             }
         }
     }

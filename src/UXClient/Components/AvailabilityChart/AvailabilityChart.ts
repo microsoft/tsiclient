@@ -54,6 +54,34 @@ class AvailabilityChart extends ChartComponent{
         return totalTimeRange / maxZoomFactor;
     }
 
+    private zoom(direction: string, xPos: number) {
+        var range = Math.max(this.getMinZoomedRange(), (this.zoomedToMillis - this.zoomedFromMillis));
+        let percentile = (xPos - this.sparkLineChart.x.range()[0]) / 
+                         (this.sparkLineChart.x.range()[1] - this.sparkLineChart.x.range()[0]);
+        let leftImpact = percentile * .2 * range;
+        let rightImpact = (1 - percentile) * .2 * range;
+        if (direction == 'out') {
+            this.zoomedFromMillis = Math.max(this.zoomedFromMillis - leftImpact, this.fromMillis);
+            this.zoomedToMillis = Math.min(this.zoomedToMillis + rightImpact, this.toMillis);
+        } else {
+            let prospectiveFromMillis = Math.max(this.zoomedFromMillis + leftImpact, this.fromMillis);
+            let prospectiveToMillis = Math.min(this.zoomedToMillis - rightImpact, this.toMillis);  
+            if (prospectiveToMillis - prospectiveFromMillis >= this.getMinZoomedRange()) {
+                this.zoomedFromMillis = prospectiveFromMillis;
+                this.zoomedToMillis = prospectiveToMillis;
+            } else {
+                let offBy = this.getMinZoomedRange() - (prospectiveToMillis - prospectiveFromMillis);
+                this.zoomedFromMillis = prospectiveFromMillis - (percentile * offBy);
+                this.zoomedToMillis = prospectiveToMillis + ((1 - percentile) * offBy);
+            }
+        }
+        this.setAvailabilityRange(this.zoomedFromMillis, this.zoomedToMillis);
+        this.sparkLineChart.setBrushEndTime(new Date(this.zoomedToMillis));
+        this.sparkLineChart.setBrushStartTime(new Date(this.zoomedFromMillis));
+        this.sparkLineChart.setBrush();
+        d3.event.preventDefault && d3.event.preventDefault();
+    }
+
     public render(transformedAvailability: any, chartOptions: any, rawAvailability: any) {
         chartOptions.keepBrush = false;
         chartOptions.noAnimate = true;
@@ -106,40 +134,35 @@ class AvailabilityChart extends ChartComponent{
             });
             this.zoomedFromMillis = this.fromMillis;
             this.zoomedToMillis = this.toMillis;
+            this.buildZoomButtons();
         }
 
         this.timePickerLineChart.render(transformedAvailability, timePickerOptions, this.ae);
         this.setFromAndToTimes(this.toMillis - (24 * 60 * 60 * 1000), this.toMillis);
         let self = this;
         timePickerChart.select(".brushElem").on("wheel.zoom", function (d) {
-            var direction = d3.event.wheelDelta < 0 ? 'down' : 'up';
-            var range = Math.max(self.getMinZoomedRange(), (self.zoomedToMillis - self.zoomedFromMillis));
+            let direction = d3.event.wheelDelta < 0 ? 'out' : 'in';
             let xPos = (d3.mouse(<any>this)[0]);
-            let percentile = (xPos - self.sparkLineChart.x.range()[0]) / 
-                             (self.sparkLineChart.x.range()[1] - self.sparkLineChart.x.range()[0]);
-            let leftImpact = percentile * .2 * range;
-            let rightImpact = (1 - percentile) * .2 * range;
-            if (direction == 'down') {
-                self.zoomedFromMillis = Math.max(self.zoomedFromMillis - leftImpact, self.fromMillis);
-                self.zoomedToMillis = Math.min(self.zoomedToMillis + rightImpact, self.toMillis);
-            } else {
-                let prospectiveFromMillis = Math.max(self.zoomedFromMillis + leftImpact, self.fromMillis);
-                let prospectiveToMillis = Math.min(self.zoomedToMillis - rightImpact, self.toMillis);  
-                if (prospectiveToMillis - prospectiveFromMillis >= self.getMinZoomedRange()) {
-                    self.zoomedFromMillis = prospectiveFromMillis;
-                    self.zoomedToMillis = prospectiveToMillis;
-                } else {
-                    let offBy = self.getMinZoomedRange() - (prospectiveToMillis - prospectiveFromMillis);
-                    self.zoomedFromMillis = prospectiveFromMillis - (percentile * offBy);
-                    self.zoomedToMillis = prospectiveToMillis + ((1 - percentile) * offBy);
-                }
-            }
-            self.setAvailabilityRange(self.zoomedFromMillis, self.zoomedToMillis);
-            self.sparkLineChart.setBrushEndTime(new Date(self.zoomedToMillis));
-            self.sparkLineChart.setBrushStartTime(new Date(self.zoomedFromMillis));
-            self.sparkLineChart.setBrush();
-            d3.event.preventDefault && d3.event.preventDefault();
+            self.zoom(direction, xPos);
         });
+    }
+
+    private buildZoomButtons() {
+        let midpoint = (this.sparkLineChart.x.range()[1] - this.sparkLineChart.x.range()[0]) / 2;
+        var buttonsDiv = this.timePickerTextContainer.append("div")
+            .classed("tsi-zoomButtonContainer", true);
+        buttonsDiv.append("button")
+            .attr("class", "tsi-zoomButton tsi-zoomButtonIn")
+            .text("+")
+            .on("click", () => {
+                this.zoom("in", midpoint);
+            });
+        buttonsDiv.append("button")
+            .attr("class", "tsi-zoomButton tsi-zoomButtonOut")
+            .text("-")
+            .on("click", () => {
+                this.zoom("out", midpoint);
+            });
     }
 
     private setSelectedMillis (fromMillis, toMillis) {
