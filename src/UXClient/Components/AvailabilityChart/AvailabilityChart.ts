@@ -119,10 +119,10 @@ class AvailabilityChart extends ChartComponent{
             this.timePickerTextContainer = timePickerContainer.append("div").classed("tsi-timePickerTextContainer", true);
             var timePickerChart = timePickerContainer.append("div").classed("tsi-timePickerChart", true);
             var sparkLineContainer = targetElement.append("div").classed("tsi-sparklineContainer", true);
-            this.timePickerLineChart = new tsiClient.ux.LineChart(timePickerChart.node());
+            this.timePickerLineChart = new LineChart(timePickerChart.node() as any);
             this.createQuickTimePicker();
             this.buildFromAndTo();
-            this.sparkLineChart = new tsiClient.ux.LineChart(sparkLineContainer.node());
+            this.sparkLineChart = new LineChart(sparkLineContainer.node() as any);
             var sparkLineOptions: any = this.createSparkLineOptions(chartOptions);
             this.sparkLineChart.render(transformedAvailability, sparkLineOptions, this.ae);
             this.sparkLineChart.setBrushEndTime(new Date(this.toMillis));
