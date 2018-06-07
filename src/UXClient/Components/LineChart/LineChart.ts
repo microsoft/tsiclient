@@ -22,6 +22,7 @@ class LineChart extends ChartComponent {
     private draw: any;
     private events: any;
     private states: any;
+    private minBrushWidth = 0;
     chartComponentData = new LineChartData();
     private surpressBrushTimeSet: boolean = false;
 
@@ -270,6 +271,7 @@ class LineChart extends ChartComponent {
                 const tooltipVisible: boolean = !!this.chartOptions.tooltip;
                 const snapBrush: boolean = !!this.chartOptions.snapBrush;
                 const brushClearable: boolean = !!this.chartOptions.brushClearable;
+                this.minBrushWidth = (this.chartOptions.minBrushWidth) ? this.chartOptions.minBrushWidth : this.minBrushWidth;
 
                 this.focus.attr("visibility", (this.chartOptions.focusHidden) ? "hidden" : "visible")
                 if (this.chartOptions.xAxisHidden && this.chartOptions.focusHidden) {
@@ -335,9 +337,14 @@ class LineChart extends ChartComponent {
                     .extent([[xLowerBound, this.aggTopMargin],
                              [xUpperBound, chartHeight]])
                     .on("brush", function () {
-                        if (!d3.event.sourceEvent) return; 
-                        if (d3.event.sourceEvent.type == 'mousemove')
+                        if (!d3.event.sourceEvent) return;
+                        if (d3.event.sourceEvent && d3.event.sourceEvent.type == 'mousemove') {
                             self.brushElem.select(".selection").attr("visibility", "visible");
+                            //check boundary conditions for width of the brush
+                            if (d3.event.selection[1] - d3.event.selection[0] < self.minBrushWidth) {
+                                return;
+                            }
+                        }
                         if (self.surpressBrushTimeSet == true) {
                             self.surpressBrushTimeSet = false;
                             return;
@@ -384,11 +391,19 @@ class LineChart extends ChartComponent {
                                 d3.select(this).transition().call(d3.event.target.move, [self.x(self.brushStartTime), self.x(self.brushEndTime)]);
                             }
                         }
-                    })
-
+                        if (d3.event.selection[1] - d3.event.selection[0] < self.minBrushWidth) {
+                            let rightSide = Math.min(d3.event.selection[0] + self.minBrushWidth, self.x.range()[1]);
+                            d3.select(this).transition().call(d3.event.target.move, [rightSide - self.minBrushWidth, rightSide]);
+                            //set time and fire brushMoveAction since this won't happen in on brush
+                            self.brushStartTime = self.x.invert(rightSide - self.minBrushWidth);
+                            self.brushEndTime = self.x.invert(rightSide);
+                            if (options.brushMoveAction) {
+                                options.brushMoveAction(self.brushStartTime, self.brushEndTime);
+                            }
+                        }
+                    });
                     this.brushElem.call(this.brush);
                     this.setBrush();
-
                 }
                     
                 var yExtent: any = this.getYExtent(this.chartComponentData.allValues);

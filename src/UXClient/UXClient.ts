@@ -216,6 +216,7 @@ class UXClient {
                 buckets[roundedTime.toISOString()].count += availabilityTsx.distribution[key];
             }
         });
+        buckets[to.toISOString()] = buckets[(new Date(i)).toISOString()];
 
         var rollUpMultiplier;
         var bucketsInRange = (to.valueOf() - from.valueOf()) / rawBucketSize;

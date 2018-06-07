@@ -14,6 +14,7 @@ class AvailabilityChart extends ChartComponent{
     private selectedToMillis: number;
     private zoomedFromMillis: number;
     private zoomedToMillis: number;
+    private minBrushWidth: number = 5;
 
     private margins = {
         left: 10,
@@ -28,6 +29,7 @@ class AvailabilityChart extends ChartComponent{
     private sparkLineChart: any;
     private ae: any;
     private rawAvailability: any;
+    private maxBuckets: number;
     private quickTimeArray: Array<any> = [
         ["Last 30 mins", 30 * 60 * 1000],
         ["Last Hour", 60 * 60 * 1000],
@@ -45,6 +47,13 @@ class AvailabilityChart extends ChartComponent{
         this.uxClient = new UXClient();
     }
 
+    //the most zoomed in possible
+    private getMinZoomedRange() {
+        let maxZoomFactor: number = (this.sparkLineChart.x.range()[1] - this.sparkLineChart.x.range()[0]) / this.minBrushWidth;                
+        let totalTimeRange: number = this.toMillis - this.fromMillis;
+        return totalTimeRange / maxZoomFactor;
+    }
+
     public render(transformedAvailability: any, chartOptions: any, rawAvailability: any) {
         chartOptions.keepBrush = false;
         chartOptions.noAnimate = true;
@@ -52,6 +61,7 @@ class AvailabilityChart extends ChartComponent{
         chartOptions.aggTopMargin = 0;
         this.rawAvailability = rawAvailability;
         this.chartOptions = chartOptions;
+        this.maxBuckets = (this.chartOptions.maxBuckets) ? this.chartOptions.maxBuckets : 500;
         this.fromMillis = (new Date(rawAvailability.range.from)).valueOf();
         this.toMillis = (new Date(rawAvailability.range.to)).valueOf();
         this.ae = [new this.uxClient.AggregateExpression({predicateString: ""}, {property: 'Count', type: "Double"}, ['count'],
@@ -103,7 +113,7 @@ class AvailabilityChart extends ChartComponent{
         let self = this;
         timePickerChart.select(".brushElem").on("wheel.zoom", function (d) {
             var direction = d3.event.wheelDelta < 0 ? 'down' : 'up';
-            var range = (self.zoomedToMillis - self.zoomedFromMillis);
+            var range = Math.max(self.getMinZoomedRange(), (self.zoomedToMillis - self.zoomedFromMillis));
             let xPos = (d3.mouse(<any>this)[0]);
             let percentile = (xPos - self.sparkLineChart.x.range()[0]) / 
                              (self.sparkLineChart.x.range()[1] - self.sparkLineChart.x.range()[0]);
@@ -113,8 +123,16 @@ class AvailabilityChart extends ChartComponent{
                 self.zoomedFromMillis = Math.max(self.zoomedFromMillis - leftImpact, self.fromMillis);
                 self.zoomedToMillis = Math.min(self.zoomedToMillis + rightImpact, self.toMillis);
             } else {
-                self.zoomedFromMillis = Math.max(self.zoomedFromMillis + leftImpact, self.fromMillis);
-                self.zoomedToMillis = Math.min(self.zoomedToMillis - rightImpact, self.toMillis);
+                let prospectiveFromMillis = Math.max(self.zoomedFromMillis + leftImpact, self.fromMillis);
+                let prospectiveToMillis = Math.min(self.zoomedToMillis - rightImpact, self.toMillis);  
+                if (prospectiveToMillis - prospectiveFromMillis >= self.getMinZoomedRange()) {
+                    self.zoomedFromMillis = prospectiveFromMillis;
+                    self.zoomedToMillis = prospectiveToMillis;
+                } else {
+                    let offBy = self.getMinZoomedRange() - (prospectiveToMillis - prospectiveFromMillis);
+                    self.zoomedFromMillis = prospectiveFromMillis - (percentile * offBy);
+                    self.zoomedToMillis = prospectiveToMillis + ((1 - percentile) * offBy);
+                }
             }
             self.setAvailabilityRange(self.zoomedFromMillis, self.zoomedToMillis);
             self.sparkLineChart.setBrushEndTime(new Date(self.zoomedToMillis));
@@ -161,7 +179,7 @@ class AvailabilityChart extends ChartComponent{
             .classed("ghostRect", true)
             .attr("x", this.sparkLineChart.x(new Date(this.selectedFromMillis)))
             .attr("y", 0)
-            .attr("width", this.sparkLineChart.x(new Date(this.selectedToMillis)) - this.sparkLineChart.x(new Date(this.selectedFromMillis)))
+            .attr("width", Math.max(1, this.sparkLineChart.x(new Date(this.selectedToMillis)) - this.sparkLineChart.x(new Date(this.selectedFromMillis))))
             .attr("height", 18)
             .attr("fill", "blue")
             .attr("fill-opacity", .3)
@@ -213,7 +231,7 @@ class AvailabilityChart extends ChartComponent{
         this.zoomedFromMillis = fromMillis;
         this.zoomedToMillis = toMillis;
         var transformedAvailability = this.uxClient.transformAvailabilityForVisualization(this.rawAvailability, 
-                                            50, {from: fromMillis, to: toMillis});
+                                            this.maxBuckets, {from: fromMillis, to: toMillis});
         this.chartOptions.keepBrush = true;
         var aeWithNewTimeSpan = {...this.ae[0], ...{searchSpan: {
             from: (new Date(fromMillis)),
@@ -243,6 +261,7 @@ class AvailabilityChart extends ChartComponent{
             xAxisHidden: true,
             yAxisHidden: true,
             focusHidden: true ,
+            minBrushWidth: 5,
             brushMoveAction: (from, to) => {
                 this.setAvailabilityRange(from.valueOf(), to.valueOf());
             }

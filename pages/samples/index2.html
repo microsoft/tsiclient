@@ -155,10 +155,10 @@
 
         authContext.getTsiToken().then(function(token){
             tsiClient.server.getAvailability(token, 'bec25c6b-ed2e-4416-856d-5057957a1575.env.timeseries.azure.com').then(function(result){
-                var transformedResult = tsiClient.ux.transformAvailabilityForVisualization(result, 50);
+                var transformedResult = tsiClient.ux.transformAvailabilityForVisualization(result, 500);
                 var availabilityChart = new tsiClient.ux.AvailabilityChart(document.getElementById('chart1'));
                 availabilityChart.render(transformedResult, {theme: 'light', grid: false, tooltip: false, legend: "hidden", 
-                   brushContextMenuActions: brushActions, snapBrush: false, brushMoveAction: brushMoveAction}, result);
+                   brushContextMenuActions: brushActions, snapBrush: false, brushMoveAction: brushMoveAction, maxBuckets: 500}, result);
             });
         });
 
