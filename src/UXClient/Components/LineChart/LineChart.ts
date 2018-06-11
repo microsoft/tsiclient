@@ -20,7 +20,7 @@ class LineChart extends ChartComponent {
     private brushContextMenu: ContextMenu;
     private setDisplayStateFromData: any;
     private chartWidth: number;
-    private draw: any;
+    public draw: any;
     private events: any;
     private states: any;
     private minBrushWidth = 0;
@@ -58,8 +58,7 @@ class LineChart extends ChartComponent {
     public createXAxis (singleLineXAxisLabel) {
         return d3.axisBottom(this.x)
             .ticks(this.getXTickNumber(singleLineXAxisLabel))
-            .tickFormat(Utils.timeFormat(this.labelFormatUsesSeconds(), this.labelFormatUsesMillis()))
-            .ticks(1);
+            .tickFormat(Utils.timeFormat(this.labelFormatUsesSeconds(), this.labelFormatUsesMillis()));
     }
 
     private voronoiMouseout (d: any)  {
@@ -278,7 +277,6 @@ class LineChart extends ChartComponent {
                                 
             var draw = () => {  
                 this.minBrushWidth = (this.chartOptions.minBrushWidth) ? this.chartOptions.minBrushWidth : this.minBrushWidth;
-
                 this.focus.attr("visibility", (this.chartOptions.focusHidden) ? "hidden" : "visible")
                 if (this.chartOptions.xAxisHidden && this.chartOptions.focusHidden) {
                     this.chartMargins.bottom = 5;
@@ -909,7 +907,10 @@ class LineChart extends ChartComponent {
             this.contextMenu = new ContextMenu(draw, this.renderTarget);
             this.brushContextMenu = new ContextMenu(draw, this.renderTarget);
             this.draw = draw;
-            window.addEventListener("resize", this.draw);
+            window.addEventListener("resize", () => {
+                if (!this.chartOptions.suppressResizeListener)   
+                    this.draw();
+            });
 
             var eventSeriesWrappers;
             var eventSeriesComponents;

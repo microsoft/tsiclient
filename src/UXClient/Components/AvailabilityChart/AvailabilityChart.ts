@@ -112,6 +112,8 @@ class AvailabilityChart extends ChartComponent{
         this.chartOptions.yAxisHidden = true;
         this.chartOptions.focusHidden = true;
         this.chartOptions.singleLineXAxisLabel = true;
+        this.chartOptions.suppressResizeListener = true;
+        this.chartOptions.brushClearable = false;
 
         var timePickerOptionsObj = { ...this.chartOptions.toObject(), ...{brushMoveAction: (from, to) => {
             chartOptions.brushMoveAction(from, to);
@@ -142,7 +144,9 @@ class AvailabilityChart extends ChartComponent{
             this.sparkLineChart.setBrush();
             this.setBrush(this.toMillis - (24 * 60 * 60 * 1000), this.toMillis);
             window.addEventListener('resize', () => {
+                this.timePickerLineChart.draw();
                 this.drawGhost();
+                this.setTicks();
             });
             this.zoomedFromMillis = this.fromMillis;
             this.zoomedToMillis = this.toMillis;
@@ -266,9 +270,13 @@ class AvailabilityChart extends ChartComponent{
     private setTicks () {
         if (this.timePickerLineChart.zoomedToMillis == this.timePickerLineChart.toMillis) {
             let xAxis = this.timePickerLineChart.createXAxis(true);
-            let ticks = xAxis.scale().ticks(this.timePickerLineChart.getXTickNumber(true));
-            if (this.zoomedToMillis == this.toMillis)
-                ticks[ticks.length - 1] = new Date(this.toMillis);
+            let ticks = xAxis.scale().ticks(Math.max(2, this.timePickerLineChart.getXTickNumber(true)));
+            if (this.zoomedToMillis == this.toMillis) {
+                if (ticks.length > 1)
+                    ticks[ticks.length - 1] = new Date(this.toMillis);
+                else 
+                    ticks.push(new Date(this.toMillis));
+            }
             if (this.zoomedFromMillis == this.fromMillis)
                 ticks[0] = new Date(this.fromMillis);
             let xAxisElem = this.timePickerContainer.select('.tsi-timePickerChart')
@@ -311,11 +319,12 @@ class AvailabilityChart extends ChartComponent{
             snapBrush: false, 
             xAxisHidden: true,
             yAxisHidden: true,
-            focusHidden: true ,
+            focusHidden: true,
             minBrushWidth: 5,
             brushMoveAction: (from, to) => {
                 this.setAvailabilityRange(from.valueOf(), to.valueOf());
-            }
+            },
+            brushClearable: false
         };
     }
 }

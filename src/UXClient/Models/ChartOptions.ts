@@ -22,6 +22,7 @@ class ChartOptions {
     public snapBrush: boolean; // whether to snap linechart brush to closest value
     public stacked: boolean; //whether bars in barchart are stacked
     public states: Array<any>; // states passed into the linchart, an array of time range bound states
+    public suppressResizeListener: boolean; // whether a component's resize function is ignored. Applies to components which draw an SVG
     public theme: string; // theme for styling chart, light or dark
     public timeFrame: any; // from and to to specify range of an event or state series
     public timestamp: any; //For components with a slider, this is the selected timestamp
@@ -46,13 +47,13 @@ class ChartOptions {
         this.maxBuckets = this.getValueOrDefault(chartOptionsObj.maxBuckets, 500);
         this.yAxisHidden = this.getValueOrDefault(chartOptionsObj.yAxisHidden, false);
         this.focusHidden = this.getValueOrDefault(chartOptionsObj.focusHidden, false);
-        this.singleLineXAxisLabel = this.getValueOrDefault(chartOptionsObj.singleLineXAxisHidden, false);
+        this.singleLineXAxisLabel = this.getValueOrDefault(chartOptionsObj.singleLineXAxisLabel, false);
         this.legend = this.getValueOrDefault(chartOptionsObj.legend, 'shown');
         this.states = this.getValueOrDefault(chartOptionsObj.states, null);
         this.events = this.getValueOrDefault(chartOptionsObj.events, null);
         this.tooltip = this.getValueOrDefault(chartOptionsObj.tooltip, false);
         this.snapBrush = this.getValueOrDefault(chartOptionsObj.snapBrush, false);
-        this.minBrushWidth = this.getValueOrDefault(chartOptionsObj, 0);
+        this.minBrushWidth = this.getValueOrDefault(chartOptionsObj.minBrushWidth, 0);
         this.theme = this.getValueOrDefault(chartOptionsObj.theme, 'dark');
         this.keepSplitByColor = this.getValueOrDefault(chartOptionsObj.keepSplitByColor, false);
         this.brushContextMenuActions = this.getValueOrDefault(chartOptionsObj.brushContextMenuActions, null);
@@ -67,6 +68,7 @@ class ChartOptions {
         this.brushMoveAction = this.getValueOrDefault(chartOptionsObj.brushMoveAction, null);
         this.yAxisState = this.getValueOrDefault(chartOptionsObj.yAxisState, 'stacked');
         this.xAxisHidden = this.getValueOrDefault(chartOptionsObj.xAxisHidden, false);
+        this.suppressResizeListener = this.getValueOrDefault(chartOptionsObj.suppressResizeListener, false);
     }
 
     public toObject () {
@@ -100,7 +102,8 @@ class ChartOptions {
             brushClearable: this.brushClearable,
             brushMoveAction: this.brushMoveAction,
             yAxisState: this.yAxisState,
-            xAxisHidden: this.xAxisHidden
+            xAxisHidden: this.xAxisHidden,
+            suppressResizeListener: this.suppressResizeListener
         }
     }
 }

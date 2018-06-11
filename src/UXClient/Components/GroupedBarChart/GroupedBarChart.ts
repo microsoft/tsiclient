@@ -14,7 +14,7 @@ class GroupedBarChart extends ChartComponent {
     private svgSelection: any;
     private legendObject: Legend;
     private contextMenu: ContextMenu;
-    private draw: any;
+    public draw: any;
     private setStateFromData: any;
     private timestamp: any;
     chartComponentData = new GroupedBarChartData();
@@ -612,7 +612,10 @@ class GroupedBarChart extends ChartComponent {
             var slider = new Slider(this.renderTarget);
             
             this.draw = draw;
-            window.addEventListener("resize", this.draw);
+            window.addEventListener("resize", () => {
+                if (!this.chartOptions.suppressResizeListener)
+                    this.draw();
+            });
         }
 
         this.chartComponentData.mergeDataToDisplayStateAndTimeArrays(data, this.timestamp, aggregateExpressionOptions);

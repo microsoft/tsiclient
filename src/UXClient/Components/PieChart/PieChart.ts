@@ -242,7 +242,10 @@ class PieChart extends ChartComponent {
             
             // temporal slider
             var slider = new Slider(this.renderTarget);
-            window.addEventListener("resize", this.draw);
+            window.addEventListener("resize", () => {
+                if (!this.chartOptions.suppressResizeListener)
+                    this.draw();
+            });
         }
         this.draw();
     }

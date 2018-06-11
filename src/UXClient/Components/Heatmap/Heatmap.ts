@@ -13,7 +13,7 @@ class Heatmap extends ChartComponent {
     private heatmapWrapper: any;
     private splitByLabels: any;
     private legend: Legend;
-    private draw: any;
+    public draw: any;
     private heatmapCanvasMap: any;
     private timeLabels: any;
     private height: number;
@@ -104,7 +104,8 @@ class Heatmap extends ChartComponent {
         this.draw();
         this.timeLabels = this.heatmapWrapper.append('svg').attr("class", "tsi-heatmapTimeLabels");
         window.addEventListener("resize", () => {
-            this.draw();
+            if (!this.chartOptions.suppressResizeListener)
+                this.draw();
         });
     }
 
