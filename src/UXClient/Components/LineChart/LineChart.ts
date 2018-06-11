@@ -9,6 +9,7 @@ import {StateSeries} from "../StateSeries/StateSeries";
 import {LineChartData} from "./../../Models/LineChartData";
 import { ContextMenu } from '../ContextMenu/ContextMenu';
 import { Tooltip } from '../Tooltip/Tooltip';
+import { ChartOptions } from '../../Models/ChartOptions';
 
 class LineChart extends ChartComponent {
     private svgSelection: any;
@@ -23,6 +24,7 @@ class LineChart extends ChartComponent {
     private events: any;
     private states: any;
     private minBrushWidth = 0;
+    private strokeOpacity = 1;
     chartComponentData = new LineChartData();
     private surpressBrushTimeSet: boolean = false;
 
@@ -39,7 +41,6 @@ class LineChart extends ChartComponent {
         right: 60
     };
     private xOffset = 8;
-    private aggTopMargin = 12;
 
     constructor(renderTarget: Element){
         super(renderTarget);
@@ -47,6 +48,18 @@ class LineChart extends ChartComponent {
     }
 
     LineChart() { 
+    }
+
+    public getXTickNumber (singleLineXAxisLabel) {
+        return (singleLineXAxisLabel ? Math.floor(this.chartWidth / 280) :  Math.floor(this.chartWidth / 140));
+    }
+    
+    //create xAxis is public so that users of linechart can programmatically change the axis labels
+    public createXAxis (singleLineXAxisLabel) {
+        return d3.axisBottom(this.x)
+            .ticks(this.getXTickNumber(singleLineXAxisLabel))
+            .tickFormat(Utils.timeFormat(this.labelFormatUsesSeconds(), this.labelFormatUsesMillis()))
+            .ticks(1);
     }
 
     private voronoiMouseout (d: any)  {
@@ -61,7 +74,7 @@ class LineChart extends ChartComponent {
         })).classed("inFocus", false)
         d3.event.stopPropagation();
         this.svgSelection.selectAll(".valueElement")
-                    .attr("stroke-opacity", 1)
+                    .attr("stroke-opacity", this.strokeOpacity)
                     .attr("fill-opacity", 1);
 
         /** Update y Axis */
@@ -137,18 +150,16 @@ class LineChart extends ChartComponent {
 
     public render(data: any, options: any, aggregateExpressionOptions: any) {
         this.data = data;
-        this.chartOptions = options;
+        this.chartOptions = new ChartOptions(options);
         this.aggregateExpressionOptions = aggregateExpressionOptions;
         var width = Math.max((<any>d3.select(this.renderTarget).node()).clientWidth, this.MINWIDTH);
         var height = Math.max((<any>d3.select(this.renderTarget).node()).clientHeight, this.MINHEIGHT);
-        var legendState: string = (this.chartOptions.legend != undefined) ? this.chartOptions.legend : "shown";
-        if (legendState == "compact")
+        if (this.chartOptions.legend == "compact")
             this.chartMargins.top = 40;
-        var namedEvents = (this.chartOptions.events != undefined) ? this.chartOptions.events : null;
-        var namedStates = (this.chartOptions.states != undefined) ? this.chartOptions.states : null;  
-        this.aggTopMargin = (this.chartOptions.aggTopMargin != undefined) ? this.chartOptions.aggTopMargin : this.aggTopMargin; 
+
         this.events = (this.chartOptions.events != undefined) ? this.chartOptions.events : null;
         this.states = (this.chartOptions.states != undefined) ? this.chartOptions.states : null;
+        this.strokeOpacity = this.chartOptions.isArea ? .55 : 1;
 
         this.chartComponentData.mergeDataToDisplayStateAndTimeArrays(data, aggregateExpressionOptions, this.events, this.states);
         if (this.chartOptions.xAxisHidden && this.chartOptions.focusHidden) {
@@ -157,9 +168,9 @@ class LineChart extends ChartComponent {
 
         var timelineHeight = (this.chartComponentData.visibleEventsAndStatesCount * 10);
         var chartHeight = height - this.chartMargins.bottom - this.chartMargins.top - timelineHeight; 
-        this.chartWidth = Math.max(0, width - this.chartMargins.left - this.chartMargins.right - (legendState == "shown" ? this.CONTROLSWIDTH : 0));
+        this.chartWidth = Math.max(0, width - this.chartMargins.left - this.chartMargins.right - (this.chartOptions.legend == "shown" ? this.CONTROLSWIDTH : 0));
 
-        if (this.brush && this.svgSelection.select('.svgGroup').select(".brushElem") && !options.keepBrush) {
+        if (this.brush && this.svgSelection.select('.svgGroup').select(".brushElem") && !this.chartOptions.keepBrush) {
             this.svgSelection.select('.svgGroup').select(".brushElem").call(this.brush.move, null);
             this.brushStartTime = null;
             this.brushEndTime = null;
@@ -194,7 +205,7 @@ class LineChart extends ChartComponent {
             
             this.brushElem = null; 
             var voronoiRegion
-            if (options.brushContextMenuActions || options.brushMoveAction) {
+            if (this.chartOptions.brushContextMenuActions || this.chartOptions.brushMoveAction) {
                 this.brushElem = g.append("g")
                     .attr("class", "brushElem");
             } else {
@@ -210,7 +221,7 @@ class LineChart extends ChartComponent {
                 .attr("class", "focusLine vLine")
                 .attr("x1", 0)
                 .attr("x2", 0)
-                .attr("y1", this.aggTopMargin)
+                .attr("y1", this.chartOptions.aggTopMargin)
                 .attr("y2", chartHeight + timelineHeight);
             this.focus.append("line")
                 .attr("class", "focusLine hLine")
@@ -224,7 +235,7 @@ class LineChart extends ChartComponent {
     
             var hHoverG: any = this.focus.append("g")
                 .attr("class", 'hHoverG')
-                .attr("transform", "translate(0," + (chartHeight + this.aggTopMargin) + ")");
+                .attr("transform", "translate(0," + (chartHeight + this.chartOptions.aggTopMargin) + ")");
             var hHoverBox: any = hHoverG.append("rect")
                 .attr("class", 'hHoverBox')
                 .attr("x", 0)
@@ -247,7 +258,7 @@ class LineChart extends ChartComponent {
 
             var vHoverG: any = this.focus.append("g")
                 .attr("class", 'vHoverG')
-                .attr("transform", "translate(0," + (chartHeight + this.aggTopMargin) + ")");
+                .attr("transform", "translate(0," + (chartHeight + this.chartOptions.aggTopMargin) + ")");
             var vHoverBox: any = vHoverG.append("rect")
                 .attr("class", 'vHoverBox')
                 .attr("x", -5)
@@ -263,14 +274,9 @@ class LineChart extends ChartComponent {
             var tooltip = new Tooltip(this.focus);
             tooltip.render(this.chartOptions.theme);
                         
-            this.yAxisState = options.yAxisState ? options.yAxisState : "stacked"; // stacked, shared, overlap
+            this.yAxisState = this.chartOptions.yAxisState ? this.chartOptions.yAxisState : "stacked"; // stacked, shared, overlap
                                 
             var draw = () => {  
-                const legendState: string = (this.chartOptions.legend != undefined) ? this.chartOptions.legend : "shown";
-                const noAnimate: boolean = !!this.chartOptions.noAnimate;
-                const tooltipVisible: boolean = !!this.chartOptions.tooltip;
-                const snapBrush: boolean = !!this.chartOptions.snapBrush;
-                const brushClearable: boolean = !!this.chartOptions.brushClearable;
                 this.minBrushWidth = (this.chartOptions.minBrushWidth) ? this.chartOptions.minBrushWidth : this.minBrushWidth;
 
                 this.focus.attr("visibility", (this.chartOptions.focusHidden) ? "hidden" : "visible")
@@ -282,7 +288,7 @@ class LineChart extends ChartComponent {
                 timelineHeight = (this.chartComponentData.visibleEventsAndStatesCount * 10);
       
                 width = Math.max((<any>d3.select(this.renderTarget).node()).clientWidth, this.MINWIDTH);
-                this.chartWidth = Math.max(0, width - this.chartMargins.left - this.chartMargins.right - (legendState == "shown" ? this.CONTROLSWIDTH : 0));
+                this.chartWidth = Math.max(0, width - this.chartMargins.left - this.chartMargins.right - (this.chartOptions.legend == "shown" ? this.CONTROLSWIDTH : 0));
                 height = Math.max((<any>d3.select(this.renderTarget).node()).clientHeight, this.MINHEIGHT);
                 chartHeight = height - this.chartMargins.bottom - this.chartMargins.top - timelineHeight; 
 
@@ -293,7 +299,7 @@ class LineChart extends ChartComponent {
                      
                 super.themify(targetElement, this.chartOptions.theme);
                         
-                this.legendObject.draw(legendState, this.chartComponentData, labelMouseover, 
+                this.legendObject.draw(this.chartOptions.legend, this.chartComponentData, labelMouseover, 
                                        this.svgSelection, this.chartOptions, () => {});
     
                 this.svgSelection.selectAll('.valueElement').style("visibility", "hidden");
@@ -303,7 +309,7 @@ class LineChart extends ChartComponent {
                             .rangeRound([this.xOffset, Math.max(this.xOffset, this.chartWidth - (2 * this.xOffset))]);
         
                 var y = d3.scaleLinear()
-                        .range([Math.max(chartHeight, this.aggTopMargin), this.aggTopMargin]);
+                        .range([Math.max(chartHeight, this.chartOptions.aggTopMargin), this.chartOptions.aggTopMargin]);
 
                 var fromAndTo: any = this.chartComponentData.setAllValuesAndVisibleTAs();
                 var xExtent: any = (this.chartComponentData.allValues.length != 0) ? d3.extent(this.chartComponentData.allValues, (d: any) => d.dateTime) : [0,1];
@@ -326,7 +332,7 @@ class LineChart extends ChartComponent {
 
                 if (voronoiRegion) {
                     voronoiRegion.attr("x", xOffsetPercentage * this.chartWidth)
-                        .attr("y", this.aggTopMargin)
+                        .attr("y", this.chartOptions.aggTopMargin)
                         .attr("width", this.chartWidth - (xOffsetPercentage * this.chartWidth * 2))
                         .attr("height", chartHeight);
                 }
@@ -334,7 +340,7 @@ class LineChart extends ChartComponent {
                 if (this.brushElem) {
                     var self = this;
                     this.brush = d3.brushX()
-                    .extent([[xLowerBound, this.aggTopMargin],
+                    .extent([[xLowerBound, this.chartOptions.aggTopMargin],
                              [xUpperBound, chartHeight]])
                     .on("brush", function () {
                         if (!d3.event.sourceEvent) return;
@@ -365,11 +371,11 @@ class LineChart extends ChartComponent {
                     })
                     .on("end", function () {
                         if (d3.event.selection == null) {
-                            if (!brushClearable)
+                            if (!self.chartOptions.brushClearable)
                                 d3.select(this).transition().call(d3.event.target.move, [self.x(self.brushStartTime), self.x(self.brushEndTime)]);
                             return;
                         }
-                        if (snapBrush) {
+                        if (self.chartOptions.snapBrush) {
                             //find the closest possible value and set to that
                             if (possibleTimesArray.length > 0) {
                                 var findClosestTime = (rawXValue): Date => {
@@ -408,24 +414,40 @@ class LineChart extends ChartComponent {
                     
                 var yExtent: any = this.getYExtent(this.chartComponentData.allValues);
                 var yRange = (yExtent[1] - yExtent[0]) > 0 ? yExtent[1] - yExtent[0] : 1;
-                var yOffsetPercentage = 10 / (chartHeight);
-                y.domain([yExtent[0] - (yRange * yOffsetPercentage), yExtent[1] + (yRange * yOffsetPercentage)]);
-
+                var yOffsetPercentage = this.chartOptions.isArea ? (1.5 / chartHeight) : (10 / chartHeight);
+                y.domain([yExtent[0] - (yRange * yOffsetPercentage), yExtent[1] + (yRange * (10 / chartHeight))]);
                 if (this.chartComponentData.visibleTAs && this.chartComponentData.visibleTSCount != 0) {
                     /******************** Creating this.x, y and line **********************/
         
-                    var line = d3.line()
-                                .curve(d3.curveMonotoneX)
-                                .defined( (d: any) => { 
-                                    return (d.measures !== null) && 
-                                           (d.measures[this.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy)] !== null);
-                                })
-                                .x((d: any) => {
-                                    return this.getXPosition(d, this.x);
-                                })
-                                .y((d: any) => { 
-                                    return d.measures ? y(d.measures[this.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy)]) : 90000;
-                                });
+                    var line;
+                    
+                    line = d3.line()
+                        .curve(d3.curveMonotoneX)
+                        .defined( (d: any) => { 
+                            return (d.measures !== null) && 
+                                    (d.measures[this.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy)] !== null);
+                        })
+                        .x((d: any) => {
+                            return this.getXPosition(d, this.x);
+                        })
+                        .y((d: any) => { 
+                            return d.measures ? y(d.measures[this.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy)]) : 0;
+                        });
+                    if (options.isArea) {
+                        var areaPath = d3.area()
+                        .curve(d3.curveMonotoneX)
+                        .defined( (d: any) => { 
+                            return (d.measures !== null) && 
+                                    (d.measures[this.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy)] !== null);
+                        })
+                        .x((d: any) => {
+                            return this.getXPosition(d, this.x);
+                        })
+                        .y0((d: any) => { 
+                            return d.measures ? y(d.measures[this.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy)]) : 0;
+                        })
+                        .y1(chartHeight);
+                    }
                     
                     if (!this.chartOptions.xAxisHidden) {
                         var xAxis: any = g.selectAll(".xAxis").data([this.x]);
@@ -435,13 +457,10 @@ class LineChart extends ChartComponent {
                             .attr("class", "xAxis")
                             .merge(xAxis)
                             .attr("transform", "translate(0," + (chartHeight + timelineHeight) + ")")
-                            .call(d3.axisBottom(this.x)
-                                    .ticks(Math.floor(this.chartWidth / 150))
-                                    .tickFormat(Utils.timeFormat(this.labelFormatUsesSeconds(), this.labelFormatUsesMillis())));
+                            .call(this.createXAxis(this.chartOptions.singleLineXAxisLabel));
 
-                                    
-                        xAxisEntered.selectAll('text')
-                            .call(Utils.splitTimeLabel);
+                        if (!this.chartOptions.singleLineXAxisLabel)                                     
+                            xAxisEntered.selectAll('text').call(Utils.splitTimeLabel);
 
                         xAxisEntered.select(".domain").style("display", "none");
                         xAxis.exit().remove();
@@ -451,7 +470,7 @@ class LineChart extends ChartComponent {
                             .attr("class", "xAxisBaseline")
                             .attr("x1", .5)
                             .merge(xAxisBaseline)
-                            .attr("y2", chartHeight + timelineHeight +  .5)
+                            .attr("y2", chartHeight + timelineHeight + .5)
                             .attr("y1", chartHeight + timelineHeight + .5)
                             .attr("x2", this.chartWidth - this.xOffset);
                         xAxisBaseline.exit().remove();
@@ -488,10 +507,10 @@ class LineChart extends ChartComponent {
                             });
                             aggY = d3.scaleLinear();
                             if (this.yAxisState == "overlap") {
-                                aggY.range([chartHeight, this.aggTopMargin]);
+                                aggY.range([chartHeight, this.chartOptions.aggTopMargin]);
                             } else {
                                 aggY.range([(chartHeight / visibleAggCount) * (visibleAggI + 1), 
-                                            (chartHeight / visibleAggCount) * (visibleAggI) + this.aggTopMargin]);
+                                            (chartHeight / visibleAggCount) * (visibleAggI) + this.chartOptions.aggTopMargin]);
                             }
                             if (this.chartComponentData.aggHasVisibleSplitBys(aggKey)) {
                                 yExtent = this.getYExtent(aggValues);
@@ -534,7 +553,7 @@ class LineChart extends ChartComponent {
                                 .style("fill", this.chartComponentData.displayState[aggKey].color);
                         }
                         else {
-                            yAxis.call(d3.axisLeft(aggY).tickFormat(Utils.formatYAxisNumber).ticks(4))
+                            yAxis.call(d3.axisLeft(aggY).tickFormat(Utils.formatYAxisNumber).ticks(2))
                                 .selectAll("text").classed("standardYAxisText", true)
                         }
                         yAxis.exit().remove();
@@ -577,7 +596,7 @@ class LineChart extends ChartComponent {
                                     return (this.chartComponentData.isSplitByVisible(aggKey, splitBy)) ? "visible" : "hidden";
                                 })   
                                 .transition()
-                                .duration(noAnimate ? 0 : this.TRANSDURATION)
+                                .duration(this.chartOptions.noAnimate ? 0 : this.TRANSDURATION)
                                 .ease(d3.easeLinear)                                         
                                 // .attr("stroke",  Utils.colorSplitBy(this.chartComponentData.displayState, j, aggKey))
                                 .attr("stroke-dasharray","5,5")            
@@ -594,12 +613,30 @@ class LineChart extends ChartComponent {
                                     return (this.chartComponentData.isSplitByVisible(aggKey, splitBy)) ? "visible" : "hidden";
                                 })                                            
                                 .transition()
-                                .duration(noAnimate ? 0 : this.TRANSDURATION)
+                                .duration(this.chartOptions.noAnimate ? 0 : this.TRANSDURATION)
                                 .ease(d3.easeLinear)
-                                .attr("stroke",  Utils.colorSplitBy(this.chartComponentData.displayState, j, aggKey, this.chartOptions.keepSplitByColor))                        
+                                .attr("stroke",  Utils.colorSplitBy(this.chartComponentData.displayState, j, aggKey, this.chartOptions.keepSplitByColor)) 
+                                .attr("stroke-opacity", this.strokeOpacity)                       
                                 .attr("d", aggLine);
-                            
-                            // this.chartComponentData.timeArrays[aggKey][splitBy].forEach()
+
+                            if (this.chartOptions.isArea) {
+                                var area = g.selectAll(".valueArea" + tsIterator)
+                                    .data([this.chartComponentData.timeArrays[aggKey][splitBy]]);
+        
+                                area.enter()
+                                    .append("path")
+                                    .attr("class", "valueElement valueArea valueArea" + tsIterator)
+                                    .merge(area)
+                                    .style("visibility", (d: any) => { 
+                                        return (this.chartComponentData.isSplitByVisible(aggKey, splitBy)) ? "visible" : "hidden";
+                                    })                                            
+                                    .transition()
+                                    .duration(this.chartOptions.noAnimate ? 0 : this.TRANSDURATION)
+                                    .ease(d3.easeLinear)
+                                    .style("fill",  Utils.colorSplitBy(this.chartComponentData.displayState, j, aggKey, this.chartOptions.keepSplitByColor))                        
+                                    .attr("d", areaPath);
+                                area.exit().remove();
+                            }
 
                             gapPath.exit().remove();
                             path.exit().remove();
@@ -687,7 +724,7 @@ class LineChart extends ChartComponent {
                             .attr("y", -(textElemDimensions.height / 2) - 3)
                             .attr("width", textElemDimensions.width + 6)
                             .attr("height", textElemDimensions.height + 4);
-                        if (tooltipVisible)
+                        if (this.chartOptions.tooltip)
                             tooltip.draw(d, this.chartComponentData, xPos, yPos, this.chartWidth, chartHeight, (text) => {
                                 var title = d.aggregateName;   
                                 
@@ -702,7 +739,7 @@ class LineChart extends ChartComponent {
                                         .attr("y", titleOffset)
                                         .attr("x", 0)
                                         .text(d.splitBy);
-                                    titleOffset += this.aggTopMargin;
+                                    titleOffset += this.chartOptions.aggTopMargin;
                                 } else {
                                     titleOffset += 4;
                                 }
@@ -801,7 +838,7 @@ class LineChart extends ChartComponent {
                     }
                     
                     /******************** Stack/Unstack button ************************/
-                    stackedButton.attr("transform", () => {return 'translate(32,' + (chartHeight + timelineHeight + this.aggTopMargin) + ')'})
+                    stackedButton.attr("transform", () => {return 'translate(32,' + (chartHeight + timelineHeight + this.chartMargins.top) + ')'})
                                 .attr("opacity",  () => {
                                     if (this.yAxisState == "stacked") return 1;
                                     if (this.yAxisState == "shared") return .5
@@ -810,7 +847,7 @@ class LineChart extends ChartComponent {
                                 .style("display", visibleAggCount < 2 ? "none" : "block");
                                 
                     /******************** Grid button ************************/
-                    gridButton.attr("transform", () => {return 'translate(' + (this.chartWidth + this.chartMargins.left + 26) + ',' + (chartHeight + this.aggTopMargin + timelineHeight) + ')'})
+                    gridButton.attr("transform", () => {return 'translate(' + (this.chartWidth + this.chartMargins.left + 26) + ',' + (chartHeight + this.chartOptions.aggTopMargin + timelineHeight) + ')'})
                                 .style("display", !!this.chartOptions.grid ? "block" : "none");
                 }
 
@@ -826,7 +863,7 @@ class LineChart extends ChartComponent {
                             .style("visibility", d => isVisible ? "visible" : "hidden")
                             .style("right", this.chartMargins.right  + 'px')
                             .style("bottom", this.chartMargins.bottom + timelineHeight - (visibleEventsCount * 10)  + 'px');
-                        eventSeriesComponents[i].render(namedEventSeries, {timeFrame: {from : xExtent[0], to: xExtent[1]}, xAxis: "hidden", theme: this.chartOptions.theme});
+                        eventSeriesComponents[i].render(namedEventSeries, {timeFrame: {from : xExtent[0], to: xExtent[1]}, xAxisHidden: true, theme: this.chartOptions.theme});
                     });
                 }
                 if (this.chartComponentData.states) {
@@ -841,7 +878,7 @@ class LineChart extends ChartComponent {
                             .style("visibility", d => this.chartComponentData.displayState.states[namedStateSeries.key].visible ? "visible" : "hidden")
                             .style("right", this.chartMargins.right + 'px')
                             .style("bottom", this.chartMargins.bottom + timelineHeight - ((visibleEventsCount * 10) + (visibleStatesCount * 10))  + 'px');
-                        stateSeriesComponents[i].render(namedStateSeries, {timeFrame: {from : xExtent[0], to: xExtent[1]}, xAxis: "hidden", theme: this.chartOptions.theme});
+                        stateSeriesComponents[i].render(namedStateSeries, {timeFrame: {from : xExtent[0], to: xExtent[1]}, xAxisHidden: true, theme: this.chartOptions.theme});
                     });
                 }
             }

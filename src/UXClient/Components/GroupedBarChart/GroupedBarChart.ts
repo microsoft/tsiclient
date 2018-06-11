@@ -8,6 +8,7 @@ import { ChartComponentData } from '../../Models/ChartComponentData';
 import { GroupedBarChartData } from '../../Models/GroupedBarChartData';
 import { ContextMenu } from './../ContextMenu/ContextMenu';
 import { Tooltip } from '../Tooltip/Tooltip';
+import { ChartOptions } from '../../Models/ChartOptions';
 
 class GroupedBarChart extends ChartComponent {
     private svgSelection: any;
@@ -31,7 +32,7 @@ class GroupedBarChart extends ChartComponent {
 
     GroupedBarChart() { }
     public render(data: any, options: any, aggregateExpressionOptions: any) {
-        this.chartOptions = options;
+        this.chartOptions = new ChartOptions(options);
         this.aggregateExpressionOptions = aggregateExpressionOptions;
         var width = Math.max((<any>d3.select(this.renderTarget).node()).clientWidth, this.MINWIDTH);
         var height = Math.max((<any>d3.select(this.renderTarget).node()).clientHeight, this.MINHEIGHT);
@@ -41,12 +42,7 @@ class GroupedBarChart extends ChartComponent {
         this.timestamp = (options.timestamp != undefined) ? options.timestamp : Object.keys(firstTerm[firstSplitByKey])[0];
         this.chartComponentData.mergeDataToDisplayStateAndTimeArrays(data, this.timestamp, aggregateExpressionOptions);
 
-        var legendState = (options.legend != undefined) ? options.legend : "shown";
-        var isStacked = (options.stacked != undefined) ? options.stacked : false;
-        var scaledToCurrentTime = (options.scaledToCurrentTime != undefined) ? options.scaledToCurrentTime : false;
-        var zeroYAxis = (options.zeroYAxis == undefined) ? true : options.zeroYAxis;
-
-        var controlsOffset = (legendState == "shown" ? this.CONTROLSWIDTH : 0)
+        var controlsOffset = (this.chartOptions.legend == "shown" ? this.CONTROLSWIDTH : 0)
         var chartHeight = height - this.chartMargins.bottom - this.chartMargins.top; 
         var chartWidth = width - this.chartMargins.left - this.chartMargins.right - controlsOffset;
 
@@ -60,7 +56,7 @@ class GroupedBarChart extends ChartComponent {
             this.svgSelection = svgSelection;
             
             var stackedButton = Utils.createStackedButton(svgSelection)
-                .on("click", () => { isStacked = !isStacked; draw();});
+                .on("click", () => { this.chartOptions.stacked = !this.chartOptions.stacked; draw();});
             
             var gridButton: any = Utils.createGridButton(svgSelection, this, this.chartComponentData.usesSeconds, 
                                                          this.chartComponentData.usesMillis);    
@@ -97,7 +93,7 @@ class GroupedBarChart extends ChartComponent {
 
             var tooltipG = g.append("g").attr("class", "tooltipG");
             var tooltip = new Tooltip(<any>(tooltipG));
-            tooltip.render(options.theme);
+            tooltip.render(this.chartOptions.theme);
 
             var measureMap = this.chartComponentData.data.map((aggregate, aggI) => {
                 var aggName: string = Object.keys(aggregate)[0]
@@ -219,9 +215,6 @@ class GroupedBarChart extends ChartComponent {
                 this.chartComponentData.timestamp = (this.chartOptions.timestamp != undefined) ? this.chartOptions.timestamp : Object.keys(firstTerm[firstSplitByKey])[0];
                 this.chartComponentData.setFilteredAggregates();
                 
-                var tooltipVisible: boolean = !!this.chartOptions.tooltip;
-                legendState = (this.chartOptions.legend != undefined) ? this.chartOptions.legend : "shown";
-                var zeroYAxis = (this.chartOptions.zeroYAxis == undefined) ? true : this.chartOptions.zeroYAxis;
                 
                 super.themify(targetElement, this.chartOptions.theme);
                 
@@ -231,7 +224,7 @@ class GroupedBarChart extends ChartComponent {
                     this.chartMargins.bottom = 80;
                 /*******************/
                 
-                var controlsOffset = (legendState == "shown" ? this.CONTROLSWIDTH : 0)
+                var controlsOffset = (this.chartOptions.legend == "shown" ? this.CONTROLSWIDTH : 0)
                 chartHeight = height - this.chartMargins.bottom - this.chartMargins.top; 
                 chartWidth = width - this.chartMargins.left - this.chartMargins.right - controlsOffset;
                 svgSelection.style("height", height)
@@ -254,7 +247,7 @@ class GroupedBarChart extends ChartComponent {
                     return map;
                 }, {});            
                 
-                this.legendObject.draw(legendState, this.chartComponentData, labelMouseover, 
+                this.legendObject.draw(this.chartOptions.legend, this.chartComponentData, labelMouseover, 
                                         svgSelection, this.chartOptions, labelMouseout);
 
                 barGroups = barGroups.enter()
@@ -269,16 +262,16 @@ class GroupedBarChart extends ChartComponent {
                         return "";
                     });
             
-                this.chartComponentData.setEntireRangeData(scaledToCurrentTime);
+                this.chartComponentData.setEntireRangeData(this.chartOptions.scaledToCurrentTime);
                 var allValues = this.chartComponentData.allValues;
                 var aggsSeries = this.chartComponentData.aggsSeries;
                 
                 var yScale = d3.scaleLinear()
                     .range([chartHeight, 0]);
                 var extent = d3.extent(allValues);
-                if (!isStacked) {
+                if (!this.chartOptions.stacked) {
                     if (allValues.length > 0) { //check to make sure there are values present
-                        if (zeroYAxis) {
+                        if (this.chartOptions.zeroYAxis) {
                             if (extent[0] > 0)
                                 yScale.domain([0, d3.extent(allValues)[1]])
                             else
@@ -360,7 +353,7 @@ class GroupedBarChart extends ChartComponent {
 
                     //calculate the yPosition of an element, either by its data or explicitly through its value
                     var calcYPos = (d, i) => {
-                        if (!isStacked) {
+                        if (!self.chartOptions.stacked) {
                             if (d.val > 0)
                                 return yScale(d.val);
                             return yScale(0);
@@ -373,7 +366,7 @@ class GroupedBarChart extends ChartComponent {
 
                     //calculate the height of an element given its data
                     var calcHeight = (d, i, dValue = null) => {
-                        if (!isStacked) {
+                        if (!self.chartOptions.stacked) {
                             if (yScale.domain()[0] >= 0) 
                                 return chartHeight - calcYPos(d, i);
                             dValue = (dValue != null) ? dValue : d.val;
@@ -439,7 +432,7 @@ class GroupedBarChart extends ChartComponent {
                             focus.select('.vHoverG')
                             .select("text")
                             .text(() => {
-                                if (!isStacked)
+                                if (!self.chartOptions.stacked)
                                     return Utils.formatYAxisNumber(d.val);
                                 var yVal = yScale.invert(calcYPos(d, j))
                                 if (d.val < 0)
@@ -457,7 +450,7 @@ class GroupedBarChart extends ChartComponent {
                             (<any>focus.node()).parentNode.appendChild(focus.node());
                         })
                         .on("mousemove", function (d) {
-                            if (tooltipVisible) {
+                            if (self.chartOptions.tooltip) {
                                 var mousePos = d3.mouse(<any>g.node());
                                 tooltipG.attr("transform", "translate(" + mousePos[0] + "," + mousePos[1] + ")");
                                 tooltip.draw (d, self.chartComponentData, mousePos[0], mousePos[1], chartWidth , chartHeight, (text) => {
@@ -503,12 +496,12 @@ class GroupedBarChart extends ChartComponent {
                         .duration(self.TRANSDURATION)
                         .attr("y", (d, i) => calcYPos(d, i))
                         .attr("height", (d, i) => {
-                            if (isStacked && (splitByXPosMap[d.splitBy] == undefined))
+                            if (self.chartOptions.stacked && (splitByXPosMap[d.splitBy] == undefined))
                                 return 0;
                             return Math.max(calcHeight(d, i), 0);
                         })
                         .attr("x", function (d, i)  {
-                            if (isStacked)
+                            if (self.chartOptions.stacked)
                                 return 0;
                             if (splitByXPosMap[d.splitBy] != undefined)
                                 return splitByXPosMap[d.splitBy];
@@ -524,7 +517,7 @@ class GroupedBarChart extends ChartComponent {
                             return 0;
                         })
                         .attr("width", (d, i) => {
-                            if (isStacked) 
+                            if (self.chartOptions.stacked) 
                                 return spacePerAggregate;
                             if (splitByXPosMap[d.splitBy] != undefined)
                                 return barWidth;
@@ -538,34 +531,34 @@ class GroupedBarChart extends ChartComponent {
                         .transition()
                         .duration(self.TRANSDURATION)
                         .attr("x1", (d, i) => {
-                            if (isStacked) 
+                            if (self.chartOptions.stacked) 
                                 return 0;
                             if (splitByXPosMap[d.splitBy] != undefined)
                                 return splitByXPosMap[d.splitBy];
                             return 0;
                         })
                         .attr("x2", (d, i) => {
-                            if (isStacked) 
+                            if (self.chartOptions.stacked) 
                                 return spacePerAggregate;
                             if (splitByXPosMap[d.splitBy] != undefined)
                                 return splitByXPosMap[d.splitBy] + barWidth;
                             return 0;
                         })
                         .attr("y1", (d, i) => {
-                            if (!isStacked) {
+                            if (!self.chartOptions.stacked) {
                                 return barBase;
                             }
                             var dValue = d.val;
-                            if (isStacked && (splitByXPosMap[d.splitBy] == undefined))
+                            if (self.chartOptions.stacked && (splitByXPosMap[d.splitBy] == undefined))
                                 return calcYPos(d, i);
                             return calcYPos(d, i) + calcHeight(d, i);
                         })
                         .attr("y2", (d, i) => {
-                            if (!isStacked) {
+                            if (!self.chartOptions.stacked) {
                                 return barBase;
                             }
                             var dValue = d.val;
-                            if (isStacked && (splitByXPosMap[d.splitBy] == undefined))
+                            if (self.chartOptions.stacked && (splitByXPosMap[d.splitBy] == undefined))
                                 return calcYPos(d, i);
                             return calcYPos(d, i) + calcHeight(d, i);
                         });
@@ -590,7 +583,7 @@ class GroupedBarChart extends ChartComponent {
 
                 /******************** Stack/Unstack button ************************/
                 stackedButton.attr("transform", () => {return 'translate(32,' + (chartHeight + 44) + ')'})
-                .attr("opacity", isStacked ? 1 : .5);
+                .attr("opacity", this.chartOptions.stacked ? 1 : .5);
 
                 /******************** Grid button ************************/
                 gridButton.attr("transform", () => {return 'translate(' + (chartWidth + this.chartMargins.left + 26) + ',' + (chartHeight + 44) + ')'})

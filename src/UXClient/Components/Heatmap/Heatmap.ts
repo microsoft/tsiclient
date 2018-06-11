@@ -5,6 +5,7 @@ import {Component} from "./../../Interfaces/Component";
 import { ChartComponent } from '../../Interfaces/ChartComponent';
 import { Legend } from '../Legend/Legend';
 import { HeatmapCanvas} from '../HeatmapCanvas/HeatmapCanvas';
+import { ChartOptions } from '../../Models/ChartOptions';
 
 class Heatmap extends ChartComponent {
     private lineHeight = 12;
@@ -20,13 +21,11 @@ class Heatmap extends ChartComponent {
     private timeLabelsHeight = 50;
 
     public render (data, chartOptions, aggregateExpressions) {
-        this.chartOptions = chartOptions;
-        var legendState: string = (this.chartOptions.legend != undefined) ? this.chartOptions.legend : "shown";
+        this.chartOptions = new ChartOptions(chartOptions);
         var targetElement = d3.select(this.renderTarget).classed("tsi-heatmapComponent", true);
 		if(targetElement.style("position") == "static")
             targetElement.style("position", "relative");
-
-        var width: number = targetElement.node().getBoundingClientRect().width - (legendState == "shown" ? 250 : 0);
+        var width: number = targetElement.node().getBoundingClientRect().width - (this.chartOptions.legend == "shown" ? 250 : 0);
         this.height = targetElement.node().getBoundingClientRect().height
 
         this.chartComponentData.mergeDataToDisplayStateAndTimeArrays(data, aggregateExpressions);
@@ -35,10 +34,10 @@ class Heatmap extends ChartComponent {
             this.heatmapWrapper = targetElement.append('div')
                 .attr("class", "tsi-heatmapWrapper");
 
-            super.themify(targetElement, chartOptions.theme);
+            super.themify(targetElement, this.chartOptions.theme);
 
             this.draw = () => { 
-                width = Math.floor(targetElement.node().getBoundingClientRect().width) - (legendState == "shown" ? 250 : 0);
+                width = Math.floor(targetElement.node().getBoundingClientRect().width) - (this.chartOptions.legend == "shown" ? 250 : 0);
                 this.height = Math.floor(targetElement.node().getBoundingClientRect().height);
                 this.chartComponentData.mergeDataToDisplayStateAndTimeArrays(data, aggregateExpressions);
                 this.heatmapWrapper.style("width", (width - 10) + "px");
@@ -94,7 +93,7 @@ class Heatmap extends ChartComponent {
                         heatmapCanvas.render(self.chartComponentData, self.chartOptions, hoveredAggKey, null, null, null);
                 }
 
-                this.legend.draw(legendState, this.chartComponentData, mouseover, 
+                this.legend.draw(this.chartOptions.legend, this.chartComponentData, mouseover, 
                     this.heatmapWrapper, this.chartOptions, mouseout);
 
                 //remove all the colorKeys

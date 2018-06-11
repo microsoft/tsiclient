@@ -5,9 +5,9 @@ import { Utils } from "./../../Utils";
 import { Component } from "./../../Interfaces/Component";
 import { ChartComponent } from '../../Interfaces/ChartComponent';
 import { UXClient } from '../../UXClient';
+import { ChartOptions } from '../../Models/ChartOptions';
 
 class AvailabilityChart extends ChartComponent{
-
     private fromMillis: number;
     private toMillis: number;
     private selectedFromMillis: number;
@@ -15,6 +15,7 @@ class AvailabilityChart extends ChartComponent{
     private zoomedFromMillis: number;
     private zoomedToMillis: number;
     private minBrushWidth: number = 5;
+    private color: string;
 
     private margins = {
         left: 10,
@@ -81,27 +82,38 @@ class AvailabilityChart extends ChartComponent{
         this.sparkLineChart.setBrush();
         d3.event.preventDefault && d3.event.preventDefault();
     }
+    private setChartOptions (chartOptions) {
+        this.chartOptions = new ChartOptions({ ...chartOptions, ...{
+            keepBrush: false,
+            isArea: true,
+            noAnimate: true,
+            minutesForTimeLabels: true,
+            aggTopMargin: 0,
+            yAxisHidden: true,
+            focusHidden: true,
+            singleLineXAxisLabel: true
+
+        }});
+    }
 
     public render(transformedAvailability: any, chartOptions: any, rawAvailability: any) {
-        chartOptions.keepBrush = false;
-        chartOptions.noAnimate = true;
-        chartOptions.minutesForTimeLabels = true;
-        chartOptions.aggTopMargin = 0;
+        this.setChartOptions(chartOptions);
         this.rawAvailability = rawAvailability;
-        this.chartOptions = chartOptions;
+        this.color = this.chartOptions.availabilityChartColor ? this.chartOptions.availabilityChartColor : 'teal'; 
         this.maxBuckets = (this.chartOptions.maxBuckets) ? this.chartOptions.maxBuckets : 500;
         this.fromMillis = (new Date(rawAvailability.range.from)).valueOf();
         this.toMillis = (new Date(rawAvailability.range.to)).valueOf();
         this.ae = [new this.uxClient.AggregateExpression({predicateString: ""}, {property: 'Count', type: "Double"}, ['count'],
-        { from: new Date(this.fromMillis), to: new Date(this.toMillis) }, null, 'green', 'Availability')];
+        { from: new Date(this.fromMillis), to: new Date(this.toMillis) }, null, this.color, 'Availability')];
 
         var targetElement = d3.select(this.renderTarget)
             .classed("tsi-availabilityChart", true);
 
-        chartOptions.yAxisHidden = true;
-        chartOptions.focusHidden = true;
+        this.chartOptions.yAxisHidden = true;
+        this.chartOptions.focusHidden = true;
+        this.chartOptions.singleLineXAxisLabel = true;
 
-        var timePickerOptions = { ...chartOptions, ...{brushMoveAction: (from, to) => {
+        var timePickerOptionsObj = { ...this.chartOptions.toObject(), ...{brushMoveAction: (from, to) => {
             chartOptions.brushMoveAction(from, to);
             if (this.isCustomTime(from.valueOf(), to.valueOf()))
                 this.timePickerTextContainer.select('.tsi-TimePicker')
@@ -115,9 +127,9 @@ class AvailabilityChart extends ChartComponent{
 
         if (this.timePickerContainer == null) {
             targetElement.html("");
-            var timePickerContainer = targetElement.append("div").classed("tsi-timePickerContainer", true);
-            this.timePickerTextContainer = timePickerContainer.append("div").classed("tsi-timePickerTextContainer", true);
-            var timePickerChart = timePickerContainer.append("div").classed("tsi-timePickerChart", true);
+            this.timePickerContainer = targetElement.append("div").classed("tsi-timePickerContainer", true);
+            this.timePickerTextContainer = this.timePickerContainer.append("div").classed("tsi-timePickerTextContainer", true);
+            var timePickerChart = this.timePickerContainer.append("div").classed("tsi-timePickerChart", true);
             var sparkLineContainer = targetElement.append("div").classed("tsi-sparklineContainer", true);
             this.timePickerLineChart = new LineChart(timePickerChart.node() as any);
             this.createQuickTimePicker();
@@ -137,7 +149,8 @@ class AvailabilityChart extends ChartComponent{
             this.buildZoomButtons();
         }
 
-        this.timePickerLineChart.render(transformedAvailability, timePickerOptions, this.ae);
+        this.timePickerLineChart.render(transformedAvailability, timePickerOptionsObj, this.ae);
+        this.setTicks();
         this.setFromAndToTimes(this.toMillis - (24 * 60 * 60 * 1000), this.toMillis);
         let self = this;
         timePickerChart.select(".brushElem").on("wheel.zoom", function (d) {
@@ -250,6 +263,20 @@ class AvailabilityChart extends ChartComponent{
         });
     }
 
+    private setTicks () {
+        if (this.timePickerLineChart.zoomedToMillis == this.timePickerLineChart.toMillis) {
+            let xAxis = this.timePickerLineChart.createXAxis(true);
+            let ticks = xAxis.scale().ticks(this.timePickerLineChart.getXTickNumber(true));
+            if (this.zoomedToMillis == this.toMillis)
+                ticks[ticks.length - 1] = new Date(this.toMillis);
+            if (this.zoomedFromMillis == this.fromMillis)
+                ticks[0] = new Date(this.fromMillis);
+            let xAxisElem = this.timePickerContainer.select('.tsi-timePickerChart')
+                .select('.xAxis')
+                .call(xAxis.tickValues(ticks));
+        }
+    }
+
     private setAvailabilityRange (fromMillis, toMillis) {
         this.zoomedFromMillis = fromMillis;
         this.zoomedToMillis = toMillis;
@@ -261,6 +288,7 @@ class AvailabilityChart extends ChartComponent{
             to: (new Date(toMillis))
         }}};
         this.timePickerLineChart.render(transformedAvailability, this.chartOptions, [aeWithNewTimeSpan]);
+        this.setTicks();
         this.timePickerLineChart.setBrush();   
     }
 

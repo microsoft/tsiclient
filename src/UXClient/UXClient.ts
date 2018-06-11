@@ -186,11 +186,15 @@ class UXClient {
 
         var firstKey = (new Date(startBucket)).toISOString();
         var firstCount = availabilityTsx.distribution[firstKey] ? availabilityTsx.distribution[firstKey] : 0;
+        // reset first key if greater than the availability range from
+        if (startBucket < (new Date(availabilityTsx.range.from)).valueOf())
+            firstKey = (new Date(availabilityTsx.range.from)).toISOString()
         buckets[firstKey] = {count: firstCount }
 
         var i = (startBucket % rawBucketSize == 0) ? startBucket : startBucket + rawBucketSize;
         for (i; i <= to.valueOf(); i += rawBucketSize) {
-            buckets[(new Date(i)).toISOString()] = {count: 0};
+            if (i > from.valueOf()) // exclude the from value, already created
+                buckets[(new Date(i)).toISOString()] = {count: 0};
         }
         i += -rawBucketSize;
 
@@ -213,7 +217,8 @@ class UXClient {
             else {
                 var offset = ((new Date(key)).valueOf() - startBucket) % rawBucketSize;
                 var roundedTime = new Date((new Date(key)).valueOf() - offset);
-                buckets[roundedTime.toISOString()].count += availabilityTsx.distribution[key];
+                if (roundedTime.valueOf() >= from.valueOf()) // exclude values below from
+                    buckets[roundedTime.toISOString()].count += availabilityTsx.distribution[key];
             }
         });
         buckets[to.toISOString()] = buckets[(new Date(i)).toISOString()];
@@ -228,7 +233,6 @@ class UXClient {
         var firstPossibleBucket = Math.round(Math.floor(new Date(availabilityTsx.range.from).valueOf() / rawBucketSize) * rawBucketSize);
         var firstBucketOffset = Math.round((startBucket - firstPossibleBucket) / rawBucketSize);
         var rolledBuckets = (rollUpMultiplier != 1) ? this.rollUpBuckets(buckets, rollUpMultiplier, firstBucketOffset, to.toISOString()) : buckets;
-        // rolledBuckets[to.toISOString()] = buckets[to.toISOString()]
         return [{"availabilityCount" : {"" : rolledBuckets}}];
     }
 

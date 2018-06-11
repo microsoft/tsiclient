@@ -1,6 +1,7 @@
 import {Utils} from "./../Utils";
 import {Component} from "./Component";
 import {ChartComponentData} from './../Models/ChartComponentData'; 
+import {ChartOptions} from './../Models/ChartOptions';
 
 class ChartComponent extends Component {
 	readonly MINWIDTH = 350;
@@ -8,7 +9,7 @@ class ChartComponent extends Component {
 	readonly CONTROLSWIDTH = 250;
 	readonly TRANSDURATION = (window.navigator.userAgent.indexOf("Edge") > -1) ? 0 : 400;
     public data: any;
-	public chartOptions: any;
+	public chartOptions: ChartOptions;
 	public aggregateExpressionOptions: any;
 	
 	public chartComponentData: ChartComponentData;

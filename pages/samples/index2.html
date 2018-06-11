@@ -158,7 +158,8 @@
                 var transformedResult = tsiClient.ux.transformAvailabilityForVisualization(result, 500);
                 var availabilityChart = new tsiClient.ux.AvailabilityChart(document.getElementById('chart1'));
                 availabilityChart.render(transformedResult, {theme: 'light', grid: false, tooltip: false, legend: "hidden", 
-                   brushContextMenuActions: brushActions, snapBrush: false, brushMoveAction: brushMoveAction, maxBuckets: 500}, result);
+                   brushContextMenuActions: brushActions, snapBrush: false, brushMoveAction: brushMoveAction, maxBuckets: 500,
+                   availabilityChartColor: 'purple'}, result);
             });
         });
 
