@@ -44,7 +44,7 @@ class LineChart extends ChartComponent {
 
     constructor(renderTarget: Element){
         super(renderTarget);
-        this.MINHEIGHT = 32;
+        this.MINHEIGHT = 28;
     }
 
     LineChart() { 

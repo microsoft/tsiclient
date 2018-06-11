@@ -39,19 +39,15 @@
                 </div>
             </div>
         </div>
-        <div class="chartsWrapper" style="height:40%;">
+        <div class="chartsWrapper" style="height:160px;">
             <div class="rowOfCardsTitle">A Line Chart from Availability</div>
             <div class="rowOfCards" style="height:100%;">
                 <div id="chart1" style="flex-shrink: 1; height: 100%; width: 90%; border: 1px solid silver;"></div>
             </div>
-        </div>
-        <div class="chartsWrapper">
             <div class="rowOfCardsTitle">A Line Chart from Aggregates</div>
             <div class="rowOfCards" style="height:70%;">
                 <div id="chart2" style="flex-shrink: 1; height: 100%; width: 90%; border: 1px solid silver;"></div>
             </div>
-        </div>
-        <div class="chartsWrapper" >
             <div class="rowOfCardsTitle">Events Table</div>
             <div class="rowOfCards" style="height:400px;">
                 <div id="chart3" style="flex-shrink: 1; height: 100%; width: 90%; border: 1px solid silver;"></div>
@@ -178,7 +174,7 @@
                 var transformedResult = tsiClient.ux.transformAggregatesForVisualization(result, aggregateExpressions2);
                 var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart2'));
                 var theme = 'light';
-                lineChart.render(transformedResult, {theme: theme, grid: true, brushContextMenuActions: brushActions, snapBrush: true, tooltip: false, noAnimate: true, brushClearable: true}, aggregateExpressions2);
+                lineChart.render(transformedResult, {theme: theme, grid: true, brushContextMenuActions: brushActions, snapBrush: true, tooltip: false, brushClearable: true}, aggregateExpressions2);
                 var counter = 0;
                 setInterval(function () {
                     if(counter < 2){  // so this doesnt just DDOS the backend if the tab is left open

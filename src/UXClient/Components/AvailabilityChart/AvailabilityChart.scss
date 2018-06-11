@@ -33,61 +33,62 @@
     .tsi-timePickerContainer {
         width: calc(100% - 4px);
         height: calc(100% - 28px);
-        overflow: hidden;
+        overflow: visible;
         .tsi-timePickerChart {
-            height: calc(100% - 24px);
+            height: calc(100% - 4px);
         }
-        .tsi-timePickerTextContainer {
-            top: 0px;
-            width: 100%;
-            height: 24px;
-            display: inline-flex;
-            margin-top: 4px;
-            margin-left: 4px;
-            position: relative;
+    }
 
-            .tsi-TimePicker {
+    .tsi-timePickerTextContainer {
+        top: 0;
+        width: calc(100% - 160px);
+        position: relative;
+        margin: 0 80px;
+        display: flex;
+
+        .tsi-TimePicker {
+            padding: 2px;
+            margin-right: 100px;
+            option {
                 padding: 2px;
-                option {
-                    padding: 2px;
-                }
+            }
+        }
+
+        .tsi-dateTimeInputLabel {
+            display: inline-flex;
+            padding-left: 8px;
+            padding-right: 4px;
+        }
+
+        .tsi-dateTimeInputDiv {
+            display: inline-flex;
+            input {
+                width: 80px;
+                padding-left: 4px;
+                margin-left: 4px;
+            }
+        }
+
+        .tsi-zoomButtonContainer {
+            display: flex;
+            position: absolute;
+            right: -32px;
+            top: -100px;
+            width: 20px;
+            flex-wrap: wrap;
+
+            .tsi-zoomButton {
+                width: 20px;
+                height: 20px;
+                padding: 0;
             }
 
-            .tsi-dateTimeInputLabel {
-                display: inline-flex;
-                padding-left: 8px;
-                padding-right: 4px;
-            }
-
-            .tsi-dateTimeInputDiv {
-                display: inline-flex;
-                position: relative;
-                margin-left: 16px;
-                input {
-                    width: 80px;
-                    padding-left: 4px;
-                    margin-left: 4px;
-                }
-            }
-
-            .tsi-zoomButtonContainer {
-                display: inline-flex;
-                position: absolute;
-                right: 8px;
-
-                .tsi-zoomButton {
-                    margin-left: 8px;
-                    width: 20px;
-                    height: 20px;
-                }
-
-            }
         }
     }
 
     .tsi-sparklineContainer {
-        width: 100%;
-        height: 28px;
+        background: none;
+        margin-top: -28px;
         path {
             stroke: none !important;
         }

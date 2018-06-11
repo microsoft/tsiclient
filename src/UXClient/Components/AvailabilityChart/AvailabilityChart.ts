@@ -128,9 +128,9 @@ class AvailabilityChart extends ChartComponent{
         if (this.timePickerContainer == null) {
             targetElement.html("");
             this.timePickerContainer = targetElement.append("div").classed("tsi-timePickerContainer", true);
-            this.timePickerTextContainer = this.timePickerContainer.append("div").classed("tsi-timePickerTextContainer", true);
             var timePickerChart = this.timePickerContainer.append("div").classed("tsi-timePickerChart", true);
             var sparkLineContainer = targetElement.append("div").classed("tsi-sparklineContainer", true);
+            this.timePickerTextContainer = targetElement.append("div").classed("tsi-timePickerTextContainer", true);
             this.timePickerLineChart = new LineChart(timePickerChart.node() as any);
             this.createQuickTimePicker();
             this.buildFromAndTo();
@@ -216,7 +216,7 @@ class AvailabilityChart extends ChartComponent{
             .attr("x", this.sparkLineChart.x(new Date(this.selectedFromMillis)))
             .attr("y", 0)
             .attr("width", Math.max(1, this.sparkLineChart.x(new Date(this.selectedToMillis)) - this.sparkLineChart.x(new Date(this.selectedFromMillis))))
-            .attr("height", 18)
+            .attr("height", 14)
             .attr("fill", "blue")
             .attr("fill-opacity", .3)
             .attr("pointer-events", "none");
