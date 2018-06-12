@@ -1,7 +1,8 @@
 @import "../../styles";
 
 @mixin sliderColors($grays){
-	$gray1: nth($grays, 1); // text
+    $gray1: nth($grays, 1); // text
+    $gray3: nth($grays, 3);
     $gray4: nth($grays, 4); // text
     
    
@@ -18,7 +19,7 @@
     }
 
     .tsi-sliderLabel {
-        background: $gray4;
+        background: $gray3;
         color: $gray1;
     }
 }

@@ -282,6 +282,7 @@ class Legend extends Component {
                 });
 
             /******************** Color Blocks ****************************/
+            var colors = Utils.createSplitByColors(chartComponentData.displayState, aggKey, this.chartOptions.keepSplitByColor);
             var splitByLabelsBlocks = splitByLabels
                 .selectAll('div')
                 .data((d, i) => [[d, i]]);
@@ -289,7 +290,7 @@ class Legend extends Component {
                 .attr("class", "colorKey")
                 .merge(splitByLabelsBlocks)
                 .style("background-color", (d, j) => {
-                    return Utils.colorSplitBy(chartComponentData.displayState, d[1], aggKey, this.chartOptions.keepSplitByColor);
+                    return colors[d[1]];
                 });
             splitByLabelsBlocks.exit().remove();
 

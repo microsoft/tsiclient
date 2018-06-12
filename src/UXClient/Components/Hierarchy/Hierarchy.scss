@@ -3,9 +3,10 @@
 @mixin hierarchyColors($grays){
     $gray1: nth($grays, 1);
     $gray2: nth($grays, 2); 
+    $gray3: nth($grays, 3);
     $gray4: nth($grays, 4); 
     color: $gray1;
-    background: $gray4;
+    background: $gray3;
     .tsi-navTabWrapper{
         border-bottom: 1px solid $gray1;
     }

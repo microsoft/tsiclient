@@ -408,10 +408,11 @@ class GroupedBarChart extends ChartComponent {
                         valueElementsEntered.selectAll("path").each(valueElementMouseout);
                     }
 
+                    var splitByColors = Utils.createSplitByColors(self.chartComponentData.displayState, aggKey, self.chartOptions.keepSplitByColor);
                     valueElementsEntered.merge(valueElements)
                         .select("rect") 
                         .attr("fill", (d, j) => {
-                            return Utils.colorSplitBy(self.chartComponentData.displayState, j, aggKey, self.chartOptions.keepSplitByColor);
+                            return splitByColors[j];
                         })
                         .on("mouseover", function (d, j) {
                             if (self.contextMenu && self.contextMenu.contextMenuVisible)

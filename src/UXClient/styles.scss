@@ -2,10 +2,10 @@
 // Array of [text color, hover color, element color, background color, alt element]
 @function grays($theme){
     @if $theme == 'dark'{
-        @return #fff, #62666c, #1f2328, #3d4147, #31373e;
+        @return #fff, #62666c, #0d0f0e, #1e2223, #31373e;
     }
     @if $theme == 'light'{
-        @return #000, #b3d6f2, #f4f4f4, #eaeaea, #dcdcdc;
+        @return #000, #b3d6f2, #ffffff, #f2f2f2, #dcdcdc;
     }
 }
 

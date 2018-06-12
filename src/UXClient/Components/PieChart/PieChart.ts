@@ -190,7 +190,6 @@ class PieChart extends ChartComponent {
 
                 arcEntered.each(function () {
                     var pathElem = d3.select(this).selectAll(".tsi-pie-path").data(d => [d]);
-
                     var pathEntered = pathElem.enter()
                         .append("path")
                         .attr("class", "tsi-pie-path")

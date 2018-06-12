@@ -596,13 +596,14 @@ class LineChart extends ChartComponent {
                                 .transition()
                                 .duration(this.chartOptions.noAnimate ? 0 : this.TRANSDURATION)
                                 .ease(d3.easeLinear)                                         
-                                // .attr("stroke",  Utils.colorSplitBy(this.chartComponentData.displayState, j, aggKey))
                                 .attr("stroke-dasharray","5,5")            
                                 .attr("d", aggLine);
         
                             var path = g.selectAll(".valueLine" + tsIterator)
                                 .data([this.chartComponentData.timeArrays[aggKey][splitBy]]);
         
+                            var splitByColors = Utils.createSplitByColors(this.chartComponentData.displayState, aggKey, this.chartOptions.keepSplitByColor)
+
                             path.enter()
                                 .append("path")
                                 .attr("class", "valueElement valueLine valueLine" + tsIterator)
@@ -613,7 +614,8 @@ class LineChart extends ChartComponent {
                                 .transition()
                                 .duration(this.chartOptions.noAnimate ? 0 : this.TRANSDURATION)
                                 .ease(d3.easeLinear)
-                                .attr("stroke",  Utils.colorSplitBy(this.chartComponentData.displayState, j, aggKey, this.chartOptions.keepSplitByColor)) 
+                                // .attr("stroke",  Utils.colorSplitBy(this.chartComponentData.displayState, j, aggKey, this.chartOptions.keepSplitByColor)) 
+                                .attr("stroke", splitByColors[j])
                                 .attr("stroke-opacity", this.strokeOpacity)                       
                                 .attr("d", aggLine);
 
@@ -631,7 +633,8 @@ class LineChart extends ChartComponent {
                                     .transition()
                                     .duration(this.chartOptions.noAnimate ? 0 : this.TRANSDURATION)
                                     .ease(d3.easeLinear)
-                                    .style("fill",  Utils.colorSplitBy(this.chartComponentData.displayState, j, aggKey, this.chartOptions.keepSplitByColor))                        
+                                    .style("fill", splitByColors[j])
+                                    // .style("fill",  Utils.colorSplitBy(this.chartComponentData.displayState, j, aggKey, this.chartOptions.keepSplitByColor))                        
                                     .attr("d", areaPath);
                                 area.exit().remove();
                             }

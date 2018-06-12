@@ -7,11 +7,11 @@
     $gray4: nth($grays, 4); // background
     
     color: $gray1;
-    background: $gray4;
+    background: $gray3;
     @include chartColors($grays);
 
     .tsi-heatmapCanvas {
-        background-color: $gray4;
+        background-color: $gray3;
     }
     .tsi-heatmapColorLegend {
         .highlightedValueLine {
