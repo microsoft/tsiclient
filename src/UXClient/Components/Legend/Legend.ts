@@ -68,7 +68,7 @@ class Legend extends Component {
             .append("div") 
             .merge(seriesLabels)
             .attr("class", (d, i) => {
-                return "seriesLabel " + "seriesLabel" + d + (chartComponentData.displayState[d]["visible"] ? " shown" : "");
+                return "seriesLabel " + (chartComponentData.displayState[d]["visible"] ? " shown" : "");
             })
             .style("border-color", function (d, i) {
                 if (d3.select(this).classed("shown"))
@@ -157,7 +157,10 @@ class Legend extends Component {
                 splitByLabelData[0].push(chartComponentData.displayState[aggKey].name);
 
             /******************** Series Name Label ***********************/
-            var seriesNameLabel: any = legend.select('.seriesLabel' + aggKey)
+            var seriesNameLabel: any = legend.selectAll('.seriesLabel')
+                .filter((d) => {
+                    return (d == aggKey);
+                })
                 .selectAll('.seriesNameLabel')
                 .data([aggKey]);
             var enteredSeriesNameLabel = seriesNameLabel
@@ -211,7 +214,8 @@ class Legend extends Component {
                 }
             }
 
-            var aggs = legend.select('.seriesLabel' + aggKey)
+            var aggs = legend.select('.seriesLabel')
+                .filter(d => d == aggKey)
             .selectAll('.seriesNameLabel').selectAll("select").selectAll('option');
 
             var aggregateTypeSelection: any = enteredSeriesNameLabel
@@ -252,7 +256,8 @@ class Legend extends Component {
 
             /******************** Split By Labels *************************/
 
-            var splitByLabels: any = legend.select('.seriesLabel' + aggKey)
+            var splitByLabels: any = legend.selectAll('.seriesLabel')
+                .filter(d => d == aggKey)
                 .selectAll(".splitByLabel")
                 .data(splitByLabelData);
             splitByLabels = splitByLabels                    
