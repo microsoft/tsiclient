@@ -8,20 +8,30 @@ var map = new atlas.Map("windmillMap", {
     zoom: 4
 });
 
+var looper;
+var rpmspeed = 0;
+var degrees = 0;
+rotateAnimation("img1");
+
+function choose(lat, lon, zoomlevel){
+    user = lat;
+    map.setCamera({zoom: zoomlevel, center: [lon, lat]});
+}
+
 // Real time values for process graphic
 var currentValuesInterval;
-function getCurrentValues(windmillName){    
+function getCurrentValues(windmillName, plantName){    
     clearInterval(currentValuesInterval);
 
     var getValues = function(){
         var aggregateExpressions = [];
         var endDate = new Date((new Date()).valueOf() - 1000*60*5);
         var startDate = new Date(endDate.valueOf() - 1000*60);
-        aggregateExpressions.push(new tsiClient.ux.AggregateExpression({predicateString: "'Ardenville." + windmillName + ".Ambient.WindSpeed'"}, {property: 'Value.Value', type: "Double"}, ['last'],
+        aggregateExpressions.push(new tsiClient.ux.AggregateExpression({predicateString: "[PLANT].String = '" + plantName + "' AND [UNIT].String = '" + windmillName + "' AND 'CNC01-CS001'"}, {property: 'VALUE', type: "Double"}, ['last'],
             { from: startDate, to: endDate, bucketSize: '10m' }, null, 'red', 'AmbientWindSpeed'));
-        aggregateExpressions.push(new tsiClient.ux.AggregateExpression({predicateString: "'Ardenville." + windmillName + ".RotorSystem.RotorRPM'"}, {property: 'Value.Value', type: "Double"}, ['last'],
+        aggregateExpressions.push(new tsiClient.ux.AggregateExpression({predicateString: "[PLANT].String = '" + plantName + "' AND [UNIT].String = '" + windmillName + "' AND 'MDA01-CS001'"}, {property: 'VALUE', type: "Double"}, ['last'],
             { from: startDate, to: endDate, bucketSize: '10m' }, null, 'red', 'RotorRpm'));    
-        aggregateExpressions.push(new tsiClient.ux.AggregateExpression({predicateString: "'Ardenville." + windmillName + ".Grid.Power'"}, {property: 'Value.Value', type: "Double"}, ['last'],
+        aggregateExpressions.push(new tsiClient.ux.AggregateExpression({predicateString: "[PLANT].String = '" + plantName + "' AND [UNIT].String = '" + windmillName + "' AND ('BAT01-CE300' OR 'MKA01-CE302')"}, {property: 'VALUE', type: "Double"}, ['last'],
             { from: startDate, to: endDate, bucketSize: '10m' }, null, 'red', 'GridPower'));    
         authContext.getTsiToken().then(function(token){
             tsiClient.server.getAggregates(token, environmentFqdn, aggregateExpressions.map(function(ae){return ae.toTsx()})).then(function(result){
@@ -38,6 +48,7 @@ function getCurrentValues(windmillName){
                     }, 500);
                 })
             });    
+            rpmspeed = document.getElementsByClassName("measurementValue rsv")[0].innerHTML;
         });
     }
     getValues();
@@ -55,8 +66,8 @@ function getOverallBarChart(){
     var endDate = new Date(Math.floor((new Date()).valueOf()/(1000*60*60*24))*(1000*60*60*24));
     var startDate = new Date(endDate.valueOf() - 1000*60*60*24*7);
     var aggregateExpressions = [];
-    aggregateExpressions.push(new tsiClient.ux.AggregateExpression({predicateString: "'Grid.Power' and MeasurementName != null"}, {property: 'Value.Value', type: "Double"}, ['sum'],
-        { from: startDate, to: endDate, bucketSize: '1d' }, {property: 'MeasurementName', type: 'String'}, 'teal', 'GridPower', contextMenuActions));
+    aggregateExpressions.push(new tsiClient.ux.AggregateExpression({predicateString: "DSCR HAS 'Grid Power'"}, {property: 'VALUE', type: "Double"}, ['sum'],
+        { from: startDate, to: endDate, bucketSize: '1d' }, {property: 'UNIT', type: 'String'}, 'teal', 'GridPower', contextMenuActions));
     authContext.getTsiToken().then(function(token){
         tsiClient.server.getAggregates(token, environmentFqdn, aggregateExpressions.map(function(ae){return ae.toTsx()})).then(function(result){
             var barChart = new tsiClient.ux.BarChart(document.getElementById('chart0'));
@@ -70,15 +81,15 @@ getOverallBarChart();
 // Ambient values and output line charts
 var lineChart1 = new tsiClient.ux.LineChart(document.getElementById('chart2'));
 var lineChart2 = new tsiClient.ux.LineChart(document.getElementById('chart3'));
-function getAmbientAndOutput(windmillName){    
+function getAmbientAndOutput(windmillName, plantName){    
     var endDate = new Date((new Date()).valueOf());
     var startDate = new Date(endDate.valueOf() - 1000*60*60*24);
     var aggregateExpressions = [];
-    aggregateExpressions.push(new tsiClient.ux.AggregateExpression({predicateString: "'Ardenville." + windmillName + ".Ambient.WindDir'"}, {property: 'Value.Value', type: "Double"}, ['avg'],
+    aggregateExpressions.push(new tsiClient.ux.AggregateExpression({predicateString: "[PLANT].String = '" + plantName + "' AND [UNIT].String = '" + windmillName + "' AND ('CNC01-CG001' OR 'MDL01-CG001')"}, {property: 'VALUE', type: "Double"}, ['avg'],
         { from: startDate, to: endDate, bucketSize: '20m' }, null, 'pink', 'WindDirection'));
-    aggregateExpressions.push(new tsiClient.ux.AggregateExpression({predicateString: "'Ardenville." + windmillName + ".Ambient.WindSpeed'"}, {property: 'Value.Value', type: "Double"}, ['avg'],
+    aggregateExpressions.push(new tsiClient.ux.AggregateExpression({predicateString: "[PLANT].String = '" + plantName + "' AND [UNIT].String = '" + windmillName + "' AND 'CNC01-CS001'"}, {property: 'VALUE', type: "Double"}, ['avg'],
         { from: startDate, to: endDate, bucketSize: '20m' }, null, 'teal', 'WindSpeed'));
-    aggregateExpressions.push(new tsiClient.ux.AggregateExpression({predicateString: "'Ardenville." + windmillName + ".Ambient.Temperature'"}, {property: 'Value.Value', type: "Double"}, ['avg'],
+    aggregateExpressions.push(new tsiClient.ux.AggregateExpression({predicateString: "[PLANT].String = '" + plantName + "' AND '" + windmillName + "' AND 'CNC01-CT001'"}, {property: 'VALUE', type: "Double"}, ['avg'],
         { from: startDate, to: endDate, bucketSize: '20m' }, null, 'orange', 'Temperature'));
     authContext.getTsiToken().then(function(token){
         tsiClient.server.getAggregates(token, environmentFqdn, aggregateExpressions.map(function(ae){return ae.toTsx()})).then(function(result){
@@ -88,11 +99,11 @@ function getAmbientAndOutput(windmillName){
     });
 
     var aggregateExpressions2 = [];
-    aggregateExpressions2.push(new tsiClient.ux.AggregateExpression({predicateString: "'Ardenville." + windmillName + ".Grid.Frequency'"}, {property: 'Value.Value', type: "Double"}, ['avg'],
+    aggregateExpressions2.push(new tsiClient.ux.AggregateExpression({predicateString: "[PLANT].String = '" + plantName + "' AND '" + windmillName + "GridFrequency' OR 'MKA01-CE500'"}, {property: 'VALUE', type: "Double"}, ['avg'],
         { from: startDate, to: endDate, bucketSize: '20m' }, null, 'pink', 'GridFrequency'));
-    aggregateExpressions2.push(new tsiClient.ux.AggregateExpression({predicateString: "'Ardenville." + windmillName + ".Grid.Power'"}, {property: 'Value.Value', type: "Double"}, ['avg'],
+    aggregateExpressions2.push(new tsiClient.ux.AggregateExpression({predicateString: "[PLANT].String = '" + plantName + "' AND '" + windmillName + "BAT01-CE300' OR 'MKA01-CE302'"}, {property: 'VALUE', type: "Double"}, ['avg'],
         { from: startDate, to: endDate, bucketSize: '20m' }, null, 'teal', 'GridPower'));
-    aggregateExpressions2.push(new tsiClient.ux.AggregateExpression({predicateString: "'Ardenville." + windmillName + ".Grid.PossiblePower'"}, {property: 'Value.Value', type: "Double"}, ['avg'],
+    aggregateExpressions2.push(new tsiClient.ux.AggregateExpression({predicateString: "[PLANT].String = '" + plantName + "' AND '" + windmillName + "BAT01-CE901' OR 'CE310'"}, {property: 'VALUE', type: "Double"}, ['avg'],
         { from: startDate, to: endDate, bucketSize: '20m' }, null, 'orange', 'GridPossiblePower'));
     authContext.getTsiToken().then(function(token){
         tsiClient.server.getAggregates(token, environmentFqdn, aggregateExpressions2.map(function(ae){return ae.toTsx()})).then(function(result){
@@ -112,7 +123,8 @@ function buildPins (windmills) {
     var windmillPins = [];
     windmills.forEach(function (windmill) {
         var feature = new atlas.data.Feature(new atlas.data.Point([windmill.Long, windmill.Lat]), {
-            "name": windmill.MeasurementName,
+            "name": windmill.UNIT,
+            "plant": windmill.PLANT,
             "predicateLabel": "show me stats for this windmill",
             "predicateAction" : ""
         });
@@ -141,12 +153,12 @@ map.addEventListener("load", function () {
     }
 })
 
-function explore(windmillName){
+function explore(windmillName, plantName){
     document.getElementById("windmillCharts1").style.display = "block"
     document.getElementById("windmillCharts2").style.display = "block"
-    getCurrentValues(windmillName);
-    getAmbientAndOutput(windmillName);
-    document.getElementById("windmillTitle").innerHTML = "Windmill: Ardinville " + windmillName;
+    getCurrentValues(windmillName, plantName);
+    getAmbientAndOutput(windmillName, plantName);
+    document.getElementById("windmillTitle").innerHTML = "Turbine: " + plantName + " / " + windmillName;  
     windmillPopup.close();
     var url = 'https://insights.timeseries.azure.com/?environmentId=01a94e6c-6d32-4f8c-8511-1058fe2b1dbd&relativeMillis=86400000&timeBucketUnit=Minutes&timeBucketSize=20&multiChartStack=false&multiChartSameScale=true&timeSeriesDefinitions=[{%20%22name%22%20:%20%22GridFrequency%22,%20%22measureName%22%20:%20%22Value.Value%22,%20%22predicate%22%20:%20%22%27Ardenville.'+windmillName+'.Grid.Frequency%27%22%20},%20{%20%22name%22%20:%20%22GridPower%22,%20%22measureName%22%20:%20%22Value.Value%22,%20%22predicate%22%20:%20%22%27Ardenville.'+windmillName+'.Grid.Power%27%22%20},%20{%20%22name%22%20:%20%22GridPossiblePower%22,%20%22measureName%22%20:%20%22Value.Value%22,%20%22predicate%22%20:%20%22%27Ardenville.'+windmillName+'.Grid.PossiblePower%27%22%20}%20]'
     document.getElementById('tsilink').href = url;
@@ -158,7 +170,7 @@ function buildPopupContent(properties) {
     poiTitleBox.innerText = "Explore " + properties.name;
     
     poiTitleBox.addEventListener("click", function (event) {
-        explore(properties.name);
+        explore(properties.name, properties.plant);
     });
 
     var poiContentBox = document.createElement("div");
@@ -170,10 +182,45 @@ function buildPopupContent(properties) {
 map.addEventListener("click", windmillLayer, function (event) {
     var pin = event.features[0];
 
+    $.ajax({
+        url: 'https://api.openweathermap.org/data/2.5/weather?APPID=8469ec6ccdf666e7ae677274cfdd57bc',
+        jsonp: 'callback',
+        dataType: 'jsonp',
+        cache: false,
+        data: {
+          lat: pin.geometry.coordinates[1],
+          lon: pin.geometry.coordinates[0],
+          units: 'metric'
+        },
+        // work with the response
+        success: function (response) {
+          document.getElementById("windmillWeather").innerHTML = "<div>Current conditions</div>" + '<img class="icon" src="https://openweathermap.org/img/w/' + response.weather[0].icon + '.png' + '"><span>' + response.weather[0].main + ", Temp: " + response.main.temp + "'c, Wind: " + response.wind.speed + " (m/s)</span>";
+        },
+      });
+
+      $.ajax({
+        url: 'https://api.openweathermap.org/data/2.5/forecast?APPID=8469ec6ccdf666e7ae677274cfdd57bc&cnt=1',
+        jsonp: 'callback',
+        dataType: 'jsonp',
+        cache: false,
+        data: {
+          lat: pin.geometry.coordinates[1],
+          lon: pin.geometry.coordinates[0],
+          units: 'metric'
+        },
+        // work with the response
+        success: function (response) {
+          document.getElementById("windmillWeatherForecast").innerHTML = "<div>Weather in 3 hours</div>" + '<img class="icon" src="https://openweathermap.org/img/w/' + response.list[0].weather[0].icon + '.png' + '"><span>' + response.list[0].weather[0].main + ", Temp: " + response.list[0].main.temp + "'c, Wind: " + response.list[0].wind.speed + " (m/s)</span>";
+        },
+      });
+
     windmillPopup.setPopupOptions({
         position: pin.geometry.coordinates,
         content: buildPopupContent({
             name: pin.properties.name,
+            plant: pin.properties.plant,
+            predicateLabel: pin.properties.predicateLabel,
+            predicateAction: pin.properties.predicateAction
         })
     });
 
@@ -228,4 +275,33 @@ function itemsToRows(itemsObject){
         }
     });
     return rows;
+}
+
+function rotateAnimation(el){
+    var speed;
+	var elem = document.getElementById(el);
+    if(rpmspeed == 0){
+        speed = 10000;
+    } else if (rpmspeed < 10000) {
+        speed = 100 - (rpmspeed * 5);
+    } else { 
+        speed = 10000;
+    };
+
+	if(navigator.userAgent.match("Chrome")){
+		elem.style.WebkitTransform = "rotate("+degrees+"deg)";
+	} else if(navigator.userAgent.match("Firefox")){
+		elem.style.MozTransform = "rotate("+degrees+"deg)";
+	} else if(navigator.userAgent.match("MSIE")){
+		elem.style.msTransform = "rotate("+degrees+"deg)";
+	} else if(navigator.userAgent.match("Opera")){
+		elem.style.OTransform = "rotate("+degrees+"deg)";
+	} else {
+		elem.style.transform = "rotate("+degrees+"deg)";
+	}
+	looper = setTimeout('rotateAnimation(\''+el+'\','+speed+')',speed);
+	degrees++;
+	if(degrees > 359){
+		degrees = 1;
+	}
 }

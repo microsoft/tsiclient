@@ -51,9 +51,10 @@
             <div class="rowOfCardsTitle">Events Table</div>
             <div class="rowOfCards" style="height:400px;">
                 <div id="chart3" style="flex-shrink: 1; height: 100%; width: 90%; border: 1px solid silver;"></div>
+
             </div>
         </div>
-        
+    </div>        
     <script type="text/javascript">
         
         // START: AUTHENTICATION RELATED CODE USING ADAL.JS
@@ -113,29 +114,87 @@
                 
                 return promise;
             }
-        // END: AUTHENTICATION RELATED CODE USING ADAL.JS
-        const fqdn = '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com';
+                
+        // example 11/12
+        // Hierarchy control, coupled with line chart
         var tsiClient = new TsiClient();
-        authContext.getTsiToken().then(function(token){
-            tsiClient.server.getEnvironments(token).then(function(environments) {
-                console.log(environments);
-            });
-        });
-
-        
-        var brushActions = [{
-            name: "Get metadata for this time range",
-            action: function(fromTime, toTime) {
-                authContext.getTsiToken().then(function(token) {
-                    var minMillis = fromTime.valueOf();
-                    var maxMillis = toTime.valueOf();
-                    tsiClient.server.getMetadata(token, fqdn, minMillis, maxMillis).then(function(metadata) {
-                        console.log(metadata);
-                    });
-                });
+        var startDate = new Date('2017-04-19T13:00:00Z');
+        var endDate = new Date(startDate.valueOf() + 1000*60*60*1);
+        var hierarchyAggregateExpressions = [];
+        var hierarchyEvents = [];
+        var hierarchyStates = [];
+        var hierarchy = {
+            'Factory1': {
+                'Station1': {
+                    'GC4F-286 (Temp)': {$leaf: true, click: function(n){
+                        if(!n._ae)
+                            n._ae = new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory1' AND Station = 'Station1'"}, {property: 'Temperature', type: "Double"}, ['avg'],
+                            { from: startDate, to: endDate, bucketSize: '10s' }, null, 'purple', 'F1S1Temp');
+                        renderHierarchyLineChart(n);
+                    }},
+                    'F92-21B (Pressure)': {$leaf: true, click: function(n){
+                        if(!n._ae)
+                            n._ae = new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory1' AND Station = 'Station1'"}, {property: 'Pressure', type: "Double"}, ['avg'],
+                            { from: startDate, to: endDate, bucketSize: '1m' }, null, 'green', 'F1S1Pressure');
+                        renderHierarchyLineChart(n);
+                    }}                    
+                }
+            },
+            'Factory2': {
+                'Station1': {
+                    '19C2-F8 (Temp)': {$leaf: true, click: function(n){
+                        if(!n._ae)
+                            n._ae = new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory2' AND Station = 'Station1'"}, {property: 'Temperature', type: "Double"}, ['avg'],
+                            { from: startDate, to: endDate, bucketSize: '10s' }, null, 'yellow', 'F2S1Temp');
+                        renderHierarchyLineChart(n);
+                    }},
+                    'B9-C86 (Pressure)': {$leaf: true, click: function(n){
+                        if(!n._ae)
+                            n._ae = new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory2' AND Station = 'Station1'"}, {property: 'Pressure', type: "Double"}, ['avg'],
+                            { from: startDate, to: endDate, bucketSize: '1m' }, null, 'orange', 'F2S1Pressure');
+                        renderHierarchyLineChart(n);
+                    }}                    
+                }
             }
-        }];
+        }
+        
+        var hierarchyCtrl = new tsiClient.ux.Hierarchy(document.getElementById('chart11'));
+        hierarchyCtrl.render(hierarchy, {dnd: true});
+        
+        var lineChartForHierarchy = new tsiClient.ux.LineChart(document.getElementById('chart12'));
+        var renderHierarchyLineChart = function(n){
+            // if(n.isSelected){
+                hierarchyAggregateExpressions.push(n._ae)
+            // }
+            // else{
+            //     const index = hierarchyAggregateExpressions.indexOf(n._ae);
+            //     hierarchyAggregateExpressions.splice(index, 1);
+            // }
+            render();
+        }
 
+        var render = function(noAnimate){
+            if(hierarchyAggregateExpressions.length){
+                authContext.getTsiToken().then(function(token){
+                    tsiClient.server.getAggregates(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com', hierarchyAggregateExpressions.map(function(ae){return ae.toTsx()})).then(function(result){
+                        var transformedResult = tsiClient.ux.transformAggregatesForVisualization(result, hierarchyAggregateExpressions);
+                        lineChartForHierarchy.render(transformedResult, {tooltip: true, grid: true, theme: "dark", noAnimate: noAnimate, legend: "compact"}, hierarchyAggregateExpressions);
+                    });
+                })
+            }
+            else
+                lineChartForHierarchy.render([], {tooltip: true, grid: true, theme: "dark", legend: "compact"}, hierarchyAggregateExpressions);
+        }        
+        
+    function allowDrop(ev) {
+        ev.preventDefault();
+    }
+
+    function drop(ev) {
+        ev.preventDefault();
+        var data = ev.dataTransfer.getData("text");
+        window[data]();
+    }
 
         var brushActions = [{
             name: "Print From and to",
@@ -228,7 +287,7 @@
                 }, 3000);
             });
         });
-                
+
     </script>
 </body>
 </html>
