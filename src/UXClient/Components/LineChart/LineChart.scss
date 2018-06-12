@@ -94,6 +94,11 @@
             stroke-width: 3px !important;
         }
 
+        .valueArea {
+            stroke: none;
+            fill-opacity: .25;
+        }
+
         .gapLine {
             stroke: grey !important;
             stroke-width: 1px !important;

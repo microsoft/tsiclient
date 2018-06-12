@@ -3,6 +3,7 @@ import './StateSeries.scss';
 import {Utils} from "./../../Utils";
 import {Component} from "./../../Interfaces/Component";
 import { TimelineComponent } from '../../Interfaces/TimelineComponent';
+import { ChartOptions } from '../../Models/ChartOptions';
 
 
 class StateSeries extends TimelineComponent { 
@@ -15,11 +16,12 @@ class StateSeries extends TimelineComponent {
 	}
 	
 	public render(namedData: Array<any>, options: any = {}){
+		this.chartOptions = new ChartOptions(options);
 		this.margins = {
-			left: (options.xAxis == "hidden") ? 10 : 40,
-			right: (options.xAxis == "hidden") ? 10 : 40
+			left: (this.chartOptions.xAxisHidden === true) ? 10 : 40,
+			right: (this.chartOptions.xAxisHidden === true) ? 10 : 40
 		}
-		this.createElements(options);
+		this.createElements(this.chartOptions.toObject());
 		var seriesName = Object.keys(namedData)[0];
 		var data = namedData[seriesName];
 		data = this.formatData(data);
@@ -27,8 +29,8 @@ class StateSeries extends TimelineComponent {
 		this.width  = Math.max((this.targetElement.node()).clientWidth, this.MINWIDTH);
 
 		var seriesWidth: number = this.width - this.margins.left - this.margins.right;
-		var fromTime = options.timeFrame.from;
-		var toTime = options.timeFrame.to;
+		var fromTime = this.chartOptions.timeFrame.from;
+		var toTime = this.chartOptions.timeFrame.to;
 		this.xScale = !(this.xScale) ? d3.scaleTime().domain([fromTime, toTime]).range([0, seriesWidth]) : this.xScale;
 
         var rects = this.g.selectAll("rect.tsi-stateRects").data(data, d => d.time + d.color + d.description);
@@ -68,9 +70,9 @@ class StateSeries extends TimelineComponent {
 			});
 				
 		rects.exit().remove();
-		super.themify(this.targetElement, options.theme);
+		super.themify(this.targetElement, this.chartOptions.theme);
 
-		if (options.xAxis != "hidden") {
+		if (this.chartOptions.xAxisHidden != true) {
 			this.xAxis.style('display', 'block')
 			this.xAxis.transition()
 				.duration(this.TRANSDURATION)

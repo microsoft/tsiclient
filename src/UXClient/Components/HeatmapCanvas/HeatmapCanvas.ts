@@ -4,6 +4,7 @@ import {Utils} from "./../../Utils";
 import {Component} from "./../../Interfaces/Component";
 import { ChartComponent } from "../../Interfaces/ChartComponent";
 import { HeatmapData } from "../../Models/HeatmapData";
+import { ChartOptions } from '../../Models/ChartOptions';
 
 class HeatmapCanvas extends ChartComponent {
     private heatmapData: HeatmapData;
@@ -114,7 +115,7 @@ class HeatmapCanvas extends ChartComponent {
 
     public render (data, chartOptions, aggKey, highlightedSplitBy: string = null, highlightedTime: Date = null, onCellFocus) {
         
-        this.chartOptions = chartOptions;
+        this.chartOptions = new ChartOptions(chartOptions);
         this.aggKey = aggKey;
         this.data = data;
 

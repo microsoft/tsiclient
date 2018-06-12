@@ -6,6 +6,7 @@ import { ChartComponent } from '../../Interfaces/ChartComponent';
 import { EventsTableData } from '../../Models/EventsTableData';
 import { TimeSeriesEvent } from '../../Models/TimeSeriesEvent';
 import { TimeSeriesEventCell } from '../../Models/TimeSeriesEventCell';
+import { ChartOptions } from '../../Models/ChartOptions';
 
 class EventsTable extends ChartComponent{
 
@@ -37,12 +38,13 @@ class EventsTable extends ChartComponent{
     }
 	
     public render(events: any, chartOptions: any, fromTsx: boolean = false) {
+        this.chartOptions = new ChartOptions(chartOptions);
         this.maxVisibleIndex = 100;
         this.eventsTableData.setEvents(events, fromTsx);
 
         var componentContainer = d3.select(this.renderTarget)
             .classed("tsi-tableComponent", true);
-        super.themify(componentContainer, chartOptions.theme);
+        super.themify(componentContainer, this.chartOptions.theme);
         if (this.eventsTable == null) {
             this.eventsLegend = componentContainer.append("div")
                 .classed("tsi-tableLegend", true);
