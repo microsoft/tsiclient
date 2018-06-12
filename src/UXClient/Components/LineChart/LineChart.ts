@@ -481,9 +481,7 @@ class LineChart extends ChartComponent {
                     }, 0);
         
                     var yMap = {};
-                    
                     var visibleAggI = 0;
-
                     this.svgSelection.selectAll(".yAxis").remove();
 
                     this.data.forEach((agg, i) => {
@@ -535,13 +533,14 @@ class LineChart extends ChartComponent {
         
                         yMap[aggKey] = aggY;
                         
-                        var yAxis: any = g.selectAll(".yAxis" + aggKey)
-                                        .data([aggY]);
+                        var yAxis: any = g.selectAll(".yAxis")
+                                .filter((yAggKey) => { return yAggKey == aggKey})
+                                        .data([aggKey]);
                         var visibleYAxis = (aggVisible && (this.yAxisState != "shared" || visibleAggI == 0));
                         
                         yAxis = yAxis.enter()
                             .append("g")
-                            .attr("class", "yAxis yAxis" + aggKey)
+                            .attr("class", "yAxis")
                             .merge(yAxis)
                             .style("visibility", ((visibleYAxis && !this.chartOptions.yAxisHidden) ? "visible" : "hidden"));
                         if (this.yAxisState == "overlap" && visibleAggCount > 1) {
@@ -767,7 +766,10 @@ class LineChart extends ChartComponent {
                                 .selectAll("text")
                                 .style("fill-opacity", .5)
                                 .classed("standardYAxisText", true);
-                            this.svgSelection.select(".yAxis" +  d.aggregateKey)
+                            this.svgSelection.selectAll(".yAxis")
+                            .filter((yAxisAggKey) => {
+                                return yAxisAggKey == d.aggregateKey; 
+                            })
                                 .selectAll("text")
                                 .style("fill-opacity", 1)
                                 .classed("standardYAxisText", false)
