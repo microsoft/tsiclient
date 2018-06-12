@@ -119,7 +119,7 @@ class AvailabilityChart extends ChartComponent{
         var timePickerOptionsObj = { ...this.chartOptions.toObject(), ...{brushMoveAction: (from, to) => {
             chartOptions.brushMoveAction(from, to);
             if (this.isCustomTime(from.valueOf(), to.valueOf()))
-                this.timePickerTextContainer.select('.tsi-TimePicker')
+                this.timePickerTextContainer.select('.tsi-timePicker')
                     .node().value = "Custom";
             this.setFromAndToTimes(from.valueOf(), to.valueOf());
             this.drawGhost();
@@ -130,29 +130,19 @@ class AvailabilityChart extends ChartComponent{
 
         if (this.timePickerContainer == null) {
             targetElement.html("");
+            this.timePickerTextContainer = targetElement.append("div").classed("tsi-timePickerTextContainer", true);
             this.timePickerContainer = targetElement.append("div").classed("tsi-timePickerContainer", true);
             this.timePickerChart = this.timePickerContainer.append("div").classed("tsi-timePickerChart", true);
             var sparkLineContainer = targetElement.append("div").classed("tsi-sparklineContainer", true);
-            this.timePickerTextContainer = targetElement.append("div").classed("tsi-timePickerTextContainer", true);
             this.timePickerLineChart = new LineChart(this.timePickerChart.node() as any);
             this.createQuickTimePicker();
             this.buildFromAndTo();
             this.sparkLineChart = new LineChart(sparkLineContainer.node() as any);
-            
-            // var sparkLineOptions: any = this.createSparkLineOptions(chartOptions);
-            // this.sparkLineChart.render(transformedAvailability, sparkLineOptions, this.ae);
-            // this.sparkLineChart.setBrushEndTime(new Date(this.toMillis));
-            // this.sparkLineChart.setBrushStartTime(new Date(this.fromMillis));
-            // this.sparkLineChart.setBrush();
-            // this.setBrush(this.toMillis - (24 * 60 * 60 * 1000), this.toMillis);
             window.addEventListener('resize', () => {
                 this.timePickerLineChart.draw();
                 this.drawGhost();
                 this.setTicks();
             });
-            // this.zoomedFromMillis = this.fromMillis;
-            // this.zoomedToMillis = this.toMillis;
-            // this.buildZoomButtons();
         }
 
         var sparkLineOptions: any = this.createSparkLineOptions(chartOptions);
@@ -163,7 +153,7 @@ class AvailabilityChart extends ChartComponent{
         this.setBrush(this.toMillis - (24 * 60 * 60 * 1000), this.toMillis);
         this.zoomedFromMillis = this.fromMillis;
         this.zoomedToMillis = this.toMillis;
-        this.buildZoomButtons();
+        this.buildZoomButtons(targetElement);
 
         
 
@@ -178,11 +168,11 @@ class AvailabilityChart extends ChartComponent{
         });
     }
 
-    private buildZoomButtons() {
+    private buildZoomButtons(targetElement) {
         //blow away old buttons
-        this.timePickerTextContainer.selectAll(".tsi-zoomButtonContainer").remove();
+        targetElement.selectAll(".tsi-zoomButtonContainer").remove();
         let midpoint = (this.sparkLineChart.x.range()[1] - this.sparkLineChart.x.range()[0]) / 2;
-        var buttonsDiv = this.timePickerTextContainer.append("div")
+        var buttonsDiv = targetElement.append("div")
             .classed("tsi-zoomButtonContainer", true);
         buttonsDiv.append("button")
             .attr("class", "tsi-zoomButton tsi-zoomButtonIn")
@@ -263,7 +253,7 @@ class AvailabilityChart extends ChartComponent{
         var select = this.timePickerTextContainer
             .append("div")
             .append("select")
-            .attr('class', 'select tsi-TimePicker');
+            .attr('class', 'select tsi-timePicker');
 
         var options = select.selectAll('option')
             .data(this.quickTimeArray).enter()
