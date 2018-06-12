@@ -31,11 +31,9 @@
         }
     }
 
-    .tsi-timePicker {
-        select{
-            background-color: $gray3;
-            color: $gray1; 
-        }
+    .tsi-timePicker, .tsi-timePicker > option {
+        background-color: $gray3;
+        color: $gray1; 
     }    
 }
 
