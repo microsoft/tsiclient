@@ -1,0 +1,125 @@
+@import "../../styles";
+
+@mixin tableColors($grays){
+    $gray1: nth($grays, 1); // text
+    $gray2: nth($grays, 2); // hover
+    $gray3: nth($grays, 3); // element
+    $gray4: nth($grays, 4); // background
+
+    background-color: $gray3;
+    color: $gray1;
+
+    .tsi-timePickerContainer {
+        background-color: $gray3;
+        .tsi-timePickerChart {
+            background-color: $gray3;
+        }
+    }
+
+    .tsi-zoomButton{
+        background-color: $gray3;
+        color: $gray1;
+        border: 1px solid $gray1;
+        &:active{
+            background-color: $gray2;
+        }
+    }
+
+    .tsi-dateTimeInputDiv {
+        input {
+            color: $gray1;
+        }
+    }
+
+    .tsi-timePicker, .tsi-timePicker > option {
+        background-color: $gray3;
+        color: $gray1; 
+    }    
+}
+
+.tsi-availabilityChart {
+    min-height: 132px;
+    position: relative;
+
+    &.tsi-dark{
+		$grays: grays('dark');
+		@include tableColors($grays);
+	}
+	&.tsi-light{
+		$grays: grays('light');
+		@include tableColors($grays);
+    }
+
+    width: 100%;
+    .tsi-timePickerContainer {
+        width: calc(100% - 4px);
+        height: calc(100% - 28px);
+        overflow: visible;
+        .tsi-timePickerChart {
+            height: calc(100% - 4px);
+        }
+    }
+
+    .tsi-timePickerTextContainer {
+        top: 0;
+        width: calc(100% - 160px);
+        position: relative;
+        margin: 0 80px;
+        display: flex;
+        z-index: 1;
+
+        .tsi-timePicker {
+            padding: 2px;
+            margin-right: 40px;
+            position: relative;
+            top: 4px;
+            option {
+                padding: 2px;
+            }
+        }
+
+        .tsi-dateTimeInputLabel {
+            display: inline-flex;
+            position: absolute;
+            font-size: 12px;
+        }
+
+        .tsi-dateTimeInputDiv {
+            display: inline-flex;
+            input {
+                width: 70px;
+                font-size: 12px;
+                background: transparent;
+                border: none;
+                position: relative;
+                top: 12px;
+            }
+        }
+    }
+
+    .tsi-zoomButtonContainer {
+        display: flex;
+        position: absolute;
+        right: 40px;
+        bottom: 56px;
+        width: 20px;
+        flex-wrap: wrap;
+
+        .tsi-zoomButton {
+            width: 20px;
+            height: 20px;
+            padding: 0;
+            margin-top: -1px;
+        }
+
+    }
+
+    .tsi-sparklineContainer {
+        background: none;
+        margin-top: -28px;
+        path {
+            stroke: none !important;
+        }
+
+    }
+}

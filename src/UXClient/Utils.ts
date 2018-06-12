@@ -54,10 +54,10 @@ class Utils {
     
     static timeFormat(usesSeconds = false, usesMillis = false) {
         if (usesMillis)
-            return d3.timeFormat("%x %H:%M:%S:%L");
+            return d3.utcFormat("%x %H:%M:%S:%L");
         if (usesSeconds)
-            return d3.timeFormat("%x %H:%M:%S")
-        return d3.timeFormat("%x %H:%M");
+            return d3.utcFormat("%x %H:%M:%S")
+        return d3.utcFormat("%x %H:%M");
     }
 
     static splitTimeLabel (text: any) {

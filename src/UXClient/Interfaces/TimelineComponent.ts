@@ -1,6 +1,7 @@
 import {Utils} from "./../Utils";
 import {Component} from "./Component";
 import * as d3 from 'd3';
+import { ChartOptions } from "../Models/ChartOptions";
 
 class TimelineComponent extends Component {
 	readonly TRANSDURATION = (window.navigator.userAgent.indexOf("Edge") > -1) ? 0 : 400;
@@ -14,6 +15,7 @@ class TimelineComponent extends Component {
 
 	protected width: number;
 	protected margins: any;
+	protected chartOptions: ChartOptions;
 	
 	constructor(renderTarget: Element){
 		super(renderTarget);
@@ -40,9 +42,10 @@ class TimelineComponent extends Component {
 	}
 
 	protected createElements (options) {
+		var chartOptions = new ChartOptions(options);
 		var margins = {
-			left: (options.xAxis == "hidden") ? 10 : 40,
-			right: (options.xAxis == "hidden") ? 10 : 40
+			left: (chartOptions.xAxisHidden == true) ? 10 : 40,
+			right: (chartOptions.xAxisHidden == true) ? 10 : 40
 		}
 		if(this.targetElement == null){
 			this.targetElement = d3.select(this.renderTarget);	
@@ -51,7 +54,7 @@ class TimelineComponent extends Component {
 				this.targetElement.style("position", "relative");
 			
 			this.targetElement.classed("tsi-eventSeries", true);
-			var height = (options.xAxis == "hidden") ? 10 : 40;
+			var height = (chartOptions.xAxisHidden == true) ? 10 : 40;
 			var width: number = Math.max((this.targetElement.node()).clientWidth, this.MINWIDTH);
 			var svg = this.targetElement.append("svg")
 				.attr("width", width)

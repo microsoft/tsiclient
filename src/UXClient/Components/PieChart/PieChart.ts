@@ -8,6 +8,7 @@ import { ChartComponentData } from '../../Models/ChartComponentData';
 import { PieChartData } from '../../Models/PieChartData';
 import { Slider } from '../Slider/Slider';
 import { Tooltip } from '../Tooltip/Tooltip';
+import { ChartOptions } from '../../Models/ChartOptions';
 
 
 class PieChart extends ChartComponent {
@@ -32,8 +33,7 @@ class PieChart extends ChartComponent {
 
     PieChart() { }
     public render(data: any, options: any, aggregateExpressionOptions: any) {
-        this.chartOptions = options;
-        var legendState: string = (this.chartOptions.legend != undefined) ? this.chartOptions.legend : "shown";
+        this.chartOptions = new ChartOptions(options);
         var firstTerm = data[0][Object.keys(data[0])[0]];
         var firstSplitByKey = Object.keys(firstTerm)[0];
         var timestamp = (options.timestamp != undefined) ? options.timestamp : Object.keys(firstTerm[firstSplitByKey])[0];
@@ -59,9 +59,8 @@ class PieChart extends ChartComponent {
 
                 var width = +targetElement.node().getBoundingClientRect().width;
                 var height = +targetElement.node().getBoundingClientRect().height;
-                var chartWidth = width  - (legendState == "shown" ? this.CONTROLSWIDTH : 0);
+                var chartWidth = width  - (this.chartOptions.legend == "shown" ? this.CONTROLSWIDTH : 0);
                 var chartHeight = height - this.sliderSpace - (this.chartOptions.legend == "compact" ? 60 : 0);
-                //this.chartOptions.arcWidthRatio - 0 to 1 where 1 is a complete pie chart
                 var outerRadius = (Math.min(chartHeight, chartWidth) - 10) / 2;
                 var innerRadius = this.chartOptions.arcWidthRatio && 
                                     (this.chartOptions.arcWidthRatio < 1 && this.chartOptions.arcWidthRatio > 0) ? 
@@ -134,7 +133,7 @@ class PieChart extends ChartComponent {
                     });
                 }
 
-                this.legendObject.draw(legendState, this.chartComponentData, labelMouseover, 
+                this.legendObject.draw(this.chartOptions.legend, this.chartComponentData, labelMouseover, 
                     this.svgSelection, this.chartOptions, labelMouseout);
                 var pie = d3.pie()
                     .sort(null)
@@ -243,7 +242,10 @@ class PieChart extends ChartComponent {
             
             // temporal slider
             var slider = new Slider(this.renderTarget);
-            window.addEventListener("resize", this.draw);
+            window.addEventListener("resize", () => {
+                if (!this.chartOptions.suppressResizeListener)
+                    this.draw();
+            });
         }
         this.draw();
     }
