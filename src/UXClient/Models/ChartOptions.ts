@@ -1,10 +1,10 @@
 class ChartOptions {
     public aggTopMargin: number; // margin on top of each aggregate line(s)
     public arcWidthRatio: number; // bumber between 0 and 1 which determines how thic the pie chart arc is
-    public availabilityChartColor: string; // color of the line/area in availability chart
     public brushClearable: boolean; // whether to keep the brush selected region upon clear and non-selection of a new region
     public brushContextMenuActions: Array<any>; // pairs of names/actions for context menu for the brush
     public brushMoveAction: any; // action fired when the brush moved
+    public color: string; // color of the line/area in availability chart
     public events: Array<any>; // events passed into the linchart, an array of discrete time events
     public focusHidden: boolean; // whether focus element is hidden in chart
     public fromChart: boolean; // whether a component is a subcomponent of another one or is a standalone
@@ -43,7 +43,7 @@ class ChartOptions {
         this.noAnimate = this.getValueOrDefault(chartOptionsObj.noAnimate, false); 
         this.minutesForTimeLabels = this.getValueOrDefault(chartOptionsObj.minutesForTimeLabels, false);
         this.aggTopMargin = this.getValueOrDefault(chartOptionsObj.aggTopMargin, 12);
-        this.availabilityChartColor = this.getValueOrDefault(chartOptionsObj.availabilityChartColor, 'teal');
+        this.color = this.getValueOrDefault(chartOptionsObj.color, 'teal');
         this.maxBuckets = this.getValueOrDefault(chartOptionsObj.maxBuckets, 500);
         this.yAxisHidden = this.getValueOrDefault(chartOptionsObj.yAxisHidden, false);
         this.focusHidden = this.getValueOrDefault(chartOptionsObj.focusHidden, false);
@@ -78,7 +78,7 @@ class ChartOptions {
             noAnimate: this.noAnimate,  
             minutesForTimeLabels: this.minutesForTimeLabels,
             aggTopMargin: this.aggTopMargin, 
-            availabilityChartColor: this.availabilityChartColor,
+            color: this.color,
             maxBuckets: this.maxBuckets,
             yAxisHidden: this.yAxisHidden,
             focusHidden: this.focusHidden,

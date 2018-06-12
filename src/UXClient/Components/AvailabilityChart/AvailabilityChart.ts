@@ -85,7 +85,7 @@ class AvailabilityChart extends ChartComponent{
     }
     private setChartOptions (chartOptions) {
         this.chartOptions = new ChartOptions({ ...chartOptions, ...{
-            keepBrush: false,
+            keepBrush: true,
             isArea: true,
             noAnimate: true,
             minutesForTimeLabels: true,
@@ -100,7 +100,7 @@ class AvailabilityChart extends ChartComponent{
     public render(transformedAvailability: any, chartOptions: any, rawAvailability: any) {
         this.setChartOptions(chartOptions);
         this.rawAvailability = rawAvailability;
-        this.color = this.chartOptions.availabilityChartColor ? this.chartOptions.availabilityChartColor : 'teal'; 
+        this.color = this.chartOptions.color ? this.chartOptions.color : 'teal'; 
         this.maxBuckets = (this.chartOptions.maxBuckets) ? this.chartOptions.maxBuckets : 500;
         this.fromMillis = (new Date(rawAvailability.range.from)).valueOf();
         this.toMillis = (new Date(rawAvailability.range.to)).valueOf();
@@ -323,6 +323,7 @@ class AvailabilityChart extends ChartComponent{
             legend: "hidden", 
             brushContextMenuActions: [], 
             snapBrush: false, 
+            keepBrush: false,
             xAxisHidden: true,
             yAxisHidden: true,
             focusHidden: true,
