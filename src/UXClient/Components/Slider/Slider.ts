@@ -36,10 +36,9 @@ class Slider extends Component{
         if (selectedLabel)
             this.selectedLabel = selectedLabel;
 
-        this.xScale = d3.scaleTime()
-            .domain(d3.extent(data, (d) => { return (new Date(d.label))}))
-            .range([0, this.sliderWidth])
-            .clamp(true);
+        this.xScale = d3.scalePoint()
+            .domain(data.map((d) => d.label))
+            .range([0, this.sliderWidth]);
 
         width = Math.max(width, marginsTotal);
         var self = this;
@@ -59,7 +58,7 @@ class Slider extends Component{
                 .call(d3.drag()
                     .on("start.interrupt", function() { slider.interrupt(); })
                     .on("start drag", (d) => { 
-                        self.onDrag(self.xScale.invert(d3.event.x)); 
+                        self.onDrag(d3.event.x); 
                     })
                 );
 
@@ -110,24 +109,23 @@ class Slider extends Component{
     private onDrag (h) {
         //find the closest time and set position to that
         var newSelectedLabel = this.data.reduce((prev, curr) => {
-            var currDiff = Math.abs(new Date (curr.label).valueOf() - h.valueOf());
-            var prevDiff = Math.abs(new Date (prev.label).valueOf() - h.valueOf());
+            var currDiff = Math.abs(this.xScale(curr.label) - h);
+            var prevDiff = Math.abs(this.xScale(prev.label) - h);
             return (currDiff < prevDiff) ? curr : prev;
         }, {label: this.selectedLabel, action: () => {}});
         this.selectedLabel = (newSelectedLabel != null) ? newSelectedLabel.label : this.selectedLabel;
         newSelectedLabel.action(newSelectedLabel.label);
 
-        this.setStateFromLabel();
+        this.setStateFromLabel(); 
     }
     
     //set the position of the slider and text, and set the text, given a label
     private setStateFromLabel () {
-        var date = new Date(this.selectedLabel);
-        this.sliderSVG.select(".handle").attr("cx", this.xScale(date));
-        this.sliderTextDiv.text(Utils.timeFormat(this.usesSeconds, this.usesMillis)(date));
+        this.sliderSVG.select(".handle").attr("cx", this.xScale(this.selectedLabel));
+        this.sliderTextDiv.text(this.selectedLabel);
         //adjust until center lines up with 
         var centerDivOffset = this.sliderTextDiv.node().getBoundingClientRect().width / 2;
-        this.sliderTextDiv.style("right", (this.width - (this.margins.right + this.xScale(date))) - centerDivOffset + "px");
+        this.sliderTextDiv.style("right", (this.width - (this.margins.right + this.xScale(this.selectedLabel))) - centerDivOffset + "px");
     }
 
     private moveLeft () {
