@@ -133,10 +133,15 @@ class Utils {
     }
 
     static generateColors (numColors: number) {
-        var splitByColors = d3.scaleSequential(d3.interpolateCubehelixDefault).domain([-.5, numColors - .5]);
-        var colors = []
+        let defaultColors = ['#008272', '#D869CB', '#FF8C00', '#8FE6D7', '#3195E3', '#F7727E', '#E0349E', '#C8E139', '#60B9AE', 
+                             '#93CFFB', '#854CC7', '#258225', '#0078D7', '#FF2828', '#FFF100'];
+        var postDefaultColors = d3.scaleSequential(d3.interpolateCubehelixDefault).domain([defaultColors.length -.5, numColors - .5]);
+        var colors = [];
         for (var i = 0; i < numColors; i++) {
-            colors.push(splitByColors(i));
+            if (i < defaultColors.length)
+                colors.push(defaultColors[i])
+            else
+                colors.push(postDefaultColors(i));
         }
         return colors;
     }
@@ -168,6 +173,29 @@ class Utils {
         return gridButton;
     }
 
+    static createSplitByColors(displayState: any, aggKey: string, ignoreIsOnlyAgg: boolean = false) {
+        if (Object.keys(displayState[aggKey]["splitBys"]).length == 1) 
+            return [displayState[aggKey].color];
+        var isOnlyAgg: boolean = Object.keys(displayState).reduce((accum, currAgg): boolean => {
+            if (currAgg == aggKey)
+                return accum;
+            if (displayState[currAgg]["visible"] == false) 
+                return accum && true;
+            return false;
+        }, true);
+        if (isOnlyAgg && !ignoreIsOnlyAgg) {
+            return this.generateColors(Object.keys(displayState[aggKey]["splitBys"]).length);
+        }
+        var aggColor = displayState[aggKey].color;
+        var interpolateColor = d3.scaleLinear().domain([0,Object.keys(displayState[aggKey]["splitBys"]).length])
+            .range([<any>d3.hcl(aggColor).darker(), <any>d3.hcl(aggColor).brighter()]);
+        var colors = [];
+        for(var i = 0; i < Object.keys(displayState[aggKey]["splitBys"]).length; i++){
+            colors.push(interpolateColor(i));
+        }
+        return colors;
+    }
+
     static colorSplitBy(displayState: any, splitByIndex: number, aggKey: string, ignoreIsOnlyAgg: boolean = false) {
         if (Object.keys(displayState[aggKey]["splitBys"]).length == 1) 
             return displayState[aggKey].color;
@@ -181,9 +209,8 @@ class Utils {
                     }, true);
             
         if (isOnlyAgg && !ignoreIsOnlyAgg) {
-            var splitByColors = d3.scaleSequential(d3.interpolateInferno)
-                                    .domain([0, Object.keys(displayState[aggKey]["splitBys"]).length]);
-            return splitByColors(splitByIndex);
+            var splitByColors = this.generateColors(Object.keys(displayState[aggKey]["splitBys"]).length);
+            return splitByColors[splitByIndex];
         }
 
         var aggColor = displayState[aggKey].color;

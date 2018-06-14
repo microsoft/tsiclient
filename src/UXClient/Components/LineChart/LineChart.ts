@@ -35,7 +35,7 @@ class LineChart extends ChartComponent {
     private brushEndTime: Date;
     
     private chartMargins: any = {
-        top: 8,
+        top: 12,
         bottom: 40,
         left: 70, 
         right: 60
@@ -557,7 +557,8 @@ class LineChart extends ChartComponent {
                                 .style("fill", this.chartComponentData.displayState[aggKey].color);
                         }
                         else {
-                            yAxis.call(d3.axisLeft(aggY).tickFormat(Utils.formatYAxisNumber).ticks(2))
+                            yAxis.call(d3.axisLeft(aggY).tickFormat(Utils.formatYAxisNumber)
+                                .ticks(Math.ceil(chartHeight/(this.yAxisState == 'stacked' ? visibleAggCount : 1)/90)))
                                 .selectAll("text").classed("standardYAxisText", true)
                         }
                         yAxis.exit().remove();
@@ -601,14 +602,15 @@ class LineChart extends ChartComponent {
                                 })   
                                 .transition()
                                 .duration(this.chartOptions.noAnimate ? 0 : this.TRANSDURATION)
-                                .ease(d3.easeLinear)                                         
-                                // .attr("stroke",  Utils.colorSplitBy(this.chartComponentData.displayState, j, aggKey))
+                                .ease(d3.easeExp)                                         
                                 .attr("stroke-dasharray","5,5")            
                                 .attr("d", aggLine);
         
                             var path = g.selectAll(".valueLine" + tsIterator)
                                 .data([this.chartComponentData.timeArrays[aggKey][splitBy]]);
         
+                            var splitByColors = Utils.createSplitByColors(this.chartComponentData.displayState, aggKey, this.chartOptions.keepSplitByColor)
+
                             path.enter()
                                 .append("path")
                                 .attr("class", "valueElement valueLine valueLine" + tsIterator)
@@ -618,8 +620,8 @@ class LineChart extends ChartComponent {
                                 })                                            
                                 .transition()
                                 .duration(this.chartOptions.noAnimate ? 0 : this.TRANSDURATION)
-                                .ease(d3.easeLinear)
-                                .attr("stroke",  Utils.colorSplitBy(this.chartComponentData.displayState, j, aggKey, this.chartOptions.keepSplitByColor)) 
+                                .ease(d3.easeExp)
+                                .attr("stroke", splitByColors[j])
                                 .attr("stroke-opacity", this.strokeOpacity)                       
                                 .attr("d", aggLine);
 
@@ -636,8 +638,8 @@ class LineChart extends ChartComponent {
                                     })                                            
                                     .transition()
                                     .duration(this.chartOptions.noAnimate ? 0 : this.TRANSDURATION)
-                                    .ease(d3.easeLinear)
-                                    .style("fill",  Utils.colorSplitBy(this.chartComponentData.displayState, j, aggKey, this.chartOptions.keepSplitByColor))                        
+                                    .ease(d3.easeExp)
+                                    .style("fill", splitByColors[j])
                                     .attr("d", areaPath);
                                 area.exit().remove();
                             }

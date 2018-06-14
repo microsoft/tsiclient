@@ -59,7 +59,7 @@ class PieChart extends ChartComponent {
 
                 var width = +targetElement.node().getBoundingClientRect().width;
                 var height = +targetElement.node().getBoundingClientRect().height;
-                var chartWidth = width  - (this.chartOptions.legend == "shown" ? this.CONTROLSWIDTH : 0);
+                var chartWidth = width  - (this.chartOptions.legend == "shown" ? (this.CONTROLSWIDTH + 28) : 0);
                 var chartHeight = height - this.sliderSpace - (this.chartOptions.legend == "compact" ? 60 : 0);
                 var outerRadius = (Math.min(chartHeight, chartWidth) - 10) / 2;
                 var innerRadius = this.chartOptions.arcWidthRatio && 
@@ -190,7 +190,6 @@ class PieChart extends ChartComponent {
 
                 arcEntered.each(function () {
                     var pathElem = d3.select(this).selectAll(".tsi-pie-path").data(d => [d]);
-
                     var pathEntered = pathElem.enter()
                         .append("path")
                         .attr("class", "tsi-pie-path")
@@ -212,7 +211,7 @@ class PieChart extends ChartComponent {
                         .merge(pathElem)
                         .transition()
                         .duration(self.TRANSDURATION)
-                        .ease(d3.easeLinear)
+                        .ease(d3.easeExp)
                         .attrTween("d", arcTween)
                         .attr("fill", (d: any)  => { 
                             return Utils.colorSplitBy(self.chartComponentData.displayState, d.data.splitByI, d.data.aggKey, self.chartOptions.keepSplitByColor);
