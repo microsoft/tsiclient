@@ -42,7 +42,6 @@ class Slider extends Component{
 
         width = Math.max(width, marginsTotal);
         var self = this;
-        var theme = Utils.getTheme(options.theme);
         
         if (this.sliderSVG == null) {
             this.sliderSVG = targetElement.append("svg")
@@ -68,7 +67,6 @@ class Slider extends Component{
 
             this.sliderTextDiv = targetElement.append("div")
                 .attr("class", "tsi-sliderLabel")
-                .classed(theme, true)
                 .attr("tabindex", 0)
                 .on("keydown", () => {
                     if (d3.event.keyCode == 37) {
@@ -79,9 +77,9 @@ class Slider extends Component{
                     }
                 });
         }
+        this.themify(this.sliderSVG, options.theme);
 
-        this.sliderSVG.classed(theme, true)
-            .attr("width", width + "px");
+        this.sliderSVG.attr("width", width + "px");
 
         var slider = this.sliderSVG.select(".tsi-sliderG")
                                    .attr("transform", "translate(" + this.margins.left + "," + (this.height / 2) + ")");

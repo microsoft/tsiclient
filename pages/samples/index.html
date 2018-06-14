@@ -72,15 +72,19 @@
                 </div>
             </div>
             
-            <div class="rowOfCardsTitle">Charts Gracefully Animating Data In and Out</div>
+            <div class="rowOfCardsTitle">Charts Gracefully Animating Data In and Out, While Changing Theme</div>
             <div class="rowOfCards">
-                <div class="card dark" style="flex-shrink: 1; height: 100%; width: 45%;">
+                <div class="card dark" style="flex-shrink: 1; height: 100%; width: 30%;">
                     <div class="cardTitle dark">Factory 3 +/- Factory 1 as a Line Chart</div>
                     <div class="cardChart" id="chart6"></div>
                 </div>
-                <div class="card dark" style="flex-shrink: 1; height: 100%; width: 45%;">
+                <div class="card dark" style="flex-shrink: 1; height: 100%; width: 30%;">
                     <div class="cardTitle dark">Factory 3 +/- Factory 1 as a Bar Chart, Relative Y Axis</div>
                     <div class="cardChart" id="chart7"></div>
+                </div>
+                <div class="card dark" style="flex-shrink: 1; height: 100%; width: 30%;">
+                    <div class="cardTitle dark">Factory 3 +/- Factory 1 as a Bar Chart, Relative Y Axis</div>
+                    <div class="cardChart" id="chart7a"></div>
                 </div>
             </div>
             
@@ -274,10 +278,13 @@
                 var transformedResult = tsiClient.ux.transformAggregatesForVisualization(result, aggregateExpressions5);
 
                 var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart6'));
-                lineChart.render(transformedResult, {legend: "compact"}, aggregateExpressions5);
+                lineChart.render(transformedResult, {legend: "compact", tooltip: true}, aggregateExpressions5);
                 
                 var barChart = new tsiClient.ux.BarChart(document.getElementById('chart7'));
                 barChart.render(transformedResult, {legend: "compact", zeroYAxis: false, tooltip: true}, aggregateExpressions5);
+
+                var pieChart = new tsiClient.ux.PieChart(document.getElementById('chart7a'));
+                pieChart.render(transformedResult, {legend: "compact", zeroYAxis: false, tooltip: true}, aggregateExpressions5);
                 
                 var counter = 0;
                 setInterval(function () {
@@ -289,12 +296,13 @@
                                 { from: startDate, to: endDate, bucketSize: '2m' }, {property: 'Station', type: 'String'}, '#C8E139', 'Factory1Temp');
                             aggregateExpressions5.push(secondAe);
                         }
-                        var options = (aggregateExpressions5.length == 2) ? {legend: "compact", zeroYAxis: false} : {legend: "compact", tooltip: true, grid: true, zeroYAxis: false};
+                        var options = (aggregateExpressions5.length == 2) ? {legend: "compact", zeroYAxis: false, theme: 'light'} : {legend: "compact", tooltip: true, grid: true, zeroYAxis: false, theme: 'dark'};
 
                         tsiClient.server.getAggregates(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com', aggregateExpressions5.map(function(ae){return ae.toTsx()})).then(function(result){
                             var transformedResult = tsiClient.ux.transformAggregatesForVisualization(result, aggregateExpressions5);
                             setTimeout(function(){barChart.render(transformedResult, options, aggregateExpressions5)}, 3000);
                             lineChart.render(transformedResult, options, aggregateExpressions5);
+                            setTimeout(function(){pieChart.render(transformedResult, options, aggregateExpressions5)}, 1000);
                         });
                         counter++;
                     }
@@ -320,7 +328,7 @@
                 lineChart.render(transformedResult, {}, aggregateExpressions6);
                 var counter = 0;
                 setInterval(function () {
-                    if(counter < 0){  // so this doesnt just DDOS the backend if the tab is left open
+                    if(counter < 50){  // so this doesnt just DDOS the backend if the tab is left open
                         startDate2 = new Date(startDate2.valueOf() + 1*1000*6);
                         endDate2 = new Date(endDate2.valueOf() + 1*1000*10);
                         aggregateExpressions6.forEach(function(ae){ae.searchSpan.from = startDate2; ae.searchSpan.to = endDate2});

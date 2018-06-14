@@ -271,7 +271,6 @@ class LineChart extends ChartComponent {
                 .text(d => d);
     
             var tooltip = new Tooltip(this.focus);
-            tooltip.render(this.chartOptions.theme);
                         
             this.yAxisState = this.chartOptions.yAxisState ? this.chartOptions.yAxisState : "stacked"; // stacked, shared, overlap
                                 
@@ -730,7 +729,8 @@ class LineChart extends ChartComponent {
                             .attr("y", -(textElemDimensions.height / 2) - 3)
                             .attr("width", textElemDimensions.width + 6)
                             .attr("height", textElemDimensions.height + 4);
-                        if (this.chartOptions.tooltip)
+                        if (this.chartOptions.tooltip){
+                            tooltip.render(this.chartOptions.theme);
                             tooltip.draw(d, this.chartComponentData, xPos, yPos, this.chartWidth, chartHeight, (text) => {
                                 var title = d.aggregateName;   
                                 
@@ -761,6 +761,7 @@ class LineChart extends ChartComponent {
                                         .text(measureType + ": " + Utils.formatYAxisNumber(d.measures[measureType]));
                                 });
                             });
+                        }
                         else 
                             tooltip.hide();
                         
@@ -956,7 +957,7 @@ class LineChart extends ChartComponent {
         
         this.chartComponentData.mergeDataToDisplayStateAndTimeArrays(this.data, this.aggregateExpressionOptions, this.events, this.states);
         this.draw();
-        // this.chartOptions.noAnimate = false;
+        this.chartOptions.noAnimate = false;  // ensure internal renders are always animated, overriding the users noAnimate option
     }
 }
 export {LineChart}

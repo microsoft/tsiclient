@@ -99,7 +99,6 @@ class GroupedBarChart extends ChartComponent {
 
             var tooltipG = g.append("g").attr("class", "tooltipG");
             var tooltip = new Tooltip(<any>(tooltipG));
-            tooltip.render(this.chartOptions.theme);
 
             var measureMap = this.chartComponentData.data.map((aggregate, aggI) => {
                 var aggName: string = Object.keys(aggregate)[0]
@@ -611,6 +610,9 @@ class GroupedBarChart extends ChartComponent {
                 }
                 else
                     slider.remove();
+
+                /******************** Tooltip ************************/
+                tooltip.render(this.chartOptions.theme);
             }
 
             this.legendObject = new Legend(draw, this.renderTarget, this.CONTROLSWIDTH);

@@ -53,7 +53,6 @@ class PieChart extends ChartComponent {
             var tooltipContainer = this.svgSelection.append("g");
 
             var tooltip = new Tooltip(tooltipContainer);
-            tooltip.render(this.chartOptions.theme);
 
             this.draw = () => {
 
@@ -232,6 +231,9 @@ class PieChart extends ChartComponent {
                 }
                 else
                     slider.remove();
+
+                /******************** Tooltip ************************/
+                tooltip.render(this.chartOptions.theme);
             }
 
             this.legendObject = new Legend(this.draw, this.renderTarget, this.CONTROLSWIDTH);
