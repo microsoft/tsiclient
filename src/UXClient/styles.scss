@@ -1,11 +1,11 @@
 // global gray colors mixin based on theme
-// Array of [text color, hover color, element color, background color, alt element]
+// Array of [text color, hover color, element color, background color, alt element, hover text]
 @function grays($theme){
     @if $theme == 'dark'{
-        @return #fff, #62666c, #1f2328, #3d4147, #31373e;
+        @return #fff, #62666c, #0d0f0e, #1e2223, #31373e, #60AAFF;
     }
     @if $theme == 'light'{
-        @return #000, #b3d6f2, #f4f4f4, #eaeaea, #dcdcdc;
+        @return #000, #b3d6f2, #ffffff, #f2f2f2, #dcdcdc, #136BFB;
     }
 }
 
@@ -14,6 +14,7 @@
     $gray2: nth($grays, 2); // hover
     $gray3: nth($grays, 3); // element
     $gray4: nth($grays, 4); // background
+    $gray6: nth($grays, 6); // text hover
     
     .yAxis, .xAxis{
         path{
@@ -70,11 +71,12 @@
     }    
 
     .tooltip {
-        rect {
-            fill: $gray2;
-        }
         text {
             fill: $gray1;
+        }
+        rect {
+            fill: $gray3;
+            stroke: $gray6;
         }
     }
 
@@ -118,10 +120,6 @@
     .tooltip {
         pointer-events: none;
     
-        rect {
-            stroke: none;
-            fill-opacity: .9;
-        }
         text {
             alignment-baseline: hanging;
         }

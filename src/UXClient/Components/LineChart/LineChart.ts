@@ -27,6 +27,7 @@ class LineChart extends ChartComponent {
     private strokeOpacity = 1;
     chartComponentData = new LineChartData();
     private surpressBrushTimeSet: boolean = false;
+    private hoverGradient;
 
     public x: any;
     private brush: any;
@@ -35,7 +36,7 @@ class LineChart extends ChartComponent {
     private brushEndTime: Date;
     
     private chartMargins: any = {
-        top: 8,
+        top: 12,
         bottom: 40,
         left: 70, 
         right: 60
@@ -211,6 +212,9 @@ class LineChart extends ChartComponent {
                 //if there is no brushElem, the voronoi lives here
                 voronoiRegion = g.append("rect").classed("voronoiRect", true);
             }
+
+            this.hoverGradient = g.append("path")
+                                  .attr("class", "valueElement valueArea valueArea")
     
             this.focus = g.append("g")
                 .attr("transform", "translate(-100,-100)")
@@ -431,8 +435,7 @@ class LineChart extends ChartComponent {
                         .y((d: any) => { 
                             return d.measures ? y(d.measures[this.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy)]) : 0;
                         });
-                    if (options.isArea) {
-                        var areaPath = d3.area()
+                    var areaPath = d3.area()
                         .curve(d3.curveMonotoneX)
                         .defined( (d: any) => { 
                             return (d.measures !== null) && 
@@ -445,7 +448,6 @@ class LineChart extends ChartComponent {
                             return d.measures ? y(d.measures[this.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy)]) : 0;
                         })
                         .y1(chartHeight);
-                    }
                     
                     if (!this.chartOptions.xAxisHidden) {
                         var xAxis: any = g.selectAll(".xAxis").data([this.x]);
@@ -550,7 +552,8 @@ class LineChart extends ChartComponent {
                                 .style("fill", this.chartComponentData.displayState[aggKey].color);
                         }
                         else {
-                            yAxis.call(d3.axisLeft(aggY).tickFormat(Utils.formatYAxisNumber).ticks(2))
+                            yAxis.call(d3.axisLeft(aggY).tickFormat(Utils.formatYAxisNumber)
+                                .ticks(Math.ceil(chartHeight/(this.yAxisState == 'stacked' ? visibleAggCount : 1)/90)))
                                 .selectAll("text").classed("standardYAxisText", true)
                         }
                         yAxis.exit().remove();
@@ -594,14 +597,15 @@ class LineChart extends ChartComponent {
                                 })   
                                 .transition()
                                 .duration(this.chartOptions.noAnimate ? 0 : this.TRANSDURATION)
-                                .ease(d3.easeLinear)                                         
-                                // .attr("stroke",  Utils.colorSplitBy(this.chartComponentData.displayState, j, aggKey))
+                                .ease(d3.easeExp)                                         
                                 .attr("stroke-dasharray","5,5")            
                                 .attr("d", aggLine);
         
                             var path = g.selectAll(".valueLine" + tsIterator)
                                 .data([this.chartComponentData.timeArrays[aggKey][splitBy]]);
         
+                            var splitByColors = Utils.createSplitByColors(this.chartComponentData.displayState, aggKey, this.chartOptions.keepSplitByColor)
+
                             path.enter()
                                 .append("path")
                                 .attr("class", "valueElement valueLine valueLine" + tsIterator)
@@ -611,8 +615,8 @@ class LineChart extends ChartComponent {
                                 })                                            
                                 .transition()
                                 .duration(this.chartOptions.noAnimate ? 0 : this.TRANSDURATION)
-                                .ease(d3.easeLinear)
-                                .attr("stroke",  Utils.colorSplitBy(this.chartComponentData.displayState, j, aggKey, this.chartOptions.keepSplitByColor)) 
+                                .ease(d3.easeExp)
+                                .attr("stroke", splitByColors[j])
                                 .attr("stroke-opacity", this.strokeOpacity)                       
                                 .attr("d", aggLine);
 
@@ -629,8 +633,8 @@ class LineChart extends ChartComponent {
                                     })                                            
                                     .transition()
                                     .duration(this.chartOptions.noAnimate ? 0 : this.TRANSDURATION)
-                                    .ease(d3.easeLinear)
-                                    .style("fill",  Utils.colorSplitBy(this.chartComponentData.displayState, j, aggKey, this.chartOptions.keepSplitByColor))                        
+                                    .ease(d3.easeExp)
+                                    .style("fill", splitByColors[j])
                                     .attr("d", areaPath);
                                 area.exit().remove();
                             }
@@ -639,8 +643,7 @@ class LineChart extends ChartComponent {
                             path.exit().remove();
                             tsIterator += 1;
                         });
-                    }); 
-                    
+                    });                    
                     
                     /******************** Voronoi diagram for hover action ************************/
                     var getValueOfVisible = (d) => {
@@ -779,6 +782,9 @@ class LineChart extends ChartComponent {
                         if (this.chartOptions.yAxisHidden) {
                             this.svgSelection.selectAll(".yAxis").style("display", "hidden");
                         } 
+
+                        this.hoverGradient.data([this.chartComponentData.timeArrays[d.aggregateKey][d.splitBy]])
+                                .attr("d", areaPath).style('fill', this.chartComponentData.displayState[d.aggregateKey].color).style('visibility', 'visible')            
                 
                         labelMouseover(d.aggregateKey, d.splitBy);
                     }
