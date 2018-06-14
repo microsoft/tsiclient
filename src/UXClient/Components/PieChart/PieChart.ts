@@ -33,7 +33,7 @@ class PieChart extends ChartComponent {
 
     PieChart() { }
     public render(data: any, options: any, aggregateExpressionOptions: any) {
-        this.chartOptions = new ChartOptions(options);
+        this.chartOptions.setOptions(options);
         var firstTerm = data[0][Object.keys(data[0])[0]];
         var firstSplitByKey = Object.keys(firstTerm)[0];
         var timestamp = (options.timestamp != undefined) ? options.timestamp : Object.keys(firstTerm[firstSplitByKey])[0];

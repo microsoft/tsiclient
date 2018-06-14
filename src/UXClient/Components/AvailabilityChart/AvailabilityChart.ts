@@ -84,7 +84,7 @@ class AvailabilityChart extends ChartComponent{
         d3.event.preventDefault && d3.event.preventDefault();
     }
     private setChartOptions (chartOptions) {
-        this.chartOptions = new ChartOptions({ ...chartOptions, ...{
+        this.chartOptions.setOptions({ ...chartOptions, ...{
             keepBrush: true,
             isArea: true,
             noAnimate: true,

@@ -149,7 +149,7 @@ class LineChart extends ChartComponent {
 
     public render(data: any, options: any, aggregateExpressionOptions: any) {
         this.data = data;
-        this.chartOptions = new ChartOptions(options);
+        this.chartOptions.setOptions(options);
         this.aggregateExpressionOptions = aggregateExpressionOptions;
         var width = Math.max((<any>d3.select(this.renderTarget).node()).clientWidth, this.MINWIDTH);
         var height = Math.max((<any>d3.select(this.renderTarget).node()).clientHeight, this.MINHEIGHT);
