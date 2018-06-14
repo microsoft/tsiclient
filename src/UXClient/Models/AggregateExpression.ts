@@ -17,7 +17,7 @@ class AggregateExpression {
         this.searchSpan = searchSpan;
         this.splitByObject = splitByObject;
         this.measureObject = ((measureTypes.length == 1 && measureTypes[0] == 'count') || measureObject.property == 'Events Count') ?  {count: {}} : {input : measureObject};
-        this.color = color ? color : 'teal';
+        this.color = color ? color : null;
         this.alias = alias.length ? alias : measureObject.property;
         this.contextMenu = contextMenu;
     }

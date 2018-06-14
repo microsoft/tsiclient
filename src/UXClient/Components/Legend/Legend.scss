@@ -5,7 +5,8 @@
     $gray2: nth($grays, 2); // hover
     $gray3: nth($grays, 3); // element
     $gray4: nth($grays, 4); // background
-    $gray5: nth($grays, 5); // alt element
+	$gray5: nth($grays, 5); // alt element
+    $gray6: nth($grays, 6); // 
 	
 	color: $gray1;
 	fill: $gray1;
@@ -13,27 +14,27 @@
 		stroke: $gray1;
 	}
 
-	border-right: 1px solid $gray1; 
 	.seriesLabel{
 		&:not(.shown) {
-			border: 1px solid $gray1;
 		}
 		.seriesNameLabel, .splitByLabel {
 			select {
-				background: $gray5;
-				color: $gray1;
-				fill: $gray1;
+				color: #999;
+				background-color: transparent;
+				border: 1px solid transparent;
+				option{
+					background: $gray3;
+				}
 			}			
 		}
 		.seriesNameLabel {
 			&.shown {
 				background-color: $gray3;
-				border-bottom: 1px solid $gray5;
 			}
 		}
 		.splitByLabel, .seriesNameLabel {
 			&:hover, &.inFocus {
-				background-color: $gray2;              
+				color: $gray6;    
 			}
 		}						
 	}
@@ -42,8 +43,8 @@
 .tsi-legend {
 	overflow-y: auto;
 	overflow-x: hidden;
-	height: 100%;
-	
+	height: calc(100% - 16px);
+	padding: 8px;
 	&.tsi-dark{
         $grays: grays('dark');
         @include legendColors($grays);
@@ -61,6 +62,7 @@
 		display: flex;
 		justify-content: center;
 		border-right: none;
+		padding: 0;
 		.seriesLabel, .eventSeriesLabel{
 			border: none;
 			padding: 0;
@@ -80,30 +82,31 @@
 				margin: 0 4px;
 				padding: 0 4px 1px 4px;
 				border-radius: 3px;
+				height: 12px;
+				margin-top: -1px;
 				.colorKey{
 					display: block;
 					position: absolute;
-					border-radius: 6px;
-					height: 12px;
+					height: 10px;
+					width: 10px;
+					top: -3px;
 				}
 				h5{
 					max-width: 100px;
 					margin-left: 16px;
 					text-align: left;
 					width: initial;
+					font-size: 12px;
 				}
 			}
 		}
 	}
 	
 	.seriesLabel, .eventSeriesLabel, .stateSeriesLabel {
-		border-width: 1px;
-		border-style: solid;
 		margin: 8px;
 		
 		.seriesNameLabel, .splitByLabel {
 			display:flex;
-
 			&:not(.shown) {
 				opacity:.3;
 			}
@@ -116,33 +119,48 @@
 				white-space: nowrap;
 				overflow: hidden;
 				margin-top:2px;
-				margin-bottom:2px;
+				margin-bottom:4px;
 				cursor: pointer;
 				font-weight: 400;
 			}
 
 			h4 {
-				width: calc(100% - 70px);
+				font-weight: 600;
+				font-size: 14px;
 			}
 
 			h5 {
-				width:190px;
 				overflow-x:hidden;
 				text-overflow: ellipsis;
-				font-size: 12px;
+				font-size: 14px;
 			}
 			select {
-				width:60px;
+				left: 20px;
+				width: 60px;
 				margin: 2px;
 				border: none;
+				position: absolute;
+				top: 16px;
+				-webkit-appearance: none;
+				-moz-appearance: none;
+				appearance: none;
+				padding: 2px;
+				background: url(../../Icons/chevron.svg) 90% / 30% no-repeat;
+				background-position-y: 7px;
+			}
+			select::-ms-expand { 
+				display: none; /* remove default arrow on ie10 and ie11 */
 			}
 		}
 		.seriesNameLabel {
+			&.tsi-nsb{
+				display: none;
+			}
 			svg {
 				display: inline-block;
 			}
 			cursor: pointer;
-			padding: 4px;
+			padding: 0 4px;
 			position: relative;
 			select{
 				height: 17px;
@@ -150,11 +168,14 @@
 				position: absolute;
 				right: 4px;
 				top: 6px;
+				display: none;
 			}
 		}
 		.splitByLabel {
-			font-size: 12px;
-			padding: 2px 4px;
+			font-size: 16px;
+			padding: 0 4px;
+			position: relative;
+			height: 40px;
 
 			&.hidden {
 				height:0px;
@@ -164,9 +185,12 @@
 			
 			.colorKey {
 				width: 12px;
-				height: 10px;
-				margin-top: 5px;
-				margin-right: 6px;
+				height: 12px;
+				margin-top: 8px;
+				margin-right: 8px;
+				border-radius: 6px;
+				position: relative;
+				top: -2px;
 			}
 		}
 		.seriesTypeLabel {
