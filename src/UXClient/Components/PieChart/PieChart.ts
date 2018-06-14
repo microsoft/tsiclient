@@ -211,7 +211,7 @@ class PieChart extends ChartComponent {
                         .merge(pathElem)
                         .transition()
                         .duration(self.TRANSDURATION)
-                        .ease(d3.easeLinear)
+                        .ease(d3.easeExp)
                         .attrTween("d", arcTween)
                         .attr("fill", (d: any)  => { 
                             return Utils.colorSplitBy(self.chartComponentData.displayState, d.data.splitByI, d.data.aggKey, self.chartOptions.keepSplitByColor);

@@ -551,7 +551,7 @@ class LineChart extends ChartComponent {
                                 .style("fill", this.chartComponentData.displayState[aggKey].color);
                         }
                         else {
-                            yAxis.call(d3.axisLeft(aggY).tickFormat(Utils.formatYAxisNumber).ticks(2))
+                            yAxis.call(d3.axisLeft(aggY).tickFormat(Utils.formatYAxisNumber).ticks(4))
                                 .selectAll("text").classed("standardYAxisText", true)
                         }
                         yAxis.exit().remove();
@@ -595,7 +595,7 @@ class LineChart extends ChartComponent {
                                 })   
                                 .transition()
                                 .duration(this.chartOptions.noAnimate ? 0 : this.TRANSDURATION)
-                                .ease(d3.easeLinear)                                         
+                                .ease(d3.easeExp)                                         
                                 .attr("stroke-dasharray","5,5")            
                                 .attr("d", aggLine);
         
@@ -613,7 +613,7 @@ class LineChart extends ChartComponent {
                                 })                                            
                                 .transition()
                                 .duration(this.chartOptions.noAnimate ? 0 : this.TRANSDURATION)
-                                .ease(d3.easeLinear)
+                                .ease(d3.easeExp)
                                 // .attr("stroke",  Utils.colorSplitBy(this.chartComponentData.displayState, j, aggKey, this.chartOptions.keepSplitByColor)) 
                                 .attr("stroke", splitByColors[j])
                                 .attr("stroke-opacity", this.strokeOpacity)                       
@@ -632,7 +632,7 @@ class LineChart extends ChartComponent {
                                     })                                            
                                     .transition()
                                     .duration(this.chartOptions.noAnimate ? 0 : this.TRANSDURATION)
-                                    .ease(d3.easeLinear)
+                                    .ease(d3.easeExp)
                                     .style("fill", splitByColors[j])
                                     // .style("fill",  Utils.colorSplitBy(this.chartComponentData.displayState, j, aggKey, this.chartOptions.keepSplitByColor))                        
                                     .attr("d", areaPath);

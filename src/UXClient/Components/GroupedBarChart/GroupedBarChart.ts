@@ -328,6 +328,7 @@ class GroupedBarChart extends ChartComponent {
                     d3.select(this).select(".labelGroup").select("text")
                         .transition()
                         .duration(self.TRANSDURATION)
+                        .ease(d3.easeExp)                        
                         .attr("x", (d) => (spacePerAggregate / 2))
                         .attr("y", chartHeight + 12)
                         .style("fill", (d) => self.chartComponentData.displayState[aggKey].color)
@@ -495,6 +496,7 @@ class GroupedBarChart extends ChartComponent {
                         })
                         .transition()
                         .duration(self.TRANSDURATION)
+                        .ease(d3.easeExp)                        
                         .attr("y", (d, i) => calcYPos(d, i))
                         .attr("height", (d, i) => {
                             if (self.chartOptions.stacked && (splitByXPosMap[d.splitBy] == undefined))
@@ -531,6 +533,7 @@ class GroupedBarChart extends ChartComponent {
                         .attr("stroke-width", 2)
                         .transition()
                         .duration(self.TRANSDURATION)
+                        .ease(d3.easeExp)
                         .attr("x1", (d, i) => {
                             if (self.chartOptions.stacked) 
                                 return 0;
