@@ -20,7 +20,7 @@ class GroupedBarChart extends ChartComponent {
     chartComponentData = new GroupedBarChartData();
     
     private chartMargins: any = {
-        top: 40,
+        top: 46,
         bottom: 40,
         left: 70, 
         right: 60

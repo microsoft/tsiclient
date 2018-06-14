@@ -59,7 +59,7 @@ class PieChart extends ChartComponent {
 
                 var width = +targetElement.node().getBoundingClientRect().width;
                 var height = +targetElement.node().getBoundingClientRect().height;
-                var chartWidth = width  - (this.chartOptions.legend == "shown" ? this.CONTROLSWIDTH : 0);
+                var chartWidth = width  - (this.chartOptions.legend == "shown" ? (this.CONTROLSWIDTH + 28) : 0);
                 var chartHeight = height - this.sliderSpace - (this.chartOptions.legend == "compact" ? 60 : 0);
                 var outerRadius = (Math.min(chartHeight, chartWidth) - 10) / 2;
                 var innerRadius = this.chartOptions.arcWidthRatio && 

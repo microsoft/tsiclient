@@ -165,7 +165,7 @@ class Legend extends Component {
                 .append("div")
                 .merge(seriesNameLabel)
                 .attr("class", (agg, i) => {
-                    return "seriesNameLabel" + (chartComponentData.displayState[agg].visible ? " shown" : "");
+                    return "seriesNameLabel" + (noSplitBys ? ' tsi-nsb' : '') + (chartComponentData.displayState[agg].visible ? " shown" : "");
                 })                    
                 .on("click", function (d: string, i: number) {
                     chartComponentData.displayState[d].visible = !chartComponentData.displayState[d].visible;
@@ -275,11 +275,7 @@ class Legend extends Component {
                                 .attr("fill-opacity", 1);
                     labelMouseout(svgSelection, d[0]);
                 })
-                .attr("class", (data, i) => {
-                    var hiddenSplitBy = (legendState != 'compact' && splitByLabelData.length == 1 && data[1] == "") ? " hidden" : "";
-                    return "splitByLabel splitByLabel" + (Utils.getAgVisible(chartComponentData.displayState, data[0], data[1]) ? " shown" : "") + 
-                            hiddenSplitBy;
-                });
+                .attr("class", (data, i) => "splitByLabel splitByLabel" + (Utils.getAgVisible(chartComponentData.displayState, data[0], data[1]) ? " shown" : ""));
 
             /******************** Color Blocks ****************************/
             var colors = Utils.createSplitByColors(chartComponentData.displayState, aggKey, this.chartOptions.keepSplitByColor);

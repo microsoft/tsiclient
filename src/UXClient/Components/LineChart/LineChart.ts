@@ -35,7 +35,7 @@ class LineChart extends ChartComponent {
     private brushEndTime: Date;
     
     private chartMargins: any = {
-        top: 8,
+        top: 12,
         bottom: 40,
         left: 70, 
         right: 60
