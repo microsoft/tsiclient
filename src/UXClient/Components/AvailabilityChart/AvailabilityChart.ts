@@ -117,7 +117,6 @@ class AvailabilityChart extends ChartComponent{
         this.chartOptions.brushClearable = false;
 
         var timePickerOptionsObj = { ...this.chartOptions.toObject(), ...{brushMoveAction: (from, to) => {
-            chartOptions.brushMoveAction(from, to);
             if (this.isCustomTime(from.valueOf(), to.valueOf()))
                 this.timePickerTextContainer.select('.tsi-timePicker')
                     .node().value = "Custom";

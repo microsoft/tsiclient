@@ -4,6 +4,7 @@ class ChartOptions {
     public brushClearable: boolean; // whether to keep the brush selected region upon clear and non-selection of a new region
     public brushContextMenuActions: Array<any>; // pairs of names/actions for context menu for the brush
     public brushMoveAction: any; // action fired when the brush moved
+    public brushMoveEndAction: any; // action fired at the end of a mouse movement
     public color: string; // color of the line/area in availability chart
     public events: Array<any>; // events passed into the linchart, an array of discrete time events
     public focusHidden: boolean; // whether focus element is hidden in chart
@@ -66,6 +67,7 @@ class ChartOptions {
         this.arcWidthRatio = this.getValueOrDefault(chartOptionsObj.arcWidthRatio, 0);
         this.brushClearable = this.getValueOrDefault(chartOptionsObj.brushClearable, true);
         this.brushMoveAction = this.getValueOrDefault(chartOptionsObj.brushMoveAction, null);
+        this.brushMoveEndAction = this.getValueOrDefault(chartOptionsObj.brushMoveEndAction, null);
         this.yAxisState = this.getValueOrDefault(chartOptionsObj.yAxisState, 'stacked');
         this.xAxisHidden = this.getValueOrDefault(chartOptionsObj.xAxisHidden, false);
         this.suppressResizeListener = this.getValueOrDefault(chartOptionsObj.suppressResizeListener, false);
@@ -103,7 +105,8 @@ class ChartOptions {
             brushMoveAction: this.brushMoveAction,
             yAxisState: this.yAxisState,
             xAxisHidden: this.xAxisHidden,
-            suppressResizeListener: this.suppressResizeListener
+            suppressResizeListener: this.suppressResizeListener,
+            brushMoveEndAction: this.brushMoveEndAction
         }
     }
 }

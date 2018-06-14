@@ -373,6 +373,7 @@ class LineChart extends ChartComponent {
                                 d3.select(this).transition().call(d3.event.target.move, [self.x(self.brushStartTime), self.x(self.brushEndTime)]);
                             return;
                         }
+                        var transformCall = null; //if the brush needs to be transformed due to snap brush or it being too small, this is envoked
                         if (self.chartOptions.snapBrush) {
                             //find the closest possible value and set to that
                             if (possibleTimesArray.length > 0) {
@@ -389,22 +390,28 @@ class LineChart extends ChartComponent {
                                     }, Infinity);
                                     return closestDate;
                                 }
-                                self.brushStartTime = findClosestTime(d3.event.selection[0]);
-                                self.brushEndTime = findClosestTime(d3.event.selection[1]);
-                                var endX = findClosestTime(d3.event.selection[1]);
-                                d3.select(this).transition().call(d3.event.target.move, [self.x(self.brushStartTime), self.x(self.brushEndTime)]);
+                                var newBrushStartTime = findClosestTime(d3.event.selection[0]);
+                                var newBrushEndTime = findClosestTime(d3.event.selection[1]);
+                                if (newBrushStartTime != self.brushStartTime || newBrushEndTime != self.brushEndTime) {
+                                    self.brushStartTime = newBrushStartTime;
+                                    self.brushEndTime = newBrushEndTime;
+                                    var endX = findClosestTime(d3.event.selection[1]);
+                                    transformCall = () => d3.select(this).transition().call(d3.event.target.move, [self.x(self.brushStartTime), self.x(self.brushEndTime)]);
+                                }
                             }
                         }
                         if (d3.event.selection[1] - d3.event.selection[0] < self.minBrushWidth) {
                             let rightSide = Math.min(d3.event.selection[0] + self.minBrushWidth, self.x.range()[1]);
-                            d3.select(this).transition().call(d3.event.target.move, [rightSide - self.minBrushWidth, rightSide]);
+                            transformCall = () => d3.select(this).transition().call(d3.event.target.move, [rightSide - self.minBrushWidth, rightSide]);
                             //set time and fire brushMoveAction since this won't happen in on brush
                             self.brushStartTime = self.x.invert(rightSide - self.minBrushWidth);
                             self.brushEndTime = self.x.invert(rightSide);
-                            if (options.brushMoveAction) {
-                                options.brushMoveAction(self.brushStartTime, self.brushEndTime);
-                            }
                         }
+                        if (options.brushMoveEndAction && (d3.event.sourceEvent && d3.event.sourceEvent.type == 'mouseup')) {
+                            options.brushMoveEndAction(self.brushStartTime, self.brushEndTime);
+                        }
+                        if (transformCall)
+                            transformCall();
                     });
                     this.brushElem.call(this.brush);
                     this.setBrush();
