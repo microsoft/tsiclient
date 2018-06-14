@@ -207,13 +207,13 @@
         // Example 1
         var aggregateExpressions2 = [];
         var startDate = new Date('2017-04-14T13:00:00Z');
-        var endDate = new Date(startDate.valueOf() + 1000*60*60*1);
+        var endDate = new Date(startDate.valueOf() + 1000*60*5*1);
         aggregateExpressions2.push(new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory1'"}, {property: 'Pressure', type: "Double"}, ['avg', 'min', 'max'],
-            { from: startDate, to: endDate, bucketSize: '2m' }, null, '#FF8C00', 'Factory1Pressure'));
+            { from: startDate, to: endDate, bucketSize: '4s' }, null, '#FF8C00', 'Factory1Pressure'));
         aggregateExpressions2.push(new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory2'"}, {property: 'Pressure', type: "Double"}, ['avg', 'min', 'max'],
-            { from: startDate, to: endDate, bucketSize: '2m' }, null, '#D869CB', 'Factory2Pressure'));
+            { from: startDate, to: endDate, bucketSize: '2s' }, null, '#D869CB', 'Factory2Pressure'));
         aggregateExpressions2.push(new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory3'"}, {property: 'Pressure', type: "Double"}, ['avg', 'min', 'max'],
-            { from: startDate, to: endDate, bucketSize: '2m' }, null, '#60B9AE', 'Factory.3.Pressure'));
+            { from: startDate, to: endDate, bucketSize: '2s' }, null, '#60B9AE', 'Factory.3.Pressure'));
         authContext.getTsiToken().then(function(token){
             tsiClient.server.getAggregates(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com', aggregateExpressions2.map(function(ae){return ae.toTsx()})).then(function(result){
                 var transformedResult = tsiClient.ux.transformAggregatesForVisualization(result, aggregateExpressions2);

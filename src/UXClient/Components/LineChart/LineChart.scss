@@ -30,6 +30,9 @@
         .xAxisBaseline {
             stroke: $gray1 !important;
         }
+        .tsi-stop2{
+            stop-color: $gray3;
+        }
     }
     @include chartColors($grays);
 }

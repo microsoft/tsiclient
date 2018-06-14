@@ -85,6 +85,8 @@ class LineChart extends ChartComponent {
                 .classed("standardYAxisText", false)
                 .style("font-weight", "normal");
         }
+
+        this.hoverGradient.style('visibility', 'hidden');    
     }
 
     //get the extent of an array of timeValues
@@ -213,11 +215,18 @@ class LineChart extends ChartComponent {
                 voronoiRegion = g.append("rect").classed("voronoiRect", true);
             }
 
+            var lgId = 'tsi-lineHoverGradient' + Utils.guid();
+            var lgDef = this.svgSelection.append('defs');
+            var lGrad = lgDef.append('linearGradient').attr('id',lgId).attr('x1', '0%').attr('y1', '0%').attr('x2', '0%').attr('y2', '100%');
+            var lgStopColor = lGrad.append('stop').attr('offset', '0%').style('stop-opacity', .7);
+            lGrad.append('stop').classed('tsi-stop2', true).attr('offset','40%').style('stop-opacity', 0);
             this.hoverGradient = g.append("path")
-                                  .attr("class", "valueElement valueArea valueArea")
+                            .attr("class", "valueElement valueArea valueArea")
+                            .style('fill', 'url(#' + lgId + ')')
+                            .style('fill-opacity', .8);
     
             this.focus = g.append("g")
-                .attr("transform", "translate(-100,-100)")
+                .attr("transform", "translate(-100,-100)") 
                 .attr("class", "focus");
             
             this.focus.append("line")
@@ -435,7 +444,10 @@ class LineChart extends ChartComponent {
                         .y((d: any) => { 
                             return d.measures ? y(d.measures[this.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy)]) : 0;
                         });
-                    var areaPath = d3.area()
+                    
+                    // Area for hover gradient glow
+                    var yMap = {};
+                    var hoverPath = d3.area()
                         .curve(d3.curveMonotoneX)
                         .defined( (d: any) => { 
                             return (d.measures !== null) && 
@@ -445,10 +457,24 @@ class LineChart extends ChartComponent {
                             return this.getXPosition(d, this.x);
                         })
                         .y0((d: any) => { 
-                            return d.measures ? y(d.measures[this.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy)]) : 0;
+                            return yMap[d.aggregateKey](d.measures[this.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy)]);
                         })
                         .y1(chartHeight);
-                    
+
+                    if(options.isArea){
+                        var areaPath = d3.area()
+                            .curve(d3.curveMonotoneX)
+                            .defined( (d: any) => { 
+                                return true;
+                            })
+                            .x((d: any) => {
+                                return this.getXPosition(d, this.x);
+                            })
+                            .y0((d: any) => { 
+                                return d.measures ? y(d.measures[this.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy)]) : null;
+                            })
+                            .y1(chartHeight);
+                    }
                     if (!this.chartOptions.xAxisHidden) {
                         var xAxis: any = g.selectAll(".xAxis").data([this.x]);
             
@@ -481,9 +507,7 @@ class LineChart extends ChartComponent {
                     var visibleAggCount: number = Object.keys(this.chartComponentData.timeArrays).reduce((count: number, aggKey: string): number => {
                         return count + (this.chartComponentData.displayState[aggKey]['visible'] ? 1 : 0);
                     }, 0);
-        
-                    var yMap = {};
-                    
+                            
                     var visibleAggI = 0;
 
                     this.svgSelection.selectAll(".yAxis").remove();
@@ -781,8 +805,12 @@ class LineChart extends ChartComponent {
                             this.svgSelection.selectAll(".yAxis").style("display", "hidden");
                         } 
 
+                        // Hover glow for the given line
+                        var splitByColors = Utils.createSplitByColors(this.chartComponentData.displayState, d.aggregateKey, this.chartOptions.keepSplitByColor);
+                        var idx = Object.keys(this.chartComponentData.timeArrays[d.aggregateKey]).sort().indexOf(d.splitBy);
+                        lgStopColor.style('stop-color', splitByColors[idx]);
                         this.hoverGradient.data([this.chartComponentData.timeArrays[d.aggregateKey][d.splitBy]])
-                                .attr("d", areaPath).style('fill', this.chartComponentData.displayState[d.aggregateKey].color).style('visibility', 'visible')            
+                                .attr("d", hoverPath).style('visibility', 'visible');            
                 
                         labelMouseover(d.aggregateKey, d.splitBy);
                     }
