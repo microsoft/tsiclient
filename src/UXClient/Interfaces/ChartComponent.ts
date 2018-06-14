@@ -9,7 +9,7 @@ class ChartComponent extends Component {
 	readonly CONTROLSWIDTH = 184;
 	readonly TRANSDURATION = (window.navigator.userAgent.indexOf("Edge") > -1) ? 0 : 400;
     public data: any;
-	public chartOptions: ChartOptions;
+	public chartOptions: ChartOptions = new ChartOptions();
 	public aggregateExpressionOptions: any;
 	
 	public chartComponentData: ChartComponentData;

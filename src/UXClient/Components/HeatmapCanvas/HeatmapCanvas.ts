@@ -115,7 +115,7 @@ class HeatmapCanvas extends ChartComponent {
 
     public render (data, chartOptions, aggKey, highlightedSplitBy: string = null, highlightedTime: Date = null, onCellFocus) {
         
-        this.chartOptions = new ChartOptions(chartOptions);
+        this.chartOptions.setOptions(chartOptions);
         this.aggKey = aggKey;
         this.data = data;
 

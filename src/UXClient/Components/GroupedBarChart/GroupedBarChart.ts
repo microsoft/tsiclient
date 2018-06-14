@@ -17,6 +17,7 @@ class GroupedBarChart extends ChartComponent {
     public draw: any;
     private setStateFromData: any;
     private timestamp: any;
+    private isStacked: boolean = null;
     chartComponentData = new GroupedBarChartData();
     
     private chartMargins: any = {
@@ -32,7 +33,12 @@ class GroupedBarChart extends ChartComponent {
 
     GroupedBarChart() { }
     public render(data: any, options: any, aggregateExpressionOptions: any) {
-        this.chartOptions = new ChartOptions(options);
+        var isStacked = this.chartOptions && this.chartOptions.stacked;
+        this.chartOptions.setOptions(options);
+        this.chartOptions.stacked = isStacked
+        if (options.stacked || this.isStacked == null) {
+            this.isStacked = this.chartOptions.stacked;
+        } 
         this.aggregateExpressionOptions = aggregateExpressionOptions;
         var width = Math.max((<any>d3.select(this.renderTarget).node()).clientWidth, this.MINWIDTH);
         var height = Math.max((<any>d3.select(this.renderTarget).node()).clientHeight, this.MINHEIGHT);
@@ -93,7 +99,6 @@ class GroupedBarChart extends ChartComponent {
 
             var tooltipG = g.append("g").attr("class", "tooltipG");
             var tooltip = new Tooltip(<any>(tooltipG));
-            tooltip.render(this.chartOptions.theme);
 
             var measureMap = this.chartComponentData.data.map((aggregate, aggI) => {
                 var aggName: string = Object.keys(aggregate)[0]
@@ -605,6 +610,9 @@ class GroupedBarChart extends ChartComponent {
                 }
                 else
                     slider.remove();
+
+                /******************** Tooltip ************************/
+                tooltip.render(this.chartOptions.theme);
             }
 
             this.legendObject = new Legend(draw, this.renderTarget, this.CONTROLSWIDTH);

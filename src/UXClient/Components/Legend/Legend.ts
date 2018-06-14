@@ -12,6 +12,7 @@ class Legend extends Component {
 
 	constructor(drawChart: any, renderTarget: Element, legendWidth: number) {
         super(renderTarget);
+        this.chartOptions = new ChartOptions();
         this.drawChart = drawChart;
         this.legendWidth = legendWidth;
         this.legendElement = d3.select(renderTarget).insert("div", ":first-child")
@@ -32,7 +33,7 @@ class Legend extends Component {
     }
 
 	public draw(legendState, chartComponentData, labelMouseover, svgSelection, options, labelMouseoutAction = null) {
-        this.chartOptions = new ChartOptions(options);
+        this.chartOptions.setOptions(options);
         var labelMouseout = this.labelMouseoutWrapper(labelMouseoutAction, svgSelection);
         var legend = this.legendElement;
         var self = this;

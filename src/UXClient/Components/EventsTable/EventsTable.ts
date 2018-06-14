@@ -38,7 +38,7 @@ class EventsTable extends ChartComponent{
     }
 	
     public render(events: any, chartOptions: any, fromTsx: boolean = false) {
-        this.chartOptions = new ChartOptions(chartOptions);
+        this.chartOptions.setOptions(chartOptions);
         this.maxVisibleIndex = 100;
         this.eventsTableData.setEvents(events, fromTsx);
 

@@ -15,7 +15,7 @@ class TimelineComponent extends Component {
 
 	protected width: number;
 	protected margins: any;
-	protected chartOptions: ChartOptions;
+	protected chartOptions: ChartOptions = new ChartOptions();
 	
 	constructor(renderTarget: Element){
 		super(renderTarget);
@@ -42,7 +42,8 @@ class TimelineComponent extends Component {
 	}
 
 	protected createElements (options) {
-		var chartOptions = new ChartOptions(options);
+		var chartOptions = new ChartOptions();
+		chartOptions.setOptions(options);
 		var margins = {
 			left: (chartOptions.xAxisHidden == true) ? 10 : 40,
 			right: (chartOptions.xAxisHidden == true) ? 10 : 40

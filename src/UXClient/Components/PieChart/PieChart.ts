@@ -33,7 +33,7 @@ class PieChart extends ChartComponent {
 
     PieChart() { }
     public render(data: any, options: any, aggregateExpressionOptions: any) {
-        this.chartOptions = new ChartOptions(options);
+        this.chartOptions.setOptions(options);
         var firstTerm = data[0][Object.keys(data[0])[0]];
         var firstSplitByKey = Object.keys(firstTerm)[0];
         var timestamp = (options.timestamp != undefined) ? options.timestamp : Object.keys(firstTerm[firstSplitByKey])[0];
@@ -53,7 +53,6 @@ class PieChart extends ChartComponent {
             var tooltipContainer = this.svgSelection.append("g");
 
             var tooltip = new Tooltip(tooltipContainer);
-            tooltip.render(this.chartOptions.theme);
 
             this.draw = () => {
 
@@ -232,6 +231,9 @@ class PieChart extends ChartComponent {
                 }
                 else
                     slider.remove();
+
+                /******************** Tooltip ************************/
+                tooltip.render(this.chartOptions.theme);
             }
 
             this.legendObject = new Legend(this.draw, this.renderTarget, this.CONTROLSWIDTH);

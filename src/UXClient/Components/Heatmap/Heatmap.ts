@@ -21,7 +21,7 @@ class Heatmap extends ChartComponent {
     private timeLabelsHeight = 50;
 
     public render (data, chartOptions, aggregateExpressions) {
-        this.chartOptions = new ChartOptions(chartOptions);
+        this.chartOptions.setOptions(chartOptions);
         var targetElement = d3.select(this.renderTarget).classed("tsi-heatmapComponent", true);
 		if(targetElement.style("position") == "static")
             targetElement.style("position", "relative");
