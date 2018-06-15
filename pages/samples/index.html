@@ -10,8 +10,8 @@
     
     <!-- PROD RESOURCE LINKS -->
     <!-- <link rel="stylesheet" type="text/css" href="sampleStyles.css"></link>
-    <script src="https://unpkg.com/tsiclient@1.1.4/tsiclient.js"></script>
-    <link rel="stylesheet" type="text/css" href="https://unpkg.com/tsiclient@1.1.4/tsiclient.css"></link> -->
+    <script src="https://unpkg.com/tsiclient@1.1.19/tsiclient.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://unpkg.com/tsiclient@1.1.19/tsiclient.css"></link> -->
 
     <!-- DEV RESOURCE LINKS -->
     <link rel="stylesheet" type="text/css" href="pages/samples/sampleStyles.css"></link>
@@ -83,7 +83,7 @@
                     <div class="cardChart" id="chart7"></div>
                 </div>
                 <div class="card dark" style="flex-shrink: 1; height: 100%; width: 30%;">
-                    <div class="cardTitle dark">Factory 3 +/- Factory 1 as a Bar Chart, Relative Y Axis</div>
+                    <div class="cardTitle dark">Factory 3 +/- Factory 1 as a Pie Chart</div>
                     <div class="cardChart" id="chart7a"></div>
                 </div>
             </div>
@@ -153,6 +153,8 @@
             var authContext = new AuthenticationContext({
                 clientId: '120d688d-1518-4cf7-bd38-182f158850b6',
                 postLogoutRedirectUri: 'https://insights.timeseries.azure.com',
+                // clientId: 'b54d43ab-4c7d-41cc-bea4-f39016158011',
+                // postLogoutRedirectUri: 'https://tsiclientsample.azurewebsites.net',
                 cacheLocation: 'localStorage'
             });
             

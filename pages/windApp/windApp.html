@@ -15,19 +15,19 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bluebird/3.3.4/bluebird.min.js"></script>    
 
     <!-- PROD RESOURCE LINKS -->
-    <script src="windApp.js" defer></script>
+    <!-- <script src="windApp.js" defer></script>
     <link rel="stylesheet" type="text/css" href="sampleStyles.css"></link>
     <link rel="stylesheet" type="text/css" href="windApp.css"></link>
-    <script src="https://unpkg.com/tsiclient@1.1.4/tsiclient.js"></script>
-    <link rel="stylesheet" type="text/css" href="https://unpkg.com/tsiclient@1.1.4/tsiclient.css"></link>
+    <script src="https://unpkg.com/tsiclient@1.1.19/tsiclient.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://unpkg.com/tsiclient@1.1.19/tsiclient.css"></link> -->
 
 
     <!-- DEV RESOURCE LINKS -->
-    <!-- <script src="pages/windApp/windApp.js" defer></script>	
+    <script src="pages/windApp/windApp.js" defer></script>	
     <link rel="stylesheet" type="text/css" href="pages/samples/sampleStyles.css"></link>	
-    <link rel="stylesheet" type="text/css" href="pages/windApp/windApp.css"></link>	
+    <link rel="stylesheet" type="text/css" href="pages/windApp/windApp.css"></link>	 -->
     <script src="dist/tsiclient.js"></script>
-    <link rel="stylesheet" type="text/css" href="dist/tsiclient.css"></link> -->
+    <link rel="stylesheet" type="text/css" href="dist/tsiclient.css"></link>
     
 </head>
 <body>
@@ -57,12 +57,12 @@
             <div class="rowOfCards" style="padding: 0; margin: 0; height: 100%; border-bottom: none;">
                 <div style="flex-shrink: 1; height: 100%; width: 30%; border: none; border-right: 1px solid silver; padding-right: 40px;">
                     <div class="rowOfCardsTitle">Overview</div>
-                    <div class="card mapCard" id="windmillMap" style="height: 50%; width: 100%; border: 1px solid silver;"></div>
+                    <div class="card mapCard" id="windmillMap" style="height: 40%; width: 100%;"></div>
                     <button onClick="choose(49.560, -113.425, 10)">West</button>
                     <button onClick="choose(44.168,	-76.455, 12)">East</button>
                     <button onClick="choose(49, -95, 3)">North America</button>
-                    <div class="card" style="height: calc(44% - 80px); width: 100%; border: 1px solid silver; margin-top: 5%;">
-                        <div class="cardTitle">Total Output by Windmill, Last 7 Days</div>
+                    <div class="card dark" style="height: calc(54% - 80px); width: 100%; margin-top: 5%;">
+                        <div class="cardTitle dark">Total Output by Windmill, Last 7 Days</div>
                         <div class="cardChart" id="chart0" ></div>
                     </div>
                 </div>  
@@ -71,9 +71,9 @@
 
 <!-- Process Graphic -->
                     <div id="windmillCharts1" style="flex-shrink: 1; width: 40%; float: left; display: none; height: calc(100% - 80px)">
-                        <div class="card pgCard" style="height: calc(100% - 220px); width: 100%;">
-                            <div class="cardTitle">Current Values</div>
-                            <div class="cardChart" id="chart1">
+                        <div class="card pgCard dark" style="height: calc(100% - 220px); width: 100%;">
+                            <div class="cardTitle dark">Current Values</div>
+                            <div class="cardChart dark" id="chart1">
                                 <svg id="img1" fill="white" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" x="0px" y="0px" viewBox="0 0 100 100" enable-background="new 0 0 100 100" xml:space="preserve"><path d="M92.582,76.688c-7.453-20.361-27.585-24.907-36.446-25.924c0.031-0.251,0.052-0.505,0.052-0.764  c0-2.025-0.977-3.818-2.482-4.946C65.625,33.262,97.559,0.475,75.536,8.668C55.763,16.016,51.015,34.623,49.88,43.819  c-1.989,0.038-3.743,1.014-4.849,2.504C34.182,35.314-0.786,0.907,7.418,23.31c7.451,20.36,27.585,24.907,36.446,25.924  c-0.031,0.252-0.052,0.506-0.052,0.766c0,2.025,0.977,3.817,2.48,4.945C34.373,66.737,2.442,99.522,24.467,91.333  c19.768-7.351,24.517-25.956,25.652-35.152c1.989-0.038,3.745-1.014,4.85-2.506C65.82,64.685,100.785,99.088,92.582,76.688z"></path></svg>
                                 <svg id="img2" fill="white" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" x="0px" y="0px" viewBox="0 0 96 96" enable-background="new 0 0 96 96" xml:space="preserve">
                                     <path d="M50.83,46.27L52.69,84h-6l1.86-37.73c-1.09-0.44-1.86-1.51-1.86-2."></path>
@@ -92,22 +92,22 @@
                                 </div>
                             </div>
                             <!-- Weather -->
-                            <div class="externalWeather" style="height: 180px; margin-top: 20px; width: 100%">
-                                <div id="windmillWeather" class="rowOfWeather" style="border-bottom: 1px solid silver; margin-bottom: 4px; margin-top: 4px;"></div>
+                            <div class="externalWeather dark" style="height: 170px; margin-top: 20px; width: 100%">
+                                <div id="windmillWeather" class="rowOfWeather" style="padding-bottom: 0; margin-top: 4px;"></div>
                                 <div id="windmillWeatherForecast" class="rowOfWeather"></div>
                             </div>
                         </div>  
                     </div>
 <!--End Process Graphic -->
 
-                    <div id="windmillCharts2" class="card visCard" style="flex-shrink: 1; width: 55%; border: none; height: calc(100% - 80px); float: right; display: none;">
-                        <div class="card" style="width: 100%; height: 45%;">
-                            <div class="cardTitle">Ambient Values, Last 24h
+                    <div id="windmillCharts2" class="visCard" style="flex-shrink: 1; width: 55%; border: none; height: calc(100% - 80px); float: right; display: none;">
+                        <div class="card dark" style="width: 100%; height: 45%;">
+                            <div class="cardTitle dark">Ambient Values, Last 24h
                             </div>
-                            <div class="cardChart" id="chart2"></div>
+                            <div class="cardChart dark" id="chart2"></div>
                         </div>
-                        <div class="card" style="width: 100%; margin-top: 5%; height: 45%;">
-                                <div class="cardTitle">Output, Last 24h
+                        <div class="card dark" style="width: 100%; margin-top: 5%; height: 45%;">
+                                <div class="cardTitle dark">Output, Last 24h
                                     <a id="tsilink" style="margin: 0 40px;" target="_blank">View in TSI Explorer</a>
                                 </div>
                                 <div class="cardChart" id="chart3"></div>
@@ -122,8 +122,8 @@
         // START: AUTHENTICATION RELATED CODE USING ADAL.JS
             // Set up ADAL
             var authContext = new AuthenticationContext({
-                clientId: 'b54d43ab-4c7d-41cc-bea4-f39016158011',
-                // clientId: '120d688d-1518-4cf7-bd38-182f158850b6',
+                // clientId: 'b54d43ab-4c7d-41cc-bea4-f39016158011',
+                clientId: '120d688d-1518-4cf7-bd38-182f158850b6',
                 postLogoutRedirectUri: 'https://tsiclientsample.azurewebsites.net',
                 cacheLocation: 'localStorage'
             });

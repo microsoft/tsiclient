@@ -557,7 +557,7 @@ class LineChart extends ChartComponent {
                         }
                         else {
                             yAxis.call(d3.axisLeft(aggY).tickFormat(Utils.formatYAxisNumber)
-                                .ticks(Math.ceil(chartHeight/(this.yAxisState == 'stacked' ? visibleAggCount : 1)/90)))
+                                .ticks(Math.max(2, Math.ceil(chartHeight/(this.yAxisState == 'stacked' ? visibleAggCount : 1)/90))))
                                 .selectAll("text").classed("standardYAxisText", true)
                         }
                         yAxis.exit().remove();
