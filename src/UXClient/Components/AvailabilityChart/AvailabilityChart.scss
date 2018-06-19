@@ -5,6 +5,7 @@
     $gray2: nth($grays, 2); // hover
     $gray3: nth($grays, 3); // element
     $gray4: nth($grays, 4); // background
+    $gray5: nth($grays, 5);
 
     background-color: $gray3;
     color: $gray1;
@@ -16,10 +17,33 @@
         }
     }
 
+    .tsi-timePickerTextContainer {
+        .tsi-timePicker {
+            border-color: $gray5;
+        }
+    }
+
+    .tsi-sparklineContainer {
+        .overlay {
+            fill: $gray4;
+        }
+    }
+
+    &.tsi-compact {
+        .tsi-timePickerContainer {
+            .overlay {
+                fill: $gray4;
+            }
+            .tsi-compactFromTo {
+                background-color: $gray3;
+            }
+
+        }
+    }
+
     .tsi-zoomButton{
         background-color: $gray3;
         color: $gray1;
-        border: 1px solid $gray1;
         &:active{
             background-color: $gray2;
         }
@@ -38,7 +62,6 @@
 }
 
 .tsi-availabilityChart {
-    min-height: 132px;
     position: relative;
 
     &.tsi-dark{
@@ -53,10 +76,38 @@
     width: 100%;
     .tsi-timePickerContainer {
         width: calc(100% - 4px);
-        height: calc(100% - 28px);
+        height: calc(100% - 48px);
         overflow: visible;
+        position: relative;
         .tsi-timePickerChart {
+            position: relative;
+            .valueLine {
+                stroke-width: 2px;
+            }
             height: calc(100% - 4px);
+        }
+    }
+
+    &.tsi-compact {
+        .tsi-timePickerContainer {
+            height: 100%;
+            path {
+                stroke: none !important;
+                fill: none !important;
+            }
+            .brushElem {
+                .selection {
+                    stroke: none;
+                }
+            }
+            .xAxisBaseline {
+                stroke: none !important;
+            }
+            .tsi-compactFromTo {
+                font-size: 12px;
+                bottom: calc(100% - 4px);
+                position: absolute;
+            }
         }
     }
 
@@ -74,25 +125,51 @@
             position: relative;
             top: 4px;
             option {
-                padding: 2px;
+                padding: 6px;
             }
+            width: 100px;
+            margin: 2px;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            padding: 6px;
+            background: url(../../Icons/chevron.svg) 93% / 15% no-repeat;
+            background-position-y: 9px;
+            border-width: 1px;
+            border-style: solid;
+            border-radius: 2px;
+            width: 132px;
+            height: 29px;
         }
 
         .tsi-dateTimeInputLabel {
-            display: inline-flex;
-            position: absolute;
+            display: inline-block;
             font-size: 12px;
+            top: 0px;
+            width: 40px;
+            text-align: right;
+            text-transform: uppercase;
+            opacity: .7;
+            font-weight: bold;
+        }
+
+        .tsi-dateTimeContainer {
+            right: 200px;
+            position: absolute;
         }
 
         .tsi-dateTimeInputDiv {
-            display: inline-flex;
+            display: block;
+            height: 16px;
             input {
                 width: 70px;
                 font-size: 12px;
                 background: transparent;
                 border: none;
                 position: relative;
-                top: 12px;
+                top: 0px;
+                display: inline-block;
+                left: 20px;
             }
         }
     }
@@ -100,16 +177,24 @@
     .tsi-zoomButtonContainer {
         display: flex;
         position: absolute;
-        right: 40px;
-        bottom: 56px;
-        width: 20px;
+        right: 32px;
+        bottom: 92px;
+        width: 32px;
         flex-wrap: wrap;
 
         .tsi-zoomButton {
-            width: 20px;
-            height: 20px;
-            padding: 0;
-            margin-top: -1px;
+            border: none;
+            font-family: "Segoe UI", sans-serif; 
+            font-size: 40px;
+            width: 32px;
+            height: 32px;
+            line-height: .5;
+            padding: 0px;
+            padding-bottom: 12px;
+            margin-top: 1px;
+            overflow: hidden;
+            font-weight: 100;
+            background: transparent;
         }
 
     }
@@ -120,6 +205,13 @@
         path {
             stroke: none !important;
         }
-
+        .brushElem {
+            .handle {
+                shape-rendering: unset;
+                width: 6px;
+                rx: 3px;
+                ry: 3px;
+            }
+        }
     }
 }

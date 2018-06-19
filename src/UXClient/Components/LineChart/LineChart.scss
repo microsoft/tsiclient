@@ -36,6 +36,12 @@
 
 .tsi-lineChart {
     
+    .brushElem {
+        .handle {
+            width: 6px;
+            shape-rendering: unset;
+        }
+    }
     
     &.tsi-dark{
         $grays: grays('dark');
@@ -91,7 +97,7 @@
         }
 
         .valueLine {
-            stroke-width: 3px !important;
+            stroke-width: 3px;
         }
 
         .valueArea {
