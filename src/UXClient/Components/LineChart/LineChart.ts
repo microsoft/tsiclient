@@ -23,7 +23,7 @@ class LineChart extends ChartComponent {
     public draw: any;
     private events: any;
     private states: any;
-    private minBrushWidth = 0;
+    private minBrushWidth = 1;
     private strokeOpacity = 1;
     chartComponentData = new LineChartData();
     private surpressBrushTimeSet: boolean = false;
@@ -31,8 +31,8 @@ class LineChart extends ChartComponent {
     public x: any;
     private brush: any;
     private brushElem: any;
-    private brushStartTime: Date;
-    private brushEndTime: Date;
+    public brushStartTime: Date;
+    public brushEndTime: Date;
     
     private chartMargins: any = {
         top: 12,
@@ -53,6 +53,26 @@ class LineChart extends ChartComponent {
     public getXTickNumber (singleLineXAxisLabel) {
         return (singleLineXAxisLabel ? Math.floor(this.chartWidth / 280) :  Math.floor(this.chartWidth / 140));
     }
+
+    //get the left and right positions of the brush
+    public getBrushPositions () {
+        var leftPos = null;
+        var rightPos = null;
+        if (this.brushStartTime) {
+            var rawLeft = this.x(this.brushStartTime);
+            if (rawLeft >= 0 && rawLeft <= this.chartWidth)
+                leftPos = Math.round(rawLeft + this.chartMargins.left);
+        }
+        if (this.brushEndTime) {
+            var rawRight = this.x(this.brushEndTime);
+            if (rawRight >= 0 && rawRight <= this.chartWidth)
+                rightPos = Math.round(rawRight + this.chartMargins.left);
+        }
+        return {
+            leftPos: leftPos,
+            rightPos: rightPos
+        };
+    } 
     
     //create xAxis is public so that users of linechart can programmatically change the axis labels
     public createXAxis (singleLineXAxisLabel) {
@@ -136,9 +156,11 @@ class LineChart extends ChartComponent {
             if ((rawRightSide <= this.xOffset) || (rawLeftSide >= (this.chartWidth - (2 * this.xOffset)))) {
                 this.brushElem.call(this.brush.move, null);
                 this.brushElem.select('.selection').attr("visibility", "hidden");
+                this.brushElem.selectAll('.handle').attr("visibility", "hidden");
                 return;
             }
-            this.brushElem.select(".selection").attr("visibility", "visible");
+            this.brushElem.selectAll(".selection").attr("visibility", "visible");
+            this.brushElem.selectAll('.handle').attr("visibility", "visible");
 
             let leftSide = Math.min(this.chartWidth - (2 * this.xOffset), Math.max(this.xOffset, this.x(this.brushStartTime)));
             let rightSide = Math.min(this.chartWidth - (2 * this.xOffset), Math.max(this.xOffset, this.x(this.brushEndTime)));
@@ -166,8 +188,8 @@ class LineChart extends ChartComponent {
         }
 
         var timelineHeight = (this.chartComponentData.visibleEventsAndStatesCount * 10);
-        var chartHeight = height - this.chartMargins.bottom - this.chartMargins.top - timelineHeight; 
-        this.chartWidth = Math.max(0, width - this.chartMargins.left - this.chartMargins.right - (this.chartOptions.legend == "shown" ? this.CONTROLSWIDTH : 0));
+        var chartHeight = Math.max(1, height - this.chartMargins.bottom - this.chartMargins.top - timelineHeight); 
+        this.chartWidth = Math.max(1, width - this.chartMargins.left - this.chartMargins.right - (this.chartOptions.legend == "shown" ? this.CONTROLSWIDTH : 0));
 
         if (this.brush && this.svgSelection.select('.svgGroup').select(".brushElem") && !this.chartOptions.keepBrush) {
             this.svgSelection.select('.svgGroup').select(".brushElem").call(this.brush.move, null);
@@ -287,12 +309,13 @@ class LineChart extends ChartComponent {
                 width = Math.max((<any>d3.select(this.renderTarget).node()).clientWidth, this.MINWIDTH);
                 this.chartWidth = Math.max(0, width - this.chartMargins.left - this.chartMargins.right - (this.chartOptions.legend == "shown" ? this.CONTROLSWIDTH : 0));
                 height = Math.max((<any>d3.select(this.renderTarget).node()).clientHeight, this.MINHEIGHT);
-                chartHeight = height - this.chartMargins.bottom - this.chartMargins.top - timelineHeight; 
+                chartHeight = Math.max(1, height - this.chartMargins.bottom - this.chartMargins.top - timelineHeight); 
 
                 this.focus.select('.hLine').attr("x2", this.chartWidth);
                 this.focus.select('.vLine').attr("y2", chartHeight + timelineHeight);
-                this.svgSelection.attr("width", this.chartWidth + this.chartMargins.left + this.chartMargins.right);   
-                this.svgSelection.attr("height", height);
+                this.svgSelection
+                    .attr("width", this.chartWidth + this.chartMargins.left + this.chartMargins.right)
+                    .attr("height", height);
                      
                 super.themify(targetElement, this.chartOptions.theme);
                         
@@ -339,13 +362,28 @@ class LineChart extends ChartComponent {
                     this.brush = d3.brushX()
                     .extent([[xLowerBound, this.chartOptions.aggTopMargin],
                              [xUpperBound, chartHeight]])
+                    .on("start", function() {
+                        var handleHeight = Math.min(Math.max(chartHeight / 2, 60), chartHeight + 8);
+                        self.brushElem.selectAll('.handle')
+                            .attr('height', handleHeight)
+                            .attr('y', (chartHeight - handleHeight) / 2)
+                            .attr('rx', '3px')
+                            .attr('ry', '3px');
+                    })
                     .on("brush", function () {
+                        var handleHeight = Math.min(Math.max(chartHeight / 2, 60), chartHeight + 8);
+                        self.brushElem.selectAll('.handle')
+                            .attr('height', handleHeight)
+                            .attr('y', (chartHeight - handleHeight) / 2);
+
                         if (!d3.event.sourceEvent) return;
                         if (d3.event.sourceEvent && d3.event.sourceEvent.type == 'mousemove') {
                             self.brushElem.select(".selection").attr("visibility", "visible");
                             //check boundary conditions for width of the brush
                             if (d3.event.selection[1] - d3.event.selection[0] < self.minBrushWidth) {
                                 return;
+                            } else {
+                                self.brushElem.selectAll(".handle").attr("visibility", "visible");
                             }
                         }
                         if (self.surpressBrushTimeSet == true) {
@@ -845,6 +883,15 @@ class LineChart extends ChartComponent {
                             self.brushContextMenu.draw(self.chartComponentData, self.renderTarget, self.chartOptions, 
                                                 mousePosition, null, null, null, self.brushStartTime, self.brushEndTime);
                         });
+                        this.brushElem.selectAll('.selection')
+                            .attr('stroke', this.chartOptions.color ? this.chartOptions.color : 'none')
+                            .attr('fill', this.chartOptions.color ? this.chartOptions.color : 'grey');
+
+                        var handleHeight = Math.min(Math.max(chartHeight / 2, 60), chartHeight + 8);
+                        this.brushElem.selectAll('.handle')
+                            .attr('fill', this.chartOptions.color ? this.chartOptions.color : 'grey')
+                            .attr('height', handleHeight)
+                            .attr('y', (chartHeight - handleHeight) / 2);
                     }
                     
                     /******************** Stack/Unstack button ************************/

@@ -5,12 +5,13 @@ class ChartOptions {
     public brushContextMenuActions: Array<any>; // pairs of names/actions for context menu for the brush
     public brushMoveAction: any; // action fired when the brush moved
     public brushMoveEndAction: any; // action fired at the end of a mouse movement
-    public color: string; // color of the line/area in availability chart
+    public color: string; // color of the time selection ghost in availability chart
     public events: Array<any>; // events passed into the linchart, an array of discrete time events
     public focusHidden: boolean; // whether focus element is hidden in chart
     public fromChart: boolean; // whether a component is a subcomponent of another one or is a standalone
     public grid: boolean; // whether the chart includes a grid and grid button
     public isArea: boolean; // whether lines in LineChart are also areas
+    public isCompact: boolean; // whether availability chart is in compact or expanded mode
     public keepBrush: boolean; // whether to keep the brush selected region upon re render
     public keepSplitByColor: boolean; //whether to keep the split By colors when state is updated
     public legend: string; //state of the legend: shown, hidden, or compact
@@ -18,6 +19,7 @@ class ChartOptions {
     public minBrushWidth: number // minimum possible width of brush in linechart
     public minutesForTimeLabels: boolean; // whether time labels forced to minute granularity
     public noAnimate: boolean; // whether animations happen on state change
+    public preserveAvailabilityState: boolean; // whether state in availability chart is saved or blown away on render
     public scaledToCurrentTime: boolean; //whether slider base component's scale is based on current time's values (or all values)
     public singleLineXAxisLabel: boolean; // whether x axis time labels are on a single line (else split into two lines)
     public snapBrush: boolean; // whether to snap linechart brush to closest value
@@ -40,16 +42,18 @@ class ChartOptions {
                 return defaultValue
             return this[propertyName];
         } 
-        return propertyValue;
+        return propertyValue;  
     }
     
     setOptions (chartOptionsObj) {
+        this.preserveAvailabilityState = this.getValueOrDefault(chartOptionsObj, 'preserveAvailabilityState', false);
+        this.isCompact = this.getValueOrDefault(chartOptionsObj, 'isCompact', false);
         this.keepBrush = this.getValueOrDefault(chartOptionsObj, 'keepBrush', false);
         this.isArea = this.getValueOrDefault(chartOptionsObj, 'isArea', false); 
         this.noAnimate = this.getValueOrDefault(chartOptionsObj, 'noAnimate', false); 
         this.minutesForTimeLabels = this.getValueOrDefault(chartOptionsObj, 'minutesForTimeLabels', false);
         this.aggTopMargin = this.getValueOrDefault(chartOptionsObj, 'aggTopMargin', 12);
-        this.color = this.getValueOrDefault(chartOptionsObj, 'color', 'teal');
+        this.color = this.getValueOrDefault(chartOptionsObj, 'color', null);
         this.maxBuckets = this.getValueOrDefault(chartOptionsObj, 'maxBuckets', 500);
         this.yAxisHidden = this.getValueOrDefault(chartOptionsObj, 'yAxisHidden', false);
         this.focusHidden = this.getValueOrDefault(chartOptionsObj, 'focusHidden', false);
@@ -80,6 +84,8 @@ class ChartOptions {
 
     public toObject () {
         return {
+            preserveAvailabilityState: this.preserveAvailabilityState,
+            isCompact: this.isCompact,
             keepBrush: this.keepBrush,
             isArea: this.isArea, 
             noAnimate: this.noAnimate,  
