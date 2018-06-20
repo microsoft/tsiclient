@@ -144,8 +144,12 @@ class AvailabilityChart extends ChartComponent{
             this.sparkLineChart = new LineChart(sparkLineContainer.node() as any);
             window.addEventListener('resize', () => {
                 this.timePickerLineChart.draw();
-                this.drawGhost();
                 this.setTicks();
+                if (this.chartOptions.isCompact)
+                    this.buildCompactFromAndTo();
+                setTimeout(() => {
+                    this.drawGhost();
+                }, 100);
             });
         }
 
@@ -270,32 +274,19 @@ class AvailabilityChart extends ChartComponent{
         var brushPositions = this.timePickerLineChart.getBrushPositions();
         var leftTimeText = null;
         var rightTimeText = null;
-        if (brushPositions.leftPos != null) {
+
+        if (this.selectedFromMillis != null && this.selectedToMillis != null) {
             leftTimeText = this.timePickerContainer.append('div')
                 .classed('tsi-compactFromTo', true)
-                .style('left', Math.max(brushPositions.leftPos, 5) + 'px')
+                .style('left', (brushPositions.leftPos != null ? Math.max(brushPositions.leftPos, 5) : 5) + 'px')
                 .html(Utils.timeFormat(false, false)(new Date(this.selectedFromMillis)));
-            if (brushPositions.rightPos == null && this.selectedToMillis != null) { // set to the far right if out of range
-                rightTimeText = this.timePickerContainer.append('div')
-                    .attr('class', 'tsi-compactFromTo')
-                    .style('right', '5px')
-                    .html(Utils.timeFormat(false, false)(new Date(this.selectedToMillis)));
-            }
-        }
-
-        if (brushPositions.rightPos != null) {
             rightTimeText = this.timePickerContainer.append('div')
                 .attr('class', 'tsi-compactFromTo')
-                .style('right', 'calc(100% - ' + brushPositions.rightPos + 'px)')
+                .style('right', brushPositions.rightPos != null ? 'calc(100% - ' + brushPositions.rightPos + 'px)' : '5px')
                 .style('left', 'auto')
                 .html(Utils.timeFormat(false, false)(new Date(this.selectedToMillis)));
-            if (brushPositions.leftPos == null && this.selectedFromMillis != null) {
-                leftTimeText = this.timePickerContainer.append('div')
-                    .classed('tsi-compactFromTo', true)
-                    .style('left', '5px')
-                    .html(Utils.timeFormat(false, false)(new Date(this.selectedFromMillis)));
-            }
         }
+
         if (leftTimeText && rightTimeText) {
             var rightSideOfLeft = leftTimeText.node().getBoundingClientRect().left + leftTimeText.node().getBoundingClientRect().width ;
             var leftSideOfRight = rightTimeText.node().getBoundingClientRect().left;
