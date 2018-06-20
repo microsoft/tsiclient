@@ -397,7 +397,7 @@ class AvailabilityChart extends ChartComponent{
         this.timePickerLineChart.setBrush();   
     }
 
-    private setBrush (fromMillis, toMillis) {
+    public setBrush (fromMillis, toMillis) {
         this.timePickerLineChart.setBrushEndTime(new Date(toMillis));
         this.timePickerLineChart.setBrushStartTime(new Date(fromMillis));
         this.timePickerLineChart.setBrush();
