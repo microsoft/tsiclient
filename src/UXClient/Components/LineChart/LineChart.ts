@@ -88,9 +88,7 @@ class LineChart extends ChartComponent {
         
         this.focus.style("display", "none");
         this.focus.select(".tooltip").style("display", "none");
-        (<any>this.legendObject.legendElement.selectAll('.splitByLabel').filter((labelData: any) => {
-            return true;
-        })).classed("inFocus", false)
+        (<any>this.legendObject.legendElement.selectAll('.splitByLabel')).classed("inFocus", false);
         d3.event.stopPropagation();
         this.svgSelection.selectAll(".valueElement")
                     .attr("stroke-opacity", this.strokeOpacity)
@@ -122,6 +120,34 @@ class LineChart extends ChartComponent {
                 return true;
             return false;
         });
+    }
+
+    private getFilteredAndSticky (aggValues) { //getFilteredValues, then filter by sticky
+        var filteredValues = this.getFilteredValues(aggValues);
+        if (this.chartComponentData.stickiedKey == null)
+            return filteredValues;
+        var stickiedValues = filteredValues.filter((d: any) => {
+            return d.aggregateKey == this.chartComponentData.stickiedKey.aggregateKey &&
+                ((this.chartComponentData.stickiedKey.splitBy == null) ? true : 
+                d.splitBy == this.chartComponentData.stickiedKey.splitBy);
+        });
+        return stickiedValues;
+    }
+
+    public stickySeries (aggregateKey: string, splitBy: string = null) {
+        var filteredValues = this.getFilteredAndSticky(this.chartComponentData.allValues);
+        if (filteredValues == null || filteredValues.length == 0)
+            return;
+
+        this.chartComponentData.stickiedKey = {
+            aggregateKey: aggregateKey,
+            splitBy: (splitBy == null ? null : splitBy)
+        };
+
+        (<any>this.legendObject.legendElement.selectAll('.splitByLabel').filter((labelData: any) => {
+            return (labelData[0] == aggregateKey) && (labelData[1] == splitBy);
+        })).classed("stickied", true);
+        
     }
 
     private labelFormatUsesSeconds () {
@@ -834,7 +860,7 @@ class LineChart extends ChartComponent {
                     //if brushElem present then use the overlay, otherwise create a rect to put the voronoi on
                     var voronoiSelection;
                     var filteredValueExist = () => {
-                        var filteredValues = self.getFilteredValues(self.chartComponentData.allValues);
+                        var filteredValues = self.getFilteredAndSticky(self.chartComponentData.allValues);
                         return !(filteredValues == null || filteredValues.length == 0)
                     }
         
@@ -846,7 +872,7 @@ class LineChart extends ChartComponent {
                     voronoiSelection.on("mousemove", function () { 
                         if (!filteredValueExist()) return;
                         const [mx, my] = d3.mouse(this);
-                        var filteredValues = self.getFilteredValues(self.chartComponentData.allValues);
+                        var filteredValues = self.getFilteredAndSticky(self.chartComponentData.allValues);
                         if (filteredValues == null || filteredValues.length == 0)
                             return
                         const site = voronoi(filteredValues).find(mx, my);
@@ -856,7 +882,7 @@ class LineChart extends ChartComponent {
                     .on("mouseout", function (d)  {
                         if (!filteredValueExist()) return;
                         const [mx, my] = d3.mouse(this);
-                        const site = voronoi(self.getFilteredValues(self.chartComponentData.allValues)).find(mx, my);
+                        const site = voronoi(self.getFilteredAndSticky(self.chartComponentData.allValues)).find(mx, my);
                         self.voronoiMouseout(site.data); 
                     })
                     .on("contextmenu", function (d) {
@@ -872,6 +898,17 @@ class LineChart extends ChartComponent {
                                                 site.data.dateTime);
                             voronoiMouseover(site.data);
                         }
+                    })
+                    .on("click", function (d) {
+                        if (self.chartComponentData.stickiedKey != null) {
+                            self.chartComponentData.stickiedKey = null;
+                            (<any>self.legendObject.legendElement.selectAll('.splitByLabel')).classed("stickied", false);
+                            return;
+                        }
+                        if (!filteredValueExist()) return;
+                        const [mx, my] = d3.mouse(this);
+                        const site: any = voronoi(self.getFilteredValues(self.chartComponentData.allValues)).find(mx, my);
+                        self.stickySeries(site.data.aggregateKey, site.data.splitBy);
                     })
 
                     if (this.brushElem) {

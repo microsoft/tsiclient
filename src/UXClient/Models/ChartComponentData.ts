@@ -13,7 +13,8 @@ class ChartComponentData {
     public usesMillis: boolean = false;
     public fromMillis: number = Infinity;
     public toMillis: number = 0;
-    
+    public stickiedKey: any = null;
+
 	constructor(){
     }
 
