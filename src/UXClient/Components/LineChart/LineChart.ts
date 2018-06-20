@@ -888,7 +888,7 @@ class LineChart extends ChartComponent {
                     .on("contextmenu", function (d) {
                         if (!filteredValueExist()) return;
                         const [mx, my] = d3.mouse(this);
-                        const site: any = voronoi(self.getFilteredValues(self.chartComponentData.allValues)).find(mx, my);
+                        const site: any = voronoi(self.getFilteredAndSticky(self.chartComponentData.allValues)).find(mx, my);
                         if (self.chartComponentData.displayState[site.data.aggregateKey].contextMenuActions && 
                             self.chartComponentData.displayState[site.data.aggregateKey].contextMenuActions.length) {
                             var mousePosition = d3.mouse(<any>targetElement.node());
@@ -907,7 +907,7 @@ class LineChart extends ChartComponent {
                         }
                         if (!filteredValueExist()) return;
                         const [mx, my] = d3.mouse(this);
-                        const site: any = voronoi(self.getFilteredValues(self.chartComponentData.allValues)).find(mx, my);
+                        const site: any = voronoi(self.getFilteredAndSticky(self.chartComponentData.allValues)).find(mx, my);
                         self.stickySeries(site.data.aggregateKey, site.data.splitBy);
                     })
 
