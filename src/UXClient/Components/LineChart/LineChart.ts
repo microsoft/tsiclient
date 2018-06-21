@@ -855,6 +855,7 @@ class LineChart extends ChartComponent {
                         } 
                 
                         labelMouseover(d.aggregateKey, d.splitBy);
+                        this.chartOptions.onMouseover(d.aggregateKey, d.splitBy);
                     }
 
                     //if brushElem present then use the overlay, otherwise create a rect to put the voronoi on
@@ -875,7 +876,7 @@ class LineChart extends ChartComponent {
                         var filteredValues = self.getFilteredAndSticky(self.chartComponentData.allValues);
                         if (filteredValues == null || filteredValues.length == 0)
                             return
-                        const site = voronoi(filteredValues).find(mx, my);
+                        const site: any = voronoi(filteredValues).find(mx, my);
                         self.voronoiMouseout(site.data); 
                         voronoiMouseover(site.data);
                     })
@@ -884,6 +885,7 @@ class LineChart extends ChartComponent {
                         const [mx, my] = d3.mouse(this);
                         const site = voronoi(self.getFilteredAndSticky(self.chartComponentData.allValues)).find(mx, my);
                         self.voronoiMouseout(site.data); 
+                        self.chartOptions.onMouseout();
                     })
                     .on("contextmenu", function (d) {
                         if (!filteredValueExist()) return;
@@ -900,14 +902,16 @@ class LineChart extends ChartComponent {
                         }
                     })
                     .on("click", function (d) {
+                        if (!filteredValueExist()) return;
+                        const [mx, my] = d3.mouse(this);
+                        const site: any = voronoi(self.getFilteredAndSticky(self.chartComponentData.allValues)).find(mx, my);
                         if (self.chartComponentData.stickiedKey != null) {
+                            self.chartOptions.onUnsticky(site.data.aggregateKey, site.data.splitBy)
                             self.chartComponentData.stickiedKey = null;
                             (<any>self.legendObject.legendElement.selectAll('.splitByLabel')).classed("stickied", false);
                             return;
                         }
-                        if (!filteredValueExist()) return;
-                        const [mx, my] = d3.mouse(this);
-                        const site: any = voronoi(self.getFilteredAndSticky(self.chartComponentData.allValues)).find(mx, my);
+                        self.chartOptions.onSticky(site.data.aggregateKey, site.data.splitBy);
                         self.stickySeries(site.data.aggregateKey, site.data.splitBy);
                     })
 
@@ -924,7 +928,7 @@ class LineChart extends ChartComponent {
                             .attr('stroke', this.chartOptions.color ? this.chartOptions.color : 'none')
                             .attr('fill', this.chartOptions.color ? this.chartOptions.color : 'grey');
 
-                        var handleHeight = Math.min(Math.max(chartHeight / 2, 60), chartHeight + 8);
+                        var handleHeight = Math.min(Math.max(chartHeight / 2, 24), chartHeight + 8);
                         this.brushElem.selectAll('.handle')
                             .attr('fill', this.chartOptions.color ? this.chartOptions.color : 'grey')
                             .attr('height', handleHeight)
