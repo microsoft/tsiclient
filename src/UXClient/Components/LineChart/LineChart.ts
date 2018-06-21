@@ -150,6 +150,10 @@ class LineChart extends ChartComponent {
         
     }
 
+    private getHandleHeight (chartHeight: number): number {
+        return Math.min(Math.max(chartHeight / 2, 60), chartHeight + 8);
+    }
+
     private labelFormatUsesSeconds () {
         return !this.chartOptions.minutesForTimeLabels && this.chartComponentData.usesSeconds;
     }
@@ -389,7 +393,7 @@ class LineChart extends ChartComponent {
                     .extent([[xLowerBound, this.chartOptions.aggTopMargin],
                              [xUpperBound, chartHeight]])
                     .on("start", function() {
-                        var handleHeight = Math.min(Math.max(chartHeight / 2, 60), chartHeight + 8);
+                        var handleHeight = self.getHandleHeight(chartHeight);
                         self.brushElem.selectAll('.handle')
                             .attr('height', handleHeight)
                             .attr('y', (chartHeight - handleHeight) / 2)
@@ -397,7 +401,7 @@ class LineChart extends ChartComponent {
                             .attr('ry', '3px');
                     })
                     .on("brush", function () {
-                        var handleHeight = Math.min(Math.max(chartHeight / 2, 60), chartHeight + 8);
+                        var handleHeight = self.getHandleHeight(chartHeight);
                         self.brushElem.selectAll('.handle')
                             .attr('height', handleHeight)
                             .attr('y', (chartHeight - handleHeight) / 2);
@@ -928,7 +932,7 @@ class LineChart extends ChartComponent {
                             .attr('stroke', this.chartOptions.color ? this.chartOptions.color : 'none')
                             .attr('fill', this.chartOptions.color ? this.chartOptions.color : 'grey');
 
-                        var handleHeight = Math.min(Math.max(chartHeight / 2, 24), chartHeight + 8);
+                        var handleHeight = self.getHandleHeight(chartHeight);
                         this.brushElem.selectAll('.handle')
                             .attr('fill', this.chartOptions.color ? this.chartOptions.color : 'grey')
                             .attr('height', handleHeight)
