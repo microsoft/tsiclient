@@ -89,7 +89,9 @@ class LineChart extends ChartComponent {
         this.focus.style("display", "none");
         this.focus.select(".tooltip").style("display", "none");
         (<any>this.legendObject.legendElement.selectAll('.splitByLabel')).classed("inFocus", false);
-        d3.event.stopPropagation();
+        if (d3.event && d3.event.type != 'end') {
+            d3.event.stopPropagation();
+        }
         this.svgSelection.selectAll(".valueElement")
                     .attr("stroke-opacity", this.strokeOpacity)
                     .attr("fill-opacity", 1);
@@ -435,6 +437,26 @@ class LineChart extends ChartComponent {
                         }
                     })
                     .on("end", function () {
+                        if (d3.event && d3.event.selection == null && d3.event.sourceEvent && d3.event.sourceEvent.type == "mouseup" && self.chartOptions.minBrushWidth == 0) {
+                            self.brushStartTime = null;
+                            self.brushEndTime = null;
+                            const [mx, my] = d3.mouse(this);
+                            var site: any = voronoi(self.getFilteredAndSticky(self.chartComponentData.allValues)).find(mx, my);
+                            if (self.chartComponentData.stickiedKey != null) {
+                                self.chartComponentData.stickiedKey = null;
+                                (<any>self.legendObject.legendElement.selectAll('.splitByLabel')).classed("stickied", false);
+                                // recompute voronoi with no sticky
+                                site = voronoi(self.getFilteredAndSticky(self.chartComponentData.allValues)).find(mx, my);
+                                self.voronoiMouseout(site.data);
+                                voronoiMouseover(site.data);
+                                self.chartOptions.onUnsticky(site.data.aggregateKey, site.data.splitBy)
+                                return;
+                            }
+                            self.stickySeries(site.data.aggregateKey, site.data.splitBy);
+                            self.chartOptions.onSticky(site.data.aggregateKey, site.data.splitBy);
+                            return;
+                        }
+
                         if (d3.event.selection == null) {
                             if (!self.chartOptions.brushClearable)
                                 d3.select(this).transition().call(d3.event.target.move, [self.x(self.brushStartTime), self.x(self.brushEndTime)]);
@@ -907,6 +929,7 @@ class LineChart extends ChartComponent {
                     })
                     .on("click", function (d) {
                         if (!filteredValueExist()) return;
+                        if (self.brushElem) return;
                         const [mx, my] = d3.mouse(this);
                         var site: any = voronoi(self.getFilteredAndSticky(self.chartComponentData.allValues)).find(mx, my);
                         if (self.chartComponentData.stickiedKey != null) {

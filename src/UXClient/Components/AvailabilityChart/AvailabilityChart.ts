@@ -117,6 +117,7 @@ class AvailabilityChart extends ChartComponent{
         this.chartOptions.singleLineXAxisLabel = true;
         this.chartOptions.suppressResizeListener = true;
         this.chartOptions.brushClearable = false;
+        this.chartOptions.minBrushWidth = 1;
 
 
         var timePickerOptionsObj = { ...this.chartOptions.toObject(), ...{brushMoveAction: (from, to) => {
