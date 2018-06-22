@@ -910,17 +910,17 @@ class LineChart extends ChartComponent {
                         const [mx, my] = d3.mouse(this);
                         var site: any = voronoi(self.getFilteredAndSticky(self.chartComponentData.allValues)).find(mx, my);
                         if (self.chartComponentData.stickiedKey != null) {
-                            self.chartOptions.onUnsticky(site.data.aggregateKey, site.data.splitBy)
                             self.chartComponentData.stickiedKey = null;
                             (<any>self.legendObject.legendElement.selectAll('.splitByLabel')).classed("stickied", false);
                             // recompute voronoi with no sticky
                             site = voronoi(self.getFilteredAndSticky(self.chartComponentData.allValues)).find(mx, my);
                             self.voronoiMouseout(site.data);
                             voronoiMouseover(site.data);
+                            self.chartOptions.onUnsticky(site.data.aggregateKey, site.data.splitBy)
                             return;
                         }
-                        self.chartOptions.onSticky(site.data.aggregateKey, site.data.splitBy);
                         self.stickySeries(site.data.aggregateKey, site.data.splitBy);
+                        self.chartOptions.onSticky(site.data.aggregateKey, site.data.splitBy);
                     })
 
                     if (this.brushElem) {

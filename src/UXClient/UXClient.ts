@@ -251,7 +251,6 @@ class UXClient {
         var firstPossibleBucket = Math.round(Math.floor(new Date(availabilityTsx.range.from).valueOf() / rawBucketSize) * rawBucketSize);
         var firstBucketOffset = Math.round((startBucket - firstPossibleBucket) / rawBucketSize);
         var rolledBuckets = (rollUpMultiplier != 1) ? this.rollUpBuckets(buckets, rollUpMultiplier, firstBucketOffset, this.toISONoMillis(to)) : buckets;
-        console.log(rolledBuckets);
         return [{"availabilityCount" : {"" : rolledBuckets}}];
     }
 
