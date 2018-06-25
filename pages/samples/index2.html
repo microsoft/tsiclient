@@ -119,7 +119,7 @@ var tsiClient = new TsiClient();
         }
 
         authContext.getTsiToken().then(function(token){
-            tsiClient.server.getAvailability(token, 'bec25c6b-ed2e-4416-856d-5057957a1575.env.timeseries.azure.com').then(function(result){
+            tsiClient.server.getAvailability(token, '81c2b47f-afa0-4c70-96ad-bb35a84e1527.env.timeseries.azure.com').then(function(result){
                 var transformedResult = tsiClient.ux.transformAvailabilityForVisualization(result, 500);
                 var availabilityChart = new tsiClient.ux.AvailabilityChart(document.getElementById('chart1'));
                 availabilityChart.render(transformedResult, {theme: 'light', grid: false, tooltip: false, legend: "hidden", 
@@ -143,16 +143,6 @@ var tsiClient = new TsiClient();
 
                 chart.appendChild(button);
 
-                //    counter = 0;
-                // setTimeout(function() {
-                //     if (counter < 1){
-                //         transformedResult = tsiClient.ux.transformAvailabilityForVisualization(result, 50);
-                //         availabilityChart.render(transformedResult, {theme: 'dark', grid: false, tooltip: false, legend: "hidden", 
-                //             brushContextMenuActions: brushActions, snapBrush: false, brushMoveAction: brushMoveAction, maxBuckets: 50,
-                //             availabilityChartColor: 'purple', isCompact: true}, result);
-                //     }
-                //     counter++;
-                // }, 1000);
             });
         });
 

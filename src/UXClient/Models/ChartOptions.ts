@@ -19,6 +19,10 @@ class ChartOptions {
     public minBrushWidth: number // minimum possible width of brush in linechart
     public minutesForTimeLabels: boolean; // whether time labels forced to minute granularity
     public noAnimate: boolean; // whether animations happen on state change
+    public onMouseout: () => void;
+    public onMouseover: (aggKey: string, splitBy: string) => void;
+    public onSticky: (aggKey: string, splitBy: string) => void;
+    public onUnsticky: (aggKey: string, splitBy: string) => void;
     public preserveAvailabilityState: boolean; // whether state in availability chart is saved or blown away on render
     public scaledToCurrentTime: boolean; //whether slider base component's scale is based on current time's values (or all values)
     public singleLineXAxisLabel: boolean; // whether x axis time labels are on a single line (else split into two lines)
@@ -80,6 +84,10 @@ class ChartOptions {
         this.yAxisState = this.getValueOrDefault(chartOptionsObj, 'yAxisState', 'stacked');
         this.xAxisHidden = this.getValueOrDefault(chartOptionsObj, 'xAxisHidden', false);
         this.suppressResizeListener = this.getValueOrDefault(chartOptionsObj, 'suppressResizeListener', false);
+        this.onMouseout = this.getValueOrDefault(chartOptionsObj, 'onMouseout', () => {});
+        this.onMouseover = this.getValueOrDefault(chartOptionsObj, 'onMouseover', () => {});
+        this.onSticky = this.getValueOrDefault(chartOptionsObj, 'onSticky', () => {});
+        this.onUnsticky = this.getValueOrDefault(chartOptionsObj, 'onUnsticky', () => {});
     }
 
     public toObject () {
@@ -117,7 +125,11 @@ class ChartOptions {
             yAxisState: this.yAxisState,
             xAxisHidden: this.xAxisHidden,
             suppressResizeListener: this.suppressResizeListener,
-            brushMoveEndAction: this.brushMoveEndAction
+            brushMoveEndAction: this.brushMoveEndAction,
+            onMouseout: this.onMouseout,
+            onMouseover: this.onMouseover,
+            onSticky: this.onSticky,
+            onUnsticky: this.onUnsticky
         }
     }
 }
