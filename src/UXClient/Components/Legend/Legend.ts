@@ -281,7 +281,12 @@ class Legend extends Component {
                                 .attr("fill-opacity", 1);
                     labelMouseout(svgSelection, d[0]);
                 })
-                .attr("class", (data, i) => "splitByLabel splitByLabel" + (Utils.getAgVisible(chartComponentData.displayState, data[0], data[1]) ? " shown" : ""));
+                .attr("class", (data, i) => "splitByLabel splitByLabel" + (Utils.getAgVisible(chartComponentData.displayState, data[0], data[1]) ? " shown" : ""))
+                .classed("stickied", (d, i) => {
+                    if (chartComponentData.stickiedKey != null) {
+                        return d[0] == chartComponentData.stickiedKey.aggregateKey && d[1] == chartComponentData.stickiedKey.splitBy;
+                    }
+                });
 
             /******************** Color Blocks ****************************/
             var colors = Utils.createSplitByColors(chartComponentData.displayState, aggKey, this.chartOptions.keepSplitByColor);

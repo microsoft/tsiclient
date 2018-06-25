@@ -143,6 +143,11 @@
                 <div id="chart18" style="flex-shrink: 1; height: 100%; width: 90%;"></div>
             </div>
 
+            <div class="rowOfCardsTitle">An Availability Chart</div>
+            <div class="rowOfCards">
+                <div id="chart19" style="flex-shrink: 1; height: 190px; width: 90%;"></div>
+            </div>
+
 
         </div>
         
@@ -598,6 +603,42 @@
                 var transformedEvents = tsiClient.ux.transformTsxToEventsArray (events, {});
                 var eventsTable = tsiClient.ux.EventsTable(document.getElementById('chart18'));
                 eventsTable.render(transformedEvents, {theme: 'light'}, true);
+            });
+        });
+
+        var brushActions = [{
+            name: "Print From and to",
+            action: function(fromTime, toTime) {
+                console.log(fromTime);
+                console.log(toTime);
+            }
+        }];
+
+        authContext.getTsiToken().then(function(token){
+            tsiClient.server.getAvailability(token, 'bec25c6b-ed2e-4416-856d-5057957a1575.env.timeseries.azure.com').then(function(result){
+                var transformedResult = tsiClient.ux.transformAvailabilityForVisualization(result, 500);
+                var availabilityChart = new tsiClient.ux.AvailabilityChart(document.getElementById('chart19'));
+                availabilityChart.render(transformedResult, {theme: 'light', grid: false, tooltip: false, legend: "hidden", 
+                   brushContextMenuActions: brushActions, snapBrush: false, maxBuckets: 500,
+                   color: 'purple'}, result);
+                
+                var chart = document.getElementById("chart19");
+                var button = document.createElement("button");
+                var isCompact = false;
+                function toggleCompact() {
+                    isCompact = !isCompact;
+                    availabilityChart.render(transformedResult, {theme: 'light', grid: false, tooltip: false, legend: "hidden", 
+                            brushContextMenuActions: brushActions, snapBrush: false, maxBuckets: 500,
+                            color: 'purple', isCompact: isCompact, preserveAvailabilityState: true}, result);
+                }
+
+                button.id = "myButton";
+                button.textContent = "+/-";
+                button.addEventListener("click", toggleCompact, false);
+                button.style = 'position:absolute;top:0px'
+
+                chart.appendChild(button);
+
             });
         });
 

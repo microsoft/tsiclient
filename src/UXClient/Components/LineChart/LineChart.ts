@@ -88,10 +88,10 @@ class LineChart extends ChartComponent {
         
         this.focus.style("display", "none");
         this.focus.select(".tooltip").style("display", "none");
-        (<any>this.legendObject.legendElement.selectAll('.splitByLabel').filter((labelData: any) => {
-            return true;
-        })).classed("inFocus", false)
-        d3.event.stopPropagation();
+        (<any>this.legendObject.legendElement.selectAll('.splitByLabel')).classed("inFocus", false);
+        if (d3.event && d3.event.type != 'end') {
+            d3.event.stopPropagation();
+        }
         this.svgSelection.selectAll(".valueElement")
                     .attr("stroke-opacity", this.strokeOpacity)
                     .attr("fill-opacity", 1);
@@ -122,6 +122,38 @@ class LineChart extends ChartComponent {
                 return true;
             return false;
         });
+    }
+
+    private getFilteredAndSticky (aggValues) { //getFilteredValues, then filter by sticky
+        var filteredValues = this.getFilteredValues(aggValues);
+        if (this.chartComponentData.stickiedKey == null)
+            return filteredValues;
+        var stickiedValues = filteredValues.filter((d: any) => {
+            return d.aggregateKey == this.chartComponentData.stickiedKey.aggregateKey &&
+                ((this.chartComponentData.stickiedKey.splitBy == null) ? true : 
+                d.splitBy == this.chartComponentData.stickiedKey.splitBy);
+        });
+        return stickiedValues;
+    }
+
+    public stickySeries (aggregateKey: string, splitBy: string = null) {
+        var filteredValues = this.getFilteredAndSticky(this.chartComponentData.allValues);
+        if (filteredValues == null || filteredValues.length == 0)
+            return;
+
+        this.chartComponentData.stickiedKey = {
+            aggregateKey: aggregateKey,
+            splitBy: (splitBy == null ? null : splitBy)
+        };
+
+        (<any>this.legendObject.legendElement.selectAll('.splitByLabel').filter((labelData: any) => {
+            return (labelData[0] == aggregateKey) && (labelData[1] == splitBy);
+        })).classed("stickied", true);
+        
+    }
+
+    private getHandleHeight (chartHeight: number): number {
+        return Math.min(Math.max(chartHeight / 2, 60), chartHeight + 8);
     }
 
     private labelFormatUsesSeconds () {
@@ -363,7 +395,7 @@ class LineChart extends ChartComponent {
                     .extent([[xLowerBound, this.chartOptions.aggTopMargin],
                              [xUpperBound, chartHeight]])
                     .on("start", function() {
-                        var handleHeight = Math.min(Math.max(chartHeight / 2, 60), chartHeight + 8);
+                        var handleHeight = self.getHandleHeight(chartHeight);
                         self.brushElem.selectAll('.handle')
                             .attr('height', handleHeight)
                             .attr('y', (chartHeight - handleHeight) / 2)
@@ -371,7 +403,7 @@ class LineChart extends ChartComponent {
                             .attr('ry', '3px');
                     })
                     .on("brush", function () {
-                        var handleHeight = Math.min(Math.max(chartHeight / 2, 60), chartHeight + 8);
+                        var handleHeight = self.getHandleHeight(chartHeight);
                         self.brushElem.selectAll('.handle')
                             .attr('height', handleHeight)
                             .attr('y', (chartHeight - handleHeight) / 2);
@@ -405,6 +437,26 @@ class LineChart extends ChartComponent {
                         }
                     })
                     .on("end", function () {
+                        if (d3.event && d3.event.selection == null && d3.event.sourceEvent && d3.event.sourceEvent.type == "mouseup" && self.chartOptions.minBrushWidth == 0) {
+                            self.brushStartTime = null;
+                            self.brushEndTime = null;
+                            const [mx, my] = d3.mouse(this);
+                            var site: any = voronoi(self.getFilteredAndSticky(self.chartComponentData.allValues)).find(mx, my);
+                            if (self.chartComponentData.stickiedKey != null) {
+                                self.chartComponentData.stickiedKey = null;
+                                (<any>self.legendObject.legendElement.selectAll('.splitByLabel')).classed("stickied", false);
+                                // recompute voronoi with no sticky
+                                site = voronoi(self.getFilteredAndSticky(self.chartComponentData.allValues)).find(mx, my);
+                                self.voronoiMouseout(site.data);
+                                voronoiMouseover(site.data);
+                                self.chartOptions.onUnsticky(site.data.aggregateKey, site.data.splitBy)
+                                return;
+                            }
+                            self.stickySeries(site.data.aggregateKey, site.data.splitBy);
+                            self.chartOptions.onSticky(site.data.aggregateKey, site.data.splitBy);
+                            return;
+                        }
+
                         if (d3.event.selection == null) {
                             if (!self.chartOptions.brushClearable)
                                 d3.select(this).transition().call(d3.event.target.move, [self.x(self.brushStartTime), self.x(self.brushEndTime)]);
@@ -829,12 +881,13 @@ class LineChart extends ChartComponent {
                         } 
                 
                         labelMouseover(d.aggregateKey, d.splitBy);
+                        this.chartOptions.onMouseover(d.aggregateKey, d.splitBy);
                     }
 
                     //if brushElem present then use the overlay, otherwise create a rect to put the voronoi on
                     var voronoiSelection;
                     var filteredValueExist = () => {
-                        var filteredValues = self.getFilteredValues(self.chartComponentData.allValues);
+                        var filteredValues = self.getFilteredAndSticky(self.chartComponentData.allValues);
                         return !(filteredValues == null || filteredValues.length == 0)
                     }
         
@@ -846,23 +899,24 @@ class LineChart extends ChartComponent {
                     voronoiSelection.on("mousemove", function () { 
                         if (!filteredValueExist()) return;
                         const [mx, my] = d3.mouse(this);
-                        var filteredValues = self.getFilteredValues(self.chartComponentData.allValues);
+                        var filteredValues = self.getFilteredAndSticky(self.chartComponentData.allValues);
                         if (filteredValues == null || filteredValues.length == 0)
                             return
-                        const site = voronoi(filteredValues).find(mx, my);
+                        const site: any = voronoi(filteredValues).find(mx, my);
                         self.voronoiMouseout(site.data); 
                         voronoiMouseover(site.data);
                     })
                     .on("mouseout", function (d)  {
                         if (!filteredValueExist()) return;
                         const [mx, my] = d3.mouse(this);
-                        const site = voronoi(self.getFilteredValues(self.chartComponentData.allValues)).find(mx, my);
+                        const site = voronoi(self.getFilteredAndSticky(self.chartComponentData.allValues)).find(mx, my);
                         self.voronoiMouseout(site.data); 
+                        self.chartOptions.onMouseout();
                     })
                     .on("contextmenu", function (d) {
                         if (!filteredValueExist()) return;
                         const [mx, my] = d3.mouse(this);
-                        const site: any = voronoi(self.getFilteredValues(self.chartComponentData.allValues)).find(mx, my);
+                        const site: any = voronoi(self.getFilteredAndSticky(self.chartComponentData.allValues)).find(mx, my);
                         if (self.chartComponentData.displayState[site.data.aggregateKey].contextMenuActions && 
                             self.chartComponentData.displayState[site.data.aggregateKey].contextMenuActions.length) {
                             var mousePosition = d3.mouse(<any>targetElement.node());
@@ -872,6 +926,24 @@ class LineChart extends ChartComponent {
                                                 site.data.dateTime);
                             voronoiMouseover(site.data);
                         }
+                    })
+                    .on("click", function (d) {
+                        if (!filteredValueExist()) return;
+                        if (self.brushElem) return;
+                        const [mx, my] = d3.mouse(this);
+                        var site: any = voronoi(self.getFilteredAndSticky(self.chartComponentData.allValues)).find(mx, my);
+                        if (self.chartComponentData.stickiedKey != null) {
+                            self.chartComponentData.stickiedKey = null;
+                            (<any>self.legendObject.legendElement.selectAll('.splitByLabel')).classed("stickied", false);
+                            // recompute voronoi with no sticky
+                            site = voronoi(self.getFilteredAndSticky(self.chartComponentData.allValues)).find(mx, my);
+                            self.voronoiMouseout(site.data);
+                            voronoiMouseover(site.data);
+                            self.chartOptions.onUnsticky(site.data.aggregateKey, site.data.splitBy)
+                            return;
+                        }
+                        self.stickySeries(site.data.aggregateKey, site.data.splitBy);
+                        self.chartOptions.onSticky(site.data.aggregateKey, site.data.splitBy);
                     })
 
                     if (this.brushElem) {
@@ -887,7 +959,7 @@ class LineChart extends ChartComponent {
                             .attr('stroke', this.chartOptions.color ? this.chartOptions.color : 'none')
                             .attr('fill', this.chartOptions.color ? this.chartOptions.color : 'grey');
 
-                        var handleHeight = Math.min(Math.max(chartHeight / 2, 60), chartHeight + 8);
+                        var handleHeight = self.getHandleHeight(chartHeight);
                         this.brushElem.selectAll('.handle')
                             .attr('fill', this.chartOptions.color ? this.chartOptions.color : 'grey')
                             .attr('height', handleHeight)
