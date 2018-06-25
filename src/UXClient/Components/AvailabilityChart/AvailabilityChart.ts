@@ -177,6 +177,7 @@ class AvailabilityChart extends ChartComponent{
         this.chartOptions.suppressResizeListener = true;
         this.chartOptions.brushClearable = false;
         this.chartOptions.minBrushWidth = 1;
+        this.chartOptions.brushHandlesVisible = true;
 
 
         var timePickerOptionsObj = { ...this.chartOptions.toObject(), ...{brushMoveAction: (from, to) => {
@@ -474,6 +475,7 @@ class AvailabilityChart extends ChartComponent{
             focusHidden: true,
             minBrushWidth: 5,
             color: null,
+            brushHandlesVisible: true,
             brushMoveAction: (from, to) => {
                 this.setAvailabilityRange(from.valueOf(), to.valueOf());
             },
