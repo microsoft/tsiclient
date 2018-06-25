@@ -176,6 +176,7 @@ class AvailabilityChart extends ChartComponent{
         this.chartOptions.singleLineXAxisLabel = true;
         this.chartOptions.suppressResizeListener = true;
         this.chartOptions.brushClearable = false;
+        this.chartOptions.minBrushWidth = 1;
 
 
         var timePickerOptionsObj = { ...this.chartOptions.toObject(), ...{brushMoveAction: (from, to) => {
@@ -321,9 +322,11 @@ class AvailabilityChart extends ChartComponent{
         svgGroup.selectAll(".ghostRect").remove();
         svgGroup.append("rect")
             .classed("ghostRect", true)
-            .attr("x", this.sparkLineChart.x(new Date(this.selectedFromMillis)))
+            .attr("x", Math.max(this.sparkLineChart.x.range()[0], this.sparkLineChart.x(new Date(this.selectedFromMillis))))
             .attr("y", 0)
-            .attr("width", Math.max(1, this.sparkLineChart.x(new Date(this.selectedToMillis)) - this.sparkLineChart.x(new Date(this.selectedFromMillis))))
+            .attr("width", Math.min(Math.max(this.sparkLineChart.xOffset, 
+                            this.sparkLineChart.x(new Date(this.selectedToMillis)) - this.sparkLineChart.x(new Date(this.selectedFromMillis))), 
+                            this.sparkLineChart.x.range()[1] - this.sparkLineChart.x.range()[0]))
             .attr("height", 14)
             .attr("fill", this.chartOptions.color ? this.chartOptions.color : 'dark-grey')
             .attr("fill-opacity", .3)

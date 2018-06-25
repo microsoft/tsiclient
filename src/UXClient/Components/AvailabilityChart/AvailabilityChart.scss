@@ -80,6 +80,11 @@
         overflow: visible;
         position: relative;
         .tsi-timePickerChart {
+            .brushElem {
+                .handle {
+                    visibility: visible;
+                }
+            }
             position: relative;
             .valueLine {
                 stroke-width: 2px;
@@ -207,6 +212,7 @@
         }
         .brushElem {
             .handle {
+                visibility: visible;
                 shape-rendering: unset;
                 width: 6px;
                 rx: 3px;
