@@ -189,11 +189,12 @@ class LineChart extends ChartComponent {
                 this.brushElem.call(this.brush.move, null);
                 this.brushElem.select('.selection').attr("visibility", "hidden");
                 this.brushElem.selectAll('.handle').attr("visibility", "hidden");
+                this.brushElem.selectAll('.handle').style("visibility", "hidden");
                 return;
             }
             this.brushElem.selectAll(".selection").attr("visibility", "visible");
             this.brushElem.selectAll('.handle').attr("visibility", "visible");
-
+            this.brushElem.selectAll('.handle').style("visibility", "visible");
             let leftSide = Math.min(this.chartWidth - (2 * this.xOffset), Math.max(this.xOffset, this.x(this.brushStartTime)));
             let rightSide = Math.min(this.chartWidth - (2 * this.xOffset), Math.max(this.xOffset, this.x(this.brushEndTime)));
             this.surpressBrushTimeSet = true;
