@@ -49,6 +49,9 @@ class ServerClient {
                     if(aggregateResults.map(ar => ar!=null).reduce((p,c) => { p = c && p; return p}, true))
                         resolve(aggregateResults);
                 }
+                else{
+                    aggregateResults[index] = JSON.parse(xhr.responseText);
+                }
             }
 
             xhr.open('POST', "https://" + uri + "/aggregates?api-version=2016-12-12");
