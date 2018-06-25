@@ -63,36 +63,15 @@ class ServerClient {
         })
     }
 
-    public getReferenceDatasetRows(token: string, environmentFqdn: string, datasetId: string) {
-        var rows = [];
-        var getDatasetBatch = (resolve, reject, continuationToken: string = null) => {
-            var xhr = new XMLHttpRequest();
-            xhr.onreadystatechange = () => {
-                if(xhr.readyState != 4) return;
-                
-                if(xhr.status == 200){
-                    var message = JSON.parse(xhr.responseText);
-                    if(message.items)
-                        rows = rows.concat(message.items);
-                    var continuationToken = xhr.getResponseHeader('x-ms-continuation');
-                    if(!continuationToken)
-                        resolve(rows);
-                    else
-                        getDatasetBatch(resolve, reject, continuationToken);
-                }
-                else{
-                    reject(xhr);
-                }
-            }
-            xhr.open('POST', "https://" + environmentFqdn + "/referencedatasets/" + datasetId + "/items?api-version=2016-12-12&format=stream");
-            xhr.setRequestHeader('Authorization', 'Bearer ' + token);
-            if (continuationToken)
-                xhr.setRequestHeader('x-ms-continuation', continuationToken);
-            xhr.send(JSON.stringify({take: 100000}));
-        }
-
+    public getTimeseriesInstances(token: string, environmentFqdn: string) {
         return new Promise((resolve: any, reject: any) => {
-            getDatasetBatch(resolve, reject);
+            this.getDataWithContinuationBatch(token, resolve, reject, [], 'https://' + environmentFqdn + '/timeseries/instances/?api-version=2016-12-12', 'GET', 'instances');
+        });        
+    }
+
+    public getReferenceDatasetRows(token: string, environmentFqdn: string, datasetId: string) {
+        return new Promise((resolve: any, reject: any) => {
+            this.getDataWithContinuationBatch(token, resolve, reject, [], "https://" + environmentFqdn + "/referencedatasets/" + datasetId + "/items?api-version=2016-12-12&format=stream", 'POST', 'items');
         });        
     }
 
@@ -123,6 +102,34 @@ class ServerClient {
         return this.createPromiseFromXhr(uri, "POST", payload, token, (responseText) => {return JSON.parse(responseText).events;});
     }
 
+    private getDataWithContinuationBatch(token, resolve, reject, rows, url, verb, propName, continuationToken = null){
+        var xhr = new XMLHttpRequest();
+        xhr.onreadystatechange = () => {
+            if(xhr.readyState != 4) return;
+            
+            if(xhr.status == 200){
+                var message = JSON.parse(xhr.responseText);
+                if(message[propName])
+                    rows = rows.concat(message[propName]);
+                
+                // HACK because /instances doesn't match /items
+                var continuationToken = verb == 'GET' ? message.continuationToken : xhr.getResponseHeader('x-ms-continuation');
+
+                if(!continuationToken)
+                    resolve(rows);
+                else
+                    this.getDataWithContinuationBatch(token, resolve, reject, rows, url, verb, propName, continuationToken);
+            }
+            else{
+                reject(xhr);
+            }
+        }
+        xhr.open(verb, url);
+        xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+        if (continuationToken)
+            xhr.setRequestHeader('x-ms-continuation', continuationToken);
+        xhr.send(JSON.stringify({take: 100000}));
+    }
 }
 
 export {ServerClient}
