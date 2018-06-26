@@ -122,13 +122,8 @@ var tsiClient = new TsiClient();
         }
 
         authContext.getTsiToken().then(function(token){
-<<<<<<< HEAD
             tsiClient.server.getAvailability(token, '063bec0b-3bd1-4227-9001-42f3a93a4d82.env.timeseries.azure.com').then(function(result){
                 var transformedResult = tsiClient.ux.transformAvailabilityForVisualization(result);
-=======
-            tsiClient.server.getAvailability(token, '81c2b47f-afa0-4c70-96ad-bb35a84e1527.env.timeseries.azure.com').then(function(result){
-                var transformedResult = tsiClient.ux.transformAvailabilityForVisualization(result, 500);
->>>>>>> master
                 var availabilityChart = new tsiClient.ux.AvailabilityChart(document.getElementById('chart1'));
                 availabilityChart.render(transformedResult, {theme: 'light', grid: false, tooltip: false, legend: "hidden", 
                    brushContextMenuActions: brushActions, snapBrush: false, brushMoveAction: brushMoveAction, maxBuckets: 500,
