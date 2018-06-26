@@ -3,6 +3,7 @@ class ChartOptions {
     public arcWidthRatio: number; // bumber between 0 and 1 which determines how thic the pie chart arc is
     public brushClearable: boolean; // whether to keep the brush selected region upon clear and non-selection of a new region
     public brushContextMenuActions: Array<any>; // pairs of names/actions for context menu for the brush
+    public brushHandlesVisible: boolean; // whether handles on the brush are visible
     public brushMoveAction: any; // action fired when the brush moved
     public brushMoveEndAction: any; // action fired at the end of a mouse movement
     public color: string; // color of the time selection ghost in availability chart
@@ -88,6 +89,7 @@ class ChartOptions {
         this.onMouseover = this.getValueOrDefault(chartOptionsObj, 'onMouseover', () => {});
         this.onSticky = this.getValueOrDefault(chartOptionsObj, 'onSticky', () => {});
         this.onUnsticky = this.getValueOrDefault(chartOptionsObj, 'onUnsticky', () => {});
+        this.brushHandlesVisible = this.getValueOrDefault(chartOptionsObj, 'brushHandlesVisible', false);
     }
 
     public toObject () {
@@ -129,7 +131,8 @@ class ChartOptions {
             onMouseout: this.onMouseout,
             onMouseover: this.onMouseover,
             onSticky: this.onSticky,
-            onUnsticky: this.onUnsticky
+            onUnsticky: this.onUnsticky,
+            brushHandlesVisible: this.brushHandlesVisible
         }
     }
 }

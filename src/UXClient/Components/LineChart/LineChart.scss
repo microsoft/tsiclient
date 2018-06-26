@@ -40,7 +40,11 @@
         .handle {
             width: 6px;
             shape-rendering: unset;
-            visibility: hidden;
+        }
+        &.hideBrushHandles {
+            .handle {
+                visibility: hidden;
+            }
         }
     }
     

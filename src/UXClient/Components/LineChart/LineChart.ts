@@ -180,6 +180,7 @@ class LineChart extends ChartComponent {
     }
 
     public setBrush () {
+
         if (this.brushStartTime && this.brushEndTime && this.brushElem && this.brush) {
             var rawLeftSide = this.x(this.brushStartTime);
             var rawRightSide = this.x(this.brushEndTime);
@@ -261,6 +262,7 @@ class LineChart extends ChartComponent {
             if (this.chartOptions.brushContextMenuActions || this.chartOptions.brushMoveAction) {
                 this.brushElem = g.append("g")
                     .attr("class", "brushElem");
+                this.brushElem.classed("hideBrushHandles", !this.chartOptions.brushHandlesVisible);
             } else {
                 //if there is no brushElem, the voronoi lives here
                 voronoiRegion = g.append("rect").classed("voronoiRect", true);

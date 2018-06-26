@@ -163,95 +163,46 @@ class UXClient {
     }
 
     //specifiedRange gives the subset of availability buckets to be returned. If not included, will return all buckets
-    public transformAvailabilityForVisualization(availabilityTsx: any, maxBuckets: number = 500, specifiedRange: any = null): Array<any> {
+    public transformAvailabilityForVisualization(availabilityTsx: any): Array<any> {
         var result = [];
-        var from = (specifiedRange && specifiedRange.from) ? 
-                        new Date(specifiedRange.from) : 
-                        new Date(availabilityTsx.range.from);
-        var to = (specifiedRange && specifiedRange.to) ? 
-                        new Date(specifiedRange.to) : 
-                        new Date(availabilityTsx.range.to);
+        var from = new Date(availabilityTsx.range.from);
+        var to = new Date(availabilityTsx.range.to);
         var rawBucketSize = Utils.parseTimeInput(availabilityTsx.intervalSize);
         var rawBucketNumber = Math.ceil((to.valueOf() - from.valueOf()) / rawBucketSize);
 
-        // pair of dates and values
-        var sortedKeys: Array<string> = Object.keys(availabilityTsx.distribution).sort((a, b) => {
-            const valueOfA = (new Date(a)).valueOf();
-            const valueOfB = (new Date(b)).valueOf();
-            if (valueOfA < valueOfB) 
-                return -1;
-            if (valueOfA > valueOfB)
-                return 1;
-            return 0;
-        });
-
         var buckets = {};
         var startBucket = Math.round(Math.floor(from.valueOf() / rawBucketSize) * rawBucketSize);
-
-        //handle case if range is less than r equal to one bucket
-        if (to.valueOf() - from.valueOf() <= rawBucketSize && specifiedRange == null) {
-            var roundedStart = Math.round(from.valueOf() / rawBucketSize) * rawBucketSize;
-            // buckets[this.toISONoMillis(new Date(roundedStart))] = {count: 0};
-            for(var i = roundedStart; i <= roundedStart + rawBucketSize; i += rawBucketSize / 60) {
-                buckets[this.toISONoMillis(new Date(i))] = {count: 0};
-            }
-        } 
-
         var firstKey = this.toISONoMillis(new Date(startBucket));
         var firstCount = availabilityTsx.distribution[firstKey] ? availabilityTsx.distribution[firstKey] : 0;
+        
         // reset first key if greater than the availability range from
         if (startBucket < (new Date(availabilityTsx.range.from)).valueOf())
             firstKey = this.toISONoMillis(new Date(availabilityTsx.range.from));
         buckets[firstKey] = {count: firstCount }
 
-        var i = (startBucket % rawBucketSize == 0) ? startBucket : startBucket + rawBucketSize;
-        for (i; i <= to.valueOf(); i += rawBucketSize) {
-            if (i > from.valueOf()) // exclude the from value, already created
-                buckets[this.toISONoMillis(new Date(i))] = {count: 0};
-        }
-        i += -rawBucketSize;
-
-
-        //filter out keys not in the from - to range
-        var lastBucket = Math.round(Math.floor(to.valueOf() / rawBucketSize) * rawBucketSize);
-        var filteredKeys = sortedKeys.filter((key) => {
-            var keyMillis = new Date(key).valueOf(); 
-            return (keyMillis >= startBucket && keyMillis <= lastBucket);  
-        });
-
-        filteredKeys.forEach(key => {
+        Object.keys(availabilityTsx.distribution).forEach(key => {
             var formattedISO = this.toISONoMillis(new Date(key));
-            //set to to time if the last bucket
-            if ((new Date(key)).valueOf() == i) {
-                buckets[this.toISONoMillis(to)] = {count : availabilityTsx.distribution[key]};
-            }
-            if (buckets[formattedISO] != null) {
-                if (buckets[formattedISO] != undefined) {
-                    buckets[formattedISO].count += availabilityTsx.distribution[key];
-                }
-            }
-            else {
-                var offset = ((new Date(key)).valueOf() - startBucket) % rawBucketSize;
-                var roundedTime = new Date((new Date(key)).valueOf() - offset);
-                if (roundedTime.valueOf() >= from.valueOf() && (buckets[this.toISONoMillis(roundedTime)] != undefined)) // exclude values below from
-                    buckets[this.toISONoMillis(roundedTime)].count += availabilityTsx.distribution[key];
-            }
+            buckets[formattedISO] = {count: availabilityTsx.distribution[key]};
         });
-        if (buckets[this.toISONoMillis(new Date(i))] != undefined) {
-            buckets[this.toISONoMillis(to)] = buckets[this.toISONoMillis(new Date(i))];
+
+        //set end time value
+        var lastBucket = Math.round(Math.floor(to.valueOf() / rawBucketSize) * rawBucketSize);
+        buckets[this.toISONoMillis(to)] = (buckets[this.toISONoMillis(new Date(lastBucket))] != undefined) ? 
+                                            buckets[this.toISONoMillis(new Date(lastBucket))] : 
+                                            {count : 0};
+
+        // pad out if range is less than one bucket;
+        if (startBucket == lastBucket) {
+            for(var i = startBucket; i <= startBucket + rawBucketSize; i += (rawBucketSize / 60)) {
+                if (buckets[this.toISONoMillis(new Date(i))] == undefined)
+                    buckets[this.toISONoMillis(new Date(i))] = {count : 0};
+            }
+            //reset startBucket to count 0 if not the start time
+            if (startBucket != from.valueOf()) {
+                buckets[this.toISONoMillis(new Date(startBucket))] = {count : 0}
+            }
         }
-
-        var rollUpMultiplier;
-        var bucketsInRange = (to.valueOf() - from.valueOf()) / rawBucketSize;
-        if (bucketsInRange < maxBuckets)
-            rollUpMultiplier = 1;
-        else 
-            rollUpMultiplier = Math.ceil(bucketsInRange / maxBuckets);
-
-        var firstPossibleBucket = Math.round(Math.floor(new Date(availabilityTsx.range.from).valueOf() / rawBucketSize) * rawBucketSize);
-        var firstBucketOffset = Math.round((startBucket - firstPossibleBucket) / rawBucketSize);
-        var rolledBuckets = (rollUpMultiplier != 1) ? this.rollUpBuckets(buckets, rollUpMultiplier, firstBucketOffset, this.toISONoMillis(to)) : buckets;
-        return [{"availabilityCount" : {"" : rolledBuckets}}];
+        return [{"availabilityCount" : {"" : buckets}}];
     }
 
 
