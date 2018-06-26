@@ -319,7 +319,7 @@ class AvailabilityChart extends ChartComponent{
     }
 
     private drawGhost() {
-        var svgGroup = this.targetElement.select('.tsi-sparklineContainer').select(".lineChartSVG").select(".svgGroup");
+        var svgGroup = this.targetElement.select('.tsi-sparklineContainer').select(".tsi-lineChartSVG").select(".svgGroup");
         svgGroup.selectAll(".ghostRect").remove();
         svgGroup.append("rect")
             .classed("ghostRect", true)

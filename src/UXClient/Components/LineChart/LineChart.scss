@@ -8,7 +8,7 @@
     
     color: $gray1;
     background: $gray3;
-    .lineChartSVG{
+    .tsi-lineChartSVG{
         text{
             fill: $gray1;
         }
@@ -68,7 +68,7 @@
         }
     }
 
-    .lineChartSVG {
+    .tsi-lineChartSVG {
 
         .voronoiRect {
             fill-opacity: 0;

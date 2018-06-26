@@ -87,7 +87,7 @@ class LineChart extends ChartComponent {
             return;
         
         this.focus.style("display", "none");
-        this.focus.select(".tooltip").style("display", "none");
+        d3.select(this.renderTarget).select(".tooltip").style("display", "none");
         (<any>this.legendObject.legendElement.selectAll('.splitByLabel')).classed("inFocus", false);
         if (d3.event && d3.event.type != 'end') {
             d3.event.stopPropagation();
@@ -230,13 +230,15 @@ class LineChart extends ChartComponent {
             this.brushEndTime = null;
         }
         
+        d3.select(this.renderTarget).select(".tsi-tooltip").remove();
+
         if(this.svgSelection == null){
             
             /******************** Static Elements *********************************/
             var targetElement = d3.select(this.renderTarget)
                                 .classed("tsi-lineChart", true)
             this.svgSelection = targetElement.append("svg")
-                                            .attr("class", "lineChartSVG")
+                                            .attr("class", "tsi-lineChartSVG tsi-chartSVG")
                                             .attr("height", height);
             
             var stackedButton = Utils.createStackedButton(this.svgSelection); 
@@ -326,7 +328,7 @@ class LineChart extends ChartComponent {
                 .attr("x", -10)
                 .text(d => d);
     
-            var tooltip = new Tooltip(this.focus);
+            var tooltip = new Tooltip(d3.select(this.renderTarget));
                         
             this.yAxisState = this.chartOptions.yAxisState ? this.chartOptions.yAxisState : "stacked"; // stacked, shared, overlap
                                 
@@ -823,29 +825,21 @@ class LineChart extends ChartComponent {
                             .attr("height", textElemDimensions.height + 4);
                         if (this.chartOptions.tooltip){
                             tooltip.render(this.chartOptions.theme);
-                            tooltip.draw(d, this.chartComponentData, xPos, yPos, this.chartWidth, chartHeight, (text) => {
+                            tooltip.draw(d, this.chartComponentData, xPos, yPos, this.chartMargins, (text) => {
                                 var title = d.aggregateName;   
                                 
-                                text.append("tspan")
+                                text.append("div")
                                     .attr("class", "title")
                                     .text(d.aggregateName);
 
-                                var titleOffset = 24;
                                 if (d.splitBy && d.splitBy != ""){
-                                    text.append("tspan")
+                                    text.append("div")
                                         .attr("class", "value")
-                                        .attr("y", titleOffset)
-                                        .attr("x", 0)
                                         .text(d.splitBy);
-                                    titleOffset += this.chartOptions.aggTopMargin;
-                                } else {
-                                    titleOffset += 4;
                                 }
                                                          
                                 Object.keys(d.measures).forEach((measureType, i) => {
-                                    text.append("tspan")
-                                        .attr("x", 0)
-                                        .attr("y", (i * 16) + titleOffset)
+                                    text.append("div")
                                         .attr("class",  () => {
                                             return "value" + (measureType == this.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy) ? 
                                                             " visibleValue" : "");
@@ -914,6 +908,8 @@ class LineChart extends ChartComponent {
                         const site = voronoi(self.getFilteredAndSticky(self.chartComponentData.allValues)).find(mx, my);
                         self.voronoiMouseout(site.data); 
                         self.chartOptions.onMouseout();
+                        if (tooltip)
+                            tooltip.hide();
                     })
                     .on("contextmenu", function (d) {
                         if (!filteredValueExist()) return;

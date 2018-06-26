@@ -56,7 +56,7 @@ class GroupedBarChart extends ChartComponent {
             var targetElement = d3.select(this.renderTarget)
                 .classed("tsi-barChart", true);
             var svgSelection = targetElement.append("svg")
-                .attr("class", "tsi-barChartSVG")
+                .attr("class", "tsi-barChartSVG tsi-chartSVG")
                 .style("height", height)
                 .style("width", width - controlsOffset + 'px');
             this.svgSelection = svgSelection;
@@ -97,8 +97,7 @@ class GroupedBarChart extends ChartComponent {
                 .attr("x", -10)
                 .text(d => d);
 
-            var tooltipG = g.append("g").attr("class", "tooltipG");
-            var tooltip = new Tooltip(<any>(tooltipG));
+            var tooltip = new Tooltip(d3.select(this.renderTarget));
 
             var measureMap = this.chartComponentData.data.map((aggregate, aggI) => {
                 var aggName: string = Object.keys(aggregate)[0]
@@ -459,31 +458,22 @@ class GroupedBarChart extends ChartComponent {
                         .on("mousemove", function (d) {
                             if (self.chartOptions.tooltip) {
                                 var mousePos = d3.mouse(<any>g.node());
-                                tooltipG.attr("transform", "translate(" + mousePos[0] + "," + mousePos[1] + ")");
-                                tooltip.draw (d, self.chartComponentData, mousePos[0], mousePos[1], chartWidth , chartHeight, (text) => {
+                                tooltip.render(self.chartOptions.theme)
+                                tooltip.draw (d, self.chartComponentData, mousePos[0], mousePos[1], self.chartMargins, (text) => {
                                     text.text(null);
-                                    //aggregate name 
-                                    var titleOffset = 25;
-                                    text.append("tspan")
+                                    text.append("div")
                                         .attr("class", "title")
                                         .text(self.chartComponentData.displayState[d.aggKey].name);  
-                                    //split by if appropriate
                                     if (d.splitBy != "") {
-                                        text.append("tspan")
+                                        text.append("div")
                                             .attr("class", "value")
-                                            .attr("x", 0)
-                                            .attr("y", titleOffset)
                                             .text(d.splitBy);
-                                        titleOffset = 45; 
                                     }
             
-                                    text.append("tspan")
+                                    text.append("div")
                                         .attr("class", "value")
-                                        .attr("x", 0)
-                                        .attr("y", titleOffset)
                                         .text(Utils.formatYAxisNumber(d.val));
                                 });
-                                (<any>tooltipG.node()).parentNode.appendChild(tooltipG.node());
                             } else {
                                 tooltip.hide();
                             }
@@ -610,9 +600,6 @@ class GroupedBarChart extends ChartComponent {
                 }
                 else
                     slider.remove();
-
-                /******************** Tooltip ************************/
-                tooltip.render(this.chartOptions.theme);
             }
 
             this.legendObject = new Legend(draw, this.renderTarget, this.CONTROLSWIDTH);

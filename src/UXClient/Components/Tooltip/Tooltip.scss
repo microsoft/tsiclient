@@ -6,20 +6,25 @@
     $gray3: nth($grays, 3); // element
     $gray4: nth($grays, 4); // background
     $gray6: nth($grays, 6); // hover
-
-    text {
-        fill: $gray1;
-    }
-
-    rect {
-        fill: $gray3;
-        stroke: $gray6;
-    }
+    
+    color: $gray1;
+    background-color: $gray3;
+    border-color: $gray6;
     @include chartColors($grays);
 }
 
 .tsi-tooltip {
     pointer-events: none;
+    position: absolute;
+    overflow: hidden;
+    border-width: 1px;
+    border-style: solid;
+    
+    padding: 4px;
+
+    -webkit-box-shadow: 0 3px 3px 0 rgba(0, 0, 0, 0.56);
+    -moz-box-shadow: 0 3px 3px 0 rgba(0, 0, 0, 0.56);
+    box-shadow: 0 3px 3px 0 rgba(0, 0, 0, 0.56);
 
     &.tsi-dark{
         $grays: grays('dark');
@@ -30,12 +35,11 @@
         @include tColors($grays);
     }
 
-    rect {
-        stroke: none;
+    .title, .value {
+        overflow: hidden;
+        white-space: nowrap;
     }
-    text {
-        alignment-baseline: hanging;
-    }
+
     .title {
         font-weight: bold;
         font-size: 13px;

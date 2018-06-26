@@ -4,6 +4,7 @@ import {Utils} from "./../../Utils";
 import {Component} from "./../../Interfaces/Component";
 import { TimelineComponent } from '../../Interfaces/TimelineComponent';
 import { ChartOptions } from '../../Models/ChartOptions';
+import { Tooltip } from '../Tooltip/Tooltip';
 
 
 class StateSeries extends TimelineComponent { 
@@ -22,6 +23,7 @@ class StateSeries extends TimelineComponent {
 			right: (this.chartOptions.xAxisHidden === true) ? 10 : 40
 		}
 		this.createElements(this.chartOptions.toObject());
+		var tooltip = new Tooltip(d3.select(this.renderTarget));
 		var seriesName = Object.keys(namedData)[0];
 		var data = namedData[seriesName];
 		data = this.formatData(data);
@@ -59,16 +61,33 @@ class StateSeries extends TimelineComponent {
                 .attr("x", d => this.xScale(new Date(d.time)))
                 .attr("width", getWidth)
 				.attr("display", d => (this.xScale(new Date(d.time)) < 0 || this.xScale(new Date(d.time)) > this.width) ? "none" : "block")
-		enteredRects.on("mouseover", (rectD, iRect) => this.elementMouseover(rectD, iRect, (d, i) => { 
-                var startTime = new Date(d.time);
-                var endTime = (i + 1 < data.length) ? (new Date(data[i+1].time)) : (new Date(toTime));
-				return Utils.timeFormat(this.usesSeconds, this.usesMillis)(startTime) + " - " + 
-				       Utils.timeFormat(this.usesSeconds, this.usesMillis)(endTime);
-            }))
-			.on("mouseout", () => {
-				this.tooltip.attr("display", "none");
+		
+		var timeFormat = (d, i) => { 
+			var startTime = new Date(d.time);
+			var endTime = (i + 1 < data.length) ? (new Date(data[i+1].time)) : (new Date(toTime));
+			return Utils.timeFormat(this.usesSeconds, this.usesMillis)(startTime) + " - " + 
+				   Utils.timeFormat(this.usesSeconds, this.usesMillis)(endTime);
+		}
+
+		var self = this;
+		enteredRects.on("mousemove", function (dRect, iRect) { 
+			self.elementMouseover(dRect, iRect, (d, i) => { 
+				return Utils.timeFormat(this.usesSeconds, this.usesMillis)(new Date(d.time));
 			});
-				
+			var mousePos = d3.mouse(<any>self.g.node());
+			tooltip.render(self.chartOptions.theme);
+			tooltip.draw (dRect, {}, mousePos[0], mousePos[1], {top: 0, bottom: 0, left: 0, right: 0}, (text) => {
+				text.text(null);
+				text.append('div')
+					.text(timeFormat(dRect, iRect))
+					.classed('title', true);
+				text.append('div')
+					.text(dRect.description)
+					.classed('value', true);
+			});
+		}).on("mouseout", () => {
+			tooltip.hide();
+		});
 		rects.exit().remove();
 		super.themify(this.targetElement, this.chartOptions.theme);
 

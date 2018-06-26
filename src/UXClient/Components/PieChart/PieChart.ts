@@ -48,11 +48,9 @@ class PieChart extends ChartComponent {
             
             this.svgSelection = targetElement.append("svg");
             this.svgSelection
-                .attr("class", "tsi-pieChartSVG")
+                .attr("class", "tsi-pieChartSVG tsi-chartSVG")
             var g = this.svgSelection.append("g");
-            var tooltipContainer = this.svgSelection.append("g");
-
-            var tooltip = new Tooltip(tooltipContainer);
+            var tooltip = new Tooltip(d3.select(this.renderTarget));
 
             this.draw = () => {
 
@@ -100,34 +98,25 @@ class PieChart extends ChartComponent {
                 function drawTooltip (d: any, mousePosition) {
                     var xPos = mousePosition[0] + (chartWidth / 2);
                     var yPos = mousePosition[1] + (chartHeight / 2);
-                    tooltipContainer.attr("transform", "translate(" + xPos + "," + yPos + ")");
-                    tooltip.draw (d, self.chartComponentData, xPos, yPos, chartWidth , chartHeight, (text) => {
+                    tooltip.render(self.chartOptions.theme);
+                    tooltip.draw (d, self.chartComponentData, xPos, yPos, {...self.chartMargins, ...{top: self.chartMargins.top - self.chartMargins.bottom}}, (text) => {
                         text.text(null);
-                        //aggregate name 
-                        var titleOffset = 25;
-                        text.append("tspan")
+                        text.append("div")
                             .attr("class", "title")
                             .text(self.chartComponentData.displayState[d.data.aggKey].name);  
                         //split by if appropriate
                         if (d.data.splitBy != "") {
-                            text.append("tspan")
+                            text.append("div")
                                 .attr("class", "value")
-                                .attr("x", 0)
-                                .attr("y", titleOffset)
                                 .text(d.data.splitBy);
-                            titleOffset = 45; 
                         }
 
-                        text.append("tspan")
+                        text.append("div")
                             .attr("class", "value")
-                            .attr("x", 0)
-                            .attr("y", titleOffset)
                             .text(Utils.formatYAxisNumber(d.data.value));
                         
-                        text.append("tspan")
+                        text.append("div")
                             .attr("class", "value")
-                            .attr("x", 0)
-                            .attr("y", titleOffset + 15)
                             .text((Math.round(1000 * Math.abs(d.data.value) / self.chartComponentData.visibleValuesSum) / 10) + "%");
                     });
                 }
@@ -232,8 +221,6 @@ class PieChart extends ChartComponent {
                 else
                     slider.remove();
 
-                /******************** Tooltip ************************/
-                tooltip.render(this.chartOptions.theme);
             }
 
             this.legendObject = new Legend(this.draw, this.renderTarget, this.CONTROLSWIDTH);
