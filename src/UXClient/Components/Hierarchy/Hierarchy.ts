@@ -27,10 +27,12 @@ class Hierarchy extends Component {
         this.root.isExpanded = true;
 
         var inputDebounceTimeout;
-        var filter = targetElement.append('div').classed('tsi-filterWrapper', true).append('input').attr('placeholder', 'Filter hierarchy values...').on('input', function(){
+        var filter = targetElement.append('div').classed('tsi-filterWrapper', true).append('input').attr('placeholder', 'Search...').on('input', function(){
             clearTimeout(inputDebounceTimeout);
             inputDebounceTimeout = setTimeout(() => {
                 self.filterText = (<any>this).value.trim();
+                if(self.filterText.length == 1)
+                    return;  // quick return for small sets
                 var splitFilterText = self.filterText.split('/');
                 self.root.filter(splitFilterText[0]);
                 if(splitFilterText.length > 1){
@@ -57,7 +59,7 @@ class Hierarchy extends Component {
                 else
                     self.expandCollapseList(self.root, list, false);
                 list.select('ul').classed('tsi-noPad', true);
-            }, 100);
+            }, 250);
         });
 
         var navTabs = targetElement.append('div').classed('tsi-navTabWrapper', true);

@@ -77,7 +77,8 @@ class ChartComponentData {
                 newDisplayState[aggKey] = {
                     visible: this.displayState[aggKey].visible,
                     name: this.displayState[aggKey].name,
-                    color: this.displayState[aggKey].color,
+                    color: ((aggregateExpressionOptions[i] && aggregateExpressionOptions[i].color) ? 
+                             aggregateExpressionOptions[i].color : this.displayState[aggKey].color),
                     splitBys: []
                 }
             } else {

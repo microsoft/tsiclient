@@ -214,7 +214,9 @@ class UXClient {
             var aggregatesObject = {};
             transformedAggregate[options[i].alias] = aggregatesObject;
             
-            if(agg.hasOwnProperty('aggregate')){
+            if(agg.hasOwnProperty('__tsiError__'))
+                transformedAggregate[''] = {};
+            else if(agg.hasOwnProperty('aggregate')){
                 agg.dimension.forEach((d, j) => {
                     var dateTimeToValueObject = {};
                     aggregatesObject[d] = dateTimeToValueObject;

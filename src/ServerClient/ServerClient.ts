@@ -50,7 +50,9 @@ class ServerClient {
                         resolve(aggregateResults);
                 }
                 else{
-                    aggregateResults[index] = JSON.parse(xhr.responseText);
+                    aggregateResults[index] = {__tsiError__: JSON.parse(xhr.responseText)};
+                    if(aggregateResults.map(ar => ar!=null).reduce((p,c) => { p = c && p; return p}, true))
+                        resolve(aggregateResults);
                 }
             }
 
