@@ -153,8 +153,9 @@ class PieChart extends ChartComponent {
                     };
                   }
 
-                var pathMouseout = (d: any) => {
-                    if (this.contextMenu && this.contextMenu.contextMenuVisible)
+                var self = this;
+                function pathMouseout (d: any) {
+                    if (self.contextMenu && self.contextMenu.contextMenuVisible)
                         return;
                     tooltip.hide();
                     labelMouseout(d.data.aggKey, d.data.splitBy);

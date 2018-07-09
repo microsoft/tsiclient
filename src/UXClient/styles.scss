@@ -2,10 +2,49 @@
 // Array of [text color, hover color, element color, background color, alt element, hover text]
 @function grays($theme){
     @if $theme == 'dark'{
-        @return #fff, #62666c, #0d0f0e, #1e2223, #31373e, #60AAFF;
-    }
+        @return #fff, #62666c, #0d0f0e, #1e2223, #31373e, #60AAFF, #666666;
+    } 
     @if $theme == 'light'{
-        @return #000, #b3d6f2, #ffffff, #f2f2f2, #dcdcdc, #136BFB;
+        @return #000, #b3d6f2, #ffffff, #f2f2f2, #dcdcdc, #136BFB, #a6a6a6;
+    }
+}
+
+.tsi-chartControlsPanel {
+    height: 20px;
+    right: 0px;
+    width: 100px;
+    position: absolute;
+    .tsi-stackedButton {
+        display: block;
+        background-size: 20px 20px;
+        background-repeat: no-repeat;
+        background-position: center; 
+        position: absolute;
+        height: 100%;
+        width: 16px;
+        cursor: pointer;
+        &.tsi-lightTheme {
+            background-image: url(/src/UXClient/Icons/Layer_Icon_Light_Theme.svg);
+        }
+        &.tsi-darkTheme {
+            background-image: url(/src/UXClient/Icons/Layer_Icon_Dark_Theme.svg);
+        }
+    }
+    .tsi-gridButton {
+        display: block;
+        background-size: 20px 20px;
+        background-repeat: no-repeat;
+        background-position: center; 
+        position: absolute;
+        height: 100%;
+        width: 16px;
+        cursor: pointer;
+        &.tsi-lightTheme {
+            background-image: url(/src/UXClient/Icons/Calendar_Icon_for_Light_Theme.svg);
+        }
+        &.tsi-darkTheme {
+            background-image: url(/src/UXClient/Icons/Calendar_Icon_for_Dark_Theme.svg);
+        }
     }
 }
 
@@ -14,7 +53,9 @@
     $gray2: nth($grays, 2); // hover
     $gray3: nth($grays, 3); // element
     $gray4: nth($grays, 4); // background
+    $gray5: nth($grays, 5);
     $gray6: nth($grays, 6); // text hover
+    $gray7: nth($grays, 7); // scroll bar thumb
     
     .yAxis, .xAxis{
         path{
@@ -31,8 +72,28 @@
     }
     .vHoverBox, .hHoverBox {
         fill: $gray3;
-        stroke: $gray1;
+        stroke: $gray6;
     }
+
+    ::-webkit-scrollbar {
+        height: 8px;
+        width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: none; 
+    }
+    ::-webkit-scrollbar-thumb {
+        background: $gray7; 
+        border-radius: 8px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+        background: $gray7; 
+    }
+    ::-webkit-scrollbar-track:hover {
+        background: $gray4; 
+    }
+
 
     .hHoverText {
         text-anchor: middle;

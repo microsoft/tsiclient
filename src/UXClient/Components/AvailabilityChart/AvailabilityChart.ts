@@ -178,9 +178,11 @@ class AvailabilityChart extends ChartComponent{
         this.chartOptions.brushClearable = false;
         this.chartOptions.minBrushWidth = 1;
         this.chartOptions.brushHandlesVisible = true;
+        this.chartOptions.hideChartControlPanel = true;
 
+        let brushMoveAction = this.chartOptions.brushMoveAction;
 
-        var timePickerOptionsObj = { ...this.chartOptions.toObject(), ...{brushMoveAction: (from, to) => {
+        this.chartOptions.brushMoveAction = (from, to) => {
             if (this.isCustomTime(from.valueOf(), to.valueOf()))
                 this.timePickerTextContainer.select('.tsi-timePicker')
                     .node().value = "Custom";
@@ -189,7 +191,9 @@ class AvailabilityChart extends ChartComponent{
             if (this.chartOptions.isCompact) {
                 this.buildCompactFromAndTo();
             }
-        }}};
+            if (brushMoveAction != null)
+                brushMoveAction(from, to);
+        }
 
         super.themify(this.targetElement, chartOptions.theme);
 
@@ -249,7 +253,7 @@ class AvailabilityChart extends ChartComponent{
 
         this.sparkLineChart.setBrush();
 
-        this.timePickerLineChart.render(this.transformedAvailability, timePickerOptionsObj, this.ae);
+        this.timePickerLineChart.render(this.transformedAvailability, this.chartOptions, this.ae);
         this.setTicks();
 
         var self = this;
@@ -479,7 +483,8 @@ class AvailabilityChart extends ChartComponent{
             brushMoveAction: (from, to) => {
                 this.setAvailabilityRange(from.valueOf(), to.valueOf());
             },
-            brushClearable: false
+            brushClearable: false,
+            hideChartControlPanel: true
         };
     }
 }

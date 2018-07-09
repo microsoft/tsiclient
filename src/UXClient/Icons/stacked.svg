@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 11.621 14.32">
+    <defs>
+        <style>
+            .cls-1{opacity:.75}
+            .cls-2{fill:rgba(33,33,33,.1)}
+            .cls-3,.cls-5,.cls-6,.cls-7{fill:none;stroke-miterlimit:1}
+            .cls-3{stroke:#212121}
+            .cls-4{opacity:.25}
+            .cls-5{stroke:#585858}
+            .cls-6{stroke:rgba(0,0,0,.1)}
+            .cls-7{stroke:#414141}
+        </style>
+    </defs>
+    <g id="Layer_Icon_Light_Theme" transform="translate(-177.64 -545.04)">
+        <g id="Group_271" data-name="Group 271">
+            <g id="Group_270" class="cls-1" data-name="Group 270" transform="translate(292.5 97.5)">
+                <path id="Path_642" d="M-103.6 456.2l-5.3-5.1-5.1 5.3 5.3 5.1z" class="cls-2" data-name="Path 642"/>
+                <path id="Path_643" d="M-108.9 451.1l5.3 5.1-5.1 5.3-5.3-5.1z" class="cls-3" data-name="Path 643"/>
+            </g>
+        </g>
+        <g id="Group_273" data-name="Group 273">
+            <g id="Group_272" class="cls-4" data-name="Group 272" transform="translate(292.5 97.5)">
+                <path id="Path_644" d="M-103.6 456.2l-5.3-5.1-5.1 5.3 5.3 5.1z" class="cls-2" data-name="Path 644"/>
+                <path id="Path_645" d="M-108.9 451.1l5.3 5.1-5.1 5.3-5.3-5.1z" class="cls-5" data-name="Path 645"/>
+            </g>
+        </g>
+        <path id="Path_646" d="M183.1 546l5.3 5.1-5.1 5.3-5.3-5.1z" class="cls-6" data-name="Path 646"/>
+        <path id="Path_647" d="M188.9 550.6l-5.3-5.1-5.1 5.3 5.3 5.1z" class="cls-2" data-name="Path 647"/>
+        <path id="Path_648" d="M183.6 545.4l5.3 5.1-5.1 5.3-5.3-5.1z" class="cls-7" data-name="Path 648"/>
+    </g>
+</svg>

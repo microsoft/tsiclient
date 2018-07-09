@@ -108,23 +108,6 @@ class Utils {
                 .attr("fill", "none");
         }
     }
- 
-    static createStackedButton(svgSelection: any) {
-        var stackedButton = svgSelection.append("g")
-            .attr("class", "stacked");
-        var stackedIconG = stackedButton.append("g").attr("transform", "scale(.32), translate(-24, -20)");//, translate(-24px,-20px)"); 
-        stackedIconG.append("path")
-            .attr("d", "M22.33,39.28,49.61,50.92a1,1,0,0,0,.79,0L77.67,39.28a1,1,0,0,0,0-1.84L50.39,25.81a1,1,0,0,0-.79,0L22.33,37.44a1,1,0,0,0,0,1.84ZM50,27.81,74.72,38.36,50,48.91,25.28,38.36Z")
-        stackedIconG.append("path")
-            .attr("d", "M76.88,60.72,50,72.19,23.12,60.72a1,1,0,0,0-.79,1.84L49.61,74.19a1,1,0,0,0,.79,0L77.67,62.56a1,1,0,1,0-.79-1.84Z")
-        stackedIconG.append("path")
-            .attr("d", "M78.19,49.61a1,1,0,0,0-1.31-.53L50,60.55,23.12,49.08a1,1,0,1,0-.79,1.84L49.61,62.56a1,1,0,0,0,.79,0L77.67,50.92A1,1,0,0,0,78.19,49.61Z")
-        stackedButton.append("rect")
-            .attr('width', 20)
-            .attr('height', 20)
-            .attr('transform', 'translate(-1,-1)');
-        return stackedButton;
-    }
 
     static stripForConcat(text) {
         var specialCharacters = ['"', "'", '?', '<', '>', ';'];
@@ -146,31 +129,26 @@ class Utils {
         return colors;
     }
 
-    static createGridButton(svgSelection: any, component: ChartComponent, usesSeconds: boolean = false, usesMillis: boolean = false) {                
-        var gridButton = svgSelection.append("g")
-                                .attr("class", "tsi-gridButton");
-        var gridIconG = gridButton.append("g");
-        gridIconG.append("path")
-                .attr("d", "M 0 1 V 15 H 16 V 1 H 0 Z M 1 6 H 3 V 8 H 1 V 6 Z M 12 8 H 10 V 6 h 2 V 8 Z M 7 9 H 9 v 2 H 7 V 9 Z M 6 11 H 4 V 9 H 6 v 2 Z m 4 -2 h 2 v 2 H 10 V 9 Z M 9 8 H 7 V 6 H 9 V 8 Z M 6 8 H 4 V 6 H 6 V 8 Z M 1 9 H 3 v 2 H 1 V 9 Z m 0 5 V 12 H 3 v 2 H 1 Z m 3 0 V 12 H 6 v 2 H 4 Z m 3 0 V 12 H 9 v 2 H 7 Z m 3 0 V 12 h 2 v 2 H 10 Z m 5 0 H 13 V 12 h 2 v 2 Z m 0 -3 H 13 V 9 h 2 v 2 Z m 0 -3 H 13 V 6 h 2 V 8 Z M 1 5 V 2 H 15 V 5 H 1 Z")
-        var showChart = () => {
-            component.chartOptions['fromChart'] = true; 
+    static createGridButton(chartControlsPanel: any, component: ChartComponent, usesSeconds: boolean = false, usesMillis: boolean = false, chartMargins: any) {
+        var showGrid = () => {
+            component.chartOptions.fromChart = true; 
             var gridComponent: Grid = new Grid(component.renderTarget);
-            gridComponent.usesSeconds = usesSeconds;
-            gridComponent.usesMillis = usesMillis; 
+            gridComponent.usesSeconds = component.chartComponentData.usesSeconds;
+            gridComponent.usesMillis = component.chartComponentData.usesMillis; 
             var grid = gridComponent.renderFromAggregates(component.chartComponentData.data, component.chartOptions, component.aggregateExpressionOptions);
             grid.focus();
         }
-        gridIconG.append("rect")
-                .attr('width', 20)
-                .attr('height', 20)
-                .attr('transform', 'translate(-2,-1)')
-                .attr("tabindex", 0)
-                .on("click", showChart)
-                .on("keydown", () => {
-                    if(d3.event.code == 'Enter')
-                        showChart()
-                });
-        return gridButton;
+
+        var gridButton = chartControlsPanel.append("div")
+            .style("right", chartMargins.right + "px")
+            .attr("class", "tsi-gridButton")
+        .attr("tabindex", 0)
+            .on("click", showGrid)
+            .on("keydown", () => {
+                if(d3.event.code == 'Enter')
+                    showGrid();
+            });
+        return gridButton; 
     }
 
     static createSplitByColors(displayState: any, aggKey: string, ignoreIsOnlyAgg: boolean = false) {

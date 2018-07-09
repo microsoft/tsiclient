@@ -11,6 +11,7 @@ class ChartOptions {
     public focusHidden: boolean; // whether focus element is hidden in chart
     public fromChart: boolean; // whether a component is a subcomponent of another one or is a standalone
     public grid: boolean; // whether the chart includes a grid and grid button
+    public hideChartControlPanel: boolean; // whether to hide the panel with chart control buttons
     public isArea: boolean; // whether lines in LineChart are also areas
     public isCompact: boolean; // whether availability chart is in compact or expanded mode
     public keepBrush: boolean; // whether to keep the brush selected region upon re render
@@ -51,6 +52,7 @@ class ChartOptions {
     }
     
     setOptions (chartOptionsObj) {
+        this.grid = this.getValueOrDefault(chartOptionsObj, 'grid', false);
         this.preserveAvailabilityState = this.getValueOrDefault(chartOptionsObj, 'preserveAvailabilityState', false);
         this.isCompact = this.getValueOrDefault(chartOptionsObj, 'isCompact', false);
         this.keepBrush = this.getValueOrDefault(chartOptionsObj, 'keepBrush', false);
@@ -90,10 +92,12 @@ class ChartOptions {
         this.onSticky = this.getValueOrDefault(chartOptionsObj, 'onSticky', () => {});
         this.onUnsticky = this.getValueOrDefault(chartOptionsObj, 'onUnsticky', () => {});
         this.brushHandlesVisible = this.getValueOrDefault(chartOptionsObj, 'brushHandlesVisible', false);
+        this.hideChartControlPanel = this.getValueOrDefault(chartOptionsObj, 'hideChartControlPanel', false);
     }
 
     public toObject () {
         return {
+            grid: this.grid,
             preserveAvailabilityState: this.preserveAvailabilityState,
             isCompact: this.isCompact,
             keepBrush: this.keepBrush,
@@ -132,7 +136,8 @@ class ChartOptions {
             onMouseover: this.onMouseover,
             onSticky: this.onSticky,
             onUnsticky: this.onUnsticky,
-            brushHandlesVisible: this.brushHandlesVisible
+            brushHandlesVisible: this.brushHandlesVisible,
+            hideChartControlPanel: this.hideChartControlPanel
         }
     }
 }

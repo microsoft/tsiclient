@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 19 17">
+  <defs>
+    <style>
+      .cls-1 {
+        clip-path: url(#clip-Calendar_Icon_for_Dark_Theme);
+      }
+
+      .cls-2 {
+        opacity: 0.75;
+      }
+
+      .cls-3 {
+        fill: rgba(244,244,244,0.25);
+      }
+
+      .cls-4, .cls-5, .cls-6 {
+        fill: none;
+      }
+
+      .cls-4 {
+        stroke: #f4f4f4;
+      }
+
+      .cls-4, .cls-5 {
+        stroke-miterlimit: 1;
+      }
+
+      .cls-5 {
+        stroke: #000;
+        opacity: 0.25;
+      }
+
+      .cls-7 {
+        fill: rgba(0,0,0,0.06);
+      }
+
+      .cls-7, .cls-8 {
+        fill-rule: evenodd;
+      }
+
+      .cls-8 {
+        fill: #bfbfbf;
+      }
+
+      .cls-9 {
+        fill: #0d0f0e;
+      }
+    </style>
+    <clipPath id="clip-Calendar_Icon_for_Dark_Theme">
+      <rect width="19" height="17"/>
+    </clipPath>
+  </defs>
+  <g id="Calendar_Icon_for_Dark_Theme" class="cls-1">
+    <rect class="cls-9" width="19" height="17"/>
+    <g id="Group_31963" data-name="Group 31963" transform="translate(3 3.1)">
+      <g id="Group_22148" data-name="Group 22148" class="cls-2" transform="translate(0.021 2.988)">
+        <path id="Path_275" data-name="Path 275" class="cls-3" d="M522.4,709.6v8h12.658v-8Z" transform="translate(-522.4 -709.6)"/>
+        <path id="Path_276" data-name="Path 276" class="cls-4" d="M522.4,709.6v8h12.658v-8Z" transform="translate(-522.4 -709.6)"/>
+      </g>
+      <path id="Path_45302" data-name="Path 45302" class="cls-5" d="M779.9,838.1h12.658v3H779.9Z" transform="translate(-779.9 -837.1)"/>
+      <path id="Path_45303" data-name="Path 45303" class="cls-3" d="M792.558,837.1H779.9v3h12.658Z" transform="translate(-779.9 -837.1)"/>
+      <path id="Path_45304" data-name="Path 45304" class="cls-4" d="M779.9,837.1h12.658v3H779.9Z" transform="translate(-779.9 -837.1)"/>
+    </g>
+    <g id="Group_31975" data-name="Group 31975" transform="translate(-231.55 -5031)">
+      <g id="view-compact" transform="translate(235 5035)">
+        <g id="Group_13706" data-name="Group 13706" transform="translate(0 0)">
+          <g id="view-compact-2" data-name="view-compact">
+            <g id="Group_13699" data-name="Group 13699">
+              <rect id="Rectangle_13818" data-name="Rectangle 13818" class="cls-6" width="11.907" height="12"/>
+            </g>
+            <g id="Group_13704" data-name="Group 13704" transform="translate(2.952 4.579)">
+              <path id="Path_8486" data-name="Path 8486" class="cls-7" d="M629.485,71.232v1.488H628V71.232Zm2.233,0v1.488h-1.488V71.232Zm2.232,0v1.488h-1.488V71.232ZM629.485,69v1.488H628V69Zm2.233,0v1.488h-1.488V69Zm2.232,0v1.488h-1.488V69Z" transform="translate(-627.997 -69)"/>
+            </g>
+            <g id="Group_13705" data-name="Group 13705" transform="translate(2.952 3.834)">
+              <path id="Path_8487" data-name="Path 8487" class="cls-8" d="M629.485,71.232v1.488H628V71.232Zm2.233,0v1.488h-1.488V71.232Zm2.232,0v1.488h-1.488V71.232ZM629.485,69v1.488H628V69Zm2.233,0v1.488h-1.488V69Zm2.232,0v1.488h-1.488V69Z" transform="translate(-627.997 -69)"/>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>

@@ -18,10 +18,12 @@ class GroupedBarChart extends ChartComponent {
     private setStateFromData: any;
     private timestamp: any;
     private isStacked: boolean = null;
+    private stackedButton: any = null;
+    private gridButton: any = null;
     chartComponentData = new GroupedBarChartData();
     
     private chartMargins: any = {
-        top: 46,
+        top: 64,
         bottom: 40,
         left: 70, 
         right: 60
@@ -39,6 +41,11 @@ class GroupedBarChart extends ChartComponent {
         if (options.stacked || this.isStacked == null) {
             this.isStacked = this.chartOptions.stacked;
         } 
+
+        if (this.chartOptions.legend == "compact")
+            this.chartMargins.top = 84;
+        else
+            this.chartMargins.top = 64;
         this.aggregateExpressionOptions = aggregateExpressionOptions;
         var width = Math.max((<any>d3.select(this.renderTarget).node()).clientWidth, this.MINWIDTH);
         var height = Math.max((<any>d3.select(this.renderTarget).node()).clientHeight, this.MINHEIGHT);
@@ -60,12 +67,7 @@ class GroupedBarChart extends ChartComponent {
                 .style("height", height)
                 .style("width", width - controlsOffset + 'px');
             this.svgSelection = svgSelection;
-            
-            var stackedButton = Utils.createStackedButton(svgSelection)
-                .on("click", () => { this.chartOptions.stacked = !this.chartOptions.stacked; draw();});
-            
-            var gridButton: any = Utils.createGridButton(svgSelection, this, this.chartComponentData.usesSeconds, 
-                                                         this.chartComponentData.usesMillis);    
+
             
             var g = svgSelection.append("g")
                 .attr("transform", "translate(" + this.chartMargins.left + "," + this.chartMargins.top + ")");
@@ -221,6 +223,23 @@ class GroupedBarChart extends ChartComponent {
                 
                 
                 super.themify(targetElement, this.chartOptions.theme);
+
+                d3.select(this.renderTarget).selectAll(".tsi-chartControlsPanel").remove();
+                var controlPanelWidth = Math.max(1, (<any>d3.select(this.renderTarget).node()).clientWidth - 
+                                                    (this.chartOptions.legend == "shown" ? this.CONTROLSWIDTH : 0));
+                var chartControlsPanel = d3.select(this.renderTarget).append("div")
+                    .attr("class", "tsi-chartControlsPanel")
+                    .style("width", controlPanelWidth + "px")
+                    .style("top", Math.max((this.chartMargins.top - 32), 0) + "px");
+
+                this.stackedButton = chartControlsPanel.append("div")
+                    .style("left", this.chartMargins.left + "px")
+                    .attr("class", "tsi-stackedButton").on("click", () => {
+                        this.chartOptions.stacked = !this.chartOptions.stacked;
+                        this.draw();
+                    });
+                this.gridButton = Utils.createGridButton(chartControlsPanel, this, this.chartComponentData.usesSeconds, 
+                        this.chartComponentData.usesMillis, this.chartMargins);
                 
                 /********* Determine the number of timestamps present, add margin for slider *********/
 
@@ -577,16 +596,19 @@ class GroupedBarChart extends ChartComponent {
                 baseLine
                 .attr("x1", 0)
                 .attr("x2", chartWidth)
-                .attr("y1", barBase)
-                .attr("y2", barBase);
+                .attr("y1", barBase + 1)
+                .attr("y2", barBase + 1);
 
                 /******************** Stack/Unstack button ************************/
-                stackedButton.attr("transform", () => {return 'translate(32,' + (chartHeight + 44) + ')'})
-                .attr("opacity", this.chartOptions.stacked ? 1 : .5);
+                this.stackedButton.style("opacity", this.chartOptions.stacked ? 1 : .5)
+                    .classed('tsi-lightTheme', this.chartOptions.theme == 'light')
+                    .classed('tsi-darkTheme', this.chartOptions.theme == 'dark');
 
                 /******************** Grid button ************************/
-                gridButton.attr("transform", () => {return 'translate(' + (chartWidth + this.chartMargins.left + 26) + ',' + (chartHeight + 44) + ')'})
-                .style("display", !!this.chartOptions.grid ? "block" : "none");
+                this.gridButton.style("display", !!this.chartOptions.grid ? "block" : "none")
+                    .classed('tsi-lightTheme', this.chartOptions.theme == 'light')
+                    .classed('tsi-darkTheme', this.chartOptions.theme == 'dark');
+                
                 
                 /******************** Temporal Slider ************************/
                 if(this.chartComponentData.allTimestampsArray.length > 1){
