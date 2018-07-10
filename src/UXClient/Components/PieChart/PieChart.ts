@@ -20,7 +20,7 @@ class PieChart extends ChartComponent {
     
     private chartMargins: any = {
         top: 20,
-        bottom: 20,
+        bottom: 28,
         left: 20, 
         right: 20
     };
@@ -51,6 +51,7 @@ class PieChart extends ChartComponent {
                 .attr("class", "tsi-pieChartSVG tsi-chartSVG")
             var g = this.svgSelection.append("g");
             var tooltip = new Tooltip(d3.select(this.renderTarget));
+            d3.select(this.renderTarget).append('div').classed('tsi-sliderWrapper', true);
 
             this.draw = () => {
 
@@ -75,7 +76,7 @@ class PieChart extends ChartComponent {
 
                 // Determine the number of timestamps present, add margin for slider
                 if(this.chartComponentData.allTimestampsArray.length > 1)
-                    this.chartMargins.bottom = 80;
+                    this.chartMargins.bottom = 88;
 
                 var labelMouseover = (aggKey: string, splitBy: string = null) => {
                     //filter out the selected timeseries/splitby
@@ -228,7 +229,7 @@ class PieChart extends ChartComponent {
             this.contextMenu = new ContextMenu(this.draw, this.renderTarget);
             
             // temporal slider
-            var slider = new Slider(this.renderTarget);
+            var slider = new Slider(<any>d3.select(this.renderTarget).select('.tsi-sliderWrapper').node());
             window.addEventListener("resize", () => {
                 if (!this.chartOptions.suppressResizeListener)
                     this.draw();

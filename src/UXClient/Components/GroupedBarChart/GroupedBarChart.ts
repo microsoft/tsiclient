@@ -24,7 +24,7 @@ class GroupedBarChart extends ChartComponent {
     
     private chartMargins: any = {
         top: 64,
-        bottom: 40,
+        bottom: 48,
         left: 70, 
         right: 60
     };
@@ -98,6 +98,8 @@ class GroupedBarChart extends ChartComponent {
                 .attr("dy", ".32em")
                 .attr("x", -10)
                 .text(d => d);
+
+            d3.select(this.renderTarget).append('div').classed('tsi-sliderWrapper', true);
 
             var tooltip = new Tooltip(d3.select(this.renderTarget));
 
@@ -226,7 +228,7 @@ class GroupedBarChart extends ChartComponent {
 
                 d3.select(this.renderTarget).selectAll(".tsi-chartControlsPanel").remove();
                 var controlPanelWidth = Math.max(1, (<any>d3.select(this.renderTarget).node()).clientWidth - 
-                                                    (this.chartOptions.legend == "shown" ? this.CONTROLSWIDTH : 0));
+                                                    (this.chartOptions.legend == "shown" ? (this.CONTROLSWIDTH + 16) : 0));
                 var chartControlsPanel = d3.select(this.renderTarget).append("div")
                     .attr("class", "tsi-chartControlsPanel")
                     .style("width", controlPanelWidth + "px")
@@ -244,7 +246,7 @@ class GroupedBarChart extends ChartComponent {
                 /********* Determine the number of timestamps present, add margin for slider *********/
 
                 if(this.chartComponentData.allTimestampsArray.length > 1)
-                    this.chartMargins.bottom = 80;
+                    this.chartMargins.bottom = 88;
                 /*******************/
                 
                 var controlsOffset = (this.chartOptions.legend == "shown" ? this.CONTROLSWIDTH : 0)
@@ -628,7 +630,7 @@ class GroupedBarChart extends ChartComponent {
             this.contextMenu = new ContextMenu(this.draw, this.renderTarget);
             
             // temporal slider
-            var slider = new Slider(this.renderTarget);
+            var slider = new Slider(<any>d3.select(this.renderTarget).select('.tsi-sliderWrapper').node());
             
             this.draw = draw;
             window.addEventListener("resize", () => {

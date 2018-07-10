@@ -39,7 +39,7 @@ class LineChart extends ChartComponent {
     
     private chartMargins: any = {
         top: 40,
-        bottom: 40,
+        bottom: 48,
         left: 70, 
         right: 60
     };
@@ -240,28 +240,6 @@ class LineChart extends ChartComponent {
         }
         
         d3.select(this.renderTarget).select(".tsi-tooltip").remove();
-        // if (!this.chartOptions.hideChartControlPanel) {
-        //     d3.select(this.renderTarget).selectAll(".tsi-chartControlsPanel").remove();
-        //     var chartControlsPanel = d3.select(this.renderTarget).append("div")
-        //         .attr("class", "tsi-chartControlsPanel")
-        //         .style("width", (this.chartWidth + this.chartMargins.left + this.chartMargins.right) + "px")
-        //         .style("top", Math.max((this.chartMargins.top - 12), 0) + "px");
-
-        //     this.hasStackedButton = true;
-        //     this.stackedButton = chartControlsPanel.append("div")
-        //         .style("left", this.chartMargins.left + "px")
-        //         .attr("class", "tsi-stackedButton").on("click", () => {
-        //             if (this.yAxisState == "stacked") 
-        //                 this.yAxisState = "shared";
-        //             else if (this.yAxisState == "shared")
-        //                 this.yAxisState = "overlap";
-        //             else  
-        //                 this.yAxisState = "stacked";
-        //             this.draw();
-        //         });
-        // } else {
-        //     this.hasStackedButton = false;
-        // }
 
         if(this.svgSelection == null){
             
@@ -380,7 +358,7 @@ class LineChart extends ChartComponent {
 
                 if (!this.chartOptions.hideChartControlPanel) {
                     var controlPanelWidth = Math.max(1, (<any>d3.select(this.renderTarget).node()).clientWidth - 
-                                                        (this.chartOptions.legend == "shown" ? this.CONTROLSWIDTH : 0));
+                                                        (this.chartOptions.legend == "shown" ? (this.CONTROLSWIDTH + 16) : 0));
                     d3.select(this.renderTarget).selectAll(".tsi-chartControlsPanel").remove();
                     var chartControlsPanel = d3.select(this.renderTarget).append("div")
                         .attr("class", "tsi-chartControlsPanel")

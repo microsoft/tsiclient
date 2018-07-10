@@ -115,4 +115,20 @@
             stroke-width: 1px !important;
         }
     }
+    .tsi-stackedButton {
+        &.tsi-lightTheme {
+            background-image: url(../../Icons/Layer_Icon_Light_Theme.svg);
+        }
+        &.tsi-darkTheme {
+            background-image: url(../../Icons/Layer_Icon_Dark_Theme.svg);
+        }
+    }
+    .tsi-gridButton {
+        &.tsi-lightTheme {
+            background-image: url(../../Icons/Calendar_Icon_for_Light_Theme.svg);
+        }
+        &.tsi-darkTheme {
+            background-image: url(../..//Icons/Calendar_Icon_for_Dark_Theme.svg);
+        }
+    }
 }

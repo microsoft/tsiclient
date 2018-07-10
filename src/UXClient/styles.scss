@@ -23,12 +23,6 @@
         height: 100%;
         width: 16px;
         cursor: pointer;
-        &.tsi-lightTheme {
-            background-image: url(/src/UXClient/Icons/Layer_Icon_Light_Theme.svg);
-        }
-        &.tsi-darkTheme {
-            background-image: url(/src/UXClient/Icons/Layer_Icon_Dark_Theme.svg);
-        }
     }
     .tsi-gridButton {
         display: block;
@@ -39,12 +33,6 @@
         height: 100%;
         width: 16px;
         cursor: pointer;
-        &.tsi-lightTheme {
-            background-image: url(/src/UXClient/Icons/Calendar_Icon_for_Light_Theme.svg);
-        }
-        &.tsi-darkTheme {
-            background-image: url(/src/UXClient/Icons/Calendar_Icon_for_Dark_Theme.svg);
-        }
     }
 }
 

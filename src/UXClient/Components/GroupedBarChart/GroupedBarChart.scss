@@ -35,21 +35,7 @@
         $grays: grays('light');
         @include bcColors($grays);
     }
-    
-    .tsi-barChartSliderWrapper{
-        opacity: .4;
-        width: calc(100% - 500px);
-        position: absolute;
-        bottom: 4px;
-        height: 50px;
-        right: 100px;
-        &.tsi-legendCompact{
-            width: calc(100% - 200px);
-        }
-        &:hover{
-            opacity: 1;
-        }
-    }
+
     text {
         font-size:12px;
     }
@@ -63,6 +49,29 @@
         .focusLine {
             stroke-width: 1px;
             pointer-events: none;
+        }
+    }
+    .tsi-sliderWrapper{
+        position: absolute;
+        height: 55px;
+        bottom: 8px;
+        right: 0px;
+        width: 100%;
+    }
+    .tsi-stackedButton {
+        &.tsi-lightTheme {
+            background-image: url(../../Icons/Layer_Icon_Light_Theme.svg);
+        }
+        &.tsi-darkTheme {
+            background-image: url(../../Icons/Layer_Icon_Dark_Theme.svg);
+        }
+    }
+    .tsi-gridButton {
+        &.tsi-lightTheme {
+            background-image: url(../../Icons/Calendar_Icon_for_Light_Theme.svg);
+        }
+        &.tsi-darkTheme {
+            background-image: url(../..//Icons/Calendar_Icon_for_Dark_Theme.svg);
         }
     }
 }
