@@ -614,6 +614,7 @@ class GroupedBarChart extends ChartComponent {
                 
                 /******************** Temporal Slider ************************/
                 if(this.chartComponentData.allTimestampsArray.length > 1){
+                    d3.select(this.renderTarget).select('.tsi-sliderWrapper').classed('tsi-hidden', false);
                     slider.render(this.chartComponentData.allTimestampsArray.map(ts => {
                         var action = () => {
                             this.chartOptions.timestamp = ts;
@@ -622,8 +623,10 @@ class GroupedBarChart extends ChartComponent {
                         return {label: Utils.timeFormat(this.chartComponentData.usesSeconds, this.chartComponentData.usesMillis)(new Date(ts)), action: action};
                     }), this.chartOptions, width - controlsOffset - 10,  Utils.timeFormat(this.chartComponentData.usesSeconds, this.chartComponentData.usesMillis)(new Date(this.chartComponentData.timestamp)));
                 }
-                else
+                else{
                     slider.remove();
+                    d3.select(this.renderTarget).select('.tsi-sliderWrapper').classed('tsi-hidden', true);
+                }
             }
 
             this.legendObject = new Legend(draw, this.renderTarget, this.CONTROLSWIDTH);

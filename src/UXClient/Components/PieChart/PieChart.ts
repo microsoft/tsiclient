@@ -212,6 +212,7 @@ class PieChart extends ChartComponent {
 
                 /******************** Temporal Slider ************************/
                 if(this.chartComponentData.allTimestampsArray.length > 1){
+                    d3.select(this.renderTarget).select('.tsi-sliderWrapper').classed('tsi-hidden', false);
                     slider.render(this.chartComponentData.allTimestampsArray.map(ts => {
                         var action = () => {
                             this.chartOptions.timestamp = ts;
@@ -220,8 +221,10 @@ class PieChart extends ChartComponent {
                         return {label: Utils.timeFormat(this.chartComponentData.usesSeconds, this.chartComponentData.usesMillis)(new Date(ts)), action: action};
                     }), this.chartOptions, chartWidth,  Utils.timeFormat(this.chartComponentData.usesSeconds, this.chartComponentData.usesMillis)(new Date(this.chartComponentData.timestamp)));
                 }
-                else
+                else{
                     slider.remove();
+                    d3.select(this.renderTarget).select('.tsi-sliderWrapper').classed('tsi-hidden', true);
+                }
 
             }
 
