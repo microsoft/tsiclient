@@ -21,11 +21,9 @@ class PieChart extends ChartComponent {
     private chartMargins: any = {
         top: 20,
         bottom: 28,
-        left: 20, 
-        right: 20
+        left: 0, 
+        right: 0
     };
-
-    private sliderSpace = 55;
 
     constructor(renderTarget: Element){
         super(renderTarget);
@@ -55,11 +53,18 @@ class PieChart extends ChartComponent {
 
             this.draw = () => {
 
+                // Determine the number of timestamps present, add margin for slider
+                if(this.chartComponentData.allTimestampsArray.length > 1)
+                    this.chartMargins.bottom = 68;
+                if(this.chartOptions.legend == "compact") 
+                    this.chartMargins.top = 68;
+
                 var width = +targetElement.node().getBoundingClientRect().width;
                 var height = +targetElement.node().getBoundingClientRect().height;
                 var chartWidth = width  - (this.chartOptions.legend == "shown" ? (this.CONTROLSWIDTH + 28) : 0);
-                var chartHeight = height - this.sliderSpace - (this.chartOptions.legend == "compact" ? 60 : 0);
-                var outerRadius = (Math.min(chartHeight, chartWidth) - 10) / 2;
+                var chartHeight = height;
+                var usableHeight = height - this.chartMargins.bottom - this.chartMargins.top
+                var outerRadius = (Math.min(usableHeight, chartWidth) - 10) / 2;
                 var innerRadius = this.chartOptions.arcWidthRatio && 
                                     (this.chartOptions.arcWidthRatio < 1 && this.chartOptions.arcWidthRatio > 0) ? 
                                     outerRadius - (outerRadius * this.chartOptions.arcWidthRatio) :
@@ -67,16 +72,12 @@ class PieChart extends ChartComponent {
                 this.svgSelection
                     .attr("width", chartWidth)
                     .attr("height", chartHeight)
-                    .style("margin-top", (this.chartOptions.legend == "compact" ? 60 : 0) + 'px')
                 this.svgSelection.select("g").attr("transform", "translate(" + (chartWidth / 2)  + "," + (chartHeight / 2) + ")");
 
                 var timestamp = (this.chartOptions.timestamp != undefined) ? this.chartOptions.timestamp : Object.keys(firstTerm[firstSplitByKey])[0];
                 this.chartComponentData.updateFlatValueArray(timestamp);
                 super.themify(targetElement, this.chartOptions.theme);
 
-                // Determine the number of timestamps present, add margin for slider
-                if(this.chartComponentData.allTimestampsArray.length > 1)
-                    this.chartMargins.bottom = 88;
 
                 var labelMouseover = (aggKey: string, splitBy: string = null) => {
                     //filter out the selected timeseries/splitby
@@ -97,11 +98,11 @@ class PieChart extends ChartComponent {
                 }
 
                 function drawTooltip (d: any, mousePosition) {
-                    var xPos = mousePosition[0] + (chartWidth / 2);
-                    var yPos = mousePosition[1] + (chartHeight / 2);
+                    var xPos = mousePosition[0];
+                    var yPos = mousePosition[1];
                     tooltip.render(self.chartOptions.theme);
-                    tooltip.draw (d, self.chartComponentData, xPos, yPos, {...self.chartMargins, ...{top: self.chartMargins.top - self.chartMargins.bottom}}, (text) => {
-                        text.text(null);
+                    tooltip.draw(d, self.chartComponentData, xPos, yPos, {...self.chartMargins, top: 0, bottom: 0}, (text) => {
+                        text.text(null); 
                         text.append("div")
                             .attr("class", "title")
                             .text(self.chartComponentData.displayState[d.data.aggKey].name);  
@@ -171,7 +172,7 @@ class PieChart extends ChartComponent {
                     (<any>self.legendObject.legendElement.selectAll('.splitByLabel').filter((labelData: any) => {
                         return (labelData[0] == d.data.aggKey) && (labelData[1] == d.data.splitBy);
                     })).classed("inFocus", true);
-                    drawTooltip(d, d3.mouse(this));
+                    drawTooltip(d, d3.mouse(self.svgSelection.node()));
                 }
 
                 var mouseOutArcOnContextMenuClick = () => {

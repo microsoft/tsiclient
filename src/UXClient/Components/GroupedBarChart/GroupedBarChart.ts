@@ -23,7 +23,7 @@ class GroupedBarChart extends ChartComponent {
     chartComponentData = new GroupedBarChartData();
     
     private chartMargins: any = {
-        top: 64,
+        top: 52,
         bottom: 48,
         left: 70, 
         right: 60
@@ -45,7 +45,7 @@ class GroupedBarChart extends ChartComponent {
         if (this.chartOptions.legend == "compact")
             this.chartMargins.top = 84;
         else
-            this.chartMargins.top = 64;
+            this.chartMargins.top = 52;
         this.aggregateExpressionOptions = aggregateExpressionOptions;
         var width = Math.max((<any>d3.select(this.renderTarget).node()).clientWidth, this.MINWIDTH);
         var height = Math.max((<any>d3.select(this.renderTarget).node()).clientHeight, this.MINHEIGHT);
@@ -480,7 +480,7 @@ class GroupedBarChart extends ChartComponent {
                             if (self.chartOptions.tooltip) {
                                 var mousePos = d3.mouse(<any>g.node());
                                 tooltip.render(self.chartOptions.theme)
-                                tooltip.draw (d, self.chartComponentData, mousePos[0], mousePos[1], self.chartMargins, (text) => {
+                                tooltip.draw(d, self.chartComponentData, mousePos[0], mousePos[1], self.chartMargins, (text) => {
                                     text.text(null);
                                     text.append("div")
                                         .attr("class", "title")

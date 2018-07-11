@@ -43,7 +43,7 @@ class Tooltip extends Component {
     }
 
     private isTopOffset (tooltipHeight, yPos, chartMarginBottom) {
-        //NOTE - this assumes that the svg's right border is the same as the render target's
+        //NOTE - this assumes that the svg's bottom border is the same as the render target's
         var renderTargetHeight = this.renderTarget.node().getBoundingClientRect().height;
         return renderTargetHeight > (yPos + tooltipHeight + 20 + chartMarginBottom);
     }

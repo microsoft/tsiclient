@@ -9,14 +9,15 @@
     }
 }
 
+.tsi-hidden{
+    display: none;
+}
+
 .tsi-chartControlsPanel {
     height: 20px;
     right: 0px;
     width: 100px;
     position: absolute;
-    .tsi-hidden{
-        display: none;
-    }
     .tsi-stackedButton {
         display: block;
         background-size: 20px 20px;
