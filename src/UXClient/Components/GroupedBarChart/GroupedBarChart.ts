@@ -239,7 +239,8 @@ class GroupedBarChart extends ChartComponent {
                     .attr("class", "tsi-stackedButton").on("click", () => {
                         this.chartOptions.stacked = !this.chartOptions.stacked;
                         this.draw();
-                    });
+                    })
+                    .attr('title', 'Stack/Unstack Bars');
                 this.gridButton = Utils.createGridButton(chartControlsPanel, this, this.chartComponentData.usesSeconds, 
                         this.chartComponentData.usesMillis, this.chartMargins);
                 

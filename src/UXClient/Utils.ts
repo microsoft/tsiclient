@@ -142,12 +142,14 @@ class Utils {
         var gridButton = chartControlsPanel.append("div")
             .style("right", chartMargins.right + "px")
             .attr("class", "tsi-gridButton")
-        .attr("tabindex", 0)
+            .attr("tabindex", 0)
             .on("click", showGrid)
             .on("keydown", () => {
                 if(d3.event.code == 'Enter')
                     showGrid();
-            });
+            })
+            .attr('title', 'Show a grid of values');
+            
         return gridButton; 
     }
 

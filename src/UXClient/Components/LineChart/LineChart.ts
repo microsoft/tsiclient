@@ -374,7 +374,8 @@ class LineChart extends ChartComponent {
                             else  
                                 this.yAxisState = "stacked";
                             this.draw();
-                        });
+                        })
+                        .attr('title', 'Stack/Unstack Lines');
                     
                     d3.select(this.renderTarget).selectAll(".tsi-gridButton").remove();
                     if (this.chartOptions.grid) {
