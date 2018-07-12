@@ -123,12 +123,12 @@
             background-image: url(../../Icons/Layer_Icon_Dark_Theme.svg);
         }
     }
-    .tsi-gridButton {
+    .tsi-gridButton { 
         &.tsi-lightTheme {
-            background-image: url(../../Icons/Calendar_Icon_for_Light_Theme.svg);
+            background-image: url(../../Icons/Grid_Icon_Light_Theme.svg);
         }
         &.tsi-darkTheme {
-            background-image: url(../..//Icons/Calendar_Icon_for_Dark_Theme.svg);
+            background-image: url(../..//Icons/Grid_Icon_Dark_Theme.svg);
         }
     }
 }

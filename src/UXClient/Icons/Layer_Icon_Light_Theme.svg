@@ -1,24 +1,58 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 11.621 14.32">
-    <defs>
-        <style>
-            .cls-1{opacity:.75}.cls-2{fill:rgba(33,33,33,.1)}.cls-3,.cls-5,.cls-6,.cls-7{fill:none;stroke-miterlimit:1}.cls-3{stroke:#212121}.cls-4{opacity:.25}.cls-5{stroke:#585858}.cls-6{stroke:rgba(0,0,0,.1)}.cls-7{stroke:#414141}
-        </style>
-    </defs>
-    <g id="Layer_Icon_Light_Theme" transform="translate(-177.64 -545.04)">
-        <g id="Group_271" data-name="Group 271">
-            <g id="Group_270" class="cls-1" data-name="Group 270" transform="translate(292.5 97.5)">
-                <path id="Path_642" d="M-103.6 456.2l-5.3-5.1-5.1 5.3 5.3 5.1z" class="cls-2" data-name="Path 642"/>
-                <path id="Path_643" d="M-108.9 451.1l5.3 5.1-5.1 5.3-5.3-5.1z" class="cls-3" data-name="Path 643"/>
-            </g>
-        </g>
-        <g id="Group_273" data-name="Group 273">
-            <g id="Group_272" class="cls-4" data-name="Group 272" transform="translate(292.5 97.5)">
-                <path id="Path_644" d="M-103.6 456.2l-5.3-5.1-5.1 5.3 5.3 5.1z" class="cls-2" data-name="Path 644"/>
-                <path id="Path_645" d="M-108.9 451.1l5.3 5.1-5.1 5.3-5.3-5.1z" class="cls-5" data-name="Path 645"/>
-            </g>
-        </g>
-        <path id="Path_646" d="M183.1 546l5.3 5.1-5.1 5.3-5.3-5.1z" class="cls-6" data-name="Path 646"/>
-        <path id="Path_647" d="M188.9 550.6l-5.3-5.1-5.1 5.3 5.3 5.1z" class="cls-2" data-name="Path 647"/>
-        <path id="Path_648" d="M183.6 545.4l5.3 5.1-5.1 5.3-5.3-5.1z" class="cls-7" data-name="Path 648"/>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 16 16">
+  <defs>
+    <style>
+      .cls-1 {
+        clip-path: url(#clip-Layer_Icon_Light_Theme);
+      }
+
+      .cls-2, .cls-4, .cls-5, .cls-7 {
+        fill: none;
+      }
+
+      .cls-3 {
+        fill: rgba(33,33,33,0.25);
+      }
+
+      .cls-4 {
+        stroke: #585858;
+      }
+
+      .cls-4, .cls-5, .cls-7 {
+        stroke-miterlimit: 1;
+      }
+
+      .cls-5 {
+        stroke: #000;
+        opacity: 0.25;
+      }
+
+      .cls-6 {
+        fill: rgba(33,33,33,0.1);
+      }
+
+      .cls-7 {
+        stroke: #414141;
+      }
+
+      .cls-8 {
+        fill: #fff;
+      }
+    </style>
+    <clipPath id="clip-Layer_Icon_Light_Theme">
+      <rect width="16" height="16"/>
+    </clipPath>
+  </defs>
+  <g id="Layer_Icon_Light_Theme" class="cls-1">
+    <rect class="cls-8" width="16" height="16"/>
+    <g id="Layer_Icon">
+      <rect id="BG" class="cls-2" width="16" height="16"/>
+      <g id="Background" transform="translate(3 4.2)">
+        <path id="Fill" class="cls-3" d="M799,553.649l-5.651-5.349L788,553.951l5.651,5.349Z" transform="translate(-788 -548.401)"/>
+        <path id="Outline" class="cls-4" d="M793.349,548.2,799,553.549l-5.349,5.651L788,553.851Z" transform="translate(-788 -548.4)"/>
+      </g>
+      <path id="Shadow" class="cls-5" d="M792.749,545.5l5.651,5.349-5.349,5.651-5.651-5.349Z" transform="translate(-784.9 -544)"/>
+      <path id="ForegroundFill" class="cls-6" d="M798.9,550.349,793.248,545l-5.349,5.651L793.55,556Z" transform="translate(-784.899 -544)"/>
+      <path id="ForegroundOutline" class="cls-7" d="M793.349,545,799,550.349,793.651,556,788,550.651Z" transform="translate(-785 -544)"/>
     </g>
+  </g>
 </svg>
