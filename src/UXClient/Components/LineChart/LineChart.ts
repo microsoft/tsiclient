@@ -250,9 +250,6 @@ class LineChart extends ChartComponent {
                                             .attr("class", "tsi-lineChartSVG tsi-chartSVG")
                                             .attr("height", height);
              
-            // var gridButton: any = Utils.createGridButton(this.svgSelection, this, this.labelFormatUsesSeconds(), 
-            //                                              this.labelFormatUsesMillis());                
-    
             var g = this.svgSelection.append("g")
                         .classed("svgGroup", true)
                         .attr("transform", "translate(" + this.chartMargins.left + "," + this.chartMargins.top + ")");
