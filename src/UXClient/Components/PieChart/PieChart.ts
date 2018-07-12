@@ -20,12 +20,10 @@ class PieChart extends ChartComponent {
     
     private chartMargins: any = {
         top: 20,
-        bottom: 20,
-        left: 20, 
-        right: 20
+        bottom: 28,
+        left: 0, 
+        right: 0
     };
-
-    private sliderSpace = 55;
 
     constructor(renderTarget: Element){
         super(renderTarget);
@@ -48,19 +46,25 @@ class PieChart extends ChartComponent {
             
             this.svgSelection = targetElement.append("svg");
             this.svgSelection
-                .attr("class", "tsi-pieChartSVG")
+                .attr("class", "tsi-pieChartSVG tsi-chartSVG")
             var g = this.svgSelection.append("g");
-            var tooltipContainer = this.svgSelection.append("g");
-
-            var tooltip = new Tooltip(tooltipContainer);
+            var tooltip = new Tooltip(d3.select(this.renderTarget));
+            d3.select(this.renderTarget).append('div').classed('tsi-sliderWrapper', true);
 
             this.draw = () => {
+
+                // Determine the number of timestamps present, add margin for slider
+                if(this.chartComponentData.allTimestampsArray.length > 1)
+                    this.chartMargins.bottom = 68;
+                if(this.chartOptions.legend == "compact") 
+                    this.chartMargins.top = 68;
 
                 var width = +targetElement.node().getBoundingClientRect().width;
                 var height = +targetElement.node().getBoundingClientRect().height;
                 var chartWidth = width  - (this.chartOptions.legend == "shown" ? (this.CONTROLSWIDTH + 28) : 0);
-                var chartHeight = height - this.sliderSpace - (this.chartOptions.legend == "compact" ? 60 : 0);
-                var outerRadius = (Math.min(chartHeight, chartWidth) - 10) / 2;
+                var chartHeight = height;
+                var usableHeight = height - this.chartMargins.bottom - this.chartMargins.top
+                var outerRadius = (Math.min(usableHeight, chartWidth) - 10) / 2;
                 var innerRadius = this.chartOptions.arcWidthRatio && 
                                     (this.chartOptions.arcWidthRatio < 1 && this.chartOptions.arcWidthRatio > 0) ? 
                                     outerRadius - (outerRadius * this.chartOptions.arcWidthRatio) :
@@ -68,16 +72,12 @@ class PieChart extends ChartComponent {
                 this.svgSelection
                     .attr("width", chartWidth)
                     .attr("height", chartHeight)
-                    .style("margin-top", (this.chartOptions.legend == "compact" ? 60 : 0) + 'px')
                 this.svgSelection.select("g").attr("transform", "translate(" + (chartWidth / 2)  + "," + (chartHeight / 2) + ")");
 
                 var timestamp = (this.chartOptions.timestamp != undefined) ? this.chartOptions.timestamp : Object.keys(firstTerm[firstSplitByKey])[0];
                 this.chartComponentData.updateFlatValueArray(timestamp);
                 super.themify(targetElement, this.chartOptions.theme);
 
-                // Determine the number of timestamps present, add margin for slider
-                if(this.chartComponentData.allTimestampsArray.length > 1)
-                    this.chartMargins.bottom = 80;
 
                 var labelMouseover = (aggKey: string, splitBy: string = null) => {
                     //filter out the selected timeseries/splitby
@@ -98,36 +98,27 @@ class PieChart extends ChartComponent {
                 }
 
                 function drawTooltip (d: any, mousePosition) {
-                    var xPos = mousePosition[0] + (chartWidth / 2);
-                    var yPos = mousePosition[1] + (chartHeight / 2);
-                    tooltipContainer.attr("transform", "translate(" + xPos + "," + yPos + ")");
-                    tooltip.draw (d, self.chartComponentData, xPos, yPos, chartWidth , chartHeight, (text) => {
-                        text.text(null);
-                        //aggregate name 
-                        var titleOffset = 25;
-                        text.append("tspan")
+                    var xPos = mousePosition[0];
+                    var yPos = mousePosition[1];
+                    tooltip.render(self.chartOptions.theme);
+                    tooltip.draw(d, self.chartComponentData, xPos, yPos, {...self.chartMargins, top: 0, bottom: 0}, (text) => {
+                        text.text(null); 
+                        text.append("div")
                             .attr("class", "title")
                             .text(self.chartComponentData.displayState[d.data.aggKey].name);  
                         //split by if appropriate
                         if (d.data.splitBy != "") {
-                            text.append("tspan")
+                            text.append("div")
                                 .attr("class", "value")
-                                .attr("x", 0)
-                                .attr("y", titleOffset)
                                 .text(d.data.splitBy);
-                            titleOffset = 45; 
                         }
 
-                        text.append("tspan")
+                        text.append("div")
                             .attr("class", "value")
-                            .attr("x", 0)
-                            .attr("y", titleOffset)
                             .text(Utils.formatYAxisNumber(d.data.value));
                         
-                        text.append("tspan")
+                        text.append("div")
                             .attr("class", "value")
-                            .attr("x", 0)
-                            .attr("y", titleOffset + 15)
                             .text((Math.round(1000 * Math.abs(d.data.value) / self.chartComponentData.visibleValuesSum) / 10) + "%");
                     });
                 }
@@ -164,8 +155,9 @@ class PieChart extends ChartComponent {
                     };
                   }
 
-                var pathMouseout = (d: any) => {
-                    if (this.contextMenu && this.contextMenu.contextMenuVisible)
+                var self = this;
+                function pathMouseout (d: any) {
+                    if (self.contextMenu && self.contextMenu.contextMenuVisible)
                         return;
                     tooltip.hide();
                     labelMouseout(d.data.aggKey, d.data.splitBy);
@@ -180,7 +172,7 @@ class PieChart extends ChartComponent {
                     (<any>self.legendObject.legendElement.selectAll('.splitByLabel').filter((labelData: any) => {
                         return (labelData[0] == d.data.aggKey) && (labelData[1] == d.data.splitBy);
                     })).classed("inFocus", true);
-                    drawTooltip(d, d3.mouse(this));
+                    drawTooltip(d, d3.mouse(self.svgSelection.node()));
                 }
 
                 var mouseOutArcOnContextMenuClick = () => {
@@ -221,6 +213,7 @@ class PieChart extends ChartComponent {
 
                 /******************** Temporal Slider ************************/
                 if(this.chartComponentData.allTimestampsArray.length > 1){
+                    d3.select(this.renderTarget).select('.tsi-sliderWrapper').classed('tsi-hidden', false);
                     slider.render(this.chartComponentData.allTimestampsArray.map(ts => {
                         var action = () => {
                             this.chartOptions.timestamp = ts;
@@ -229,18 +222,18 @@ class PieChart extends ChartComponent {
                         return {label: Utils.timeFormat(this.chartComponentData.usesSeconds, this.chartComponentData.usesMillis)(new Date(ts)), action: action};
                     }), this.chartOptions, chartWidth,  Utils.timeFormat(this.chartComponentData.usesSeconds, this.chartComponentData.usesMillis)(new Date(this.chartComponentData.timestamp)));
                 }
-                else
+                else{
                     slider.remove();
+                    d3.select(this.renderTarget).select('.tsi-sliderWrapper').classed('tsi-hidden', true);
+                }
 
-                /******************** Tooltip ************************/
-                tooltip.render(this.chartOptions.theme);
             }
 
             this.legendObject = new Legend(this.draw, this.renderTarget, this.CONTROLSWIDTH);
             this.contextMenu = new ContextMenu(this.draw, this.renderTarget);
             
             // temporal slider
-            var slider = new Slider(this.renderTarget);
+            var slider = new Slider(<any>d3.select(this.renderTarget).select('.tsi-sliderWrapper').node());
             window.addEventListener("resize", () => {
                 if (!this.chartOptions.suppressResizeListener)
                     this.draw();

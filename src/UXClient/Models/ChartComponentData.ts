@@ -151,6 +151,16 @@ class ChartComponentData {
             });
         });
 
+        //ensure that the stickied Key exists in the new data, otherwise revert to null
+        if (this.stickiedKey) {
+            var splitBy = this.stickiedKey.splitBy;
+            var aggKey = this.stickiedKey.aggregateKey;
+            if (!(newDisplayState[aggKey] && newDisplayState[aggKey].visible &&
+                 newDisplayState[aggKey].splitBys[splitBy] && newDisplayState[aggKey].splitBys[splitBy].visible)) {
+                this.stickiedKey = null;
+            }
+        }
+
         this.displayState = newDisplayState;
     }
 

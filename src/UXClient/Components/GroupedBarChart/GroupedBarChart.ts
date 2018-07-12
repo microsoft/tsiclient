@@ -18,11 +18,13 @@ class GroupedBarChart extends ChartComponent {
     private setStateFromData: any;
     private timestamp: any;
     private isStacked: boolean = null;
+    private stackedButton: any = null;
+    private gridButton: any = null;
     chartComponentData = new GroupedBarChartData();
     
     private chartMargins: any = {
-        top: 46,
-        bottom: 40,
+        top: 52,
+        bottom: 48,
         left: 70, 
         right: 60
     };
@@ -39,6 +41,11 @@ class GroupedBarChart extends ChartComponent {
         if (options.stacked || this.isStacked == null) {
             this.isStacked = this.chartOptions.stacked;
         } 
+
+        if (this.chartOptions.legend == "compact")
+            this.chartMargins.top = 84;
+        else
+            this.chartMargins.top = 52;
         this.aggregateExpressionOptions = aggregateExpressionOptions;
         var width = Math.max((<any>d3.select(this.renderTarget).node()).clientWidth, this.MINWIDTH);
         var height = Math.max((<any>d3.select(this.renderTarget).node()).clientHeight, this.MINHEIGHT);
@@ -56,16 +63,11 @@ class GroupedBarChart extends ChartComponent {
             var targetElement = d3.select(this.renderTarget)
                 .classed("tsi-barChart", true);
             var svgSelection = targetElement.append("svg")
-                .attr("class", "tsi-barChartSVG")
+                .attr("class", "tsi-barChartSVG tsi-chartSVG")
                 .style("height", height)
                 .style("width", width - controlsOffset + 'px');
             this.svgSelection = svgSelection;
-            
-            var stackedButton = Utils.createStackedButton(svgSelection)
-                .on("click", () => { this.chartOptions.stacked = !this.chartOptions.stacked; draw();});
-            
-            var gridButton: any = Utils.createGridButton(svgSelection, this, this.chartComponentData.usesSeconds, 
-                                                         this.chartComponentData.usesMillis);    
+
             
             var g = svgSelection.append("g")
                 .attr("transform", "translate(" + this.chartMargins.left + "," + this.chartMargins.top + ")");
@@ -97,8 +99,9 @@ class GroupedBarChart extends ChartComponent {
                 .attr("x", -10)
                 .text(d => d);
 
-            var tooltipG = g.append("g").attr("class", "tooltipG");
-            var tooltip = new Tooltip(<any>(tooltipG));
+            d3.select(this.renderTarget).append('div').classed('tsi-sliderWrapper', true);
+
+            var tooltip = new Tooltip(d3.select(this.renderTarget));
 
             var measureMap = this.chartComponentData.data.map((aggregate, aggI) => {
                 var aggName: string = Object.keys(aggregate)[0]
@@ -222,11 +225,29 @@ class GroupedBarChart extends ChartComponent {
                 
                 
                 super.themify(targetElement, this.chartOptions.theme);
+
+                d3.select(this.renderTarget).selectAll(".tsi-chartControlsPanel").remove();
+                var controlPanelWidth = Math.max(1, (<any>d3.select(this.renderTarget).node()).clientWidth - 
+                                                    (this.chartOptions.legend == "shown" ? (this.CONTROLSWIDTH + 16) : 0));
+                var chartControlsPanel = d3.select(this.renderTarget).append("div")
+                    .attr("class", "tsi-chartControlsPanel")
+                    .style("width", controlPanelWidth + "px")
+                    .style("top", Math.max((this.chartMargins.top - 32), 0) + "px");
+
+                this.stackedButton = chartControlsPanel.append("div")
+                    .style("left", this.chartMargins.left + "px")
+                    .attr("class", "tsi-stackedButton").on("click", () => {
+                        this.chartOptions.stacked = !this.chartOptions.stacked;
+                        this.draw();
+                    })
+                    .attr('title', 'Stack/Unstack Bars');
+                this.gridButton = Utils.createGridButton(chartControlsPanel, this, this.chartComponentData.usesSeconds, 
+                        this.chartComponentData.usesMillis, this.chartMargins);
                 
                 /********* Determine the number of timestamps present, add margin for slider *********/
 
                 if(this.chartComponentData.allTimestampsArray.length > 1)
-                    this.chartMargins.bottom = 80;
+                    this.chartMargins.bottom = 88;
                 /*******************/
                 
                 var controlsOffset = (this.chartOptions.legend == "shown" ? this.CONTROLSWIDTH : 0)
@@ -459,31 +480,22 @@ class GroupedBarChart extends ChartComponent {
                         .on("mousemove", function (d) {
                             if (self.chartOptions.tooltip) {
                                 var mousePos = d3.mouse(<any>g.node());
-                                tooltipG.attr("transform", "translate(" + mousePos[0] + "," + mousePos[1] + ")");
-                                tooltip.draw (d, self.chartComponentData, mousePos[0], mousePos[1], chartWidth , chartHeight, (text) => {
+                                tooltip.render(self.chartOptions.theme)
+                                tooltip.draw(d, self.chartComponentData, mousePos[0], mousePos[1], self.chartMargins, (text) => {
                                     text.text(null);
-                                    //aggregate name 
-                                    var titleOffset = 25;
-                                    text.append("tspan")
+                                    text.append("div")
                                         .attr("class", "title")
                                         .text(self.chartComponentData.displayState[d.aggKey].name);  
-                                    //split by if appropriate
                                     if (d.splitBy != "") {
-                                        text.append("tspan")
+                                        text.append("div")
                                             .attr("class", "value")
-                                            .attr("x", 0)
-                                            .attr("y", titleOffset)
                                             .text(d.splitBy);
-                                        titleOffset = 45; 
                                     }
             
-                                    text.append("tspan")
+                                    text.append("div")
                                         .attr("class", "value")
-                                        .attr("x", 0)
-                                        .attr("y", titleOffset)
                                         .text(Utils.formatYAxisNumber(d.val));
                                 });
-                                (<any>tooltipG.node()).parentNode.appendChild(tooltipG.node());
                             } else {
                                 tooltip.hide();
                             }
@@ -587,19 +599,23 @@ class GroupedBarChart extends ChartComponent {
                 baseLine
                 .attr("x1", 0)
                 .attr("x2", chartWidth)
-                .attr("y1", barBase)
-                .attr("y2", barBase);
+                .attr("y1", barBase + 1)
+                .attr("y2", barBase + 1);
 
                 /******************** Stack/Unstack button ************************/
-                stackedButton.attr("transform", () => {return 'translate(32,' + (chartHeight + 44) + ')'})
-                .attr("opacity", this.chartOptions.stacked ? 1 : .5);
+                this.stackedButton.style("opacity", this.chartOptions.stacked ? 1 : .5)
+                    .classed('tsi-lightTheme', this.chartOptions.theme == 'light')
+                    .classed('tsi-darkTheme', this.chartOptions.theme == 'dark');
 
                 /******************** Grid button ************************/
-                gridButton.attr("transform", () => {return 'translate(' + (chartWidth + this.chartMargins.left + 26) + ',' + (chartHeight + 44) + ')'})
-                .style("display", !!this.chartOptions.grid ? "block" : "none");
+                this.gridButton.style("display", !!this.chartOptions.grid ? "block" : "none")
+                    .classed('tsi-lightTheme', this.chartOptions.theme == 'light')
+                    .classed('tsi-darkTheme', this.chartOptions.theme == 'dark');
+                
                 
                 /******************** Temporal Slider ************************/
                 if(this.chartComponentData.allTimestampsArray.length > 1){
+                    d3.select(this.renderTarget).select('.tsi-sliderWrapper').classed('tsi-hidden', false);
                     slider.render(this.chartComponentData.allTimestampsArray.map(ts => {
                         var action = () => {
                             this.chartOptions.timestamp = ts;
@@ -608,18 +624,17 @@ class GroupedBarChart extends ChartComponent {
                         return {label: Utils.timeFormat(this.chartComponentData.usesSeconds, this.chartComponentData.usesMillis)(new Date(ts)), action: action};
                     }), this.chartOptions, width - controlsOffset - 10,  Utils.timeFormat(this.chartComponentData.usesSeconds, this.chartComponentData.usesMillis)(new Date(this.chartComponentData.timestamp)));
                 }
-                else
+                else{
                     slider.remove();
-
-                /******************** Tooltip ************************/
-                tooltip.render(this.chartOptions.theme);
+                    d3.select(this.renderTarget).select('.tsi-sliderWrapper').classed('tsi-hidden', true);
+                }
             }
 
             this.legendObject = new Legend(draw, this.renderTarget, this.CONTROLSWIDTH);
             this.contextMenu = new ContextMenu(this.draw, this.renderTarget);
             
             // temporal slider
-            var slider = new Slider(this.renderTarget);
+            var slider = new Slider(<any>d3.select(this.renderTarget).select('.tsi-sliderWrapper').node());
             
             this.draw = draw;
             window.addEventListener("resize", () => {

@@ -6,7 +6,7 @@
     $gray3: nth($grays, 3); // element
     $gray4: nth($grays, 4); // background
 	$gray5: nth($grays, 5); // alt element
-    $gray6: nth($grays, 6); // 
+    $gray6: nth($grays, 6);
 	
 	color: $gray1;
 	fill: $gray1;
@@ -15,8 +15,6 @@
 	}
 
 	.seriesLabel{
-		&:not(.shown) {
-		}
 		.seriesNameLabel, .splitByLabel {
 			select {
 				color: #999;
@@ -62,19 +60,34 @@
     }
 	
 	&.compact{
-		height: 40px !important;
-		width: 100% !important;
+		margin-left: 20px;
+		margin-right: 20px;
+		top: 8px;
+		height: 48px !important;
+		width: calc(100% - 40px) !important;
 		position: absolute;
 		overflow: visible;
 		display: flex;
 		justify-content: center;
 		border-right: none;
 		padding: 0;
+
+		.seriesLabel {
+			overflow-y: hidden;
+			overflow-x: hidden;
+			&:hover {
+				overflow-x: auto;
+			}
+			white-space: nowrap;
+
+		}
+
 		.seriesLabel, .eventSeriesLabel{
 			border: none;
 			padding: 0;
 			text-align: center;
 			margin: 4px;
+
 			&:not(.shown) {
 				border: none;
 			}
@@ -90,7 +103,8 @@
 				padding: 0 4px 1px 4px;
 				border-radius: 3px;
 				height: 20px;
-				margin-top: -1px;
+				margin-top: 1px;
+				overflow: hidden;
 				.colorKey{
 					display: block;
 					position: absolute;
@@ -101,6 +115,7 @@
 				h5{
 					max-width: 100px;
 					margin-left: 16px;
+					margin-right: 0px;
 					text-align: left;
 					width: initial;
 					font-size: 12px;
@@ -108,35 +123,80 @@
 			}
 		}
 	}
-	
+
+	&:not(.compact) {
+		.seriesLabel, .eventSeriesLabel, .stateSeriesLabel {
+			.seriesNameLabel .eyeIcon, .splitByLabel .eyeIcon {
+				display: block;
+				background-size: 16px 16px;
+				background-repeat: no-repeat;
+    			background-position: center; 
+				position: absolute;
+				height: 100%;
+				width: 16px;
+				right: 8px;
+			}
+			.eyeIcon {
+				cursor: pointer;
+			}
+		}
+
+		&.tsi-light {
+			.seriesLabel, .eventSeriesLabel, .stateSeriesLabel {
+				.seriesNameLabel .eyeIcon, .splitByLabel .eyeIcon {
+					background-image: url(../../Icons/Eye_light_theme.svg);
+				}
+
+				.seriesNameLabel.stickied .eyeIcon, .splitByLabel.stickied .eyeIcon {
+					background-image: url(../../Icons/Eye_dark_theme.svg);
+				}
+			}
+		}
+
+		&.tsi-dark {
+			.seriesLabel, .eventSeriesLabel, .stateSeriesLabel {
+				.seriesNameLabel .eyeIcon, .splitByLabel .eyeIcon {
+					background-image: url(../../Icons/Eye_dark_theme.svg);
+				}
+
+				.seriesNameLabel.stickied .eyeIcon, .splitByLabel.stickied .eyeIcon {
+					background-image: url(../../Icons/Eye_light_theme.svg);
+				}
+			}
+		}
+	}
+
+	.eventSeriesLabel, .stateSeriesLabel, .seriesLabel .seriesNameLabel, .seriesLabel .splitByLabel {
+		&:not(.shown) {
+			opacity:.3;
+		}
+		&.shown {
+			opacity:1;
+		}
+	}
+
 	.seriesLabel, .eventSeriesLabel, .stateSeriesLabel {
 		margin: 8px;
-		
 		.seriesNameLabel, .splitByLabel {
 			display:flex;
-			&:not(.shown) {
-				opacity:.3;
-			}
-			&.shown {
-				opacity:1;
-			}
-
 			h4, h5 {
 				text-overflow: ellipsis;
 				white-space: nowrap;
 				overflow: hidden;
 				margin-top:2px;
 				margin-bottom:4px;
-				cursor: pointer;
 				font-weight: 400;
+				margin-right: 36px;
 			}
 
 			h4 {
+				cursor: pointer;
 				font-weight: 600;
 				font-size: 14px;
 			}
 
 			h5 {
+				cursor: default;
 				overflow-x:hidden;
 				text-overflow: ellipsis;
 				font-size: 14px;
@@ -208,21 +268,6 @@
 			
 			&.disabled {
 				display: none;
-			}
-		}
-	}
-	.eventSeriesLabel, .stateSeriesLabel { 
-		&:not(.shown) {
-			opacity:.3;
-		}
-		&.shown {
-			opacity:1;
-		}
-
-		.seriesNameLabel {
-			opacity: 1 !important;
-			h4 {
-				width: 100% !important;
 			}
 		}
 	}

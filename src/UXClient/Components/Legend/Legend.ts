@@ -18,8 +18,7 @@ class Legend extends Component {
         this.legendElement = d3.select(renderTarget).insert("div", ":first-child")
                                 .attr("class", "tsi-legend")
                                 .style("left", "0px")
-                                .style("top", "0px")
-                                .style("width", this.legendWidth + "px")
+                                .style("width", this.legendWidth + "px");
     }
 
     private labelMouseoutWrapper (labelMouseout, svgSelection) {
@@ -32,7 +31,7 @@ class Legend extends Component {
         }
     }
 
-	public draw(legendState, chartComponentData, labelMouseover, svgSelection, options, labelMouseoutAction = null) {
+	public draw(legendState, chartComponentData, labelMouseover, svgSelection, options, labelMouseoutAction = null, stickySeriesAction = null) {
         this.chartOptions.setOptions(options);
         var labelMouseout = this.labelMouseoutWrapper(labelMouseoutAction, svgSelection);
         var legend = this.legendElement;
@@ -40,14 +39,37 @@ class Legend extends Component {
         
         super.themify(this.legendElement, this.chartOptions.theme);
         
-        var toggleSplitByVisible = (aggI: string, splitBy: string) => {
-            chartComponentData.displayState[aggI].splitBys[splitBy].visible = !chartComponentData.displayState[aggI].splitBys[splitBy].visible;
-            chartComponentData.displayState[aggI].visible = Object.keys(chartComponentData.displayState[aggI].splitBys)
+        var toggleSplitByVisible = (aggregateKey: string, splitBy: string) => {
+            var newState = !chartComponentData.displayState[aggregateKey].splitBys[splitBy].visible;
+            chartComponentData.displayState[aggregateKey].splitBys[splitBy].visible = newState;
+            chartComponentData.displayState[aggregateKey].visible = Object.keys(chartComponentData.displayState[aggregateKey].splitBys)
                                             .reduce((prev: boolean, curr: string): boolean => {
-                                                return chartComponentData.displayState[aggI]["splitBys"][curr]["visible"] || prev;
+                                                return chartComponentData.displayState[aggregateKey]["splitBys"][curr]["visible"] || prev;
                                             }, false);
+        //turn off sticky if making invisible
+            if (newState == false && (chartComponentData.stickiedKey != null && 
+                chartComponentData.stickiedKey.aggregateKey == aggregateKey && 
+                chartComponentData.stickiedKey.splitBy == splitBy)) {
+                chartComponentData.stickiedKey = null;
+            }
         }
         
+        var toggleSticky = (aggregateKey: string, splitBy: string) => {
+            //don't do anything if not visible 
+            if (!chartComponentData.displayState[aggregateKey].visible ||
+                !chartComponentData.displayState[aggregateKey].splitBys[splitBy].visible)
+                return;
+            if (chartComponentData.stickiedKey != null && 
+                chartComponentData.stickiedKey.aggregateKey == aggregateKey && 
+                chartComponentData.stickiedKey.splitBy == splitBy){
+                chartComponentData.stickiedKey = null;
+            } else {
+                if (stickySeriesAction) {
+                    stickySeriesAction(aggregateKey, splitBy);
+                }
+            }
+        }
+
         if (legendState == "hidden") {
             legend.style("display", "none");
             legend.style("width", "0px"); 
@@ -59,7 +81,7 @@ class Legend extends Component {
             legend.classed("compact", false)
             
         legend.style("visibility", "visible");
-        legend.style("width", this.legendWidth + "px");    
+        legend.style("width", this.legendWidth + "px");
 
         var seriesLabels: any = legend.selectAll(".seriesLabel")
             .data(Object.keys(chartComponentData.timeArrays));
@@ -82,16 +104,24 @@ class Legend extends Component {
         var events: any = (chartComponentData.displayState.events) ? chartComponentData.displayState.events : [];
         var eventSeriesLabels: any = legend.selectAll(".eventSeriesLabel")
             .data(Object.keys(events));
-        var eventSeriesLabelsEntered = eventSeriesLabels
+            var eventSeriesLabelsEntered = eventSeriesLabels
             .enter()
             .append("div")
             .attr("class", (d, i) => "eventSeriesLabel" + (chartComponentData.displayState.events[d].visible ? " shown" : ""))
             .append("div")
-            .attr("class", "seriesNameLabel")
-            .on("click", (d) => {
-                chartComponentData.displayState.events[d].visible = !chartComponentData.displayState.events[d].visible;
-                self.drawChart();
-            });
+            .attr("class", (d, i) => "seriesNameLabel" + (chartComponentData.displayState.events[d].visible ? " shown" : ""));
+
+        eventSeriesLabelsEntered.each(function (d, i) {
+            var eyeIcons = d3.select(this).selectAll('.eyeIcon')
+                .data([d]);
+            eyeIcons
+                .enter().append("div")
+                .attr("class", "eyeIcon")
+                .on("click", function (data: any, i: number) {
+                    chartComponentData.displayState.events[d].visible = !chartComponentData.displayState.events[d].visible;
+                    self.drawChart();
+                });
+        });  
 
         eventSeriesLabels.merge(eventSeriesLabels)
         .classed("shown", (d, i) => {
@@ -121,29 +151,35 @@ class Legend extends Component {
             .append("div")
             .attr("class", d => "stateSeriesLabel" + (chartComponentData.displayState.states[d].visible ? " shown" : ""))
             .append("div")
-            .attr("class", "seriesNameLabel")
-            .on("click", (d) => {
-                chartComponentData.displayState.states[d].visible = !chartComponentData.displayState.states[d].visible;
-                self.drawChart();
-            });
-            
+            .attr("class", d => "seriesNameLabel" + (chartComponentData.displayState.states[d].visible ? " shown" : ""));
+    
+        stateSeriesLabelsEntered.each(function (d, i) {
+            var eyeIcons = d3.select(this).selectAll('.eyeIcon')
+                .data([d]);
+            eyeIcons
+                .enter().append("div")
+                .attr("class", "eyeIcon")
+                .on("click", function (data: any, i: number) {
+                    chartComponentData.displayState.states[d].visible = !chartComponentData.displayState.states[d].visible;
+                    self.drawChart();
+                });
+        });  
+
         stateSeriesLabels.merge(stateSeriesLabels)
-            .classed("shown", (d, i) => {
-                return  chartComponentData.displayState.states[d].visible;
-            });
+        .classed("shown", (d, i) => {
+            return  chartComponentData.displayState.states[d].visible;
+        });
 
-            var stateSeriesLabelText = stateSeriesLabelsEntered
-                .append("h4");
-
-            stateSeriesLabelText.each(function() {
-                var svg = d3.select(this).append("svg")
-                                .attr("width", 20)
-                                .attr("height", 10);
-                Utils.createSeriesTypeIcon("state", svg);
-            }); 
-            stateSeriesLabelText.html(function(d) { 
-                return d3.select(this).html() + states[d].name;
-            });
+        var stateSeriesLabelText = stateSeriesLabelsEntered
+            .append("h4").each(function() {
+            var svg = d3.select(this).append("svg")
+                            .attr("width", 20)
+                            .attr("height", 10);
+            Utils.createSeriesTypeIcon("state", svg);
+        }); 
+        stateSeriesLabelText.html(function(d) { 
+            return d3.select(this).html() + states[d].name;
+        });
         
         /** Aggregates ********************************************************************************************/
         legend.selectAll(".seriesLabel").html("");
@@ -172,7 +208,14 @@ class Legend extends Component {
                     return "seriesNameLabel" + (noSplitBys ? ' tsi-nsb' : '') + (chartComponentData.displayState[agg].visible ? " shown" : "");
                 })                    
                 .on("click", function (d: string, i: number) {
-                    chartComponentData.displayState[d].visible = !chartComponentData.displayState[d].visible;
+                    var newState = !chartComponentData.displayState[d].visible;
+                    chartComponentData.displayState[d].visible = newState;
+
+                    //turn off sticky if making invisible
+                    if (newState == false && (chartComponentData.stickiedKey != null && 
+                        chartComponentData.stickiedKey.aggregateKey == d)) {
+                        chartComponentData.stickiedKey = null;
+                    }
                     self.drawChart();
                 })
                 .on("mouseover", (d) => {
@@ -266,8 +309,11 @@ class Legend extends Component {
                 .append("div")
                 .merge(splitByLabels)
                 .on("click", function (data: any, i: number) {
-                    d3.event.stopPropagation();
-                    toggleSplitByVisible(data[0], data[1]);
+                    if (legendState == "compact") {
+                        toggleSplitByVisible(data[0], data[1])
+                    } else {
+                        toggleSticky(data[0], data[1]);
+                    }
                     self.drawChart();
                 })
                 .on("mouseover", function(data: any, i: number) {
@@ -288,10 +334,11 @@ class Legend extends Component {
                     }
                 });
 
+
             /******************** Color Blocks ****************************/
             var colors = Utils.createSplitByColors(chartComponentData.displayState, aggKey, this.chartOptions.keepSplitByColor);
             var splitByLabelsBlocks = splitByLabels
-                .selectAll('div')
+                .selectAll('.colorKey')
                 .data((d, i) => [[d, i]]);
             splitByLabelsBlocks = splitByLabelsBlocks.enter().append("div")
                 .attr("class", "colorKey")
@@ -300,6 +347,23 @@ class Legend extends Component {
                     return colors[d[1]];
                 });
             splitByLabelsBlocks.exit().remove();
+
+            /******************** Eye Icons *******************************/
+            var self = this;
+            splitByLabels.each(function (d, i) {
+                var eyeIcons = d3.select(this).selectAll('.eyeIcon')
+                    .data([d]);
+                eyeIcons
+                    .enter().append("div")
+                    .attr("class", "eyeIcon")
+                    .on("click", function (data: any, i: number) {
+                        d3.event.stopPropagation();
+                        toggleSplitByVisible(data[0], data[1]);
+                        d3.select(this)
+                            .classed("shown", Utils.getAgVisible(chartComponentData.displayState, data[0], data[1]));
+                        self.drawChart();
+                    });
+            });  
 
             /******************** Text ************************************/
             var splitByLabelsText = splitByLabels

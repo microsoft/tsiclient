@@ -230,7 +230,7 @@
                 var transformedResult = tsiClient.ux.transformAggregatesForVisualization(result, aggregateExpressions2);
                 var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart1'));
                 var theme = 'light';
-                lineChart.render(transformedResult, {theme: theme, grid: true, tooltip: true}, aggregateExpressions2);
+                lineChart.render(transformedResult, {theme: theme, grid: true, tooltip: true, legend: 'compact'}, aggregateExpressions2);
             });
         });
                 
@@ -245,7 +245,7 @@
             tsiClient.server.getAggregates(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com', aggregateExpressions3.map(function(ae){return ae.toTsx()})).then(function(result){
                 var transformedResult = tsiClient.ux.transformAggregatesForVisualization(result, aggregateExpressions3);
                 var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart2'));
-                lineChart.render(transformedResult, {}, aggregateExpressions3);
+                lineChart.render(transformedResult, {grid: true}, aggregateExpressions3);
             });
         });
         
@@ -393,7 +393,7 @@
                     'description' : 'Informational event'
                 }
             }
-        ]}
+        ]};
 
         authContext.getTsiToken().then(function(token){
             tsiClient.server.getAggregates(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com', aggregateExpressions4.map(function(ae){return ae.toTsx()})).then(function(result){

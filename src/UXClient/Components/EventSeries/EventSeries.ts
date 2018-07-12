@@ -4,6 +4,7 @@ import {Utils} from "./../../Utils";
 import {Component} from "./../../Interfaces/Component";
 import { TimelineComponent } from '../../Interfaces/TimelineComponent';
 import { ChartOptions } from '../../Models/ChartOptions';
+import { Tooltip } from '../Tooltip/Tooltip';
 
 const MINWIDTH = 20;
 const TRANSDURATION = (window.navigator.userAgent.indexOf("Edge") > -1) ? 0 : 400;
@@ -24,6 +25,7 @@ class EventSeries extends TimelineComponent{
 			right: (this.chartOptions.xAxisHidden === true) ? 10 : 40
 		}
 		this.createElements(this.chartOptions);
+		var tooltip = new Tooltip(d3.select(this.renderTarget));
 		var seriesName = Object.keys(namedData)[0];
 		var data = namedData[seriesName];
 		data = this.formatData(data);
@@ -59,12 +61,25 @@ class EventSeries extends TimelineComponent{
 				.attr("transform", d => "translate(" + this.xScale(new Date(d.time)) + ",0)")
 				.attr("display", d => (this.xScale(new Date(d.time)) < 0 || this.xScale(new Date(d.time)) > this.width) ? "none" : "block")
 		var rects = enteredRectGs.select("rect");
-		rects.on("mouseover", (dRect, iRect) => this.elementMouseover(dRect, iRect, (d, i) => { 
-			return Utils.timeFormat(this.usesSeconds, this.usesMillis)(new Date(d.time));
-		}))
-			.on("mouseout", () => {
-				this.tooltip.attr("display", "none");
+		var self = this;
+		rects.on("mouseover", function (dRect, iRect) { 
+			self.elementMouseover(dRect, iRect, (d, i) => { 
+				return Utils.timeFormat(this.usesSeconds, this.usesMillis)(new Date(d.time));
 			});
+			var mousePos = d3.mouse(<any>self.g.node());
+			tooltip.render(self.chartOptions.theme);
+			tooltip.draw (dRect, {}, mousePos[0], mousePos[1], {top: 0, bottom: 0, left: 0, right: 0}, (text) => {
+				text.text(null);
+				text.append('div')
+					.text(Utils.timeFormat(self.usesSeconds, self.usesMillis)(new Date(dRect.time)))
+					.classed('title', true);
+				text.append('div')
+					.text(dRect.description)
+					.classed('value', true);
+			});
+		}).on("mouseout", () => {
+			tooltip.hide();
+		});
 				
 		rectGs.exit().remove();
 		super.themify(this.targetElement, this.chartOptions.theme);

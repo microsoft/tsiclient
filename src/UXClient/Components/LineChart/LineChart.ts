@@ -27,6 +27,9 @@ class LineChart extends ChartComponent {
     private strokeOpacity = 1;
     chartComponentData = new LineChartData();
     private surpressBrushTimeSet: boolean = false;
+    private hasStackedButton: boolean = false;
+    private stackedButton: any = null;
+    private gridButton: any = null;
 
     public x: any;
     private brush: any;
@@ -35,8 +38,8 @@ class LineChart extends ChartComponent {
     public brushEndTime: Date;
     
     private chartMargins: any = {
-        top: 12,
-        bottom: 40,
+        top: 40,
+        bottom: 48,
         left: 70, 
         right: 60
     };
@@ -87,7 +90,7 @@ class LineChart extends ChartComponent {
             return;
         
         this.focus.style("display", "none");
-        this.focus.select(".tooltip").style("display", "none");
+        d3.select(this.renderTarget).select(".tooltip").style("display", "none");
         (<any>this.legendObject.legendElement.selectAll('.splitByLabel')).classed("inFocus", false);
         if (d3.event && d3.event.type != 'end') {
             d3.event.stopPropagation();
@@ -136,7 +139,7 @@ class LineChart extends ChartComponent {
         return stickiedValues;
     }
 
-    public stickySeries (aggregateKey: string, splitBy: string = null) {
+    public stickySeries  = (aggregateKey: string, splitBy: string = null) => {
         var filteredValues = this.getFilteredAndSticky(this.chartComponentData.allValues);
         if (filteredValues == null || filteredValues.length == 0)
             return;
@@ -209,7 +212,13 @@ class LineChart extends ChartComponent {
         var width = Math.max((<any>d3.select(this.renderTarget).node()).clientWidth, this.MINWIDTH);
         var height = Math.max((<any>d3.select(this.renderTarget).node()).clientHeight, this.MINHEIGHT);
         if (this.chartOptions.legend == "compact")
+            this.chartMargins.top = 72;
+        else
             this.chartMargins.top = 40;
+        
+        if (this.chartOptions.hideChartControlPanel) {
+            this.chartMargins.top += -28;
+        }
 
         this.events = (this.chartOptions.events != undefined) ? this.chartOptions.events : null;
         this.states = (this.chartOptions.states != undefined) ? this.chartOptions.states : null;
@@ -230,29 +239,17 @@ class LineChart extends ChartComponent {
             this.brushEndTime = null;
         }
         
+        d3.select(this.renderTarget).select(".tsi-tooltip").remove();
+
         if(this.svgSelection == null){
             
             /******************** Static Elements *********************************/
             var targetElement = d3.select(this.renderTarget)
                                 .classed("tsi-lineChart", true)
             this.svgSelection = targetElement.append("svg")
-                                            .attr("class", "lineChartSVG")
+                                            .attr("class", "tsi-lineChartSVG tsi-chartSVG")
                                             .attr("height", height);
-            
-            var stackedButton = Utils.createStackedButton(this.svgSelection); 
-            stackedButton.on("click", () => {
-                if (this.yAxisState == "stacked") 
-                    this.yAxisState = "shared";
-                else if (this.yAxisState == "shared")
-                    this.yAxisState = "overlap";
-                else  
-                    this.yAxisState = "stacked";
-                draw();
-            });  
              
-            var gridButton: any = Utils.createGridButton(this.svgSelection, this, this.labelFormatUsesSeconds(), 
-                                                         this.labelFormatUsesMillis());                
-    
             var g = this.svgSelection.append("g")
                         .classed("svgGroup", true)
                         .attr("transform", "translate(" + this.chartMargins.left + "," + this.chartMargins.top + ")");
@@ -326,7 +323,7 @@ class LineChart extends ChartComponent {
                 .attr("x", -10)
                 .text(d => d);
     
-            var tooltip = new Tooltip(this.focus);
+            var tooltip = new Tooltip(d3.select(this.renderTarget));
                         
             this.yAxisState = this.chartOptions.yAxisState ? this.chartOptions.yAxisState : "stacked"; // stacked, shared, overlap
                                 
@@ -354,7 +351,40 @@ class LineChart extends ChartComponent {
                 super.themify(targetElement, this.chartOptions.theme);
                         
                 this.legendObject.draw(this.chartOptions.legend, this.chartComponentData, labelMouseover, 
-                                       this.svgSelection, this.chartOptions, () => {});
+                                       this.svgSelection, this.chartOptions, () => {}, this.stickySeries);
+
+                if (!this.chartOptions.hideChartControlPanel) {
+                    var controlPanelWidth = Math.max(1, (<any>d3.select(this.renderTarget).node()).clientWidth - 
+                                                        (this.chartOptions.legend == "shown" ? (this.CONTROLSWIDTH + 16) : 0));
+                    d3.select(this.renderTarget).selectAll(".tsi-chartControlsPanel").remove();
+                    var chartControlsPanel = d3.select(this.renderTarget).append("div")
+                        .attr("class", "tsi-chartControlsPanel")
+                        .style("width", controlPanelWidth + "px")
+                        .style("top", Math.max((this.chartMargins.top - 20), 0) + "px");
+        
+                    this.hasStackedButton = true;
+                    this.stackedButton = chartControlsPanel.append("div")
+                        .style("left", this.chartMargins.left + "px")
+                        .attr("class", "tsi-stackedButton")
+                        .on("click", () => {
+                            if (this.yAxisState == "stacked") 
+                                this.yAxisState = "shared";
+                            else if (this.yAxisState == "shared")
+                                this.yAxisState = "overlap";
+                            else  
+                                this.yAxisState = "stacked";
+                            this.draw();
+                        })
+                        .attr('title', 'Stack/Unstack Lines');
+                    
+                    d3.select(this.renderTarget).selectAll(".tsi-gridButton").remove();
+                    if (this.chartOptions.grid) {
+                        this.gridButton = Utils.createGridButton(chartControlsPanel, this, this.chartComponentData.usesSeconds, 
+                                                                 this.chartComponentData.usesMillis, this.chartMargins);
+                    }
+                } else {
+                    this.hasStackedButton = false;
+                }
     
                 this.svgSelection.selectAll('.valueElement').style("visibility", "hidden");
                 this.svgSelection.selectAll(".yAxis").style("visibility", "hidden");    
@@ -434,8 +464,8 @@ class LineChart extends ChartComponent {
                         self.brushStartTime = self.x.invert(d3.event.selection[0]);
                         self.brushEndTime = self.x.invert(d3.event.selection[1]);
                     
-                        if (options.brushMoveAction) {
-                            options.brushMoveAction(self.brushStartTime, self.brushEndTime);
+                        if (self.chartOptions.brushMoveAction) {
+                            self.chartOptions.brushMoveAction(self.brushStartTime, self.brushEndTime);
                         }
                     })
                     .on("end", function () {
@@ -498,8 +528,8 @@ class LineChart extends ChartComponent {
                             self.brushStartTime = self.x.invert(rightSide - self.minBrushWidth);
                             self.brushEndTime = self.x.invert(rightSide);
                         }
-                        if (options.brushMoveEndAction && (d3.event.sourceEvent && d3.event.sourceEvent.type == 'mouseup')) {
-                            options.brushMoveEndAction(self.brushStartTime, self.brushEndTime);
+                        if (self.chartOptions.brushMoveEndAction && (d3.event.sourceEvent && d3.event.sourceEvent.type == 'mouseup')) {
+                            self.chartOptions.brushMoveEndAction(self.brushStartTime, self.brushEndTime);
                         }
                         if (transformCall)
                             transformCall();
@@ -529,7 +559,7 @@ class LineChart extends ChartComponent {
                         .y((d: any) => { 
                             return d.measures ? y(d.measures[this.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy)]) : 0;
                         });
-                    if (options.isArea) {
+                    if (this.chartOptions.isArea) {
                         var areaPath = d3.area()
                         .curve(d3.curveMonotoneX)
                         .defined( (d: any) => { 
@@ -823,29 +853,21 @@ class LineChart extends ChartComponent {
                             .attr("height", textElemDimensions.height + 4);
                         if (this.chartOptions.tooltip){
                             tooltip.render(this.chartOptions.theme);
-                            tooltip.draw(d, this.chartComponentData, xPos, yPos, this.chartWidth, chartHeight, (text) => {
+                            tooltip.draw(d, this.chartComponentData, xPos, yPos, this.chartMargins, (text) => {
                                 var title = d.aggregateName;   
                                 
-                                text.append("tspan")
+                                text.append("div")
                                     .attr("class", "title")
                                     .text(d.aggregateName);
 
-                                var titleOffset = 24;
                                 if (d.splitBy && d.splitBy != ""){
-                                    text.append("tspan")
+                                    text.append("div")
                                         .attr("class", "value")
-                                        .attr("y", titleOffset)
-                                        .attr("x", 0)
                                         .text(d.splitBy);
-                                    titleOffset += this.chartOptions.aggTopMargin;
-                                } else {
-                                    titleOffset += 4;
                                 }
                                                          
                                 Object.keys(d.measures).forEach((measureType, i) => {
-                                    text.append("tspan")
-                                        .attr("x", 0)
-                                        .attr("y", (i * 16) + titleOffset)
+                                    text.append("div")
                                         .attr("class",  () => {
                                             return "value" + (measureType == this.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy) ? 
                                                             " visibleValue" : "");
@@ -914,6 +936,8 @@ class LineChart extends ChartComponent {
                         const site = voronoi(self.getFilteredAndSticky(self.chartComponentData.allValues)).find(mx, my);
                         self.voronoiMouseout(site.data); 
                         self.chartOptions.onMouseout();
+                        if (tooltip)
+                            tooltip.hide();
                     })
                     .on("contextmenu", function (d) {
                         if (!filteredValueExist()) return;
@@ -967,19 +991,24 @@ class LineChart extends ChartComponent {
                             .attr('height', handleHeight)
                             .attr('y', (chartHeight - handleHeight) / 2);
                     }
-                    
+
                     /******************** Stack/Unstack button ************************/
-                    stackedButton.attr("transform", () => {return 'translate(32,' + (chartHeight + timelineHeight + this.chartMargins.top) + ')'})
-                                .attr("opacity",  () => {
-                                    if (this.yAxisState == "stacked") return 1;
-                                    if (this.yAxisState == "shared") return .5
-                                    return .2;
-                                })
-                                .style("display", visibleAggCount < 2 ? "none" : "block");
+                    if (this.hasStackedButton) {
+                        this.stackedButton.style("opacity",  () => {
+                            if (this.yAxisState == "stacked") return 1;
+                            if (this.yAxisState == "shared") return .6;
+                            return .3;
+                        })
+                        .style("display", visibleAggCount < 2 ? "none" : "block")
+                        .classed('tsi-lightTheme', this.chartOptions.theme == 'light')
+                        .classed('tsi-darkTheme', this.chartOptions.theme == 'dark');
+                    }
                                 
                     /******************** Grid button ************************/
-                    gridButton.attr("transform", () => {return 'translate(' + (this.chartWidth + this.chartMargins.left + 26) + ',' + (chartHeight + this.chartOptions.aggTopMargin + timelineHeight) + ')'})
-                                .style("display", !!this.chartOptions.grid ? "block" : "none");
+                    if (this.chartOptions.grid) {
+                        this.gridButton.classed('tsi-lightTheme', this.chartOptions.theme == 'light')
+                            .classed('tsi-darkTheme', this.chartOptions.theme == 'dark');
+                    }
                 }
 
                 var visibleEventsCount = 0;

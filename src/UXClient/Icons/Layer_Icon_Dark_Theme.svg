@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 16 16">
+  <defs>
+    <style>
+      .cls-1 {
+        clip-path: url(#clip-Layer_Icon_Dark_Theme);
+      }
+
+      .cls-2, .cls-5, .cls-6 {
+        fill: none;
+      }
+
+      .cls-3 {
+        opacity: 0.75;
+      }
+
+      .cls-4 {
+        fill: rgba(244,244,244,0.25);
+      }
+
+      .cls-5 {
+        stroke: #f4f4f4;
+      }
+
+      .cls-5, .cls-6 {
+        stroke-miterlimit: 1;
+      }
+
+      .cls-6 {
+        stroke: #000;
+        opacity: 0.25;
+      }
+
+      .cls-7 {
+        fill: #fff;
+      }
+    </style>
+    <clipPath id="clip-Layer_Icon_Dark_Theme">
+      <rect width="16" height="16"/>
+    </clipPath>
+  </defs>
+  <g id="Layer_Icon_Dark_Theme" class="cls-1">
+    <g id="Layer_Icon">
+      <rect id="BG" class="cls-2" width="16" height="16"/>
+      <g id="Background" class="cls-3" transform="translate(3 4.2)">
+        <path id="Fill" class="cls-4" d="M799,553.649l-5.651-5.349L788,553.951l5.651,5.349Z" transform="translate(-788 -548.401)"/>
+        <path id="Path_281" data-name="Path 281" class="cls-5" d="M793.349,548.2,799,553.549l-5.349,5.651L788,553.851Z" transform="translate(-788 -548.4)"/>
+      </g>
+      <path id="Shadow" class="cls-6" d="M792.749,545.5l5.651,5.349-5.349,5.651-5.651-5.349Z" transform="translate(-784.9 -544)"/>
+      <path id="ForegroundFill" class="cls-4" d="M798.9,550.349,793.248,545l-5.349,5.651L793.55,556Z" transform="translate(-784.899 -544)"/>
+      <path id="ForegroundOutline" class="cls-5" d="M793.349,545,799,550.349,793.651,556,788,550.651Z" transform="translate(-785 -544)"/>
+    </g>
+  </g>
+</svg>

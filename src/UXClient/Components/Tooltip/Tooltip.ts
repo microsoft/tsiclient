@@ -7,8 +7,7 @@ import { ChartComponentData } from '../../Models/ChartComponentData';
 class Tooltip extends Component {
 
     public renderTarget;
-    private tooltipG;
-    private tooltipBox;
+    private tooltipDiv;
     private tooltipText;
     public draw;
 
@@ -17,60 +16,64 @@ class Tooltip extends Component {
     }
 
     public hide () {
-        if (this.tooltipG) {
-            this.tooltipG.style("display", "none");
+        if (this.tooltipDiv) {
+            this.tooltipDiv.style("display", "none");
         }
     }
 
+    private getLeftOffset (chartMargins) {
+        //NOTE - this assumes that the svg's right border is the same as the render target's
+        var renderTargetWidth = this.renderTarget.node().getBoundingClientRect().width;
+        var svgWidth = this.renderTarget.select('.tsi-chartSVG').node().getBoundingClientRect().width;
+        return (renderTargetWidth - svgWidth + chartMargins.left);
+    }
+
+    private getTopOffset(chartMargins) {
+        //NOTE - this assumes that the svg's bottom border is the same as the render target's
+        var renderTargetHeight = this.renderTarget.node().getBoundingClientRect().height;
+        var svgHeight = this.renderTarget.select('.tsi-chartSVG').node().getBoundingClientRect().height;
+        return (renderTargetHeight - svgHeight + chartMargins.top);
+    }
+
+    private isRightOffset (tooltipWidth, xPos, chartMarginLeft) {
+        //NOTE - this assumes that the svg's right border is the same as the render target's
+        var renderTargetWidth = this.renderTarget.node().getBoundingClientRect().width;
+        var svgWidth = this.renderTarget.select('.tsi-chartSVG').node().getBoundingClientRect().width;
+        return svgWidth > (xPos + tooltipWidth + 20 + chartMarginLeft);
+    }
+
+    private isTopOffset (tooltipHeight, yPos, chartMarginBottom) {
+        //NOTE - this assumes that the svg's bottom border is the same as the render target's
+        var renderTargetHeight = this.renderTarget.node().getBoundingClientRect().height;
+        return renderTargetHeight > (yPos + tooltipHeight + 20 + chartMarginBottom);
+    }
+
     public render(theme) {
-        if (this.renderTarget.selectAll(".tsi-tooltip").empty()) {
-            this.tooltipG = this.renderTarget.append("g")
-                .attr("class", "tsi-tooltip")
-                .attr("transform", "translate(20,20)");
-            this.tooltipBox = this.tooltipG.append("rect")            
-                .attr("x", 0)
-                .attr("y", 1)
-                .attr("width", 0)
-                .attr("height", 0);
-            this.tooltipText = this.tooltipG.append("text")
-                .attr("x", 0)
-                .attr("y", 10)
-                .attr("alignment-baseline", "hanging")
-                .text(d => d);
-        }
+        this.renderTarget.selectAll(".tsi-tooltip").remove();
 
-        super.themify(this.tooltipG, theme);
+        this.tooltipDiv = this.renderTarget.append("div")
+            .attr("class", "tsi-tooltip");
+        this.tooltipDiv.text(d => d);
 
-        this.draw = (d: any, chartComponentData: ChartComponentData, xPos, yPos, chartWidth, chartHeight, addText) => {
-            this.tooltipG.style("display", "block");
-            this.tooltipG.attr("transform", "translate(20,20)");
-            this.tooltipText.text(null);
-            
-            addText(this.tooltipText);
+        super.themify(this.tooltipDiv, theme);
 
-            var tooltipTextDimensions = this.tooltipText.node().getBoundingClientRect();
-            this.tooltipBox.attr("x", -10)
-                .attr("y", -10)
-                .attr("width", tooltipTextDimensions.width + 20)
-                .attr("height", tooltipTextDimensions.height + 10);
+        this.draw = (d: any, chartComponentData: ChartComponentData, xPos, yPos, chartMargins, addText) => {
+            this.tooltipDiv.style("display", "block")
+                .text(null);
 
-            // check to see if tooltipG is too low
-            var newYTranslate = 20;
-            var diffWithBottom = (yPos + 20 + tooltipTextDimensions.height) - chartHeight;
-            if (diffWithBottom > 0) {
-                var newYTranslate = 20 - diffWithBottom;
-            }
+            var leftOffset = this.getLeftOffset(chartMargins);
+            var topOffset = this.getTopOffset(chartMargins)
+            addText(this.tooltipDiv);
 
-            //check to see if tooltipG is too far to the right
-            var newXTranslate = 20;
-            var diffWithRight = (xPos + 20 + tooltipTextDimensions.width) - chartWidth;
-            if (diffWithRight > 0) {
-                var newXTranslate = -20 - tooltipTextDimensions.width; 
-                if (newXTranslate + xPos < 0) {
-                    newXTranslate = 20;
-                }
-            }
-            this.tooltipG.attr("transform", "translate(" + newXTranslate + "," + newYTranslate + ")");
+            this.tooltipDiv.style("left", Math.round(xPos + leftOffset) + "px")
+                .style("top", Math.round(yPos) + topOffset + "px");
+        
+            var tooltipWidth = this.tooltipDiv.node().getBoundingClientRect().width;
+            var tooltipHeight = this.tooltipDiv.node().getBoundingClientRect().height;
+            var translateX = this.isRightOffset(tooltipWidth, xPos, chartMargins.left) ? 20 : (-Math.round(tooltipWidth) - 20); 
+            var translateY = this.isTopOffset(tooltipHeight, yPos, chartMargins.bottom) ? 20 :  (-Math.round(tooltipHeight) - 20);
+            this.tooltipDiv.style("transform", "translate(" + translateX + "px," + translateY + "px)");
+
         }
     }
 

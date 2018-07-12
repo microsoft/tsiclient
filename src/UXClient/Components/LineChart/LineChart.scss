@@ -8,7 +8,7 @@
     
     color: $gray1;
     background: $gray3;
-    .lineChartSVG{
+    .tsi-lineChartSVG{
         text{
             fill: $gray1;
         }
@@ -68,7 +68,7 @@
         }
     }
 
-    .lineChartSVG {
+    .tsi-lineChartSVG {
 
         .voronoiRect {
             fill-opacity: 0;
@@ -113,6 +113,22 @@
         .gapLine {
             stroke: grey !important;
             stroke-width: 1px !important;
+        }
+    }
+    .tsi-stackedButton {
+        &.tsi-lightTheme {
+            background-image: url(../../Icons/Layer_Icon_Light_Theme.svg);
+        }
+        &.tsi-darkTheme {
+            background-image: url(../../Icons/Layer_Icon_Dark_Theme.svg);
+        }
+    }
+    .tsi-gridButton { 
+        &.tsi-lightTheme {
+            background-image: url(../../Icons/Grid_Icon_Light_Theme.svg);
+        }
+        &.tsi-darkTheme {
+            background-image: url(../..//Icons/Grid_Icon_Dark_Theme.svg);
         }
     }
 }

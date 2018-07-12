@@ -9,7 +9,6 @@ class TimelineComponent extends Component {
 
 	protected targetElement: any;
 	protected g: any;
-	protected tooltip: any;
 	protected xAxis: any;
 	protected xScale: any;
 
@@ -59,17 +58,10 @@ class TimelineComponent extends Component {
 			var width: number = Math.max((this.targetElement.node()).clientWidth, this.MINWIDTH);
 			var svg = this.targetElement.append("svg")
 				.attr("width", width)
-				.attr("height", height);
+				.attr("height", height)
+				.attr("class", "tsi-chartSVG");
 			this.g = svg.append('g').attr("transform", 'translate(' + margins.left + ', 0)');
 	
-			this.tooltip =  this.g.append("g")
-				.classed("tooltip", true)
-				.attr("display", "none")
-				.attr("transform", "translate(0,0)")
-			
-			this.tooltip.append("rect").attr("x", 0).attr("y", 0).attr("width", 20).attr("height", 20)
-			this.tooltip.append("text").text("").attr("text-anchor", "start").attr("x", 0).attr("y", 0);
-			
 			this.xAxis = this.g.append("g")
 					.attr("class", "xAxis")
 					.attr("transform", "translate(0,10)")
@@ -79,41 +71,6 @@ class TimelineComponent extends Component {
 	protected elementMouseover = (d, i, timeFormatFunction) => {
 		var selectedTime = new Date(d.time);
 		var xPos = this.xScale(selectedTime);
-		
-		var tooltipText = this.tooltip.select("text").html('');
-		tooltipText.append('tspan')
-			.text(timeFormatFunction(d, i))
-			.classed('title', true)
-			.attr("y", 17)
-			.attr("x", 5)
-			.attr("text-anchor", "start");
-		tooltipText.append('tspan')
-			.text(d.description)
-			.classed('value', true)
-			.attr("y", 38)
-			.attr("x", 5)
-			.attr("text-anchor", "start");
-		
-		this.tooltip.attr("transform", "translate(" + xPos + ",0)")
-			.attr("display", "block");
-
-		var textElemDimensions = (<any>this.tooltip.select('text').node())
-			.getBoundingClientRect();
-		
-		var newXTranslate = xPos;
-		// check to see if tooltipG is too far right
-		var diffWithRight = xPos + (textElemDimensions.width) - (this.width - (this.margins.left + 3));
-		if (diffWithRight > 0) {
-			newXTranslate = xPos - diffWithRight;
-		}
-
-		this.tooltip.attr("transform", "translate(" + newXTranslate + "," + (-8 - textElemDimensions.height ) +")");
-
-		this.tooltip.select("rect")
-			.attr("height", textElemDimensions.height + 5)
-			.attr("y", 0)
-			.attr("x",  0)
-			.attr("width",  (textElemDimensions.width + 10));
 	}
 }
 export {TimelineComponent}
