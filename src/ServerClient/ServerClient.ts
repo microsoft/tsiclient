@@ -56,7 +56,7 @@ class ServerClient {
                 }
             }
 
-            xhr.open('POST', "https://" + uri + "/aggregates?api-version=2016-12-12");
+            xhr.open('POST', "https://" + uri + "/aggregates" + this.apiVersionUrlParam);
             xhr.setRequestHeader('Authorization', 'Bearer ' + token);
             xhr.send(JSON.stringify(contentObject));
         }
@@ -70,13 +70,28 @@ class ServerClient {
 
     public getTimeseriesInstances(token: string, environmentFqdn: string) {
         return new Promise((resolve: any, reject: any) => {
-            this.getDataWithContinuationBatch(token, resolve, reject, [], 'https://' + environmentFqdn + '/timeseries/instances/?api-version=2016-12-12', 'GET', 'instances');
+            this.getDataWithContinuationBatch(token, resolve, reject, [], 'https://' + environmentFqdn + '/timeseries/instances/' + this.apiVersionUrlParam, 'GET', 'instances');
         });        
+    }
+    
+    public getTimeseriesTypes(token: string, environmentFqdn: string) {
+        let uri = 'https://' + environmentFqdn + '/timeseries/types/' + this.apiVersionUrlParam;
+        return this.createPromiseFromXhr(uri, "GET", {}, token, (responseText) => {return JSON.parse(responseText);});
+    }
+
+    public getTimeseriesHierarchies(token: string, environmentFqdn: string) {
+        let uri = 'https://' + environmentFqdn + '/timeseries/hierarchies/' + this.apiVersionUrlParam;
+        return this.createPromiseFromXhr(uri, "GET", {}, token, (responseText) => {return JSON.parse(responseText);});
+    }
+
+    public getTimeseriesModel(token: string, environmentFqdn: string) {
+        let uri = 'https://' + environmentFqdn + '/timeseries/model/' + this.apiVersionUrlParam;
+        return this.createPromiseFromXhr(uri, "GET", {}, token, (responseText) => {return JSON.parse(responseText);});
     }
 
     public getReferenceDatasetRows(token: string, environmentFqdn: string, datasetId: string) {
         return new Promise((resolve: any, reject: any) => {
-            this.getDataWithContinuationBatch(token, resolve, reject, [], "https://" + environmentFqdn + "/referencedatasets/" + datasetId + "/items?api-version=2016-12-12&format=stream", 'POST', 'items');
+            this.getDataWithContinuationBatch(token, resolve, reject, [], "https://" + environmentFqdn + "/referencedatasets/" + datasetId + "/items" + this.apiVersionUrlParam + "&format=stream", 'POST', 'items');
         });        
     }
 
