@@ -420,6 +420,7 @@ class AvailabilityChart extends ChartComponent{
             var selectValue = Number(d3.select(this).property('value'));
             if (!isNaN(selectValue)) {
                 self.setBrush(Math.max(self.toMillis - selectValue, self.fromMillis), self.toMillis);
+                self.chartOptions.brushMoveEndAction(new Date(self.selectedFromMillis), new Date(self.selectedToMillis));
             }
         });
     }
