@@ -134,7 +134,7 @@ class ChartComponentData {
                 } else {
                     newDisplayState[aggKey].splitBys[splitBy].types = this.determineMeasureTypes(this.timeArrays[aggKey][splitBy])
                 }
-                if (!newDisplayState[aggKey].splitBys[splitBy].visibleType){
+                if (!newDisplayState[aggKey].splitBys[splitBy].visibleType || (newDisplayState[aggKey].splitBys[splitBy].types.indexOf(newDisplayState[aggKey].splitBys[splitBy].visibleType) === -1)){
                     var visibleMeasure = newDisplayState[aggKey].splitBys[splitBy].types.indexOf("avg") != -1 ? "avg" : 
                         newDisplayState[aggKey].splitBys[splitBy].types[0];
                     newDisplayState[aggKey].splitBys[splitBy].visibleType = visibleMeasure;
