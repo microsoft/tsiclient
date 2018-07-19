@@ -1,0 +1,77 @@
+@import "../../styles";
+
+@mixin modelSearchColors($grays){
+	$gray1: nth($grays, 1); // text
+    $gray2: nth($grays, 2); // hover
+    $gray3: nth($grays, 3); // element
+    $gray4: nth($grays, 4); // background
+	$gray5: nth($grays, 5); // alt element
+    $gray6: nth($grays, 6);
+    
+    background: $gray4;
+    color: $gray1;
+    
+    .tsi-modelSearchFacets{
+        border-right: 1px solid $gray1;
+    }    
+    .tsi-modelSearchInput{
+        background: $gray4;
+        color: $gray1;
+        border: 1px solid $gray1;
+    }
+    hit{
+        background: yellow;
+        color: black;
+    }
+}
+
+
+.tsi-modelSearchWrapper{
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    
+    &.tsi-dark{
+        $grays: grays('dark');
+        @include modelSearchColors($grays);
+    }
+    &.tsi-light{
+        $grays: grays('light');
+        @include modelSearchColors($grays);
+    }
+
+    .tsi-modelSearchInputWrapper{
+        height: 48px;
+        width: 100%;
+        flex-shrink: 0;
+        .tsi-modelSearchInput{
+            margin: 8px;
+            padding: 4px;
+        }
+    }
+
+    .tsi-modelSearchResults{
+        flex-grow: 1;
+        display: flex;
+        height: calc(100% - 48px);
+        .tsi-modelSearchFacets{
+            padding: 8px;
+            flex-basis: 170px;
+        }
+        .tsi-modelSearchInstances{
+            overflow: auto;
+            flex-grow: 1;
+            .tsi-modelResult{
+                margin: 8px;
+                .tsi-modelPK{
+                    font-weight: 600;
+                }
+                .tsi-modelHighlights{
+                    font-size: 11px;
+                    margin-left: 8px;
+                }
+            }
+        }
+    }
+}

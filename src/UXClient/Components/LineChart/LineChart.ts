@@ -364,7 +364,6 @@ class LineChart extends ChartComponent {
         
                     this.hasStackedButton = true;
                     this.stackedButton = chartControlsPanel.append("div")
-                        .style("left", this.chartMargins.left + "px")
                         .attr("class", "tsi-stackedButton")
                         .on("click", () => {
                             if (this.yAxisState == "stacked") 

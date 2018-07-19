@@ -19,7 +19,7 @@ class Hierarchy extends Component {
         var self = this;
         var targetElement = d3.select(this.renderTarget).classed('tsi-hierarchy', true);
         targetElement.html('');
-        super.themify(targetElement, options.theme);
+        super.themify(targetElement, options && options.theme ? options.theme : null);
         this.dnd = !!options.dnd;
         this.ondragstart = options.hasOwnProperty('ondragstart') ? options.ondragstart : () => {};
         this.ondragend = options.hasOwnProperty('ondragend') ? options.ondragend : () => {};

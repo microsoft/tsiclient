@@ -89,6 +89,16 @@ class ServerClient {
         return this.createPromiseFromXhr(uri, "GET", {}, token, (responseText) => {return JSON.parse(responseText);});
     }
 
+    public getTimeseriesInstancesSuggestions(token: string, environmentFqdn: string, searchString: string) {
+        let uri = 'https://' + environmentFqdn + '/timeseries/instances/suggest' + this.apiVersionUrlParam;
+        return this.createPromiseFromXhr(uri, "POST", JSON.stringify({searchString: searchString}), token, (responseText) => {return JSON.parse(responseText);});
+    }    
+
+    public getTimeseriesInstancesSearch(token: string, environmentFqdn: string, searchString: string) {
+        let uri = 'https://' + environmentFqdn + '/timeseries/instances/search' + this.apiVersionUrlParam;
+        return this.createPromiseFromXhr(uri, "POST", JSON.stringify({searchString: searchString}), token, (responseText) => {return JSON.parse(responseText);});
+    }    
+
     public getReferenceDatasetRows(token: string, environmentFqdn: string, datasetId: string) {
         return new Promise((resolve: any, reject: any) => {
             this.getDataWithContinuationBatch(token, resolve, reject, [], "https://" + environmentFqdn + "/referencedatasets/" + datasetId + "/items" + this.apiVersionUrlParam + "&format=stream", 'POST', 'items');
