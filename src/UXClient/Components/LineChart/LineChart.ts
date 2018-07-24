@@ -36,10 +36,12 @@ class LineChart extends ChartComponent {
     private brushElem: any;
     public brushStartTime: Date;
     public brushEndTime: Date;
+    private brushStartPosition: number;
+    private brushEndPosition: number;
     
     private chartMargins: any = {
         top: 40,
-        bottom: 48,
+        bottom: 40,
         left: 70, 
         right: 60
     };
@@ -201,6 +203,16 @@ class LineChart extends ChartComponent {
             let leftSide = Math.min(this.chartWidth - (2 * this.xOffset), Math.max(this.xOffset, this.x(this.brushStartTime)));
             let rightSide = Math.min(this.chartWidth - (2 * this.xOffset), Math.max(this.xOffset, this.x(this.brushEndTime)));
             this.surpressBrushTimeSet = true;
+            this.brushStartPosition = leftSide;
+            this.brushEndPosition = rightSide;
+            //small adjusetment so that width is always at least 1 pixel
+            if (rightSide - leftSide < 1) {
+                if (rightSide + 1 > this.chartWidth - (2 * this.xOffset)) {
+                    leftSide += -1;
+                } else {
+                    rightSide += 1;
+                }
+            }
             this.brushElem.call(this.brush.move, [leftSide, rightSide]);
         }
     }
@@ -355,7 +367,7 @@ class LineChart extends ChartComponent {
 
                 if (!this.chartOptions.hideChartControlPanel) {
                     var controlPanelWidth = Math.max(1, (<any>d3.select(this.renderTarget).node()).clientWidth - 
-                                                        (this.chartOptions.legend == "shown" ? (this.CONTROLSWIDTH + 16) : 0));
+                                                        (this.chartOptions.legend == "shown" ? this.CONTROLSWIDTH : 0));
                     d3.select(this.renderTarget).selectAll(".tsi-chartControlsPanel").remove();
                     var chartControlsPanel = d3.select(this.renderTarget).append("div")
                         .attr("class", "tsi-chartControlsPanel")
@@ -374,8 +386,7 @@ class LineChart extends ChartComponent {
                             else  
                                 this.yAxisState = "stacked";
                             this.draw();
-                        })
-                        .attr('title', 'Stack/Unstack Lines');
+                        });
                     
                     d3.select(this.renderTarget).selectAll(".tsi-gridButton").remove();
                     if (this.chartOptions.grid) {
@@ -460,9 +471,17 @@ class LineChart extends ChartComponent {
                             self.contextMenu.hide();
                         if (self.brushContextMenu)
                             self.brushContextMenu.hide();
-                    
-                        self.brushStartTime = self.x.invert(d3.event.selection[0]);
-                        self.brushEndTime = self.x.invert(d3.event.selection[1]);
+                        
+                        var newBrushStartPosition = d3.event.selection[0];
+                        var newBrushEndPosition = d3.event.selection[1];
+                        if (newBrushStartPosition != self.brushStartPosition) {
+                            self.brushStartTime = self.x.invert(d3.event.selection[0]);
+                            self.brushStartPosition = newBrushStartPosition;
+                        }
+                        if (newBrushEndPosition != self.brushEndPosition) {
+                            self.brushEndTime = self.x.invert(d3.event.selection[1]);
+                            self.brushEndPosition = newBrushEndPosition;
+                        }
                     
                         if (self.chartOptions.brushMoveAction) {
                             self.chartOptions.brushMoveAction(self.brushStartTime, self.brushEndTime);
@@ -472,6 +491,8 @@ class LineChart extends ChartComponent {
                         if (d3.event && d3.event.selection == null && d3.event.sourceEvent && d3.event.sourceEvent.type == "mouseup" && self.chartOptions.minBrushWidth == 0) {
                             self.brushStartTime = null;
                             self.brushEndTime = null;
+                            self.brushStartPosition = null;
+                            self.brushEndPosition = null;
                             const [mx, my] = d3.mouse(this);
                             var site: any = voronoi(self.getFilteredAndSticky(self.chartComponentData.allValues)).find(mx, my);
                             if (self.chartComponentData.stickiedKey != null) {
@@ -516,7 +537,8 @@ class LineChart extends ChartComponent {
                                 if (newBrushStartTime != self.brushStartTime || newBrushEndTime != self.brushEndTime) {
                                     self.brushStartTime = newBrushStartTime;
                                     self.brushEndTime = newBrushEndTime;
-                                    var endX = findClosestTime(d3.event.selection[1]);
+                                    self.brushStartPosition = self.x(self.brushStartTime);
+                                    self.brushEndPosition = self.x(self.brushEndTime);
                                     transformCall = () => d3.select(this).transition().call(d3.event.target.move, [self.x(self.brushStartTime), self.x(self.brushEndTime)]);
                                 }
                             }
@@ -524,9 +546,6 @@ class LineChart extends ChartComponent {
                         if (d3.event.selection[1] - d3.event.selection[0] < self.minBrushWidth) {
                             let rightSide = Math.min(d3.event.selection[0] + self.minBrushWidth, self.x.range()[1]);
                             transformCall = () => d3.select(this).transition().call(d3.event.target.move, [rightSide - self.minBrushWidth, rightSide]);
-                            //set time and fire brushMoveAction since this won't happen in on brush
-                            self.brushStartTime = self.x.invert(rightSide - self.minBrushWidth);
-                            self.brushEndTime = self.x.invert(rightSide);
                         }
                         if (self.chartOptions.brushMoveEndAction && (d3.event.sourceEvent && d3.event.sourceEvent.type == 'mouseup')) {
                             self.chartOptions.brushMoveEndAction(self.brushStartTime, self.brushEndTime);

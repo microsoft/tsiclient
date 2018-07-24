@@ -76,7 +76,7 @@
     width: 100%;
     .tsi-timePickerContainer {
         width: calc(100% - 4px);
-        height: calc(100% - 48px);
+        height: calc(100% - 60px);
         overflow: visible;
         position: relative;
         .tsi-timePickerChart {
@@ -116,7 +116,7 @@
         width: calc(100% - 160px);
         position: relative;
         margin: 0 80px;
-        display: flex;
+        display: inline-flex;
         z-index: 1;
 
         .tsi-timePicker {
@@ -154,22 +154,43 @@
         }
 
         .tsi-dateTimeContainer {
-            right: 200px;
+            right: 0px;
             position: absolute;
+            display: inline-flex;
+        }
+        .tsi-toText {
+            width: 32px;
+            font-size: 20px; 
+            display: inline-block;
+            vertical-align: top;
+            text-align: center;
         }
 
         .tsi-dateTimeInputDiv {
-            display: block;
-            height: 16px;
+            display: inline-block;
+            padding-left: 4px;
+            padding-right: 4px;
             input {
                 width: 70px;
                 font-size: 12px;
                 background: transparent;
-                border: none;
+                border: 1px solid black;
+                padding: 4px;
+                margin: 2px;
                 position: relative;
                 top: 0px;
-                display: inline-block;
-                left: 20px;
+                display: block;
+            }
+        }
+        .tsi-dateTimeErrorDiv {
+            width: 200px;
+            display: inline-block;
+            padding-left: 4px;
+            font-size: 12px;
+            .tsi-invalidTime {
+                height: 20px;
+                padding: 4px;
+                width: 100%;
             }
         }
     }

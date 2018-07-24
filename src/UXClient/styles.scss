@@ -40,6 +40,37 @@
     }
 }
 
+.pika-single {
+    .pika-lendar {
+        abbr {
+            text-decoration: none;
+        }
+        text-decoration: none;
+        width: 212px;
+        .pika-table {
+            .pika-row {
+                height: 28px;
+                margin: 0px;
+                td {
+                    padding: 0px;
+                    .pika-day {
+                        width: 100%;
+                        height: 28px;
+                        margin: 0px;
+                        &:hover {
+                            background: grey;
+                        }
+                    }
+                }
+            }
+            .pika-button {
+                border-radius: 0px;
+                text-align: center;
+            }
+        }
+    }
+}
+
 @mixin chartColors($grays){
     $gray1: nth($grays, 1); // text
     $gray2: nth($grays, 2); // hover
