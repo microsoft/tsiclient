@@ -136,6 +136,7 @@ class AvailabilityChart extends ChartComponent{
     }
     private dateTimePickerAction (fromMillis, toMillis) {
         this.setBrush(fromMillis, toMillis);
+        this.chartOptions.brushMoveEndAction(new Date(fromMillis), new Date(toMillis));
         this.dateTimePickerContainer.style("display", "none");
     }
 
@@ -246,7 +247,7 @@ class AvailabilityChart extends ChartComponent{
             this.buildFromAndToContainer();
             this.sparkLineChart = new LineChart(sparkLineContainer.node() as any);
             this.dateTimePickerContainer = this.targetElement.append("div").classed("tsi-dateTimePickerContainer", true);
-            this.dateTimePicker = new tsiClient.ux.DateTimePicker(this.dateTimePickerContainer.node());
+            this.dateTimePicker = new DateTimePicker(this.dateTimePickerContainer.node());
             window.addEventListener('resize', () => {
                 this.timePickerLineChart.draw();
                 this.setTicks();
