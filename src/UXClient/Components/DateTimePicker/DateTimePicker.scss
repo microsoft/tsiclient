@@ -8,18 +8,58 @@
     $gray4: nth($grays, 4); // background
     $gray5: nth($grays, 5);
 
-    background-color: white;
+    background-color: $gray3;
+    color: $gray1;
+
+    .tsi-select, .tsi-select option {
+        color: $gray1;
+        background-color: $gray3;
+    }
+    .pika-single  {
+        .pika-select, .pika-select option, .pika-label, .pika-day, .pika-prev, .pika-next {
+            color: $gray1;
+            background-color: $gray3;    
+        } 
+
+        .pika-prev, .pika-next {
+            color: green;
+            background-color: white;
+        }
+        // .is-inrange {
+        //     .pika-day {
+
+        //     }
+        // }
+        color: $gray1;
+        background-color: $gray3;
+    }
 }
 
 .tsi-dateTimePicker {
+    box-shadow: 0 3px 6px 0 rgba(0, 0, 0, 0.16);
     &.tsi-dark{
 		$grays: grays('dark');
-		@include dateTimePickerColors($grays);
+        @include dateTimePickerColors($grays);
+        .pika-single {
+            .is-inrange {
+                .pika-day {
+                    background-color: rgba(48, 157, 144, .4) !important; 
+                }
+            }
+        }
 	}
 	&.tsi-light{
 		$grays: grays('light');
 		@include dateTimePickerColors($grays);
     }
+
+    // .pika-single {
+    //     .is-endrange, .is-startrange {
+    //         .pika-day {
+    //             color: white; 
+    //         }
+    //     }
+    // }
 
     display: block;
     align-items: stretch;
@@ -35,6 +75,25 @@
         .tsi-errorMessage {
             padding: 8px;
         }
+    }
+
+    .tsi-select {
+        padding: 2px;
+        position: relative;
+        top: 4px;
+        option {
+            padding: 6px;
+        }
+        width: 100px;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+        padding: 6px;
+        background: url(../../Icons/chevron.svg) 85% / 25% no-repeat;
+        background-position-y: 12px;
+        border-width: 1px;
+        border-style: solid;
+        height: 32px;
     }
 
     .tsi-timeControlsContainer {

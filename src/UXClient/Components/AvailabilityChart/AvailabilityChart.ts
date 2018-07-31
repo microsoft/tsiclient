@@ -1,13 +1,12 @@
-import * as d3 from 'd3';
-import * as Pikaday from 'pikaday';
-import './AvailabilityChart.scss';
-import { LineChart } from '../LineChart/LineChart';
+import * as d3 from "d3";
+import "./AvailabilityChart.scss";
+import { LineChart } from "../LineChart/LineChart";
+import { DateTimePicker } from "../DateTimePicker/DateTimePicker";
 import { Utils } from "./../../Utils";
 import { Component } from "./../../Interfaces/Component";
-import { ChartComponent } from '../../Interfaces/ChartComponent';
-import { UXClient } from '../../UXClient';
-import { ChartOptions } from '../../Models/ChartOptions';
-import 'pikaday/css/pikaday.css';
+import { ChartComponent } from "../../Interfaces/ChartComponent";
+import { UXClient } from "../../UXClient";
+import { ChartOptions } from "../../Models/ChartOptions";
 
 class AvailabilityChart extends ChartComponent{
     private fromMillis: number;
@@ -19,9 +18,9 @@ class AvailabilityChart extends ChartComponent{
     private minBrushWidth: number = 5;
     private color: string;
     private transformedAvailability: any;
+    private minGhostWidth = 2;
 
-    private fromDatePicker: any;
-    private toDatePicker: any;
+    private timeContainer;
 
     private margins = {
         left: 10,
@@ -40,6 +39,8 @@ class AvailabilityChart extends ChartComponent{
     private rawAvailability: any;
     private maxBuckets: number;
     private bucketSize: number;
+    private dateTimePickerContainer: any;
+    private dateTimePicker: any;
     private quickTimeArray: Array<any> = [
         ["Last 30 mins", 30 * 60 * 1000],
         ["Last Hour", 60 * 60 * 1000],
@@ -133,6 +134,10 @@ class AvailabilityChart extends ChartComponent{
             singleLineXAxisLabel: true
         }});
     }
+    private dateTimePickerAction (fromMillis, toMillis) {
+        this.setBrush(fromMillis, toMillis);
+        this.dateTimePickerContainer.style("display", "none");
+    }
 
     //transformation of buckets created by the UX client to buckets for the availabilityChart
     private createDisplayBuckets (fromMillis: number, toMillis: number) {
@@ -179,7 +184,7 @@ class AvailabilityChart extends ChartComponent{
         return [{"availabilityCount" : {"" : buckets}}];
     }
 
-    public render(transformedAvailability: any, chartOptions: any, rawAvailability: any) {
+    public render (transformedAvailability: any, chartOptions: any, rawAvailability: any) {
         this.setChartOptions(chartOptions);
         this.rawAvailability = rawAvailability;
         this.transformedAvailability = transformedAvailability;
@@ -226,13 +231,6 @@ class AvailabilityChart extends ChartComponent{
             }
             if (brushMoveAction != null)
                 brushMoveAction(from, to);
-            
-            this.fromDatePicker.setDate(this.offsetUTC(new Date(self.selectedFromMillis)), true);
-            this.toDatePicker.setDate(this.offsetUTC(new Date(self.selectedToMillis)), true);
-            
-            if (this.timePickerTextContainer) {
-                this.timePickerTextContainer.select(".tsi-dateTimeContainer").select(".tsi-dateTimeErrorDiv").select('.tsi-invalidTime').html("");
-            }
         }
 
         super.themify(this.targetElement, chartOptions.theme);
@@ -245,8 +243,10 @@ class AvailabilityChart extends ChartComponent{
             this.timePickerTextContainer = this.targetElement.append("div").classed("tsi-timePickerTextContainer", true);
             this.timePickerLineChart = new LineChart(this.timePickerChart.node() as any);
             this.createQuickTimePicker();
-            this.buildFromAndToInput();
+            this.buildFromAndToContainer();
             this.sparkLineChart = new LineChart(sparkLineContainer.node() as any);
+            this.dateTimePickerContainer = this.targetElement.append("div").classed("tsi-dateTimePickerContainer", true);
+            this.dateTimePicker = new tsiClient.ux.DateTimePicker(this.dateTimePickerContainer.node());
             window.addEventListener('resize', () => {
                 this.timePickerLineChart.draw();
                 this.setTicks();
@@ -255,6 +255,25 @@ class AvailabilityChart extends ChartComponent{
                 setTimeout(() => {
                     this.drawGhost();
                 }, 100);
+            });
+            var pickerContainerAndContent = this.targetElement.selectAll(".tsi-dateTimePickerContainer, .tsi-dateTimePickerContainer *");
+            var dateTimeTextAndContent = this.targetElement.selectAll(".tsi-dateTimeContainer, .tsi-dateTimeContainer *");
+
+            var self = this;
+            var equalToEventTarget = (function ()  {
+                return (this == d3.event.target) || (this == self.timeContainer.node());
+            });
+
+            var dateTimeTextChildren = this.targetElement.select(".tsi-dateTimeContainer").selectAll("*");
+            var pickerContainerChildren;
+            d3.select("body").on("click", () => {
+                pickerContainerChildren = this.targetElement.select(".tsi-dateTimePickerContainer").selectAll("*");
+
+                var outside = dateTimeTextChildren.filter(equalToEventTarget).empty();
+                var inClickTarget = pickerContainerChildren.filter(equalToEventTarget).empty();
+                if (outside && inClickTarget) {
+                    this.dateTimePickerContainer.style("display", "none");
+                }
             });
         }
 
@@ -354,40 +373,26 @@ class AvailabilityChart extends ChartComponent{
             let year = date.getUTCFullYear();
             let month = (date.getUTCMonth() + 1) < 10 ? "0" + (date.getUTCMonth() + 1) : (date.getUTCMonth() + 1);
             let day = date.getUTCDate() < 10 ? "0" + date.getUTCDate() : date.getUTCDate();
-            this.timePickerTextContainer.select(".tsi-timeInput" + fromOrToText)
-                .node().value = hours + ":" + minutes;
-            this.timePickerTextContainer.select(".tsi-dateInput" + fromOrToText)
-                .node().value = year + "-" + month + "-" + day;
+            this.timePickerTextContainer.select(".tsi-dateTimeTextContainer" + fromOrToText).select(".tsi-dateTimeText")
+                .node().innerHTML = month + "/" + day + "/" + year + " " + Utils.UTCTwelveHourFormat(date) + " ";
         });
         this.setSelectedMillis(fromMillis, toMillis);
     }
 
-    private drawGhost() {
+    private drawGhost () {
         var svgGroup = this.targetElement.select('.tsi-sparklineContainer').select(".tsi-lineChartSVG").select(".svgGroup");
         svgGroup.selectAll(".ghostRect").remove();
         svgGroup.append("rect")
             .classed("ghostRect", true)
             .attr("x", Math.max(this.sparkLineChart.x.range()[0], this.sparkLineChart.x(new Date(this.selectedFromMillis))))
             .attr("y", 0)
-            .attr("width", Math.min(Math.max(this.sparkLineChart.xOffset, 
+            .attr("width", Math.min(Math.max(this.minGhostWidth, 
                             this.sparkLineChart.x(new Date(this.selectedToMillis)) - this.sparkLineChart.x(new Date(this.selectedFromMillis))), 
                             this.sparkLineChart.x.range()[1] - this.sparkLineChart.x.range()[0]))
             .attr("height", 14)
             .attr("fill", this.chartOptions.color ? this.chartOptions.color : 'dark-grey')
             .attr("fill-opacity", .3)
             .attr("pointer-events", "none");
-    }
-
-    private isFromTimeValid (fromTime) { 
-        return (fromTime.valueOf() < this.toMillis && 
-                fromTime.valueOf() > this.fromMillis && 
-                fromTime.valueOf() < this.selectedToMillis);
-    }
-
-    private isToTimeValid (toTime: Date) {
-        return (toTime.valueOf() < this.toMillis && 
-                toTime.valueOf() > this.fromMillis && 
-                toTime.valueOf() > this.selectedFromMillis);    
     }
 
     private buildCompactFromAndTo () { 
@@ -434,163 +439,39 @@ class AvailabilityChart extends ChartComponent{
         }
     }
 
-    //date compare checks to see if two dates share the same UTC year, month and day
-    private dateCompare (date1: Date, date2: Date) {
-        return date1.getUTCFullYear() == date2.getUTCFullYear() &&
-               date1.getUTCMonth() == date2.getUTCMonth() && 
-               date1.getUTCDate() == date2.getUTCDate();                 
-    }
-
-    private setFromTimeFromInput (fromTime: Date) {
-        if (this.isFromTimeValid(fromTime)) {
-            this.timePickerLineChart.setBrushStartTime(fromTime.valueOf());
-            this.setBrush(fromTime.valueOf(), this.selectedToMillis);
-        } else {
-            //check to see if the date is correct but the time isn't - if true, reset the time and re-fire
-            if (this.dateCompare(fromTime, new Date(this.fromMillis))) {
-                this.timePickerLineChart.setBrushStartTime(this.fromMillis);
-                this.setBrush(this.fromMillis, this.selectedToMillis);
-                return;
-            }
-            if (this.dateCompare(new Date(this.selectedToMillis), fromTime)) {
-                var adjustedFromTime = new Date(this.selectedToMillis);
-                adjustedFromTime.setUTCHours(0);
-                adjustedFromTime.setUTCMinutes(0);
-                this.setBrush(Math.max(this.fromMillis, adjustedFromTime.valueOf()), this.selectedToMillis);
-            }
-        }
-    }
-
-    private setToTimeFromInput (toTime: Date) {
-        if (this.isToTimeValid(toTime)) {
-            this.timePickerLineChart.setBrushEndTime(toTime.valueOf());
-            this.setBrush(this.selectedFromMillis, toTime.valueOf());
-        } else {
-            //check to see if the date is correct but the time isn't - if true, reset the time and re-fire
-            if (this.dateCompare(toTime, new Date(this.toMillis))) {
-                this.timePickerLineChart.setBrushStartTime(this.toMillis);
-                this.setBrush(this.selectedFromMillis, this.toMillis);
-                return;
-            }
-            if (this.dateCompare(toTime, new Date(this.selectedFromMillis))) {
-                var adjustedToTime = new Date(this.selectedFromMillis);
-                adjustedToTime.setUTCHours(23);
-                adjustedToTime.setUTCMinutes(59);
-                this.setBrush(this.selectedFromMillis, Math.min(adjustedToTime.valueOf(), this.toMillis));
-            }
-        }
-    }
-
-    private isValidTime (timeString: string): boolean {
-        let re = /^([0-9]|0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$/;
-        return re.test(timeString);
-    }
-
-    private getHours = (validTimeString): number => {
-        return Number(validTimeString.slice(0, validTimeString.indexOf(":")));
-    }
-
-    private getMinutes = (validTimeString): number => {
-        return Number(validTimeString.slice(validTimeString.indexOf(":") + 1, validTimeString.length));
-    }
-
-    private offsetUTC(date: Date) {
+    private offsetUTC (date: Date) {
         date.setTime( date.getTime() + date.getTimezoneOffset()*60*1000 );
         return date;
     }
 
-    private buildFromAndToInput () {
-        var timeContainer = this.timePickerTextContainer.append("div")
-            .classed('tsi-dateTimeContainer', true);
-
+    private buildFromAndToContainer () {
         var self = this;
-        var fromInputDiv = timeContainer.append("div").attr("class", "tsi-dateTimeInputDiv tsi-dateTimeInputDivFrom");
+        this.timeContainer = this.timePickerTextContainer.append("div")
+            .classed('tsi-dateTimeContainer', true)
+            .on("click", function () {
+                self.dateTimePickerContainer.style("display", "block");
+                var minMillis = self.fromMillis;
+                var maxMillis = self.toMillis
+                var startMillis = self.selectedFromMillis;
+                var endMillis = self.selectedToMillis;
+                self.dateTimePicker.render({'theme': self.chartOptions.theme}, minMillis, maxMillis, startMillis, endMillis, 
+                                        (fromMillis, toMillis) => {
+                                            self.dateTimePickerAction(fromMillis, toMillis);
+                                        });
 
-        var i18nOptions = {
-            previousMonth : 'Previous Month',
-            nextMonth     : 'Next Month',
-            months        : ['January','February','March','April','May','June','July','August','September','October','November','December'],
-            weekdays      : ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],
-            weekdaysShort : ['S','M','T','W','T','F','S']
-        };
-
-        var fromDateInput = fromInputDiv.append("input").classed("tsi-dateInput tsi-dateInputFrom", true);
-        this.fromDatePicker = new Pikaday({ 
-            field: fromDateInput.node(), onSelect: (fromTime: Date) => {
-            var selectedFromTime = new Date(this.selectedFromMillis); 
-                fromTime.setUTCHours(selectedFromTime.getUTCHours());
-                fromTime.setUTCMinutes(selectedFromTime.getUTCMinutes());
-                this.setFromTimeFromInput(fromTime);
-            }, 
-            numberOfMonths: 2,
-            defaultDate: this.offsetUTC(new Date(this.selectedFromMillis)),
-            setDefaultDate: true,
-            i18n: i18nOptions,
-            minDate: this.offsetUTC(new Date(this.fromMillis)),
-            maxDate: this.offsetUTC(new Date(this.toMillis)) 
-        });
-        var fromTimeInput = fromInputDiv.append("input").classed("tsi-timeInput tsi-timeInputFrom", true)
-            .on("change", function (d) { 
-                var fromTimeText = this.value;
-                if (self.isValidTime(this.value)) {
-                    var fromTime: Date = new Date(self.selectedFromMillis);
-                    fromTime.setUTCHours(self.getHours(fromTimeText));
-                    fromTime.setUTCMinutes(self.getMinutes(fromTimeText));
-                    if (fromTime.valueOf() < self.selectedToMillis) {
-                        self.setBrush(fromTime.valueOf(), self.selectedToMillis);
-                        self.timePickerTextContainer.select(".tsi-dateTimeContainer").select(".tsi-dateTimeErrorDiv").select('.tsi-invalidTime').html("");
-                        return;
-                    } else {
-                        self.timePickerTextContainer.select(".tsi-dateTimeContainer").select(".tsi-dateTimeErrorDiv").select('.tsi-invalidTime').html("From time must be before to time");
-                        return;
-                    }
-                }
-                self.timePickerTextContainer.select(".tsi-dateTimeContainer").select(".tsi-dateTimeErrorDiv").select('.tsi-invalidTime').html("From time is invalid");
-            });
-
-        timeContainer.append("div").attr("class", "tsi-toText").html("to");
-
-        var toInputDiv = timeContainer.append("div").attr("class", "tsi-dateTimeInputDiv tsi-dateTimeInputDivTo");
-        var toDateInput = toInputDiv.append("input").classed("tsi-dateInput tsi-dateInputTo", true);
-        this.toDatePicker = new Pikaday({ 
-            field: toDateInput.node(), onSelect: (toTime: Date) => {
-                var selectedToTime = new Date(this.selectedToMillis); 
-                toTime.setUTCHours(selectedToTime.getUTCHours());
-                toTime.setUTCMinutes(selectedToTime.getUTCMinutes());
-                this.setToTimeFromInput(toTime);
-            },  
-            defaultDate: this.offsetUTC(new Date(this.selectedToMillis)),
-            setDefaultDate: true,
-            i18n: i18nOptions,
-            minDate: this.offsetUTC(new Date(this.fromMillis)),
-            maxDate: this.offsetUTC(new Date(this.toMillis))  
-        });
-        var toTimeInput = toInputDiv.append("input").classed("tsi-timeInput tsi-timeInputTo", true)
-            .on("change", function (d) { 
-                var toTimeText = this.value;
-                if (self.isValidTime(this.value)) {
-                    var toTime: Date = new Date(self.selectedToMillis);
-                    toTime.setUTCHours(self.getHours(toTimeText));
-                    toTime.setUTCMinutes(self.getMinutes(toTimeText));
-                    if (toTime.valueOf() > self.selectedFromMillis) {
-                        self.setBrush(self.selectedFromMillis, toTime.valueOf());
-                        self.timePickerTextContainer.select(".tsi-dateTimeContainer").select(".tsi-dateTimeErrorDiv").select('.tsi-invalidTime').html("");
-                        return;
-                    } else {
-                        self.timePickerTextContainer.select(".tsi-dateTimeContainer").select(".tsi-dateTimeErrorDiv").select('.tsi-invalidTime').html("To time must be after from time");   
-                        return;
-                    }
-                } 
-                self.timePickerTextContainer.select(".tsi-dateTimeContainer").select(".tsi-dateTimeErrorDiv").select('.tsi-invidTime').html("To time is invalid");
-            });
-
-        var errorDiv = timeContainer.append("div").attr("class", "tsi-dateTimeErrorDiv"); 
-        errorDiv.append("div").attr("class", "tsi-invalidTime");
+            })
+        var fromDateTimeContainer = this.timeContainer.append("div").attr("class", "tsi-dateTimeTextContainer tsi-dateTimeTextContainerFrom");
+        var fromLabel = fromDateTimeContainer.append("span").attr("class", "tsi-fromToLabel");
+        fromLabel.node().innerHTML = "from:";
+        fromDateTimeContainer.append("span").attr("class", "tsi-dateTimeText");
+        var toDateTimeContainer = this.timeContainer.append("div").attr("class", "tsi-dateTimeTextContainer tsi-dateTimeTextContainerTo");
+        var toLabel = toDateTimeContainer.append("span").attr("class", "tsi-fromToLabel");
+        toLabel.node().innerHTML = "to:";
+        toDateTimeContainer.append("span").attr("class", "tsi-dateTimeText");
     }
 
 
     private createQuickTimePicker () {
-
         var select = this.timePickerTextContainer
             .append("div")
             .append("select")
@@ -613,8 +494,6 @@ class AvailabilityChart extends ChartComponent{
                 if (self.chartOptions.brushMoveEndAction != null) {
                     self.chartOptions.brushMoveEndAction(new Date(self.selectedFromMillis), new Date(self.selectedToMillis));                    
                 }
-                self.fromDatePicker.setDate(self.offsetUTC(new Date(self.selectedFromMillis)), true);
-                self.toDatePicker.setDate(self.offsetUTC(new Date(self.selectedToMillis)), true);
             }
         });
     }
@@ -657,16 +536,7 @@ class AvailabilityChart extends ChartComponent{
         this.timePickerLineChart.setBrush();
         this.setFromAndToTimes(fromMillis, toMillis);
         this.drawGhost();
-        if (this.toDatePicker) {
-            this.toDatePicker.setMinDate(this.offsetUTC(new Date(fromMillis)));
-        }
         
-        if (this.fromDatePicker) {
-            this.fromDatePicker.setMaxDate(this.offsetUTC(new Date(toMillis)));
-        }
-        if (this.timePickerTextContainer) {
-            this.timePickerTextContainer.select(".tsi-dateTimeContainer").select(".tsi-dateTimeErrorDiv").select('.tsi-invalidTime').html("");
-        }
         if (this.isCustomTime(this.selectedFromMillis, this.selectedToMillis))
                 this.timePickerTextContainer.select('.tsi-timePicker')
                     .node().value = "Custom";

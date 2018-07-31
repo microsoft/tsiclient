@@ -79,6 +79,22 @@ class Utils {
             }
         });
     }
+
+    static getUTCHours (d: Date) {
+        var hours = d.getUTCHours();
+        if (hours == 0) 
+            hours = 12;
+        if (hours > 12) 
+            hours = hours - 12;
+        return hours;
+    }
+
+    static UTCTwelveHourFormat (d: Date) {
+        var hours: string = String(this.getUTCHours(d));
+        var minutes: string = (d.getUTCMinutes() < 10 ? "0" : "") + String(d.getUTCMinutes());
+        var amPm: string = (d.getUTCHours() < 12) ? "AM" : "PM";
+        return hours + ":" + minutes + " " + amPm;
+    }
     
     static getAgVisible(displayState: any, aggI: string, splitBy: string) {
         return (displayState[aggI].visible) ? displayState[aggI].splitBys[splitBy].visible : false;

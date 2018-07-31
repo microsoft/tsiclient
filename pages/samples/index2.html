@@ -127,7 +127,7 @@
             tsiClient.server.getAvailability(token, '063bec0b-3bd1-4227-9001-42f3a93a4d82.env.timeseries.azure.com').then(function(result){
                 var transformedResult = tsiClient.ux.transformAvailabilityForVisualization(result);
                 var availabilityChart = new tsiClient.ux.AvailabilityChart(document.getElementById('chart1'));
-                availabilityChart.render(transformedResult, {theme: 'light', grid: false, tooltip: false, legend: "hidden", 
+                availabilityChart.render(transformedResult, {theme: 'dark', grid: false, tooltip: false, legend: "hidden", 
                    brushContextMenuActions: brushActions, snapBrush: false, brushMoveAction: brushMoveAction, maxBuckets: 500,
                    color: 'purple'}, result);
                 
@@ -146,12 +146,6 @@
                 button.addEventListener("click", toggleCompact, false);
                 button.style = 'position:absolute;top:0px';
                 chart.appendChild(button);
-
-                var dateTimePicker = new tsiClient.ux.DateTimePicker(document.getElementById('chart2'));
-                var minMillis = (new Date()).valueOf() - 50 * 24 * 60 * 60 * 1000;
-                var startMillis = (new Date()).valueOf() - 12 * 24 * 60 * 60 * 1000;
-                var endMillis = (new Date()).valueOf() - 2 * 24 * 60 * 60 * 1000;
-                dateTimePicker.render({'theme': 'dark'}, minMillis, (new Date()).valueOf(), startMillis, endMillis);
             });
         });
         

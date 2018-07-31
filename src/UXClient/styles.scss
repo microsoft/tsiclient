@@ -42,6 +42,8 @@
 
 .pika-single {
     border-bottom: none;
+    border-left: none;
+    border-right: none;
     .pika-lendar {
         abbr {
             text-decoration: none;
@@ -64,8 +66,10 @@
                     &.is-endrange, &.is-startrange {
                         .pika-day {
                             background-color: #309d90;
+                            color: white;
                             &:hover {
                                 background-color: #309d90;
+                                color: white;
                             }
                         }
                     }
@@ -90,6 +94,7 @@
                         margin: 0px;
                         &:hover {
                             background-color: #309d90;
+                            color: white;
                         }
                     }
                 }

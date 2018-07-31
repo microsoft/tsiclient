@@ -49,10 +49,8 @@
         }
     }
 
-    .tsi-dateTimeInputDiv {
-        input {
-            color: $gray1;
-        }
+    .tsi-dateTimeContainer {
+        color: $gray1;
     }
 
     .tsi-timePicker, .tsi-timePicker > option {
@@ -62,6 +60,14 @@
 }
 
 .tsi-availabilityChart {
+
+    .tsi-dateTimePickerContainer {
+        position: absolute;
+        right: 60px;
+        top: calc(100% - 40px);
+        background-color: white;
+    }
+
     position: relative;
 
     &.tsi-dark{
@@ -76,7 +82,7 @@
     width: 100%;
     .tsi-timePickerContainer {
         width: calc(100% - 4px);
-        height: calc(100% - 60px);
+        height: calc(100% - 48px);
         overflow: visible;
         position: relative;
         .tsi-timePickerChart {
@@ -90,7 +96,7 @@
 
     &.tsi-compact {
         .tsi-timePickerContainer {
-            height: 100%;
+            height: calc(100% - 8px);
             path {
                 stroke: none !important;
                 fill: none !important;
@@ -117,7 +123,6 @@
         position: relative;
         margin: 0 80px;
         display: inline-flex;
-        z-index: 1;
 
         .tsi-timePicker {
             padding: 2px;
@@ -157,6 +162,36 @@
             right: 0px;
             position: absolute;
             display: inline-flex;
+            padding-right: 0px;
+            background: url(../../Icons/date.svg) 100% / 5% no-repeat;
+            background-position-y: 8px;
+            cursor: pointer;
+
+            .tsi-dateTimeTextContainer {
+                display: inline-block;
+                padding-left: 4px;
+                padding-right: 4px;
+                height: 24px;
+                background: transparent;
+                border: none;
+                padding: 4px;
+                margin-left: 0px;
+                margin-top: 2px;
+                position: relative;
+                top: 0px;
+                display: block;
+                width: 180px;
+                .tsi-dateTimeText {
+                    font-size: 14px;
+                    padding-right: 8px;
+                }
+                .tsi-fromToLabel {
+                    opacity: .6;
+                    text-transform: uppercase;
+                    font-size: 13px;
+                    margin-right: 4px;
+                }
+            }
         }
         .tsi-toText {
             width: 32px;
@@ -166,22 +201,6 @@
             text-align: center;
         }
 
-        .tsi-dateTimeInputDiv {
-            display: inline-block;
-            padding-left: 4px;
-            padding-right: 4px;
-            input {
-                width: 70px;
-                font-size: 12px;
-                background: transparent;
-                border: 1px solid black;
-                padding: 4px;
-                margin: 2px;
-                position: relative;
-                top: 0px;
-                display: block;
-            }
-        }
         .tsi-dateTimeErrorDiv {
             width: 200px;
             display: inline-block;
