@@ -3,14 +3,15 @@ import './ModelSearch.scss';
 import {Utils} from "./../../Utils";
 import {Component} from "./../../Interfaces/Component";
 import TsiClient from '../../../TsiClient';
+import 'awesomplete';
 
 class ModelSearch extends Component{
-    private tsiClient;
+    private tsiClient; 
     private model;
     private types;
 
 	constructor(renderTarget: Element){
-        super(renderTarget);
+        super(renderTarget); 
         this.tsiClient = new TsiClient();
 	}
 
@@ -27,6 +28,10 @@ class ModelSearch extends Component{
             .attr("class", "tsi-modelSearchInputWrapper");
         let input = inputWrapper.append("input")
             .attr("class", "tsi-modelSearchInput");
+        let Awesomplete = (window as any).Awesomplete;
+        let ap = new Awesomplete(input.node(), {minChars: 1});
+        let noSuggest = false;
+        (input.node() as any).addEventListener('awesomplete-selectcomplete', () => {noSuggest = true; input.dispatch('input'); ap.close();});
 
         let onClick = (v) => {console.log(v)};
 
@@ -44,9 +49,16 @@ class ModelSearch extends Component{
                     return;
                 }
 
-                getToken().then(token => {
-                    self.tsiClient.server.getTimeseriesInstancesSuggestions(token, environmentFqdn, (<any>this).value).then(r => {console.log(r)})
-                })
+                if(!noSuggest){
+                    getToken().then(token => {
+                        self.tsiClient.server.getTimeseriesInstancesSuggestions(token, environmentFqdn, (<any>this).value).then(r => {
+                    
+                            ap.list = r.suggestions.map(s => s.searchString);
+                        })
+                    })
+                }
+                noSuggest = false;
+
                 getToken().then(token => {
                     self.tsiClient.server.getTimeseriesInstancesSearch(token, environmentFqdn, (<any>this).value).then(r => {
                         instanceResults.html('');
@@ -57,7 +69,7 @@ class ModelSearch extends Component{
                                 </div>
                                 <div class="tsi-modelHighlights">
                                     ${Object.keys(i.highlights).map(k => {
-                                        if(k === 'partitionKeyValue'){
+                                        if(typeof(i.highlights[k]) === 'object'){
                                             i.highlights[k] = i.highlights[k].join(' ');
                                         }
                                         let highlighted = i.highlights[k].split('<hit>').map(h => h.split('</hit>').map(h2 => Utils.strip(h2)).join('</hit>')).join('<hit>');

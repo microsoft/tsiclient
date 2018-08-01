@@ -89,9 +89,9 @@ class ServerClient {
         return this.createPromiseFromXhr(uri, "GET", {}, token, (responseText) => {return JSON.parse(responseText);});
     }
 
-    public getTimeseriesInstancesSuggestions(token: string, environmentFqdn: string, searchString: string) {
+    public getTimeseriesInstancesSuggestions(token: string, environmentFqdn: string, searchString: string, take: number = 10) {
         let uri = 'https://' + environmentFqdn + '/timeseries/instances/suggest' + this.apiVersionUrlParam;
-        return this.createPromiseFromXhr(uri, "POST", JSON.stringify({searchString: searchString}), token, (responseText) => {return JSON.parse(responseText);});
+        return this.createPromiseFromXhr(uri, "POST", JSON.stringify({searchString: searchString, take: take}), token, (responseText) => {return JSON.parse(responseText);});
     }    
 
     public getTimeseriesInstancesSearch(token: string, environmentFqdn: string, searchString: string) {
