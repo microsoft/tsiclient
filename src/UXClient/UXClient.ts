@@ -10,11 +10,17 @@ import {Hierarchy} from "./Components/Hierarchy/Hierarchy";
 import {AggregateExpression} from "./Models/AggregateExpression";
 import {Heatmap} from "./Components/Heatmap/Heatmap";
 import {EventsTable} from "./Components/EventsTable/EventsTable";
+import { DateTimePicker } from "./Components/DateTimePicker/DateTimePicker";
+
 import {Utils} from "./Utils";
 import './styles.scss'
 
 class UXClient {
     UXClient () {
+    }
+
+    public DateTimePicker(renderTarget) {
+        return new DateTimePicker(renderTarget);
     }
 
     public PieChart(renderTarget) {

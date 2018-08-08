@@ -40,6 +40,73 @@
     }
 }
 
+.pika-single {
+    border-bottom: none;
+    border-left: none;
+    border-right: none;
+    .pika-lendar {
+        abbr {
+            text-decoration: none;
+        }
+        text-decoration: none;
+        width: 196px;
+        margin-left: 12px;
+        margin-right: 6px;
+        .pika-table {
+            .pika-row {
+                height: 28px;
+                margin: 0px;
+                td {
+                    padding: 0px;
+                    &.is-inrange {
+                        .pika-day {
+                            background-color:#d5ebe9; 
+                        }
+                    }
+                    &.is-endrange, &.is-startrange {
+                        .pika-day {
+                            background-color: #309d90;
+                            color: white;
+                            &:hover {
+                                background-color: #309d90;
+                                color: white;
+                            }
+                        }
+                    }
+
+                    &.is-startrange {
+                        button {
+                            border-bottom-left-radius: 8px;
+                            border-top-left-radius: 8px;
+                        }
+                    }
+                    &.is-endrange {
+                        button {
+                            border-bottom-right-radius: 8px;
+                            border-top-right-radius: 8px;
+                        }
+                    }
+
+                    .pika-day {
+                        width: 100%;
+                        height: 28px;
+                        width: 28px;
+                        margin: 0px;
+                        &:hover {
+                            background-color: #309d90;
+                            color: white;
+                        }
+                    }
+                }
+            }
+            .pika-button {
+                border-radius: 0px;
+                text-align: center;
+            }
+        }
+    }
+}
+
 @mixin chartColors($grays){
     $gray1: nth($grays, 1); // text
     $gray2: nth($grays, 2); // hover

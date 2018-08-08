@@ -39,15 +39,17 @@
                 </div>
             </div>
         </div>
+        <div id="chart2" style="margin-top: 60px"></div>
         <div class="chartsWrapper" style="height:80%;">
             <div class="rowOfCardsTitle">Availability</div>
             <div class="rowOfCards" style="height:50%;">
                 <div id="chart1" style="flex-shrink: 1; height: 100%; width: 90%; border: 1px solid silver;"></div>
             </div>
-            <div class="rowOfCards" style="height:50%;">
-                <div id="chart2" style="flex-shrink: 1; height: 100%; width: 90%; border: 1px solid silver;"></div>
-            </div>
+            <!-- <div class="rowOfCards" style="height:50%;">
+                <div id="chart2"></div>
+            </div> -->
         </div>
+
     </div>        
     <script type="text/javascript">
 
@@ -110,8 +112,8 @@
             }
 
 
-var tsiClient = new TsiClient();
-            var brushActions = [{
+        var tsiClient = new TsiClient();
+        var brushActions = [{
             name: "Print From and to",
             action: function(fromTime, toTime) {
                 console.log(fromTime);
@@ -125,7 +127,7 @@ var tsiClient = new TsiClient();
             tsiClient.server.getAvailability(token, '063bec0b-3bd1-4227-9001-42f3a93a4d82.env.timeseries.azure.com').then(function(result){
                 var transformedResult = tsiClient.ux.transformAvailabilityForVisualization(result);
                 var availabilityChart = new tsiClient.ux.AvailabilityChart(document.getElementById('chart1'));
-                availabilityChart.render(transformedResult, {theme: 'light', grid: false, tooltip: false, legend: "hidden", 
+                availabilityChart.render(transformedResult, {theme: 'dark', grid: false, tooltip: false, legend: "hidden", 
                    brushContextMenuActions: brushActions, snapBrush: false, brushMoveAction: brushMoveAction, maxBuckets: 500,
                    color: 'purple'}, result);
                 
@@ -146,33 +148,7 @@ var tsiClient = new TsiClient();
                 chart.appendChild(button);
             });
         });
-
-        authContext.getTsiToken().then(function(token){
-            tsiClient.server.getAvailability(token, '81c2b47f-afa0-4c70-96ad-bb35a84e1527.env.timeseries.azure.com').then(function(result){
-                var transformedResult = tsiClient.ux.transformAvailabilityForVisualization(result);
-                var availabilityChart = new tsiClient.ux.AvailabilityChart(document.getElementById('chart2'));
-                availabilityChart.render(transformedResult, {theme: 'light', grid: false, tooltip: false, legend: "hidden", 
-                   brushContextMenuActions: brushActions, snapBrush: false, brushMoveAction: brushMoveAction, maxBuckets: 1000,
-                   color: 'purple'}, result);
-                
-                var chart = document.getElementById("chart2");
-                var button = document.createElement("button");
-                var isCompact = false;
-                function toggleCompact() {
-                    isCompact = !isCompact;
-                    availabilityChart.render(transformedResult, {theme: 'light', grid: false, tooltip: false, legend: "hidden", 
-                            brushContextMenuActions: brushActions, snapBrush: false, brushMoveAction: brushMoveAction, maxBuckets: 500,
-                            color: 'purple', isCompact: isCompact, preserveAvailabilityState: true}, result);
-                }
-
-                button.id = "myButton";
-                button.textContent = "+/-";
-                button.addEventListener("click", toggleCompact, false);
-                button.style = 'position:absolute;top:0px'
-
-                chart.appendChild(button);
-            });
-        });
+        
 
     </script>
 </body>

@@ -1,11 +1,12 @@
-import * as d3 from 'd3';
-import './AvailabilityChart.scss';
-import { LineChart } from '../LineChart/LineChart';
+import * as d3 from "d3";
+import "./AvailabilityChart.scss";
+import { LineChart } from "../LineChart/LineChart";
+import { DateTimePicker } from "../DateTimePicker/DateTimePicker";
 import { Utils } from "./../../Utils";
 import { Component } from "./../../Interfaces/Component";
-import { ChartComponent } from '../../Interfaces/ChartComponent';
-import { UXClient } from '../../UXClient';
-import { ChartOptions } from '../../Models/ChartOptions';
+import { ChartComponent } from "../../Interfaces/ChartComponent";
+import { UXClient } from "../../UXClient";
+import { ChartOptions } from "../../Models/ChartOptions";
 
 class AvailabilityChart extends ChartComponent{
     private fromMillis: number;
@@ -17,6 +18,9 @@ class AvailabilityChart extends ChartComponent{
     private minBrushWidth: number = 5;
     private color: string;
     private transformedAvailability: any;
+    private minGhostWidth = 2;
+
+    private timeContainer;
 
     private margins = {
         left: 10,
@@ -35,6 +39,8 @@ class AvailabilityChart extends ChartComponent{
     private rawAvailability: any;
     private maxBuckets: number;
     private bucketSize: number;
+    private dateTimePickerContainer: any;
+    private dateTimePicker: any;
     private quickTimeArray: Array<any> = [
         ["Last 30 mins", 30 * 60 * 1000],
         ["Last Hour", 60 * 60 * 1000],
@@ -44,7 +50,7 @@ class AvailabilityChart extends ChartComponent{
         ["Last 24 Hours", 24 * 60 * 60 * 1000],
         ["Last 7 Days", 7 * 24 * 60 * 60 * 1000],
         ["Last 30 Days", 30 * 24 * 60 * 60 * 1000],
-        ["Custom", null]
+        ["Custom", -1]
     ];
 	
 	constructor(renderTarget: Element){
@@ -57,6 +63,34 @@ class AvailabilityChart extends ChartComponent{
         let maxZoomFactor: number = (this.sparkLineChart.x.range()[1] - this.sparkLineChart.x.range()[0]) / this.minBrushWidth;                
         let totalTimeRange: number = this.toMillis - this.fromMillis;
         return totalTimeRange / maxZoomFactor;
+    }
+
+    private setQuickTimeValue (fromMillis, toMillis) {
+        var fromDate = new Date(fromMillis);
+        fromDate.setMilliseconds(0);
+        fromDate.setSeconds(0);
+        fromMillis = fromDate.valueOf();
+
+        var toDate = new Date(toMillis);
+        toDate.setMilliseconds(0);
+        toDate.setSeconds(0);
+        toMillis = toDate.valueOf();
+
+        var lastPossibleDate = new Date(this.toMillis);
+        lastPossibleDate.setMilliseconds(0);
+        lastPossibleDate.setSeconds(0);
+        
+        var quickTimeOption = -1;
+        if (toMillis == lastPossibleDate.valueOf()) {
+            quickTimeOption = this.quickTimeArray.reduce((prev, currOptionValuePair: any) => {
+                if (currOptionValuePair[1] == toMillis - fromMillis)
+                    return currOptionValuePair[1];
+                return prev;
+            }, -1);
+        }
+
+        this.timePickerTextContainer.select('.tsi-timePicker')
+                    .node().value = quickTimeOption;
     }
 
     private zoom (direction: string, xPos: number) {
@@ -99,6 +133,11 @@ class AvailabilityChart extends ChartComponent{
             focusHidden: true,
             singleLineXAxisLabel: true
         }});
+    }
+    private dateTimePickerAction (fromMillis, toMillis) {
+        this.setBrush(fromMillis, toMillis);
+        this.chartOptions.brushMoveEndAction(new Date(fromMillis), new Date(toMillis));
+        this.dateTimePickerContainer.style("display", "none");
     }
 
     //transformation of buckets created by the UX client to buckets for the availabilityChart
@@ -146,7 +185,7 @@ class AvailabilityChart extends ChartComponent{
         return [{"availabilityCount" : {"" : buckets}}];
     }
 
-    public render(transformedAvailability: any, chartOptions: any, rawAvailability: any) {
+    public render (transformedAvailability: any, chartOptions: any, rawAvailability: any) {
         this.setChartOptions(chartOptions);
         this.rawAvailability = rawAvailability;
         this.transformedAvailability = transformedAvailability;
@@ -185,7 +224,7 @@ class AvailabilityChart extends ChartComponent{
         this.chartOptions.brushMoveAction = (from, to) => {
             if (this.isCustomTime(from.valueOf(), to.valueOf()))
                 this.timePickerTextContainer.select('.tsi-timePicker')
-                    .node().value = "Custom";
+                    .node().value = -1;
             this.setFromAndToTimes(from.valueOf(), to.valueOf());
             this.drawGhost();
             if (this.chartOptions.isCompact) {
@@ -205,8 +244,10 @@ class AvailabilityChart extends ChartComponent{
             this.timePickerTextContainer = this.targetElement.append("div").classed("tsi-timePickerTextContainer", true);
             this.timePickerLineChart = new LineChart(this.timePickerChart.node() as any);
             this.createQuickTimePicker();
-            this.buildFromAndToInput();
+            this.buildFromAndToContainer();
             this.sparkLineChart = new LineChart(sparkLineContainer.node() as any);
+            this.dateTimePickerContainer = this.targetElement.append("div").classed("tsi-dateTimePickerContainer", true);
+            this.dateTimePicker = new DateTimePicker(this.dateTimePickerContainer.node());
             window.addEventListener('resize', () => {
                 this.timePickerLineChart.draw();
                 this.setTicks();
@@ -215,6 +256,25 @@ class AvailabilityChart extends ChartComponent{
                 setTimeout(() => {
                     this.drawGhost();
                 }, 100);
+            });
+            var pickerContainerAndContent = this.targetElement.selectAll(".tsi-dateTimePickerContainer, .tsi-dateTimePickerContainer *");
+            var dateTimeTextAndContent = this.targetElement.selectAll(".tsi-dateTimeContainer, .tsi-dateTimeContainer *");
+
+            var self = this;
+            var equalToEventTarget = (function ()  {
+                return (this == d3.event.target) || (this == self.timeContainer.node());
+            });
+
+            var dateTimeTextChildren = this.targetElement.select(".tsi-dateTimeContainer").selectAll("*");
+            var pickerContainerChildren;
+            d3.select("body").on("click", () => {
+                pickerContainerChildren = this.targetElement.select(".tsi-dateTimePickerContainer").selectAll("*");
+
+                var outside = dateTimeTextChildren.filter(equalToEventTarget).empty();
+                var inClickTarget = pickerContainerChildren.filter(equalToEventTarget).empty();
+                if (outside && inClickTarget) {
+                    this.dateTimePickerContainer.style("display", "none");
+                }
             });
         }
 
@@ -314,22 +374,20 @@ class AvailabilityChart extends ChartComponent{
             let year = date.getUTCFullYear();
             let month = (date.getUTCMonth() + 1) < 10 ? "0" + (date.getUTCMonth() + 1) : (date.getUTCMonth() + 1);
             let day = date.getUTCDate() < 10 ? "0" + date.getUTCDate() : date.getUTCDate();
-            this.timePickerTextContainer.select(".tsi-timeInput" + fromOrToText)
-                .node().value = hours + ":" + minutes;
-            this.timePickerTextContainer.select(".tsi-dateInput" + fromOrToText)
-                .node().value = year + "/" + month + "/" + day;
+            this.timePickerTextContainer.select(".tsi-dateTimeTextContainer" + fromOrToText).select(".tsi-dateTimeText")
+                .node().innerHTML = month + "/" + day + "/" + year + " " + Utils.UTCTwelveHourFormat(date) + " ";
         });
         this.setSelectedMillis(fromMillis, toMillis);
     }
 
-    private drawGhost() {
+    private drawGhost () {
         var svgGroup = this.targetElement.select('.tsi-sparklineContainer').select(".tsi-lineChartSVG").select(".svgGroup");
         svgGroup.selectAll(".ghostRect").remove();
         svgGroup.append("rect")
             .classed("ghostRect", true)
             .attr("x", Math.max(this.sparkLineChart.x.range()[0], this.sparkLineChart.x(new Date(this.selectedFromMillis))))
             .attr("y", 0)
-            .attr("width", Math.min(Math.max(this.sparkLineChart.xOffset, 
+            .attr("width", Math.min(Math.max(this.minGhostWidth, 
                             this.sparkLineChart.x(new Date(this.selectedToMillis)) - this.sparkLineChart.x(new Date(this.selectedFromMillis))), 
                             this.sparkLineChart.x.range()[1] - this.sparkLineChart.x.range()[0]))
             .attr("height", 14)
@@ -382,25 +440,39 @@ class AvailabilityChart extends ChartComponent{
         }
     }
 
-    private buildFromAndToInput () {
-        var timeContainer = this.timePickerTextContainer.append("div")
-            .classed('tsi-dateTimeContainer', true);
-        ["From", "To"].forEach((fromOrTo, i) => {
-            var inputDiv = timeContainer.append("div")
-                .classed("tsi-dateTimeInputDiv", true)
-            inputDiv.append("div").html(fromOrTo).classed("tsi-dateTimeInputLabel", true);
-            var dateInput = inputDiv.append("input")
-                .classed("tsi-dateInput tsi-dateInput" + fromOrTo, true)
-                .attr("readonly", "");
-            var timeInput = inputDiv.append("input")
-                .classed("tsi-timeInput tsi-timeInput" + fromOrTo, true)
-                .attr("readonly", "");
-        });
+    private offsetUTC (date: Date) {
+        date.setTime( date.getTime() + date.getTimezoneOffset()*60*1000 );
+        return date;
+    }
+
+    private buildFromAndToContainer () {
+        var self = this;
+        this.timeContainer = this.timePickerTextContainer.append("div")
+            .classed('tsi-dateTimeContainer', true)
+            .on("click", function () {
+                self.dateTimePickerContainer.style("display", "block");
+                var minMillis = self.fromMillis;
+                var maxMillis = self.toMillis
+                var startMillis = self.selectedFromMillis;
+                var endMillis = self.selectedToMillis;
+                self.dateTimePicker.render({'theme': self.chartOptions.theme}, minMillis, maxMillis, startMillis, endMillis, 
+                                        (fromMillis, toMillis) => {
+                                            self.dateTimePickerAction(fromMillis, toMillis);
+                                        });
+
+            })
+        var fromDateTimeContainer = this.timeContainer.append("div").attr("class", "tsi-dateTimeTextContainer tsi-dateTimeTextContainerFrom");
+        var fromLabel = fromDateTimeContainer.append("span").attr("class", "tsi-fromToLabel");
+        fromLabel.node().innerHTML = "from:";
+        fromDateTimeContainer.append("span").attr("class", "tsi-dateTimeText");
+        var toDateTimeContainer = this.timeContainer.append("div").attr("class", "tsi-dateTimeTextContainer tsi-dateTimeTextContainerTo");
+        var toLabel = toDateTimeContainer.append("span").attr("class", "tsi-fromToLabel");
+        toLabel.node().innerHTML = "to:";
+        toDateTimeContainer.append("span").attr("class", "tsi-dateTimeText");
     }
 
 
     private createQuickTimePicker () {
-
         var select = this.timePickerTextContainer
             .append("div")
             .append("select")
@@ -420,7 +492,9 @@ class AvailabilityChart extends ChartComponent{
             var selectValue = Number(d3.select(this).property('value'));
             if (!isNaN(selectValue)) {
                 self.setBrush(Math.max(self.toMillis - selectValue, self.fromMillis), self.toMillis);
-                self.chartOptions.brushMoveEndAction(new Date(self.selectedFromMillis), new Date(self.selectedToMillis));
+                if (self.chartOptions.brushMoveEndAction != null) {
+                    self.chartOptions.brushMoveEndAction(new Date(self.selectedFromMillis), new Date(self.selectedToMillis));                    
+                }
             }
         });
     }
@@ -463,6 +537,11 @@ class AvailabilityChart extends ChartComponent{
         this.timePickerLineChart.setBrush();
         this.setFromAndToTimes(fromMillis, toMillis);
         this.drawGhost();
+        
+        if (this.isCustomTime(this.selectedFromMillis, this.selectedToMillis))
+                this.timePickerTextContainer.select('.tsi-timePicker')
+                    .node().value = "Custom";
+        this.setQuickTimeValue(this.selectedFromMillis, this.selectedToMillis);
     }
 
     private createSparkLineOptions (chartOptions) {
