@@ -25,11 +25,7 @@
             color: green;
             background-color: white;
         }
-        // .is-inrange {
-        //     .pika-day {
 
-        //     }
-        // }
         color: $gray1;
         background-color: $gray3;
     }
@@ -52,14 +48,6 @@
 		$grays: grays('light');
 		@include dateTimePickerColors($grays);
     }
-
-    // .pika-single {
-    //     .is-endrange, .is-startrange {
-    //         .pika-day {
-    //             color: white; 
-    //         }
-    //     }
-    // }
 
     display: block;
     align-items: stretch;
