@@ -52,12 +52,16 @@ class Utils {
         return encodeURIComponent(aggName).split(".").join("_") + "_" + aggIndex;
     }
     
-    static timeFormat(usesSeconds = false, usesMillis = false) {
-        if (usesMillis)
-            return d3.utcFormat("%x %H:%M:%S:%L");
-        if (usesSeconds)
-            return d3.utcFormat("%x %H:%M:%S")
-        return d3.utcFormat("%x %H:%M");
+    static timeFormat(usesSeconds = false, usesMillis = false, offsetMinutes: number = 0, is24HourTime: boolean = true) {
+        return (d) => {
+            var offsetDate = new Date(d.valueOf() + offsetMinutes * 60 * 1000);
+            var minutes = (offsetDate.getUTCMinutes() < 10 ? "0" : "") + String(offsetDate.getUTCMinutes());
+            var dateString = (offsetDate.getUTCMonth() + 1) + "/" + offsetDate.getUTCDate() + "/" + offsetDate.getUTCFullYear();
+            var timeString = offsetDate.getUTCHours() + ":" + minutes +
+                                (usesSeconds ? ":" + offsetDate.getUTCSeconds() : "") + 
+                                (usesMillis ? "." + offsetDate.getUTCMilliseconds() : "");
+            return dateString + " " + timeString;
+        }
     }
 
     static splitTimeLabel (text: any) {
@@ -79,7 +83,7 @@ class Utils {
             }
         });
     }
-
+    
     static getUTCHours (d: Date) {
         var hours = d.getUTCHours();
         if (hours == 0) 

@@ -83,7 +83,7 @@ class LineChart extends ChartComponent {
     public createXAxis (singleLineXAxisLabel) {
         return d3.axisBottom(this.x)
             .ticks(this.getXTickNumber(singleLineXAxisLabel))
-            .tickFormat(Utils.timeFormat(this.labelFormatUsesSeconds(), this.labelFormatUsesMillis()));
+            .tickFormat(Utils.timeFormat(this.labelFormatUsesSeconds(), this.labelFormatUsesMillis(), this.chartOptions.offsetMinutes));
     }
 
     private voronoiMouseout (d: any)  {
@@ -835,11 +835,11 @@ class LineChart extends ChartComponent {
                         var bucketSize = this.chartComponentData.displayState[d.aggregateKey].bucketSize;
                         var endValue = bucketSize ? (new Date(xValue.valueOf() + bucketSize)) : null;
                         
-                        text.append("tspan").text(Utils.timeFormat(false, false)(xValue))
+                        text.append("tspan").text(Utils.timeFormat(false, false, this.chartOptions.offsetMinutes)(xValue))
                             .attr("x", 0)
                             .attr("y", 4);
                         if (endValue) {
-                            text.append("tspan").text(Utils.timeFormat(false, false)(endValue))
+                            text.append("tspan").text(Utils.timeFormat(false, false, this.chartOptions.offsetMinutes)(endValue))
                                 .attr("x", 0)
                                 .attr("y", 27);
                             var barWidth = this.x(endValue) - this.x(xValue);
@@ -1042,7 +1042,9 @@ class LineChart extends ChartComponent {
                             .style("visibility", d => isVisible ? "visible" : "hidden")
                             .style("right", this.chartMargins.right  + 'px')
                             .style("bottom", this.chartMargins.bottom + timelineHeight - (visibleEventsCount * 10)  + 'px');
-                        eventSeriesComponents[i].render(namedEventSeries, {timeFrame: {from : xExtent[0], to: xExtent[1]}, xAxisHidden: true, theme: this.chartOptions.theme});
+                        eventSeriesComponents[i].render(namedEventSeries, {timeFrame: {from : xExtent[0], to: xExtent[1]}, 
+                                                        xAxisHidden: true, theme: this.chartOptions.theme, 
+                                                        offsetMinutes: this.chartOptions.offsetMinutes});
                     });
                 }
                 if (this.chartComponentData.states) {
@@ -1057,7 +1059,9 @@ class LineChart extends ChartComponent {
                             .style("visibility", d => this.chartComponentData.displayState.states[namedStateSeries.key].visible ? "visible" : "hidden")
                             .style("right", this.chartMargins.right + 'px')
                             .style("bottom", this.chartMargins.bottom + timelineHeight - ((visibleEventsCount * 10) + (visibleStatesCount * 10))  + 'px');
-                        stateSeriesComponents[i].render(namedStateSeries, {timeFrame: {from : xExtent[0], to: xExtent[1]}, xAxisHidden: true, theme: this.chartOptions.theme});
+                        stateSeriesComponents[i].render(namedStateSeries, {timeFrame: {from : xExtent[0], to: xExtent[1]}, 
+                                                                           offsetMinutes: this.chartOptions.offsetMinutes,
+                                                                           xAxisHidden: true, theme: this.chartOptions.theme});
                     });
                 }
             }

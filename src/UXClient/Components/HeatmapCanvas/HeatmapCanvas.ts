@@ -93,7 +93,7 @@ class HeatmapCanvas extends ChartComponent {
 
         //render highlightedValue text and line IF there is a highlighted time and split by, OR IF there is an 
         //  artificially produced value from hovering over the color gradient
-        if (this.highlightedTime && this.highlightedSplitBy) {
+        if (this.highlightedTime && this.highlightedSplitBy != null) {
             setHighlightedValueLineAndText(highlightedLine, highlightedText);
             minText.attr("fill-opacity", ((highlightedValueY == null) || highlightedValueY < this.height - 18) ? 1 : 0);
             maxText.attr("fill-opacity", ((highlightedValueY == null) || highlightedValueY > 18) ? 1 : 0);
@@ -114,7 +114,6 @@ class HeatmapCanvas extends ChartComponent {
     }
 
     public render (data, chartOptions, aggKey, highlightedSplitBy: string = null, highlightedTime: Date = null, onCellFocus) {
-        
         this.chartOptions.setOptions(chartOptions);
         this.aggKey = aggKey;
         this.data = data;
@@ -123,11 +122,11 @@ class HeatmapCanvas extends ChartComponent {
         var container = d3.select(this.renderTarget).classed("tsi-heatmapCanvasWrapper", true);
         super.themify(container, this.chartOptions.theme);
 
-        if (highlightedSplitBy) 
+        if (highlightedSplitBy != null) 
             this.highlightedSplitBy = highlightedSplitBy; 
         this.highlightedTime = highlightedTime;
     
-        if (this.highlightedSplitBy && this.highlightedTime) {
+        if (this.highlightedSplitBy != null && this.highlightedTime) {
             this.highlightedValue =  this.heatmapData.timeValues[this.highlightedTime.toString()][this.highlightedSplitBy].value;
         }
 
