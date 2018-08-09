@@ -92,6 +92,7 @@
             stroke-linecap: round;
             stroke-linejoin: round;
             pointer-events: none;
+            transition: stroke-opacity .2s ease;
         }
         circle {
             stroke-width: 1px;
