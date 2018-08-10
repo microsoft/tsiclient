@@ -621,8 +621,8 @@ class GroupedBarChart extends ChartComponent {
                             this.chartOptions.timestamp = ts;
                             this.render(this.chartComponentData.data, this.chartOptions, this.aggregateExpressionOptions);
                         }
-                        return {label: Utils.timeFormat(this.chartComponentData.usesSeconds, this.chartComponentData.usesMillis, this.chartOptions.offsetMinutes)(new Date(ts)), action: action};
-                    }), this.chartOptions, width - controlsOffset - 10,  Utils.timeFormat(this.chartComponentData.usesSeconds, this.chartComponentData.usesMillis, this.chartOptions.offsetMinutes)(new Date(this.chartComponentData.timestamp)));
+                        return {label: Utils.timeFormat(this.chartComponentData.usesSeconds, this.chartComponentData.usesMillis, this.chartOptions.offset)(new Date(ts)), action: action};
+                    }), this.chartOptions, width - controlsOffset - 10,  Utils.timeFormat(this.chartComponentData.usesSeconds, this.chartComponentData.usesMillis, this.chartOptions.offset)(new Date(this.chartComponentData.timestamp)));
                 }
                 else{
                     slider.remove();

@@ -51,16 +51,33 @@ class Utils {
     static createEntityKey (aggName: string, aggIndex: number) {
         return encodeURIComponent(aggName).split(".").join("_") + "_" + aggIndex;
     }
+
+
+    static getOffsetMinutes(offset: any, millis: number) {
+        if (typeof offset == "string") {
+            var utcDate = new Date(millis);
+            var dateString = utcDate.toLocaleString('en-US', { timeZone: offset });
+            var offsetDate = d3.timeParse("%x, %H:%M:%S %p")(dateString);
+            offsetDate.setMilliseconds(utcDate.getMilliseconds());
+            return Math.round((offsetDate.valueOf() - (offsetDate.getTimezoneOffset() * 60 * 1000) - utcDate.valueOf()) / (60 * 1000));
+        } else {
+            return offset;
+        }
+    }
+
     
-    static timeFormat(usesSeconds = false, usesMillis = false, offsetMinutes: number = 0, is24HourTime: boolean = true) {
+    static timeFormat(usesSeconds = false, usesMillis = false, offset: any = 0, is24HourTime: boolean = true) {
         return (d) => {
+            var dateString;
+            var offsetMinutes = (typeof offset == "string") ? this.getOffsetMinutes(offset, d.valueOf()) : offset;
             var offsetDate = new Date(d.valueOf() + offsetMinutes * 60 * 1000);
+
             var minutes = (offsetDate.getUTCMinutes() < 10 ? "0" : "") + String(offsetDate.getUTCMinutes());
-            var dateString = (offsetDate.getUTCMonth() + 1) + "/" + offsetDate.getUTCDate() + "/" + offsetDate.getUTCFullYear();
+            dateString = (offsetDate.getUTCMonth() + 1) + "/" + offsetDate.getUTCDate() + "/" + offsetDate.getUTCFullYear();
             var timeString = offsetDate.getUTCHours() + ":" + minutes +
                                 (usesSeconds ? ":" + offsetDate.getUTCSeconds() : "") + 
                                 (usesMillis ? "." + offsetDate.getUTCMilliseconds() : "");
-            return dateString + " " + timeString;
+            return dateString + " " + timeString; 
         }
     }
 

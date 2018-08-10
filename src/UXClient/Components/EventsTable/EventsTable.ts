@@ -292,7 +292,7 @@ class EventsTable extends ChartComponent{
                             var timestampDate = new Date(d.value);
                             if (d.value != null) {
                                 timestampDate = new Date(timestampDate.valueOf() + 
-                                    (self.chartOptions.offsetMinutes - timestampDate.getTimezoneOffset()) * 60 * 1000);
+                                    (self.chartOptions.offset - timestampDate.getTimezoneOffset()) * 60 * 1000);
                                 return timestampDate.toISOString().replace("T", " ").replace("Z", "");
                             }
                         }

@@ -276,6 +276,9 @@ class AvailabilityChart extends ChartComponent{
                 }
             });
         }
+        
+        //clear the date time picker
+        this.dateTimePickerContainer.style("display", "none");
 
         this.timePickerContainer.selectAll('.tsi-compactFromTo').remove();
         if (this.chartOptions.isCompact) {
@@ -367,7 +370,8 @@ class AvailabilityChart extends ChartComponent{
         toMillis = Math.min(this.toMillis, toMillis);
         [{"From": fromMillis}, {"To": toMillis}].forEach((fromOrTo) => {
             let fromOrToText = Object.keys(fromOrTo)[0]; 
-            let date = new Date((new Date(fromOrTo[fromOrToText]).valueOf() + this.chartOptions.offsetMinutes * 60 * 1000));
+            var offsetMinutes = Utils.getOffsetMinutes(this.chartOptions.offset, (new Date(fromOrTo[fromOrToText])).valueOf());
+            let date = new Date((new Date(fromOrTo[fromOrToText]).valueOf() + offsetMinutes * 60 * 1000));
             let hours = date.getUTCHours() < 10 ? "0" + date.getUTCHours() : date.getUTCHours();
             let minutes = date.getUTCMinutes() < 10 ? "0" + date.getUTCMinutes() : date.getUTCMinutes();
             let year = date.getUTCFullYear();
@@ -405,12 +409,12 @@ class AvailabilityChart extends ChartComponent{
             leftTimeText = this.timePickerContainer.append('div')
                 .classed('tsi-compactFromTo', true)
                 .style('left', (brushPositions.leftPos != null ? Math.max(brushPositions.leftPos, 5) : 5) + 'px')
-                .html(Utils.timeFormat(false, false, this.chartOptions.offsetMinutes)(new Date(this.selectedFromMillis)));
+                .html(Utils.timeFormat(false, false, this.chartOptions.offset)(new Date(this.selectedFromMillis)));
             rightTimeText = this.timePickerContainer.append('div')
                 .attr('class', 'tsi-compactFromTo')
                 .style('right', brushPositions.rightPos != null ? 'calc(100% - ' + brushPositions.rightPos + 'px)' : '5px')
                 .style('left', 'auto')
-                .html(Utils.timeFormat(false, false, this.chartOptions.offsetMinutes)(new Date(this.selectedToMillis)));
+                .html(Utils.timeFormat(false, false, this.chartOptions.offset)(new Date(this.selectedToMillis)));
         }
 
         if (leftTimeText && rightTimeText) {
@@ -450,14 +454,14 @@ class AvailabilityChart extends ChartComponent{
             .classed('tsi-dateTimeContainer', true)
             .on("click", function () {
                 self.dateTimePickerContainer.style("display", "block");
-                var offsetMillis = self.chartOptions.offsetMinutes * 60 * 1000;
-                var minMillis = self.fromMillis + offsetMillis;
-                var maxMillis = self.toMillis + offsetMillis;
-                var startMillis = self.selectedFromMillis + offsetMillis;
-                var endMillis = self.selectedToMillis + offsetMillis;
-                self.dateTimePicker.render({'theme': self.chartOptions.theme, offsetMinutes: self.chartOptions.offsetMinutes}, 
+                var minMillis = self.fromMillis + (Utils.getOffsetMinutes(self.chartOptions.offset, self.fromMillis) * 60 * 1000);
+                var maxMillis = self.toMillis + (Utils.getOffsetMinutes(self.chartOptions.offset, self.toMillis) * 60 * 1000);
+                var startMillis = self.selectedFromMillis + (Utils.getOffsetMinutes(self.chartOptions.offset, self.selectedFromMillis) * 60 * 1000);
+                var endMillis = self.selectedToMillis + (Utils.getOffsetMinutes(self.chartOptions.offset, self.selectedFromMillis) * 60 * 1000);
+                self.dateTimePicker.render({'theme': self.chartOptions.theme, offset: self.chartOptions.offset}, 
                                             minMillis, maxMillis, startMillis, endMillis, (fromMillis, toMillis) => {
-                                                self.dateTimePickerAction(fromMillis - offsetMillis, toMillis - offsetMillis);
+                                                self.dateTimePickerAction(fromMillis - (Utils.getOffsetMinutes(self.chartOptions.offset, fromMillis) * 60 * 1000), 
+                                                                          toMillis -  (Utils.getOffsetMinutes(self.chartOptions.offset, toMillis) * 60 * 1000));
                                             });
 
             })

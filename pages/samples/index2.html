@@ -74,16 +74,19 @@
                 <div class="cardChart" id="chart7"></div>
             </div>
         </div>
-        <div class="rowOfCards" style>
-            <div class="card" style="flex-shrink: 1; height: 40%; width: 45%;">
+        <div class="rowOfCards" style="height: 240px">
+            <div class="card" style="flex-shrink: 1; height: 100%; width: 45%;">
                 <div class="cardTitle">No Offset</div>
                 <div class="cardChart" id="chart8"></div>
             </div>
-            <div class="card" style="flex-shrink: 1; height: 40%; width: 45%;">
-                    <div class="cardTitle">Offset -600</div>
+            <div class="card" style="flex-shrink: 1; height: 100%; width: 45%;">
+                    <div class="cardTitle">Offset Set By Dropdown</div>
                     <div class="cardChart" id="chart9"></div>
                 </div>
         </div>
+        <div class="card" style="flex-shrink: 1; height: 40%; width: 45%;">
+                <div class="cardChart" id="chart10"></div>
+            </div>
         
 
     </div>        
@@ -229,7 +232,7 @@
                 var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart2'));
                 var theme = 'light';
                 lineChart.render(transformedResult, {theme: theme, grid: true, tooltip: true, legend: 'compact', 
-                                                     offsetMinutes: 120, events: [events], states: [states] }, aggregateExpressions2);
+                                                     offset: 120, events: [events], states: [states] }, aggregateExpressions2);
             });
         });
         
@@ -239,7 +242,7 @@
                 var transformedResult = tsiClient.ux.transformAggregatesForVisualization(result, aggregateExpressions2);
                 var barChart = new tsiClient.ux.BarChart(document.getElementById('chart3'));
                 var theme = 'light';
-                barChart.render(transformedResult, {theme: theme, grid: true, tooltip: true, legend: 'compact', offsetMinutes: -180 }, aggregateExpressions2);
+                barChart.render(transformedResult, {theme: theme, grid: true, tooltip: true, legend: 'compact',  offset:-180 }, aggregateExpressions2);
             });
         });
 
@@ -249,7 +252,7 @@
                 var transformedResult = tsiClient.ux.transformAggregatesForVisualization(result, aggregateExpressions2);
                 var pieChart = new tsiClient.ux.PieChart(document.getElementById('chart4'));
                 var theme = 'light';
-                pieChart.render(transformedResult, {theme: theme, grid: true, tooltip: true, legend: 'compact', offsetMinutes: -150 }, aggregateExpressions2);
+                pieChart.render(transformedResult, {theme: theme, grid: true, tooltip: true, legend: 'compact',  offset:-150 }, aggregateExpressions2);
             });
         });
 
@@ -259,7 +262,7 @@
                 var transformedResult = tsiClient.ux.transformAggregatesForVisualization(result, aggregateExpressions2);
                 var heatmap = new tsiClient.ux.Heatmap(document.getElementById('chart5'));
                 var theme = 'light';
-                heatmap.render(transformedResult, {theme: theme, timestamp: '2017-04-14T13:00:00Z', offsetMinutes: -211 }, aggregateExpressions2);
+                heatmap.render(transformedResult, {theme: theme, timestamp: '2017-04-14T13:00:00Z',  offset:-211 }, aggregateExpressions2);
             });
         });
 
@@ -270,7 +273,7 @@
                                        endDate.valueOf()).then(function (events) {
                 var transformedEvents = tsiClient.ux.transformTsxToEventsArray (events, {});
                 var eventsTable = tsiClient.ux.EventsTable(document.getElementById('chart6'));
-                eventsTable.render(transformedEvents, {theme: 'light', offsetMinutes: -180}, true);
+                eventsTable.render(transformedEvents, {theme: 'light',  offset:-180}, true);
             });
         });
 
@@ -279,7 +282,7 @@
             tsiClient.server.getAggregates(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com', aggregateExpressions2.map(function(ae){return ae.toTsx()})).then(function(result){
                 var transformedResult = tsiClient.ux.transformAggregatesForVisualization(result, aggregateExpressions2);
                 var grid = new tsiClient.ux.Grid(document.getElementById('chart7'));
-                grid.renderFromAggregates(transformedResult, {offsetMinutes: -30}, [{color: '#F7727E'}, {color: '#C8E139'}, {color: 'green'}]);
+                grid.renderFromAggregates(transformedResult, { offset:-30}, [{color: '#F7727E'}, {color: '#C8E139'}, {color: 'green'}]);
             });
         });
 
@@ -311,34 +314,27 @@
             });
         });
 
-        // Example 9 Availability Chart with no offset
-        authContext.getTsiToken().then(function(token){
-            tsiClient.server.getAvailability(token, 'bec25c6b-ed2e-4416-856d-5057957a1575.env.timeseries.azure.com').then(function(result){
-                var transformedResult = tsiClient.ux.transformAvailabilityForVisualization(result, 500);
-                var availabilityChart = new tsiClient.ux.AvailabilityChart(document.getElementById('chart9'));
-                availabilityChart.render(transformedResult, {theme: 'light', grid: false, tooltip: false, legend: "hidden", 
-                   brushContextMenuActions: brushActions, snapBrush: false, maxBuckets: 500,
-                   color: 'purple', offsetMinutes: -600}, result);
-                
-                var chart = document.getElementById("chart9");
-                var button = document.createElement("button");
-                var isCompact = false;
-                function toggleCompact() {
-                    isCompact = !isCompact;
+        // Example 9 Availability Chart with offset                   
+         var availabilityChart = new tsiClient.ux.AvailabilityChart(document.getElementById('chart9'));
+            authContext.getTsiToken().then(function(token){
+                tsiClient.server.getAvailability(token, 'bec25c6b-ed2e-4416-856d-5057957a1575.env.timeseries.azure.com').then(function(result){
+                    var transformedResult = tsiClient.ux.transformAvailabilityForVisualization(result, 500);
                     availabilityChart.render(transformedResult, {theme: 'light', grid: false, tooltip: false, legend: "hidden", 
-                            brushContextMenuActions: brushActions, snapBrush: false, maxBuckets: 500,
-                            color: 'purple', isCompact: isCompact, preserveAvailabilityState: true, offsetMinutes: -600}, result);
-                }
+                    brushContextMenuActions: brushActions, snapBrush: false, maxBuckets: 500,
+                    color: 'purple',  offset:"America/New_York"}, result);
+                    
+                    var chart = document.getElementById("chart9");
+                    var isCompact = false;
 
-                button.id = "myButton";
-                button.textContent = "+/-";
-                button.addEventListener("click", toggleCompact, false);
-                button.style = 'position:absolute;top:0px'
 
-                chart.appendChild(button);
+                    var timezonePicker = new tsiClient.ux.TimezonePicker(document.getElementById('chart10'));
+                    timezonePicker.render((d) => { 
+                        availabilityChart.render(transformedResult, {theme: 'light', grid: false, tooltip: false, legend: "hidden", 
+                                brushContextMenuActions: brushActions, snapBrush: false, maxBuckets: 500,
+                                color: 'purple',  offset: d }, result); 
+                    });
+                });
             });
-        });
-
 
     </script>
 </body>

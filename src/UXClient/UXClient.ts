@@ -10,7 +10,8 @@ import {Hierarchy} from "./Components/Hierarchy/Hierarchy";
 import {AggregateExpression} from "./Models/AggregateExpression";
 import {Heatmap} from "./Components/Heatmap/Heatmap";
 import {EventsTable} from "./Components/EventsTable/EventsTable";
-import { DateTimePicker } from "./Components/DateTimePicker/DateTimePicker";
+import {DateTimePicker} from "./Components/DateTimePicker/DateTimePicker";
+import {TimezonePicker} from "./Components/TimezonePicker/TimezonePicker";
 
 import {Utils} from "./Utils";
 import './styles.scss'
@@ -70,6 +71,10 @@ class UXClient {
 
     public EventsTable(renderTarget) {
         return new EventsTable(renderTarget);
+    }
+
+    public TimezonePicker(renderTarget) {
+        return new TimezonePicker(renderTarget);
     }
 
     public transformTsxToEventsArray (events, options) {
