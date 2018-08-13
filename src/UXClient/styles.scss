@@ -40,6 +40,24 @@
     }
 }
 
+.tsi-select {
+    margin: 2px;
+    position: relative;
+    option {
+        padding: 6px;
+    }
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    padding: 6px;
+    padding-right: 28px;
+    border-width: 1px;
+    border-radius: 2px;
+    border-style: solid;
+    white-space: nowrap;
+    overflow: hidden;
+    height: 32px;
+}
+
 .pika-single {
     border-bottom: none;
     border-left: none;

@@ -26,31 +26,15 @@
 		$grays: grays('light');
 		@include timezonePickerColors($grays);
     }
-
-    .tsi-select {
-        margin-right: 40px;
-        position: relative;
-        top: 4px;
-        option {
-            padding: 6px;
-        }
-        margin: 2px;
-        -webkit-appearance: none;
-        -moz-appearance: none;
-        appearance: none;
-        padding: 6px;
-        padding-right: 36px;
-        background: url(../../Icons/chevron.svg) 97% / 12% no-repeat;
-        background-position-y: 9px;
-        border-width: 1px;
-        border-style: solid;
-        border-radius: 2px;
-        width: 160px;
-        height: 29px;
-        padding-right: 28px;
-        white-space: nowrap;
-        text-overflow: ellipsis;
-        overflow: hidden;
-        display: block;
-    }   
+ 
 }
+
+.tsi-select {
+    margin: 0px;
+    top: 4px;
+    appearance: none;
+    background: url(../../Icons/chevron.svg) 97% / 11% no-repeat;
+    background-position-y: 11px;
+    width: 160px;
+    display: block;
+}   

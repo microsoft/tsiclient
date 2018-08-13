@@ -481,7 +481,7 @@ class AvailabilityChart extends ChartComponent{
         var select = this.timePickerTextContainer
             .append("div")
             .append("select")
-            .attr('class', 'select tsi-timePicker');
+            .attr('class', 'tsi-select tsi-timePicker');
 
         var options = select.selectAll('option')
             .data(this.quickTimeArray).enter()
