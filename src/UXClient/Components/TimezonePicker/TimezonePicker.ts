@@ -10,9 +10,9 @@ class TimezonePicker extends ChartComponent{
         super(renderTarget);
     }
 
-    public render (onTimezoneSelect) {
+    public render (onTimezoneSelect, defaultTimeZone: string = null) {
         this.targetElement = d3.select(this.renderTarget)
-        .classed("tsi-timezonePicker", true)
+            .classed("tsi-timezonePicker", true)
 
         let d = new Date();
         var timezoneSelection = this.targetElement.append("select")
@@ -22,6 +22,11 @@ class TimezonePicker extends ChartComponent{
             var timezone = (<any>d3.select(this).node()).value.replace(/\s/g, "_");
             onTimezoneSelect(timezone);
         });
+        //set all underscores to spaces
+        defaultTimeZone = defaultTimeZone.replace(/_/g, " ");
+        if (defaultTimeZone != null) {
+            options.filter((d) => d == defaultTimeZone).attr("selected", true);    
+        }
         return;
     }
 

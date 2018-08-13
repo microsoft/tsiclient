@@ -185,7 +185,6 @@ class LineChart extends ChartComponent {
     }
 
     public setBrush () {
-
         if (this.brushStartTime && this.brushEndTime && this.brushElem && this.brush) {
             var rawLeftSide = this.x(this.brushStartTime);
             var rawRightSide = this.x(this.brushEndTime);

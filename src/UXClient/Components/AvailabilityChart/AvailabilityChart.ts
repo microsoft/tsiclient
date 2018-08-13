@@ -276,7 +276,7 @@ class AvailabilityChart extends ChartComponent{
                 }
             });
         }
-        
+
         //clear the date time picker
         this.dateTimePickerContainer.style("display", "none");
 
@@ -311,6 +311,7 @@ class AvailabilityChart extends ChartComponent{
             if (this.sparkLineChart.brushEndTime == null) this.sparkLineChart.setBrushEndTime(new Date(this.zoomedToMillis)); 
             if (this.selectedFromMillis == null || this.selectedToMillis == null) this.setFromAndToTimes(this.toMillis - (7 * 24 * 60 * 60 * 1000), this.toMillis); 
             this.drawGhost();
+            this.setBrush(this.selectedFromMillis, this.selectedToMillis);
         }
 
         this.sparkLineChart.setBrush();

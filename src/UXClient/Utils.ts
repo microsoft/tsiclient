@@ -56,6 +56,7 @@ class Utils {
     static getOffsetMinutes(offset: any, millis: number) {
         if (typeof offset == "string") {
             var utcDate = new Date(millis);
+            offset = offset.replace(/\s/g, "_");
             var dateString = utcDate.toLocaleString('en-US', { timeZone: offset });
             var offsetDate = d3.timeParse("%x, %H:%M:%S %p")(dateString);
             offsetDate.setMilliseconds(utcDate.getMilliseconds());
