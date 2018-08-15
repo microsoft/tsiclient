@@ -124,27 +124,12 @@
         margin: 0 80px;
         display: inline-flex;
 
-        .tsi-timePicker {
-            padding: 2px;
-            margin-right: 40px;
-            position: relative;
+        .tsi-select {
             top: 4px;
-            option {
-                padding: 6px;
-            }
             width: 100px;
-            margin: 2px;
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            appearance: none;
-            padding: 6px;
-            background: url(../../Icons/chevron.svg) 93% / 15% no-repeat;
-            background-position-y: 9px;
-            border-width: 1px;
-            border-style: solid;
-            border-radius: 2px;
+            background: url(../../Icons/chevron.svg) 93% / 13% no-repeat;
+            background-position-y: 11px;
             width: 132px;
-            height: 29px;
         }
 
         .tsi-dateTimeInputLabel {
@@ -168,6 +153,7 @@
             cursor: pointer;
 
             .tsi-dateTimeTextContainer {
+                white-space: nowrap;
                 display: inline-block;
                 padding-left: 4px;
                 padding-right: 4px;

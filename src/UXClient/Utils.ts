@@ -1,4 +1,5 @@
 import * as d3 from 'd3';
+import * as momentTZ from 'moment-timezone';
 import {Grid} from "./Components/Grid/Grid";
 import { ChartComponent } from './Interfaces/ChartComponent';
 
@@ -51,13 +52,27 @@ class Utils {
     static createEntityKey (aggName: string, aggIndex: number) {
         return encodeURIComponent(aggName).split(".").join("_") + "_" + aggIndex;
     }
+
+
+    static getOffsetMinutes(offset: any, millis: number) {
+        if (typeof offset == "string") {
+            var zone = momentTZ.tz.zone(offset);
+            return -zone.parse(millis);
+        } else {
+            return offset;
+        }
+    }
+
     
-    static timeFormat(usesSeconds = false, usesMillis = false) {
-        if (usesMillis)
-            return d3.utcFormat("%x %H:%M:%S:%L");
-        if (usesSeconds)
-            return d3.utcFormat("%x %H:%M:%S")
-        return d3.utcFormat("%x %H:%M");
+    static timeFormat(usesSeconds = false, usesMillis = false, offset: any = 0, is24HourTime: boolean = true) {
+        return (d) => {
+            var stringFormat = "MM/DD/YYYY HH:mm" + (usesSeconds ? (":ss" + (usesMillis ? ".SSS" : "")) : "");
+            if (typeof offset == "string") {
+                return momentTZ.tz(d, "UTC").tz(offset).format(stringFormat);
+            } else {
+                return momentTZ.tz(d, "UTC").utcOffset(offset).format(stringFormat);
+            }
+        }
     }
 
     static splitTimeLabel (text: any) {
@@ -79,7 +94,7 @@ class Utils {
             }
         });
     }
-
+    
     static getUTCHours (d: Date) {
         var hours = d.getUTCHours();
         if (hours == 0) 
@@ -235,6 +250,16 @@ class Utils {
             return text;
         var regExp = new RegExp(filter, 'i');
         return text.replace(regExp, function(m){ return '<mark>'+m+'</mark>';});
+    }
+
+    static guid () {
+        var  s4 = () => {
+            return Math.floor((1 + Math.random()) * 0x10000)
+              .toString(16)
+              .substring(1);
+        }
+        return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+               s4() + '-' + s4() + s4() + s4();
     }
 }
 

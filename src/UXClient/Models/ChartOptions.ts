@@ -21,6 +21,7 @@ class ChartOptions {
     public minBrushWidth: number // minimum possible width of brush in linechart
     public minutesForTimeLabels: boolean; // whether time labels forced to minute granularity
     public noAnimate: boolean; // whether animations happen on state change
+    public offset: any; // offset for all timestamps in minutes from UTC
     public onMouseout: () => void;
     public onMouseover: (aggKey: string, splitBy: string) => void;
     public onSticky: (aggKey: string, splitBy: string) => void;
@@ -82,8 +83,8 @@ class ChartOptions {
         this.zeroYAxis = this.getValueOrDefault( chartOptionsObj, 'zeroYAxis', true);
         this.arcWidthRatio = this.getValueOrDefault(chartOptionsObj, 'arcWidthRatio', 0);
         this.brushClearable = this.getValueOrDefault(chartOptionsObj, 'brushClearable', true);
-        this.brushMoveAction = this.getValueOrDefault(chartOptionsObj, 'brushMoveAction', null);
-        this.brushMoveEndAction = this.getValueOrDefault(chartOptionsObj, 'brushMoveEndAction', null);
+        this.brushMoveAction = this.getValueOrDefault(chartOptionsObj, 'brushMoveAction', () => {});
+        this.brushMoveEndAction = this.getValueOrDefault(chartOptionsObj, 'brushMoveEndAction', () => {});
         this.yAxisState = this.getValueOrDefault(chartOptionsObj, 'yAxisState', 'stacked');
         this.xAxisHidden = this.getValueOrDefault(chartOptionsObj, 'xAxisHidden', false);
         this.suppressResizeListener = this.getValueOrDefault(chartOptionsObj, 'suppressResizeListener', false);
@@ -93,6 +94,7 @@ class ChartOptions {
         this.onUnsticky = this.getValueOrDefault(chartOptionsObj, 'onUnsticky', () => {});
         this.brushHandlesVisible = this.getValueOrDefault(chartOptionsObj, 'brushHandlesVisible', false);
         this.hideChartControlPanel = this.getValueOrDefault(chartOptionsObj, 'hideChartControlPanel', false);
+        this.offset = this.getValueOrDefault(chartOptionsObj, 'offset', 0);
     }
 
     public toObject () {
@@ -137,7 +139,8 @@ class ChartOptions {
             onSticky: this.onSticky,
             onUnsticky: this.onUnsticky,
             brushHandlesVisible: this.brushHandlesVisible,
-            hideChartControlPanel: this.hideChartControlPanel
+            hideChartControlPanel: this.hideChartControlPanel,
+            offset: this.offset
         }
     }
 }

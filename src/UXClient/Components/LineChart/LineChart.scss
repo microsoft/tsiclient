@@ -86,6 +86,7 @@
         }
 
         path {
+            transition: stroke-opacity .2s ease;
             stroke-width: 2px;
             fill: none;
             stroke-linecap: round;

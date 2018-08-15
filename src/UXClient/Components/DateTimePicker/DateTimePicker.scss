@@ -66,22 +66,15 @@
     }
 
     .tsi-select {
-        padding: 2px;
-        position: relative;
         top: 4px;
+        margin: 0px;
+        padding-right: 28px;
         option {
             padding: 6px;
         }
         width: 100px;
-        -webkit-appearance: none;
-        -moz-appearance: none;
-        appearance: none;
-        padding: 6px;
         background: url(../../Icons/chevron.svg) 85% / 25% no-repeat;
         background-position-y: 12px;
-        border-width: 1px;
-        border-style: solid;
-        height: 32px;
     }
 
     .tsi-timeControlsContainer {

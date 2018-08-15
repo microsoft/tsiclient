@@ -130,8 +130,8 @@ class GroupedBarChart extends ChartComponent {
 
                 svgSelection.selectAll(".valueElement")
                             .filter(selectedFilter)
-                            .attr("stroke-opacity", .15)
-                            .attr("fill-opacity", .15);
+                            .attr("stroke-opacity", .3)
+                            .attr("fill-opacity", .3);
                 var text = svgSelection.selectAll(".barGroup")
                             .filter((d: any) => {
                                 return d == aggKey;
@@ -621,8 +621,8 @@ class GroupedBarChart extends ChartComponent {
                             this.chartOptions.timestamp = ts;
                             this.render(this.chartComponentData.data, this.chartOptions, this.aggregateExpressionOptions);
                         }
-                        return {label: Utils.timeFormat(this.chartComponentData.usesSeconds, this.chartComponentData.usesMillis)(new Date(ts)), action: action};
-                    }), this.chartOptions, width - controlsOffset - 10,  Utils.timeFormat(this.chartComponentData.usesSeconds, this.chartComponentData.usesMillis)(new Date(this.chartComponentData.timestamp)));
+                        return {label: Utils.timeFormat(this.chartComponentData.usesSeconds, this.chartComponentData.usesMillis, this.chartOptions.offset)(new Date(ts)), action: action};
+                    }), this.chartOptions, width - controlsOffset - 10,  Utils.timeFormat(this.chartComponentData.usesSeconds, this.chartComponentData.usesMillis, this.chartOptions.offset)(new Date(this.chartComponentData.timestamp)));
                 }
                 else{
                     slider.remove();

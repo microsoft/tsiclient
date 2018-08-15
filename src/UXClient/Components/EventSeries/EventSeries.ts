@@ -64,14 +64,14 @@ class EventSeries extends TimelineComponent{
 		var self = this;
 		rects.on("mouseover", function (dRect, iRect) { 
 			self.elementMouseover(dRect, iRect, (d, i) => { 
-				return Utils.timeFormat(this.usesSeconds, this.usesMillis)(new Date(d.time));
+				return Utils.timeFormat(this.usesSeconds, this.usesMillis, self.chartOptions.offset)(new Date(d.time));
 			});
 			var mousePos = d3.mouse(<any>self.g.node());
 			tooltip.render(self.chartOptions.theme);
 			tooltip.draw (dRect, {}, mousePos[0], mousePos[1], {top: 0, bottom: 0, left: 0, right: 0}, (text) => {
 				text.text(null);
 				text.append('div')
-					.text(Utils.timeFormat(self.usesSeconds, self.usesMillis)(new Date(dRect.time)))
+					.text(Utils.timeFormat(self.usesSeconds, self.usesMillis, self.chartOptions.offset)(new Date(dRect.time)))
 					.classed('title', true);
 				text.append('div')
 					.text(dRect.description)
@@ -88,7 +88,7 @@ class EventSeries extends TimelineComponent{
 			this.xAxis.style('display', 'block')
 			this.xAxis.transition()
 				.duration(TRANSDURATION)
-				.call(d3.axisBottom(this.xScale).tickFormat(Utils.timeFormat(this.usesSeconds, this.usesMillis)))
+				.call(d3.axisBottom(this.xScale).tickFormat(Utils.timeFormat(this.usesSeconds, this.usesMillis, this.chartOptions.offset)))
 				.tween("", () => {
 					return () => {
 						this.g.selectAll('.xAxis').selectAll('text').call(Utils.splitTimeLabel);

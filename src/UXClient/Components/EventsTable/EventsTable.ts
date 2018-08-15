@@ -81,7 +81,7 @@ class EventsTable extends ChartComponent{
         this.eventsLegend.append("ul");
 
         var columns = Object.keys(this.eventsTableData.columns)
-            .filter((cIdx) => { return cIdx != "timestamp_DateTime"; }) // filter out timestamp
+            .filter((cIdx) => { return cIdx.toLowerCase() != "timestamp_datetime"; }) // filter out timestamp
             .map((cIdx) => this.eventsTableData.columns[cIdx]);
         
         var filteredColumnKeys = this.getFilteredColumnKeys();
@@ -255,7 +255,7 @@ class EventsTable extends ChartComponent{
             })
     }
 
-    private buildTable() {
+    private buildTable () {
         var filteredColumnKeys = this.getFilteredColumnKeys();
         var widthDictionary = this.buildHeaders(filteredColumnKeys);
         this.eventsTable.select("table").html("");
@@ -288,6 +288,14 @@ class EventsTable extends ChartComponent{
                             return "none";
                     })
                     .html((d: TimeSeriesEventCell) => {
+                        if (d.key.toLowerCase() == "timestamp_datetime") {
+                            var timestampDate = new Date(d.value);
+                            if (d.value != null) {
+                                timestampDate = new Date(timestampDate.valueOf() + 
+                                    (self.chartOptions.offset - timestampDate.getTimezoneOffset()) * 60 * 1000);
+                                return timestampDate.toISOString().replace("T", " ").replace("Z", "");
+                            }
+                        }
                         return d.value;
                     });
                 valueCells.exit().remove();

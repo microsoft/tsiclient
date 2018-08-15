@@ -267,9 +267,8 @@ class AvailabilityChart extends ChartComponent{
 
             var dateTimeTextChildren = this.targetElement.select(".tsi-dateTimeContainer").selectAll("*");
             var pickerContainerChildren;
-            d3.select("body").on("click", () => {
+            d3.select("html").on("click." + Utils.guid(), () => {
                 pickerContainerChildren = this.targetElement.select(".tsi-dateTimePickerContainer").selectAll("*");
-
                 var outside = dateTimeTextChildren.filter(equalToEventTarget).empty();
                 var inClickTarget = pickerContainerChildren.filter(equalToEventTarget).empty();
                 if (outside && inClickTarget) {
@@ -277,6 +276,9 @@ class AvailabilityChart extends ChartComponent{
                 }
             });
         }
+
+        //clear the date time picker
+        this.dateTimePickerContainer.style("display", "none");
 
         this.timePickerContainer.selectAll('.tsi-compactFromTo').remove();
         if (this.chartOptions.isCompact) {
@@ -309,6 +311,7 @@ class AvailabilityChart extends ChartComponent{
             if (this.sparkLineChart.brushEndTime == null) this.sparkLineChart.setBrushEndTime(new Date(this.zoomedToMillis)); 
             if (this.selectedFromMillis == null || this.selectedToMillis == null) this.setFromAndToTimes(this.toMillis - (7 * 24 * 60 * 60 * 1000), this.toMillis); 
             this.drawGhost();
+            this.setBrush(this.selectedFromMillis, this.selectedToMillis);
         }
 
         this.sparkLineChart.setBrush();
@@ -368,7 +371,8 @@ class AvailabilityChart extends ChartComponent{
         toMillis = Math.min(this.toMillis, toMillis);
         [{"From": fromMillis}, {"To": toMillis}].forEach((fromOrTo) => {
             let fromOrToText = Object.keys(fromOrTo)[0]; 
-            let date = new Date(fromOrTo[fromOrToText]);
+            var offsetMinutes = Utils.getOffsetMinutes(this.chartOptions.offset, (new Date(fromOrTo[fromOrToText])).valueOf());
+            let date = new Date((new Date(fromOrTo[fromOrToText]).valueOf() + offsetMinutes * 60 * 1000));
             let hours = date.getUTCHours() < 10 ? "0" + date.getUTCHours() : date.getUTCHours();
             let minutes = date.getUTCMinutes() < 10 ? "0" + date.getUTCMinutes() : date.getUTCMinutes();
             let year = date.getUTCFullYear();
@@ -406,12 +410,12 @@ class AvailabilityChart extends ChartComponent{
             leftTimeText = this.timePickerContainer.append('div')
                 .classed('tsi-compactFromTo', true)
                 .style('left', (brushPositions.leftPos != null ? Math.max(brushPositions.leftPos, 5) : 5) + 'px')
-                .html(Utils.timeFormat(false, false)(new Date(this.selectedFromMillis)));
+                .html(Utils.timeFormat(false, false, this.chartOptions.offset)(new Date(this.selectedFromMillis)));
             rightTimeText = this.timePickerContainer.append('div')
                 .attr('class', 'tsi-compactFromTo')
                 .style('right', brushPositions.rightPos != null ? 'calc(100% - ' + brushPositions.rightPos + 'px)' : '5px')
                 .style('left', 'auto')
-                .html(Utils.timeFormat(false, false)(new Date(this.selectedToMillis)));
+                .html(Utils.timeFormat(false, false, this.chartOptions.offset)(new Date(this.selectedToMillis)));
         }
 
         if (leftTimeText && rightTimeText) {
@@ -451,14 +455,15 @@ class AvailabilityChart extends ChartComponent{
             .classed('tsi-dateTimeContainer', true)
             .on("click", function () {
                 self.dateTimePickerContainer.style("display", "block");
-                var minMillis = self.fromMillis;
-                var maxMillis = self.toMillis
-                var startMillis = self.selectedFromMillis;
-                var endMillis = self.selectedToMillis;
-                self.dateTimePicker.render({'theme': self.chartOptions.theme}, minMillis, maxMillis, startMillis, endMillis, 
-                                        (fromMillis, toMillis) => {
-                                            self.dateTimePickerAction(fromMillis, toMillis);
-                                        });
+                var minMillis = self.fromMillis + (Utils.getOffsetMinutes(self.chartOptions.offset, self.fromMillis) * 60 * 1000);
+                var maxMillis = self.toMillis + (Utils.getOffsetMinutes(self.chartOptions.offset, self.toMillis) * 60 * 1000);
+                var startMillis = self.selectedFromMillis + (Utils.getOffsetMinutes(self.chartOptions.offset, self.selectedFromMillis) * 60 * 1000);
+                var endMillis = self.selectedToMillis + (Utils.getOffsetMinutes(self.chartOptions.offset, self.selectedFromMillis) * 60 * 1000);
+                self.dateTimePicker.render({'theme': self.chartOptions.theme, offset: self.chartOptions.offset}, 
+                                            minMillis, maxMillis, startMillis, endMillis, (fromMillis, toMillis) => {
+                                                self.dateTimePickerAction(fromMillis - (Utils.getOffsetMinutes(self.chartOptions.offset, fromMillis) * 60 * 1000), 
+                                                                          toMillis -  (Utils.getOffsetMinutes(self.chartOptions.offset, toMillis) * 60 * 1000));
+                                            });
 
             })
         var fromDateTimeContainer = this.timeContainer.append("div").attr("class", "tsi-dateTimeTextContainer tsi-dateTimeTextContainerFrom");
@@ -476,7 +481,7 @@ class AvailabilityChart extends ChartComponent{
         var select = this.timePickerTextContainer
             .append("div")
             .append("select")
-            .attr('class', 'select tsi-timePicker');
+            .attr('class', 'tsi-select tsi-timePicker');
 
         var options = select.selectAll('option')
             .data(this.quickTimeArray).enter()

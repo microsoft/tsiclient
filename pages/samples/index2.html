@@ -39,16 +39,55 @@
                 </div>
             </div>
         </div>
-        <div id="chart2" style="margin-top: 60px"></div>
-        <div class="chartsWrapper" style="height:80%;">
-            <div class="rowOfCardsTitle">Availability</div>
-            <div class="rowOfCards" style="height:50%;">
-                <div id="chart1" style="flex-shrink: 1; height: 100%; width: 90%; border: 1px solid silver;"></div>
+        <div class="rowOfCardsTitle">Three Identical Data Chart with different Time Zones</div>
+        <div class="rowOfCards">
+            <div class="card" style="flex-shrink: 1; height: 100%; width: 30%;">
+                <div class="cardTitle">No Offset</div>
+                <div class="cardChart" id="chart1"></div>
             </div>
-            <!-- <div class="rowOfCards" style="height:50%;">
-                <div id="chart2"></div>
-            </div> -->
+            <div class="card" style="flex-shrink: 1; height: 100%; width: 30%;">
+                <div class="cardTitle">Offset +120</div>
+                <div class="cardChart" id="chart2"></div>
+            </div>
+            <div class="card" style="flex-shrink: 1; height: 100%; width: 30%;">
+                <div class="cardTitle">Offset -180</div>
+                <div class="cardChart" id="chart3"></div>
+            </div>
         </div>
+        <div class="rowOfCards">
+            <div class="card" style="flex-shrink: 1; height: 100%; width: 30%;">
+                <div class="cardTitle">Offset -150</div>
+                <div class="cardChart" id="chart4"></div>
+            </div>
+            <div class="card" style="flex-shrink: 1; height: 100%; width: 30%;">
+                <div class="cardTitle">Offset -211</div>
+                <div class="cardChart" id="chart5"></div>
+            </div>
+            <div class="card" style="flex-shrink: 1; height: 100%; width: 30%;">
+                <div class="cardTitle">Offset -180</div>
+                <div class="cardChart" id="chart6"></div>
+            </div>
+        </div>
+        <div class="rowOfCards" style="height: 240px">
+            <div class="card" style="flex-shrink: 1; height: 100%; width: 90%;">
+                <div class="cardTitle">Offset -30</div>
+                <div class="cardChart" id="chart7"></div>
+            </div>
+        </div>
+        <div class="rowOfCards" style="height: 240px">
+            <div class="card" style="flex-shrink: 1; height: 100%; width: 45%;">
+                <div class="cardTitle">No Offset</div>
+                <div class="cardChart" id="chart8"></div>
+            </div>
+            <div class="card" style="flex-shrink: 1; height: 100%; width: 45%;">
+                    <div class="cardTitle">Offset Set By Dropdown</div>
+                    <div class="cardChart" id="chart9"></div>
+                </div>
+        </div>
+        <div class="card" style="flex-shrink: 1; height: 40%; width: 45%;">
+                <div class="cardChart" id="chart10"></div>
+            </div>
+        
 
     </div>        
     <script type="text/javascript">
@@ -123,32 +162,183 @@
         var brushMoveAction = function(fromTime, toTime) {
         }
 
+        var aggregateExpressions2 = [];
+        var startDate = new Date('2017-04-14T13:00:00Z');
+        var endDate = new Date(startDate.valueOf() + 1000*60*60*5);
+        aggregateExpressions2.push(new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory1'"}, {property: 'Pressure', type: "Double"}, ['avg', 'min', 'max'],
+            { from: startDate, to: endDate, bucketSize: '2m' }, null, '#FF8C00', 'Factory1Pressure'));
+        aggregateExpressions2.push(new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory2'"}, {property: 'Pressure', type: "Double"}, ['avg', 'min', 'max'],
+            { from: startDate, to: endDate, bucketSize: '2m' }, null, '#D869CB', 'Factory2Pressure'));
+        aggregateExpressions2.push(new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory3'"}, {property: 'Pressure', type: "Double"}, ['avg', 'min', 'max'],
+            { from: startDate, to: endDate, bucketSize: '2m' }, null, '#60B9AE', 'Factory.3.Pressure'));
+
+
+        // Example 1
         authContext.getTsiToken().then(function(token){
-            tsiClient.server.getAvailability(token, '063bec0b-3bd1-4227-9001-42f3a93a4d82.env.timeseries.azure.com').then(function(result){
-                var transformedResult = tsiClient.ux.transformAvailabilityForVisualization(result);
-                var availabilityChart = new tsiClient.ux.AvailabilityChart(document.getElementById('chart1'));
-                availabilityChart.render(transformedResult, {theme: 'dark', grid: false, tooltip: false, legend: "hidden", 
-                   brushContextMenuActions: brushActions, snapBrush: false, brushMoveAction: brushMoveAction, maxBuckets: 500,
-                   color: 'purple'}, result);
+            tsiClient.server.getAggregates(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com', aggregateExpressions2.map(function(ae){return ae.toTsx()})).then(function(result){
+                var transformedResult = tsiClient.ux.transformAggregatesForVisualization(result, aggregateExpressions2);
+                var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart1'));
+                var theme = 'light';
+                lineChart.render(transformedResult, {theme: theme, grid: true, tooltip: true, legend: 'compact'}, aggregateExpressions2);
+            });
+        });
+
+        // Example 2
+
+        var states = {"Component States" : [
+            {
+                '2017-04-14T13:05:00Z' : {
+                    'color': 'lightblue',
+                    'description' : 'Cooling fan on'
+                }
+            },
+            {
+                '2017-04-14T13:27:00Z' : {
+                    'color': '#C8E139',
+                    'description' : 'Filling tank at maximum pressure'
+                }
+            },
+            {
+                '2017-04-14T13:47:00Z' : {
+                    'color': '#D869CB',
+                    'description' : 'Pressing machine overheated'
+                }
+            }
+        ]};
+
+        var events = {"Incidents" : [
+            {
+                '2017-04-14T13:12:00Z' : {
+                    'color': '#C8E139',
+                    'description' : 'Recoverable failure'
+                }
+            },
+            {
+                '2017-04-14T13:25:00Z' : {
+                    'color': '#D869CB',
+                    'description' : 'Catastrophic failure'
+                }
+            },
+                {
+                '2017-04-14T13:47:00Z' : {
+                    'color': '#D869CB',
+                    'description' : 'Informational event'
+                }
+            }
+        ]};
+
+        authContext.getTsiToken().then(function(token){
+            tsiClient.server.getAggregates(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com', aggregateExpressions2.map(function(ae){return ae.toTsx()})).then(function(result){
+                var transformedResult = tsiClient.ux.transformAggregatesForVisualization(result, aggregateExpressions2);
+                var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart2'));
+                var theme = 'light';
+                lineChart.render(transformedResult, {theme: theme, grid: true, tooltip: true, legend: 'compact', 
+                                                     offset: 120, events: [events], states: [states] }, aggregateExpressions2);
+            });
+        });
+        
+        // Example 3
+        authContext.getTsiToken().then(function(token){
+            tsiClient.server.getAggregates(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com', aggregateExpressions2.map(function(ae){return ae.toTsx()})).then(function(result){
+                var transformedResult = tsiClient.ux.transformAggregatesForVisualization(result, aggregateExpressions2);
+                var barChart = new tsiClient.ux.BarChart(document.getElementById('chart3'));
+                var theme = 'light';
+                barChart.render(transformedResult, {theme: theme, grid: true, tooltip: true, legend: 'compact',  offset:-180 }, aggregateExpressions2);
+            });
+        });
+
+        // Example 4
+        authContext.getTsiToken().then(function(token){
+            tsiClient.server.getAggregates(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com', aggregateExpressions2.map(function(ae){return ae.toTsx()})).then(function(result){
+                var transformedResult = tsiClient.ux.transformAggregatesForVisualization(result, aggregateExpressions2);
+                var pieChart = new tsiClient.ux.PieChart(document.getElementById('chart4'));
+                var theme = 'light';
+                pieChart.render(transformedResult, {theme: theme, grid: true, tooltip: true, legend: 'compact',  offset:-150 }, aggregateExpressions2);
+            });
+        });
+
+        // Example 5
+        authContext.getTsiToken().then(function(token){
+            tsiClient.server.getAggregates(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com', aggregateExpressions2.map(function(ae){return ae.toTsx()})).then(function(result){
+                var transformedResult = tsiClient.ux.transformAggregatesForVisualization(result, aggregateExpressions2);
+                var heatmap = new tsiClient.ux.Heatmap(document.getElementById('chart5'));
+                var theme = 'light';
+                heatmap.render(transformedResult, {theme: theme, timestamp: '2017-04-14T13:00:00Z',  offset:-211 }, aggregateExpressions2);
+            });
+        });
+
+        // Example 6 Events Table
+        authContext.getTsiToken().then(function(token){
+            tsiClient.server.getEvents(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com', 
+                                        {predicateString: "Factory = 'Factory1'"},  {}, startDate.valueOf(), 
+                                       endDate.valueOf()).then(function (events) {
+                var transformedEvents = tsiClient.ux.transformTsxToEventsArray (events, {});
+                var eventsTable = tsiClient.ux.EventsTable(document.getElementById('chart6'));
+                eventsTable.render(transformedEvents, {theme: 'light',  offset:-180}, true);
+            });
+        });
+
+        // Example 7 Grid
+        authContext.getTsiToken().then(function(token){
+            tsiClient.server.getAggregates(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com', aggregateExpressions2.map(function(ae){return ae.toTsx()})).then(function(result){
+                var transformedResult = tsiClient.ux.transformAggregatesForVisualization(result, aggregateExpressions2);
+                var grid = new tsiClient.ux.Grid(document.getElementById('chart7'));
+                grid.renderFromAggregates(transformedResult, { offset:-30}, [{color: '#F7727E'}, {color: '#C8E139'}, {color: 'green'}]);
+            });
+        });
+
+        // Example 8 Availability Chart with no offset
+        authContext.getTsiToken().then(function(token){
+            tsiClient.server.getAvailability(token, 'bec25c6b-ed2e-4416-856d-5057957a1575.env.timeseries.azure.com').then(function(result){
+                var transformedResult = tsiClient.ux.transformAvailabilityForVisualization(result, 500);
+                var availabilityChart = new tsiClient.ux.AvailabilityChart(document.getElementById('chart8'));
+                availabilityChart.render(transformedResult, {theme: 'light', grid: false, tooltip: false, legend: "hidden", 
+                   brushContextMenuActions: brushActions, snapBrush: false, maxBuckets: 500,
+                   color: 'purple', offset: "America/Chicago"}, result);
                 
-                var chart = document.getElementById("chart1");
+                var chart = document.getElementById("chart8");
                 var button = document.createElement("button");
                 var isCompact = false;
                 function toggleCompact() {
                     isCompact = !isCompact;
                     availabilityChart.render(transformedResult, {theme: 'light', grid: false, tooltip: false, legend: "hidden", 
-                            brushContextMenuActions: brushActions, snapBrush: false, brushMoveAction: brushMoveAction, maxBuckets: 500,
-                            color: 'purple', isCompact: isCompact, preserveAvailabilityState: true}, result);
+                            brushContextMenuActions: brushActions, snapBrush: false, maxBuckets: 500,
+                            color: 'purple', isCompact: isCompact, preserveAvailabilityState: true, offset: "America/Chicago"}, result);
                 }
 
                 button.id = "myButton";
                 button.textContent = "+/-";
                 button.addEventListener("click", toggleCompact, false);
-                button.style = 'position:absolute;top:0px';
+                button.style = 'position:absolute;top:0px'
+
                 chart.appendChild(button);
             });
-        });
-        
+        }); 
+
+        // Example 9 Availability Chart with offset                   
+         var availabilityChart = new tsiClient.ux.AvailabilityChart(document.getElementById('chart9'));
+            authContext.getTsiToken().then(function(token){
+                tsiClient.server.getAvailability(token, 'bec25c6b-ed2e-4416-856d-5057957a1575.env.timeseries.azure.com').then(function(result){
+                    var transformedResult = tsiClient.ux.transformAvailabilityForVisualization(result, 500);
+                    availabilityChart.render(transformedResult, {theme: 'light', grid: false, tooltip: false, legend: "hidden", 
+                    brushContextMenuActions: brushActions, snapBrush: false, maxBuckets: 500,
+                    color: 'purple', preserveAvailabilityState: true}, result);
+                    
+                    var chart = document.getElementById("chart9");
+                    var isCompact = false;
+
+
+                    var timezonePicker = new tsiClient.ux.TimezonePicker(document.getElementById('chart10'));
+                    timezonePicker.render(function (d)  { 
+                        availabilityChart.render(transformedResult, {theme: 'light', grid: false, tooltip: false, legend: "hidden", 
+                                brushContextMenuActions: brushActions, snapBrush: false, maxBuckets: 500,
+                                color: 'purple',  offset: d }, result); 
+                    },"UTC");
+                });
+            });
+
+            // var timezonePicker = new tsiClient.ux.TimezonePicker(document.getElementById('chart10'));
+            //         timezonePicker.render((d) => { console.log(d); },"America/Chicago");
 
     </script>
 </body>
