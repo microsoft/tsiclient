@@ -164,13 +164,14 @@
 
         var aggregateExpressions2 = [];
         var startDate = new Date('2017-04-14T13:00:00Z');
-        var endDate = new Date(startDate.valueOf() + 1000*60*60*1);
+        var endDate = new Date(startDate.valueOf() + 1000*60*60*5);
         aggregateExpressions2.push(new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory1'"}, {property: 'Pressure', type: "Double"}, ['avg', 'min', 'max'],
             { from: startDate, to: endDate, bucketSize: '2m' }, null, '#FF8C00', 'Factory1Pressure'));
         aggregateExpressions2.push(new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory2'"}, {property: 'Pressure', type: "Double"}, ['avg', 'min', 'max'],
             { from: startDate, to: endDate, bucketSize: '2m' }, null, '#D869CB', 'Factory2Pressure'));
         aggregateExpressions2.push(new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory3'"}, {property: 'Pressure', type: "Double"}, ['avg', 'min', 'max'],
             { from: startDate, to: endDate, bucketSize: '2m' }, null, '#60B9AE', 'Factory.3.Pressure'));
+
 
         // Example 1
         authContext.getTsiToken().then(function(token){
@@ -293,7 +294,7 @@
                 var availabilityChart = new tsiClient.ux.AvailabilityChart(document.getElementById('chart8'));
                 availabilityChart.render(transformedResult, {theme: 'light', grid: false, tooltip: false, legend: "hidden", 
                    brushContextMenuActions: brushActions, snapBrush: false, maxBuckets: 500,
-                   color: 'purple'}, result);
+                   color: 'purple', offset: "America/Chicago"}, result);
                 
                 var chart = document.getElementById("chart8");
                 var button = document.createElement("button");
@@ -302,7 +303,7 @@
                     isCompact = !isCompact;
                     availabilityChart.render(transformedResult, {theme: 'light', grid: false, tooltip: false, legend: "hidden", 
                             brushContextMenuActions: brushActions, snapBrush: false, maxBuckets: 500,
-                            color: 'purple', isCompact: isCompact, preserveAvailabilityState: true}, result);
+                            color: 'purple', isCompact: isCompact, preserveAvailabilityState: true, offset: "America/Chicago"}, result);
                 }
 
                 button.id = "myButton";
@@ -312,7 +313,7 @@
 
                 chart.appendChild(button);
             });
-        });
+        }); 
 
         // Example 9 Availability Chart with offset                   
          var availabilityChart = new tsiClient.ux.AvailabilityChart(document.getElementById('chart9'));
@@ -321,20 +322,23 @@
                     var transformedResult = tsiClient.ux.transformAvailabilityForVisualization(result, 500);
                     availabilityChart.render(transformedResult, {theme: 'light', grid: false, tooltip: false, legend: "hidden", 
                     brushContextMenuActions: brushActions, snapBrush: false, maxBuckets: 500,
-                    color: 'purple', preserveAvailabilityState: true, offset:"America/Los_Angeles"}, result);
+                    color: 'purple', preserveAvailabilityState: true}, result);
                     
                     var chart = document.getElementById("chart9");
                     var isCompact = false;
 
 
                     var timezonePicker = new tsiClient.ux.TimezonePicker(document.getElementById('chart10'));
-                    timezonePicker.render((d) => { 
+                    timezonePicker.render(function (d)  { 
                         availabilityChart.render(transformedResult, {theme: 'light', grid: false, tooltip: false, legend: "hidden", 
                                 brushContextMenuActions: brushActions, snapBrush: false, maxBuckets: 500,
                                 color: 'purple',  offset: d }, result); 
-                    },"America/Los_Angeles");
+                    },"UTC");
                 });
             });
+
+            // var timezonePicker = new tsiClient.ux.TimezonePicker(document.getElementById('chart10'));
+            //         timezonePicker.render((d) => { console.log(d); },"America/Chicago");
 
     </script>
 </body>

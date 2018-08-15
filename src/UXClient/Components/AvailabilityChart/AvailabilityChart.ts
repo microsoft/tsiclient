@@ -267,7 +267,7 @@ class AvailabilityChart extends ChartComponent{
 
             var dateTimeTextChildren = this.targetElement.select(".tsi-dateTimeContainer").selectAll("*");
             var pickerContainerChildren;
-            this.targetElement.on("click", () => {
+            d3.select("html").on("click." + Utils.guid(), () => {
                 pickerContainerChildren = this.targetElement.select(".tsi-dateTimePickerContainer").selectAll("*");
                 var outside = dateTimeTextChildren.filter(equalToEventTarget).empty();
                 var inClickTarget = pickerContainerChildren.filter(equalToEventTarget).empty();

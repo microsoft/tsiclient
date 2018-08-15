@@ -38,6 +38,7 @@ class LineChart extends ChartComponent {
     public brushEndTime: Date;
     private brushStartPosition: number;
     private brushEndPosition: number;
+    private hasBrush: boolean = false;
     
     private chartMargins: any = {
         top: 40,
@@ -218,6 +219,7 @@ class LineChart extends ChartComponent {
 
     public render(data: any, options: any, aggregateExpressionOptions: any) {
         this.data = data;
+        this.hasBrush = options.brushMoveAction || options.brushMoveEndAction || options.brushContextMenuActions;
         this.chartOptions.setOptions(options);
         this.aggregateExpressionOptions = aggregateExpressionOptions;
         var width = Math.max((<any>d3.select(this.renderTarget).node()).clientWidth, this.MINWIDTH);
@@ -267,7 +269,7 @@ class LineChart extends ChartComponent {
             
             this.brushElem = null; 
             var voronoiRegion
-            if (this.chartOptions.brushContextMenuActions || this.chartOptions.brushMoveAction) {
+            if (this.hasBrush) {
                 this.brushElem = g.append("g")
                     .attr("class", "brushElem");
                 this.brushElem.classed("hideBrushHandles", !this.chartOptions.brushHandlesVisible);

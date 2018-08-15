@@ -1,4 +1,5 @@
 import * as d3 from 'd3';
+import * as momentTZ from 'moment-timezone';
 import {Grid} from "./Components/Grid/Grid";
 import { ChartComponent } from './Interfaces/ChartComponent';
 
@@ -55,12 +56,8 @@ class Utils {
 
     static getOffsetMinutes(offset: any, millis: number) {
         if (typeof offset == "string") {
-            var utcDate = new Date(millis);
-            offset = offset.replace(/\s/g, "_");
-            var dateString = utcDate.toLocaleString('en-US', { timeZone: offset });
-            var offsetDate = d3.timeParse("%x, %H:%M:%S %p")(dateString);
-            offsetDate.setMilliseconds(utcDate.getMilliseconds());
-            return Math.round((offsetDate.valueOf() - (offsetDate.getTimezoneOffset() * 60 * 1000) - utcDate.valueOf()) / (60 * 1000));
+            var zone = momentTZ.tz.zone(offset);
+            return -zone.parse(millis);
         } else {
             return offset;
         }
@@ -69,16 +66,12 @@ class Utils {
     
     static timeFormat(usesSeconds = false, usesMillis = false, offset: any = 0, is24HourTime: boolean = true) {
         return (d) => {
-            var dateString;
-            var offsetMinutes = (typeof offset == "string") ? this.getOffsetMinutes(offset, d.valueOf()) : offset;
-            var offsetDate = new Date(d.valueOf() + offsetMinutes * 60 * 1000);
-
-            var minutes = (offsetDate.getUTCMinutes() < 10 ? "0" : "") + String(offsetDate.getUTCMinutes());
-            dateString = (offsetDate.getUTCMonth() + 1) + "/" + offsetDate.getUTCDate() + "/" + offsetDate.getUTCFullYear();
-            var timeString = offsetDate.getUTCHours() + ":" + minutes +
-                                (usesSeconds ? ":" + offsetDate.getUTCSeconds() : "") + 
-                                (usesMillis ? "." + offsetDate.getUTCMilliseconds() : "");
-            return dateString + " " + timeString; 
+            var stringFormat = "MM/DD/YYYY HH:mm" + (usesSeconds ? (":ss" + (usesMillis ? ".SSS" : "")) : "");
+            if (typeof offset == "string") {
+                return momentTZ.tz(d, "UTC").tz(offset).format(stringFormat);
+            } else {
+                return momentTZ.tz(d, "UTC").utcOffset(offset).format(stringFormat);
+            }
         }
     }
 
@@ -257,6 +250,16 @@ class Utils {
             return text;
         var regExp = new RegExp(filter, 'i');
         return text.replace(regExp, function(m){ return '<mark>'+m+'</mark>';});
+    }
+
+    static guid () {
+        var  s4 = () => {
+            return Math.floor((1 + Math.random()) * 0x10000)
+              .toString(16)
+              .substring(1);
+        }
+        return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+               s4() + '-' + s4() + s4() + s4();
     }
 }
 
