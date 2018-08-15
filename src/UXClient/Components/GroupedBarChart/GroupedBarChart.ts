@@ -130,8 +130,8 @@ class GroupedBarChart extends ChartComponent {
 
                 svgSelection.selectAll(".valueElement")
                             .filter(selectedFilter)
-                            .attr("stroke-opacity", .15)
-                            .attr("fill-opacity", .15);
+                            .attr("stroke-opacity", .3)
+                            .attr("fill-opacity", .3);
                 var text = svgSelection.selectAll(".barGroup")
                             .filter((d: any) => {
                                 return d == aggKey;

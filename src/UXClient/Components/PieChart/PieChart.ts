@@ -87,8 +87,8 @@ class PieChart extends ChartComponent {
         
                     this.svgSelection.selectAll(".tsi-pie-path")
                                 .filter(selectedFilter)
-                                .attr("stroke-opacity", .15)
-                                .attr("fill-opacity", .15);
+                                .attr("stroke-opacity", .3)
+                                .attr("fill-opacity", .3);
                 }
 
                 var labelMouseout = (aggregateKey: string, splitBy: string) => {

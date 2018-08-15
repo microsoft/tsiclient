@@ -1085,8 +1085,8 @@ class LineChart extends ChartComponent {
     
                 this.svgSelection.selectAll(".valueElement")
                             .filter(selectedFilter)
-                            .attr("stroke-opacity", .12)
-                            .attr("fill-opacity", .12);
+                            .attr("stroke-opacity", .3)
+                            .attr("fill-opacity", .3);
             }
 
             this.legendObject = new Legend(draw, this.renderTarget, this.CONTROLSWIDTH);

@@ -39,7 +39,9 @@
         cursor: pointer;
     }
 }
-
+select::-ms-expand {
+    display: none;
+}
 .tsi-select {
     margin: 2px;
     position: relative;
