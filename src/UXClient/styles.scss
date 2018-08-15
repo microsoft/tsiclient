@@ -38,6 +38,16 @@
         width: 20px;
         cursor: pointer;
     }
+
+    .tsi-scooterButton {
+        display: block;
+        background-size: 20px 20px;
+        background-repeat: no-repeat;
+        background-position: center; 
+        position: absolute;
+        height: 20px;
+        width: 20px;
+    }
 }
 select::-ms-expand {
     display: none;

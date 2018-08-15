@@ -133,4 +133,13 @@
             background-image: url(../..//Icons/Grid_Icon_Dark_Theme.svg);
         }
     }
+
+    .tsi-scooterButton {
+        &.tsi-lightTheme {
+            background-image: url(../../Icons/Grid_Icon_Light_Theme.svg);
+        }
+        &.tsi-darkTheme {
+            background-image: url(../..//Icons/Grid_Icon_Dark_Theme.svg);
+        }
+    }
 }

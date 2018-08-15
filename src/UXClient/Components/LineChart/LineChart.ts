@@ -30,6 +30,7 @@ class LineChart extends ChartComponent {
     private hasStackedButton: boolean = false;
     private stackedButton: any = null;
     private gridButton: any = null;
+    private scooterButton: any = null;
 
     public x: any;
     private brush: any;
@@ -39,6 +40,8 @@ class LineChart extends ChartComponent {
     private brushStartPosition: number;
     private brushEndPosition: number;
     private hasBrush: boolean = false;
+
+    private isDroppingScooter: boolean = false;
     
     private chartMargins: any = {
         top: 40,
@@ -388,12 +391,19 @@ class LineChart extends ChartComponent {
                                 this.yAxisState = "stacked";
                             this.draw();
                         });
-                    
+
+                    this.scooterButton = chartControlsPanel.append("div")
+                        .style("right", (this.chartMargins.right + 24) + "px")
+                        .attr("class", "tsi-scooterButton")
+                        .on("click", () => {
+                            this.isDroppingScooter = !this.isDroppingScooter;
+                        })
                     d3.select(this.renderTarget).selectAll(".tsi-gridButton").remove();
                     if (this.chartOptions.grid) {
                         this.gridButton = Utils.createGridButton(chartControlsPanel, this, this.chartComponentData.usesSeconds, 
                                                                  this.chartComponentData.usesMillis, this.chartMargins);
                     }
+
                 } else {
                     this.hasStackedButton = false;
                 }
@@ -1029,6 +1039,9 @@ class LineChart extends ChartComponent {
                         this.gridButton.classed('tsi-lightTheme', this.chartOptions.theme == 'light')
                             .classed('tsi-darkTheme', this.chartOptions.theme == 'dark');
                     }
+
+                    this.scooterButton.classed('tsi-lightTheme', this.chartOptions.theme == 'light')
+                        .classed('tsi-darkTheme', this.chartOptions.theme == 'dark');
                 }
 
                 var visibleEventsCount = 0;
