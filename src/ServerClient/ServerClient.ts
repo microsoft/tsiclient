@@ -7,7 +7,7 @@ class ServerClient {
     Server () {
     }
 
-    private createPromiseFromXhr (uri, httpMethod, payload, token, responseTextFormat) {
+    private createPromiseFromXhr (uri, httpMethod, payload, token, responseTextFormat, continuationToken = null) {
         return new Promise((resolve: any, reject: any) => {
             var xhr = new XMLHttpRequest();
             xhr.onreadystatechange = () => {
@@ -26,6 +26,8 @@ class ServerClient {
             }
             xhr.open(httpMethod, uri);
             xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+            if (continuationToken)
+                xhr.setRequestHeader('x-ms-continuation', continuationToken);
             xhr.send(payload);
         });
     }
@@ -94,9 +96,9 @@ class ServerClient {
         return this.createPromiseFromXhr(uri, "POST", JSON.stringify({searchString: searchString, take: take}), token, (responseText) => {return JSON.parse(responseText);});
     }    
 
-    public getTimeseriesInstancesSearch(token: string, environmentFqdn: string, searchString: string) {
+    public getTimeseriesInstancesSearch(token: string, environmentFqdn: string, searchString: string, continuationToken = null) {
         let uri = 'https://' + environmentFqdn + '/timeseries/instances/search' + this.apiVersionUrlParam;
-        return this.createPromiseFromXhr(uri, "POST", JSON.stringify({searchString: searchString}), token, (responseText) => {return JSON.parse(responseText);});
+        return this.createPromiseFromXhr(uri, "POST", JSON.stringify({searchString: searchString}), token, (responseText) => {return JSON.parse(responseText);}, continuationToken);
     }    
 
     public getReferenceDatasetRows(token: string, environmentFqdn: string, datasetId: string) {

@@ -8,20 +8,30 @@
 	$gray5: nth($grays, 5); // alt element
     $gray6: nth($grays, 6);
     
-    background: $gray4;
+    background: $gray3;
     color: $gray1;
     
-    .tsi-modelSearchFacets{
-        border-right: 1px solid $gray1;
-    }    
     .tsi-modelSearchInput{
-        background: $gray4;
+        background: $gray3;
         color: $gray1;
         border: 1px solid $gray1;
     }
     hit{
         background: yellow;
         color: black;
+    }
+    .tsi-showMore{
+        color: $gray6;
+    }
+    :global{
+        .awesomplete > ul {
+            background: $gray4;
+            color: $gray1;
+            border: 1px solid $gray1;
+            li[aria-selected="true"], li:hover{
+                background: $gray2;
+            }
+        }
     }
 }
 
@@ -31,6 +41,20 @@
     width: 100%;
     display: flex;
     flex-wrap: wrap;
+    position: relative;
+
+    .tsi-hierarchyWrapper{
+        position: absolute;
+        top: 40px;
+        width: 100%;
+        height: calc(100% - 40px);
+        .tsi-filterWrapper{
+            display: none;
+        }
+        .tsi-navTabWrapper{
+            display: none;
+        }
+    }
     
     &.tsi-dark{
         $grays: grays('dark');
@@ -44,11 +68,13 @@
     .tsi-modelSearchInputWrapper{
         height: 48px;
         width: 100%;
+        display: flex;
         flex-shrink: 0;
+        align-items: center;
+        margin-left: 4px;
         .tsi-modelSearchInput{
             margin: 8px;
             padding: 4px;
-            width: 400px;
         }
         :global{
             .awesomplete [hidden] {
@@ -78,7 +104,9 @@
                 list-style: none;
                 padding: 0;
                 margin: 0;
-                background: #fff;
+                li:hover{
+                    cursor: pointer;
+                }
             }
 
             .awesomplete > ul:empty {
@@ -89,19 +117,13 @@
                     &:before{
                         display: none;
                     }
-                    background: white;
                     transition: none;
                     border-radius: 0px;
-                    color: black;
                     margin: 0;
                     margin-top: -8px;
                     margin-left: 8px;
                     font-size: 13px;
                     min-width: calc(100% - 16px);
-                    li[aria-selected="true"]{
-                        background: #ddd;
-                        color: black;
-                    }
                     li{
                         padding: 4px;
                     }
@@ -114,12 +136,17 @@
         flex-grow: 1;
         display: flex;
         height: calc(100% - 48px);
-        .tsi-modelSearchFacets{
-            padding: 8px;
-            flex-basis: 170px;
+        overflow: auto;
+        .tsi-showMore{
+            cursor: pointer;
+            text-align: center;
+            padding-bottom: 8px;
+            font-size: 13px;
+            &:hover{
+                text-decoration: underline;
+            }
         }
         .tsi-modelSearchInstances{
-            overflow: auto;
             flex-grow: 1;
             .tsi-modelResult{
                 margin: 8px;
