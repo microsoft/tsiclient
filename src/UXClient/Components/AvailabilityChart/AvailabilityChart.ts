@@ -185,6 +185,33 @@ class AvailabilityChart extends ChartComponent{
         return [{"availabilityCount" : {"" : buckets}}];
     }
 
+    private drawAvailabilityRange () {
+        this.renderTarget.select("tsi-rangeTextContainer").remove();
+
+        var rawRange = this.selectedToMillis - this.selectedFromMillis;
+        var rangeText = "";
+        var oneSecond = 1000;
+        var oneMinute = 60 * 1000;
+        var oneHour = oneMinute * 60;
+        var oneDay = oneHour * oneHour;
+
+        var days = Math.floor(rawRange / oneDay);
+        var hours = Math.floor(rawRange / oneHour) % 24;
+        var minutes = Math.floor(rawRange / oneMinute) % 60;
+        var seconds = Math.floor(rawRange / oneSecond) % 60;
+
+        if (rawRange >= oneDay) {
+            rangeText = days + "d" + " " + (hours > 0 ? (hours + "h") : "");
+        } else if (rawRange >= oneHour) {
+            rangeText = hours + "h" + " " + (minutes > 0 ? (minutes + "m") : "");
+        } 
+
+
+        this.renderTarget.append("div")
+            .attr("class", "tsi-rangeTextContainer");
+
+    }
+
     public render (transformedAvailability: any, chartOptions: any, rawAvailability: any) {
         this.setChartOptions(chartOptions);
         this.rawAvailability = rawAvailability;
