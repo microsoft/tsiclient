@@ -305,7 +305,7 @@ class AvailabilityChart extends ChartComponent{
             this.targetElement.select('.tsi-sparklineContainer').style("display", 'none');
             this.targetElement.select(".tsi-timePickerTextContainer").style('display', 'none');
             this.targetElement.select('.tsi-zoomButtonContainer').style('display', 'none');
-            this.targetElement.select('.tsi-timePickerContainer').style('max-height', '72px').style('top', '20px');
+            this.targetElement.select('.tsi-timePickerContainer').style('max-height', '68px').style('top', '20px');
             this.buildCompactFromAndTo();
         } else {
             this.targetElement.select('.tsi-sparklineContainer').style("display", 'flex');

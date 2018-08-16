@@ -60,7 +60,6 @@
 }
 
 .tsi-availabilityChart {
-
     .tsi-dateTimePickerContainer {
         position: absolute;
         right: 60px;
@@ -110,7 +109,7 @@
     &.tsi-compact {
         .tsi-rangeTextContainer {
             background: none !important;
-            top: 32px;
+            top: 30px;
         }
         .tsi-timePickerContainer {
             height: calc(100% - 8px);
