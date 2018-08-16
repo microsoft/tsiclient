@@ -19,7 +19,6 @@ class AvailabilityChart extends ChartComponent{
     private color: string;
     private transformedAvailability: any;
     private minGhostWidth = 2;
-
     private timeContainer;
 
     private margins = {
@@ -120,6 +119,7 @@ class AvailabilityChart extends ChartComponent{
         this.sparkLineChart.setBrushEndTime(new Date(this.zoomedToMillis));
         this.sparkLineChart.setBrushStartTime(new Date(this.zoomedFromMillis));
         this.sparkLineChart.setBrush();
+        this.drawAvailabilityRange();
         d3.event.preventDefault && d3.event.preventDefault();
     }
     private setChartOptions (chartOptions) {
@@ -186,30 +186,23 @@ class AvailabilityChart extends ChartComponent{
     }
 
     private drawAvailabilityRange () {
-        this.renderTarget.select("tsi-rangeTextContainer").remove();
+        this.targetElement.selectAll(".tsi-rangeTextContainer").remove();
+        var rangeText = Utils.rangeTimeFormat(this.selectedToMillis - this.selectedFromMillis);
 
-        var rawRange = this.selectedToMillis - this.selectedFromMillis;
-        var rangeText = "";
-        var oneSecond = 1000;
-        var oneMinute = 60 * 1000;
-        var oneHour = oneMinute * 60;
-        var oneDay = oneHour * oneHour;
+        var rangeTextContainer = this.targetElement.append("div")
+            .attr("class", "tsi-rangeTextContainer")
+            .style("Background-color", this.chartOptions.color)
+            .html(rangeText);
+        var calcedWidth = rangeTextContainer.node().getBoundingClientRect().width;
+        var leftPos = this.timePickerLineChart.chartMargins.left + 
+            Math.min(Math.max(0, this.timePickerLineChart.x(this.selectedFromMillis)), this.timePickerLineChart.x.range()[1]);
 
-        var days = Math.floor(rawRange / oneDay);
-        var hours = Math.floor(rawRange / oneHour) % 24;
-        var minutes = Math.floor(rawRange / oneMinute) % 60;
-        var seconds = Math.floor(rawRange / oneSecond) % 60;
-
-        if (rawRange >= oneDay) {
-            rangeText = days + "d" + " " + (hours > 0 ? (hours + "h") : "");
-        } else if (rawRange >= oneHour) {
-            rangeText = hours + "h" + " " + (minutes > 0 ? (minutes + "m") : "");
+        var rightPos = this.timePickerLineChart.chartMargins.left + 
+            Math.min(Math.max(0, this.timePickerLineChart.x(this.selectedToMillis)), this.timePickerLineChart.x.range()[1]);
+        rangeTextContainer.style("left", Math.round((leftPos + rightPos) / 2 - (calcedWidth / 2)) + "px");
+        if (this.chartOptions.isCompact && (rightPos - leftPos) < calcedWidth) {
+            rangeTextContainer.remove();
         } 
-
-
-        this.renderTarget.append("div")
-            .attr("class", "tsi-rangeTextContainer");
-
     }
 
     public render (transformedAvailability: any, chartOptions: any, rawAvailability: any) {
@@ -312,7 +305,7 @@ class AvailabilityChart extends ChartComponent{
             this.targetElement.select('.tsi-sparklineContainer').style("display", 'none');
             this.targetElement.select(".tsi-timePickerTextContainer").style('display', 'none');
             this.targetElement.select('.tsi-zoomButtonContainer').style('display', 'none');
-            this.targetElement.select('.tsi-timePickerContainer').style('max-height', '80px').style('top', '20px');
+            this.targetElement.select('.tsi-timePickerContainer').style('max-height', '72px').style('top', '20px');
             this.buildCompactFromAndTo();
         } else {
             this.targetElement.select('.tsi-sparklineContainer').style("display", 'flex');
@@ -323,6 +316,9 @@ class AvailabilityChart extends ChartComponent{
 
         var sparkLineOptions: any = this.createSparkLineOptions(chartOptions);
         this.sparkLineChart.render(this.transformedAvailability, sparkLineOptions, this.ae);
+
+        this.timePickerLineChart.render(this.transformedAvailability, this.chartOptions, this.ae);
+        this.setTicks();
 
         if (!this.chartOptions.preserveAvailabilityState) {
             this.sparkLineChart.setBrushStartTime(new Date(this.fromMillis)); 
@@ -343,9 +339,6 @@ class AvailabilityChart extends ChartComponent{
 
         this.sparkLineChart.setBrush();
 
-        this.timePickerLineChart.render(this.transformedAvailability, this.chartOptions, this.ae);
-        this.setTicks();
-
         var self = this;
         this.timePickerChart.select(".brushElem").on("wheel.zoom", function (d) {
             let direction = d3.event.deltaY > 0 ? 'out' : 'in';
@@ -357,8 +350,8 @@ class AvailabilityChart extends ChartComponent{
         } else {
             this.timePickerChart.select('.brushElem').select('.selection')
         }
-
         this.setAvailabilityRange(this.zoomedFromMillis, this.zoomedToMillis);
+        this.drawAvailabilityRange();
     }
 
     private buildZoomButtons() {
@@ -383,6 +376,7 @@ class AvailabilityChart extends ChartComponent{
     private setSelectedMillis (fromMillis, toMillis) {
         this.selectedFromMillis = fromMillis;
         this.selectedToMillis = toMillis;
+        this.drawAvailabilityRange();
     }
 
     private isCustomTime (fromMillis, toMillis) {
