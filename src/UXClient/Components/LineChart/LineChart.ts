@@ -40,7 +40,7 @@ class LineChart extends ChartComponent {
     private brushEndPosition: number;
     private hasBrush: boolean = false;
     
-    private chartMargins: any = {
+    public chartMargins: any = {
         top: 40,
         bottom: 40,
         left: 70, 
@@ -50,7 +50,7 @@ class LineChart extends ChartComponent {
 
     constructor(renderTarget: Element){
         super(renderTarget);
-        this.MINHEIGHT = 32;
+        this.MINHEIGHT = 26;
     }
 
     LineChart() { 
@@ -159,7 +159,7 @@ class LineChart extends ChartComponent {
     }
 
     private getHandleHeight (chartHeight: number): number {
-        return Math.min(Math.max(chartHeight / 2, 60), chartHeight + 8);
+        return Math.min(Math.max(chartHeight / 2, 24), chartHeight + 8);
     }
 
     private labelFormatUsesSeconds () {
@@ -266,6 +266,8 @@ class LineChart extends ChartComponent {
             var g = this.svgSelection.append("g")
                         .classed("svgGroup", true)
                         .attr("transform", "translate(" + this.chartMargins.left + "," + this.chartMargins.top + ")");
+            
+            var defs = this.svgSelection.append('defs');
             
             this.brushElem = null; 
             var voronoiRegion
@@ -443,8 +445,8 @@ class LineChart extends ChartComponent {
                         self.brushElem.selectAll('.handle')
                             .attr('height', handleHeight)
                             .attr('y', (chartHeight - handleHeight) / 2)
-                            .attr('rx', '3px')
-                            .attr('ry', '3px');
+                            .attr('rx', '4px')
+                            .attr('ry', '4px');
                     })
                     .on("brush", function () {
                         var handleHeight = self.getHandleHeight(chartHeight);
@@ -769,18 +771,30 @@ class LineChart extends ChartComponent {
                             if (this.chartOptions.isArea) {
                                 var area = g.selectAll(".valueArea" + tsIterator)
                                     .data([this.chartComponentData.timeArrays[aggKey][splitBy]]);
-        
+
+                                // logic for shiny gradient fill via url()
+                                let svgId = Utils.guid();
+                                let lg = defs.selectAll('linearGradient')
+                                        .data([this.chartComponentData.timeArrays[aggKey][splitBy]]);
+                                var gradient = lg.enter()
+                                    .append('linearGradient');
+                                gradient.merge(lg)
+                                    .attr('id', svgId).attr('x1', '0%').attr('x2', '0%').attr('y1', '0%').attr('y2', '100%');
+                                gradient.append('stop').attr('offset', '0%').attr('style', () =>{return 'stop-color:' + splitByColors[j] + ';stop-opacity:.2'});
+                                gradient.append('stop').attr('offset', '100%').attr('style', () =>{return 'stop-color:' + splitByColors[j] + ';stop-opacity:.03'});
+                                lg.exit().remove();
+
                                 area.enter()
                                     .append("path")
                                     .attr("class", "valueElement valueArea valueArea" + tsIterator)
                                     .merge(area)
+                                    .style("fill", 'url(#' + (svgId) + ')')
                                     .style("visibility", (d: any) => { 
                                         return (this.chartComponentData.isSplitByVisible(aggKey, splitBy)) ? "visible" : "hidden";
                                     })                                            
                                     .transition()
                                     .duration(this.chartOptions.noAnimate ? 0 : this.TRANSDURATION)
                                     .ease(d3.easeExp)
-                                    .style("fill", splitByColors[j])
                                     .attr("d", areaPath);
                                 area.exit().remove();
                             }

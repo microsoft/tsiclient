@@ -1,6 +1,7 @@
 class ChartOptions {
     public aggTopMargin: number; // margin on top of each aggregate line(s)
-    public arcWidthRatio: number; // bumber between 0 and 1 which determines how thic the pie chart arc is
+    public arcWidthRatio: number; // number between 0 and 1 which determines how thic the pie chart arc is
+    public availabilityLeftMargin: number; // number which sets the left margin of the availability chart
     public brushClearable: boolean; // whether to keep the brush selected region upon clear and non-selection of a new region
     public brushContextMenuActions: Array<any>; // pairs of names/actions for context menu for the brush
     public brushHandlesVisible: boolean; // whether handles on the brush are visible
@@ -95,6 +96,7 @@ class ChartOptions {
         this.brushHandlesVisible = this.getValueOrDefault(chartOptionsObj, 'brushHandlesVisible', false);
         this.hideChartControlPanel = this.getValueOrDefault(chartOptionsObj, 'hideChartControlPanel', false);
         this.offset = this.getValueOrDefault(chartOptionsObj, 'offset', 0);
+        this.availabilityLeftMargin = this.getValueOrDefault(chartOptionsObj, 'availabilityLeftMargin', 60);
     }
 
     public toObject () {
@@ -140,7 +142,8 @@ class ChartOptions {
             onUnsticky: this.onUnsticky,
             brushHandlesVisible: this.brushHandlesVisible,
             hideChartControlPanel: this.hideChartControlPanel,
-            offset: this.offset
+            offset: this.offset,
+            availabilityLeftMargin: this.availabilityLeftMargin
         }
     }
 }
