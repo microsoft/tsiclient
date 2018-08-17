@@ -63,6 +63,29 @@ class Utils {
         }
     }
 
+    static rangeTimeFormat (rangeMillis: number) {
+        var rangeText = "";
+        var oneSecond = 1000;
+        var oneMinute = 60 * 1000;
+        var oneHour = oneMinute * 60;
+        var oneDay = oneHour * 24;
+
+        var days = Math.floor(rangeMillis / oneDay);
+        var hours = Math.floor(rangeMillis / oneHour) % 24;
+        var minutes = Math.floor(rangeMillis / oneMinute) % 60;
+        var seconds = Math.floor(rangeMillis / oneSecond) % 60;
+        var millis = rangeMillis % 1000;
+
+        if (rangeMillis >= oneDay) {
+            return days + "d " + (hours > 0 ? (hours + "h") : "");
+        } else if (rangeMillis >= oneHour) {
+            return hours + "h " + (minutes > 0 ? (minutes + "m") : "");
+        } else if (rangeMillis >= oneMinute) {
+            return minutes + "m " + (seconds > 0 ? (seconds + "s") : "");
+        }
+        return seconds + (millis != 0 ? "." + millis : "") + "s";
+    }
+
     
     static timeFormat(usesSeconds = false, usesMillis = false, offset: any = 0, is24HourTime: boolean = true) {
         return (d) => {
