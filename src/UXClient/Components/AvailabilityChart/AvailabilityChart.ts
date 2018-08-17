@@ -584,6 +584,8 @@ class AvailabilityChart extends ChartComponent{
                 this.timePickerTextContainer.select('.tsi-timePicker')
                     .node().value = "Custom";
         this.setQuickTimeValue(this.selectedFromMillis, this.selectedToMillis);
+        if(this.chartOptions.isCompact)
+            this.buildCompactFromAndTo();
     }
 
     private createSparkLineOptions (chartOptions) {
