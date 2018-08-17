@@ -320,7 +320,7 @@
                     var transformedResult = tsiClient.ux.transformAvailabilityForVisualization(result, 500);
                     availabilityChart.render(transformedResult, {theme: 'light', grid: false, tooltip: false, legend: "hidden", 
                     brushContextMenuActions: brushActions, snapBrush: false, maxBuckets: 500,
-                    color: 'purple', preserveAvailabilityState: true, isCompact: false, availabilityLeftMargin: 24}, result);
+                    color: 'purple', preserveAvailabilityState: true, isCompact: true, availabilityLeftMargin: 24}, result);
                     
                     var chart = document.getElementById("chart9");
                     var isCompact = false;
@@ -333,14 +333,14 @@
                                 color: 'purple',  offset: d }, result); 
                     },"UTC");
 
-                    // setTimeout(() => {
-                    //     tsiClient.server.getAvailability(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com').then(function(result){
-                    //         var transformedResult = tsiClient.ux.transformAvailabilityForVisualization(result, 500);
-                    //         availabilityChart.render(transformedResult, {theme: 'light', grid: false, tooltip: false, legend: "hidden", 
-                    //         brushContextMenuActions: brushActions, snapBrush: false, maxBuckets: 500,
-                    //         color: 'purple', preserveAvailabilityState: false}, result);
-                    //     });
-                    // }, 8000);
+                    setTimeout(() => {
+                        tsiClient.server.getAvailability(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com').then(function(result){
+                            var transformedResult = tsiClient.ux.transformAvailabilityForVisualization(result, 500);
+                            availabilityChart.render(transformedResult, {theme: 'light', grid: false, tooltip: false, legend: "hidden", 
+                            brushContextMenuActions: brushActions, snapBrush: false, maxBuckets: 500,
+                            color: 'purple', preserveAvailabilityState: false}, result);
+                        });
+                    }, 4000);
                 });
             });
 

@@ -280,6 +280,7 @@ class AvailabilityChart extends ChartComponent{
                 setTimeout(() => {
                     this.drawGhost();
                 }, 100);
+                this.drawAvailabilityRange();
             });
             var pickerContainerAndContent = this.targetElement.selectAll(".tsi-dateTimePickerContainer, .tsi-dateTimePickerContainer *");
             var dateTimeTextAndContent = this.targetElement.selectAll(".tsi-dateTimeContainer, .tsi-dateTimeContainer *");
@@ -310,7 +311,6 @@ class AvailabilityChart extends ChartComponent{
             this.targetElement.select(".tsi-timePickerTextContainer").style('display', 'none');
             this.targetElement.select('.tsi-zoomButtonContainer').style('display', 'none');
             this.targetElement.select('.tsi-timePickerContainer').style('max-height', '68px').style('top', '20px');
-            this.buildCompactFromAndTo();
         } else {
             this.targetElement.select('.tsi-sparklineContainer').style("display", 'flex');
             this.targetElement.select(".tsi-timePickerTextContainer").style('display', 'flex');
@@ -355,6 +355,9 @@ class AvailabilityChart extends ChartComponent{
             this.timePickerChart.select('.brushElem').select('.selection')
         }
         this.setAvailabilityRange(this.zoomedFromMillis, this.zoomedToMillis);
+        if (this.chartOptions.isCompact) {
+            this.buildCompactFromAndTo();
+        }
         this.drawAvailabilityRange();
     }
 
@@ -528,7 +531,8 @@ class AvailabilityChart extends ChartComponent{
     }
 
     private setTicks () {
-        if (this.timePickerLineChart.zoomedToMillis == this.timePickerLineChart.toMillis) {
+        if (this.timePickerLineChart.zoomedToMillis == this.timePickerLineChart.toMillis || 
+            this.timePickerLineChart.zoomedFromMillis == this.timePickerLineChart.fromMillis) {
             let xAxis = this.timePickerLineChart.createXAxis(true);
             let ticks = xAxis.scale().ticks(Math.max(2, this.timePickerLineChart.getXTickNumber(true)));
             let hasFrom = false, hasTo = false;
