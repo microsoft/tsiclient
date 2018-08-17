@@ -199,7 +199,8 @@ class AvailabilityChart extends ChartComponent{
 
         var rightPos = this.timePickerLineChart.chartMargins.left + 
             Math.min(Math.max(0, this.timePickerLineChart.x(this.selectedToMillis)), this.timePickerLineChart.x.range()[1]);
-        rangeTextContainer.style("left", Math.round((leftPos + rightPos) / 2 - (calcedWidth / 2)) + "px");
+        
+        rangeTextContainer.style("left", Math.max(8, Math.round((leftPos + rightPos) / 2 - (calcedWidth / 2))) + "px");
         if (this.chartOptions.isCompact && (rightPos - leftPos) < calcedWidth) {
             rangeTextContainer.remove();
         } 
@@ -261,11 +262,14 @@ class AvailabilityChart extends ChartComponent{
             this.timePickerContainer = this.targetElement.append("div").classed("tsi-timePickerContainer", true);
             this.timePickerChart = this.timePickerContainer.append("div").classed("tsi-timePickerChart", true);
             var sparkLineContainer = this.targetElement.append("div").classed("tsi-sparklineContainer", true);
-            this.timePickerTextContainer = this.targetElement.append("div").classed("tsi-timePickerTextContainer", true);
+            this.timePickerTextContainer = this.targetElement.append("div").classed("tsi-timePickerTextContainer", true)
+                .style("margin-left", this.chartOptions.availabilityLeftMargin + this.margins.left);
             this.timePickerLineChart = new LineChart(this.timePickerChart.node() as any);
+            this.timePickerLineChart.chartMargins.left = (this.chartOptions.availabilityLeftMargin - this.margins.left);
             this.createQuickTimePicker();
             this.buildFromAndToContainer();
             this.sparkLineChart = new LineChart(sparkLineContainer.node() as any);
+            this.sparkLineChart.chartMargins.left = (this.chartOptions.availabilityLeftMargin - this.margins.left);
             this.dateTimePickerContainer = this.targetElement.append("div").classed("tsi-dateTimePickerContainer", true);
             this.dateTimePicker = new DateTimePicker(this.dateTimePickerContainer.node());
             window.addEventListener('resize', () => {
@@ -596,6 +600,7 @@ class AvailabilityChart extends ChartComponent{
             brushHandlesVisible: true,
             brushMoveAction: (from, to) => {
                 this.setAvailabilityRange(from.valueOf(), to.valueOf());
+                this.drawAvailabilityRange();
             },
             brushClearable: false,
             hideChartControlPanel: true
