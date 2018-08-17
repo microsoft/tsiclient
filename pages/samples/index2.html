@@ -320,7 +320,7 @@
                     var transformedResult = tsiClient.ux.transformAvailabilityForVisualization(result, 500);
                     availabilityChart.render(transformedResult, {theme: 'light', grid: false, tooltip: false, legend: "hidden", 
                     brushContextMenuActions: brushActions, snapBrush: false, maxBuckets: 500,
-                    color: 'purple', preserveAvailabilityState: true}, result);
+                    color: 'purple', preserveAvailabilityState: true, isCompact: true}, result);
                     
                     var chart = document.getElementById("chart9");
                     var isCompact = false;
