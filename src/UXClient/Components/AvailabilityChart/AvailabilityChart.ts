@@ -341,13 +341,11 @@ class AvailabilityChart extends ChartComponent{
             .classed("tsi-zoomButtonContainer", true);
         buttonsDiv.append("button")
             .attr("class", "tsi-zoomButton tsi-zoomButtonIn")
-            .text("+")
             .on("click", () => {
                 this.zoom("in", midpoint);
             });
         buttonsDiv.append("button")
             .attr("class", "tsi-zoomButton tsi-zoomButtonOut")
-            .text("-")
             .on("click", () => {
                 this.zoom("out", midpoint);
             });
@@ -394,7 +392,7 @@ class AvailabilityChart extends ChartComponent{
             .attr("width", Math.min(Math.max(this.minGhostWidth, 
                             this.sparkLineChart.x(new Date(this.selectedToMillis)) - this.sparkLineChart.x(new Date(this.selectedFromMillis))), 
                             this.sparkLineChart.x.range()[1] - this.sparkLineChart.x.range()[0]))
-            .attr("height", 14)
+            .attr("height", 8)
             .attr("fill", this.chartOptions.color ? this.chartOptions.color : 'dark-grey')
             .attr("fill-opacity", .3)
             .attr("pointer-events", "none");
@@ -468,11 +466,11 @@ class AvailabilityChart extends ChartComponent{
             })
         var fromDateTimeContainer = this.timeContainer.append("div").attr("class", "tsi-dateTimeTextContainer tsi-dateTimeTextContainerFrom");
         var fromLabel = fromDateTimeContainer.append("span").attr("class", "tsi-fromToLabel");
-        fromLabel.node().innerHTML = "from:";
+        fromLabel.node().innerHTML = "from";
         fromDateTimeContainer.append("span").attr("class", "tsi-dateTimeText");
         var toDateTimeContainer = this.timeContainer.append("div").attr("class", "tsi-dateTimeTextContainer tsi-dateTimeTextContainerTo");
         var toLabel = toDateTimeContainer.append("span").attr("class", "tsi-fromToLabel");
-        toLabel.node().innerHTML = "to:";
+        toLabel.node().innerHTML = "to";
         toDateTimeContainer.append("span").attr("class", "tsi-dateTimeText");
     }
 
@@ -508,17 +506,27 @@ class AvailabilityChart extends ChartComponent{
         if (this.timePickerLineChart.zoomedToMillis == this.timePickerLineChart.toMillis) {
             let xAxis = this.timePickerLineChart.createXAxis(true);
             let ticks = xAxis.scale().ticks(Math.max(2, this.timePickerLineChart.getXTickNumber(true)));
+            let hasFrom = false, hasTo = false;
             if (this.zoomedToMillis == this.toMillis) {
                 if (ticks.length > 1)
                     ticks[ticks.length - 1] = new Date(this.toMillis);
-                else 
+                else {
                     ticks.push(new Date(this.toMillis));
+                }
+                hasTo = true;
             }
-            if (this.zoomedFromMillis == this.fromMillis)
+            if (this.zoomedFromMillis == this.fromMillis){
                 ticks[0] = new Date(this.fromMillis);
+                hasFrom = true;
+            }
             let xAxisElem = this.timePickerContainer.select('.tsi-timePickerChart')
                 .select('.xAxis')
-                .call(xAxis.tickValues(ticks));
+                .call(xAxis.tickValues(ticks))
+                .selectAll('.tick')
+                .each(function(d, i){
+                    var elt = d3.select(this);
+                    elt.classed((i === 0 && hasFrom ? 'tsi-fromTick' : (i === ticks.length - 1 && hasTo ? 'tsi-toTick' : '')), true);
+                })
         }
     }
 
