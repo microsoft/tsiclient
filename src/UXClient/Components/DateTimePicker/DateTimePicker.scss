@@ -43,10 +43,18 @@
                 }
             }
         }
+        
+        .tsi-timeControlsContainer {
+            border-top: 1px solid rgba(255, 255, 255, .4);
+        }
 	}
 	&.tsi-light{
 		$grays: grays('light');
-		@include dateTimePickerColors($grays);
+        @include dateTimePickerColors($grays);
+        
+        .tsi-timeControlsContainer {
+            border-top: 1px solid rgba(0, 0, 0, .4);
+        }
     }
 
     display: block;
@@ -58,7 +66,7 @@
     }
 
     .tsi-errorMessageContainer {
-        background-color: #a80000;
+        background-color: darkorange;
         color: white;
         .tsi-errorMessage {
             padding: 8px;
@@ -79,30 +87,59 @@
 
     .tsi-timeControlsContainer {
         align-items: stretch;
-        display: flex;
-        width: 440px;
+        width: calc(100% - 24px);
+        margin-left: 12px;
+        margin-right: 12px;
+        border-top: 1px solid rgba(0, 0, 0, .4);
 
         .tsi-timeInputContainer {
             display: inline-flex;
             width: 100%;
-            .tsi-startContainer, .tsi-endContainer {
+            .tsi-startContainer {
+                padding-right: 4px;
+            }
+            .tsi-endContainer {
                 padding-left: 12px;
+            }
+            .tsi-startContainer, .tsi-endContainer {
                 padding-top: 12px;
                 padding-bottom: 20px;
-                padding-right: 4px;
-                .tsi-timeLabel {
-                    font-weight: 500;
-                    margin: 0;
-                    text-transform: capitalize;
-                    margin-bottom: 4px;
+                width: 50%;
+                .tsi-startTimeInputContainer, .tsi-endTimeInputContainer {
+                    display:flex;
+                    .tsi-hoursInput, .tsi-minutesInput, .tsi-AMPMInput {
+                        display:flex;
+                        width: 33%;
+                        flex-grow: 1;
+                        height: 32px;
+                        padding-left: 12px;
+                        display: inline-flex;
+                        text-align: center;
+                    }
                 }
-                .tsi-hoursInput, .tsi-minutesInput, .tsi-AMPMInput {
-                    width: 66px;
-                    height: 32px;
-                    padding-left: 12px;
-                    display: inline-flex;
-                    text-align: center;
-                }
+            }
+        }
+
+        .tsi-startContainer, .tsi-endContainer, .tsi-timezoneContainer {
+            .tsi-timeLabel {
+                font-weight: normal;
+                font-size: 14px;
+                margin: 0;
+                text-transform: capitalize;
+                margin-bottom: 4px;
+            }
+        }
+
+        .tsi-timezoneContainer {
+            padding-bottom: 12px;
+            width: 100%;
+            .tsi-timezonePickerContainer {
+                width: 100%;
+                height: 100%;
+                .tsi-timezonePicker {
+                    width: 100%;
+                    background: url(../../Icons/chevron.svg) 97% / 4% no-repeat;
+                }    
             }
         }
     }

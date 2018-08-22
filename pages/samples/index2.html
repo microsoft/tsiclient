@@ -294,7 +294,7 @@
                 var availabilityChart = new tsiClient.ux.AvailabilityChart(document.getElementById('chart8'));
                 availabilityChart.render(transformedResult, {theme: 'light', grid: false, tooltip: false, legend: "hidden", 
                    brushContextMenuActions: brushActions, snapBrush: false, maxBuckets: 500,
-                   color: 'purple', offset: "America/Chicago"}, result);
+                   color: 'purple', offset: "UTC", is24HourTime: false}, result);
                 
                 var chart = document.getElementById("chart8");
                 var button = document.createElement("button");
@@ -303,7 +303,7 @@
                     isCompact = !isCompact;
                     availabilityChart.render(transformedResult, {theme: 'light', grid: false, tooltip: false, legend: "hidden", 
                             brushContextMenuActions: brushActions, snapBrush: false, maxBuckets: 500,
-                            color: 'purple', isCompact: isCompact, preserveAvailabilityState: true, offset: "America/Chicago"}, result);
+                            color: 'purple', isCompact: isCompact, preserveAvailabilityState: true, offset: "UTC", is24HourTime: false}, result);
                 }
 
                 button.id = "myButton";
@@ -320,7 +320,7 @@
             authContext.getTsiToken().then(function(token){
                 tsiClient.server.getAvailability(token, 'bec25c6b-ed2e-4416-856d-5057957a1575.env.timeseries.azure.com').then(function(result){
                     var transformedResult = tsiClient.ux.transformAvailabilityForVisualization(result, 500);
-                    availabilityChart.render(transformedResult, {theme: 'light', grid: false, tooltip: false, legend: "hidden", 
+                    availabilityChart.render(transformedResult, {theme: 'dark', grid: false, tooltip: false, legend: "hidden", 
                     brushContextMenuActions: brushActions, snapBrush: false, maxBuckets: 500,
                     color: 'purple', preserveAvailabilityState: true}, result);
                     
@@ -332,7 +332,7 @@
                     timezonePicker.render(function (d)  { 
                         availabilityChart.render(transformedResult, {theme: 'light', grid: false, tooltip: false, legend: "hidden", 
                                 brushContextMenuActions: brushActions, snapBrush: false, maxBuckets: 500,
-                                color: 'purple',  offset: d }, result); 
+                                color: 'purple',  offset: d}, result); 
                     },"UTC");
                 });
             });

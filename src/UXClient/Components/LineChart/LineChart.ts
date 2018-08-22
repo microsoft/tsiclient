@@ -39,6 +39,9 @@ class LineChart extends ChartComponent {
     private brushStartPosition: number;
     private brushEndPosition: number;
     private hasBrush: boolean = false;
+
+    private isClearingBrush: boolean = false;
+
     
     public chartMargins: any = {
         top: 40,
@@ -57,7 +60,7 @@ class LineChart extends ChartComponent {
     }
 
     public getXTickNumber (singleLineXAxisLabel) {
-        return (singleLineXAxisLabel ? Math.floor(this.chartWidth / 280) :  Math.floor(this.chartWidth / 140));
+        return (singleLineXAxisLabel ? Math.floor(this.chartWidth / 300) :  Math.floor(this.chartWidth / 160));
     }
 
     //get the left and right positions of the brush
@@ -84,7 +87,7 @@ class LineChart extends ChartComponent {
     public createXAxis (singleLineXAxisLabel) {
         return d3.axisBottom(this.x)
             .ticks(this.getXTickNumber(singleLineXAxisLabel))
-            .tickFormat(Utils.timeFormat(this.labelFormatUsesSeconds(), this.labelFormatUsesMillis(), this.chartOptions.offset));
+            .tickFormat(Utils.timeFormat(this.labelFormatUsesSeconds(), this.labelFormatUsesMillis(), this.chartOptions.offset, this.chartOptions.is24HourTime));
     }
 
     private voronoiMouseout (d: any)  {
@@ -191,17 +194,16 @@ class LineChart extends ChartComponent {
             var rawRightSide = this.x(this.brushEndTime);
 
             //if selection is out of range of brush. clear brush
+            this.brushElem.call(this.brush.move, null);
             if ((rawRightSide <= this.xOffset) || (rawLeftSide >= (this.chartWidth - (2 * this.xOffset)))) {
+                this.isClearingBrush = true;
                 this.brushElem.call(this.brush.move, null);
-                this.brushElem.select('.selection').attr("visibility", "hidden");
-                this.brushElem.selectAll('.handle').attr("visibility", "hidden");
                 return;
             }
-            this.brushElem.selectAll(".selection").attr("visibility", "visible");
-            this.brushElem.selectAll('.handle').attr("visibility", "visible");
 
             let leftSide = Math.min(this.chartWidth - (2 * this.xOffset), Math.max(this.xOffset, this.x(this.brushStartTime)));
             let rightSide = Math.min(this.chartWidth - (2 * this.xOffset), Math.max(this.xOffset, this.x(this.brushEndTime)));
+            
             this.surpressBrushTimeSet = true;
             this.brushStartPosition = leftSide;
             this.brushEndPosition = rightSide;
@@ -213,7 +215,7 @@ class LineChart extends ChartComponent {
                     rightSide += 1;
                 }
             }
-            this.brushElem.call(this.brush.move, [leftSide, rightSide]);
+            this.brushElem.call(this.brush.move, [leftSide, rightSide]);        
         }
     }
 
@@ -489,6 +491,10 @@ class LineChart extends ChartComponent {
                         }
                     })
                     .on("end", function () {
+                        if (self.isClearingBrush) {
+                            self.isClearingBrush = false;
+                            return;
+                        }
                         if (d3.event && d3.event.selection == null && d3.event.sourceEvent && d3.event.sourceEvent.type == "mouseup" && self.chartOptions.minBrushWidth == 0) {
                             self.brushStartTime = null;
                             self.brushEndTime = null;
@@ -512,8 +518,10 @@ class LineChart extends ChartComponent {
                         }
 
                         if (d3.event.selection == null) {
-                            if (!self.chartOptions.brushClearable)
+                            if (!self.chartOptions.brushClearable) {
                                 d3.select(this).transition().call(d3.event.target.move, [self.x(self.brushStartTime), self.x(self.brushEndTime)]);
+
+                            }
                             return;
                         }
                         var transformCall = null; //if the brush needs to be transformed due to snap brush or it being too small, this is envoked
@@ -836,11 +844,11 @@ class LineChart extends ChartComponent {
                         var bucketSize = this.chartComponentData.displayState[d.aggregateKey].bucketSize;
                         var endValue = bucketSize ? (new Date(xValue.valueOf() + bucketSize)) : null;
                         
-                        text.append("tspan").text(Utils.timeFormat(false, false, this.chartOptions.offset)(xValue))
+                        text.append("tspan").text(Utils.timeFormat(false, false, this.chartOptions.offset, this.chartOptions.is24HourTime)(xValue))
                             .attr("x", 0)
                             .attr("y", 4);
                         if (endValue) {
-                            text.append("tspan").text(Utils.timeFormat(false, false, this.chartOptions.offset)(endValue))
+                            text.append("tspan").text(Utils.timeFormat(false, false, this.chartOptions.offset, this.chartOptions.is24HourTime)(endValue))
                                 .attr("x", 0)
                                 .attr("y", 27);
                             var barWidth = this.x(endValue) - this.x(xValue);
