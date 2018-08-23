@@ -394,7 +394,6 @@ class AvailabilityChart extends ChartComponent{
     }
 
     private setFromAndToTimes (fromMillis, toMillis) {
-        // debugger;
         fromMillis = Math.max(this.fromMillis, fromMillis);
         toMillis = Math.min(this.toMillis, toMillis);
         [{"From": fromMillis}, {"To": toMillis}].forEach((fromOrTo) => {
