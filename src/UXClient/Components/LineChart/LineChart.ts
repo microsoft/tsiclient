@@ -39,9 +39,7 @@ class LineChart extends ChartComponent {
     private brushStartPosition: number;
     private brushEndPosition: number;
     private hasBrush: boolean = false;
-
     private isClearingBrush: boolean = false;
-
     
     public chartMargins: any = {
         top: 40,
