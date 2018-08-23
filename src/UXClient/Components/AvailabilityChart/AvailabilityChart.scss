@@ -69,7 +69,7 @@
 
     .tsi-rangeTextContainer {
         pointer-events: none;
-        height: 16px;
+        height: 17px;
         color: white;
         left: 100px;
         top: 4px;
@@ -110,6 +110,7 @@
         .tsi-rangeTextContainer {
             background: none !important;
             top: 30px;
+            font-size: 11px;
         }
         .tsi-timePickerContainer {
             height: calc(100% - 8px);
@@ -137,7 +138,6 @@
         top: 0;
         width: calc(100% - 160px);
         position: relative;
-        margin: 0 80px;
         display: inline-flex;
 
         .tsi-select {
@@ -160,13 +160,12 @@
         }
 
         .tsi-dateTimeContainer {
-            right: 0px;
+            right: -60px;
             position: absolute;
             display: inline-flex;
             padding-right: 0px;
-            background: url(../../Icons/date.svg) 100% / 5% no-repeat;
-            background-position-y: 8px;
             cursor: pointer;
+            margin-top: 4px;
 
             .tsi-dateTimeTextContainer {
                 white-space: nowrap;
@@ -182,14 +181,19 @@
                 position: relative;
                 top: 0px;
                 display: block;
-                width: 180px;
+                width: 240px;
                 .tsi-dateTimeText {
                     font-size: 14px;
-                    padding-right: 8px;
+                    background: url(../../Icons/Calendar_Light_Theme.svg) 0% / 5% no-repeat;
+                    background-position-y: 10px;
+                    background-size: 13px;
+                    background-position-x: 8px;
+                    padding: 6px 8px 6px 28px;
+                    margin-left: 4px;
                 }
                 .tsi-fromToLabel {
                     opacity: .6;
-                    text-transform: uppercase;
+                    text-transform: capitalize;
                     font-size: 13px;
                     margin-right: 4px;
                 }
@@ -219,26 +223,29 @@
     .tsi-zoomButtonContainer {
         display: flex;
         position: absolute;
-        right: 32px;
-        bottom: 92px;
-        width: 32px;
+        right: 44px;
+        bottom: 96px;
+        width: 16px;
         flex-wrap: wrap;
 
         .tsi-zoomButton {
             border: none;
-            font-family: "Segoe UI", sans-serif; 
-            font-size: 40px;
-            width: 32px;
-            height: 32px;
-            line-height: .5;
+            width: 16px;
+            height: 16px;
             padding: 0px;
-            padding-bottom: 12px;
-            margin-top: 1px;
-            overflow: hidden;
-            font-weight: 100;
-            background: transparent;
+            cursor: pointer;
         }
 
+        .tsi-zoomButtonIn{
+            background: url(../../Icons/ZoomIn_Light_Theme.svg) no-repeat;
+            background-size: 16px;
+        }
+        .tsi-zoomButtonOut{
+            background: url(../../Icons/ZoomOut_Light_Theme.svg) no-repeat;
+            background-size: 16px;
+            margin-top: 4px;
+            margin-bottom: 4px;
+        }
     }
 
     .tsi-sparklineContainer {
@@ -251,9 +258,9 @@
             .handle {
                 visibility: visible;
                 shape-rendering: unset;
-                width: 6px;
-                rx: 3px;
-                ry: 3px;
+                width: 8px;
+                rx: 4px;
+                ry: 4px;
             }
         }
     }

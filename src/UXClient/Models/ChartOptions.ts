@@ -1,6 +1,7 @@
 class ChartOptions {
     public aggTopMargin: number; // margin on top of each aggregate line(s)
-    public arcWidthRatio: number; // bumber between 0 and 1 which determines how thic the pie chart arc is
+    public arcWidthRatio: number; // number between 0 and 1 which determines how thic the pie chart arc is
+    public availabilityLeftMargin: number; // number which sets the left margin of the availability chart
     public brushClearable: boolean; // whether to keep the brush selected region upon clear and non-selection of a new region
     public brushContextMenuActions: Array<any>; // pairs of names/actions for context menu for the brush
     public brushHandlesVisible: boolean; // whether handles on the brush are visible
@@ -101,6 +102,7 @@ class ChartOptions {
         this.is24HourTime = this.getValueOrDefault(chartOptionsObj, 'is24HourTime', true);
         this.includeTimezones = this.getValueOrDefault(chartOptionsObj, 'includeTimezones', true);
         this.includeSeconds = this.getValueOrDefault(chartOptionsObj, 'includeSeconds', true);        
+        this.availabilityLeftMargin = this.getValueOrDefault(chartOptionsObj, 'availabilityLeftMargin', 60);
     }
 
     public toObject () {
@@ -149,7 +151,8 @@ class ChartOptions {
             offset: this.offset,
             is24HourTime: this.is24HourTime.valueOf,
             includeTimezones: this.includeTimezones,
-            includeSeconds: this.includeSeconds
+            includeSeconds: this.includeSeconds,
+            availabilityLeftMargin: this.availabilityLeftMargin
         }
     }
 }
