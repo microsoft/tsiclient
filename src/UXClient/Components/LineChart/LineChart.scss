@@ -38,7 +38,7 @@
     
     .brushElem {
         .handle {
-            width: 6px;
+            width: 8px;
             shape-rendering: unset;
         }
         &.hideBrushHandles {
@@ -109,7 +109,6 @@
 
         .valueArea {
             stroke: none;
-            fill-opacity: .25;
         }
 
         .gapLine {

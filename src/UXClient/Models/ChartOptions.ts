@@ -1,6 +1,7 @@
 class ChartOptions {
     public aggTopMargin: number; // margin on top of each aggregate line(s)
-    public arcWidthRatio: number; // bumber between 0 and 1 which determines how thic the pie chart arc is
+    public arcWidthRatio: number; // number between 0 and 1 which determines how thic the pie chart arc is
+    public availabilityLeftMargin: number; // number which sets the left margin of the availability chart
     public brushClearable: boolean; // whether to keep the brush selected region upon clear and non-selection of a new region
     public brushContextMenuActions: Array<any>; // pairs of names/actions for context menu for the brush
     public brushHandlesVisible: boolean; // whether handles on the brush are visible
@@ -12,8 +13,10 @@ class ChartOptions {
     public fromChart: boolean; // whether a component is a subcomponent of another one or is a standalone
     public grid: boolean; // whether the chart includes a grid and grid button
     public hideChartControlPanel: boolean; // whether to hide the panel with chart control buttons
+    public includeTimezones: boolean; //whether timezone dropdown is included in dateTimePicker
     public isArea: boolean; // whether lines in LineChart are also areas
     public isCompact: boolean; // whether availability chart is in compact or expanded mode
+    public is24HourTime: boolean; // whether time is displayed in 24, or 12 hour time with am/pm
     public keepBrush: boolean; // whether to keep the brush selected region upon re render
     public keepSplitByColor: boolean; //whether to keep the split By colors when state is updated
     public legend: string; //state of the legend: shown, hidden, or compact
@@ -95,6 +98,9 @@ class ChartOptions {
         this.brushHandlesVisible = this.getValueOrDefault(chartOptionsObj, 'brushHandlesVisible', false);
         this.hideChartControlPanel = this.getValueOrDefault(chartOptionsObj, 'hideChartControlPanel', false);
         this.offset = this.getValueOrDefault(chartOptionsObj, 'offset', 0);
+        this.is24HourTime = this.getValueOrDefault(chartOptionsObj, 'is24HourTime', true);
+        this.includeTimezones = this.getValueOrDefault(chartOptionsObj, 'includeTimezones', true);
+        this.availabilityLeftMargin = this.getValueOrDefault(chartOptionsObj, 'availabilityLeftMargin', 60);
     }
 
     public toObject () {
@@ -140,7 +146,10 @@ class ChartOptions {
             onUnsticky: this.onUnsticky,
             brushHandlesVisible: this.brushHandlesVisible,
             hideChartControlPanel: this.hideChartControlPanel,
-            offset: this.offset
+            offset: this.offset,
+            is24HourTime: this.is24HourTime.valueOf,
+            includeTimezones: this.includeTimezones,
+            availabilityLeftMargin: this.availabilityLeftMargin
         }
     }
 }

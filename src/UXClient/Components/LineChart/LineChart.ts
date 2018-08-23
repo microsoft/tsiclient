@@ -42,8 +42,9 @@ class LineChart extends ChartComponent {
     private hasBrush: boolean = false;
 
     private isDroppingScooter: boolean = false;
+    private isClearingBrush: boolean = false;
     
-    private chartMargins: any = {
+    public chartMargins: any = {
         top: 40,
         bottom: 40,
         left: 70, 
@@ -53,14 +54,14 @@ class LineChart extends ChartComponent {
 
     constructor(renderTarget: Element){
         super(renderTarget);
-        this.MINHEIGHT = 32;
+        this.MINHEIGHT = 26;
     }
 
     LineChart() { 
     }
 
     public getXTickNumber (singleLineXAxisLabel) {
-        return (singleLineXAxisLabel ? Math.floor(this.chartWidth / 280) :  Math.floor(this.chartWidth / 140));
+        return (singleLineXAxisLabel ? Math.floor(this.chartWidth / 300) :  Math.floor(this.chartWidth / 160));
     }
 
     //get the left and right positions of the brush
@@ -87,7 +88,7 @@ class LineChart extends ChartComponent {
     public createXAxis (singleLineXAxisLabel) {
         return d3.axisBottom(this.x)
             .ticks(this.getXTickNumber(singleLineXAxisLabel))
-            .tickFormat(Utils.timeFormat(this.labelFormatUsesSeconds(), this.labelFormatUsesMillis(), this.chartOptions.offset));
+            .tickFormat(Utils.timeFormat(this.labelFormatUsesSeconds(), this.labelFormatUsesMillis(), this.chartOptions.offset, this.chartOptions.is24HourTime));
     }
 
     private voronoiMouseout (d: any)  {
@@ -162,7 +163,7 @@ class LineChart extends ChartComponent {
     }
 
     private getHandleHeight (chartHeight: number): number {
-        return Math.min(Math.max(chartHeight / 2, 60), chartHeight + 8);
+        return Math.min(Math.max(chartHeight / 2, 24), chartHeight + 8);
     }
 
     private labelFormatUsesSeconds () {
@@ -194,17 +195,16 @@ class LineChart extends ChartComponent {
             var rawRightSide = this.x(this.brushEndTime);
 
             //if selection is out of range of brush. clear brush
+            this.brushElem.call(this.brush.move, null);
             if ((rawRightSide <= this.xOffset) || (rawLeftSide >= (this.chartWidth - (2 * this.xOffset)))) {
+                this.isClearingBrush = true;
                 this.brushElem.call(this.brush.move, null);
-                this.brushElem.select('.selection').attr("visibility", "hidden");
-                this.brushElem.selectAll('.handle').attr("visibility", "hidden");
                 return;
             }
-            this.brushElem.selectAll(".selection").attr("visibility", "visible");
-            this.brushElem.selectAll('.handle').attr("visibility", "visible");
 
             let leftSide = Math.min(this.chartWidth - (2 * this.xOffset), Math.max(this.xOffset, this.x(this.brushStartTime)));
             let rightSide = Math.min(this.chartWidth - (2 * this.xOffset), Math.max(this.xOffset, this.x(this.brushEndTime)));
+            
             this.surpressBrushTimeSet = true;
             this.brushStartPosition = leftSide;
             this.brushEndPosition = rightSide;
@@ -216,7 +216,7 @@ class LineChart extends ChartComponent {
                     rightSide += 1;
                 }
             }
-            this.brushElem.call(this.brush.move, [leftSide, rightSide]);
+            this.brushElem.call(this.brush.move, [leftSide, rightSide]);        
         }
     }
 
@@ -269,6 +269,8 @@ class LineChart extends ChartComponent {
             var g = this.svgSelection.append("g")
                         .classed("svgGroup", true)
                         .attr("transform", "translate(" + this.chartMargins.left + "," + this.chartMargins.top + ")");
+            
+            var defs = this.svgSelection.append('defs');
             
             this.brushElem = null; 
             var voronoiRegion
@@ -453,8 +455,8 @@ class LineChart extends ChartComponent {
                         self.brushElem.selectAll('.handle')
                             .attr('height', handleHeight)
                             .attr('y', (chartHeight - handleHeight) / 2)
-                            .attr('rx', '3px')
-                            .attr('ry', '3px');
+                            .attr('rx', '4px')
+                            .attr('ry', '4px');
                     })
                     .on("brush", function () {
                         var handleHeight = self.getHandleHeight(chartHeight);
@@ -499,6 +501,10 @@ class LineChart extends ChartComponent {
                         }
                     })
                     .on("end", function () {
+                        if (self.isClearingBrush) {
+                            self.isClearingBrush = false;
+                            return;
+                        }
                         if (d3.event && d3.event.selection == null && d3.event.sourceEvent && d3.event.sourceEvent.type == "mouseup" && self.chartOptions.minBrushWidth == 0) {
                             self.brushStartTime = null;
                             self.brushEndTime = null;
@@ -522,8 +528,10 @@ class LineChart extends ChartComponent {
                         }
 
                         if (d3.event.selection == null) {
-                            if (!self.chartOptions.brushClearable)
+                            if (!self.chartOptions.brushClearable) {
                                 d3.select(this).transition().call(d3.event.target.move, [self.x(self.brushStartTime), self.x(self.brushEndTime)]);
+
+                            }
                             return;
                         }
                         var transformCall = null; //if the brush needs to be transformed due to snap brush or it being too small, this is envoked
@@ -779,18 +787,30 @@ class LineChart extends ChartComponent {
                             if (this.chartOptions.isArea) {
                                 var area = g.selectAll(".valueArea" + tsIterator)
                                     .data([this.chartComponentData.timeArrays[aggKey][splitBy]]);
-        
+
+                                // logic for shiny gradient fill via url()
+                                let svgId = Utils.guid();
+                                let lg = defs.selectAll('linearGradient')
+                                        .data([this.chartComponentData.timeArrays[aggKey][splitBy]]);
+                                var gradient = lg.enter()
+                                    .append('linearGradient');
+                                gradient.merge(lg)
+                                    .attr('id', svgId).attr('x1', '0%').attr('x2', '0%').attr('y1', '0%').attr('y2', '100%');
+                                gradient.append('stop').attr('offset', '0%').attr('style', () =>{return 'stop-color:' + splitByColors[j] + ';stop-opacity:.2'});
+                                gradient.append('stop').attr('offset', '100%').attr('style', () =>{return 'stop-color:' + splitByColors[j] + ';stop-opacity:.03'});
+                                lg.exit().remove();
+
                                 area.enter()
                                     .append("path")
                                     .attr("class", "valueElement valueArea valueArea" + tsIterator)
                                     .merge(area)
+                                    .style("fill", 'url(#' + (svgId) + ')')
                                     .style("visibility", (d: any) => { 
                                         return (this.chartComponentData.isSplitByVisible(aggKey, splitBy)) ? "visible" : "hidden";
                                     })                                            
                                     .transition()
                                     .duration(this.chartOptions.noAnimate ? 0 : this.TRANSDURATION)
                                     .ease(d3.easeExp)
-                                    .style("fill", splitByColors[j])
                                     .attr("d", areaPath);
                                 area.exit().remove();
                             }
@@ -846,11 +866,11 @@ class LineChart extends ChartComponent {
                         var bucketSize = this.chartComponentData.displayState[d.aggregateKey].bucketSize;
                         var endValue = bucketSize ? (new Date(xValue.valueOf() + bucketSize)) : null;
                         
-                        text.append("tspan").text(Utils.timeFormat(false, false, this.chartOptions.offset)(xValue))
+                        text.append("tspan").text(Utils.timeFormat(false, false, this.chartOptions.offset, this.chartOptions.is24HourTime)(xValue))
                             .attr("x", 0)
                             .attr("y", 4);
                         if (endValue) {
-                            text.append("tspan").text(Utils.timeFormat(false, false, this.chartOptions.offset)(endValue))
+                            text.append("tspan").text(Utils.timeFormat(false, false, this.chartOptions.offset, this.chartOptions.is24HourTime)(endValue))
                                 .attr("x", 0)
                                 .attr("y", 27);
                             var barWidth = this.x(endValue) - this.x(xValue);

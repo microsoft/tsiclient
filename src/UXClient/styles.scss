@@ -68,6 +68,8 @@ select::-ms-expand {
     white-space: nowrap;
     overflow: hidden;
     height: 32px;
+    background-position-y: 12px;
+    background-position-x: calc(100% - 4px);
 }
 
 .pika-single {

@@ -56,17 +56,49 @@ class Utils {
 
     static getOffsetMinutes(offset: any, millis: number) {
         if (typeof offset == "string") {
-            var zone = momentTZ.tz.zone(offset);
-            return -zone.parse(millis);
+            return -momentTZ.tz.zone(offset).parse(millis);
         } else {
             return offset;
         }
     }
 
+    // inverse of getOffsetMinutes, this is the conversion factor of an offsettedTime to UTC in minutes 
+    static getMinutesToUTC (offset: any, millisInOffset: number) {
+        if (typeof offset == "string") {
+            return momentTZ.tz.zone(offset).utcOffset(millisInOffset);
+        } else {
+            return -offset;
+        }
+    }
+
+    static rangeTimeFormat (rangeMillis: number) {
+        var rangeText = "";
+        var oneSecond = 1000;
+        var oneMinute = 60 * 1000;
+        var oneHour = oneMinute * 60;
+        var oneDay = oneHour * 24;
+
+        var days = Math.floor(rangeMillis / oneDay);
+        var hours = Math.floor(rangeMillis / oneHour) % 24;
+        var minutes = Math.floor(rangeMillis / oneMinute) % 60;
+        var seconds = Math.floor(rangeMillis / oneSecond) % 60;
+        var millis = rangeMillis % 1000;
+
+        if (rangeMillis >= oneDay) {
+            return days + "d " + (hours > 0 ? (hours + "h") : "");
+        } else if (rangeMillis >= oneHour) {
+            return hours + "h " + (minutes > 0 ? (minutes + "m") : "");
+        } else if (rangeMillis >= oneMinute) {
+            return minutes + "m " + (seconds > 0 ? (seconds + "s") : "");
+        }
+        return seconds + (millis != 0 ? "." + millis : "") + "s";
+    }
+
     
     static timeFormat(usesSeconds = false, usesMillis = false, offset: any = 0, is24HourTime: boolean = true) {
         return (d) => {
-            var stringFormat = "MM/DD/YYYY HH:mm" + (usesSeconds ? (":ss" + (usesMillis ? ".SSS" : "")) : "");
+            var stringFormat = "MM/DD/YYYY " + (is24HourTime ? "HH" : "hh") + ":mm" + 
+                (usesSeconds ? (":ss" + (usesMillis ? ".SSS" : "")) : "") + (is24HourTime ? "" : " A");
             if (typeof offset == "string") {
                 return momentTZ.tz(d, "UTC").tz(offset).format(stringFormat);
             } else {
@@ -95,12 +127,14 @@ class Utils {
         });
     }
     
-    static getUTCHours (d: Date) {
+    static getUTCHours (d: Date, is24HourTime: boolean = true) {
         var hours = d.getUTCHours();
-        if (hours == 0) 
-            hours = 12;
-        if (hours > 12) 
-            hours = hours - 12;
+        if (!is24HourTime) {
+            if (hours == 0) 
+                hours = 12;
+            if (hours > 12) 
+                hours = hours - 12;
+        }
         return hours;
     }
 
