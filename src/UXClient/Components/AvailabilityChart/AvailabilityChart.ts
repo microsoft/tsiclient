@@ -137,6 +137,7 @@ class AvailabilityChart extends ChartComponent{
     private dateTimePickerAction (fromMillis, toMillis) {
         this.setBrush(fromMillis, toMillis);
         this.chartOptions.brushMoveEndAction(new Date(fromMillis), new Date(toMillis));
+        this.setTicks();
         this.dateTimePickerContainer.style("display", "none");
     }
 
@@ -397,15 +398,9 @@ class AvailabilityChart extends ChartComponent{
         toMillis = Math.min(this.toMillis, toMillis);
         [{"From": fromMillis}, {"To": toMillis}].forEach((fromOrTo) => {
             let fromOrToText = Object.keys(fromOrTo)[0]; 
-            var offsetMinutes = Utils.getOffsetMinutes(this.chartOptions.offset, (new Date(fromOrTo[fromOrToText])).valueOf());
-            let date = new Date((new Date(fromOrTo[fromOrToText]).valueOf() + offsetMinutes * 60 * 1000));
-            let hours = date.getUTCHours() < 10 ? "0" + date.getUTCHours() : date.getUTCHours();
-            let minutes = date.getUTCMinutes() < 10 ? "0" + date.getUTCMinutes() : date.getUTCMinutes();
-            let year = date.getUTCFullYear();
-            let month = (date.getUTCMonth() + 1) < 10 ? "0" + (date.getUTCMonth() + 1) : (date.getUTCMonth() + 1);
-            let day = date.getUTCDate() < 10 ? "0" + date.getUTCDate() : date.getUTCDate();
             this.timePickerTextContainer.select(".tsi-dateTimeTextContainer" + fromOrToText).select(".tsi-dateTimeText")
-                .node().innerHTML = month + "/" + day + "/" + year + " " + Utils.UTCTwelveHourFormat(date) + " ";
+                .node().innerHTML = Utils.timeFormat(false, false, this.chartOptions.offset, this.chartOptions.is24HourTime)
+                                                    (new Date(fromOrTo[fromOrToText]).valueOf());
         });
         this.setSelectedMillis(fromMillis, toMillis);
     }
@@ -436,19 +431,19 @@ class AvailabilityChart extends ChartComponent{
             leftTimeText = this.timePickerContainer.append('div')
                 .classed('tsi-compactFromTo', true)
                 .style('left', (brushPositions.leftPos != null ? Math.max(brushPositions.leftPos, 5) : 5) + 'px')
-                .html(Utils.timeFormat(false, false, this.chartOptions.offset)(new Date(this.selectedFromMillis)));
+                .html(Utils.timeFormat(false, false, this.chartOptions.offset, this.chartOptions.is24HourTime)(new Date(this.selectedFromMillis)));
             rightTimeText = this.timePickerContainer.append('div')
                 .attr('class', 'tsi-compactFromTo')
                 .style('right', brushPositions.rightPos != null ? 'calc(100% - ' + brushPositions.rightPos + 'px)' : '5px')
                 .style('left', 'auto')
-                .html(Utils.timeFormat(false, false, this.chartOptions.offset)(new Date(this.selectedToMillis)));
+                .html(Utils.timeFormat(false, false, this.chartOptions.offset, this.chartOptions.is24HourTime)(new Date(this.selectedToMillis)));
         }
 
         if (leftTimeText && rightTimeText) {
             var rightSideOfLeft = leftTimeText.node().getBoundingClientRect().left + leftTimeText.node().getBoundingClientRect().width ;
             var leftSideOfRight = rightTimeText.node().getBoundingClientRect().left;
             var totalWidth = this.timePickerContainer.node().getBoundingClientRect().width;
-            var minOffset = 32;
+            var minOffset = 40;
             if (leftSideOfRight - rightSideOfLeft < minOffset) { // if there is overlap (or near overlap), correction needed
                 var correction = (rightSideOfLeft - leftSideOfRight + minOffset) / 2;
                 //if the correction puts either side off the edge of the container, weight the correction to the other side
@@ -485,8 +480,11 @@ class AvailabilityChart extends ChartComponent{
                 var maxMillis = self.toMillis + (Utils.getOffsetMinutes(self.chartOptions.offset, self.toMillis) * 60 * 1000);
                 var startMillis = self.selectedFromMillis + (Utils.getOffsetMinutes(self.chartOptions.offset, self.selectedFromMillis) * 60 * 1000);
                 var endMillis = self.selectedToMillis + (Utils.getOffsetMinutes(self.chartOptions.offset, self.selectedFromMillis) * 60 * 1000);
-                self.dateTimePicker.render({'theme': self.chartOptions.theme, offset: self.chartOptions.offset}, 
-                                            minMillis, maxMillis, startMillis, endMillis, (fromMillis, toMillis) => {
+                self.dateTimePicker.render({'theme': self.chartOptions.theme, offset: self.chartOptions.offset, is24HourTime: self.chartOptions.is24HourTime}, 
+                                            minMillis, maxMillis, startMillis, endMillis, (fromMillis, toMillis, offset) => {
+                                                self.chartOptions.offset = offset;
+                                                self.timePickerLineChart.chartOptions.offset = offset;
+                                                self.sparkLineChart.chartOptions.offset = offset;
                                                 self.dateTimePickerAction(fromMillis - (Utils.getOffsetMinutes(self.chartOptions.offset, fromMillis) * 60 * 1000), 
                                                                           toMillis -  (Utils.getOffsetMinutes(self.chartOptions.offset, toMillis) * 60 * 1000));
                                             });

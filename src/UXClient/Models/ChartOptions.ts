@@ -13,8 +13,10 @@ class ChartOptions {
     public fromChart: boolean; // whether a component is a subcomponent of another one or is a standalone
     public grid: boolean; // whether the chart includes a grid and grid button
     public hideChartControlPanel: boolean; // whether to hide the panel with chart control buttons
+    public includeTimezones: boolean; //whether timezone dropdown is included in dateTimePicker
     public isArea: boolean; // whether lines in LineChart are also areas
     public isCompact: boolean; // whether availability chart is in compact or expanded mode
+    public is24HourTime: boolean; // whether time is displayed in 24, or 12 hour time with am/pm
     public keepBrush: boolean; // whether to keep the brush selected region upon re render
     public keepSplitByColor: boolean; //whether to keep the split By colors when state is updated
     public legend: string; //state of the legend: shown, hidden, or compact
@@ -96,6 +98,8 @@ class ChartOptions {
         this.brushHandlesVisible = this.getValueOrDefault(chartOptionsObj, 'brushHandlesVisible', false);
         this.hideChartControlPanel = this.getValueOrDefault(chartOptionsObj, 'hideChartControlPanel', false);
         this.offset = this.getValueOrDefault(chartOptionsObj, 'offset', 0);
+        this.is24HourTime = this.getValueOrDefault(chartOptionsObj, 'is24HourTime', true);
+        this.includeTimezones = this.getValueOrDefault(chartOptionsObj, 'includeTimezones', true);
         this.availabilityLeftMargin = this.getValueOrDefault(chartOptionsObj, 'availabilityLeftMargin', 60);
     }
 
@@ -143,6 +147,8 @@ class ChartOptions {
             brushHandlesVisible: this.brushHandlesVisible,
             hideChartControlPanel: this.hideChartControlPanel,
             offset: this.offset,
+            is24HourTime: this.is24HourTime.valueOf,
+            includeTimezones: this.includeTimezones,
             availabilityLeftMargin: this.availabilityLeftMargin
         }
     }
