@@ -296,11 +296,12 @@ class DateTimePicker extends ChartComponent{
         this.calendarPicker.setStartRange(this.roundDay(this.offsetFromUTC(fromDate)));
         var inputContainer = this.timeControls.select(".tsi-timeInputContainer").select(".tsi-startTimeInputContainer");
         var hours = Utils.getUTCHours(fromDate, this.chartOptions.is24HourTime);
-        inputContainer.select(".tsi-hoursInput").property("value", String(hours));
+        inputContainer.select(".tsi-hoursInput").selectAll("option").filter((d) => d == hours).attr("selected", true);    
         var minutesString = (fromDate.getUTCMinutes() < 10 ? "0" : "") + String(fromDate.getUTCMinutes());
-        inputContainer.select(".tsi-minutesInput").property("value", minutesString);
+        inputContainer.select(".tsi-minutesInput").selectAll("option").filter((d) => d == minutesString).attr("selected", true);
         if (!this.chartOptions.is24HourTime) {
-            inputContainer.select(".tsi-AMPMInput").property("value", fromDate.getUTCHours() < 12 ? "AM" : "PM");
+            var amPM = fromDate.getUTCHours() < 12 ? "AM" : "PM";
+            inputContainer.select(".tsi-AMPMInput").selectAll("option").filter((d) => d == amPM).attr("selected", true);
         }
     }
 
@@ -309,11 +310,12 @@ class DateTimePicker extends ChartComponent{
         this.calendarPicker.setEndRange(this.roundDay(this.offsetFromUTC(toDate)));
         var inputContainer = this.timeControls.select(".tsi-timeInputContainer").select(".tsi-endTimeInputContainer");
         var hours = Utils.getUTCHours(toDate, this.chartOptions.is24HourTime);
-        inputContainer.select(".tsi-hoursInput").property("value", String(hours));
+        inputContainer.select(".tsi-hoursInput").selectAll("option").filter((d) => d == hours).attr("selected", true);    
         var minutesString = (toDate.getUTCMinutes() < 10 ? "0" : "") + String(toDate.getUTCMinutes());
-        inputContainer.select(".tsi-minutesInput").property("value", minutesString);
+        inputContainer.select(".tsi-minutesInput").selectAll("option").filter((d) => d == minutesString).attr("selected", true);
         if (!this.chartOptions.is24HourTime) {
-            inputContainer.select(".tsi-AMPMInput").property("value", toDate.getUTCHours() < 12 ? "AM" : "PM");
+            var amPM = toDate.getUTCHours() < 12 ? "AM" : "PM";
+            inputContainer.select(".tsi-AMPMInput").selectAll("option").filter((d) => d == amPM).attr("selected", true);
         }
     }
 

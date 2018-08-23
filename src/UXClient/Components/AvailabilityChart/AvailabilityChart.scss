@@ -143,8 +143,9 @@
         .tsi-select {
             top: 4px;
             width: 100px;
-            background: url(../../Icons/chevron.svg) 93% / 13% no-repeat;
-            background-position-y: 11px;
+            background: url(../../Icons/chevron.svg) 16px / 16px no-repeat;
+            background-position-y: 12px;
+            background-position-x: calc(100% - 4px);
             width: 132px;
         }
 

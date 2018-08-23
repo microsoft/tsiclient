@@ -81,8 +81,9 @@
             padding: 6px;
         }
         width: 100px;
-        background: url(../../Icons/chevron.svg) 85% / 25% no-repeat;
+        background: url(../../Icons/chevron.svg) 16px / 16px no-repeat;
         background-position-y: 12px;
+        background-position-x: calc(100% - 4px);
     }
 
     .tsi-timeControlsContainer {
@@ -138,7 +139,9 @@
                 height: 100%;
                 .tsi-timezonePicker {
                     width: 100%;
-                    background: url(../../Icons/chevron.svg) 97% / 4% no-repeat;
+                    background: url(../../Icons/chevron.svg) 16px/16px no-repeat;
+                    background-position-y: 12px;
+                    background-position-x: calc(100% - 4px);
                 }    
             }
         }
