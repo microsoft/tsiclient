@@ -9,14 +9,14 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bluebird/3.3.4/bluebird.min.js"></script>    
     
     <!-- PROD RESOURCE LINKS -->
-    <!-- <link rel="stylesheet" type="text/css" href="sampleStyles.css"></link>
-    <script src="https://unpkg.com/tsiclient@1.1.19/tsiclient.js"></script>
-    <link rel="stylesheet" type="text/css" href="https://unpkg.com/tsiclient@1.1.19/tsiclient.css"></link> -->
+    <link rel="stylesheet" type="text/css" href="sampleStyles.css"></link>
+    <script src="https://unpkg.com/tsiclient@1.2.3/tsiclient.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://unpkg.com/tsiclient@1.2.3/tsiclient.css"></link>
 
     <!-- DEV RESOURCE LINKS -->
-    <link rel="stylesheet" type="text/css" href="pages/samples/sampleStyles.css"></link>
+    <!-- <link rel="stylesheet" type="text/css" href="pages/samples/sampleStyles.css"></link>
     <script src="dist/tsiclient.js"></script>
-    <link rel="stylesheet" type="text/css" href="dist/tsiclient.css"></link>
+    <link rel="stylesheet" type="text/css" href="dist/tsiclient.css"></link> -->
 </head>
 <body>
     <div id="loginModal" style="display: none">
@@ -156,10 +156,10 @@
         // START: AUTHENTICATION RELATED CODE USING ADAL.JS
             // Set up ADAL
             var authContext = new AuthenticationContext({
-                clientId: '120d688d-1518-4cf7-bd38-182f158850b6',
-                postLogoutRedirectUri: 'https://insights.timeseries.azure.com',
-                // clientId: 'b54d43ab-4c7d-41cc-bea4-f39016158011',
-                // postLogoutRedirectUri: 'https://tsiclientsample.azurewebsites.net',
+                // clientId: '120d688d-1518-4cf7-bd38-182f158850b6',
+                // postLogoutRedirectUri: 'https://insights.timeseries.azure.com',
+                clientId: 'b54d43ab-4c7d-41cc-bea4-f39016158011',
+                postLogoutRedirectUri: 'https://tsiclientsample.azurewebsites.net',
                 cacheLocation: 'localStorage'
             });
             
@@ -307,13 +307,13 @@
 
                         tsiClient.server.getAggregates(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com', aggregateExpressions5.map(function(ae){return ae.toTsx()})).then(function(result){
                             var transformedResult = tsiClient.ux.transformAggregatesForVisualization(result, aggregateExpressions5);
-                            setTimeout(function(){barChart.render(transformedResult, options, aggregateExpressions5)}, 3000);
+                            setTimeout(function(){barChart.render(transformedResult, options, aggregateExpressions5)}, 7000);
                             lineChart.render(transformedResult, options, aggregateExpressions5);
                             setTimeout(function(){pieChart.render(transformedResult, options, aggregateExpressions5)}, 1000);
                         });
                         counter++;
                     }
-                }, 6000);
+                }, 12000);
             });
         });
 
@@ -345,7 +345,7 @@
                         });
                         counter++;
                     }
-                }, 5000);                    
+                }, 8000);                    
             });
         });    
 
