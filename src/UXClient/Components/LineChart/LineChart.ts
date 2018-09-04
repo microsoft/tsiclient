@@ -70,7 +70,7 @@ class LineChart extends ChartComponent {
     private setIsDroppingScooter (isDropping: boolean) {
         this.isDroppingScooter = isDropping;
         if (this.scooterButton) {
-            this.scooterButton.style("background-color", this.isDroppingScooter ? "black" : "white");
+            this.scooterButton.style("border-color", this.isDroppingScooter ? "grey" : "transparent");
         }
     }
 
