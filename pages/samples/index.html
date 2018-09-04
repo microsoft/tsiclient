@@ -238,7 +238,7 @@
         var aggregateExpressions3 = [];
         var startDate = new Date('2017-04-15T13:00:00Z');
         var endDate = new Date(startDate.valueOf() + 1000*60*60*1);
-        aggregateExpressions3.push(new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory3'"}, {property: 'Temperature', type: "Double"}, ['avg', 'min'],
+        aggregateExpressions3.push(new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory3' and Temperature > 31"}, {property: 'Temperature', type: "Double"}, ['avg', 'min'],
             { from: startDate, to: endDate, bucketSize: '2m' }, {property: 'Station', type: 'String'}, '#F7727E', 'Factory3Temperature'));
 
         authContext.getTsiToken().then(function(token){
@@ -399,7 +399,7 @@
             tsiClient.server.getAggregates(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com', aggregateExpressions4.map(function(ae){return ae.toTsx()})).then(function(result){
                 var transformedResult = tsiClient.ux.transformAggregatesForVisualization(result, aggregateExpressions4);
                 var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart10'));
-                lineChart.render(transformedResult, {tooltip: true, grid: true, theme: "dark", events: [events5], states: [events4]}, aggregateExpressions4);
+                lineChart.render(transformedResult, {tooltip: true, grid: true, theme: "dark", events: [events5], states: [events4], legend: "compact"}, aggregateExpressions4);
             });
         }); 
 
