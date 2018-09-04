@@ -238,7 +238,7 @@
         var aggregateExpressions3 = [];
         var startDate = new Date('2017-04-15T13:00:00Z');
         var endDate = new Date(startDate.valueOf() + 1000*60*60*1);
-        aggregateExpressions3.push(new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory3'"}, {property: 'Temperature', type: "Double"}, ['avg', 'min'],
+        aggregateExpressions3.push(new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory3' and Temperature > 31"}, {property: 'Temperature', type: "Double"}, ['avg', 'min'],
             { from: startDate, to: endDate, bucketSize: '2m' }, {property: 'Station', type: 'String'}, '#F7727E', 'Factory3Temperature'));
 
         authContext.getTsiToken().then(function(token){

@@ -36,7 +36,7 @@ class LineChart extends ChartComponent {
     private yMap: any;
     private colorMap: any;
     private activeScooter: any;
-    private scooterGUIDMap: any = {};
+    private scooterGuidMap: any = {};
     private brush: any;
     private brushElem: any;
     public brushStartTime: Date;
@@ -252,19 +252,19 @@ class LineChart extends ChartComponent {
 
     private setScooterPosition (scooter, rawMillis: number) {
         var closestTime = this.findClosestValidTime(rawMillis);
-        this.scooterGUIDMap[scooter.datum()] = closestTime;
+        this.scooterGuidMap[scooter.datum()] = closestTime;
         scooter.style("display", "block");
         scooter.style("left", (d) => {
-            var closestTime = this.scooterGUIDMap[d];
+            var closestTime = this.scooterGuidMap[d];
             return (Math.round(this.x(closestTime) + this.getScooterMarginLeft()) + "px");
         });
         d3.select(this.renderTarget).selectAll(".tsi-scooterContainer").sort( (a: string, b: string) =>  { 
-            return (this.scooterGUIDMap[a] < this.scooterGUIDMap[b]) ? 1 : -1;            
+            return (this.scooterGuidMap[a] < this.scooterGuidMap[b]) ? 1 : -1;            
         });
     }
 
     private setScooterTimeLabel (scooter) {
-        var millis = this.scooterGUIDMap[scooter.datum()];
+        var millis = this.scooterGuidMap[scooter.datum()];
         var values: Array<any> = this.chartComponentData.timeMap[millis];
         var firstValue = values[0].dateTime;
         var secondValue = new Date(values[0].dateTime.valueOf() + (values[0].bucketSize != null ? values[0].bucketSize : 0));
@@ -281,7 +281,7 @@ class LineChart extends ChartComponent {
     }
 
     private setScooterLabels (scooter, includeTransition = false) {
-        var millis = this.scooterGUIDMap[scooter.datum()];
+        var millis = this.scooterGuidMap[scooter.datum()];
         var values = this.chartComponentData.timeMap[millis] != undefined ? this.chartComponentData.timeMap[millis] : [];
         var self = this;
 
@@ -534,7 +534,7 @@ class LineChart extends ChartComponent {
                             }
 
                             var scooterUID = Utils.guid();
-                            self.scooterGUIDMap[scooterUID] = 0;
+                            self.scooterGuidMap[scooterUID] = 0;
 
                             self.activeScooter = d3.select(self.renderTarget).append("div")
                                 .datum(scooterUID)
@@ -560,7 +560,7 @@ class LineChart extends ChartComponent {
                                 .call(d3.drag()
                                 .on("start drag", function (d) { 
                                     var scooter = d3.select(<any>d3.select(this).node().parentNode);
-                                    var currMillis: number = Number(self.scooterGUIDMap[String(scooter.datum())]);
+                                    var currMillis: number = Number(self.scooterGuidMap[String(scooter.datum())]);
                                     var startPosition = self.x(new Date(currMillis));
                                     var newPosition = startPosition + d3.event.x;
                                     self.setScooterPosition(scooter, self.x.invert(newPosition).valueOf());
