@@ -1280,6 +1280,11 @@ class LineChart extends ChartComponent {
                     });
                 }
 
+                if (Object.keys(this.chartComponentData.timeMap).length == 0) {
+                    d3.select(this.renderTarget).selectAll(".tsi-scooterContainer").style("display", "none");
+                } else {
+                    d3.select(this.renderTarget).selectAll(".tsi-scooterContainer").style("display", "block");
+                }
                 this.updateScooterPresentation();
             }
     
