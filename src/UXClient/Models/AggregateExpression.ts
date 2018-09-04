@@ -22,9 +22,15 @@ class AggregateExpression {
         this.contextMenu = contextMenu;
     }
     
-    public toTsx(){
+    public toTsx(roundFromTo: boolean = false){
         var tsx = {};
-        tsx['searchSpan'] = {from: this.searchSpan.from.toISOString(), to: this.searchSpan.to.toISOString()};
+        let fromMillis = this.searchSpan.from.valueOf(), toMillis = this.searchSpan.to.valueOf();
+        if (roundFromTo) {
+            let bucketSizeInMillis = Utils.parseTimeInput(this.searchSpan.bucketSize);
+            fromMillis = Math.floor((fromMillis + 62135596800000) / (bucketSizeInMillis)) * (bucketSizeInMillis) - 62135596800000;
+            toMillis = Math.ceil((toMillis + 62135596800000) / (bucketSizeInMillis)) * (bucketSizeInMillis) - 62135596800000;
+        }
+        tsx['searchSpan'] = {from: (new Date(fromMillis)).toISOString(), to: (new Date(toMillis)).toISOString()}; 
         
         // create aggregates
         var measures = (this.measureObject.hasOwnProperty('count')) ? [{count: {}}] 
