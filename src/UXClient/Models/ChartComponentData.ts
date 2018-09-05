@@ -228,7 +228,9 @@ class ChartComponentData {
     private findFirstBucket (agg, fromMillis, bucketSize) {
         if (agg == null || Object.keys(agg).length == 0)
             return null;
-        var firstKey = Object.keys(agg).sort((a, b) => {
+        var firstKey = Object.keys(agg).filter((a) => {
+            return ((new Date(a)).valueOf() + bucketSize) > fromMillis; 
+        }).sort((a, b) => {
             if ((new Date(a)).valueOf() < (new Date(b)).valueOf())
                 return -1;
             if ((new Date(a)).valueOf() > (new Date(b)).valueOf())
