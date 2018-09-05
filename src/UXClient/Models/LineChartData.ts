@@ -30,10 +30,12 @@ class LineChartData extends ChartComponentData {
             if (currVal.bucketSize != undefined) {
                 millis += (currVal.bucketSize / 2);
             }
-            if (timeMap[millis] == undefined) {
-                timeMap[millis] = [currVal];
-            } else {
-                timeMap[millis].push(currVal);
+            if (currVal.measures != null) {
+                if (timeMap[millis] == undefined) {
+                    timeMap[millis] = [currVal];
+                } else {
+                    timeMap[millis].push(currVal);
+                }    
             }
             return timeMap;
         }, {});
