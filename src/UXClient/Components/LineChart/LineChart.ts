@@ -283,6 +283,7 @@ class LineChart extends ChartComponent {
     private setScooterLabels (scooter, includeTransition = false) {
         var millis = this.scooterGuidMap[scooter.datum()];
         var values = this.chartComponentData.timeMap[millis] != undefined ? this.chartComponentData.timeMap[millis] : [];
+        values = values.filter((d) => this.getValueOfVisible(d) != null );
         var self = this;
 
         var valueLabels = scooter.selectAll(".tsi-scooterValue").data(values, (d) => {
