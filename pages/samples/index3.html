@@ -1,0 +1,179 @@
+
+<!DOCTYPE html> 
+<html><head>
+    <title>Time Series Insights Sample App</title>
+    <meta charset="utf-8">
+    <meta http-equiv="cache-control" content="no-cache" />
+    <script src="https://secure.aadcdn.microsoftonline-p.com/lib/1.0.11/js/adal.min.js"></script>
+    
+    <!--bluebird for Promise polyfill to support IE in sample client-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bluebird/3.3.4/bluebird.min.js"></script>    
+    
+    <!-- PROD RESOURCE LINKS -->
+    <!-- <link rel="stylesheet" type="text/css" href="sampleStyles.css"></link>
+    <script src="https://unpkg.com/tsiclient@1.1.4/tsiclient.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://unpkg.com/tsiclient@1.1.4/tsiclient.css"></link> -->
+
+    <!-- DEV RESOURCE LINKS -->
+    <link rel="stylesheet" type="text/css" href="pages/samples/sampleStyles.css" />
+    <script src="dist/tsiclient.js"></script>
+    <link rel="stylesheet" type="text/css" href="dist/tsiclient.css" />
+</head>
+<body>
+    <div id="loginModal" style="display: none">
+        <div>
+            <span id="api_response"></span>
+            <a href="#" onclick="authContext.login(); return false;">Log in</a>
+        </div>
+    </div>
+    <div style="height: 100%; position: absolute; top: 0; width: 100%;">
+        <div class="header">
+            Time Series Insights Sample App
+            <pre id="api_response2"></pre>
+            <div class="rightSide">
+                <div id="username"></div>
+                <div class="loginLogout">
+                    <p>
+                        <a href="#" onclick="authContext.logOut(); return false;">Log out</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="chartsWrapper">
+            <select onchange="showExample(this)">
+                <option example="0">none</option>
+                <option example="1">1. Static Line Charts</option>
+            </select>
+            <div id="charts">
+            </div>
+        </div>
+    </div>        
+    <script type="text/javascript">
+
+          // START: AUTHENTICATION RELATED CODE USING ADAL.JS
+            // Set up ADAL
+            var authContext = new AuthenticationContext({
+                clientId: '120d688d-1518-4cf7-bd38-182f158850b6',
+                postLogoutRedirectUri: 'https://insights.timeseries.azure.com',
+                cacheLocation: 'localStorage'
+            });
+            
+            if (authContext.isCallback(window.location.hash)) {
+            
+                // Handle redirect after token requests
+                authContext.handleWindowCallback();
+                var err = authContext.getLoginError();
+                if (err) {
+                    // TODO: Handle errors signing in and getting tokens
+                    document.getElementById('api_response').textContent = err;
+                    document.getElementById('loginModal').style.display = "block";
+                }
+            
+            } else {
+                var user = authContext.getCachedUser();
+                if (user) {
+                    document.getElementById('username').textContent = user.userName;
+                    
+                } else {
+                    document.getElementById('username').textContent = 'Not signed in.';
+                }
+            }
+            
+            authContext.getTsiToken = function(){
+                document.getElementById('api_response2').textContent = 'Getting tsi token...';
+                
+                // Get an access token to the Microsoft TSI API
+                var promise = new Promise(function(resolve,reject){
+                    authContext.acquireToken(
+                    'https://api.timeseries.azure.com/',
+                    function (error, token) {
+            
+                        if (error || !token) {
+                            // TODO: Handle error obtaining access token
+                            document.getElementById('api_response').textContent = error;
+                            document.getElementById('loginModal').style.display = "block";
+                            document.getElementById('api_response2').textContent = '';
+                            return;
+                        }
+            
+                        // Use the access token
+                        document.getElementById('api_response').textContent = '';
+                        document.getElementById('api_response2').textContent = '';
+                        document.getElementById('loginModal').style.display = "none";
+                        resolve(token);
+                        }
+                    );
+                });
+                
+                return promise;
+            }
+
+        // Code to show an example, called by the dropdown on change
+        var showExample = function(select){
+            var exampleNumber = select.options[select.selectedIndex].attributes.example.value;
+            window['example' + exampleNumber]();
+        }
+
+        // Code to render wrappers to draw charts in
+        var renderChartContainers = function(containerNumber){
+            document.getElementById('charts').innerHTML = ''; // blow away current content;
+            for(var i = 1; i <= containerNumber; i++){
+                document.getElementById('charts').innerHTML += '<div class="card"><div class="cardTitle">' + 'Chart ' + i + '</div><div class="cardChart" id="chart' + i + '"></div></div>';
+            }
+        }
+
+        var tsiClient = new TsiClient();
+        var currentSetInterval;
+
+        // Static Line Charts
+        var example1 = function(){
+            renderChartContainers(2);
+            
+            var aggregateExpressions = [];
+            var startDate = new Date('2017-04-14T13:00:00Z');
+            var endDate = new Date(startDate.valueOf() + 1000*60*60*1);
+            aggregateExpressions.push(new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory1'"}, {property: 'Pressure', type: "Double"}, ['avg', 'min', 'max'],
+                { from: startDate, to: endDate, bucketSize: '2m' }, null, '#FF8C00', 'Factory1Pressure'));
+            aggregateExpressions.push(new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory2'"}, {property: 'Pressure', type: "Double"}, ['avg', 'min', 'max'],
+                { from: startDate, to: endDate, bucketSize: '2m' }, null, '#D869CB', 'Factory2Pressure'));
+            aggregateExpressions.push(new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory3'"}, {property: 'Pressure', type: "Double"}, ['avg', 'min', 'max'],
+                { from: startDate, to: endDate, bucketSize: '2m' }, null, '#60B9AE', 'Factory.3.Pressure'));
+            authContext.getTsiToken().then(function(token){
+                tsiClient.server.getAggregates(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com', aggregateExpressions.map(function(ae){return ae.toTsx()})).then(function(result){
+                    var transformedResult = tsiClient.ux.transformAggregatesForVisualization(result, aggregateExpressions);
+                    var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart1'));
+                    lineChart.render(transformedResult, {theme: 'light', grid: true, tooltip: true, legend: 'compact'}, aggregateExpressions);
+                });
+            });
+                    
+            var aggregateExpressions2 = [];
+            aggregateExpressions2.push(new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory3' and Temperature > 31"}, {property: 'Temperature', type: "Double"}, ['avg', 'min'],
+                { from: startDate, to: endDate, bucketSize: '2m' }, {property: 'Station', type: 'String'}, '#F7727E', 'Factory3Temperature'));
+
+            authContext.getTsiToken().then(function(token){
+                tsiClient.server.getAggregates(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com', aggregateExpressions2.map(function(ae){return ae.toTsx()})).then(function(result){
+                    var transformedResult = tsiClient.ux.transformAggregatesForVisualization(result, aggregateExpressions2);
+                    var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart2'));
+                    lineChart.render(transformedResult, {theme: 'light', grid: true}, aggregateExpressions2);
+                });
+            });
+        }
+
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

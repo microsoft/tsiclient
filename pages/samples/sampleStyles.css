@@ -132,3 +132,17 @@ a{
 	background: #0d0f0e;
 	color: white;
 }
+
+#charts{
+    height: 500px;
+    display: flex;
+}
+
+#charts > div{
+	box-shadow: 0px 0px 2px 0px rgba(0,0,0,0.3);
+	background: white;
+    border-radius: 2px;
+    flex: 1;
+    margin: 40px;
+    height: 100%;
+}
