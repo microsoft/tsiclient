@@ -7,29 +7,65 @@ class EllipsisMenu extends Component {
 
     private buttonElement: any;
     private menuElement: any;
-    private menuItems: any;
-    private MenuIsVisible: any;
+    private menuItems: Array<any>;
+    private menuIsVisible: boolean;
 
-	constructor(renderTarget: Element, menuItems: Array<any>) {
+	constructor(renderTarget: Element) {
         super(renderTarget);
     }
 
-    private render (menuItems) {
+    private createIconPath (iconName: string, theme: string): string {
+        var supportedNames: Array<string> = ["flag", "grid"];
+        return (supportedNames.indexOf(iconName) != -1) ? iconName + "Icon" : "";
+    }
+
+    public setMenuVisibility(isVisible) {
+        this.menuIsVisible = isVisible;
+        this.menuElement.style("display", this.menuIsVisible ? "block" : "none");
+    }
+
+    public render (menuItems, options: any = {}) {
+        this.menuIsVisible = false;
+
+        var targetElement = d3.select(this.renderTarget).classed("tsi-ellipsisMenuContainer", true);
         this.setMenuItems(menuItems);
         d3.select(this.renderTarget).selectAll("*").remove();
-        this.buttonElement = d3.select(this.renderTarget).insert("div", ":first-child")
+        options.theme = options.theme ? options.theme : "dark";
+        super.themify(targetElement, options.theme);
+
+        this.buttonElement = d3.select(this.renderTarget).insert("div")
             .attr("class", "tsi-ellipsisButton")
-            .style("left", "0px")
-            .style("top", "0px")
             .on("click", () => {
-                // this.
+                this.setMenuVisibility(!this.menuIsVisible)
             })
         
         this.menuElement = d3.select(this.renderTarget).insert("div")
-            .attr("class", "tsi-ellipsisButton")
-            .style("left", "0px")
-            .style("top", "0px")
+            .attr("class", "tsi-ellipsisMenu")
             .style("display", "none");
+
+        var self = this;
+        this.menuElement.selectAll(".tsi-ellipsisMenuItem").data(this.menuItems)
+            .enter()
+            .append("div")
+            .classed("tsi-ellipsisMenuItem", true)
+            .on("click", (d: any) => {
+                d.action();
+            })
+            .each(function () {
+                d3.select(this)
+                    .append("div")
+                    .attr("class", (d: any) => "tsi-ellipsisMenuIcon " + self.createIconPath(d.iconClass, options.theme));
+
+                d3.select(this)
+                    .append("div")
+                    .classed("tsi-ellipsisMenuLabel", true)
+                    .html((d: any) => d.label);
+                    
+                d3.select(this)
+                    .append("div")
+                    .classed("tsi-ellipsisMenuDescription", true)
+                    .style("display", "none");
+            });
     }
 
     private setMenuItems (rawMenuItems: Array<any>) {
@@ -42,7 +78,7 @@ class EllipsisMenu extends Component {
                 description: currMenuItem.description
             });
             return menuItems;
-        }, {});
+        }, []);
     }
 }
 

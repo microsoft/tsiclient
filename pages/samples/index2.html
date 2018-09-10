@@ -46,15 +46,13 @@
                 <div class="cardChart" id="chart1"></div>
             </div>
             <div class="card" style="flex-shrink: 1; height: 100%; width: 30%;">
-                <div class="cardTitle">Offset +120</div>
-                <div class="cardChart" id="chart2"></div>
+                <div id="ellipsisTarget" style="margin: 0 auto"></div>
             </div>
-            <div class="card" style="flex-shrink: 1; height: 100%; width: 30%;">
-                <div class="cardTitle">Offset -180</div>
-                <div class="cardChart" id="chart3"></div>
+            <div class="card dark" style="flex-shrink: 1; height: 100%; width: 30%;">
+                <div id="ellipsisTarget2" style="margin: 0 auto"></div>
             </div>
         </div>
-        <div class="rowOfCards">
+        <!-- <div class="rowOfCards">
             <div class="card" style="flex-shrink: 1; height: 100%; width: 30%;">
                 <div class="cardTitle">Offset -150</div>
                 <div class="cardChart" id="chart4"></div>
@@ -84,7 +82,7 @@
         </div>
         <div class="card" style="flex-shrink: 1; height: 40%; width: 45%;">
                 <div class="cardChart" id="chart10"></div>
-            </div>
+            </div> -->
         
 
     </div>        
@@ -170,16 +168,35 @@
         aggregateExpressions2.push(new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory3'"}, {property: 'Pressure', type: "Double"}, ['avg', 'min', 'max'],
             { from: startDate, to: endDate, bucketSize: '2m' }, null, '#60B9AE', 'Factory.3.Pressure'));
 
+        // Ellipsis Example
+        var ellipsisItems = [{
+            iconClass: "flag",
+            label: "console log \"suh\"",
+            action: function () { console.log("suh"); },
+            description: "suh"
+        }, {
+            iconClass: "grid",
+            label: "alert \"suh\"",
+            action: function () { alert("suh"); },
+            description: "suh"
+        }];
 
-        // // Example 1
-        // authContext.getTsiToken().then(function(token){
-        //     tsiClient.server.getAggregates(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com', aggregateExpressions2.map(function(ae){return ae.toTsx()})).then(function(result){
-        //         var transformedResult = tsiClient.ux.transformAggregatesForVisualization(result, aggregateExpressions2);
-        //         var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart1'));
-        //         var theme = 'light';
-        //         lineChart.render(transformedResult, {theme: theme, grid: true, tooltip: true, legend: 'compact'}, aggregateExpressions2);
-        //     });
-        // });
+        var ellipsisLight = new tsiClient.ux.EllipsisMenu(document.getElementById('ellipsisTarget'));
+        ellipsisLight.render(ellipsisItems, {theme: "light"});
+
+         var ellipsisDark = new tsiClient.ux.EllipsisMenu(document.getElementById('ellipsisTarget2'));
+        ellipsisDark.render(ellipsisItems, {theme: "dark"});
+
+
+        // Example 1
+        authContext.getTsiToken().then(function(token){
+            tsiClient.server.getAggregates(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com', aggregateExpressions2.map(function(ae){return ae.toTsx()})).then(function(result){
+                var transformedResult = tsiClient.ux.transformAggregatesForVisualization(result, aggregateExpressions2);
+                var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart1'));
+                var theme = 'light';
+                lineChart.render(transformedResult, {theme: theme, grid: true, tooltip: true, legend: 'compact'}, aggregateExpressions2);
+            });
+        });
 
         // // Example 2
 
@@ -235,114 +252,114 @@
         //     });
         // });
         
-        // Example 3
-        authContext.getTsiToken().then(function(token){
-            tsiClient.server.getAggregates(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com', aggregateExpressions2.map(function(ae){return ae.toTsx()})).then(function(result){
-                var transformedResult = tsiClient.ux.transformAggregatesForVisualization(result, aggregateExpressions2);
-                var barChart = new tsiClient.ux.BarChart(document.getElementById('chart3'));
-                var theme = 'light';
-                barChart.render(transformedResult, {theme: theme, grid: true, tooltip: true, legend: 'compact',  offset:-180 }, aggregateExpressions2);
-            });
-        });
+        // // Example 3
+        // authContext.getTsiToken().then(function(token){
+        //     tsiClient.server.getAggregates(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com', aggregateExpressions2.map(function(ae){return ae.toTsx()})).then(function(result){
+        //         var transformedResult = tsiClient.ux.transformAggregatesForVisualization(result, aggregateExpressions2);
+        //         var barChart = new tsiClient.ux.BarChart(document.getElementById('chart3'));
+        //         var theme = 'light';
+        //         barChart.render(transformedResult, {theme: theme, grid: true, tooltip: true, legend: 'compact',  offset:-180 }, aggregateExpressions2);
+        //     });
+        // });
 
-        // Example 4
-        authContext.getTsiToken().then(function(token){
-            tsiClient.server.getAggregates(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com', aggregateExpressions2.map(function(ae){return ae.toTsx()})).then(function(result){
-                var transformedResult = tsiClient.ux.transformAggregatesForVisualization(result, aggregateExpressions2);
-                var pieChart = new tsiClient.ux.PieChart(document.getElementById('chart4'));
-                var theme = 'light';
-                pieChart.render(transformedResult, {theme: theme, grid: true, tooltip: true, legend: 'compact',  offset:-150 }, aggregateExpressions2);
-            });
-        });
+        // // Example 4
+        // authContext.getTsiToken().then(function(token){
+        //     tsiClient.server.getAggregates(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com', aggregateExpressions2.map(function(ae){return ae.toTsx()})).then(function(result){
+        //         var transformedResult = tsiClient.ux.transformAggregatesForVisualization(result, aggregateExpressions2);
+        //         var pieChart = new tsiClient.ux.PieChart(document.getElementById('chart4'));
+        //         var theme = 'light';
+        //         pieChart.render(transformedResult, {theme: theme, grid: true, tooltip: true, legend: 'compact',  offset:-150 }, aggregateExpressions2);
+        //     });
+        // });
 
-        // Example 5
-        authContext.getTsiToken().then(function(token){
-            tsiClient.server.getAggregates(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com', aggregateExpressions2.map(function(ae){return ae.toTsx()})).then(function(result){
-                var transformedResult = tsiClient.ux.transformAggregatesForVisualization(result, aggregateExpressions2);
-                var heatmap = new tsiClient.ux.Heatmap(document.getElementById('chart5'));
-                var theme = 'light';
-                heatmap.render(transformedResult, {theme: theme, timestamp: '2017-04-14T13:00:00Z',  offset:-211 }, aggregateExpressions2);
-            });
-        });
+        // // Example 5
+        // authContext.getTsiToken().then(function(token){
+        //     tsiClient.server.getAggregates(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com', aggregateExpressions2.map(function(ae){return ae.toTsx()})).then(function(result){
+        //         var transformedResult = tsiClient.ux.transformAggregatesForVisualization(result, aggregateExpressions2);
+        //         var heatmap = new tsiClient.ux.Heatmap(document.getElementById('chart5'));
+        //         var theme = 'light';
+        //         heatmap.render(transformedResult, {theme: theme, timestamp: '2017-04-14T13:00:00Z',  offset:-211 }, aggregateExpressions2);
+        //     });
+        // });
 
-        // Example 6 Events Table
-        authContext.getTsiToken().then(function(token){
-            tsiClient.server.getEvents(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com', 
-                                        {predicateString: "Factory = 'Factory1'"},  {}, startDate.valueOf(), 
-                                       endDate.valueOf()).then(function (events) {
-                var transformedEvents = tsiClient.ux.transformTsxToEventsArray (events, {});
-                var eventsTable = tsiClient.ux.EventsTable(document.getElementById('chart6'));
-                eventsTable.render(transformedEvents, {theme: 'light',  offset:-180}, true);
-            });
-        });
+        // // Example 6 Events Table
+        // authContext.getTsiToken().then(function(token){
+        //     tsiClient.server.getEvents(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com', 
+        //                                 {predicateString: "Factory = 'Factory1'"},  {}, startDate.valueOf(), 
+        //                                endDate.valueOf()).then(function (events) {
+        //         var transformedEvents = tsiClient.ux.transformTsxToEventsArray (events, {});
+        //         var eventsTable = tsiClient.ux.EventsTable(document.getElementById('chart6'));
+        //         eventsTable.render(transformedEvents, {theme: 'light',  offset:-180}, true);
+        //     });
+        // });
 
-        // Example 7 Grid
-        authContext.getTsiToken().then(function(token){
-            tsiClient.server.getAggregates(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com', aggregateExpressions2.map(function(ae){return ae.toTsx()})).then(function(result){
-                var transformedResult = tsiClient.ux.transformAggregatesForVisualization(result, aggregateExpressions2);
-                var grid = new tsiClient.ux.Grid(document.getElementById('chart7'));
-                grid.renderFromAggregates(transformedResult, { offset:-30}, [{color: '#F7727E'}, {color: '#C8E139'}, {color: 'green'}]);
-            });
-        });
+        // // Example 7 Grid
+        // authContext.getTsiToken().then(function(token){
+        //     tsiClient.server.getAggregates(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com', aggregateExpressions2.map(function(ae){return ae.toTsx()})).then(function(result){
+        //         var transformedResult = tsiClient.ux.transformAggregatesForVisualization(result, aggregateExpressions2);
+        //         var grid = new tsiClient.ux.Grid(document.getElementById('chart7'));
+        //         grid.renderFromAggregates(transformedResult, { offset:-30}, [{color: '#F7727E'}, {color: '#C8E139'}, {color: 'green'}]);
+        //     });
+        // });
 
-        // Example 8 Availability Chart with no offset
-        authContext.getTsiToken().then(function(token){
-            tsiClient.server.getAvailability(token, 'bec25c6b-ed2e-4416-856d-5057957a1575.env.timeseries.azure.com').then(function(result){
-                var transformedResult = tsiClient.ux.transformAvailabilityForVisualization(result, 500);
-                var availabilityChart = new tsiClient.ux.AvailabilityChart(document.getElementById('chart8'));
-                availabilityChart.render(transformedResult, {theme: 'light', grid: false, tooltip: false, legend: "hidden", 
-                   brushContextMenuActions: brushActions, snapBrush: false, maxBuckets: 500,
-                   color: 'purple', offset: "UTC", is24HourTime: false}, result);
+        // // Example 8 Availability Chart with no offset
+        // authContext.getTsiToken().then(function(token){
+        //     tsiClient.server.getAvailability(token, 'bec25c6b-ed2e-4416-856d-5057957a1575.env.timeseries.azure.com').then(function(result){
+        //         var transformedResult = tsiClient.ux.transformAvailabilityForVisualization(result, 500);
+        //         var availabilityChart = new tsiClient.ux.AvailabilityChart(document.getElementById('chart8'));
+        //         availabilityChart.render(transformedResult, {theme: 'light', grid: false, tooltip: false, legend: "hidden", 
+        //            brushContextMenuActions: brushActions, snapBrush: false, maxBuckets: 500,
+        //            color: 'purple', offset: "UTC", is24HourTime: false}, result);
                 
-                var chart = document.getElementById("chart8");
-                var button = document.createElement("button");
-                var isCompact = false;
-                function toggleCompact() {
-                    isCompact = !isCompact;
-                    availabilityChart.render(transformedResult, {theme: 'light', grid: false, tooltip: false, legend: "hidden", 
-                            brushContextMenuActions: brushActions, snapBrush: false, maxBuckets: 500,
-                            color: 'purple', isCompact: isCompact, preserveAvailabilityState: true, offset: "UTC", is24HourTime: false}, result);
-                }
+        //         var chart = document.getElementById("chart8");
+        //         var button = document.createElement("button");
+        //         var isCompact = false;
+        //         function toggleCompact() {
+        //             isCompact = !isCompact;
+        //             availabilityChart.render(transformedResult, {theme: 'light', grid: false, tooltip: false, legend: "hidden", 
+        //                     brushContextMenuActions: brushActions, snapBrush: false, maxBuckets: 500,
+        //                     color: 'purple', isCompact: isCompact, preserveAvailabilityState: true, offset: "UTC", is24HourTime: false}, result);
+        //         }
 
-                button.id = "myButton";
-                button.textContent = "+/-";
-                button.addEventListener("click", toggleCompact, false);
-                button.style = 'position:absolute;top:0px'
+        //         button.id = "myButton";
+        //         button.textContent = "+/-";
+        //         button.addEventListener("click", toggleCompact, false);
+        //         button.style = 'position:absolute;top:0px'
 
-                chart.appendChild(button);
-            });
-        }); 
+        //         chart.appendChild(button);
+        //     });
+        // }); 
 
-        // Example 9 Availability Chart with offset                   
-         var availabilityChart = new tsiClient.ux.AvailabilityChart(document.getElementById('chart9'));
-            authContext.getTsiToken().then(function(token){
-                tsiClient.server.getAvailability(token, 'bec25c6b-ed2e-4416-856d-5057957a1575.env.timeseries.azure.com').then(function(result){
-                    var transformedResult = tsiClient.ux.transformAvailabilityForVisualization(result, 500);
-                    availabilityChart.render(transformedResult, {theme: 'dark', grid: false, tooltip: false, legend: "hidden", 
-                    brushContextMenuActions: brushActions, snapBrush: false, maxBuckets: 500,
-                    color: 'purple', preserveAvailabilityState: true, isCompact: false, availabilityLeftMargin: 60}, result);
+        // // Example 9 Availability Chart with offset                   
+        //  var availabilityChart = new tsiClient.ux.AvailabilityChart(document.getElementById('chart9'));
+        //     authContext.getTsiToken().then(function(token){
+        //         tsiClient.server.getAvailability(token, 'bec25c6b-ed2e-4416-856d-5057957a1575.env.timeseries.azure.com').then(function(result){
+        //             var transformedResult = tsiClient.ux.transformAvailabilityForVisualization(result, 500);
+        //             availabilityChart.render(transformedResult, {theme: 'dark', grid: false, tooltip: false, legend: "hidden", 
+        //             brushContextMenuActions: brushActions, snapBrush: false, maxBuckets: 500,
+        //             color: 'purple', preserveAvailabilityState: true, isCompact: false, availabilityLeftMargin: 60}, result);
                     
-                    var chart = document.getElementById("chart9");
-                    var isCompact = false;
+        //             var chart = document.getElementById("chart9");
+        //             var isCompact = false;
 
 
-                    var timezonePicker = new tsiClient.ux.TimezonePicker(document.getElementById('chart10'));
-                    timezonePicker.render(function (d)  { 
-                        availabilityChart.render(transformedResult, {theme: 'light', grid: false, tooltip: false, legend: "hidden", 
-                                brushContextMenuActions: brushActions, snapBrush: false, maxBuckets: 500,
-                                color: 'purple',  offset: d}, result); 
-                    },"UTC");
+        //             var timezonePicker = new tsiClient.ux.TimezonePicker(document.getElementById('chart10'));
+        //             timezonePicker.render(function (d)  { 
+        //                 availabilityChart.render(transformedResult, {theme: 'light', grid: false, tooltip: false, legend: "hidden", 
+        //                         brushContextMenuActions: brushActions, snapBrush: false, maxBuckets: 500,
+        //                         color: 'purple',  offset: d}, result); 
+        //             },"UTC");
 
-                    setTimeout(function ()  {
-                        tsiClient.server.getAvailability(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com').then(function(result){
-                            var transformedResult = tsiClient.ux.transformAvailabilityForVisualization(result, 500);
-                            availabilityChart.render(transformedResult, {theme: 'light', grid: false, tooltip: false, legend: "hidden", 
-                            brushContextMenuActions: brushActions, snapBrush: false, maxBuckets: 500,
-                            color: 'purple', preserveAvailabilityState: false}, result);
-                        });
-                    }, 4000);
-                });
-            });
+        //             setTimeout(function ()  {
+        //                 tsiClient.server.getAvailability(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com').then(function(result){
+        //                     var transformedResult = tsiClient.ux.transformAvailabilityForVisualization(result, 500);
+        //                     availabilityChart.render(transformedResult, {theme: 'light', grid: false, tooltip: false, legend: "hidden", 
+        //                     brushContextMenuActions: brushActions, snapBrush: false, maxBuckets: 500,
+        //                     color: 'purple', preserveAvailabilityState: false}, result);
+        //                 });
+        //             }, 4000);
+        //         });
+        //     });
 
             // var timezonePicker = new tsiClient.ux.TimezonePicker(document.getElementById('chart10'));
             //         timezonePicker.render((d) => { console.log(d); },"America/Chicago");

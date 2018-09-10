@@ -10,6 +10,7 @@ import {LineChartData} from "./../../Models/LineChartData";
 import { ContextMenu } from '../ContextMenu/ContextMenu';
 import { Tooltip } from '../Tooltip/Tooltip';
 import { ChartOptions } from '../../Models/ChartOptions';
+import { EllipsisMenu } from '../EllipsisMenu/EllipsisMenu';
 
 class LineChart extends ChartComponent {
     private svgSelection: any;
@@ -31,6 +32,8 @@ class LineChart extends ChartComponent {
     private stackedButton: any = null;
     private gridButton: any = null;
     private scooterButton: any = null;
+    private ellipsisContainer: any = null;
+    private ellipsisMenu: EllipsisMenu;
 
     public x: any;
     private yMap: any;
@@ -507,7 +510,7 @@ class LineChart extends ChartComponent {
                         .attr("class", "tsi-chartControlsPanel")
                         .style("width", controlPanelWidth + "px")
                         .style("top", Math.max((this.chartMargins.top - 20), 0) + "px");
-        
+
                     this.hasStackedButton = true;
                     this.stackedButton = chartControlsPanel.append("div")
                         .style("left", this.chartMargins.left + "px")
@@ -523,59 +526,84 @@ class LineChart extends ChartComponent {
                         });
 
                     var self = this;
-                    this.scooterButton = chartControlsPanel.append("div")
-                        .style("right", (this.chartMargins.right + 24) + "px")
-                        .attr("class", "tsi-scooterButton")
-                        .on("click", function ()  {
-                            self.setIsDroppingScooter(!self.isDroppingScooter); 
-                            if (!self.isDroppingScooter) {
-                                self.activeScooter.remove();
-                                return;
-                            }
 
-                            var scooterUID = Utils.guid();
-                            self.scooterGuidMap[scooterUID] = 0;
+                    var onScooterClick = function () {
+                        self.setIsDroppingScooter(!self.isDroppingScooter); 
+                        if (!self.isDroppingScooter) {
+                            self.activeScooter.remove();
+                            return;
+                        }
 
-                            self.activeScooter = d3.select(self.renderTarget).append("div")
-                                .datum(scooterUID)
-                                .attr("class", "tsi-scooterContainer")
-                                .style("top", self.chartMargins.top + self.chartOptions.aggTopMargin + "px")
-                                .style("height", height - (self.chartMargins.top + self.chartMargins.bottom + self.chartOptions.aggTopMargin) + "px")
-                                .style("display", "none");
-                            
-                            self.activeScooter.append("div")
-                                .attr("class", "tsi-scooterLine");
-                            self.activeScooter.append("div")
-                                .attr("class", "tsi-scooterDragger")
-                                .on("mouseover", function () {
-                                    d3.select(this).classed("tsi-isHover", true);
-                                })
-                                .on("mouseout", function () {
-                                    d3.select(this).classed("tsi-isHover", false);
-                                })
-                                .on("contextmenu", function () {
-                                    d3.select(d3.select(this).node().parentNode).remove();
-                                    d3.event.preventDefault();
-                                })
-                                .call(d3.drag()
-                                .on("start drag", function (d) { 
-                                    var scooter = d3.select(<any>d3.select(this).node().parentNode);
-                                    var currMillis: number = Number(self.scooterGuidMap[String(scooter.datum())]);
-                                    var startPosition = self.x(new Date(currMillis));
-                                    var newPosition = startPosition + d3.event.x;
-                                    self.setScooterPosition(scooter, self.x.invert(newPosition).valueOf());
-                                    self.setScooterLabels(scooter);
-                                    self.setScooterTimeLabel(scooter);
-                                })
-                            );
-                            self.activeScooter.append("div")
-                                .attr("class", "tsi-scooterTimeLabel");
-                        });
-                    d3.select(this.renderTarget).selectAll(".tsi-gridButton").remove();
-                    if (this.chartOptions.grid) {
-                        this.gridButton = Utils.createGridButton(chartControlsPanel, this, this.chartComponentData.usesSeconds, 
-                                                                 this.chartComponentData.usesMillis, this.chartMargins);
+                        var scooterUID = Utils.guid();
+                        self.scooterGuidMap[scooterUID] = 0;
+
+                        self.activeScooter = d3.select(self.renderTarget).append("div")
+                            .datum(scooterUID)
+                            .attr("class", "tsi-scooterContainer")
+                            .style("top", self.chartMargins.top + self.chartOptions.aggTopMargin + "px")
+                            .style("height", height - (self.chartMargins.top + self.chartMargins.bottom + self.chartOptions.aggTopMargin) + "px")
+                            .style("display", "none");
+                        
+                        self.activeScooter.append("div")
+                            .attr("class", "tsi-scooterLine");
+                        self.activeScooter.append("div")
+                            .attr("class", "tsi-scooterDragger")
+                            .on("mouseover", function () {
+                                d3.select(this).classed("tsi-isHover", true);
+                            })
+                            .on("mouseout", function () {
+                                d3.select(this).classed("tsi-isHover", false);
+                            })
+                            .on("contextmenu", function () {
+                                d3.select(d3.select(this).node().parentNode).remove();
+                                d3.event.preventDefault();
+                            })
+                            .call(d3.drag()
+                            .on("start drag", function (d) { 
+                                var scooter = d3.select(<any>d3.select(this).node().parentNode);
+                                var currMillis: number = Number(self.scooterGuidMap[String(scooter.datum())]);
+                                var startPosition = self.x(new Date(currMillis));
+                                var newPosition = startPosition + d3.event.x;
+                                self.setScooterPosition(scooter, self.x.invert(newPosition).valueOf());
+                                self.setScooterLabels(scooter);
+                                self.setScooterTimeLabel(scooter);
+                            })
+                        );
+                        self.activeScooter.append("div")
+                            .attr("class", "tsi-scooterTimeLabel");
                     }
+
+                    var showGrid = () => {
+                        this.chartOptions.fromChart = true; 
+                        var gridComponent: Grid = new Grid(this.renderTarget);
+                        gridComponent.usesSeconds = this.chartComponentData.usesSeconds;
+                        gridComponent.usesMillis = this.chartComponentData.usesMillis; 
+                        var grid = gridComponent.renderFromAggregates(this.chartComponentData.data, this.chartOptions, this.aggregateExpressionOptions);
+                        grid.focus();
+                    }
+
+                    this.ellipsisContainer = chartControlsPanel.append("div")
+                        .attr("class", "tsi-ellipsisContainerDiv");
+                    
+                    this.ellipsisMenu = new EllipsisMenu(this.ellipsisContainer.node());
+
+                    var ellipsisItems = [{
+                        iconClass: "flag",
+                        label: "Drop a Scooter",
+                        action: onScooterClick,
+                        description: ""
+                    }];
+
+
+                    if (this.chartOptions.grid) {
+                        ellipsisItems.push({
+                            iconClass: "grid",
+                            label: "Display Grid",
+                            action: showGrid ,
+                            description: ""
+                        });
+                    }
+                    this.ellipsisMenu.render(ellipsisItems, {theme: this.chartOptions.theme});
 
                 } else {
                     this.hasStackedButton = false;
@@ -1235,14 +1263,14 @@ class LineChart extends ChartComponent {
                     }
                                 
                     /******************** Grid button ************************/
-                    if (this.chartOptions.grid) {
-                        this.gridButton.classed('tsi-lightTheme', this.chartOptions.theme == 'light')
-                            .classed('tsi-darkTheme', this.chartOptions.theme == 'dark');
-                    }
-                    if (this.scooterButton) {
-                        this.scooterButton.classed('tsi-lightTheme', this.chartOptions.theme == 'light')
-                            .classed('tsi-darkTheme', this.chartOptions.theme == 'dark');
-                    }
+                    // if (this.chartOptions.grid) {
+                    //     this.gridButton.classed('tsi-lightTheme', this.chartOptions.theme == 'light')
+                    //         .classed('tsi-darkTheme', this.chartOptions.theme == 'dark');
+                    // }
+                    // if (this.scooterButton) {
+                    //     this.scooterButton.classed('tsi-lightTheme', this.chartOptions.theme == 'light')
+                    //         .classed('tsi-darkTheme', this.chartOptions.theme == 'dark');
+                    // }
                 }
 
                 var visibleEventsCount = 0;
@@ -1365,6 +1393,12 @@ class LineChart extends ChartComponent {
         this.chartComponentData.mergeDataToDisplayStateAndTimeArrays(this.data, this.aggregateExpressionOptions, this.events, this.states);
         this.draw();
         this.chartOptions.noAnimate = false;  // ensure internal renders are always animated, overriding the users noAnimate option
+
+        d3.select("html").on("click." + Utils.guid(), () => {
+            if (this.ellipsisContainer && d3.event.target != this.ellipsisContainer.select(".tsi-ellipsisButton").node()) {
+                this.ellipsisMenu.setMenuVisibility(false);
+            }
+        });
     }
 }
 export {LineChart}
