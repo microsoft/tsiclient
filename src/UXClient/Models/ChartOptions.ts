@@ -1,3 +1,5 @@
+import * as d3 from 'd3';
+
 class ChartOptions {
     public aggTopMargin: number; // margin on top of each aggregate line(s)
     public arcWidthRatio: number; // number between 0 and 1 which determines how thic the pie chart arc is
@@ -14,6 +16,7 @@ class ChartOptions {
     public grid: boolean; // whether the chart includes a grid and grid button
     public hideChartControlPanel: boolean; // whether to hide the panel with chart control buttons
     public includeTimezones: boolean; //whether timezone dropdown is included in dateTimePicker
+    public interpolationFunction: any; //which interpolation function used for line chart lines
     public isArea: boolean; // whether lines in LineChart are also areas
     public isCompact: boolean; // whether availability chart is in compact or expanded mode
     public is24HourTime: boolean; // whether time is displayed in 24, or 12 hour time with am/pm
@@ -53,6 +56,30 @@ class ChartOptions {
             return this[propertyName];
         } 
         return propertyValue;  
+    }
+
+
+    private getInterpolationFunction (interpolationName: string) {
+        if (interpolationName == "curveLinear")
+            return d3.curveLinear;
+        if (interpolationName == "curveLinear") 
+            return d3.curveLinear;
+        if (interpolationName == "curveStep") 
+            return d3.curveStep;
+        if (interpolationName == "curveStepBefore") 
+            return d3.curveStepBefore;
+        if (interpolationName == "curveStepAfter") 
+            return d3.curveStepAfter;
+        if (interpolationName == "curveBasis") 
+            return d3.curveBasis;
+        if (interpolationName == "curveCardinal") 
+            return d3.curveCardinal;
+        if (interpolationName == "curveMonotoneX") 
+            return d3.curveMonotoneX;
+        if (interpolationName == "curveCatmullRom") 
+            return d3.curveCatmullRom;
+        // default
+        return d3.curveMonotoneX;
     }
     
     setOptions (chartOptionsObj) {
@@ -101,6 +128,7 @@ class ChartOptions {
         this.is24HourTime = this.getValueOrDefault(chartOptionsObj, 'is24HourTime', true);
         this.includeTimezones = this.getValueOrDefault(chartOptionsObj, 'includeTimezones', true);
         this.availabilityLeftMargin = this.getValueOrDefault(chartOptionsObj, 'availabilityLeftMargin', 60);
+        this.interpolationFunction = this.getInterpolationFunction(this.getValueOrDefault(chartOptionsObj, 'interpolationFunction', ''));
     }
 
     public toObject () {
@@ -149,7 +177,8 @@ class ChartOptions {
             offset: this.offset,
             is24HourTime: this.is24HourTime.valueOf,
             includeTimezones: this.includeTimezones,
-            availabilityLeftMargin: this.availabilityLeftMargin
+            availabilityLeftMargin: this.availabilityLeftMargin,
+            interpolationFunction: this.interpolationFunction
         }
     }
 }
