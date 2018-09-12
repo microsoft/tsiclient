@@ -164,7 +164,7 @@
         aggregateExpressions2.push(new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory2'"}, {property: 'Pressure', type: "Double"}, ['avg', 'min', 'max'],
             { from: startDate, to: endDate, bucketSize: '2m' }, null, '#D869CB', 'Factory2Pressure'));
         aggregateExpressions2.push(new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory3'"}, {property: 'Pressure', type: "Double"}, ['avg', 'min', 'max'],
-            { from: startDate, to: endDate, bucketSize: '2m' }, null, '#60B9AE', 'Factory.3.Pressure'));
+            { from: startDate, to: endDate, bucketSize: '2m' }, {property: 'Station', type: 'String'}, '#60B9AE', 'Factory.3.Pressure'));
 
 
         // Example 1
@@ -227,7 +227,7 @@
                 var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart2'));
                 var theme = 'light';
                 lineChart.render(transformedResult, {theme: theme, grid: true, tooltip: true, 
-                                                     offset: 120, events: [events], states: [states], interpolationFunction: 'curveStep' }, aggregateExpressions2);
+                                                     offset: 120, events: [events], states: [states], interpolationFunction: 'curveStep', includeEnvelope: true }, aggregateExpressions2);
             });
         });
         

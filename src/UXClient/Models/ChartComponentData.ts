@@ -164,7 +164,7 @@ class ChartComponentData {
         this.displayState = newDisplayState;
     }
 
-    private determineMeasureTypes(timeArray) {
+    private determineMeasureTypes (timeArray) {
         var measureTypes = timeArray.reduce((measureTypes, curr) => {
             if (curr && Object.keys(curr.measures).length) {
                 Object.keys(curr.measures).forEach((measure) => {
@@ -307,6 +307,12 @@ class ChartComponentData {
         if (this.displayState[aggI].splitBys[splitBy] == undefined)
             return false;
         return this.displayState[aggI].splitBys[splitBy].visible;
+    }
+
+    public isPossibleEnvelope(aggKey: string, splitBy: string) {
+        return (this.displayState[aggKey].splitBys[splitBy].visibleType == "avg") &&
+            (this.displayState[aggKey].splitBys[splitBy].types.indexOf("min") != -1) &&
+            (this.displayState[aggKey].splitBys[splitBy].types.indexOf("max") != -1);
     }
 
     public getVisibleMeasure(aggI: string, splitBy: string) {

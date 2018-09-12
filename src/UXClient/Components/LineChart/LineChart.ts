@@ -46,6 +46,7 @@ class LineChart extends ChartComponent {
     private timelineHeight: number;
     private line: any;
     private areaPath: any;
+    private envelope: any;
     private voronoi: any;
     private possibleTimesArray: any;
     private colorMap: any;
@@ -263,10 +264,28 @@ class LineChart extends ChartComponent {
     }
 
     //get the extent of an array of timeValues
-    private getYExtent (aggValues) {   
-        var extent = d3.extent(this.getFilteredValues(aggValues), (d: any) => {
-            return d.measures[this.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy)];
-        });
+    private getYExtent (aggValues, isEnvelope: boolean = false) {   
+        var extent;
+        if (isEnvelope) {
+            var filteredValues = this.getFilteredValues(aggValues);
+            var flatValuesList = [];
+            filteredValues.forEach((d: any) => {
+                if (d.measures['min'] != undefined) {
+                    flatValuesList.push(d.measures['min']);
+                }
+                if (d.measures['avg'] != undefined) {
+                    flatValuesList.push(d.measures['avg']);
+                }
+                if (d.measures['max'] != undefined) {
+                    flatValuesList.push(d.measures['max']);
+                }
+            });
+            extent = d3.extent(flatValuesList);        
+        } else {
+            extent = d3.extent(this.getFilteredValues(aggValues), (d: any) => {
+                return d.measures[this.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy)];
+            });    
+        }
         if (extent[0] == undefined || extent[1] == undefined)
             return [0,1]
         return extent;
@@ -747,14 +766,20 @@ class LineChart extends ChartComponent {
         var aggKey = agg.aggKey;
         var aggY;
         var aggLine;
+        var aggEnvelope;
         var aggGapLine;
         var yExtent;
-
+        // var includeEnvelope = this.chartOptions.includeEnvelope && this.chartComponentData.isPossibleEnvelope(agg, splitBy)
 
         if ((this.yAxisState == "shared") || (Object.keys(this.chartComponentData.timeArrays)).length < 2 || !aggVisible) {
+            yExtent = this.getYExtent(this.chartComponentData.allValues, this.chartOptions.includeEnvelope);
+            var yRange = (yExtent[1] - yExtent[0]) > 0 ? yExtent[1] - yExtent[0] : 1;
+            var yOffsetPercentage = this.chartOptions.isArea ? (1.5 / this.chartHeight) : (10 / this.chartHeight);
+            this.y.domain([yExtent[0] - (yRange * yOffsetPercentage), yExtent[1] + (yRange * (10 / this.chartHeight))]);
             aggY = this.y;
             aggLine = this.line;
             aggGapLine = null;
+            aggEnvelope = this.envelope;
         } else {
             var aggValues: Array<any> = [];
             Object.keys(this.chartComponentData.visibleTAs[aggKey]).forEach((splitBy) => {
@@ -768,7 +793,7 @@ class LineChart extends ChartComponent {
                             (this.chartHeight / this.visibleAggCount) * (visibleAggI) + this.chartOptions.aggTopMargin]);
             }
             if (this.chartComponentData.aggHasVisibleSplitBys(aggKey)) {
-                yExtent = this.getYExtent(aggValues);
+                yExtent = this.getYExtent(aggValues, this.chartOptions.includeEnvelope);
                 var yRange = (yExtent[1] - yExtent[0]) > 0 ? yExtent[1] - yExtent[0] : 1;
                 var yOffsetPercentage = 10 / (this.chartHeight / ((this.yAxisState == "overlap") ? 1 : this.visibleAggCount));
                 aggY.domain([yExtent[0] - (yRange * yOffsetPercentage), 
@@ -783,10 +808,18 @@ class LineChart extends ChartComponent {
                     return (d.measures !== null) && 
                             (d.measures[this.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy)] !== null);
                 })
-                .x((d: any) => { return this.getXPosition(d, this.x); })
+                .x((d: any) => this.getXPosition(d, this.x))
                 .y((d: any) => {                 
                     return d.measures ? aggY(d.measures[this.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy)]) : null;
                 });
+
+            aggEnvelope = d3.area()
+                .curve(this.chartOptions.interpolationFunction)
+                .defined((d: any) => (d.measures !== null) && (d.measures['min'] !== null) && (d.measures['max'] !== null))
+                .x((d: any) => this.getXPosition(d, this.x))
+                .y0((d: any) => d.measures ? aggY(d.measures['max']) : 0)
+                .y1((d: any) => d.measures ? aggY(d.measures['min']) : 0);
+
             aggGapLine = aggLine;
         }
 
@@ -872,6 +905,25 @@ class LineChart extends ChartComponent {
                 .attr("stroke", splitByColors[j])
                 .attr("stroke-opacity", this.strokeOpacity)                       
                 .attr("d", aggLine);
+            
+            if (this.chartOptions.includeEnvelope && this.chartComponentData.isPossibleEnvelope(aggKey, splitBy)) {
+                var envelope = g.selectAll(".valueEnvelope" + tsIterator)
+                    .data([this.chartComponentData.timeArrays[aggKey][splitBy]]);
+                
+                envelope.enter()
+                    .append("path")
+                    .attr("class", "valueElement valueEnvelope valueEnvelope" + tsIterator)
+                    .merge(envelope)
+                    .style("visibility", (d: any) => { 
+                        return (this.chartComponentData.isSplitByVisible(aggKey, splitBy)) ? "visible" : "hidden";
+                    })                                            
+                    .transition()
+                    .duration(this.chartOptions.noAnimate ? 0 : this.TRANSDURATION)
+                    .ease(d3.easeExp)
+                    .style("fill", splitByColors[j])
+                    .style("fill-opacity", .2)
+                    .attr("d", aggEnvelope);
+            }
 
             if (this.chartOptions.isArea) {
                 var area = g.selectAll(".valueArea" + tsIterator)
@@ -1179,6 +1231,21 @@ class LineChart extends ChartComponent {
                         .y((d: any) => { 
                             return d.measures ? this.y(d.measures[this.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy)]) : 0;
                         });
+
+                    this.envelope = d3.area()
+                        .defined( (d: any) => { 
+                            return (d.measures !== null) && (d.measures['min'] !== null) && (d.measures['max'] !== null);
+                        })
+                        .x((d: any) => {
+                            return this.getXPosition(d, this.x);
+                        })
+                        .y0((d: any) => { 
+                            return d.measures ? this.y(d.measures['max']) : 0;
+                        })
+                        .y1((d: any) => { 
+                            return d.measures ? this.y(d.measures['min']) : 0;
+                        });
+
 
                     if (this.chartOptions.isArea) {
                         this.areaPath = d3.area()

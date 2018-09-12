@@ -1,4 +1,5 @@
 import * as d3 from 'd3';
+import { quadtree } from 'd3';
 
 class ChartOptions {
     public aggTopMargin: number; // margin on top of each aggregate line(s)
@@ -15,6 +16,7 @@ class ChartOptions {
     public fromChart: boolean; // whether a component is a subcomponent of another one or is a standalone
     public grid: boolean; // whether the chart includes a grid and grid button
     public hideChartControlPanel: boolean; // whether to hide the panel with chart control buttons
+    public includeEnvelope: boolean; //whether to include an area showing min/max boundaries in the line chart
     public includeTimezones: boolean; //whether timezone dropdown is included in dateTimePicker
     public interpolationFunction: any; //which interpolation function used for line chart lines
     public isArea: boolean; // whether lines in LineChart are also areas
@@ -129,6 +131,7 @@ class ChartOptions {
         this.includeTimezones = this.getValueOrDefault(chartOptionsObj, 'includeTimezones', true);
         this.availabilityLeftMargin = this.getValueOrDefault(chartOptionsObj, 'availabilityLeftMargin', 60);
         this.interpolationFunction = this.getInterpolationFunction(this.getValueOrDefault(chartOptionsObj, 'interpolationFunction', ''));
+        this.includeEnvelope = this.getValueOrDefault(chartOptionsObj, 'includeEnvelope', false);
     }
 
     public toObject () {
@@ -178,7 +181,8 @@ class ChartOptions {
             is24HourTime: this.is24HourTime.valueOf,
             includeTimezones: this.includeTimezones,
             availabilityLeftMargin: this.availabilityLeftMargin,
-            interpolationFunction: this.interpolationFunction
+            interpolationFunction: this.interpolationFunction,
+            includeEnvelope: this.includeEnvelope
         }
     }
 }
