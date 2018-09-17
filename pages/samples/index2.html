@@ -159,31 +159,13 @@
         var aggregateExpressions2 = [];
         var startDate = new Date('2017-04-14T13:00:00Z');
         var endDate = new Date(startDate.valueOf() + 1000*60*60*1);
-        aggregateExpressions2.push(new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory1'"}, {property: 'Pressure', type: "Double"}, ['avg', 'min', 'max'],
+        aggregateExpressions2.push(new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory1' and Pressure > 20000"}, {property: 'Pressure', type: "Double"}, ['avg', 'min', 'max'],
             { from: startDate, to: endDate, bucketSize: '2m' }, null, '#FF8C00', 'Factory1Pressure'));
-        aggregateExpressions2.push(new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory2'"}, {property: 'Pressure', type: "Double"}, ['avg', 'min', 'max'],
+        aggregateExpressions2.push(new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory2' and Pressure > 20000"}, {property: 'Pressure', type: "Double"}, ['avg', 'min', 'max'],
             { from: startDate, to: endDate, bucketSize: '2m' }, null, '#D869CB', 'Factory2Pressure'));
-        aggregateExpressions2.push(new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory3'"}, {property: 'Pressure', type: "Double"}, ['avg', 'min', 'max'],
+        aggregateExpressions2.push(new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory3' and Pressure > 20000"}, {property: 'Pressure', type: "Double"}, ['avg', 'min', 'max'],
             { from: startDate, to: endDate, bucketSize: '2m' }, {property: 'Station', type: 'String'}, '#60B9AE', 'Factory.3.Pressure'));
 
-        // Ellipsis Example
-        var ellipsisItems = [{
-            iconClass: "flag",
-            label: "console log \"suh\"",
-            action: function () { console.log("suh"); },
-            description: "suh"
-        }, {
-            iconClass: "grid",
-            label: "alert \"suh\"",
-            action: function () { alert("suh"); },
-            description: "suh"
-        }];
-
-        var ellipsisLight = new tsiClient.ux.EllipsisMenu(document.getElementById('ellipsisTarget'));
-        ellipsisLight.render(ellipsisItems, {theme: "light"});
-
-         var ellipsisDark = new tsiClient.ux.EllipsisMenu(document.getElementById('ellipsisTarget2'));
-        ellipsisDark.render(ellipsisItems, {theme: "dark"});
 
 
         // Example 1
@@ -192,7 +174,7 @@
                 var transformedResult = tsiClient.ux.transformAggregatesForVisualization(result, aggregateExpressions2);
                 var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart1'));
                 var theme = 'light';
-                lineChart.render(transformedResult, {theme: theme, grid: true, tooltip: true, legend: 'compact'}, aggregateExpressions2);
+                lineChart.render(transformedResult, {theme: theme, grid: true, tooltip: true, legend: 'compact', includeEnvelope: true }, aggregateExpressions2);
             });
         });
 

@@ -16,9 +16,9 @@
 
     .tsi-ellipsisMenu {
         border-color: $gray6;
+        background-color: $gray3;
 
         .tsi-ellipsisMenuItem {
-            background-color: $gray3;
             &:hover {
                 background-color: $gray2;
             }
@@ -39,31 +39,34 @@
     }
 
     .tsi-ellipsisMenu {
-        position: relative;
+        position: absolute;
         border-width: 1px;
         border-radius: 2px;
         border-style: solid;
         cursor: pointer;
-        min-width: 176px;
-        top: 0px;
-        left: -160px;
+        min-width: 160px;
+        top: 20px;
+        right: 0;
         white-space: nowrap;
         z-index: 10000;
+        padding: 4px 0;
 
         .tsi-ellipsisMenuItem {
             overflow: hidden;
-            padding-right: 4px;
-            padding-left: 4px;
             height: 24px;
-            width: calc(100% - 8px);
+            font-size: 12px;
+            padding: 4px 8px;
+            display: flex;
+            align-items: center;
             
             .tsi-ellipsisMenuIcon {
                 height: 20px;
                 width: 20px; 
-                margin-right: 8px;
+                margin-right: 12px;
                 top: 2px;
                 display: inline-block;
                 position: relative;
+                flex-shrink: 0;
             }
 
             .tsi-ellipsisMenuLabel {
