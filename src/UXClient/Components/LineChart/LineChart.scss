@@ -228,6 +228,15 @@
         }
     }
 
+    .tsi-ellipsisContainerDiv {
+        left: auto;
+        right: 20px;
+        top: 0px;
+        width: 16px;
+        height: 16px;
+        position: absolute;
+    }
+
     .tsi-scooterButton {
         cursor: pointer;
         border-radius: 3px;

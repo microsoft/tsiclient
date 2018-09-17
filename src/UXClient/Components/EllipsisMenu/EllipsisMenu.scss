@@ -1,0 +1,126 @@
+@import "../../styles";
+
+@mixin ellipsisMenuColors($grays){
+	$gray1: nth($grays, 1); // text
+    $gray2: nth($grays, 2); // hover
+    $gray3: nth($grays, 3); // element
+    $gray4: nth($grays, 4); // background
+    $gray5: nth($grays, 5); // alt element
+    $gray6: nth($grays, 6);
+
+    color: $gray1;
+	
+	path {
+		stroke: $gray1;
+    }    
+
+    .tsi-ellipsisMenu {
+        border-color: $gray6;
+
+        .tsi-ellipsisMenuItem {
+            background-color: $gray3;
+            &:hover {
+                background-color: $gray2;
+            }
+        }
+    }
+}
+
+.tsi-ellipsisMenuContainer {
+    left: 0px;
+    top: 0px;
+    width: 16px;
+    height: 16px;
+
+    .tsi-ellipsisButton {
+        cursor: pointer;
+        width: 100%;
+        height: 100%;
+    }
+
+    .tsi-ellipsisMenu {
+        position: relative;
+        border-width: 1px;
+        border-radius: 2px;
+        border-style: solid;
+        cursor: pointer;
+        min-width: 176px;
+        top: 0px;
+        left: -160px;
+        white-space: nowrap;
+        z-index: 10000;
+
+        .tsi-ellipsisMenuItem {
+            overflow: hidden;
+            padding-right: 4px;
+            padding-left: 4px;
+            height: 24px;
+            width: calc(100% - 8px);
+            
+            .tsi-ellipsisMenuIcon {
+                height: 20px;
+                width: 20px; 
+                margin-right: 8px;
+                top: 2px;
+                display: inline-block;
+                position: relative;
+            }
+
+            .tsi-ellipsisMenuLabel {
+                display: inline-block;
+                position: relative;
+                width: calc(100% - 60px);
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                overflow: hidden;
+            }
+        }
+    }
+
+    .tsi-actionElement {
+        padding: 4px 16px;
+        cursor: default;
+        font-size: 12px;
+    }
+	
+	&.tsi-dark{
+        $grays: grays('dark');
+        @include ellipsisMenuColors($grays);
+        .tsi-ellipsisButton {
+            background-image: url(../../Icons/ellipsis_dark_theme_PLACEHOLDER.svg);            
+        }
+
+        .tsi-ellipsisMenu {
+            .tsi-ellipsisMenuItem {
+                .tsi-ellipsisMenuIcon {
+                    &.flagIcon {
+                        background-image: url(../../Icons/flag_dark_theme.svg);
+                    }
+                    &.gridIcon {
+                        background-image: url(../../Icons/Grid_Icon_Dark_Theme.svg);
+                    }
+                }
+            }
+        }
+    }
+    &.tsi-light{
+        $grays: grays('light');
+        @include ellipsisMenuColors($grays);
+        .tsi-ellipsisButton {
+            background-image: url(../../Icons/ellipsis_light_theme_PLACEHOLDER.svg);            
+        }
+
+        .tsi-ellipsisMenu {
+            .tsi-ellipsisMenuItem {
+                .tsi-ellipsisMenuIcon {
+                    &.flagIcon {
+                        background-image: url(../../Icons/flag_light_theme.svg);
+                    }
+                    &.gridIcon {
+                        background-image: url(../../Icons/Grid_Icon_Light_Theme.svg);
+                    }
+                }
+            }
+        }
+    }
+}
