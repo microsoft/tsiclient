@@ -129,10 +129,17 @@ class LineChart extends ChartComponent {
         if (d3.event && d3.event.type != 'end') {
             d3.event.stopPropagation();
         }
+
         this.svgSelection.selectAll(".valueElement")
                     .attr("stroke-opacity", this.strokeOpacity)
+                    .filter(function () {
+                        return !d3.select(this).classed("valueEnvelope");
+                    })
                     .attr("fill-opacity", 1);
 
+        this.svgSelection.selectAll(".valueEnvelope")
+            .attr("fill-opacity", .2);
+            
         d3.select(this.renderTarget).selectAll(".tsi-scooterValue")
             .style("opacity", 1);
 
@@ -416,7 +423,7 @@ class LineChart extends ChartComponent {
             var closestTime = this.scooterGuidMap[d];
             return (Math.round(this.x(closestTime) + this.getScooterMarginLeft()) + "px");
         });
-        d3.select(this.renderTarget).selectAll(".tsi-scooterContainer").sort( (a: string, b: string) =>  { 
+        d3.select(this.renderTarget).selectAll(".tsi-scooterContainer").sort((a: string, b: string) =>  { 
             return (this.scooterGuidMap[a] < this.scooterGuidMap[b]) ? 1 : -1;            
         });
     }
@@ -751,6 +758,17 @@ class LineChart extends ChartComponent {
                     .filter(selectedFilter)
                     .attr("stroke-opacity", .3)
                     .attr("fill-opacity", .3);
+        this.svgSelection.selectAll(".valueElement").sort(function (a: any, b: any) {
+            if (selectedFilter(a, 0) && !selectedFilter(b, 0))
+                return -1;
+            if (!selectedFilter(a, 0) && selectedFilter(b, 0))
+                return 1;
+            return 0;
+        });
+        this.svgSelection.selectAll(".valueEnvelope")
+            .attr("fill-opacity", .3)
+            .filter(selectedFilter)
+            .attr("fill-opacity", .1);
 
         d3.select(this.renderTarget).selectAll(".tsi-scooterValue").style("opacity", 1);
 
@@ -913,8 +931,9 @@ class LineChart extends ChartComponent {
                 .attr("d", aggLine);
             
             if (this.chartOptions.includeEnvelope && this.chartComponentData.isPossibleEnvelope(aggKey, splitBy)) {
+                var envelopeData = this.chartComponentData.timeArrays[aggKey][splitBy].map((d: any) => ({...d, isEnvelope: true}));
                 var envelope = g.selectAll(".valueEnvelope" + tsIterator)
-                    .data([this.chartComponentData.timeArrays[aggKey][splitBy]]);
+                    .data([envelopeData]);
                 
                 envelope.enter()
                     .append("path")
@@ -927,7 +946,7 @@ class LineChart extends ChartComponent {
                     .duration(this.chartOptions.noAnimate ? 0 : this.TRANSDURATION)
                     .ease(d3.easeExp)
                     .style("fill", splitByColors[j])
-                    .style("fill-opacity", .2)
+                    .attr("fill-opacity", .2)
                     .attr("d", aggEnvelope);
             }
 
@@ -1307,6 +1326,7 @@ class LineChart extends ChartComponent {
                         });
 
                     this.envelope = d3.area()
+                        .curve(this.chartOptions.interpolationFunction)
                         .defined( (d: any) => { 
                             return (d.measures !== null) && (d.measures['min'] !== null) && (d.measures['max'] !== null);
                         })
@@ -1381,7 +1401,12 @@ class LineChart extends ChartComponent {
                         if (aggVisible)
                             visibleAggI += 1;
                     }); 
-                    
+
+                    this.svgSelection.selectAll(".valueElement").sort(function (a: any, b: any) {
+                        if (a == undefined || a.length == 0)
+                            return 0;
+                        return (a[0].isEnvelope == b[0].isEnvelope ? 0 : (a[0].isEnvelope ? -1 : 1));
+                    });
                     /******************** Voronoi diagram for hover action ************************/
 
                     var self = this;

@@ -25,8 +25,11 @@ class Legend extends Component {
         return (svgSelection, aggKey) => {
             d3.event.stopPropagation();
             svgSelection.selectAll(".valueElement")
+                        .filter(function () { return !d3.select(this).classed("valueEnvelope"); })
                         .attr("stroke-opacity", 1)
                         .attr("fill-opacity", 1);
+            svgSelection.selectAll(".valueEnvelope")
+                        .attr("fill-opacity", .2);
             labelMouseout(svgSelection, aggKey);
         }
     }
