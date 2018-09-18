@@ -102,7 +102,7 @@ body{
 
 #api_response2{ 
 	position: absolute; 
-	left: 250px; 
+	left: 220px; 
 	top: -8px; 
 	border-left: 1px solid #888; 
 	padding: 8px 16px; 
@@ -132,7 +132,14 @@ a{
 
 .dark{
 	background: #0d0f0e !important;
-	color: white !important;
+    color: white !important;
+}
+
+#selectTitle::-ms-expand{
+	background-color: #0d0f0e !important;
+    color: white !important;
+    display: block !important;
+    border: none;
 }
 
 #charts{
@@ -160,4 +167,5 @@ a{
     font-size: 16px;
     padding: 8px 16px;
     border-radius: 3px;
+    border: 1px solid silver;
 }
