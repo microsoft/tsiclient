@@ -78,7 +78,9 @@ body{
     text-overflow: ellipsis;
     white-space: nowrap;
 } 
-.cardTitle.dark{
+.cardTitle.dark, .card.dark > .cardTitle{
+    background: #0d0f0e !important;
+	color: white !important;
 	border-bottom: 1px solid #555;
 }
 .cardChart{
@@ -129,8 +131,8 @@ a{
 }
 
 .dark{
-	background: #0d0f0e;
-	color: white;
+	background: #0d0f0e !important;
+	color: white !important;
 }
 
 #charts{
@@ -145,4 +147,17 @@ a{
     flex: 1;
     margin: 40px;
     height: 100%;
+}
+
+#selectTitleWrapper{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-top: 32px;
+}
+
+#selectTitle{
+    font-size: 16px;
+    padding: 8px 16px;
+    border-radius: 3px;
 }
