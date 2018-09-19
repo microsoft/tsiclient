@@ -1,4 +1,5 @@
 import * as d3 from 'd3';
+import * as momentTZ from 'moment-timezone';
 import {Grid} from "./Components/Grid/Grid";
 import { ChartComponent } from './Interfaces/ChartComponent';
 
@@ -51,13 +52,59 @@ class Utils {
     static createEntityKey (aggName: string, aggIndex: number) {
         return encodeURIComponent(aggName).split(".").join("_") + "_" + aggIndex;
     }
+
+
+    static getOffsetMinutes(offset: any, millis: number) {
+        if (typeof offset == "string") {
+            return -momentTZ.tz.zone(offset).parse(millis);
+        } else {
+            return offset;
+        }
+    }
+
+    // inverse of getOffsetMinutes, this is the conversion factor of an offsettedTime to UTC in minutes 
+    static getMinutesToUTC (offset: any, millisInOffset: number) {
+        if (typeof offset == "string") {
+            return momentTZ.tz.zone(offset).utcOffset(millisInOffset);
+        } else {
+            return -offset;
+        }
+    }
+
+    static rangeTimeFormat (rangeMillis: number) {
+        var rangeText = "";
+        var oneSecond = 1000;
+        var oneMinute = 60 * 1000;
+        var oneHour = oneMinute * 60;
+        var oneDay = oneHour * 24;
+
+        var days = Math.floor(rangeMillis / oneDay);
+        var hours = Math.floor(rangeMillis / oneHour) % 24;
+        var minutes = Math.floor(rangeMillis / oneMinute) % 60;
+        var seconds = Math.floor(rangeMillis / oneSecond) % 60;
+        var millis = rangeMillis % 1000;
+
+        if (rangeMillis >= oneDay) {
+            return days + "d " + (hours > 0 ? (hours + "h") : "");
+        } else if (rangeMillis >= oneHour) {
+            return hours + "h " + (minutes > 0 ? (minutes + "m") : "");
+        } else if (rangeMillis >= oneMinute) {
+            return minutes + "m " + (seconds > 0 ? (seconds + "s") : "");
+        }
+        return seconds + (millis != 0 ? "." + millis : "") + "s";
+    }
+
     
-    static timeFormat(usesSeconds = false, usesMillis = false) {
-        if (usesMillis)
-            return d3.utcFormat("%x %H:%M:%S:%L");
-        if (usesSeconds)
-            return d3.utcFormat("%x %H:%M:%S")
-        return d3.utcFormat("%x %H:%M");
+    static timeFormat(usesSeconds = false, usesMillis = false, offset: any = 0, is24HourTime: boolean = true) {
+        return (d) => {
+            var stringFormat = "MM/DD/YYYY " + (is24HourTime ? "HH" : "hh") + ":mm" + 
+                (usesSeconds ? (":ss" + (usesMillis ? ".SSS" : "")) : "") + (is24HourTime ? "" : " A");
+            if (typeof offset == "string") {
+                return momentTZ.tz(d, "UTC").tz(offset).format(stringFormat);
+            } else {
+                return momentTZ.tz(d, "UTC").utcOffset(offset).format(stringFormat);
+            }
+        }
     }
 
     static splitTimeLabel (text: any) {
@@ -78,6 +125,24 @@ class Utils {
                     .text(lines[1]);
             }
         });
+    }
+    
+    static getUTCHours (d: Date, is24HourTime: boolean = true) {
+        var hours = d.getUTCHours();
+        if (!is24HourTime) {
+            if (hours == 0) 
+                hours = 12;
+            if (hours > 12) 
+                hours = hours - 12;
+        }
+        return hours;
+    }
+
+    static UTCTwelveHourFormat (d: Date) {
+        var hours: string = String(this.getUTCHours(d));
+        var minutes: string = (d.getUTCMinutes() < 10 ? "0" : "") + String(d.getUTCMinutes());
+        var amPm: string = (d.getUTCHours() < 12) ? "AM" : "PM";
+        return hours + ":" + minutes + " " + amPm;
     }
     
     static getAgVisible(displayState: any, aggI: string, splitBy: string) {
@@ -226,6 +291,16 @@ class Utils {
             return text;
         var regExp = new RegExp(filter, 'i');
         return text.replace(regExp, function(m){ return '<mark>'+m+'</mark>';});
+    }
+
+    static guid () {
+        var  s4 = () => {
+            return Math.floor((1 + Math.random()) * 0x10000)
+              .toString(16)
+              .substring(1);
+        }
+        return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+               s4() + '-' + s4() + s4() + s4();
     }
 }
 

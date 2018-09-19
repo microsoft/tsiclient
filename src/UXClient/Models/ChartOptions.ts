@@ -1,6 +1,7 @@
 class ChartOptions {
     public aggTopMargin: number; // margin on top of each aggregate line(s)
-    public arcWidthRatio: number; // bumber between 0 and 1 which determines how thic the pie chart arc is
+    public arcWidthRatio: number; // number between 0 and 1 which determines how thic the pie chart arc is
+    public availabilityLeftMargin: number; // number which sets the left margin of the availability chart
     public brushClearable: boolean; // whether to keep the brush selected region upon clear and non-selection of a new region
     public brushContextMenuActions: Array<any>; // pairs of names/actions for context menu for the brush
     public brushHandlesVisible: boolean; // whether handles on the brush are visible
@@ -12,8 +13,10 @@ class ChartOptions {
     public fromChart: boolean; // whether a component is a subcomponent of another one or is a standalone
     public grid: boolean; // whether the chart includes a grid and grid button
     public hideChartControlPanel: boolean; // whether to hide the panel with chart control buttons
+    public includeTimezones: boolean; //whether timezone dropdown is included in dateTimePicker
     public isArea: boolean; // whether lines in LineChart are also areas
     public isCompact: boolean; // whether availability chart is in compact or expanded mode
+    public is24HourTime: boolean; // whether time is displayed in 24, or 12 hour time with am/pm
     public keepBrush: boolean; // whether to keep the brush selected region upon re render
     public keepSplitByColor: boolean; //whether to keep the split By colors when state is updated
     public legend: string; //state of the legend: shown, hidden, or compact
@@ -21,6 +24,7 @@ class ChartOptions {
     public minBrushWidth: number // minimum possible width of brush in linechart
     public minutesForTimeLabels: boolean; // whether time labels forced to minute granularity
     public noAnimate: boolean; // whether animations happen on state change
+    public offset: any; // offset for all timestamps in minutes from UTC
     public onMouseout: () => void;
     public onMouseover: (aggKey: string, splitBy: string) => void;
     public onSticky: (aggKey: string, splitBy: string) => void;
@@ -82,8 +86,8 @@ class ChartOptions {
         this.zeroYAxis = this.getValueOrDefault( chartOptionsObj, 'zeroYAxis', true);
         this.arcWidthRatio = this.getValueOrDefault(chartOptionsObj, 'arcWidthRatio', 0);
         this.brushClearable = this.getValueOrDefault(chartOptionsObj, 'brushClearable', true);
-        this.brushMoveAction = this.getValueOrDefault(chartOptionsObj, 'brushMoveAction', null);
-        this.brushMoveEndAction = this.getValueOrDefault(chartOptionsObj, 'brushMoveEndAction', null);
+        this.brushMoveAction = this.getValueOrDefault(chartOptionsObj, 'brushMoveAction', () => {});
+        this.brushMoveEndAction = this.getValueOrDefault(chartOptionsObj, 'brushMoveEndAction', () => {});
         this.yAxisState = this.getValueOrDefault(chartOptionsObj, 'yAxisState', 'stacked');
         this.xAxisHidden = this.getValueOrDefault(chartOptionsObj, 'xAxisHidden', false);
         this.suppressResizeListener = this.getValueOrDefault(chartOptionsObj, 'suppressResizeListener', false);
@@ -93,6 +97,10 @@ class ChartOptions {
         this.onUnsticky = this.getValueOrDefault(chartOptionsObj, 'onUnsticky', () => {});
         this.brushHandlesVisible = this.getValueOrDefault(chartOptionsObj, 'brushHandlesVisible', false);
         this.hideChartControlPanel = this.getValueOrDefault(chartOptionsObj, 'hideChartControlPanel', false);
+        this.offset = this.getValueOrDefault(chartOptionsObj, 'offset', 0);
+        this.is24HourTime = this.getValueOrDefault(chartOptionsObj, 'is24HourTime', true);
+        this.includeTimezones = this.getValueOrDefault(chartOptionsObj, 'includeTimezones', true);
+        this.availabilityLeftMargin = this.getValueOrDefault(chartOptionsObj, 'availabilityLeftMargin', 60);
     }
 
     public toObject () {
@@ -137,7 +145,11 @@ class ChartOptions {
             onSticky: this.onSticky,
             onUnsticky: this.onUnsticky,
             brushHandlesVisible: this.brushHandlesVisible,
-            hideChartControlPanel: this.hideChartControlPanel
+            hideChartControlPanel: this.hideChartControlPanel,
+            offset: this.offset,
+            is24HourTime: this.is24HourTime.valueOf,
+            includeTimezones: this.includeTimezones,
+            availabilityLeftMargin: this.availabilityLeftMargin
         }
     }
 }

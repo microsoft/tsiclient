@@ -1,0 +1,41 @@
+@import "../../styles";
+
+
+@mixin timezonePickerColors($grays){
+    $gray1: nth($grays, 1); // text
+    $gray2: nth($grays, 2); // hover
+    $gray3: nth($grays, 3); // element
+    $gray4: nth($grays, 4); // background
+    $gray5: nth($grays, 5);
+
+    background-color: $gray3;
+    color: $gray1;
+
+    .tsi-select, .tsi-select option {
+        color: $gray1;
+        background-color: $gray3;
+    }
+}
+
+.tsi-timezonePicker {
+    &.tsi-dark{
+		$grays: grays('dark');
+        @include timezonePickerColors($grays);
+	}
+	&.tsi-light{
+		$grays: grays('light');
+		@include timezonePickerColors($grays);
+    }
+ 
+}
+
+.tsi-select {
+    margin: 0px;
+    top: 4px;
+    appearance: none;
+    background: url(../../Icons/chevron.svg) 16px / 16px no-repeat;
+    background-position-y: 12px;
+    background-position-x: calc(100% - 4px);
+    width: 160px;
+    display: block;
+}   

@@ -19,16 +19,18 @@
         "style-loader": "^0.19.1",
         "svg-inline-loader": "^0.8.0",
         "ts-loader": "^3.5.0",
-        "typescript": "^2.9.2",
-        "url-loader": "^1.0.1"
+        "typescript": "^2.7.2",
+        "url-loader": "^1.1.0"
     },
     "dependencies": {
         "@types/awesomplete": "^1.1.8",
         "@types/d3": "^4.13.0",
         "awesomplete": "^1.1.2",
         "d3": "^4.13.0",
-        "npm": "^6.3.0",
-        "promise-polyfill": "^7.1.2",
-        "webpack": "^3.12.0"
+        "moment-timezone": "^0.5.21",
+        "npm": "^6.4.0",
+        "pikaday": "^1.7.0",
+        "promise-polyfill": "^7.1.0",
+        "webpack": "^3.11.0"
     }
 }

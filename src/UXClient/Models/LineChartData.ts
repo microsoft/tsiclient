@@ -5,6 +5,7 @@ class LineChartData extends ChartComponentData {
     public events: any;
     public states: any;
     public visibleEventsAndStatesCount: number = 0;
+    public timeMap: any = {};
 
     public updateVisibleEventsAndStatesCount () {
         this.visibleEventsAndStatesCount = 0;
@@ -21,6 +22,23 @@ class LineChartData extends ChartComponentData {
                     this.visibleEventsAndStatesCount += 1;
             });
         }
+    }
+
+    public setTimeMap () {
+        this.timeMap = this.allValues.reduce ((timeMap, currVal) => {
+            var millis = currVal.dateTime.valueOf();
+            if (currVal.bucketSize != undefined) {
+                millis += (currVal.bucketSize / 2);
+            }
+            if (currVal.measures != null) {
+                if (timeMap[millis] == undefined) {
+                    timeMap[millis] = [currVal];
+                } else {
+                    timeMap[millis].push(currVal);
+                }    
+            }
+            return timeMap;
+        }, {});
     }
 
 	constructor(){

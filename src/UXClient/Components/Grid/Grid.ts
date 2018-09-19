@@ -2,6 +2,7 @@ import * as d3 from 'd3';
 import './Grid.scss';
 import {Utils} from "./../../Utils";
 import {Component} from "./../../Interfaces/Component";
+import { ChartOptions } from '../../Models/ChartOptions';
 
 class Grid extends Component {
 	private gridComponent: any;
@@ -10,6 +11,7 @@ class Grid extends Component {
 
 	public usesSeconds: boolean = false;
 	public usesMillis:boolean = false;
+	public chartOptions: ChartOptions = new ChartOptions
 
 	constructor(renderTarget: Element){
 		super(renderTarget);
@@ -19,6 +21,7 @@ class Grid extends Component {
 	}
 	
 	public renderFromAggregates(data: any, options: any, aggregateExpressionOptions: any) {
+		this.chartOptions.setOptions(options);
 		var dataAsJson = data.reduce((p,c,i) => {
 			var aeName = Object.keys(c)[0]; 
 			Object.keys(c[aeName]).forEach(sbName => {
@@ -37,6 +40,7 @@ class Grid extends Component {
 	}
 	
 	public render(data: any, options: any, aggregateExpressionOptions: any) {
+		this.chartOptions.setOptions(options);
 		var targetElement = d3.select(this.renderTarget);
 		if(targetElement.style("position") == "static")
 			targetElement.style("position", "relative")
@@ -61,7 +65,7 @@ class Grid extends Component {
 				headersRow.append('th').attr("tabindex", 0).attr("class", cellClass(0, i+1)).on("keydown", () => {arrowNavigate(d3.event, 0, i+1)}).text(() => {
 					var hAsDate = <any>(new Date(h));
 					if(hAsDate != 'Invalid Date')
-						return Utils.timeFormat(this.usesSeconds, this.usesMillis)(hAsDate);
+						return Utils.timeFormat(this.usesSeconds, this.usesMillis, this.chartOptions.offset)(hAsDate);
 					return h;
 				})
 			});
