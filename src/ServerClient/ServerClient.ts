@@ -70,10 +70,15 @@ class ServerClient {
         })
     }
 
-    public getTimeseriesInstances(token: string, environmentFqdn: string) {
-        return new Promise((resolve: any, reject: any) => {
-            this.getDataWithContinuationBatch(token, resolve, reject, [], 'https://' + environmentFqdn + '/timeseries/instances/' + this.apiVersionUrlParam, 'GET', 'instances');
-        });        
+    public getTimeseriesInstances(token: string, environmentFqdn: string, timeSeriesIds: Array<any> = null) {
+        if(!timeSeriesIds) {
+            return new Promise((resolve: any, reject: any) => {
+                this.getDataWithContinuationBatch(token, resolve, reject, [], 'https://' + environmentFqdn + '/timeseries/instances/' + this.apiVersionUrlParam, 'GET', 'instances');
+            });        
+        }
+        else {
+            return this.createPromiseFromXhr('https://' + environmentFqdn + '/timeseries/instances/$batch' + this.apiVersionUrlParam, "POST", JSON.stringify({get: timeSeriesIds}), token, (responseText) => {return JSON.parse(responseText);});
+        }
     }
     
     public getTimeseriesTypes(token: string, environmentFqdn: string) {

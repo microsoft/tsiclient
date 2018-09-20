@@ -23,6 +23,13 @@
     .tsi-showMore{
         color: $gray6;
     }
+    .tsi-modelSearchInstances{
+        > div{
+            &:hover{
+                background: $gray2;
+            }
+        }
+    }
     :global{
         .awesomplete > ul {
             background: $gray4;
@@ -148,14 +155,18 @@
         }
         .tsi-modelSearchInstances{
             flex-grow: 1;
-            .tsi-modelResult{
-                margin: 8px;
-                .tsi-modelPK{
-                    font-weight: 600;
-                }
-                .tsi-modelHighlights{
-                    font-size: 11px;
-                    margin-left: 8px;
+            > div{
+                cursor: pointer;
+                .tsi-modelResult{
+                    margin: 8px;
+                    pointer-events: none;
+                    .tsi-modelPK{
+                        font-weight: 600;   
+                    }
+                    .tsi-modelHighlights{
+                        font-size: 11px;
+                        margin-left: 8px;
+                    }
                 }
             }
         }

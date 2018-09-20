@@ -5,28 +5,40 @@ import {Component} from "./../../Interfaces/Component";
 import {ServerClient} from '../../../ServerClient/ServerClient';
 import 'awesomplete';
 import { Hierarchy } from '../Hierarchy/Hierarchy';
+import { ChartOptions } from '../../Models/ChartOptions';
 
 class ModelSearch extends Component{
-    private server; 
+    private server: ServerClient; 
     private model;
+    private hierarchies;
+    private clickedInstance;
     private types;
+	public chartOptions: ChartOptions = new ChartOptions;
     private usedContinuationTokens = {};
+    private contextMenu; 
 
-	constructor(renderTarget: Element){
+	constructor(renderTarget: Element){ 
         super(renderTarget); 
         this.server = new ServerClient();
+        d3.select("html").on("click." + Utils.guid(), () => {
+            if (this.clickedInstance && d3.event.target != this.clickedInstance && this.contextMenu) {
+                this.closeContextMenu();
+                this.clickedInstance = null;
+            }
+        })
 	}
 
 	ModelSearch(){
 	}
 	
-	public render(environmentFqdn: string, getToken: any, hierarchyData: any, options: any){
+	public render(environmentFqdn: string, getToken: any, hierarchyData: any, chartOptions: any){
+        this.chartOptions.setOptions(chartOptions);
         let self = this;
         let continuationToken, searchText;
         let targetElement = d3.select(this.renderTarget);	
         targetElement.html('');	
         let wrapper = targetElement.append('div').attr('class', 'tsi-modelSearchWrapper');
-        super.themify(wrapper, options && options.theme ? options.theme : null);
+        super.themify(wrapper, this.chartOptions.theme);
         let inputWrapper = wrapper.append("div")
             .attr("class", "tsi-modelSearchInputWrapper");
         let input = inputWrapper.append("input")
@@ -36,8 +48,6 @@ class ModelSearch extends Component{
         let ap = new Awesomplete(input.node(), {minChars: 1});
         let noSuggest = false;
         (input.node() as any).addEventListener('awesomplete-selectcomplete', () => {noSuggest = true; input.dispatch('input'); ap.close();});
-
-        let onClick = (v) => {console.log(v)};
 
         let results = wrapper.append('div')
             .attr("class", "tsi-modelSearchResults").on('scroll', function(){
@@ -53,7 +63,7 @@ class ModelSearch extends Component{
         let hierarchyElement = wrapper.append('div')
             .attr("class", "tsi-hierarchyWrapper");
         let hierarchy = new Hierarchy(hierarchyElement.node() as any);
-        hierarchy.render(hierarchyData, options);
+        hierarchy.render(hierarchyData, this.chartOptions);
 
         input.on('keyup', function(){
             if(d3.event.which === 13 || d3.event.keyCode === 13){
@@ -64,13 +74,13 @@ class ModelSearch extends Component{
 
         input.on('input', function() { 
             searchText = (<any>this).value;
+            self.usedContinuationTokens = {};
 
             // blow results away if no text
             if(searchText.length === 0){
                 instanceResults.html('');
                 (hierarchyElement.node() as any).style.display = 'block';
                 (showMore.node() as any).style.display = 'none';
-                self.usedContinuationTokens = {};
                 return;
             }
             (hierarchyElement.node() as any).style.display = 'none';
@@ -88,6 +98,7 @@ class ModelSearch extends Component{
         })
 
         let searchInstances = (searchText, ct = null) => {
+            var self = this;
             if(ct === 'END')
                 return;
             if(ct === null || !self.usedContinuationTokens[ct]){
@@ -99,7 +110,22 @@ class ModelSearch extends Component{
                             continuationToken = 'END';
                         (showMore.node() as any).style.display = continuationToken !== 'END' ? 'block' : 'none';
                         r.instances.forEach(i => {
-                            instanceResults.append('div').html(self.getInstanceHtml(i)).on('click', () => onClick(JSON.stringify(i)));                            
+                            instanceResults.append('div').html(self.getInstanceHtml(i)).on('click', function() {
+                                self.closeContextMenu();
+                                if(self.clickedInstance != this){
+                                    self.clickedInstance = this;
+                                    i.type = self.types.filter(t => t.name === i.highlights.type)[0];
+                                    let contextMenuActions = self.chartOptions.onInstanceClick(i);
+                                    self.contextMenu = d3.select(this).append('div').classed('tsi-modelSearchContextMenu', true);
+                                    let contextMenuOptions = self.contextMenu.append('ul');
+                                    Object.keys(contextMenuActions).forEach(k => {
+                                        contextMenuOptions.append('li').html(k).on('click', contextMenuActions[k]);
+                                    });
+                                }
+                                else{
+                                    self.clickedInstance = null;
+                                }
+                            });                            
                         })
                     })
                 })
@@ -113,12 +139,24 @@ class ModelSearch extends Component{
             })
         })
 
+        getToken().then(token => {
+            this.server.getTimeseriesHierarchies(token, environmentFqdn).then(r => {
+                this.hierarchies = r.hierarchies;
+            })
+        })
+
         // get types
         getToken().then(token => {
             this.server.getTimeseriesTypes(token, environmentFqdn).then(r => {
                 this.types = r.types;
             })
         })
+    }
+
+    private closeContextMenu() {
+        if(this.contextMenu){
+            this.contextMenu.remove();
+        }
     }
 
     private getInstanceHtml(i) {
