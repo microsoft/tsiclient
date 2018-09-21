@@ -6,7 +6,7 @@
     $gray3: nth($grays, 3); // element
     $gray4: nth($grays, 4); // background
     $gray5: nth($grays, 5); // alt element
-    $gray6: nth($grays, 6);
+    $gray6: nth($grays, 6); // alt border
 
     color: $gray1;
 	
@@ -24,18 +24,36 @@
             }
         }
     }
+    &.tsi-ellipsisMenuShown{
+        .tsi-ellipsisButton{
+            background-color: $gray2;
+        }
+    }
 }
 
 .tsi-ellipsisMenuContainer {
     left: 0px;
     top: 0px;
-    width: 16px;
-    height: 16px;
+    width: 24px;
+    height: 24px;
+
+    &.tsi-ellipsisMenuShown{
+        .tsi-ellipsisMenu{
+            animation: tsi-slideIn 0.367s cubic-bezier(0.1, 0.9, 0.2, 1) forwards;
+            display: block;
+        }
+    }
 
     .tsi-ellipsisButton {
         cursor: pointer;
         width: 100%;
         height: 100%;
+        background-repeat: no-repeat;
+        display: flex;
+        background-position-x: 2px;
+        background-position-y: 3px;
+        border-radius: 2px;
+        transition: background-color .15s ease;
     }
 
     .tsi-ellipsisMenu {
@@ -45,11 +63,12 @@
         border-style: solid;
         cursor: pointer;
         min-width: 160px;
-        top: 20px;
+        top: 24px;
         right: 0;
         white-space: nowrap;
         z-index: 10000;
         padding: 4px 0;
+        display: none;
 
         .tsi-ellipsisMenuItem {
             overflow: hidden;
@@ -60,6 +79,8 @@
             align-items: center;
             
             .tsi-ellipsisMenuIcon {
+                background-size: 20px 20px;
+                background-repeat: no-repeat;
                 height: 20px;
                 width: 20px; 
                 margin-right: 12px;
@@ -90,16 +111,19 @@
         $grays: grays('dark');
         @include ellipsisMenuColors($grays);
         .tsi-ellipsisButton {
-            background-image: url(../../Icons/ellipsis_dark_theme_PLACEHOLDER.svg);            
+            background-size: 20px 20px;
+            background-image: url(../../Icons/Ellipsis_Icon_Dark_Theme.svg);            
         }
 
         .tsi-ellipsisMenu {
             .tsi-ellipsisMenuItem {
                 .tsi-ellipsisMenuIcon {
                     &.flagIcon {
+                        background-size: 20px 20px;
                         background-image: url(../../Icons/flag_dark_theme.svg);
                     }
                     &.gridIcon {
+                        background-size: 20px 20px;
                         background-image: url(../../Icons/Grid_Icon_Dark_Theme.svg);
                     }
                 }
@@ -110,7 +134,8 @@
         $grays: grays('light');
         @include ellipsisMenuColors($grays);
         .tsi-ellipsisButton {
-            background-image: url(../../Icons/ellipsis_light_theme_PLACEHOLDER.svg);            
+            background-size: 20px 20px;
+            background-image: url(../../Icons/Ellipsis_Icon_Light_Theme.svg);            
         }
 
         .tsi-ellipsisMenu {

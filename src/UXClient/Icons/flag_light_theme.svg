@@ -1,11 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 16 16">
-    <defs>
-        <style>
-            .cls-1 {
-                stroke: black;
-                fill: black;
-            }
-        </style>
-    </defs>
-    <path d="M3.5 4.25v10.25h0.5v-7.5h7.5v-5.5h-8v2.75z" class="cls-1"></path>
+<svg xmlns="http://www.w3.org/2000/svg" width="17" height="15" viewBox="0 0 17 15" fill="none">
+<path opacity="0.25" d="M1.30005 2.4004H13.76V8.9691H1.30005L5.12988 5.6848L1.30005 2.4004Z" stroke="black" stroke-linejoin="bevel"/>
+<path d="M2.29004 2.2129H14.75V8.7816H2.29004L6.11011 5.4973L2.29004 2.2129Z" fill="#E9E9E9" stroke="#666666" stroke-linejoin="bevel"/>
+<path d="M15.6938 1H14.54V14H15.6938V1Z" fill="#3195E3"/>
 </svg>

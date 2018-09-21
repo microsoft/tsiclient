@@ -21,6 +21,7 @@ class LineChart extends ChartComponent {
     private contextMenu: ContextMenu;
     private brushContextMenu: ContextMenu;
     private setDisplayStateFromData: any;
+    private width: number;
     private chartWidth: number;
     private chartHeight: number;
     public draw: any;
@@ -63,6 +64,8 @@ class LineChart extends ChartComponent {
     private hasBrush: boolean = false;
     private isDroppingScooter: boolean = false;
     private isClearingBrush: boolean = false;
+
+    private isFirstMarkerDrop = true;
     
     public chartMargins: any = {
         top: 40,
@@ -151,6 +154,17 @@ class LineChart extends ChartComponent {
                 .classed("standardYAxisText", false)
                 .style("font-weight", "normal");
         }
+    }
+
+    private createMarkerInstructions () {
+        this.targetElement.selectAll(".tsi-markerInstructions").remove();
+        this.targetElement.append("div")
+            .classed("tsi-markerInstructions", true)
+            .html("Click to drop marker, drag to reposition."); 
+    }
+
+    private destroyMarkerInstructions() {
+        this.targetElement.selectAll(".tsi-markerInstructions").remove();
     }
     
     private tooltipFormat (d, text) {
@@ -415,14 +429,21 @@ class LineChart extends ChartComponent {
         return this.chartMargins.left + (this.chartOptions.legend == "shown" ? legendWidth : 0);
     }
 
-    private setScooterPosition (scooter, rawMillis: number) {
-        var closestTime = this.findClosestValidTime(rawMillis);
-        this.scooterGuidMap[scooter.datum()] = closestTime;
-        scooter.style("display", "block");
-        scooter.style("left", (d) => {
-            var closestTime = this.scooterGuidMap[d];
-            return (Math.round(this.x(closestTime) + this.getScooterMarginLeft()) + "px");
-        });
+    private setScooterPosition (scooter, rawMillis: number = null) {
+        var closestTime;
+        if (rawMillis != null) {
+            closestTime = this.findClosestValidTime(rawMillis);
+            this.scooterGuidMap[scooter.datum()] = closestTime;    
+        }
+        closestTime = this.scooterGuidMap[scooter.datum()];
+        scooter.style("display", "block")
+            .style("left", (d) => {
+                var closestTime = this.scooterGuidMap[d];
+                return (Math.round(this.x(closestTime) + this.getScooterMarginLeft()) + "px");
+            })
+            .style("top", this.chartMargins.top + this.chartOptions.aggTopMargin + "px")
+            .style("height", this.height - (this.chartMargins.top + this.chartMargins.bottom + this.chartOptions.aggTopMargin) + "px");
+
         d3.select(this.renderTarget).selectAll(".tsi-scooterContainer").sort((a: string, b: string) =>  { 
             return (this.scooterGuidMap[a] < this.scooterGuidMap[b]) ? 1 : -1;            
         });
@@ -437,7 +458,31 @@ class LineChart extends ChartComponent {
             this.chartOptions.offset, this.chartOptions.is24HourTime);
         var dateToTime = (t) => timeFormat(t).split(" ")[1];
         var text = dateToTime(firstValue) + " - " + dateToTime(secondValue);
-        scooter.select(".tsi-scooterTimeLabel").html(text);        
+        var timeLabel = scooter.select(".tsi-scooterTimeLabel");
+        timeLabel.html(text)
+            .append("div")
+            .classed("tsi-closeButton", true)
+            .on("click", function () {
+                d3.select(d3.select(this).node().parentNode.parentNode).remove();
+            });
+
+        var scooterLeft: number = Number(scooter.style("left").replace("px", ""));
+        var timeLabelWidth: number = Math.round(timeLabel.node().getBoundingClientRect().width);
+        var minLeftPosition = this.getScooterMarginLeft() + 20;
+        var maxRightPosition = this.width - this.chartMargins.right;
+        var calculatedLeftPosition = scooterLeft - (timeLabelWidth / 2);
+        var calculatedRightPosition = scooterLeft + (timeLabelWidth / 2);
+        var translate = "translateX(calc(-50% + 1px))";
+        if (calculatedLeftPosition < minLeftPosition) {
+            translate = "translateX(-" + Math.max(0, scooterLeft - minLeftPosition) + "px)";
+        }
+        if (calculatedRightPosition > maxRightPosition) {
+            translate = "translateX(calc(-50% + " + (maxRightPosition - calculatedRightPosition) + "px))";
+        }
+
+        scooter.select(".tsi-scooterTimeLabel")
+            .style("-webkit-tranform", translate)
+            .style("transform", translate);
     }
 
     private calcTopOfScooterValueLabel (d) {
@@ -489,7 +534,11 @@ class LineChart extends ChartComponent {
         return !(filteredValues == null || filteredValues.length == 0)
     }
 
-    private scooterButtonClick ()  {
+    private scooterButtonClick = () => {
+        if (this.isFirstMarkerDrop) {
+            this.isFirstMarkerDrop = false;
+            this.createMarkerInstructions();
+        }
         this.setIsDroppingScooter(!this.isDroppingScooter); 
         if (!this.isDroppingScooter) {
             this.activeScooter.remove();
@@ -521,20 +570,24 @@ class LineChart extends ChartComponent {
             .on("contextmenu", function () {
                 d3.select(d3.select(this).node().parentNode).remove();
                 d3.event.preventDefault();
-            })
-            .call(d3.drag()
-            .on("start drag", function (d) { 
-                var scooter = d3.select(<any>d3.select(this).node().parentNode);
-                var currMillis: number = Number(self.scooterGuidMap[String(scooter.datum())]);
-                var startPosition = self.x(new Date(currMillis));
-                var newPosition = startPosition + d3.event.x;
-                self.setScooterPosition(scooter, self.x.invert(newPosition).valueOf());
-                self.setScooterLabels(scooter);
-                self.setScooterTimeLabel(scooter);
-            })
-        );
-        this.activeScooter.append("div")
+            });
+        var timeLabel = this.activeScooter.append("div")
             .attr("class", "tsi-scooterTimeLabel");
+
+        this.activeScooter.selectAll(".tsi-scooterDragger,.tsi-scooterTimeLabel,.tsi-scooterLine")
+            .call(d3.drag()
+                .on("drag", function (d) { 
+                    var scooter = d3.select(<any>d3.select(this).node().parentNode);
+                    var currMillis: number = Number(self.scooterGuidMap[String(scooter.datum())]);
+                    var startPosition = self.x(new Date(currMillis));
+                    var newPosition = startPosition + d3.event.x;
+                    self.setScooterPosition(scooter, self.x.invert(newPosition).valueOf());
+                    self.setScooterLabels(scooter);
+                    self.setScooterTimeLabel(scooter);
+                })
+            );
+
+        this.activeScooter.style("pointer-events", "none");
     }
 
     private voronoiMousemove (mouseEvent)  { 
@@ -590,8 +643,12 @@ class LineChart extends ChartComponent {
             this.chartOptions.onSticky(site.data.aggregateKey, site.data.splitBy);    
         } 
 
+        this.destroyMarkerInstructions();
         this.setIsDroppingScooter(false);
-        this.activeScooter = null;
+        if (this.activeScooter != null) {
+            this.activeScooter.style("pointer-events", "all");
+            this.activeScooter = null;    
+        }
     }
 
     private getValueOfVisible (d) {
@@ -993,7 +1050,7 @@ class LineChart extends ChartComponent {
         this.hasBrush = options.brushMoveAction || options.brushMoveEndAction || options.brushContextMenuActions;
         this.chartOptions.setOptions(options);
         this.aggregateExpressionOptions = aggregateExpressionOptions;
-        var width = Math.max((<any>d3.select(this.renderTarget).node()).clientWidth, this.MINWIDTH);
+        this.width = Math.max((<any>d3.select(this.renderTarget).node()).clientWidth, this.MINWIDTH);
         this.height = Math.max((<any>d3.select(this.renderTarget).node()).clientHeight, this.MINHEIGHT);
         if (this.chartOptions.legend == "compact")
             this.chartMargins.top = 72;
@@ -1015,7 +1072,7 @@ class LineChart extends ChartComponent {
 
         this.timelineHeight = (this.chartComponentData.visibleEventsAndStatesCount * 10);
         this.chartHeight = Math.max(1, this.height - this.chartMargins.bottom - this.chartMargins.top - this.timelineHeight); 
-        this.chartWidth = Math.max(1, width - this.chartMargins.left - this.chartMargins.right - (this.chartOptions.legend == "shown" ? this.CONTROLSWIDTH : 0));
+        this.chartWidth = Math.max(1, this.width - this.chartMargins.left - this.chartMargins.right - (this.chartOptions.legend == "shown" ? this.CONTROLSWIDTH : 0));
 
         if (this.brush && this.svgSelection.select('.svgGroup').select(".brushElem") && !this.chartOptions.keepBrush) {
             this.svgSelection.select('.svgGroup').select(".brushElem").call(this.brush.move, null);
@@ -1124,8 +1181,8 @@ class LineChart extends ChartComponent {
                 this.chartComponentData.updateVisibleEventsAndStatesCount();
                 this.timelineHeight = (this.chartComponentData.visibleEventsAndStatesCount * 10);
       
-                width = Math.max((<any>d3.select(this.renderTarget).node()).clientWidth, this.MINWIDTH);
-                this.chartWidth = Math.max(0, width - this.chartMargins.left - this.chartMargins.right - (this.chartOptions.legend == "shown" ? this.CONTROLSWIDTH : 0));
+                this.width = Math.max((<any>d3.select(this.renderTarget).node()).clientWidth, this.MINWIDTH);
+                this.chartWidth = Math.max(0, this.width - this.chartMargins.left - this.chartMargins.right - (this.chartOptions.legend == "shown" ? this.CONTROLSWIDTH : 0));
                 this.height = Math.max((<any>d3.select(this.renderTarget).node()).clientHeight, this.MINHEIGHT);
                 this.chartHeight = Math.max(1, this.height - this.chartMargins.bottom - this.chartMargins.top - this.timelineHeight); 
 
@@ -1154,7 +1211,7 @@ class LineChart extends ChartComponent {
 
                     this.hasStackedButton = true;
                     this.stackedButton = chartControlsPanel.append("div")
-                        .style("left", this.chartMargins.left + "px")
+                        .style("left", "60px")
                         .attr("class", "tsi-stackedButton")
                         .on("click", () => {
                             if (this.yAxisState == "stacked") 
@@ -1167,52 +1224,6 @@ class LineChart extends ChartComponent {
                         });
 
                     var self = this;
-
-                    var onScooterClick = function () {
-                        self.setIsDroppingScooter(!self.isDroppingScooter); 
-                        if (!self.isDroppingScooter) {
-                            self.activeScooter.remove();
-                            return;
-                        }
-
-                        var scooterUID = Utils.guid();
-                        self.scooterGuidMap[scooterUID] = 0;
-
-                        self.activeScooter = d3.select(self.renderTarget).append("div")
-                            .datum(scooterUID)
-                            .attr("class", "tsi-scooterContainer")
-                            .style("top", self.chartMargins.top + self.chartOptions.aggTopMargin + "px")
-                            .style("height", self.height - (self.chartMargins.top + self.chartMargins.bottom + self.chartOptions.aggTopMargin) + "px")
-                            .style("display", "none");
-                        
-                        self.activeScooter.append("div")
-                            .attr("class", "tsi-scooterLine");
-                        self.activeScooter.append("div")
-                            .attr("class", "tsi-scooterDragger")
-                            .on("mouseover", function () {
-                                d3.select(this).classed("tsi-isHover", true);
-                            })
-                            .on("mouseout", function () {
-                                d3.select(this).classed("tsi-isHover", false);
-                            })
-                            .on("contextmenu", function () {
-                                d3.select(d3.select(this).node().parentNode).remove();
-                                d3.event.preventDefault();
-                            })
-                            .call(d3.drag()
-                            .on("start drag", function (d) { 
-                                var scooter = d3.select(<any>d3.select(this).node().parentNode);
-                                var currMillis: number = Number(self.scooterGuidMap[String(scooter.datum())]);
-                                var startPosition = self.x(new Date(currMillis));
-                                var newPosition = startPosition + d3.event.x;
-                                self.setScooterPosition(scooter, self.x.invert(newPosition).valueOf());
-                                self.setScooterLabels(scooter);
-                                self.setScooterTimeLabel(scooter);
-                            })
-                        );
-                        self.activeScooter.append("div")
-                            .attr("class", "tsi-scooterTimeLabel");
-                    }
 
                     var showGrid = () => {
                         this.chartOptions.fromChart = true; 
@@ -1230,8 +1241,8 @@ class LineChart extends ChartComponent {
 
                     var ellipsisItems = [{
                         iconClass: "flag",
-                        label: "Drop a Scooter",
-                        action: onScooterClick,
+                        label: "Drop a Marker",
+                        action: this.scooterButtonClick,
                         description: ""
                     }];
 
@@ -1534,8 +1545,13 @@ class LineChart extends ChartComponent {
             this.brushContextMenu = new ContextMenu(draw, this.renderTarget);
             this.draw = draw;
             window.addEventListener("resize", () => {
-                if (!this.chartOptions.suppressResizeListener)   
+                var self = this;
+                if (!this.chartOptions.suppressResizeListener) {
                     this.draw();
+                    d3.select(this.renderTarget).selectAll(".tsi-scooterContainer").each(function () {
+                        self.setScooterPosition(d3.select(this));
+                    });
+                }
             });
 
             var eventSeriesWrappers;

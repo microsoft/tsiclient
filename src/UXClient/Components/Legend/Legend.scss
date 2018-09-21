@@ -49,7 +49,6 @@
 	overflow-y: auto;
 	overflow-x: hidden;
 	height: calc(100% - 16px);
-	padding: 8px;
 	&.tsi-dark{
         $grays: grays('dark');
         @include legendColors($grays);

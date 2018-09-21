@@ -5,6 +5,7 @@ import {Component} from "./../../Interfaces/Component";
 
 class EllipsisMenu extends Component {
 
+    private containerElement: any;
     private buttonElement: any;
     private menuElement: any;
     private menuItems: Array<any>;
@@ -21,17 +22,17 @@ class EllipsisMenu extends Component {
 
     public setMenuVisibility(isVisible) {
         this.menuIsVisible = isVisible;
-        this.menuElement.style("display", this.menuIsVisible ? "block" : "none");
+        this.containerElement.classed("tsi-ellipsisMenuShown", this.menuIsVisible);
     }
 
     public render (menuItems, options: any = {}) {
         this.menuIsVisible = false;
 
-        var targetElement = d3.select(this.renderTarget).classed("tsi-ellipsisMenuContainer", true);
+        this.containerElement = d3.select(this.renderTarget).classed("tsi-ellipsisMenuContainer", true);
         this.setMenuItems(menuItems);
         d3.select(this.renderTarget).selectAll("*").remove();
         options.theme = options.theme ? options.theme : "dark";
-        super.themify(targetElement, options.theme);
+        super.themify(this.containerElement, options.theme);
 
         this.buttonElement = d3.select(this.renderTarget).insert("div")
             .attr("class", "tsi-ellipsisButton")
@@ -40,8 +41,7 @@ class EllipsisMenu extends Component {
             })
         
         this.menuElement = d3.select(this.renderTarget).insert("div")
-            .attr("class", "tsi-ellipsisMenu")
-            .style("display", "none");
+            .attr("class", "tsi-ellipsisMenu");
 
         var self = this;
         this.menuElement.selectAll(".tsi-ellipsisMenuItem").data(this.menuItems)
