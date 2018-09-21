@@ -1,5 +1,7 @@
 import {Utils} from "./../Utils";
 
+const MAXCARD = 150000;
+
 class AggregateExpression {
     public searchSpan: any;  // from,to,bucketSize as TSX
     public measureObject: any;
@@ -25,10 +27,12 @@ class AggregateExpression {
     public toTsx(roundFromTo: boolean = false){
         var tsx = {};
         let fromMillis = this.searchSpan.from.valueOf(), toMillis = this.searchSpan.to.valueOf();
+        let bucketSizeInMillis = Utils.parseTimeInput(this.searchSpan.bucketSize);
+        let roundedFromMillis = Math.floor((fromMillis + 62135596800000) / (bucketSizeInMillis)) * (bucketSizeInMillis) - 62135596800000; 
+        let roundedToMillis = Math.ceil((toMillis + 62135596800000) / (bucketSizeInMillis)) * (bucketSizeInMillis) - 62135596800000;
         if (roundFromTo) {
-            let bucketSizeInMillis = Utils.parseTimeInput(this.searchSpan.bucketSize);
-            fromMillis = Math.floor((fromMillis + 62135596800000) / (bucketSizeInMillis)) * (bucketSizeInMillis) - 62135596800000;
-            toMillis = Math.ceil((toMillis + 62135596800000) / (bucketSizeInMillis)) * (bucketSizeInMillis) - 62135596800000;
+            fromMillis = roundedFromMillis;
+            toMillis = roundedToMillis;
         }
         tsx['searchSpan'] = {from: (new Date(fromMillis)).toISOString(), to: (new Date(toMillis)).toISOString()}; 
         
@@ -46,7 +50,8 @@ class AggregateExpression {
         var aggregateObject = {};
         var dimensionObject = {dateHistogram: {input: {builtInProperty: "$ts"}, breaks: {size: this.searchSpan.bucketSize}}};
         if(this.splitByObject != null){
-            aggregateObject['dimension'] = {uniqueValues: {input: this.splitByObject, take: 1000}};
+            var bucketsCeil = Math.ceil((roundedToMillis - roundedFromMillis) / bucketSizeInMillis);
+            aggregateObject['dimension'] = {uniqueValues: {input: this.splitByObject, take: Math.floor(MAXCARD / bucketsCeil)}};
             aggregateObject['aggregate'] = {dimension : dimensionObject, measures: measures};
         }
         else{
