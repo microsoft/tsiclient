@@ -1,6 +1,7 @@
+
 <!DOCTYPE html> 
 <html><head>
-    <title>Time Series Insights Sample App</title>
+    <title>Time Series Insights JavaScript SDK Examples</title>
     <meta charset="utf-8">
     <meta http-equiv="cache-control" content="no-cache" />
     <script src="https://secure.aadcdn.microsoftonline-p.com/lib/1.0.11/js/adal.min.js"></script>
@@ -10,13 +11,13 @@
     
     <!-- PROD RESOURCE LINKS -->
     <!-- <link rel="stylesheet" type="text/css" href="sampleStyles.css"></link>
-    <script src="https://unpkg.com/tsiclient@1.1.19/tsiclient.js"></script>
-    <link rel="stylesheet" type="text/css" href="https://unpkg.com/tsiclient@1.1.19/tsiclient.css"></link> -->
+    <script src="https://unpkg.com/tsiclient@1.2.3/tsiclient.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://unpkg.com/tsiclient@1.2.3/tsiclient.css"></link> -->
 
     <!-- DEV RESOURCE LINKS -->
-    <link rel="stylesheet" type="text/css" href="pages/samples/sampleStyles.css"></link>
+    <link rel="stylesheet" type="text/css" href="pages/samples/sampleStyles.css" />
     <script src="dist/tsiclient.js"></script>
-    <link rel="stylesheet" type="text/css" href="dist/tsiclient.css"></link>
+    <link rel="stylesheet" type="text/css" href="dist/tsiclient.css" />
 </head>
 <body>
     <div id="loginModal" style="display: none">
@@ -27,7 +28,7 @@
     </div>
     <div style="height: 100%; position: absolute; top: 0; width: 100%;">
         <div class="header">
-            Time Series Insights Sample App
+            TSI JavaScript SDK Examples
             <pre id="api_response2"></pre>
             <div class="rightSide">
                 <div id="username"></div>
@@ -37,129 +38,35 @@
                     </p>
                 </div>
             </div>
+        </div><div class="chartsWrapper">
+            <div id="selectTitleWrapper">
+                <select value="1" id="selectTitle" class="dark" onchange="showExample(this)">
+                    <option value="1">1. Static Line Charts</option>
+                    <option value="2">2: Multiple Chart Types From the Same Data</option>
+                    <option value="3">3. Charts Gracefully Animating Data In and Out, While Changing Theme</option>
+                    <option value="4">4. Line Chart Updating in Real Time</option>
+                    <option value="5">5. Line Charts With Multiple Series Types</option>
+                    <option value="6">6. Hierarchy Control Coupled With Line Chart</option>
+                    <option value="7">7. Line Chart With a Context Menu Which Generates Pie and Bar Chart</option>
+                    <option value="8">8. A Standalone Accessible Grid</option>
+                    <option value="9">9. Heatmap</option>
+                    <option value="10">10. A Table of Events</option>
+                    <option value="11">11. An Availability Chart</option>
+                </select>
+            </div>
+            <div id="charts">
+            </div>
         </div>
-       
-        <div class="chartsWrapper">
-            
-            <div class="rowOfCardsTitle">Static Line Charts With Full Size Legends</div>
-            <div class="rowOfCards">
-                <div class="card" style="flex-shrink: 1; height: 100%; width: 45%;">
-                    <div style="color: black; background: white; border-bottom: 1px solid silver;" class="cardTitle">3 Factory Pressures, Light Theme</div>
-                    <div class="cardChart" id="chart1"></div>
-                </div>
-                <div class="card dark" style="flex-shrink: 1; height: 100%; width: 45%;">
-                    <div class="cardTitle dark">Factory 3 Temp, Split by Station ID
-                        <!-- URL parameters enables creating views programatically in the TSI explorer -->
-                        <a style="margin: 0 40px;" target="_blank" href=https://insights.timeseries.azure.com/samples?environmentId=10000000-0000-0000-0000-100000000108&from=1492261200000&to=1492264800000&timeBucketUnit=Minutes&timeBucketSize=2&timeSeriesDefinitions=[{%22name%22:%22Factory3Temp%22,%22splitBy%22:%22Station%22,%22measureName%22:%22Temperature%22,%22predicate%22:%22%27Factory3%27%22}]>View in TSI Explorer</a>
-                    </div>
-                    <div class="cardChart" id="chart2"></div>
-                </div>
-            </div>
-
-            <div class="rowOfCardsTitle">Multiple Chart Types From the Same Data</div>
-            <div class="rowOfCards">
-                <div class="card" style="flex-shrink: 1; height: 100%; width: 30%;">
-                    <div class="cardTitle">Factory Temps Split by Station as a Line Chart, Light Theme</div>
-                    <div class="cardChart" id="chart3"></div>
-                </div>
-                <div class="card dark" style="flex-shrink: 1; height: 100%; width: 30%;">
-                    <div class="cardTitle dark">Factory Temps Split by Station as a Bar Chart</div>
-                    <div class="cardChart" id="chart4"></div>
-                </div>
-                <div class="card" style="flex-shrink: 1; height: 100%; width: 30%;">
-                    <div class="cardTitle">Factory Temps Split by Station as a Pie Chart, Light Theme</div>
-                    <div class="cardChart" id="chart5"></div>
-                </div>
-            </div>
-            
-            <div class="rowOfCardsTitle">Charts Gracefully Animating Data In and Out, While Changing Theme</div>
-            <div class="rowOfCards">
-                <div class="card dark" style="flex-shrink: 1; height: 100%; width: 30%;">
-                    <div class="cardTitle dark">Factory 3 +/- Factory 1 as a Line Chart</div>
-                    <div class="cardChart" id="chart6"></div>
-                </div>
-                <div class="card dark" style="flex-shrink: 1; height: 100%; width: 30%;">
-                    <div class="cardTitle dark">Factory 3 +/- Factory 1 as a Bar Chart, Relative Y Axis</div>
-                    <div class="cardChart" id="chart7"></div>
-                </div>
-                <div class="card dark" style="flex-shrink: 1; height: 100%; width: 30%;">
-                    <div class="cardTitle dark">Factory 3 +/- Factory 1 as a Pie Chart</div>
-                    <div class="cardChart" id="chart7a"></div>
-                </div>
-            </div>
-            
-            <div class="rowOfCardsTitle">Line Charts Updating in Real Time</div>
-            <div class="rowOfCards">
-                <div class="card" style="flex-shrink: 1; height: 100%; width: 95%;">
-                    <div class="cardChart" style="height: 100%" id="chart8"></div>
-                </div>
-            </div>
-
-            <div class="rowOfCardsTitle">Line Charts with Multiple Series Types</div>
-            <div class="rowOfCards" style="height: 620px;">
-                <div class="card" style="flex-shrink: 1; height: 600px; width: 90%;">
-                    <div class="cardChart" style="height: 100%" id="chart10"></div>
-                </div>
-            </div>
-
-            <div class="rowOfCardsTitle">Tag-Centric Hierarchy Control</div>
-            <div style="justify-content: center" class="rowOfCards">
-                <div class="card" style="flex-shrink: 1; height: 400px; width: 300px;">
-                    <div class="cardChart" style="height: 100%" id="chart11"></div>
-                </div>
-                <div class="card dark" style="flex-shrink: 1; height: 400px; width: calc(100% - 620px);">
-                    <div class="cardChart" style="height: 100%" id="chart12"></div>
-                </div>
-            </div>
-
-            <div class="rowOfCardsTitle">Line Chart with Context Menu to Create Pie/Bar Chart</div>
-            <div class="rowOfCards">
-                <div class="card" style="flex-shrink: 1; height: 100%; width: 30%;">
-                    <div class="cardTitle">Factories 1 and 3 as a Line Chart</div>
-                    <div class="cardChart" id="chart13"></div>
-                </div>
-                <div class="card" style="flex-shrink: 1; height: 100%; width: 30%;">
-                    <div class="cardTitle">Pie Chart Generated from Line Chart Context Menu</div>
-                    <div class="cardChart" id="chart14"></div>
-                </div>
-                <div class="card" style="flex-shrink: 1; height: 100%; width: 30%;">
-                    <div class="cardTitle">Bar Chart Generated from Line Chart Context Menu</div>
-                    <div class="cardChart" id="chart15"></div>
-                </div>
-            </div>
-
-            <div class="rowOfCardsTitle">A standalone accessible grid</div>
-            <div class="rowOfCards">
-                <div id="chart16" style="flex-shrink: 1; height: 100%; width: 90%;"></div>
-            </div>
-
-            <div class="rowOfCardsTitle">A heatmap with multiple aggregate expressions</div>
-            <div class="rowOfCards">
-                <div id="chart17" style="flex-shrink: 1; height: 100%; width: 90%;"></div>
-            </div>
-
-            <div class="rowOfCardsTitle">A Table of Events</div>
-            <div class="rowOfCards">
-                <div id="chart18" style="flex-shrink: 1; height: 100%; width: 90%;"></div>
-            </div>
-
-            <div class="rowOfCardsTitle">An Availability Chart</div>
-            <div class="rowOfCards">
-                <div id="chart19" style="flex-shrink: 1; height: 190px; width: 90%;"></div>
-            </div>
-
-
-        </div>
-        
+    </div>        
     <script type="text/javascript">
-        
-        // START: AUTHENTICATION RELATED CODE USING ADAL.JS
+
+          // START: AUTHENTICATION RELATED CODE USING ADAL.JS
             // Set up ADAL
             var authContext = new AuthenticationContext({
+                // clientId: 'b54d43ab-4c7d-41cc-bea4-f39016158011',	
+                // postLogoutRedirectUri: 'https://tsiclientsample.azurewebsites.net',
                 clientId: '120d688d-1518-4cf7-bd38-182f158850b6',
                 postLogoutRedirectUri: 'https://insights.timeseries.azure.com',
-                // clientId: 'b54d43ab-4c7d-41cc-bea4-f39016158011',
-                // postLogoutRedirectUri: 'https://tsiclientsample.azurewebsites.net',
                 cacheLocation: 'localStorage'
             });
             
@@ -212,435 +119,502 @@
                 
                 return promise;
             }
-        // END: AUTHENTICATION RELATED CODE USING ADAL.JS
+
+        // Code to show an example, called by the dropdown on change
+        var showExample = function(select){
+            clearInterval(currentSetInterval);
+            var exampleNumber = select.value;
+            window['example' + exampleNumber]();
+            window.location.hash = exampleNumber;
+        }
+
+        // Code to render wrappers to draw charts in
+        var renderChartContainers = function(containerNumber, isDarkThemeArray){
+            isDarkThemeArray = isDarkThemeArray ? isDarkThemeArray : [];
+            document.getElementById('charts').innerHTML = ''; // blow away current content;
+            for(var i = 1; i <= containerNumber; i++){
+                let cardClass = "card " + (isDarkThemeArray[i - 1] ? 'dark' : '')
+                let width = (containerNumber == 1 ? '95%' : (containerNumber == 2 ? '45%' : '30%'))
+                document.getElementById('charts').innerHTML += '<div style="width: ' + width + '" class="' + cardClass + '"><div class="cardTitle">' + 'Chart ' + i + '</div><div class="cardChart" id="chart' + i + '"></div></div>';
+            }
+        }
+
+        // Relevant globals
         var tsiClient = new TsiClient();
-        
-        // Example 1
-        var aggregateExpressions2 = [];
-        var startDate = new Date('2017-04-14T13:00:00Z');
-        var endDate = new Date(startDate.valueOf() + 1000*60*60*1);
-        aggregateExpressions2.push(new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory1'"}, {property: 'Pressure', type: "Double"}, ['avg', 'min', 'max'],
-            { from: startDate, to: endDate, bucketSize: '2m' }, null, '#FF8C00', 'Factory1Pressure'));
-        aggregateExpressions2.push(new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory2'"}, {property: 'Pressure', type: "Double"}, ['avg', 'min', 'max'],
-            { from: startDate, to: endDate, bucketSize: '2m' }, null, '#D869CB', 'Factory2Pressure'));
-        aggregateExpressions2.push(new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory3'"}, {property: 'Pressure', type: "Double"}, ['avg', 'min', 'max'],
-            { from: startDate, to: endDate, bucketSize: '2m' }, null, '#60B9AE', 'Factory.3.Pressure'));
-        authContext.getTsiToken().then(function(token){
-            tsiClient.server.getAggregates(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com', aggregateExpressions2.map(function(ae){return ae.toTsx()})).then(function(result){
-                var transformedResult = tsiClient.ux.transformAggregatesForVisualization(result, aggregateExpressions2);
-                var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart1'));
-                var theme = 'light';
-                lineChart.render(transformedResult, {theme: theme, grid: true, tooltip: true, legend: 'compact'}, aggregateExpressions2);
+        var currentSetInterval;
+
+        // 1. Static Line Charts
+        var example1 = function(){
+            renderChartContainers(2, [true, false]);
+            
+            var aggregateExpressions = [];
+            var startDate = new Date('2017-04-14T13:00:00Z');
+            var endDate = new Date(startDate.valueOf() + 1000*60*60*1);
+            aggregateExpressions.push(new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory1'"}, {property: 'Pressure', type: "Double"}, ['avg', 'min', 'max'],
+                { from: startDate, to: endDate, bucketSize: '2m' }, null, '#FF8C00', 'Factory1Pressure'));
+            aggregateExpressions.push(new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory2'"}, {property: 'Pressure', type: "Double"}, ['avg', 'min', 'max'],
+                { from: startDate, to: endDate, bucketSize: '2m' }, null, '#D869CB', 'Factory2Pressure'));
+            aggregateExpressions.push(new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory3'"}, {property: 'Pressure', type: "Double"}, ['avg', 'min', 'max'],
+                { from: startDate, to: endDate, bucketSize: '2m' }, null, '#60B9AE', 'Factory.3.Pressure'));
+            authContext.getTsiToken().then(function(token){
+                tsiClient.server.getAggregates(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com', aggregateExpressions.map(function(ae){return ae.toTsx()})).then(function(result){
+                    var transformedResult = tsiClient.ux.transformAggregatesForVisualization(result, aggregateExpressions);
+                    var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart1'));
+                    lineChart.render(transformedResult, {theme: 'dark', grid: true, tooltip: true, legend: 'compact'}, aggregateExpressions);
+                });
             });
-        });
-                
-        //Example 2         
-        var aggregateExpressions3 = [];
-        var startDate = new Date('2017-04-15T13:00:00Z');
-        var endDate = new Date(startDate.valueOf() + 1000*60*60*1);
-        aggregateExpressions3.push(new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory3' and Temperature > 31"}, {property: 'Temperature', type: "Double"}, ['avg', 'min'],
-            { from: startDate, to: endDate, bucketSize: '2m' }, {property: 'Station', type: 'String'}, '#F7727E', 'Factory3Temperature'));
+                    
+            var aggregateExpressions2 = [];
+            aggregateExpressions2.push(new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory3' and Temperature > 31"}, {property: 'Temperature', type: "Double"}, ['avg', 'min'],
+                { from: startDate, to: endDate, bucketSize: '2m' }, {property: 'Station', type: 'String'}, '#F7727E', 'Factory3Temperature'));
 
-        authContext.getTsiToken().then(function(token){
-            tsiClient.server.getAggregates(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com', aggregateExpressions3.map(function(ae){return ae.toTsx()})).then(function(result){
-                var transformedResult = tsiClient.ux.transformAggregatesForVisualization(result, aggregateExpressions3);
-                var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart2'));
-                lineChart.render(transformedResult, {grid: true}, aggregateExpressions3);
+            authContext.getTsiToken().then(function(token){
+                tsiClient.server.getAggregates(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com', aggregateExpressions2.map(function(ae){return ae.toTsx()})).then(function(result){
+                    var transformedResult = tsiClient.ux.transformAggregatesForVisualization(result, aggregateExpressions2);
+                    var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart2'));
+                    lineChart.render(transformedResult, {theme: 'light', grid: true}, aggregateExpressions2);
+                });
             });
-        });
-        
-        // Example 3/4/5
-        var aggregateExpressions4 = [];
-        var startDate = new Date('2017-04-19T13:00:00Z');
-        var endDate = new Date(startDate.valueOf() + 1000*60*60*1);
-        aggregateExpressions4.push(new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory3'"}, {property: 'Temperature', type: "Double"}, ['avg', 'min', 'max'],
-            { from: startDate, to: endDate, bucketSize: '2m' }, {property: 'Station', type: 'String'}, '#60B9AE', 'Factory3Temperature'));
-        aggregateExpressions4.push(new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory1'"}, {property: 'Temperature', type: "Double"}, ['min', 'avg', 'max'],
-            { from: startDate, to: endDate, bucketSize: '3m' }, {property: 'Station', type: 'String'}, '#D869CB', 'Factory1Temp'));
-        authContext.getTsiToken().then(function(token){
-            tsiClient.server.getAggregates(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com', aggregateExpressions4.map(function(ae){return ae.toTsx()})).then(function(result){
-                var transformedResult = tsiClient.ux.transformAggregatesForVisualization(result, aggregateExpressions4);
-                
-                var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart3'));
-                lineChart.render(transformedResult, {grid: true, legend: 'compact', theme: 'light'}, aggregateExpressions4);
-                
-                var barChart =  new tsiClient.ux.BarChart(document.getElementById('chart4'));
-                barChart.render(transformedResult, {grid: true, timestamp: '2017-04-19T13:00:00Z', legend: 'compact'}, aggregateExpressions4);
+        }
 
-                var pieChart =  new tsiClient.ux.PieChart(document.getElementById('chart5'));
-                pieChart.render(transformedResult, {grid: true, theme: 'light', timestamp: '2017-04-19T13:00:00Z', arcWidthRatio: .4, legend: 'compact'}, aggregateExpressions4);
-            });
-        });        
-        
-                
-        // Example 6/7
-        var aggregateExpressions5 = [];
-        var startDate = new Date('2017-04-19T13:00:00Z');
-        var endDate = new Date(startDate.valueOf() + 1000*60*60*1);
-        var firstAe = new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory3'"}, {property: 'Temperature', type: "Double"}, ['avg', 'min'],
-            { from: startDate, to: endDate, bucketSize: '2m' }, {property: 'Station', type: 'String'}, '#F7727E', 'Factory3Temperature');
-        aggregateExpressions5.push(firstAe);
-        authContext.getTsiToken().then(function(token){
-            tsiClient.server.getAggregates(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com', aggregateExpressions5.map(function(ae){return ae.toTsx()})).then(function(result){
-                var transformedResult = tsiClient.ux.transformAggregatesForVisualization(result, aggregateExpressions5);
+        // 2: Multiple Chart Types From the Same Data
+        var example2 = function() {
+            renderChartContainers(3, [false, true, false]);
 
-                var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart6'));
-                lineChart.render(transformedResult, {legend: "compact", tooltip: true}, aggregateExpressions5);
-                
-                var barChart = new tsiClient.ux.BarChart(document.getElementById('chart7'));
-                barChart.render(transformedResult, {legend: "compact", zeroYAxis: false, tooltip: true}, aggregateExpressions5);
+            var aggregateExpressions = [];
+            var startDate = new Date('2017-04-19T13:00:00Z');
+            var endDate = new Date(startDate.valueOf() + 1000*60*60*1);
+            aggregateExpressions.push(new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory3'"}, {property: 'Temperature', type: "Double"}, ['avg', 'min', 'max'],
+                { from: startDate, to: endDate, bucketSize: '2m' }, {property: 'Station', type: 'String'}, '#60B9AE', 'Factory3Temperature'));
+            aggregateExpressions.push(new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory1'"}, {property: 'Temperature', type: "Double"}, ['min', 'avg', 'max'],
+                { from: startDate, to: endDate, bucketSize: '3m' }, {property: 'Station', type: 'String'}, '#D869CB', 'Factory1Temp'));
+            authContext.getTsiToken().then(function(token){
+                tsiClient.server.getAggregates(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com', aggregateExpressions.map(function(ae){return ae.toTsx()})).then(function(result){
+                    var transformedResult = tsiClient.ux.transformAggregatesForVisualization(result, aggregateExpressions);
+                    
+                    var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart1'));
+                    lineChart.render(transformedResult, {grid: true, legend: 'compact', theme: 'light'}, aggregateExpressions);
+                    
+                    var barChart =  new tsiClient.ux.BarChart(document.getElementById('chart2'));
+                    barChart.render(transformedResult, {grid: true, timestamp: '2017-04-19T13:00:00Z', legend: 'compact'}, aggregateExpressions);
 
-                var pieChart = new tsiClient.ux.PieChart(document.getElementById('chart7a'));
-                pieChart.render(transformedResult, {legend: "compact", zeroYAxis: false, tooltip: true}, aggregateExpressions5);
-                
-                var counter = 0;
-                setInterval(function () {
-                    if(counter < 50){ // so this doesnt just DDOS the backend if the tab is left open
-                        if (aggregateExpressions5.length == 2) {
-                            aggregateExpressions5.pop();
-                        } else{
-                            var secondAe = new tsiClient.ux.AggregateExpression({predicateString: ""}, {property: 'Temperature', type: "Double"}, ['min', 'avg', 'max'],
-                                { from: startDate, to: endDate, bucketSize: '2m' }, {property: 'Station', type: 'String'}, '#C8E139', 'Factory1Temp');
-                            aggregateExpressions5.push(secondAe);
+                    var pieChart =  new tsiClient.ux.PieChart(document.getElementById('chart3'));
+                    pieChart.render(transformedResult, {grid: true, theme: 'light', timestamp: '2017-04-19T13:00:00Z', arcWidthRatio: .4, legend: 'compact'}, aggregateExpressions);
+                });
+            });    
+        }
+
+        // 3. Charts Gracefully Animating Data In and Out, While Changing Theme
+        var example3 = function() {
+            renderChartContainers(3, [false, true, false]);
+
+            var aggregateExpressions = [];
+            var startDate = new Date('2017-04-19T13:00:00Z');
+            var endDate = new Date(startDate.valueOf() + 1000*60*60*1);
+            var firstAe = new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory3'"}, {property: 'Temperature', type: "Double"}, ['avg', 'min'],
+                { from: startDate, to: endDate, bucketSize: '2m' }, {property: 'Station', type: 'String'}, '#F7727E', 'Factory3Temperature');
+            aggregateExpressions.push(firstAe);
+            authContext.getTsiToken().then(function(token){
+                tsiClient.server.getAggregates(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com', aggregateExpressions.map(function(ae){return ae.toTsx()})).then(function(result){
+                    var transformedResult = tsiClient.ux.transformAggregatesForVisualization(result, aggregateExpressions);
+
+                    var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart1'));
+                    lineChart.render(transformedResult, {legend: "compact", tooltip: true}, aggregateExpressions);
+                    
+                    var barChart = new tsiClient.ux.BarChart(document.getElementById('chart2'));
+                    barChart.render(transformedResult, {legend: "compact", zeroYAxis: false, tooltip: true}, aggregateExpressions);
+
+                    var pieChart = new tsiClient.ux.PieChart(document.getElementById('chart3'));
+                    pieChart.render(transformedResult, {legend: "compact", zeroYAxis: false, tooltip: true}, aggregateExpressions);
+                    
+                    var counter = 0;
+                    currentSetInterval = setInterval(function () {
+                        if(counter < 50){ // so this doesnt just DDOS the backend if the tab is left open
+                            if (aggregateExpressions.length == 2) {
+                                aggregateExpressions.pop();
+                            } else{
+                                var secondAe = new tsiClient.ux.AggregateExpression({predicateString: ""}, {property: 'Temperature', type: "Double"}, ['min', 'avg', 'max'],
+                                    { from: startDate, to: endDate, bucketSize: '2m' }, {property: 'Station', type: 'String'}, '#C8E139', 'Factory1Temp');
+                                aggregateExpressions.push(secondAe);
+                            }
+                            var options = (aggregateExpressions.length == 2) ? {legend: "compact", zeroYAxis: false, theme: 'light'} : {legend: "compact", tooltip: true, grid: true, zeroYAxis: false, theme: 'dark'};
+
+                            tsiClient.server.getAggregates(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com', aggregateExpressions.map(function(ae){return ae.toTsx()})).then(function(result){
+                                var transformedResult = tsiClient.ux.transformAggregatesForVisualization(result, aggregateExpressions);
+                                setTimeout(function(){barChart.render(transformedResult, options, aggregateExpressions)}, 6600);
+                                lineChart.render(transformedResult, options, aggregateExpressions);
+                                setTimeout(function(){pieChart.render(transformedResult, options, aggregateExpressions)}, 3300);
+                            });
+                            counter++;
                         }
-                        var options = (aggregateExpressions5.length == 2) ? {legend: "compact", zeroYAxis: false, theme: 'light'} : {legend: "compact", tooltip: true, grid: true, zeroYAxis: false, theme: 'dark'};
-
-                        tsiClient.server.getAggregates(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com', aggregateExpressions5.map(function(ae){return ae.toTsx()})).then(function(result){
-                            var transformedResult = tsiClient.ux.transformAggregatesForVisualization(result, aggregateExpressions5);
-                            setTimeout(function(){barChart.render(transformedResult, options, aggregateExpressions5)}, 3000);
-                            lineChart.render(transformedResult, options, aggregateExpressions5);
-                            setTimeout(function(){pieChart.render(transformedResult, options, aggregateExpressions5)}, 1000);
-                        });
-                        counter++;
-                    }
-                }, 6000);
+                    }, 10000);
+                });
             });
-        });
+        }
 
-        
-        // Example 8
-        var aggregateExpressions6 = [];
-        var startDate2 = new Date('2017-04-12T13:00:00Z');
-        var endDate2 = new Date(startDate2.valueOf() + 1000*60*60*1);
-        aggregateExpressions6.push(new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory1'"}, {property: 'Temperature', type: "Double"}, ['avg', 'min', 'max'],
-            { from: startDate2, to: endDate2, bucketSize: '10s' }, null, '#FF8C00', 'Factory1Temperature'));
-        aggregateExpressions6.push(new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory2'"}, {property: 'Temperature', type: "Double"}, ['avg', 'min', 'max'],
-            { from: startDate2, to: endDate2, bucketSize: '10s' }, null, '#D869CB', 'Factory2Temperature'));
-        aggregateExpressions6.push(new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory3'"}, {property: 'Temperature', type: "Double"}, ['avg', 'min', 'max'],
-            { from: startDate2, to: endDate2, bucketSize: '10s' }, null, '#60B9AE', 'Factory3Temperature'));
-        authContext.getTsiToken().then(function(token){
-            tsiClient.server.getAggregates(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com', aggregateExpressions6.map(function(ae){return ae.toTsx()})).then(function(result){
-                var transformedResult = tsiClient.ux.transformAggregatesForVisualization(result, aggregateExpressions6);
-                var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart8'));
-                lineChart.render(transformedResult, {}, aggregateExpressions6);
-                var counter = 0;
-                setInterval(function () {
-                    if(counter < 50){  // so this doesnt just DDOS the backend if the tab is left open
-                        startDate2 = new Date(startDate2.valueOf() + 1*1000*6);
-                        endDate2 = new Date(endDate2.valueOf() + 1*1000*10);
-                        aggregateExpressions6.forEach(function(ae){ae.searchSpan.from = startDate2; ae.searchSpan.to = endDate2});
-                        tsiClient.server.getAggregates(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com', aggregateExpressions6.map(function(ae){return ae.toTsx()})).then(function(result){
-                            var transformedResult = tsiClient.ux.transformAggregatesForVisualization(result, aggregateExpressions6);
-                            lineChart.render(transformedResult, {noAnimate: true}, aggregateExpressions6);
-                        });
-                        counter++;
-                    }
-                }, 5000);                    
-            });
-        });    
+        // 4. Line Chart Updating in Real Time
+        var example4 = function() {
+            renderChartContainers(1, [true]);
+            var aggregateExpressions = [];
+            var startDate = new Date('2017-04-12T13:00:00Z');
+            var endDate = new Date(startDate.valueOf() + 1000*60*60*1);
+            aggregateExpressions.push(new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory1'"}, {property: 'Temperature', type: "Double"}, ['avg', 'min', 'max'],
+                { from: startDate, to: endDate, bucketSize: '10s' }, null, '#FF8C00', 'Factory1Temperature'));
+            aggregateExpressions.push(new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory2'"}, {property: 'Temperature', type: "Double"}, ['avg', 'min', 'max'],
+                { from: startDate, to: endDate, bucketSize: '10s' }, null, '#D869CB', 'Factory2Temperature'));
+            aggregateExpressions.push(new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory3'"}, {property: 'Temperature', type: "Double"}, ['avg', 'min', 'max'],
+                { from: startDate, to: endDate, bucketSize: '10s' }, null, '#60B9AE', 'Factory3Temperature'));
+            authContext.getTsiToken().then(function(token){
+                tsiClient.server.getAggregates(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com', aggregateExpressions.map(function(ae){return ae.toTsx()})).then(function(result){
+                    var transformedResult = tsiClient.ux.transformAggregatesForVisualization(result, aggregateExpressions);
+                    var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart1'));
+                    lineChart.render(transformedResult, {}, aggregateExpressions);
+                    var counter = 0;
+                    setInterval(function () {
+                        if(counter < 50){  // so this doesnt just DDOS the backend if the tab is left open
+                            startDate = new Date(startDate.valueOf() + 1*1000*6);
+                            endDate = new Date(endDate.valueOf() + 1*1000*10);
+                            aggregateExpressions.forEach(function(ae){ae.searchSpan.from = startDate; ae.searchSpan.to = endDate});
+                            tsiClient.server.getAggregates(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com', aggregateExpressions.map(function(ae){return ae.toTsx()})).then(function(result){
+                                var transformedResult = tsiClient.ux.transformAggregatesForVisualization(result, aggregateExpressions);
+                                lineChart.render(transformedResult, {noAnimate: true}, aggregateExpressions);
+                            });
+                            counter++;
+                        }
+                    }, 2000);                    
+                });
+            });    
+        }
 
-        //Example 10
-        var startDate = new Date('2017-04-19T13:00:00Z');
-        var endDate = new Date(startDate.valueOf() + 1000*60*60*1);
+        // 5. Line Charts with Multiple Series Types
+        var example5 = function() {
+            renderChartContainers(1, [true]);
 
-        var events4 = {"Component States" : [
-            {
-                '2017-04-19T13:05:00Z' : {
-                    'color': 'lightblue',
-                    'description' : 'Cooling fan on'
-                }
-            },
-            {
-                '2017-04-19T13:27:00Z' : {
-                    'color': '#C8E139',
-                    'description' : 'Filling tank at maximum pressure'
-                }
-            },
-            {
-                '2017-04-19T13:47:00Z' : {
-                    'color': '#D869CB',
-                    'description' : 'Pressing machine overheated'
-                }
-            }
-        ]};
+            var startDate = new Date('2017-04-19T13:00:00Z');
+            var endDate = new Date(startDate.valueOf() + 1000*60*60*1);
 
-        var events5 = {"Incidents" : [
-            {
-                '2017-04-19T13:12:00Z' : {
-                    'color': '#C8E139',
-                    'description' : 'Recoverable failure'
-                }
-            },
-            {
-                '2017-04-19T13:25:00Z' : {
-                    'color': '#D869CB',
-                    'description' : 'Catastrophic failure'
-                }
-            },
+            var states = {"Component States" : [
                 {
-                '2017-04-19T13:47:00Z' : {
-                    'color': '#D869CB',
-                    'description' : 'Informational event'
+                    '2017-04-19T13:05:00Z' : {
+                        'color': 'lightblue',
+                        'description' : 'Cooling fan on'
+                    }
+                },
+                {
+                    '2017-04-19T13:27:00Z' : {
+                        'color': '#C8E139',
+                        'description' : 'Filling tank at maximum pressure'
+                    }
+                },
+                {
+                    '2017-04-19T13:47:00Z' : {
+                        'color': '#D869CB',
+                        'description' : 'Pressing machine overheated'
+                    }
                 }
-            }
-        ]};
+            ]};
 
-        authContext.getTsiToken().then(function(token){
-            tsiClient.server.getAggregates(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com', aggregateExpressions4.map(function(ae){return ae.toTsx()})).then(function(result){
-                var transformedResult = tsiClient.ux.transformAggregatesForVisualization(result, aggregateExpressions4);
-                var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart10'));
-                lineChart.render(transformedResult, {tooltip: true, grid: true, theme: "dark", events: [events5], states: [events4], legend: "compact"}, aggregateExpressions4);
-            });
-        }); 
+            var events = {"Incidents" : [
+                {
+                    '2017-04-19T13:12:00Z' : {
+                        'color': '#C8E139',
+                        'description' : 'Recoverable failure'
+                    }
+                },
+                {
+                    '2017-04-19T13:25:00Z' : {
+                        'color': '#D869CB',
+                        'description' : 'Catastrophic failure'
+                    }
+                },
+                    {
+                    '2017-04-19T13:47:00Z' : {
+                        'color': '#D869CB',
+                        'description' : 'Informational event'
+                    }
+                }
+            ]};
 
-        // example 11/12
-        // Hierarchy control, coupled with line chart
-        var startDate = new Date('2017-04-19T13:00:00Z');
-        var endDate = new Date(startDate.valueOf() + 1000*60*60*1);
-        var hierarchyAggregateExpressions = [];
-        var hierarchyEvents = [];
-        var hierarchyStates = [];
-        var hierarchy = {
-            'Factory1': {
-                'Station1': {
-                    'GC4F-286 (Temp)': {$leaf: true, click: function(n){
-                        if(!n._ae)
-                            n._ae = new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory1' AND Station = 'Station1'"}, {property: 'Temperature', type: "Double"}, ['avg'],
-                            { from: startDate, to: endDate, bucketSize: '10s' }, null, '#D869CB', 'F1S1Temp');
-                        renderHierarchyLineChart(n);
-                    }},
-                    'F92-21B (Pressure)': {$leaf: true, click: function(n){
-                        if(!n._ae)
-                            n._ae = new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory1' AND Station = 'Station1'"}, {property: 'Pressure', type: "Double"}, ['avg'],
-                            { from: startDate, to: endDate, bucketSize: '1m' }, null, '#60B9AE', 'F1S1Pressure');
-                        renderHierarchyLineChart(n);
-                    }}                    
-                }
-            },
-            'Factory2': {
-                'Station1': {
-                    '19C2-F8 (Temp)': {$leaf: true, click: function(n){
-                        if(!n._ae)
-                            n._ae = new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory2' AND Station = 'Station1'"}, {property: 'Temperature', type: "Double"}, ['avg'],
-                            { from: startDate, to: endDate, bucketSize: '10s' }, null, '#C8E139', 'F2S1Temp');
-                        renderHierarchyLineChart(n);
-                    }},
-                    'B9-C86 (Pressure)': {$leaf: true, click: function(n){
-                        if(!n._ae)
-                            n._ae = new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory2' AND Station = 'Station1'"}, {property: 'Pressure', type: "Double"}, ['avg'],
-                            { from: startDate, to: endDate, bucketSize: '1m' }, null, '#FF8C00', 'F2S1Pressure');
-                        renderHierarchyLineChart(n);
-                    }}                    
-                }
-            }
-        }
-        
-        var hierarchyCtrl = new tsiClient.ux.Hierarchy(document.getElementById('chart11'));
-        hierarchyCtrl.render(hierarchy, {});
-        
-        var lineChartForHierarchy = new tsiClient.ux.LineChart(document.getElementById('chart12'));
-        var renderHierarchyLineChart = function(n){
-            if(n.isSelected){
-                hierarchyAggregateExpressions.push(n._ae)
-            }
-            else{
-                const index = hierarchyAggregateExpressions.indexOf(n._ae);
-                hierarchyAggregateExpressions.splice(index, 1);
-            }
-            render();
+            var aggregateExpressions = [];
+            aggregateExpressions.push(new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory3'"}, {property: 'Temperature', type: "Double"}, ['avg', 'min', 'max'],
+                { from: startDate, to: endDate, bucketSize: '2m' }, {property: 'Station', type: 'String'}, '#60B9AE', 'Factory3Temperature'));
+            aggregateExpressions.push(new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory1'"}, {property: 'Temperature', type: "Double"}, ['min', 'avg', 'max'],
+                { from: startDate, to: endDate, bucketSize: '3m' }, {property: 'Station', type: 'String'}, '#D869CB', 'Factory1Temp'));
+
+            authContext.getTsiToken().then(function(token){
+                tsiClient.server.getAggregates(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com', aggregateExpressions.map(function(ae){return ae.toTsx()})).then(function(result){
+                    var transformedResult = tsiClient.ux.transformAggregatesForVisualization(result, aggregateExpressions);
+                    var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart1'));
+                    lineChart.render(transformedResult, {tooltip: true, grid: true, theme: "dark", events: [events], states: [states]}, aggregateExpressions);
+                });
+            }); 
         }
 
-        var render = function(noAnimate){
-            if(hierarchyAggregateExpressions.length){
-                authContext.getTsiToken().then(function(token){
-                    tsiClient.server.getAggregates(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com', hierarchyAggregateExpressions.map(function(ae){return ae.toTsx()})).then(function(result){
-                        var transformedResult = tsiClient.ux.transformAggregatesForVisualization(result, hierarchyAggregateExpressions);
-                        lineChartForHierarchy.render(transformedResult, {tooltip: true, grid: true, theme: "dark", noAnimate: noAnimate, legend: "compact"}, hierarchyAggregateExpressions);
-                    });
-                })
+        // 6. Hierarchy Control Coupled With Line Chart
+        var example6 = function() {
+            renderChartContainers(2, [true, true]);
+
+            var startDate = new Date('2017-04-19T13:00:00Z');
+            var endDate = new Date(startDate.valueOf() + 1000*60*60*1);
+            var hierarchyAggregateExpressions = [];
+            var hierarchyEvents = [];
+            var hierarchyStates = [];
+            var hierarchy = {
+                'Factory1': {
+                    'Station1': {
+                        'GC4F-286 (Temp)': {$leaf: true, click: function(n){
+                            if(!n._ae)
+                                n._ae = new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory1' AND Station = 'Station1'"}, {property: 'Temperature', type: "Double"}, ['avg'],
+                                { from: startDate, to: endDate, bucketSize: '10s' }, null, '#D869CB', 'F1S1Temp');
+                            renderHierarchyLineChart(n);
+                        }},
+                        'F92-21B (Pressure)': {$leaf: true, click: function(n){
+                            if(!n._ae)
+                                n._ae = new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory1' AND Station = 'Station1'"}, {property: 'Pressure', type: "Double"}, ['avg'],
+                                { from: startDate, to: endDate, bucketSize: '1m' }, null, '#60B9AE', 'F1S1Pressure');
+                            renderHierarchyLineChart(n);
+                        }}                    
+                    }
+                },
+                'Factory2': {
+                    'Station1': {
+                        '19C2-F8 (Temp)': {$leaf: true, click: function(n){
+                            if(!n._ae)
+                                n._ae = new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory2' AND Station = 'Station1'"}, {property: 'Temperature', type: "Double"}, ['avg'],
+                                { from: startDate, to: endDate, bucketSize: '10s' }, null, '#C8E139', 'F2S1Temp');
+                            renderHierarchyLineChart(n);
+                        }},
+                        'B9-C86 (Pressure)': {$leaf: true, click: function(n){
+                            if(!n._ae)
+                                n._ae = new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory2' AND Station = 'Station1'"}, {property: 'Pressure', type: "Double"}, ['avg'],
+                                { from: startDate, to: endDate, bucketSize: '1m' }, null, '#FF8C00', 'F2S1Pressure');
+                            renderHierarchyLineChart(n);
+                        }}                    
+                    }
+                }
             }
-            else
-                lineChartForHierarchy.render([], {tooltip: true, grid: true, theme: "dark", legend: "compact"}, hierarchyAggregateExpressions);
+            
+            var hierarchyCtrl = new tsiClient.ux.Hierarchy(document.getElementById('chart1'));
+            hierarchyCtrl.render(hierarchy, {});
+            
+            var lineChartForHierarchy = new tsiClient.ux.LineChart(document.getElementById('chart2'));
+            var renderHierarchyLineChart = function(n){
+                if(n.isSelected){
+                    hierarchyAggregateExpressions.push(n._ae)
+                }
+                else{
+                    const index = hierarchyAggregateExpressions.indexOf(n._ae);
+                    hierarchyAggregateExpressions.splice(index, 1);
+                }
+                render();
+            }
+
+            var render = function(noAnimate){
+                if(hierarchyAggregateExpressions.length){
+                    authContext.getTsiToken().then(function(token){
+                        tsiClient.server.getAggregates(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com', hierarchyAggregateExpressions.map(function(ae){return ae.toTsx()})).then(function(result){
+                            var transformedResult = tsiClient.ux.transformAggregatesForVisualization(result, hierarchyAggregateExpressions);
+                            lineChartForHierarchy.render(transformedResult, {tooltip: true, grid: true, theme: "dark", noAnimate: noAnimate, legend: "compact"}, hierarchyAggregateExpressions);
+                        });
+                    })
+                }
+                else
+                    lineChartForHierarchy.render([], {tooltip: true, grid: true, theme: "dark", legend: "compact"}, hierarchyAggregateExpressions);
+            }
         }
 
-        // example 13/14/15
-        // Line chart with a context menu which generates pie and bar chart
-        var aggregateExpressions9 = [];
-        var pieChart2 = new tsiClient.ux.PieChart(document.getElementById('chart14'));
-        var barChart2 = new tsiClient.ux.BarChart(document.getElementById('chart15'));
+        // 7. Line Chart With a Context Menu Which Generates Pie and Bar Chart
+        var example7 = function() {
+            renderChartContainers(3);
 
-        var barChartActions = [{
-            name: "Print parameters to console",
-            action: function(ae, splitBy, timestamp) {
-                console.log(ae);
-                console.log(splitBy);
-                console.log(timestamp);
-            }
-        }];
+            var startDate = new Date('2017-04-12T13:00:00Z');
+            var endDate = new Date(startDate.valueOf() + 1000*60*60*1);
+            var aggregateExpressions = [];
+            var pieChart = new tsiClient.ux.PieChart(document.getElementById('chart2'));
+            var barChart = new tsiClient.ux.BarChart(document.getElementById('chart3'));
 
-        var pieChartActions = [{
-            name: "Copy to Bar Chart",
-            action: function(ae, splitBy, timestamp) {
-                ae.contextMenu = barChartActions;
-                authContext.getTsiToken().then(function(token){
-                    tsiClient.server.getAggregates(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com', [ae].map(function(ae){return ae.toTsx()})).then(function(result){
-                        var transformedResult = tsiClient.ux.transformAggregatesForVisualization(result, [ae]); 
-                        barChart2.render(transformedResult, {grid: true, theme: 'light', timestamp: timestamp, arcWidthRatio: .6}, [ae]);
+            var barChartActions = [{
+                name: "Print parameters to console",
+                action: function(ae, splitBy, timestamp) {
+                    console.log(ae);
+                    console.log(splitBy);
+                    console.log(timestamp);
+                }
+            }];
+
+            var pieChartActions = [{
+                name: "Copy to Bar Chart",
+                action: function(ae, splitBy, timestamp) {
+                    ae.contextMenu = barChartActions;
+                    authContext.getTsiToken().then(function(token){
+                        tsiClient.server.getAggregates(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com', [ae].map(function(ae){return ae.toTsx()})).then(function(result){
+                            var transformedResult = tsiClient.ux.transformAggregatesForVisualization(result, [ae]); 
+                            barChart.render(transformedResult, {grid: true, theme: 'light', timestamp: timestamp, arcWidthRatio: .6}, [ae]);
+                        });
                     });
-                });
-            }
-        }]
+                }
+            }]
 
-        var contextMenuActions = [{
-            name: "Print parameters to console",
-            action: function(ae, splitBy, timestamp) {
-                console.log(ae);
-                console.log(splitBy);
-                console.log(timestamp);
-            }
-        }, 
-        {
-            name: "Plot as a Pie Chart",
-            action: function(ae, splitBy, timestamp) {
-                ae.contextMenu = pieChartActions;
-                authContext.getTsiToken().then(function(token){
-                    tsiClient.server.getAggregates(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com', [ae].map(function(ae){return ae.toTsx()})).then(function(result){
-                        var transformedResult = tsiClient.ux.transformAggregatesForVisualization(result, [ae]); 
-                        pieChart2.render(transformedResult, {grid: true, theme: 'light', timestamp: timestamp, arcWidthRatio: .6}, [ae]);
+            var contextMenuActions = [{
+                name: "Print parameters to console",
+                action: function(ae, splitBy, timestamp) {
+                    console.log(ae);
+                    console.log(splitBy);
+                    console.log(timestamp);
+                }
+            }, 
+            {
+                name: "Plot as a Pie Chart",
+                action: function(ae, splitBy, timestamp) {
+                    ae.contextMenu = pieChartActions;
+                    authContext.getTsiToken().then(function(token){
+                        tsiClient.server.getAggregates(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com', [ae].map(function(ae){return ae.toTsx()})).then(function(result){
+                            var transformedResult = tsiClient.ux.transformAggregatesForVisualization(result, [ae]); 
+                            pieChart.render(transformedResult, {grid: true, theme: 'light', timestamp: timestamp, arcWidthRatio: .6}, [ae]);
+                        });
                     });
-                });
-            }
-        }, {
-            name: "Plot as a Bar Chart",
-            action: function(ae, splitBy, timestamp) {
-                ae.contextMenu = barChartActions;
-                authContext.getTsiToken().then(function(token){
-                    tsiClient.server.getAggregates(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com', [ae].map(function(ae){return ae.toTsx()})).then(function(result){
-                        var transformedResult = tsiClient.ux.transformAggregatesForVisualization(result, [ae]); 
-                        barChart2.render(transformedResult, {grid: true, theme: 'light', timestamp: timestamp }, [ae]);
+                }
+            }, {
+                name: "Plot as a Bar Chart",
+                action: function(ae, splitBy, timestamp) {
+                    ae.contextMenu = barChartActions;
+                    authContext.getTsiToken().then(function(token){
+                        tsiClient.server.getAggregates(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com', [ae].map(function(ae){return ae.toTsx()})).then(function(result){
+                            var transformedResult = tsiClient.ux.transformAggregatesForVisualization(result, [ae]); 
+                            barChart.render(transformedResult, {grid: true, theme: 'light', timestamp: timestamp }, [ae]);
+                        });
                     });
+                }
+            }];
+
+            aggregateExpressions.push(new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory3'"}, {property: 'Temperature', type: "Double"}, ['avg', 'min'],
+                { from: startDate, to: endDate, bucketSize: '2m' }, {property: 'Station', type: 'String'}, '#F7727E', 'Factory3Temperature', contextMenuActions));
+            aggregateExpressions.push(new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory2'"}, {property: 'Temperature', type: "Double"}, ['avg', 'min'],
+                { from: startDate, to: endDate, bucketSize: '2m' }, {property: 'Station', type: 'String'}, '#60B9AE', 'Factory1Temperature', contextMenuActions));
+            
+            var brushActions = [{
+                name: "Print parameters to console",
+                action: function(fromTime, toTime) {
+                    console.log(fromTime);
+                    console.log(toTime);
+                }
+            }];
+
+            authContext.getTsiToken().then(function(token){
+                tsiClient.server.getAggregates(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com', aggregateExpressions.map(function(ae){return ae.toTsx()})).then(function(result){
+                    var transformedResult = tsiClient.ux.transformAggregatesForVisualization(result, aggregateExpressions);
+                    var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart1'));
+                    lineChart.render(transformedResult, {theme: "light", legend: "compact", brushContextMenuActions: brushActions, grid: true, snapBrush: true}, aggregateExpressions);
                 });
-            }
-        }];
-
-        aggregateExpressions9.push(new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory3'"}, {property: 'Temperature', type: "Double"}, ['avg', 'min'],
-            { from: startDate, to: endDate, bucketSize: '2m' }, {property: 'Station', type: 'String'}, '#F7727E', 'Factory3Temperature', contextMenuActions));
-        aggregateExpressions9.push(new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory1'"}, {property: 'Temperature', type: "Double"}, ['avg', 'min'],
-            { from: startDate, to: endDate, bucketSize: '2m' }, {property: 'Station', type: 'String'}, '#60B9AE', 'Factory1Temperature', contextMenuActions));
-        
-        var brushActions = [{
-            name: "Print parameters to console",
-            action: function(fromTime, toTime) {
-                console.log(fromTime);
-                console.log(toTime);
-            }
-        }];
-
-        authContext.getTsiToken().then(function(token){
-            tsiClient.server.getAggregates(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com', aggregateExpressions9.map(function(ae){return ae.toTsx()})).then(function(result){
-                var transformedResult = tsiClient.ux.transformAggregatesForVisualization(result, aggregateExpressions9);
-                var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart13'));
-                lineChart.render(transformedResult, {theme: "light", legend: "compact", brushContextMenuActions: brushActions, grid: true, snapBrush: true}, aggregateExpressions9);
             });
-        });
+        }
 
-        // Example 16, a standalone grid
-        var aggregateExpressions10 = [];
-        var startDate = new Date('2017-04-19T13:00:00Z');
-        var endDate = new Date(startDate.valueOf() + 1000*60*60*1);
-        aggregateExpressions10.push(new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory3'"}, {property: 'Temperature', type: "Double"}, ['avg', 'min', 'max'],
-            { from: startDate, to: endDate, bucketSize: '1m' }, {property: 'Station', type: 'String'}, '#F7727E', 'Factory3Temperature'));
-        aggregateExpressions10.push(new tsiClient.ux.AggregateExpression({predicateString: ""}, {property: 'Temperature', type: "Double"}, ['min', 'avg', 'max'],
-            { from: startDate, to: endDate, bucketSize: '1m' }, {property: 'Id', type: 'String'}, '#C8E139', 'Factory1Temp'));
-        authContext.getTsiToken().then(function(token){
-            tsiClient.server.getAggregates(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com', aggregateExpressions10.map(function(ae){return ae.toTsx()})).then(function(result){
-                var transformedResult = tsiClient.ux.transformAggregatesForVisualization(result, aggregateExpressions10);
-                var grid = new tsiClient.ux.Grid(document.getElementById('chart16'));
-                grid.renderFromAggregates(transformedResult, {}, [{color: '#F7727E'}, {color: '#C8E139'}]);
+        // 8. A Standalone Accessible Grid
+        var example8 = function() {
+            renderChartContainers(1);
+            var aggregateExpressions = [];
+            var startDate = new Date('2017-04-19T13:00:00Z');
+            var endDate = new Date(startDate.valueOf() + 1000*60*60*1);
+            aggregateExpressions.push(new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory3'"}, {property: 'Temperature', type: "Double"}, ['avg', 'min', 'max'],
+                { from: startDate, to: endDate, bucketSize: '1m' }, {property: 'Station', type: 'String'}, '#F7727E', 'Factory3Temperature'));
+            aggregateExpressions.push(new tsiClient.ux.AggregateExpression({predicateString: ""}, {property: 'Temperature', type: "Double"}, ['min', 'avg', 'max'],
+                { from: startDate, to: endDate, bucketSize: '1m' }, {property: 'Id', type: 'String'}, '#C8E139', 'Factory1Temp'));
+            authContext.getTsiToken().then(function(token){
+                tsiClient.server.getAggregates(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com', aggregateExpressions.map(function(ae){return ae.toTsx()})).then(function(result){
+                    var transformedResult = tsiClient.ux.transformAggregatesForVisualization(result, aggregateExpressions);
+                    var grid = new tsiClient.ux.Grid(document.getElementById('chart1'));
+                    grid.renderFromAggregates(transformedResult, {}, [{color: '#F7727E'}, {color: '#C8E139'}]);
+                });
             });
-        });
+        }
 
-        // Example 17 Heatmap
-        var aggregateExpressions11 = [];
-        var startDate3 = new Date('2017-04-15T13:00:00Z');
-        var endDate5 = new Date(startDate3.valueOf() + 1000*60*60*1);
-        var endDate6 = new Date(endDate5.valueOf() + 1000*60*60*4);
-        aggregateExpressions11.push(new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory3' and Temperature > 31"}, {property: 'Temperature', type: "Double"}, ['avg', 'min'],
-            { from: startDate3, to: endDate6, bucketSize: '10m' }, {property: 'Station', type: 'String'}, '#008272', 'Factory3Temperature'));
-        
-        aggregateExpressions11.push(new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory2'"}, {property: 'Temperature', type: "Double"}, ['avg', 'min'],
-            { from: startDate3, to: endDate6, bucketSize: '2m' }, {property: 'Station', type: 'String'}, '#FF8C00', 'Factory2Temperature'));
+        // 9. Heatmap
+        var example9 = function() {
+            renderChartContainers(1, [true]);
+            var aggregateExpressions = [];
+            var startDate = new Date('2017-04-15T13:00:00Z');
+            var endDate = new Date(startDate.valueOf() + 1000*60*60*5);
+            aggregateExpressions.push(new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory3' and Temperature > 31"}, {property: 'Temperature', type: "Double"}, ['avg', 'min'],
+                { from: startDate, to: endDate, bucketSize: '10m' }, {property: 'Station', type: 'String'}, '#008272', 'Factory3Temperature'));
+            
+            aggregateExpressions.push(new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory2'"}, {property: 'Temperature', type: "Double"}, ['avg', 'min'],
+                { from: startDate, to: endDate, bucketSize: '2m' }, {property: 'Station', type: 'String'}, '#FF8C00', 'Factory2Temperature'));
 
-        aggregateExpressions11.push(new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory1' and Temperature < 0"}, {property: 'Temperature', type: "Double"}, ['avg', 'min'],
-            { from: startDate3, to: endDate6, bucketSize: '2m' }, {property: 'Station', type: 'String'}, '#F7727E', 'Factory1Temperature'));
+            aggregateExpressions.push(new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory1' and Temperature < 0"}, {property: 'Temperature', type: "Double"}, ['avg', 'min'],
+                { from: startDate, to: endDate, bucketSize: '2m' }, {property: 'Station', type: 'String'}, '#F7727E', 'Factory1Temperature'));
 
-        authContext.getTsiToken().then(function(token){
-            tsiClient.server.getAggregates(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com', aggregateExpressions11.map(function(ae){return ae.toTsx()})).then(function(result){
-                var transformedResult = tsiClient.ux.transformAggregatesForVisualization(result, aggregateExpressions11);
-                var heatmap = new tsiClient.ux.Heatmap(document.getElementById('chart17'));
-                heatmap.render(transformedResult, {timestamp: '2017-04-15T13:00:00Z', theme: "dark"}, aggregateExpressions11);
+            authContext.getTsiToken().then(function(token){
+                tsiClient.server.getAggregates(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com', aggregateExpressions.map(function(ae){return ae.toTsx()})).then(function(result){
+                    var transformedResult = tsiClient.ux.transformAggregatesForVisualization(result, aggregateExpressions);
+                    var heatmap = new tsiClient.ux.Heatmap(document.getElementById('chart1'));
+                    heatmap.render(transformedResult, {timestamp: '2017-04-15T13:00:00Z', theme: "dark"}, aggregateExpressions);
+                });
             });
-        });
+        }
 
-        // Example 18 Events Table
-        var startDate4 = new Date('2017-04-15T13:00:00Z');
-        var endDate7 = new Date(startDate4.valueOf() + 1000*60*60*5);
+        // 10. A Table of Events
+        var example10 = function() {
+            renderChartContainers(1);
+            var startDate = new Date('2017-04-15T13:00:00Z');
+            var endDate = new Date(startDate.valueOf() + 1000*60*60*5);
 
-        authContext.getTsiToken().then(function(token){
-            tsiClient.server.getEvents(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com', 
-                                        {predicateString: "Factory = 'Factory1'"},  {}, startDate4.valueOf(), 
-                                       endDate7.valueOf()).then(function (events) {
-                var transformedEvents = tsiClient.ux.transformTsxToEventsArray (events, {});
-                var eventsTable = tsiClient.ux.EventsTable(document.getElementById('chart18'));
-                eventsTable.render(transformedEvents, {theme: 'light'}, true);
+            authContext.getTsiToken().then(function(token){
+                tsiClient.server.getEvents(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com', {predicateString: "Factory = 'Factory1'"},  {}, startDate.valueOf(), endDate.valueOf()).then(function (events) {
+                    var transformedEvents = tsiClient.ux.transformTsxToEventsArray (events, {});
+                    var eventsTable = tsiClient.ux.EventsTable(document.getElementById('chart1'));
+                    eventsTable.render(transformedEvents, {theme: 'light'}, true);
+                });
             });
-        });
+        }
 
-        var brushActions = [{
-            name: "Print From and to",
-            action: function(fromTime, toTime) {
-                console.log(fromTime);
-                console.log(toTime);
-            }
-        }];
+        // 11. An Availability Chart
+        var example11 = function() {
+            renderChartContainers(1);
+            var brushActions = [{
+                name: "Print From and to",
+                action: function(fromTime, toTime) {
+                    console.log(fromTime);
+                    console.log(toTime);
+                }
+            }];
 
-        authContext.getTsiToken().then(function(token){
-            tsiClient.server.getAvailability(token, 'bec25c6b-ed2e-4416-856d-5057957a1575.env.timeseries.azure.com').then(function(result){
-                var transformedResult = tsiClient.ux.transformAvailabilityForVisualization(result, 500);
-                var availabilityChart = new tsiClient.ux.AvailabilityChart(document.getElementById('chart19'));
-                availabilityChart.render(transformedResult, {theme: 'light', grid: false, tooltip: false, legend: "hidden", 
-                   brushContextMenuActions: brushActions, snapBrush: false, maxBuckets: 500,
-                   color: 'purple'}, result);
-                
-                var chart = document.getElementById("chart19");
-                var button = document.createElement("button");
-                var isCompact = false;
-                function toggleCompact() {
-                    isCompact = !isCompact;
+            authContext.getTsiToken().then(function(token){
+                tsiClient.server.getAvailability(token, 'bec25c6b-ed2e-4416-856d-5057957a1575.env.timeseries.azure.com').then(function(result){
+                    var transformedResult = tsiClient.ux.transformAvailabilityForVisualization(result, 500);
+                    document.getElementById("chart1").style.height = '200px';
+                    var availabilityChart = new tsiClient.ux.AvailabilityChart(document.getElementById('chart1'));
                     availabilityChart.render(transformedResult, {theme: 'light', grid: false, tooltip: false, legend: "hidden", 
-                            brushContextMenuActions: brushActions, snapBrush: false, maxBuckets: 500,
-                            color: 'purple', isCompact: isCompact, preserveAvailabilityState: true}, result);
-                }
+                        brushContextMenuActions: brushActions, snapBrush: false, maxBuckets: 500,
+                        color: 'purple'}, result);
+                    
+                    var chart = document.getElementById("chart1");
+                    var button = document.createElement("button");
+                    var isCompact = false;
+                    function toggleCompact() {
+                        isCompact = !isCompact;
+                        availabilityChart.render(transformedResult, {theme: 'light', grid: false, tooltip: false, legend: "hidden", 
+                                brushContextMenuActions: brushActions, snapBrush: false, maxBuckets: 500,
+                                color: 'purple', isCompact: isCompact, preserveAvailabilityState: true}, result);
+                    }
 
-                button.id = "myButton";
-                button.textContent = "+/-";
-                button.addEventListener("click", toggleCompact, false);
-                button.style = 'position:absolute;top:0px'
+                    button.id = "myButton";
+                    button.textContent = "+/-";
+                    button.addEventListener("click", toggleCompact, false);
+                    button.style = 'position:absolute;top:0px'
 
-                chart.appendChild(button);
-
+                    chart.appendChild(button);
+                });
             });
-        });
+        }
+
+        // Initial load, supports linking to a specific example by hash
+        if(!window.location.hash)
+            example1();
+        else {
+            let exampleNumber = window.location.hash.split('#')[1];
+            document.getElementById('selectTitle').value = exampleNumber;
+            window['example' + exampleNumber]();
+        }            
 
     </script>
 </body>
