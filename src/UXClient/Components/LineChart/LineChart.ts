@@ -1045,6 +1045,10 @@ class LineChart extends ChartComponent {
         return tsIterator;
     }
 
+    private getChartWidth () {
+        return Math.max(0, this.width - this.chartMargins.left - this.chartMargins.right - (this.chartOptions.legend == "shown" ? this.CONTROLSWIDTH + 16 : 0));
+    }
+
     public render(data: any, options: any, aggregateExpressionOptions: any) {
         this.data = data;
         this.hasBrush = options.brushMoveAction || options.brushMoveEndAction || options.brushContextMenuActions;
@@ -1072,7 +1076,8 @@ class LineChart extends ChartComponent {
 
         this.timelineHeight = (this.chartComponentData.visibleEventsAndStatesCount * 10);
         this.chartHeight = Math.max(1, this.height - this.chartMargins.bottom - this.chartMargins.top - this.timelineHeight); 
-        this.chartWidth = Math.max(1, this.width - this.chartMargins.left - this.chartMargins.right - (this.chartOptions.legend == "shown" ? this.CONTROLSWIDTH : 0));
+        this.chartWidth = this.getChartWidth();
+        console.log("chartWidth set to: " + this.chartWidth);
 
         if (this.brush && this.svgSelection.select('.svgGroup').select(".brushElem") && !this.chartOptions.keepBrush) {
             this.svgSelection.select('.svgGroup').select(".brushElem").call(this.brush.move, null);
@@ -1182,15 +1187,15 @@ class LineChart extends ChartComponent {
                 this.timelineHeight = (this.chartComponentData.visibleEventsAndStatesCount * 10);
       
                 this.width = Math.max((<any>d3.select(this.renderTarget).node()).clientWidth, this.MINWIDTH);
-                this.chartWidth = Math.max(0, this.width - this.chartMargins.left - this.chartMargins.right - (this.chartOptions.legend == "shown" ? this.CONTROLSWIDTH : 0));
+                this.chartWidth = this.getChartWidth();
                 this.height = Math.max((<any>d3.select(this.renderTarget).node()).clientHeight, this.MINHEIGHT);
                 this.chartHeight = Math.max(1, this.height - this.chartMargins.bottom - this.chartMargins.top - this.timelineHeight); 
 
                 this.focus.select('.hLine').attr("x2", this.chartWidth);
                 this.focus.select('.vLine').attr("y2", this.chartHeight + this.timelineHeight);
                 this.svgSelection
-                    .attr("width", this.chartWidth + this.chartMargins.left + this.chartMargins.right)
-                    .attr("height", this.height);
+                    .style("width", this.chartWidth + this.chartMargins.left + this.chartMargins.right)
+                    .style("height", this.height);
                      
                 super.themify(this.targetElement, this.chartOptions.theme);
                         
@@ -1201,8 +1206,9 @@ class LineChart extends ChartComponent {
                                        }, this.stickySeries);
 
                 if (!this.chartOptions.hideChartControlPanel) {
-                    var controlPanelWidth = Math.max(1, (<any>d3.select(this.renderTarget).node()).clientWidth - 
-                                                        (this.chartOptions.legend == "shown" ? this.CONTROLSWIDTH : 0));
+                    var controlPanelWidth = this.chartWidth + this.chartMargins.left + this.chartMargins.right;
+                    // var controlPanelWidth = Math.max(1, (<any>d3.select(this.renderTarget).node()).clientWidth - 
+                    //                                     (this.chartOptions.legend == "shown" ? this.CONTROLSWIDTH + 8 : 0));
                     d3.select(this.renderTarget).selectAll(".tsi-chartControlsPanel").remove();
                     var chartControlsPanel = d3.select(this.renderTarget).append("div")
                         .attr("class", "tsi-chartControlsPanel")
@@ -1486,15 +1492,6 @@ class LineChart extends ChartComponent {
                         .classed('tsi-darkTheme', this.chartOptions.theme == 'dark');
                     }
                                 
-                    /******************** Grid button ************************/
-                    // if (this.chartOptions.grid) {
-                    //     this.gridButton.classed('tsi-lightTheme', this.chartOptions.theme == 'light')
-                    //         .classed('tsi-darkTheme', this.chartOptions.theme == 'dark');
-                    // }
-                    // if (this.scooterButton) {
-                    //     this.scooterButton.classed('tsi-lightTheme', this.chartOptions.theme == 'light')
-                    //         .classed('tsi-darkTheme', this.chartOptions.theme == 'dark');
-                    // }
                 }
 
                 var visibleEventsCount = 0;
