@@ -52,7 +52,7 @@
                     <option value="9">9. Heatmap</option>
                     <option value="10">10. A Table of Events</option>
                     <option value="11">11. An Availability Chart</option>
-                    <option value="12">12. Line Chart With Min/Max Envelope</option>
+                    <option value="12">12. Line Chart With Min/Max Envelope and Step Interpolation</option>
                 </select>
             </div>
             <div id="charts">
@@ -608,7 +608,7 @@
             });
         }
 
-        // 1. Line Chart With Min/Max Envelope
+        // 12. Line Chart With Min/Max Envelope and Step Interpolation 
         var example12 = function(){
             renderChartContainers(1, [true]);
             
@@ -625,7 +625,7 @@
                 tsiClient.server.getAggregates(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com', aggregateExpressions.map(function(ae){return ae.toTsx()})).then(function(result){
                     var transformedResult = tsiClient.ux.transformAggregatesForVisualization(result, aggregateExpressions);
                     var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart1'));
-                    lineChart.render(transformedResult, {theme: 'dark', grid: true, tooltip: true, legend: 'shown', includeEnvelope: true}, aggregateExpressions);
+                    lineChart.render(transformedResult, {theme: 'dark', grid: true, tooltip: true, legend: 'shown', includeEnvelope: true, interpolationFunction: "curveStep"}, aggregateExpressions);
                 });
             });
         }
