@@ -1077,7 +1077,6 @@ class LineChart extends ChartComponent {
         this.timelineHeight = (this.chartComponentData.visibleEventsAndStatesCount * 10);
         this.chartHeight = Math.max(1, this.height - this.chartMargins.bottom - this.chartMargins.top - this.timelineHeight); 
         this.chartWidth = this.getChartWidth();
-        console.log("chartWidth set to: " + this.chartWidth);
 
         if (this.brush && this.svgSelection.select('.svgGroup').select(".brushElem") && !this.chartOptions.keepBrush) {
             this.svgSelection.select('.svgGroup').select(".brushElem").call(this.brush.move, null);
