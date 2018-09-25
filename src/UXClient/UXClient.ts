@@ -15,6 +15,7 @@ import {TimezonePicker} from "./Components/TimezonePicker/TimezonePicker";
 
 import {Utils} from "./Utils";
 import './styles.scss'
+import { EllipsisMenu } from "./Components/EllipsisMenu/EllipsisMenu";
 
 class UXClient {
     UXClient () {
@@ -75,6 +76,10 @@ class UXClient {
 
     public TimezonePicker(renderTarget) {
         return new TimezonePicker(renderTarget);
+    }
+
+    public EllipsisMenu(renderTarget) {
+        return new EllipsisMenu(renderTarget);
     }
 
     public transformTsxToEventsArray (events, options) {

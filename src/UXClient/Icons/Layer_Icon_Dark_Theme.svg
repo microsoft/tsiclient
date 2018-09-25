@@ -1,53 +1,13 @@
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 16 16">
-  <defs>
-    <style>
-      .cls-1 {
-        clip-path: url(#clip-Layer_Icon_Dark_Theme);
-      }
-
-      .cls-2, .cls-5, .cls-6 {
-        fill: none;
-      }
-
-      .cls-3 {
-        opacity: 0.75;
-      }
-
-      .cls-4 {
-        fill: rgba(244,244,244,0.25);
-      }
-
-      .cls-5 {
-        stroke: #f4f4f4;
-      }
-
-      .cls-5, .cls-6 {
-        stroke-miterlimit: 1;
-      }
-
-      .cls-6 {
-        stroke: #000;
-        opacity: 0.25;
-      }
-
-      .cls-7 {
-        fill: #fff;
-      }
-    </style>
-    <clipPath id="clip-Layer_Icon_Dark_Theme">
-      <rect width="16" height="16"/>
-    </clipPath>
-  </defs>
-  <g id="Layer_Icon_Dark_Theme" class="cls-1">
-    <g id="Layer_Icon">
-      <rect id="BG" class="cls-2" width="16" height="16"/>
-      <g id="Background" class="cls-3" transform="translate(3 4.2)">
-        <path id="Fill" class="cls-4" d="M799,553.649l-5.651-5.349L788,553.951l5.651,5.349Z" transform="translate(-788 -548.401)"/>
-        <path id="Path_281" data-name="Path 281" class="cls-5" d="M793.349,548.2,799,553.549l-5.349,5.651L788,553.851Z" transform="translate(-788 -548.4)"/>
-      </g>
-      <path id="Shadow" class="cls-6" d="M792.749,545.5l5.651,5.349-5.349,5.651-5.651-5.349Z" transform="translate(-784.9 -544)"/>
-      <path id="ForegroundFill" class="cls-4" d="M798.9,550.349,793.248,545l-5.349,5.651L793.55,556Z" transform="translate(-784.899 -544)"/>
-      <path id="ForegroundOutline" class="cls-5" d="M793.349,545,799,550.349,793.651,556,788,550.651Z" transform="translate(-785 -544)"/>
-    </g>
-  </g>
+<svg xmlns="http://www.w3.org/2000/svg" width="25" height="21" viewBox="0 0 21 17" fill="none">
+<path d="M3.49292 6.69674L11.8736 2.743L20 6.69674L11.8727 10.6339L3.49292 6.69674Z" fill="#E4E4E4" fill-opacity="0.5"/>
+<path d="M10.7517 3.12112L18.6385 6.80352L17.1598 7.0131L9.76587 3.64718L10.7517 3.12112Z" fill="#BEBEBE"/>
+<path d="M11.496 3.05307L18.5123 6.40342L11.2486 9.79375L4.22339 6.89245L11.496 3.05307Z" stroke="#F4F4F4"/>
+<path d="M11.009 14.0606L18.3773 10.2309L19.7595 10.778L12.8516 14.3341L11.009 14.0606Z" fill="#C4C4C4" fill-opacity="0.4"/>
+<path d="M3 8.80002L12.3656 12.4824L10.8789 13.986L3.04928 10.6171L3 8.80002Z" fill="#C4C4C4" fill-opacity="0.4"/>
+<path d="M3 9.93051L11.1402 13.2539V14.3762L3 10.9893V9.93051Z" fill="#A6A6A6"/>
+<path d="M11.1401 13.2539L18.8022 9.32608L19.7594 9.88717L11.1401 14.3762V13.2539Z" fill="#A6A6A6"/>
+<path d="M11.009 17.3432L18.3773 13.5135L19.7595 14.0606L12.8516 17.6167L11.009 17.3432Z" fill="#C4C4C4" fill-opacity="0.4"/>
+<path d="M3 12.9689L11.9299 16.6206L11.3186 17.458L3 14.0912V12.9689Z" fill="#C4C4C4" fill-opacity="0.4"/>
+<path d="M3 13.2973L11.1402 16.6207V17.743L3 14.356V13.2973Z" fill="#A6A6A6"/>
+<path d="M11.1401 16.6207L18.8022 12.6928L19.7594 13.2539L11.1401 17.743V16.6207Z" fill="#A6A6A6"/>
 </svg>

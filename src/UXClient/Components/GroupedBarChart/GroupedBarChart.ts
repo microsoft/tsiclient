@@ -235,7 +235,7 @@ class GroupedBarChart extends ChartComponent {
                     .style("top", Math.max((this.chartMargins.top - 32), 0) + "px");
 
                 this.stackedButton = chartControlsPanel.append("div")
-                    .style("left", this.chartMargins.left + "px")
+                    .style("left", "60px")
                     .attr("class", "tsi-stackedButton").on("click", () => {
                         this.chartOptions.stacked = !this.chartOptions.stacked;
                         this.draw();
