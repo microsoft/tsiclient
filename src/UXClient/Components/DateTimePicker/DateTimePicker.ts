@@ -233,16 +233,27 @@ class DateTimePicker extends ChartComponent{
 
     }
 
+    //line up the seconds and millis with the second and millis of the max date
+    private adjustSecondsAndMillis (rawMillis) {
+        var currDate = new Date(rawMillis);
+        var maxDate = new Date(this.maxMillis);
+        currDate.setUTCSeconds(maxDate.getUTCSeconds());
+        currDate.setUTCMilliseconds(maxDate.getUTCMilliseconds());
+        return currDate.valueOf();
+    }
+
     private setFromMillis (millis: number) {
+        var adjustedMillis = this.adjustSecondsAndMillis(millis);
         var rangeErrorCheck = this.rangeIsValid(millis, this.toMillis);
-        this.fromMillis = millis;
+        this.fromMillis = adjustedMillis;
         this.setIsValid(rangeErrorCheck.rangeIsValid);
         this.displayRangeErrors(rangeErrorCheck.errors);
     } 
 
     private setToMillis (millis: number) {
-        var rangeErrorCheck = this.rangeIsValid(this.fromMillis, millis);
-        this.toMillis = millis;
+        var adjustedMillis = this.adjustSecondsAndMillis(millis);
+        var rangeErrorCheck = this.rangeIsValid(this.fromMillis, adjustedMillis);
+        this.toMillis = adjustedMillis;
         this.setIsValid(rangeErrorCheck.rangeIsValid);
         this.displayRangeErrors(rangeErrorCheck.errors);
     }
