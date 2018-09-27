@@ -9,7 +9,6 @@ class GroupedBarChartData extends ChartComponentData {
     // allValues, aggsSeries, and allTimestampsArray span the entire time period of the aggregate expressions passed in
     public allValues: Array<any> = [];
     public aggsSeries;
-    public allTimestampsArray: any;
 
     public globalMax: number = -Number.MAX_VALUE;
     public globalMin: number = Number.MAX_VALUE;
@@ -24,20 +23,6 @@ class GroupedBarChartData extends ChartComponentData {
         this.timestamp = timestamp;
         this.setValuesAtTimestamp();
         this.setFilteredAggregates();
-        this.setAllTimestampsArray();
-    }
-
-    protected setAllTimestampsArray () {
-        var allTimestamps = {};
-        this.data.forEach(ae => {
-            var aeObj = ae[Object.keys(ae)[0]];
-            Object.keys(aeObj).forEach(timeseries => {
-                Object.keys(aeObj[timeseries]).forEach(timestamp => {
-                    allTimestamps[timestamp] = true;
-                })
-            })
-        })
-        this.allTimestampsArray = Object.keys(allTimestamps).sort();
     }
 
     private stackMin = (series): number => {

@@ -1260,6 +1260,16 @@ class LineChart extends ChartComponent {
                             description: ""
                         });
                     }
+
+                    if (this.chartOptions.canDownload) {
+                        ellipsisItems.push({
+                            iconClass: "grid",
+                            label: "Download as CSV",
+                            action:() =>  Utils.downloadCSV(this.chartComponentData.generateCSVString()),
+                            description: ""
+                        });
+                    }
+
                     this.ellipsisMenu.render(ellipsisItems, {theme: this.chartOptions.theme});
 
                 } else {
