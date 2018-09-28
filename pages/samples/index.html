@@ -691,7 +691,7 @@
                     var transformedResult = tsiClient.ux.transformTsqResultsForVisualization(result, tsqExpressions);
                     debugger;
                     var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart1'));
-                    lineChart.render(transformedResult, {theme: 'dark', grid: true, tooltip: true, legend: 'compact'}, tsqExpressions);  // measure types is reqd in chart options somehow?
+                    lineChart.render(transformedResult, {theme: 'dark', grid: true, tooltip: true, legend: 'compact'}, tsqExpressions);
                 });
             });
         }
