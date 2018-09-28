@@ -49,6 +49,10 @@ class Utils {
         return -1;
     }
 
+    static bucketSizeToTsqInterval (bucketSize: string) {
+        return ('PT' + bucketSize).toUpperCase();
+    }
+
     static createEntityKey (aggName: string, aggIndex: number) {
         return encodeURIComponent(aggName).split(".").join("_") + "_" + aggIndex;
     }
@@ -295,6 +299,7 @@ class Utils {
         return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
                s4() + '-' + s4() + s4() + s4();
     }
+
 }
 
 export {Utils};
