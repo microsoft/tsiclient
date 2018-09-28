@@ -630,9 +630,75 @@
             });
         }
 
+        // 13. Line Chart From L1 SKU Environment 
+        var example13 = function(){
+            renderChartContainers(1, [true]);
+            
+            var tsqExpressions = [];
+            var startDate = new Date('2018-09-20T20:00:00Z');
+            var endDate = new Date(startDate.valueOf() + 1000*60*60*24);
+            
+            tsqExpressions.push(new tsiClient.ux.TsqExpression(
+                {timeSeriesId: ['Bucket_34689']}, // instance json
+                {AvgValue: {
+                    kind: 'numeric',
+                    value: {tsx: '$event.Value.Double'},
+                    filter: null,
+                    reduction: {kind: 'AggregateRecorded', aggregation: {tsx: 'max($value)'}}
+                }}, // variable json
+                { from: startDate, to: endDate, bucketSize: '2m' }, // search span
+                '#60B9AE', // color
+                'MaxValue')); // alias
+
+            tsqExpressions.push(new tsiClient.ux.TsqExpression(
+                {timeSeriesId: ['Bucket_34689']}, // instance json
+                {AvgValue: {
+                    kind: 'numeric',
+                    value: {tsx: '$event.Value.Double'},
+                    filter: null,
+                    reduction: {kind: 'AggregateRecorded', aggregation: {tsx: 'avg($value)'}}
+                }}, // variable json
+                { from: startDate, to: endDate, bucketSize: '2m' }, // search span
+                '#D869CB', // color
+                'AvgValue')); // 
+                
+            tsqExpressions.push(new tsiClient.ux.TsqExpression(
+                {timeSeriesId: ['Bucket_34689']}, // instance json
+                {AvgValue: {
+                    kind: 'numeric',
+                    value: {tsx: '$event.Value.Double'},
+                    filter: null,
+                    reduction: {kind: 'AggregateRecorded', aggregation: {tsx: 'min($value)'}}
+                }}, // variable json
+                { from: startDate, to: endDate, bucketSize: '2m' }, // search span
+                '#FF8C00', // color
+                'MinValue')); // alias
+
+            tsqExpressions.push(new tsiClient.ux.TsqExpression(
+                {timeSeriesId: ['Bucket_34689']}, // instance json
+                {AvgValue: {
+                    kind: 'numeric',
+                    value: null,
+                    filter: null,
+                    reduction: {kind: 'AggregateRecorded', aggregation: {tsx: 'count()'}}
+                }}, // variable json
+                { from: startDate, to: endDate, bucketSize: '2m' }, // search span
+                '#8FE6D7', // color
+                'EventCount')); // alias
+
+            authContext.getTsiToken().then(function(token){
+                tsiClient.server.getTsqResults(token, 'c74fddd1-fb33-4ff8-a12f-bab37d881264.env.crystal-dev.windows-int.net', tsqExpressions.map(function(ae){return ae.toTsq()})).then(function(result){
+                    var transformedResult = tsiClient.ux.transformTsqResultsForVisualization(result, tsqExpressions);
+                    debugger;
+                    var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart1'));
+                    lineChart.render(transformedResult, {theme: 'dark', grid: true, tooltip: true, legend: 'compact'}, tsqExpressions);  // measure types is reqd in chart options somehow?
+                });
+            });
+        }
+
         // Initial load, supports linking to a specific example by hash
         if(!window.location.hash)
-            example1();
+            example13();
         else {
             let exampleNumber = window.location.hash.split('#')[1];
             document.getElementById('selectTitle').value = exampleNumber;
