@@ -1,27 +1,20 @@
 import {Utils} from "./../Utils";
+import { ChartableExpression } from "./ChartableExpression";
 
 const MAXCARD = 150000;
 
-class AggregateExpression {
-    public searchSpan: any;  // from,to,bucketSize as TSX
+class AggregateExpression extends ChartableExpression {
     public measureObject: any;
-    public measureTypes: Array<string>;
     public splitByObject;
     public predicate: Object; // predicate TSX
-    public color: string;
-    public alias: string;
-    public contextMenu: any; // describes menu shown with a split by member on context menu, and actions
 
 	constructor(predicateObject: any, measureObject: any, measureTypes: Array<string>, searchSpan: any, 
-        splitByObject: any = null, color: string, alias: string, contextMenu: Array<any>){
+                splitByObject: any = null, color: string, alias: string, contextMenu: Array<any>){
+        super(searchSpan, color, alias, contextMenu, measureTypes);
         this.predicate = predicateObject;
         this.measureTypes = measureTypes;
-        this.searchSpan = searchSpan;
         this.splitByObject = splitByObject;
         this.measureObject = ((measureTypes.length == 1 && measureTypes[0] == 'count') || measureObject.property == 'Events Count') ?  {count: {}} : {input : measureObject};
-        this.color = color ? color : null;
-        this.alias = alias.length ? alias : measureObject.property;
-        this.contextMenu = contextMenu;
     }
     
     public toTsx(roundFromTo: boolean = false){
