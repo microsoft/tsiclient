@@ -573,10 +573,13 @@ class LineChart extends ChartComponent {
             });
         var timeLabel = this.activeScooter.append("div")
             .attr("class", "tsi-scooterTimeLabel");
-
+        
         this.activeScooter.selectAll(".tsi-scooterDragger,.tsi-scooterTimeLabel,.tsi-scooterLine")
             .call(d3.drag()
-                .on("drag", function (d) { 
+                .on("drag", function (d) {
+                    if (d3.select(d3.event.sourceEvent.target).classed("tsi-closeButton")) {
+                        return;
+                    }
                     var scooter = d3.select(<any>d3.select(this).node().parentNode);
                     var currMillis: number = Number(self.scooterGuidMap[String(scooter.datum())]);
                     var startPosition = self.x(new Date(currMillis));
@@ -586,7 +589,7 @@ class LineChart extends ChartComponent {
                     self.setScooterTimeLabel(scooter);
                 })
             );
-
+            
         this.activeScooter.style("pointer-events", "none");
     }
 
