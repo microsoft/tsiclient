@@ -1,34 +1,31 @@
 import {Utils} from "./../Utils";
+import { ChartableExpression } from "./ChartableExpression";
 
-class AggregateExpression {
-    public searchSpan: any;  // from,to,bucketSize as TSX
+const MAXCARD = 150000;
+
+class AggregateExpression extends ChartableExpression {
     public measureObject: any;
-    public measureTypes: Array<string>;
     public splitByObject;
     public predicate: Object; // predicate TSX
-    public color: string;
-    public alias: string;
-    public contextMenu: any; // describes menu shown with a split by member on context menu, and actions
 
 	constructor(predicateObject: any, measureObject: any, measureTypes: Array<string>, searchSpan: any, 
-        splitByObject: any = null, color: string, alias: string, contextMenu: Array<any>){
+                splitByObject: any = null, color: string, alias: string, contextMenu: Array<any>){
+        super(searchSpan, color, alias, contextMenu, measureTypes);
         this.predicate = predicateObject;
         this.measureTypes = measureTypes;
-        this.searchSpan = searchSpan;
         this.splitByObject = splitByObject;
         this.measureObject = ((measureTypes.length == 1 && measureTypes[0] == 'count') || measureObject.property == 'Events Count') ?  {count: {}} : {input : measureObject};
-        this.color = color ? color : null;
-        this.alias = alias.length ? alias : measureObject.property;
-        this.contextMenu = contextMenu;
     }
     
     public toTsx(roundFromTo: boolean = false){
         var tsx = {};
         let fromMillis = this.searchSpan.from.valueOf(), toMillis = this.searchSpan.to.valueOf();
+        let bucketSizeInMillis = Utils.parseTimeInput(this.searchSpan.bucketSize);
+        let roundedFromMillis = Math.floor((fromMillis + 62135596800000) / (bucketSizeInMillis)) * (bucketSizeInMillis) - 62135596800000; 
+        let roundedToMillis = Math.ceil((toMillis + 62135596800000) / (bucketSizeInMillis)) * (bucketSizeInMillis) - 62135596800000;
         if (roundFromTo) {
-            let bucketSizeInMillis = Utils.parseTimeInput(this.searchSpan.bucketSize);
-            fromMillis = Math.floor((fromMillis + 62135596800000) / (bucketSizeInMillis)) * (bucketSizeInMillis) - 62135596800000;
-            toMillis = Math.ceil((toMillis + 62135596800000) / (bucketSizeInMillis)) * (bucketSizeInMillis) - 62135596800000;
+            fromMillis = roundedFromMillis;
+            toMillis = roundedToMillis;
         }
         tsx['searchSpan'] = {from: (new Date(fromMillis)).toISOString(), to: (new Date(toMillis)).toISOString()}; 
         
@@ -46,7 +43,8 @@ class AggregateExpression {
         var aggregateObject = {};
         var dimensionObject = {dateHistogram: {input: {builtInProperty: "$ts"}, breaks: {size: this.searchSpan.bucketSize}}};
         if(this.splitByObject != null){
-            aggregateObject['dimension'] = {uniqueValues: {input: this.splitByObject, take: 1000}};
+            var bucketsCeil = Math.ceil((roundedToMillis - roundedFromMillis) / bucketSizeInMillis);
+            aggregateObject['dimension'] = {uniqueValues: {input: this.splitByObject, take: Math.floor(MAXCARD / bucketsCeil)}};
             aggregateObject['aggregate'] = {dimension : dimensionObject, measures: measures};
         }
         else{

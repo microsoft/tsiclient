@@ -1,58 +1,17 @@
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 20 20">
-  <defs>
-    <style>
-      .cls-1 {
-        clip-path: url(#clip-Grid_Icon_Light_Theme_20_2_);
-      }
-
-      .cls-2, .cls-4, .cls-7 {
-        fill: none;
-      }
-
-      .cls-3 {
-        fill: white;
-      }
-
-      .cls-4 {
-        stroke: #414141;
-      }
-
-      .cls-4, .cls-7 {
-      }
-
-      .cls-5 {
-        fill: #414141;
-      }
-
-      .cls-6 {
-        fill: #fdfdfd;
-      }
-
-      .cls-7 {
-        stroke: #414141;
-        fill: rgba(33,33,33,0.2);
-      }
-
-      .cls-8 {
-        fill: #9e9e9e;
-      }
-
-      .cls-9 {
-        fill: #fff;
-      }
-    </style>
-    <clipPath id="clip-Grid_Icon_Light_Theme_20_2_">
-      <rect width="20" height="20"/>
-    </clipPath>
-  </defs>
-  <g id="Grid_Icon_Light_Theme_20_2_" data-name="Grid_Icon_Light_Theme_20(2)" class="cls-1">
-    <g id="Grid_Icon">
-      <rect id="BG" class="cls-2" width="20" height="20"/>
-      <path id="Back_Fill" data-name="Back Fill" class="cls-3" d="M522.193,710.256v11h18v-11Z" transform="translate(-521.193 -703.256)"/>
-      <path id="Back_Outline" data-name="Back Outline" class="cls-4" d="M523.074,710.813v10h19v-10Z" transform="translate(-522.574 -703.313)"/>
-      <path id="Grid" class="cls-5" d="M11.571,8.858v-5h-6v5h-1v-5h-5v-1h5v-5h1v5h6v-5h1v5h5v1h-5v5Z" transform="translate(1.429 9.142)"/>
-      <path id="TopOutline" class="cls-6" d="M798.4,837.13h-18v4h18Z" transform="translate(-779.4 -834.13)"/>
-      <path id="TopFill" class="cls-7" d="M780.6,837.494h19v5h-19Z" transform="translate(-780.095 -834.994)"/>
-    </g>
-  </g>
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="14" viewBox="0 0 16 14" fill="none">
+<path opacity="0.75" fill-rule="evenodd" clip-rule="evenodd" d="M1.52002 4.4883V12.503H14.52V4.4883H1.52002Z" fill="#212121" fill-opacity="0.1" stroke="#212121" stroke-miterlimit="1"/>
+<path opacity="0.1" d="M14.5 2.5H1.5V5.5H14.5V2.5Z" stroke="black" stroke-miterlimit="1"/>
+<path d="M14.5 1.5H1.5V4.5H14.5V1.5Z" fill="#212121" fill-opacity="0.1" stroke="#212121" stroke-miterlimit="1"/>
+<path d="M9 10H7V12H9V10Z" fill="#D6D6D6"/>
+<path d="M5 10H3V12H5V10Z" fill="#D6D6D6"/>
+<path d="M13 10H11V12H13V10Z" fill="#D6D6D6"/>
+<path d="M9 7H7V9H9V7Z" fill="#D6D6D6"/>
+<path d="M5 7H3V9H5V7Z" fill="#D6D6D6"/>
+<path d="M13 7H11V9H13V7Z" fill="#D6D6D6"/>
+<path d="M9 9H7V11H9V9Z" fill="#8A8A8A"/>
+<path d="M5 9H3V11H5V9Z" fill="#8A8A8A"/>
+<path d="M13 9H11V11H13V9Z" fill="#8A8A8A"/>
+<path d="M9 6H7V8H9V6Z" fill="#8A8A8A"/>
+<path d="M5 6H3V8H5V6Z" fill="#8A8A8A"/>
+<path d="M13 6H11V8H13V6Z" fill="#8A8A8A"/>
 </svg>

@@ -13,6 +13,17 @@
     display: none;
 }
 
+@keyframes tsi-slideIn {   
+    from {
+        transform: translateY(-10px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0px);
+        opacity: 1; 
+    }
+}
+
 .tsi-chartControlsPanel {
     height: 20px;
     right: 0px;

@@ -16,6 +16,8 @@ import {TimezonePicker} from "./Components/TimezonePicker/TimezonePicker";
 
 import {Utils} from "./Utils";
 import './styles.scss'
+import { EllipsisMenu } from "./Components/EllipsisMenu/EllipsisMenu";
+import { TsqExpression } from "./Models/TsqExpression";
 
 class UXClient {
     UXClient () {
@@ -66,6 +68,11 @@ class UXClient {
         return new AggregateExpression(predicateObject, measureObject, measureTypes, searchSpan, splitByObject, color, alias, contextMenu)
     }
 
+    public TsqExpression(instanceObject: any, variableObject: any, searchSpan: any, 
+        color: string = Utils.generateColors(1)[0], alias: string = 'Expression1', contextMenu: Array<any> = []){
+            return new TsqExpression(instanceObject, variableObject, searchSpan, color, alias, contextMenu);
+    }
+
     public Heatmap(renderTarget) {
         return new Heatmap(renderTarget);
     }
@@ -80,6 +87,10 @@ class UXClient {
 
     public TimezonePicker(renderTarget) {
         return new TimezonePicker(renderTarget);
+    }
+
+    public EllipsisMenu(renderTarget) {
+        return new EllipsisMenu(renderTarget);
     }
 
     public transformTsxToEventsArray (events, options) {
@@ -221,7 +232,24 @@ class UXClient {
         return [{"availabilityCount" : {"" : buckets}}];
     }
 
-
+    public transformTsqResultsForVisualization(tsqResults: Array<any>, options): Array<any> {
+        var result = [];
+        tsqResults.forEach((tsqr, i) => {
+            var transformedAggregate = {};
+            var aggregatesObject = {};
+            transformedAggregate[options[i].alias] = {'': aggregatesObject};
+            
+            if(tsqr.hasOwnProperty('__tsiError__'))
+                transformedAggregate[''] = {};
+            else{
+                tsqr.timestamps.forEach((ts, j) => {
+                    aggregatesObject[ts] = Object.keys(tsqr.variables).reduce((p,c) => {p[c] = tsqr.variables[c]['values'][j]; return p;}, {});
+                });
+            }
+            result.push(transformedAggregate);
+        });
+        return result;
+    }
 
     public transformAggregatesForVisualization(aggregates: Array<any>, options): Array<any> {
         var result = [];

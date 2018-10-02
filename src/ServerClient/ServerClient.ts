@@ -3,7 +3,8 @@ import * as Promise from 'promise-polyfill';
 class ServerClient {
     private eventsWebsocket;
     private apiVersionUrlParam = "?api-version=2016-12-12";
-    
+    private tsmTsqApiVersion = "?api-version=2018-10-01-privatepreview"
+
     Server () {
     }
 
@@ -31,41 +32,54 @@ class ServerClient {
             xhr.send(payload);
         });
     }
+    
+    private getQueryApiResult = (token, results, contentObject, index, uri, resolve, messageProperty) => {
+        var xhr = new XMLHttpRequest();
+            
+        xhr.onreadystatechange = () => {
+            if(xhr.readyState != 4) return;
+            
+            if(xhr.status == 200){
+                var message = JSON.parse(xhr.responseText);
+                results[index] = messageProperty(message);
+                if(results.map(ar => ar!=null).reduce((p,c) => { p = c && p; return p}, true))
+                    resolve(results);
+            }
+            else{
+                results[index] = {__tsiError__: JSON.parse(xhr.responseText)};
+                if(results.map(ar => ar!=null).reduce((p,c) => { p = c && p; return p}, true))
+                    resolve(results);
+            }
+        }
+
+        xhr.open('POST', uri);
+        xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+        xhr.send(JSON.stringify(contentObject));
+    }
+
+    public getTsqResults(token: string, uri: string, tsqArray: Array<any>, options: any) {
+        var tsqResults = [];
+        tsqArray.forEach(tsq => {
+            tsqResults.push(null);
+        });
+        
+        return new Promise((resolve: any, reject: any) => {
+            tsqArray.forEach((tsq, i) => {
+                this.getQueryApiResult(token, tsqResults, tsq, i, `https://${uri}/timeseries/query${this.tsmTsqApiVersion}`, resolve, message => message);
+            })
+        });
+    }
+    
  
     public getAggregates(token: string, uri: string, tsxArray: Array<any>, options: any) {
-
         var aggregateResults = [];
         tsxArray.forEach(ae => {
             aggregateResults.push(null);
         });
         
-        var getAggregateResult = (contentObject, index, resolve) => {
-            var xhr = new XMLHttpRequest();
-            
-            xhr.onreadystatechange = () => {
-                if(xhr.readyState != 4) return;
-                
-                if(xhr.status == 200){
-                    var message = JSON.parse(xhr.responseText);
-                    aggregateResults[index] = message.aggregates[0];
-                    if(aggregateResults.map(ar => ar!=null).reduce((p,c) => { p = c && p; return p}, true))
-                        resolve(aggregateResults);
-                }
-                else{
-                    aggregateResults[index] = {__tsiError__: JSON.parse(xhr.responseText)};
-                    if(aggregateResults.map(ar => ar!=null).reduce((p,c) => { p = c && p; return p}, true))
-                        resolve(aggregateResults);
-                }
-            }
-
-            xhr.open('POST', "https://" + uri + "/aggregates" + this.apiVersionUrlParam);
-            xhr.setRequestHeader('Authorization', 'Bearer ' + token);
-            xhr.send(JSON.stringify(contentObject));
-        }
-        
         return new Promise((resolve: any, reject: any) => {
             tsxArray.forEach((tsx, i) => {
-                getAggregateResult(tsx, i, resolve);
+                this.getQueryApiResult(token, aggregateResults, tsx, i, `https://${uri}/aggregates${this.apiVersionUrlParam}`, resolve, message => message.aggregates[0]);
             })
         })
     }
@@ -73,7 +87,7 @@ class ServerClient {
     public getTimeseriesInstances(token: string, environmentFqdn: string, timeSeriesIds: Array<any> = null) {
         if(!timeSeriesIds) {
             return new Promise((resolve: any, reject: any) => {
-                this.getDataWithContinuationBatch(token, resolve, reject, [], 'https://' + environmentFqdn + '/timeseries/instances/' + this.apiVersionUrlParam, 'GET', 'instances');
+                this.getDataWithContinuationBatch(token, resolve, reject, [], 'https://' + environmentFqdn + '/timeseries/instances/' + this.tsmTsqApiVersion, 'GET', 'instances', 10000);
             });        
         }
         else {
@@ -82,17 +96,17 @@ class ServerClient {
     }
     
     public getTimeseriesTypes(token: string, environmentFqdn: string) {
-        let uri = 'https://' + environmentFqdn + '/timeseries/types/' + this.apiVersionUrlParam;
+        let uri = 'https://' + environmentFqdn + '/timeseries/types/' + this.tsmTsqApiVersion;
         return this.createPromiseFromXhr(uri, "GET", {}, token, (responseText) => {return JSON.parse(responseText);});
     }
 
     public getTimeseriesHierarchies(token: string, environmentFqdn: string) {
-        let uri = 'https://' + environmentFqdn + '/timeseries/hierarchies/' + this.apiVersionUrlParam;
+        let uri = 'https://' + environmentFqdn + '/timeseries/hierarchies/' + this.tsmTsqApiVersion;
         return this.createPromiseFromXhr(uri, "GET", {}, token, (responseText) => {return JSON.parse(responseText);});
     }
 
     public getTimeseriesModel(token: string, environmentFqdn: string) {
-        let uri = 'https://' + environmentFqdn + '/timeseries/model/' + this.apiVersionUrlParam;
+        let uri = 'https://' + environmentFqdn + '/timeseries/modelSettings/' + this.tsmTsqApiVersion;
         return this.createPromiseFromXhr(uri, "GET", {}, token, (responseText) => {return JSON.parse(responseText);});
     }
 
@@ -139,7 +153,7 @@ class ServerClient {
         return this.createPromiseFromXhr(uri, "POST", payload, token, (responseText) => {return JSON.parse(responseText).events;});
     }
 
-    private getDataWithContinuationBatch(token, resolve, reject, rows, url, verb, propName, continuationToken = null){
+    private getDataWithContinuationBatch(token, resolve, reject, rows, url, verb, propName, continuationToken = null, maxResults = Number.MAX_VALUE){
         var xhr = new XMLHttpRequest();
         xhr.onreadystatechange = () => {
             if(xhr.readyState != 4) return;
@@ -152,10 +166,10 @@ class ServerClient {
                 // HACK because /instances doesn't match /items
                 var continuationToken = verb == 'GET' ? message.continuationToken : xhr.getResponseHeader('x-ms-continuation');
 
-                if(!continuationToken)
+                if(!continuationToken || rows.length >= maxResults)
                     resolve(rows);
                 else
-                    this.getDataWithContinuationBatch(token, resolve, reject, rows, url, verb, propName, continuationToken);
+                    this.getDataWithContinuationBatch(token, resolve, reject, rows, url, verb, propName, continuationToken, maxResults);
             }
             else{
                 reject(xhr);
