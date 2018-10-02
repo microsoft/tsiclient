@@ -111,12 +111,12 @@ class ServerClient {
     }
 
     public getTimeseriesInstancesSuggestions(token: string, environmentFqdn: string, searchString: string, take: number = 10) {
-        let uri = 'https://' + environmentFqdn + '/timeseries/instances/suggest' + this.apiVersionUrlParam;
+        let uri = 'https://' + environmentFqdn + '/timeseries/instances/suggest' + this.tsmTsqApiVersion;
         return this.createPromiseFromXhr(uri, "POST", JSON.stringify({searchString: searchString, take: take}), token, (responseText) => {return JSON.parse(responseText);});
     }    
 
     public getTimeseriesInstancesSearch(token: string, environmentFqdn: string, searchString: string, continuationToken = null) {
-        let uri = 'https://' + environmentFqdn + '/timeseries/instances/search' + this.apiVersionUrlParam;
+        let uri = 'https://' + environmentFqdn + '/timeseries/instances/search' + this.tsmTsqApiVersion;
         return this.createPromiseFromXhr(uri, "POST", JSON.stringify({searchString: searchString}), token, (responseText) => {return JSON.parse(responseText);}, continuationToken);
     }    
 

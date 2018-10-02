@@ -162,7 +162,7 @@ class ModelSearch extends Component{
     private getInstanceHtml(i) {
         return `<div class="tsi-modelResult">
                     <div class="tsi-modelPK">
-                        ${Utils.strip(i.partitionKeyValue.join(' '))}
+                        ${Utils.strip(i.timeSeriesId.join(' '))}
                     </div>
                     <div class="tsi-modelHighlights">
                         ${Object.keys(i.highlights).map(k => {
