@@ -29,17 +29,25 @@
     right: 0px;
     width: 100px;
     position: absolute;
-    .tsi-stackedButton {
-        display: block;
-        background-size: 20px 20px;
-        background-repeat: no-repeat;
-        background-position: center; 
+    z-index: 2;
+    pointer-events: none;
+
+    .tsi-ellipsisContainerDiv {
+        pointer-events: all;
+        left: auto;
+        right: 20px;
+        top: 0px;
         position: absolute;
-        height: 100%;
-        width: 20px;
-        cursor: pointer;
+        .tsi-ellipsisMenuContainer {
+            pointer-events: all;
+            .tsi-ellipsisMenu {
+                z-index: 2 !important;
+            }
+        }    
     }
-    .tsi-gridButton {
+
+    .tsi-stackedButton {
+        pointer-events: all;
         display: block;
         background-size: 20px 20px;
         background-repeat: no-repeat;
@@ -218,20 +226,13 @@ select::-ms-expand {
     .hoverText{
         fill: $gray1;
     }
-    .stacked, .tsi-gridButton{
+    .stacked {
         g{  
             path{
                 fill: $gray1 !important;
             }
         }
     }
-    .tsi-gridButton{
-        rect{
-            &:active, &:focus{
-                stroke: $gray1 !important;
-            }
-        }
-    }    
 
     .tooltip {
         text {
@@ -259,7 +260,7 @@ select::-ms-expand {
         shape-rendering: crispedges;
     }
     
-    .stacked, .tsi-gridButton{
+    .stacked {
         g{  
             path{
                 stroke-width: 1;
@@ -271,12 +272,6 @@ select::-ms-expand {
             cursor: pointer;
             fill: transparent;
             stroke-width: 1;
-        }
-    }
-    .tsi-gridButton{
-        g{
-            transform: scale(1) translate(0,0);
-            fill-opacity: .8;
         }
     }
     
@@ -298,6 +293,10 @@ select::-ms-expand {
                 font-weight: bold;
             }
         }
+    }
+
+    .tsi-gridComponent {
+        z-index: 3 !important;
     }
 
     .hHoverValueBar {

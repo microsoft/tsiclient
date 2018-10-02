@@ -1208,14 +1208,8 @@ class LineChart extends ChartComponent {
                                        }, this.stickySeries);
 
                 if (!this.chartOptions.hideChartControlPanel) {
-                    var controlPanelWidth = this.chartWidth + this.chartMargins.left + this.chartMargins.right;
-                    // var controlPanelWidth = Math.max(1, (<any>d3.select(this.renderTarget).node()).clientWidth - 
-                    //                                     (this.chartOptions.legend == "shown" ? this.CONTROLSWIDTH + 8 : 0));
-                    d3.select(this.renderTarget).selectAll(".tsi-chartControlsPanel").remove();
-                    var chartControlsPanel = d3.select(this.renderTarget).append("div")
-                        .attr("class", "tsi-chartControlsPanel")
-                        .style("width", controlPanelWidth + "px")
-                        .style("top", Math.max((this.chartMargins.top - 20), 0) + "px");
+
+                    var chartControlsPanel = Utils.createControlPanel(this.renderTarget, this.CONTROLSWIDTH, Math.max((this.chartMargins.top + 12), 0), this.chartOptions);
 
                     this.hasStackedButton = true;
                     this.stackedButton = chartControlsPanel.append("div")
@@ -1233,46 +1227,22 @@ class LineChart extends ChartComponent {
 
                     var self = this;
 
-                    var showGrid = () => {
-                        this.chartOptions.fromChart = true; 
-                        var gridComponent: Grid = new Grid(this.renderTarget);
-                        gridComponent.usesSeconds = this.chartComponentData.usesSeconds;
-                        gridComponent.usesMillis = this.chartComponentData.usesMillis; 
-                        var grid = gridComponent.renderFromAggregates(this.chartComponentData.data, this.chartOptions, this.aggregateExpressionOptions);
-                        grid.focus();
-                    }
-
                     this.ellipsisContainer = chartControlsPanel.append("div")
                         .attr("class", "tsi-ellipsisContainerDiv");
-                    
                     this.ellipsisMenu = new EllipsisMenu(this.ellipsisContainer.node());
-
                     var ellipsisItems = [{
                         iconClass: "flag",
                         label: "Drop a Marker",
                         action: this.scooterButtonClick,
                         description: ""
                     }];
-
-
                     if (this.chartOptions.grid) {
-                        ellipsisItems.push({
-                            iconClass: "grid",
-                            label: "Display Grid",
-                            action: showGrid ,
-                            description: ""
-                        });
+                        ellipsisItems.push(Utils.createGridEllipsisOption(this.renderTarget, this.chartOptions, this.aggregateExpressionOptions, this.chartComponentData));
                     }
 
                     if (this.chartOptions.canDownload) {
-                        ellipsisItems.push({
-                            iconClass: "grid",
-                            label: "Download as CSV",
-                            action:() =>  Utils.downloadCSV(this.chartComponentData.generateCSVString()),
-                            description: ""
-                        });
+                        ellipsisItems.push(Utils.createDownloadEllipsisOption(() => this.chartComponentData.generateCSVString()));
                     }
-
                     this.ellipsisMenu.render(ellipsisItems, {theme: this.chartOptions.theme});
 
                 } else {

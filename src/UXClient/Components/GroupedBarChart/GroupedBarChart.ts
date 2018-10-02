@@ -229,13 +229,7 @@ class GroupedBarChart extends ChartComponent {
                 
                 super.themify(targetElement, this.chartOptions.theme);
 
-                d3.select(this.renderTarget).selectAll(".tsi-chartControlsPanel").remove();
-                var controlPanelWidth = Math.max(1, (<any>d3.select(this.renderTarget).node()).clientWidth - 
-                                                    (this.chartOptions.legend == "shown" ? (this.CONTROLSWIDTH + 16) : 0));
-                var chartControlsPanel = d3.select(this.renderTarget).append("div")
-                    .attr("class", "tsi-chartControlsPanel")
-                    .style("width", controlPanelWidth + "px")
-                    .style("top", Math.max((this.chartMargins.top - 32), 0) + "px");
+                var chartControlsPanel = Utils.createControlPanel(this.renderTarget, this.CONTROLSWIDTH, this.chartMargins.top, this.chartOptions);
 
                 this.stackedButton = chartControlsPanel.append("div")
                     .style("left", "60px")
@@ -245,16 +239,6 @@ class GroupedBarChart extends ChartComponent {
                     })
                     .attr('title', 'Stack/Unstack Bars');
 
-                var showGrid = () => {
-                    this.chartOptions.fromChart = true; 
-                    var gridComponent: Grid= new Grid(this.renderTarget);
-                    gridComponent.usesSeconds = this.chartComponentData.usesSeconds;
-                    gridComponent.usesMillis = this.chartComponentData.usesMillis; 
-                    var grid = gridComponent.renderFromAggregates(this.chartComponentData.data, this.chartOptions, this.aggregateExpressionOptions);
-                    grid.focus();
-                }
-
-
                 if (this.chartOptions.canDownload || this.chartOptions.grid) {
                     this.ellipsisContainer = chartControlsPanel.append("div")
                         .attr("class", "tsi-ellipsisContainerDiv");
@@ -262,21 +246,10 @@ class GroupedBarChart extends ChartComponent {
 
                     var ellipsisItems = [];
                     if (this.chartOptions.grid) {
-                        ellipsisItems.push({
-                            iconClass: "grid",
-                            label: "Display Grid",
-                            action: showGrid ,
-                            description: ""
-                        });
+                        ellipsisItems.push(Utils.createGridEllipsisOption(this.renderTarget, this.chartOptions, this.aggregateExpressionOptions, this.chartComponentData));
                     }
-
                     if (this.chartOptions.canDownload) {
-                        ellipsisItems.push({
-                            iconClass: "grid",
-                            label: "Download as CSV",
-                            action:() =>  Utils.downloadCSV(this.chartComponentData.generateCSVString()),
-                            description: ""
-                        });
+                        ellipsisItems.push(Utils.createDownloadEllipsisOption(() => this.chartComponentData.generateCSVString()));
                     }
 
                     this.ellipsisMenu.render(ellipsisItems, {theme: this.chartOptions.theme});
