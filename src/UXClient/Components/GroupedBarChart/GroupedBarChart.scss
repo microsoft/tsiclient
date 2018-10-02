@@ -26,6 +26,18 @@
 }
 
 .tsi-barChart {
+
+    .tsi-chartControlsPanel {
+        z-index: 2;
+        pointer-events: none;
+
+        .tsi-ellipsisMenuContainer {
+            pointer-events: all;
+            .tsi-ellipsisMenu {
+                z-index: 2 !important;
+            }
+        }
+    }
     
     &.tsi-dark{
         $grays: grays('dark');
@@ -51,6 +63,14 @@
             pointer-events: none;
         }
     }
+
+    .tsi-ellipsisContainerDiv {
+        left: auto;
+        right: 20px;
+        top: 0px;
+        position: absolute;
+    }
+
     .tsi-sliderWrapper{
         position: absolute;
         height: 55px;
@@ -66,12 +86,7 @@
             background-image: url(../../Icons/Layer_Icon_Dark_Theme.svg);
         }
     }
-    .tsi-gridButton {
-        &.tsi-lightTheme {
-            background-image: url(../../Icons/Grid_Icon_Light_Theme.svg);
-        }
-        &.tsi-darkTheme {
-            background-image: url(../..//Icons/Grid_Icon_Dark_Theme.svg);
-        }
+    .tsi-gridComponent {
+        z-index: 3 !important;
     }
 }

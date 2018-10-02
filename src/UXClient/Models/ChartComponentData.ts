@@ -404,7 +404,9 @@ class ChartComponentData {
             if (value.measures && Object.keys(value.measures).length != 0) {
                 Object.keys(value.measures).forEach((type) => {
                     var rowKey = value.aggregateKey + "_" + value.splitBy + "_" + type;
-                    rowMap[rowKey][value.dateTime.valueOf()] = value.measures[type] == null ? "" : value.measures[type];
+                    rowMap[rowKey][value.dateTime.valueOf()] = 
+                        (value.measures[type] == null || value.measures[type] == undefined) ? 
+                        "" : value.measures[type];
                 });
             }
         });
@@ -414,7 +416,7 @@ class ChartComponentData {
             var millis = (new Date(timeString)).valueOf();
             csvString += Utils.timeFormat(this.usesSeconds, this.usesMillis, offset)(new Date(millis)) + ",";
             rowOrder.forEach((rowKey) => {
-                csvString += rowMap[rowKey][millis] + ",";
+                csvString += (rowMap[rowKey][millis] != undefined ? rowMap[rowKey][millis] : "")  + ",";
             });
             csvString = endLine(csvString);
         });

@@ -7,7 +7,7 @@ class GroupedBarChartData extends ChartComponentData {
     public valuesAtTimestamp;
 
     // allValues, aggsSeries, and allTimestampsArray span the entire time period of the aggregate expressions passed in
-    public allValues: Array<any> = [];
+    public valuesOfVisibleType: Array<any> = [];
     public aggsSeries;
 
     public globalMax: number = -Number.MAX_VALUE;
@@ -38,7 +38,7 @@ class GroupedBarChartData extends ChartComponentData {
         this.globalMax = -Number.MAX_VALUE;
         this.globalMin = Number.MAX_VALUE;
         this.aggsSeries = {};
-        this.allValues = [];
+        this.valuesOfVisibleType = [];
         Object.keys(this.displayState).forEach((aggKey, aggI) => {
             var splitByNames = [];
             var currentTimeSeries;
@@ -64,7 +64,7 @@ class GroupedBarChartData extends ChartComponentData {
 
                         if ((!scaledToCurrentTime || ts == this.timestamp) && splitBy.visible){ 
                             // var currValue = this.chartComponentData.data[aggI][this.chartComponentData.displayState[aggKey].name][splitByName][ts][splitBy.visibleType];
-                            this.allValues.push(value);
+                            this.valuesOfVisibleType.push(value);
                         }
                         return sAO;
                     }, {});
