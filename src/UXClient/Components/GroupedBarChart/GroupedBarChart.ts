@@ -9,6 +9,8 @@ import { GroupedBarChartData } from '../../Models/GroupedBarChartData';
 import { ContextMenu } from './../ContextMenu/ContextMenu';
 import { Tooltip } from '../Tooltip/Tooltip';
 import { ChartOptions } from '../../Models/ChartOptions';
+import { EllipsisMenu } from '../EllipsisMenu/EllipsisMenu';
+import { Grid } from '../Grid/Grid';
 
 class GroupedBarChart extends ChartComponent {
     private svgSelection: any;
@@ -19,7 +21,8 @@ class GroupedBarChart extends ChartComponent {
     private timestamp: any;
     private isStacked: boolean = null;
     private stackedButton: any = null;
-    private gridButton: any = null;
+    private ellipsisContainer: any;
+    private ellipsisMenu: EllipsisMenu;
     chartComponentData = new GroupedBarChartData();
     
     private chartMargins: any = {
@@ -226,13 +229,7 @@ class GroupedBarChart extends ChartComponent {
                 
                 super.themify(targetElement, this.chartOptions.theme);
 
-                d3.select(this.renderTarget).selectAll(".tsi-chartControlsPanel").remove();
-                var controlPanelWidth = Math.max(1, (<any>d3.select(this.renderTarget).node()).clientWidth - 
-                                                    (this.chartOptions.legend == "shown" ? (this.CONTROLSWIDTH + 16) : 0));
-                var chartControlsPanel = d3.select(this.renderTarget).append("div")
-                    .attr("class", "tsi-chartControlsPanel")
-                    .style("width", controlPanelWidth + "px")
-                    .style("top", Math.max((this.chartMargins.top - 32), 0) + "px");
+                var chartControlsPanel = Utils.createControlPanel(this.renderTarget, this.CONTROLSWIDTH, this.chartMargins.top, this.chartOptions);
 
                 this.stackedButton = chartControlsPanel.append("div")
                     .style("left", "60px")
@@ -241,9 +238,23 @@ class GroupedBarChart extends ChartComponent {
                         this.draw();
                     })
                     .attr('title', 'Stack/Unstack Bars');
-                this.gridButton = Utils.createGridButton(chartControlsPanel, this, this.chartComponentData.usesSeconds, 
-                        this.chartComponentData.usesMillis, this.chartMargins);
-                
+
+                if (this.chartOptions.canDownload || this.chartOptions.grid) {
+                    this.ellipsisContainer = chartControlsPanel.append("div")
+                        .attr("class", "tsi-ellipsisContainerDiv");
+                    this.ellipsisMenu = new EllipsisMenu(this.ellipsisContainer.node());
+
+                    var ellipsisItems = [];
+                    if (this.chartOptions.grid) {
+                        ellipsisItems.push(Utils.createGridEllipsisOption(this.renderTarget, this.chartOptions, this.aggregateExpressionOptions, this.chartComponentData));
+                    }
+                    if (this.chartOptions.canDownload) {
+                        ellipsisItems.push(Utils.createDownloadEllipsisOption(() => this.chartComponentData.generateCSVString()));
+                    }
+
+                    this.ellipsisMenu.render(ellipsisItems, {theme: this.chartOptions.theme});
+                }
+
                 /********* Determine the number of timestamps present, add margin for slider *********/
 
                 if(this.chartComponentData.allTimestampsArray.length > 1)
@@ -289,7 +300,7 @@ class GroupedBarChart extends ChartComponent {
                     });
             
                 this.chartComponentData.setEntireRangeData(this.chartOptions.scaledToCurrentTime);
-                var allValues = this.chartComponentData.allValues;
+                var allValues: Array<number> = this.chartComponentData.valuesOfVisibleType;
                 var aggsSeries = this.chartComponentData.aggsSeries;
                 
                 var yScale = d3.scaleLinear()
@@ -606,12 +617,6 @@ class GroupedBarChart extends ChartComponent {
                 this.stackedButton.style("opacity", this.chartOptions.stacked ? 1 : .5)
                     .classed('tsi-lightTheme', this.chartOptions.theme == 'light')
                     .classed('tsi-darkTheme', this.chartOptions.theme == 'dark');
-
-                /******************** Grid button ************************/
-                this.gridButton.style("display", !!this.chartOptions.grid ? "block" : "none")
-                    .classed('tsi-lightTheme', this.chartOptions.theme == 'light')
-                    .classed('tsi-darkTheme', this.chartOptions.theme == 'dark');
-                
                 
                 /******************** Temporal Slider ************************/
                 if(this.chartComponentData.allTimestampsArray.length > 1){
@@ -642,6 +647,12 @@ class GroupedBarChart extends ChartComponent {
                     this.draw();
             });
         }
+
+        d3.select("html").on("click." + Utils.guid(), () => {
+            if (this.ellipsisContainer && d3.event.target != this.ellipsisContainer.select(".tsi-ellipsisButton").node()) {
+                this.ellipsisMenu.setMenuVisibility(false);
+            }
+        });
 
         this.chartComponentData.mergeDataToDisplayStateAndTimeArrays(data, this.timestamp, aggregateExpressionOptions);
         this.draw();
