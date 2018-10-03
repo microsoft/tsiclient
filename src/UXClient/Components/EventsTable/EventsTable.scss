@@ -168,16 +168,22 @@
         }
     }
 
+    .tsi-eventsDownload {
+        position: absolute;
+        bottom: 8px;
+        left: 8px;
+    }
+
     .tsi-tableLegend {
-        overflow-y: scroll;
+        overflow-y: auto;
         position: absolute;
         left: 0px;
         top: 0px;
         width: 244px;
         border-right-width: 1px;
         border-right-style: solid;
-        height: 100%;
-        ul{
+        height: calc(100% - 60px);
+        ul {
             padding: 0;
             margin: 8px;
         }

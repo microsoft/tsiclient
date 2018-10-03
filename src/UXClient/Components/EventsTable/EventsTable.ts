@@ -58,6 +58,12 @@ class EventsTable extends ChartComponent{
         }
         this.renderLegend();
         this.buildTable();
+
+        componentContainer.selectAll(".tsi-eventsDownload").remove();
+        componentContainer.append("button")
+            .classed("tsi-eventsDownload", true)
+            .html("download")
+            .on("click", () => Utils.downloadCSV(this.eventsTableData.generateCSVString(true, 0), "Events"));
          //listen for table scroll and adjust the headers accordingly
         var self = this;
 

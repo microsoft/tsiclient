@@ -126,6 +126,10 @@
                         background-size: 20px 20px;
                         background-image: url(../../Icons/Grid_Icon_Dark_Theme.svg);
                     }
+                    &.downloadIcon {
+                        background-size: 16px 16px;
+                        background-image: url(../../Icons/Download_PLACEHOLDER.svg);
+                    }
                 }
             }
         }
@@ -142,10 +146,16 @@
             .tsi-ellipsisMenuItem {
                 .tsi-ellipsisMenuIcon {
                     &.flagIcon {
+                        background-size: 20px 20px;                        
                         background-image: url(../../Icons/flag_light_theme.svg);
                     }
                     &.gridIcon {
+                        background-size: 20px 20px;
                         background-image: url(../../Icons/Grid_Icon_Light_Theme.svg);
+                    }
+                    &.downloadIcon {
+                        background-size: 16px 16px;
+                        background-image: url(../../Icons/Download_PLACEHOLDER.svg);
                     }
                 }
             }

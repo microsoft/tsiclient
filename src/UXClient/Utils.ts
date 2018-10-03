@@ -303,12 +303,12 @@ class Utils {
                s4() + '-' + s4() + s4() + s4();
     }
 
-    static downloadCSV (csvString: string) {
+    static downloadCSV (csvString: string, csvName: string = "Table") {
         var blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
         var blobURL = window.URL.createObjectURL(blob);
         var link = document.createElement("a");
         link.setAttribute("href", blobURL);
-        link.setAttribute("download", "Table.csv");
+        link.setAttribute("download", csvName + ".csv");
         link.innerHTML= "";
         document.body.appendChild(link);
         link.click();
@@ -337,7 +337,7 @@ class Utils {
 
     static createDownloadEllipsisOption (csvStringGenerator) {
         return {
-            iconClass: "grid",
+            iconClass: "download",
             label: "Download as CSV",
             action:() =>  Utils.downloadCSV(csvStringGenerator()),
             description: ""

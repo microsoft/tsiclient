@@ -369,7 +369,6 @@ class ChartComponentData {
     
 
     public generateCSVString (offset: number = 0): string {
-
         //replace comma at end of line with end line character
         var endLine = (s: string): string => {
             return s.slice(0, s.length - 1) + "\n";
