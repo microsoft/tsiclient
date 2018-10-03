@@ -63,7 +63,6 @@ class GroupedBarChartData extends ChartComponentData {
                         sAO[splitByName] = value;
 
                         if ((!scaledToCurrentTime || ts == this.timestamp) && splitBy.visible){ 
-                            // var currValue = this.chartComponentData.data[aggI][this.chartComponentData.displayState[aggKey].name][splitByName][ts][splitBy.visibleType];
                             this.valuesOfVisibleType.push(value);
                         }
                         return sAO;
