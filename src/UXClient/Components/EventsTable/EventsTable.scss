@@ -34,20 +34,23 @@
             }
         }
     }
-    .tsi-tableLegend {
-        border-right-color: $gray1;
-        background-color: $gray3;
-        .tsi-selectAllColumns {
-            .tsi-selectAllSomeState {
-                background-color: $gray1;
+
+    .tsi-tableLeftPanel {
+        .tsi-tableLegend {
+            border-right-color: $gray1;
+            background-color: $gray3;
+            .tsi-selectAllColumns {
+                .tsi-selectAllSomeState {
+                    background-color: $gray1;
+                }
             }
-        }
-
-
-        .tsi-columnToggle, .tsi-selectAllColumns {
-            color: $gray1;
-            &:hover {
-                background-color: $gray2; 
+    
+    
+            .tsi-columnToggle, .tsi-selectAllColumns {
+                color: $gray1;
+                &:hover {
+                    background-color: $gray2; 
+                }
             }
         }
     }
@@ -57,12 +60,20 @@
     position: relative;
     text-align: left;
 	&.tsi-dark{
-		$grays: grays('dark');
-		@include tableColors($grays);
+        $grays: grays('dark');
+        @include chartColors($grays);
+        @include tableColors($grays);
+        .tsi-eventsDownload {
+            background: url('../../Icons/Download_Icon_Dark.svg') 16px / 16px no-repeat;
+        }
 	}
 	&.tsi-light{
-		$grays: grays('light');
-		@include tableColors($grays);
+        $grays: grays('light');
+        @include chartColors($grays);
+        @include tableColors($grays);
+        .tsi-eventsDownload {
+            background: url('../../Icons/Download_Icon_Light.svg') 16px / 16px no-repeat;;
+        }
     }
 
     .tsi-columnTypeIcon {
@@ -168,123 +179,133 @@
         }
     }
 
-    .tsi-eventsDownload {
-        position: absolute;
-        bottom: 8px;
-        left: 8px;
-    }
-
-    .tsi-tableLegend {
-        overflow-y: auto;
+    .tsi-tableLeftPanel {
         position: absolute;
         left: 0px;
         top: 0px;
         width: 244px;
         border-right-width: 1px;
         border-right-style: solid;
-        height: calc(100% - 60px);
-        ul {
-            padding: 0;
-            margin: 8px;
+        height: 100%;
+
+        .tsi-eventsDownload {
+            margin: 0 auto;
+            display: block;
+            bottom: 16px;
+            background-position-y: 8px;
+            background-position-x: 8px;
+            width: calc(100% - 40px);
+            text-align: center;
+            padding: 8px 12px;
+            cursor: pointer;
         }
 
-        .tsi-selectAllColumns {
-            .tsi-selectAllText {
-                left: 28px;
-                position: absolute;
-                pointer-events: none;
-                width: 124px;
-                text-overflow: ellipsis;
-                overflow: hidden;
+        .tsi-tableLegend {
+            overflow-y: auto;
+            height: calc(100% - 60px);
+            ul {
+                padding: 0;
+                margin: 8px;
             }
-        }
-
-        .tsi-selectAllColumns {
-            margin-bottom: 4px !important;
-            .tsi-columnToggleName {
-                left: 13px !important;
-            }
-
-            .tsi-selectAllSomeState {
-                pointer-events: none;
-                position: absolute;
-                width: 9.5px;
-                height: 9.5px;
-                left: 7px;
-                top: 7px;
-            }
-        }
-
-        .tsi-columnToggle, .tsi-selectAllColumns {
-            height: 24px;
-            overflow: hidden;
-            list-style-type: none;
-            position: relative;
-            overflow-y: hidden;
-            white-space: nowrap;
-
-            .tsi-columnToggleName {
-                left: 20px;
-                position: relative;
-                pointer-events: none;
-                width: calc(100% - 88px);
-                text-overflow: ellipsis;
-                overflow: hidden;
-                display: inline-block;
-            }
-
-            &:hover{
-                .tsi-onlyLabel {
-                    display: block;
-                }
-            }
-
-            .tsi-columnToggleCheckbox {
-                pointer-events: none;
-                display: inline-block;
-                width: 16px;
-                height: 16px;
-                left: 4px;
-                bottom: 1px;
-                position: relative;
-                background-size: 16px 160px;
-                background-image: url('../../Icons/checkboxes.svg');
-            }
-
-            .tsi-columnTypeIcon {
-                display: inline-block;
-                bottom: 2px;
-                position: relative;
-                left: 12px;
-            }
-
-            .tsi-columnToggleButton {
-                z-index: 0;
-
-                .tsi-onlyLabel {
-                    display: none;
-                    opacity: .6;
-                    right: 4px;
+    
+            .tsi-selectAllColumns {
+                .tsi-selectAllText {
+                    left: 28px;
                     position: absolute;
-                    display: none;
-                    cursor: pointer;
-                    margin-top: -7px;
-                    font-size: 14px;
-                    &:hover {
-                        text-decoration: underline;
-                    }
+                    pointer-events: none;
+                    width: 124px;
+                    text-overflow: ellipsis;
+                    overflow: hidden;
                 }
-                &:hover {
+            }
+    
+            .tsi-selectAllColumns {
+                margin-bottom: 4px !important;
+                .tsi-columnToggleName {
+                    left: 13px !important;
+                }
+    
+                .tsi-selectAllSomeState {
+                    pointer-events: none;
+                    position: absolute;
+                    width: 9.5px;
+                    height: 9.5px;
+                    left: 7px;
+                    top: 7px;
+                }
+            }
+    
+            .tsi-columnToggle, .tsi-selectAllColumns {
+                height: 24px;
+                overflow: hidden;
+                list-style-type: none;
+                position: relative;
+                overflow-y: hidden;
+                white-space: nowrap;
+    
+                .tsi-columnToggleName {
+                    left: 20px;
+                    position: relative;
+                    pointer-events: none;
+                    width: calc(100% - 88px);
+                    text-overflow: ellipsis;
+                    overflow: hidden;
+                    display: inline-block;
+                }
+    
+                &:hover{
                     .tsi-onlyLabel {
-                        display: block !important;
+                        display: block;
                     }
                 }
-                background-color: transparent;
-                width: 100%;
-                left: 0px;
-                height: 100%;
-                position: absolute;
-                border: none;
+    
+                .tsi-columnToggleCheckbox {
+                    pointer-events: none;
+                    display: inline-block;
+                    width: 16px;
+                    height: 16px;
+                    left: 4px;
+                    bottom: 1px;
+                    position: relative;
+                    background-size: 16px 160px;
+                    background-image: url('../../Icons/checkboxes.svg');
+                }
+    
+                .tsi-columnTypeIcon {
+                    display: inline-block;
+                    bottom: 2px;
+                    position: relative;
+                    left: 12px;
+                }
+    
+                .tsi-columnToggleButton {
+                    z-index: 0;
+    
+                    .tsi-onlyLabel {
+                        display: none;
+                        opacity: .6;
+                        right: 4px;
+                        position: absolute;
+                        display: none;
+                        cursor: pointer;
+                        margin-top: -7px;
+                        font-size: 14px;
+                        &:hover {
+                            text-decoration: underline;
+                        }
+                    }
+                    &:hover {
+                        .tsi-onlyLabel {
+                            display: block !important;
+                        }
+                    }
+                    background-color: transparent;
+                    width: 100%;
+                    left: 0px;
+                    height: 100%;
+                    position: absolute;
+                    border: none;
+                }
             }
         }
     }

@@ -45,8 +45,11 @@ class EventsTable extends ChartComponent{
         var componentContainer = d3.select(this.renderTarget)
             .classed("tsi-tableComponent", true);
         super.themify(componentContainer, this.chartOptions.theme);
+        var tableLeftPanel;
         if (this.eventsTable == null) {
-            this.eventsLegend = componentContainer.append("div")
+            tableLeftPanel = componentContainer.append("div")
+                .classed("tsi-tableLeftPanel", true);
+            this.eventsLegend = tableLeftPanel.append("div")            
                 .classed("tsi-tableLegend", true);
             this.eventsLegend.append("ul");
             this.eventsTable = componentContainer.append("div")
@@ -55,14 +58,16 @@ class EventsTable extends ChartComponent{
             var table = this.eventsTable.append("div").classed("tsi-eventRowsContainer", true)
                 .append("table").classed("tsi-eventRows", true);         
             table.append("tr"); 
+        } else {
+            tableLeftPanel = componentContainer.select("tsi-tableLeftPanel");
         }
         this.renderLegend();
         this.buildTable();
 
-        componentContainer.selectAll(".tsi-eventsDownload").remove();
-        componentContainer.append("button")
-            .classed("tsi-eventsDownload", true)
-            .html("download")
+        tableLeftPanel.selectAll(".tsi-eventsDownload").remove();
+        tableLeftPanel.append("button")
+            .attr("class", "tsi-eventsDownload tsi-primaryButton")
+            .html("CSV")
             .on("click", () => Utils.downloadCSV(this.eventsTableData.generateCSVString(true, 0), "Events"));
          //listen for table scroll and adjust the headers accordingly
         var self = this;
