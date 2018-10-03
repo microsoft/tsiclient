@@ -294,23 +294,30 @@ class LineChart extends ChartComponent {
             var flatValuesList = [];
             filteredValues.forEach((d: any) => {
                 if (this.chartComponentData.isPossibleEnvelope(d.aggregateKey, d.splitBy)) {
-                    if (d.measures['min'] != undefined) {
+                    if (d.measures['min'] != undefined && d.measures['min'] != null) {
                         flatValuesList.push(d.measures['min']);
                     }
-                    if (d.measures['avg'] != undefined) {
+                    if (d.measures['avg'] != undefined && d.measures['avg'] != null) {
                         flatValuesList.push(d.measures['avg']);
                     }
-                    if (d.measures['max'] != undefined) {
+                    if (d.measures['max'] != undefined && d.measures['max'] != null) {
                         flatValuesList.push(d.measures['max']);
                     }
                 } else {
-                    flatValuesList.push(d.measures[this.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy)]);
+                    var visibleMeasure = this.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy);
+                    if (d.measures[visibleMeasure] != undefined && d.measures[visibleMeasure] != null) {
+                        flatValuesList.push(d.measures[visibleMeasure]);
+                    }
                 }
             });
             extent = d3.extent(flatValuesList);        
         } else {
             extent = d3.extent(this.getFilteredValues(aggValues), (d: any) => {
-                return d.measures[this.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy)];
+                var visibleMeasure = this.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy);
+                if (d.measures[visibleMeasure] != undefined && d.measures[visibleMeasure] != null) {
+                    return d.measures[visibleMeasure];
+                }
+                return null;
             });    
         }
         if (extent[0] == undefined || extent[1] == undefined)
@@ -320,9 +327,7 @@ class LineChart extends ChartComponent {
 
     private getFilteredValues (aggValues) {
         return aggValues.filter((d: any) => {
-            if (d.measures)
-                return true;
-            return false;
+            return (d.measures && this.getValueOfVisible(d) != null);
         });
     }
 
@@ -657,7 +662,7 @@ class LineChart extends ChartComponent {
     private getValueOfVisible (d) {
         if (d.measures) {
             var visibleMeasure = this.chartComponentData.getVisibleMeasure( d.aggregateKey, d.splitBy);
-            if (d.measures[visibleMeasure])
+            if (d.measures[visibleMeasure] != null || d.measures[visibleMeasure] != undefined)
                 return d.measures[visibleMeasure];
         } 
         return null;
@@ -1196,8 +1201,8 @@ class LineChart extends ChartComponent {
                 this.focus.select('.hLine').attr("x2", this.chartWidth);
                 this.focus.select('.vLine').attr("y2", this.chartHeight + this.timelineHeight);
                 this.svgSelection
-                    .style("width", this.chartWidth + this.chartMargins.left + this.chartMargins.right)
-                    .style("height", this.height);
+                    .style("width", (this.chartWidth + this.chartMargins.left + this.chartMargins.right) + "px")
+                    .style("height", this.height + "px");
                      
                 super.themify(this.targetElement, this.chartOptions.theme);
                         

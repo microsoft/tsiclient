@@ -253,8 +253,8 @@ class GroupedBarChart extends ChartComponent {
                 var controlsOffset = (this.chartOptions.legend == "shown" ? this.CONTROLSWIDTH : 0)
                 chartHeight = height - this.chartMargins.bottom - this.chartMargins.top; 
                 chartWidth = width - this.chartMargins.left - this.chartMargins.right - controlsOffset;
-                svgSelection.style("height", height)
-                            .style("width", width - controlsOffset);            
+                svgSelection.style("height", height + "px")
+                            .style("width", (width - controlsOffset) + "px");            
                 focus.select("line").attr("x2", chartWidth);
 
                 if (this.timestamp.substring(this.timestamp.length - 5, this.timestamp.length) == ".000Z")
