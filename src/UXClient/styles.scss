@@ -24,6 +24,47 @@
     }
 }
 
+@keyframes tsi-slideRight {   
+    from {
+        transform: translateX(-10px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0px);
+        opacity: 1; 
+    }
+}
+
+@mixin baseContextMenuColors($grays){
+    $gray1: nth($grays, 1); // text
+    $gray2: nth($grays, 2); // hover
+    $gray3: nth($grays, 3); // element
+    $gray4: nth($grays, 4); // background
+	$gray5: nth($grays, 5); // alt element
+    $gray6: nth($grays, 6);
+    .tsi-baseContextMenu{
+        background: $gray4;
+        color: $gray1;
+        border: 1px solid $gray6;
+        > div{
+            &:hover{
+                background: $gray2;
+                cursor: pointer;
+            }
+        }        
+    }
+}
+
+.tsi-baseContextMenu{
+    white-space: nowrap;
+    padding: 4px 0;
+    animation: tsi-slideRight 0.367s cubic-bezier(0.1, 0.9, 0.2, 1) forwards;
+    > div{
+        padding: 4px 8px;
+        font-size: 12px;
+    }
+}
+
 .tsi-chartControlsPanel {
     height: 20px;
     right: 0px;

@@ -12,6 +12,7 @@ class ModelSearch extends Component{
     private model;
     private hierarchies;
     private clickedInstance;
+    private wrapper;
     private types;
 	public chartOptions: ChartOptions = new ChartOptions;
     private usedContinuationTokens = {};
@@ -38,6 +39,7 @@ class ModelSearch extends Component{
         let targetElement = d3.select(this.renderTarget);	
         targetElement.html('');	
         let wrapper = targetElement.append('div').attr('class', 'tsi-modelSearchWrapper');
+        this.wrapper = wrapper;
         super.themify(wrapper, this.chartOptions.theme);
         let inputWrapper = wrapper.append("div")
             .attr("class", "tsi-modelSearchInputWrapper");
@@ -51,6 +53,7 @@ class ModelSearch extends Component{
 
         let results = wrapper.append('div')
             .attr("class", "tsi-modelSearchResults").on('scroll', function(){
+                self.closeContextMenu();
                 let that = this as any;
                 if(that.scrollTop + that.clientHeight + 150 > (instanceResults.node() as any).clientHeight){
                     searchInstances(searchText, continuationToken);
@@ -63,7 +66,7 @@ class ModelSearch extends Component{
         let hierarchyElement = wrapper.append('div')
             .attr("class", "tsi-hierarchyWrapper");
         let hierarchy = new Hierarchy(hierarchyElement.node() as any);
-        hierarchy.render(hierarchyData, this.chartOptions);
+        hierarchy.render(hierarchyData, {...this.chartOptions, withContextMenu: true});
 
         input.on('keyup', function(){
             if(d3.event.which === 13 || d3.event.keyCode === 13){
@@ -116,11 +119,14 @@ class ModelSearch extends Component{
                                     self.clickedInstance = this;
                                     i.type = self.types.filter(t => t.name === i.highlights.type)[0];
                                     let contextMenuActions = self.chartOptions.onInstanceClick(i);
-                                    self.contextMenu = d3.select(this).append('div').classed('tsi-modelSearchContextMenu', true);
-                                    let contextMenuOptions = self.contextMenu.append('ul');
+                                    self.contextMenu = self.wrapper.append('div');
                                     Object.keys(contextMenuActions).forEach(k => {
-                                        contextMenuOptions.append('li').html(k).on('click', contextMenuActions[k]);
+                                        self.contextMenu.append('div').html(k).on('click', contextMenuActions[k]);
                                     });
+                                    let mouseWrapper = d3.mouse(self.wrapper.node());
+                                    let mouseElt = d3.mouse(this as any);
+                                    self.contextMenu.attr('style', () => `top: ${mouseWrapper[1] - mouseElt[1]}px`);
+                                    self.contextMenu.classed('tsi-modelSearchContextMenu', true);
                                 }
                                 else{
                                     self.clickedInstance = null;

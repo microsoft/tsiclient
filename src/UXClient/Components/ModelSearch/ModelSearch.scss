@@ -26,10 +26,21 @@
     .tsi-modelSearchInstances{
         > div{
             &:hover{
-                background: $gray2;
+                background-color: $gray2;
+                &::after{
+                    content: "";
+                    position: absolute;
+                    width: 14px;
+                    height: 14px;
+                    top: 8px;
+                    left: calc(100% - 20px);
+                    background: url(../../Icons/chevron.svg) no-repeat;
+                    transform: rotate(-90deg);
+                }
             }
         }
     }
+    @include baseContextMenuColors($grays);
     :global{
         .awesomplete > ul {
             background: $gray4;
@@ -55,6 +66,7 @@
         top: 40px;
         width: 100%;
         height: calc(100% - 40px);
+        left: 0;
         .tsi-filterWrapper{
             display: none;
         }
@@ -153,10 +165,14 @@
                 text-decoration: underline;
             }
         }
+        .tsi-modelSearchInstancesWrapper{
+            width: 100%;
+        }
         .tsi-modelSearchInstances{
             flex-grow: 1;
             > div{
                 cursor: pointer;
+                position: relative;
                 .tsi-modelResult{
                     margin: 8px;
                     pointer-events: none;
@@ -170,5 +186,10 @@
                 }
             }
         }
+    }
+    .tsi-modelSearchContextMenu{
+        @extend .tsi-baseContextMenu;
+        position: absolute;
+        left: calc(100% - 20px);
     }
 }

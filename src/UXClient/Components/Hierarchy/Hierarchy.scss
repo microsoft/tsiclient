@@ -29,6 +29,7 @@
             border-bottom: 2px solid $gray1;
         }
     }
+    @include baseContextMenuColors($grays);
 }   
 
 .tsi-hierarchy{
@@ -91,7 +92,7 @@
                     cursor: pointer;
                 }
             }
-            &.tsi-leaf{
+            &.tsi-leaf, .tsi-leafParent{
                 font-weight: 600;
                 &:before{
                     content: '\00B7 ';
@@ -114,5 +115,10 @@
     }
     .tsi-noBefore:before{
         content: '' !important;
+    }
+    .tsi-hierarchyContextMenu{
+        @extend .tsi-baseContextMenu;
+        position: absolute;
+        left: calc(100% - 20px);   
     }
 }
