@@ -24,7 +24,6 @@
     }
 }
 
-<<<<<<< HEAD
 @keyframes tsi-slideRight {   
     from {
         transform: translateX(-10px);
@@ -64,13 +63,12 @@
         padding: 4px 8px;
         font-size: 12px;
     }
-=======
+}
 .tsi-primaryButton {
     height: 36px;
     border-radius: 4px;
     border-width: 1px;
     border-style: solid;
->>>>>>> master
 }
 
 .tsi-chartControlsPanel {
@@ -87,19 +85,12 @@
         right: 20px;
         top: 0px;
         position: absolute;
-<<<<<<< HEAD
-        height: 100%;
-        width: 20px;
-        left: 60px;
-        cursor: pointer;
-=======
         .tsi-ellipsisMenuContainer {
             pointer-events: all;
             .tsi-ellipsisMenu {
                 z-index: 2 !important;
             }
         }    
->>>>>>> master
     }
 
     .tsi-stackedButton {
