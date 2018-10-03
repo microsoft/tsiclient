@@ -10,6 +10,7 @@ class ChartOptions {
     public brushHandlesVisible: boolean; // whether handles on the brush are visible
     public brushMoveAction: any; // action fired when the brush moved
     public brushMoveEndAction: any; // action fired at the end of a mouse movement
+    public canDownload: boolean; // whether chart's ellipsis menu contains download button
     public color: string; // color of the time selection ghost in availability chart
     public events: Array<any>; // events passed into the linchart, an array of discrete time events
     public focusHidden: boolean; // whether focus element is hidden in chart
@@ -132,6 +133,7 @@ class ChartOptions {
         this.availabilityLeftMargin = this.getValueOrDefault(chartOptionsObj, 'availabilityLeftMargin', 60);
         this.interpolationFunction = this.getInterpolationFunction(this.getValueOrDefault(chartOptionsObj, 'interpolationFunction', ''));
         this.includeEnvelope = this.getValueOrDefault(chartOptionsObj, 'includeEnvelope', false);
+        this.canDownload = this.getValueOrDefault(chartOptionsObj, 'canDownload', true);
     }
 
     public toObject () {
@@ -182,7 +184,8 @@ class ChartOptions {
             includeTimezones: this.includeTimezones,
             availabilityLeftMargin: this.availabilityLeftMargin,
             interpolationFunction: this.interpolationFunction,
-            includeEnvelope: this.includeEnvelope
+            includeEnvelope: this.includeEnvelope,
+            canDownload: this.canDownload
         }
     }
 }

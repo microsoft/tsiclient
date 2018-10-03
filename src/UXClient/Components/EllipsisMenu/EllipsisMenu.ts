@@ -16,7 +16,7 @@ class EllipsisMenu extends Component {
     }
 
     private createIconPath (iconName: string, theme: string): string {
-        var supportedNames: Array<string> = ["flag", "grid"];
+        var supportedNames: Array<string> = ["flag", "grid", "download"];
         return (supportedNames.indexOf(iconName) != -1) ? iconName + "Icon" : "";
     }
 
