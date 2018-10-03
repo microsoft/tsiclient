@@ -2,6 +2,9 @@ import * as d3 from 'd3';
 import * as momentTZ from 'moment-timezone';
 import {Grid} from "./Components/Grid/Grid";
 import { ChartComponent } from './Interfaces/ChartComponent';
+import { ChartOptions } from './Models/ChartOptions';
+import { AggregateExpression } from './Models/AggregateExpression';
+import { ChartComponentData } from './Models/ChartComponentData';
 
 class Utils {
     static formatYAxisNumber (val: number) {
@@ -307,6 +310,75 @@ class Utils {
                s4() + '-' + s4() + s4() + s4();
     }
 
+    static downloadCSV (csvString: string, csvName: string = "Table") {
+        var blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+        var blobURL = window.URL.createObjectURL(blob);
+        var link = document.createElement("a");
+        link.setAttribute("href", blobURL);
+        link.setAttribute("download", csvName + ".csv");
+        link.innerHTML= "";
+        document.body.appendChild(link);
+        link.click();
+    }  
+
+    static showGrid(renderTarget: any, chartOptions: ChartOptions, aggregateExpressionOptions: any, chartComponentData: ChartComponentData) {
+        chartOptions.fromChart = true; 
+        var gridComponent: Grid= new Grid(renderTarget);
+        gridComponent.usesSeconds = chartComponentData.usesSeconds;
+        gridComponent.usesMillis = chartComponentData.usesMillis; 
+        var grid = gridComponent.renderFromAggregates(chartComponentData.data, chartOptions, aggregateExpressionOptions);
+        grid.focus();
+    }
+
+    static createGridEllipsisOption (renderTarget: any, chartOptions: ChartOptions, aggregateExpressionOptions: any, chartComponentData: ChartComponentData) {
+        return {
+            iconClass: "grid",
+            label: "Display Grid",
+            action: () => { 
+                this.showGrid(renderTarget, chartOptions, 
+                              aggregateExpressionOptions, chartComponentData);
+            },
+            description: ""
+        };
+    }
+
+    static createDownloadEllipsisOption (csvStringGenerator) {
+        return {
+            iconClass: "download",
+            label: "Download as CSV",
+            action:() =>  Utils.downloadCSV(csvStringGenerator()),
+            description: ""
+        };
+    }
+
+
+    static createControlPanel (renderTarget: any, legendWidth: number, topChartMargin: number, chartOptions: any) {
+        d3.select(renderTarget).selectAll(".tsi-chartControlsPanel").remove();
+        var controlPanelWidth = Math.max(1, (<any>d3.select(renderTarget).node()).clientWidth - 
+                                            (chartOptions.legend == "shown" ? (legendWidth + 16) : 0));
+        var chartControlsPanel = d3.select(renderTarget).append("div")
+            .attr("class", "tsi-chartControlsPanel")
+            .style("width", controlPanelWidth + "px")
+            .style("top", Math.max((topChartMargin - 32), 0) + "px");
+            
+        return chartControlsPanel;
+    }
+
+    static escapeQuotesCommasAndNewlines (stringToEscape: string) {
+        var escapedString = "";
+        if (stringToEscape && (stringToEscape.indexOf("\"") != -1 || 
+                               stringToEscape.indexOf(",") != -1 || 
+                               stringToEscape.indexOf("\n") != -1)) {
+            stringToEscape = stringToEscape.replace(/"/g, "\"\"");
+            escapedString += "\"";
+            escapedString += stringToEscape;
+            escapedString += "\"";
+            return escapedString;
+        }
+        else {
+            return stringToEscape;
+        }
+    };
 }
 
 export {Utils};

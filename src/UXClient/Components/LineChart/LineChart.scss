@@ -279,18 +279,6 @@
             background-image: url(../../Icons/Layer_Icon_Dark_Theme.svg);
         }
     }
-    .tsi-gridButton { 
-        &.tsi-lightTheme {
-            background-image: url(../../Icons/Grid_Icon_Light_Theme.svg);
-        }
-        &.tsi-darkTheme {
-            background-image: url(../..//Icons/Grid_Icon_Dark_Theme.svg);
-        }
-    }
-
-    .tsi-gridComponent {
-        z-index: 3 !important;
-    }
 
     .tsi-ellipsisContainerDiv {
         left: auto;

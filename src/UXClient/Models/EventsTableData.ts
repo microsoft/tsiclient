@@ -91,5 +91,28 @@ class EventsTableData {
         this.columns = newColumns;
     }
 
+    public generateCSVString (includeAllColumns: boolean = true, offset: number = 0): string {
+        //replace comma at end of line with end line character
+        var endLine = (s: string): string => {
+            return s.slice(0, s.length - 1) + "\n";
+        }
+
+        var columnKeys = ["timestamp_DateTime"].concat(Object.keys(this.columns).filter((a) => {
+            return a != "timestamp_DateTime";
+        }));
+
+        var csvString = endLine(columnKeys.reduce((headerString, columnKey) => {
+            return headerString + this.columns[columnKey].name + ",";
+        }, ""));
+
+        this.events.forEach((event: TimeSeriesEvent) => {
+            csvString += endLine(columnKeys.reduce((lineString, columnKey) => {
+                return lineString + ((event.cells[columnKey] != null && event.cells[columnKey].value != null) ? 
+                                        event.cells[columnKey].value : "") + ","
+            }, ""));
+        });
+        return csvString;
+    }
+
 }
 export {EventsTableData}
