@@ -53,6 +53,8 @@
                     <option value="10">10. A Table of Events</option>
                     <option value="11">11. An Availability Chart</option>
                     <option value="12">12. Line Chart With Min/Max Envelope and Step Interpolation</option>
+                    <option value="13">13. Line Chart From L1 SKU Environment</option>
+                    <option value="14">14. Model Search Component With Hierarchy</option>
                 </select>
             </div>
             <div id="charts">
@@ -696,6 +698,8 @@
             });
         }
 
+
+        // 14. Model Search Component With Hierarchy
         var example14 = function() {
             renderChartContainers(1);
             document.getElementById("chart1").style.width = '400px';
@@ -748,7 +752,7 @@
 
         // Initial load, supports linking to a specific example by hash
         if(!window.location.hash)
-            example14();
+            example1();
         else {
             let exampleNumber = window.location.hash.split('#')[1];
             document.getElementById('selectTitle').value = exampleNumber;

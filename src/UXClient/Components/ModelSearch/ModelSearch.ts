@@ -38,10 +38,9 @@ class ModelSearch extends Component{
         let continuationToken, searchText;
         let targetElement = d3.select(this.renderTarget);	
         targetElement.html('');	
-        let wrapper = targetElement.append('div').attr('class', 'tsi-modelSearchWrapper');
-        this.wrapper = wrapper;
-        super.themify(wrapper, this.chartOptions.theme);
-        let inputWrapper = wrapper.append("div")
+        this.wrapper = targetElement.append('div').attr('class', 'tsi-modelSearchWrapper');
+        super.themify(this.wrapper, this.chartOptions.theme);
+        let inputWrapper = this.wrapper.append("div")
             .attr("class", "tsi-modelSearchInputWrapper");
         let input = inputWrapper.append("input")
             .attr("class", "tsi-modelSearchInput")
@@ -51,7 +50,7 @@ class ModelSearch extends Component{
         let noSuggest = false;
         (input.node() as any).addEventListener('awesomplete-selectcomplete', () => {noSuggest = true; input.dispatch('input'); ap.close();});
 
-        let results = wrapper.append('div')
+        let results = this.wrapper.append('div')
             .attr("class", "tsi-modelSearchResults").on('scroll', function(){
                 self.closeContextMenu();
                 let that = this as any;
@@ -64,7 +63,7 @@ class ModelSearch extends Component{
         let instanceResults = instanceResultsWrapper.append('div').attr('class', 'tsi-modelSearchInstances');
         let showMore = instanceResultsWrapper.append('div').attr('class', 'tsi-showMore').html('Show more...').on('click', () => searchInstances(searchText, continuationToken)).style('display', 'none');
 
-        let hierarchyElement = wrapper.append('div')
+        let hierarchyElement = this.wrapper.append('div')
             .attr("class", "tsi-hierarchyWrapper");
         let hierarchy = new Hierarchy(hierarchyElement.node() as any);
         hierarchy.render(hierarchyData, {...this.chartOptions, withContextMenu: true});

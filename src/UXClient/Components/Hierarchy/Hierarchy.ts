@@ -3,6 +3,7 @@ import './Hierarchy.scss';
 import {Utils} from "./../../Utils";
 import {Component} from "./../../Interfaces/Component";
 import {HierarchyNode} from "./../../Models/HierarchyNode";
+import { ChartOptions } from '../../Models/ChartOptions';
 
 class Hierarchy extends Component {
     private filterText = '';
@@ -11,6 +12,7 @@ class Hierarchy extends Component {
     private contextMenu: any;
     private clickedNode: any;
     private hierarchyList: any;
+    private chartOptions: ChartOptions;
 
     constructor(renderTarget: Element){
         super(renderTarget);
@@ -20,8 +22,9 @@ class Hierarchy extends Component {
         var self = this;
         var targetElement = d3.select(this.renderTarget).classed('tsi-hierarchy', true);
         targetElement.html('');
-        super.themify(targetElement, options && options.theme ? options.theme : null);
-        this.withContextMenu = !!options.withContextMenu;
+        this.chartOptions.setOptions(options);
+        super.themify(targetElement, this.chartOptions.theme);
+        this.withContextMenu = this.chartOptions.withContextMenu;
         this.root = this.buildTree(data);
         this.root.isExpanded = true;
         
