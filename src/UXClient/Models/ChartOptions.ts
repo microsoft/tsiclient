@@ -31,6 +31,7 @@ class ChartOptions {
     public minutesForTimeLabels: boolean; // whether time labels forced to minute granularity
     public noAnimate: boolean; // whether animations happen on state change
     public offset: any; // offset for all timestamps in minutes from UTC
+    public onInstanceClick: (instance: any) => any;  // for model search, takes an instance and returns an object of context menu actions
     public onMouseout: () => void;
     public onMouseover: (aggKey: string, splitBy: string) => void;
     public onSticky: (aggKey: string, splitBy: string) => void;
@@ -50,6 +51,7 @@ class ChartOptions {
     public yAxisHidden: boolean; // whether yAxis is hidden in chart
     public yAxisState: string; // state of the y axis in line chart, either: stacked, shared, overlap
     public zeroYAxis: boolean; // whether bar chart's bar's bottom (or top if negative) is zero
+    public withContextMenu: boolean; // whether the hierarchy uses a context menu when you click on a parent of leaf nodes
 
     private getValueOrDefault (chartOptionsObj, propertyName, defaultValue) {
         let propertyValue = chartOptionsObj[propertyName];
@@ -131,9 +133,11 @@ class ChartOptions {
         this.is24HourTime = this.getValueOrDefault(chartOptionsObj, 'is24HourTime', true);
         this.includeTimezones = this.getValueOrDefault(chartOptionsObj, 'includeTimezones', true);
         this.availabilityLeftMargin = this.getValueOrDefault(chartOptionsObj, 'availabilityLeftMargin', 60);
+        this.onInstanceClick = this.getValueOrDefault(chartOptionsObj, 'onInstanceClick', () => {return {}});
         this.interpolationFunction = this.getInterpolationFunction(this.getValueOrDefault(chartOptionsObj, 'interpolationFunction', ''));
         this.includeEnvelope = this.getValueOrDefault(chartOptionsObj, 'includeEnvelope', false);
         this.canDownload = this.getValueOrDefault(chartOptionsObj, 'canDownload', true);
+        this.withContextMenu = this.getValueOrDefault(chartOptionsObj, 'withContextMenu', false);
     }
 
     public toObject () {
@@ -183,9 +187,11 @@ class ChartOptions {
             is24HourTime: this.is24HourTime.valueOf,
             includeTimezones: this.includeTimezones,
             availabilityLeftMargin: this.availabilityLeftMargin,
+            onInstanceClick: this.onInstanceClick,
             interpolationFunction: this.interpolationFunction,
             includeEnvelope: this.includeEnvelope,
-            canDownload: this.canDownload
+            canDownload: this.canDownload,
+            withContextMenu: this.withContextMenu
         }
     }
 }

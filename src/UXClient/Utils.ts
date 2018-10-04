@@ -181,6 +181,13 @@ class Utils {
         }
     }
 
+    static strip(text) {
+        var div = document.createElement('div');
+        div.innerHTML = text;
+        var textContent = div.textContent || div.innerText || '';
+        return textContent;
+    }
+
     static stripForConcat(text) {
         var specialCharacters = ['"', "'", '?', '<', '>', ';'];
         specialCharacters.forEach(c => { text = text.split(c).join('') });

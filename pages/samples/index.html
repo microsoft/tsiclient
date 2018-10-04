@@ -53,6 +53,8 @@
                     <option value="10">10. A Table of Events</option>
                     <option value="11">11. An Availability Chart</option>
                     <option value="12">12. Line Chart With Min/Max Envelope and Step Interpolation</option>
+                    <option value="13">13. Line Chart From L1 SKU Environment</option>
+                    <option value="14">14. Model Search Component With Hierarchy</option>
                 </select>
             </div>
             <div id="charts">
@@ -696,14 +698,66 @@
             });
         }
 
+
+        // 14. Model Search Component With Hierarchy
+        var example14 = function() {
+            renderChartContainers(1);
+            document.getElementById("chart1").style.width = '400px';
+            var hierarchy = {
+                'Factory1': {
+                    'Station1': {
+                        'GC4F-286 (Temp)': {$leaf: true, click: function(n){
+                            if(!n._ae)
+                                n._ae = new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory1' AND Station = 'Station1'"}, {property: 'Temperature', type: "Double"}, ['avg'],
+                                { from: startDate, to: endDate, bucketSize: '10s' }, null, '#D869CB', 'F1S1Temp');
+                            renderHierarchyLineChart(n);
+                        }},
+                        'F92-21B (Pressure)': {$leaf: true, click: function(n){
+                            if(!n._ae)
+                                n._ae = new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory1' AND Station = 'Station1'"}, {property: 'Pressure', type: "Double"}, ['avg'],
+                                { from: startDate, to: endDate, bucketSize: '1m' }, null, '#60B9AE', 'F1S1Pressure');
+                            renderHierarchyLineChart(n);
+                        }}                    
+                    }
+                },
+                'Factory2': {
+                    'Station1': {
+                        '19C2-F8 (Temp)': {$leaf: true, click: function(n){
+                            if(!n._ae)
+                                n._ae = new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory2' AND Station = 'Station1'"}, {property: 'Temperature', type: "Double"}, ['avg'],
+                                { from: startDate, to: endDate, bucketSize: '10s' }, null, '#C8E139', 'F2S1Temp');
+                            renderHierarchyLineChart(n);
+                        }},
+                        'B9-C86 (Pressure)': {$leaf: true, click: function(n){
+                            if(!n._ae)
+                                n._ae = new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory2' AND Station = 'Station1'"}, {property: 'Pressure', type: "Double"}, ['avg'],
+                                { from: startDate, to: endDate, bucketSize: '1m' }, null, '#FF8C00', 'F2S1Pressure');
+                            renderHierarchyLineChart(n);
+                        }}                    
+                    }
+                }
+            }
+
+            var onInstanceClick = function(instance) {
+                let contextMenuActions = {};
+                Object.keys(instance.type.variables).forEach(function(vName){
+                    contextMenuActions['Show ' + vName] = function(){console.log(instance.type.variables[vName])}
+                });
+                return contextMenuActions;
+            }
+
+            var modelSearch = new tsiClient.ux.ModelSearch(document.getElementById('chart1'));	            
+            modelSearch.render('c74fddd1-fb33-4ff8-a12f-bab37d881264.env.crystal-dev.windows-int.net', authContext.getTsiToken, hierarchy, {theme: 'light', onInstanceClick: onInstanceClick});
+        }
+
         // Initial load, supports linking to a specific example by hash
         if(!window.location.hash)
-            example13();
+            example1();
         else {
             let exampleNumber = window.location.hash.split('#')[1];
             document.getElementById('selectTitle').value = exampleNumber;
             window['example' + exampleNumber]();
-        }            
+        }
 
     </script>
 </body>

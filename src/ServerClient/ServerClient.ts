@@ -8,7 +8,7 @@ class ServerClient {
     Server () {
     }
 
-    private createPromiseFromXhr (uri, httpMethod, payload, token, responseTextFormat) {
+    private createPromiseFromXhr (uri, httpMethod, payload, token, responseTextFormat, continuationToken = null) {
         return new Promise((resolve: any, reject: any) => {
             var xhr = new XMLHttpRequest();
             xhr.onreadystatechange = () => {
@@ -27,6 +27,8 @@ class ServerClient {
             }
             xhr.open(httpMethod, uri);
             xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+            if (continuationToken)
+                xhr.setRequestHeader('x-ms-continuation', continuationToken);
             xhr.send(payload);
         });
     }
@@ -82,10 +84,15 @@ class ServerClient {
         })
     }
 
-    public getTimeseriesInstances(token: string, environmentFqdn: string) {
-        return new Promise((resolve: any, reject: any) => {
-            this.getDataWithContinuationBatch(token, resolve, reject, [], 'https://' + environmentFqdn + '/timeseries/instances/' + this.tsmTsqApiVersion, 'GET', 'instances', null, 10000);
-        });        
+    public getTimeseriesInstances(token: string, environmentFqdn: string, timeSeriesIds: Array<any> = null) {
+        if(!timeSeriesIds) {
+            return new Promise((resolve: any, reject: any) => {
+                this.getDataWithContinuationBatch(token, resolve, reject, [], 'https://' + environmentFqdn + '/timeseries/instances/' + this.tsmTsqApiVersion, 'GET', 'instances', 10000);
+            });        
+        }
+        else {
+            return this.createPromiseFromXhr('https://' + environmentFqdn + '/timeseries/instances/$batch' + this.apiVersionUrlParam, "POST", JSON.stringify({get: timeSeriesIds}), token, (responseText) => {return JSON.parse(responseText);});
+        }
     }
     
     public getTimeseriesTypes(token: string, environmentFqdn: string) {
@@ -102,6 +109,16 @@ class ServerClient {
         let uri = 'https://' + environmentFqdn + '/timeseries/modelSettings/' + this.tsmTsqApiVersion;
         return this.createPromiseFromXhr(uri, "GET", {}, token, (responseText) => {return JSON.parse(responseText);});
     }
+
+    public getTimeseriesInstancesSuggestions(token: string, environmentFqdn: string, searchString: string, take: number = 10) {
+        let uri = 'https://' + environmentFqdn + '/timeseries/instances/suggest' + this.tsmTsqApiVersion;
+        return this.createPromiseFromXhr(uri, "POST", JSON.stringify({searchString: searchString, take: take}), token, (responseText) => {return JSON.parse(responseText);});
+    }    
+
+    public getTimeseriesInstancesSearch(token: string, environmentFqdn: string, searchString: string, continuationToken = null) {
+        let uri = 'https://' + environmentFqdn + '/timeseries/instances/search' + this.tsmTsqApiVersion;
+        return this.createPromiseFromXhr(uri, "POST", JSON.stringify({searchString: searchString}), token, (responseText) => {return JSON.parse(responseText);}, continuationToken);
+    }    
 
     public getReferenceDatasetRows(token: string, environmentFqdn: string, datasetId: string) {
         return new Promise((resolve: any, reject: any) => {
