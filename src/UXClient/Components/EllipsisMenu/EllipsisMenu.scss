@@ -14,6 +14,7 @@
 		stroke: $gray1;
     }    
 
+    @include baseContextMenuColors($grays);
     .tsi-ellipsisMenu {
         border-color: $gray6;
         background-color: $gray3;
@@ -57,26 +58,16 @@
     }
 
     .tsi-ellipsisMenu {
+        @extend .tsi-baseContextMenu;
         position: absolute;
-        border-width: 1px;
-        border-radius: 2px;
-        border-style: solid;
         cursor: pointer;
         min-width: 180px;
         top: 24px;
         right: 0;
-        white-space: nowrap;
         z-index: 10000;
-        padding: 4px 0;
         display: none;
 
         .tsi-ellipsisMenuItem {
-            overflow: hidden;
-            height: 24px;
-            font-size: 12px;
-            padding: 4px 8px;
-            display: flex;
-            align-items: center;
             
             .tsi-ellipsisMenuIcon {
                 background-size: 20px 20px;

@@ -29,6 +29,9 @@
             border-bottom: 2px solid $gray1;
         }
     }
+    .tsi-resultSelected{
+        background: $gray2;
+    }
     @include baseContextMenuColors($grays);
 }   
 

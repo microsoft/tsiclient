@@ -59,9 +59,10 @@ class ModelSearch extends Component{
                     searchInstances(searchText, continuationToken);
                 }
             })
+        let noResults = results.append('div').html('No results').classed('tsi-noResults', true).style('display', 'none');
         let instanceResultsWrapper = results.append('div').attr('class', 'tsi-modelSearchInstancesWrapper')
         let instanceResults = instanceResultsWrapper.append('div').attr('class', 'tsi-modelSearchInstances');
-        let showMore = instanceResultsWrapper.append('div').attr('class', 'tsi-showMore').html('Show more...').on('click', () => searchInstances(searchText, continuationToken));
+        let showMore = instanceResultsWrapper.append('div').attr('class', 'tsi-showMore').html('Show more...').on('click', () => searchInstances(searchText, continuationToken)).style('display', 'none');
 
         let hierarchyElement = wrapper.append('div')
             .attr("class", "tsi-hierarchyWrapper");
@@ -97,6 +98,7 @@ class ModelSearch extends Component{
             noSuggest = false;
 
             instanceResults.html('');
+            noResults.style('display', 'none');
             searchInstances(searchText);
         })
 
@@ -112,6 +114,9 @@ class ModelSearch extends Component{
                         if(!continuationToken)
                             continuationToken = 'END';
                         (showMore.node() as any).style.display = continuationToken !== 'END' ? 'block' : 'none';
+                        if(r.instances.length == 0){
+                            noResults.style('display', 'block');
+                        }
                         r.instances.forEach(i => {
                             instanceResults.append('div').html(self.getInstanceHtml(i)).on('click', function() {
                                 self.closeContextMenu();
@@ -127,6 +132,7 @@ class ModelSearch extends Component{
                                     let mouseElt = d3.mouse(this as any);
                                     self.contextMenu.attr('style', () => `top: ${mouseWrapper[1] - mouseElt[1]}px`);
                                     self.contextMenu.classed('tsi-modelSearchContextMenu', true);
+                                    d3.select(this).classed('tsi-resultSelected', true);
                                 }
                                 else{
                                     self.clickedInstance = null;
@@ -163,6 +169,7 @@ class ModelSearch extends Component{
         if(this.contextMenu){
             this.contextMenu.remove();
         }
+        d3.selectAll('.tsi-resultSelected').classed('tsi-resultSelected', false);
     }
 
     private getInstanceHtml(i) {

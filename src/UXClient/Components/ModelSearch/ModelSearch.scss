@@ -40,6 +40,9 @@
             }
         }
     }
+    .tsi-resultSelected{
+        background-color: $gray2;
+    }
     @include baseContextMenuColors($grays);
     :global{
         .awesomplete > ul {
@@ -112,9 +115,13 @@
 
             .awesomplete > input {
                 display: block;
+                z-index: 2;
+                position: relative;
             }
 
             .awesomplete > ul {
+                @extend .tsi-baseContextMenu;
+                animation: tsi-slideIn 0.367s cubic-bezier(0.1, 0.9, 0.2, 1) forwards;
                 position: absolute;
                 left: 0;
                 z-index: 1;
@@ -156,6 +163,12 @@
         display: flex;
         height: calc(100% - 48px);
         overflow: auto;
+        .tsi-noResults{
+            padding: 20px;
+            white-space: nowrap;
+            height: 40px;
+            margin-left: 40px;
+        }
         .tsi-showMore{
             cursor: pointer;
             text-align: center;

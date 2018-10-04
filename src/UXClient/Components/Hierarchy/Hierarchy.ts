@@ -129,6 +129,7 @@ class Hierarchy extends Component {
                     let mouseWrapper = d3.mouse(this.hierarchyList.node());
                     let mouseElt = d3.mouse(el.node());
                     this.contextMenu.attr('style', () => `top: ${mouseWrapper[1] - mouseElt[1]}px`);
+                    el.classed('tsi-resultSelected', true);
                 }
                 else{
                     this.clickedNode = null;
@@ -202,6 +203,7 @@ class Hierarchy extends Component {
         if(this.contextMenu){
             this.contextMenu.remove();
         }
+        d3.selectAll('.tsi-resultSelected').classed('tsi-resultSelected', false);
     }
 }
 export {Hierarchy}
