@@ -263,7 +263,8 @@ class UXClient {
                         var measuresObject = {};
                         dateTimeToValueObject[dt] = measuresObject;
                         options[i].measureTypes.forEach((t,l) => {
-                            if (agg.aggregate.measures[j][k] && agg.aggregate.measures[j][k][l])
+                            if (agg.aggregate.measures[j][k] != null && agg.aggregate.measures[j][k] != undefined && 
+                                agg.aggregate.measures[j][k][l] != null && agg.aggregate.measures[j][k][l] != undefined)
                                 measuresObject[t] = agg.aggregate.measures[j][k][l];
                             else
                                 measuresObject[t] = null;
