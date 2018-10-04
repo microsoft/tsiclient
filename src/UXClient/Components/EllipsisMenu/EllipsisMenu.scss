@@ -1,0 +1,164 @@
+@import "../../styles";
+
+@mixin ellipsisMenuColors($grays){
+	$gray1: nth($grays, 1); // text
+    $gray2: nth($grays, 2); // hover
+    $gray3: nth($grays, 3); // element
+    $gray4: nth($grays, 4); // background
+    $gray5: nth($grays, 5); // alt element
+    $gray6: nth($grays, 6); // alt border
+
+    color: $gray1;
+	
+	path {
+		stroke: $gray1;
+    }    
+
+    .tsi-ellipsisMenu {
+        border-color: $gray6;
+        background-color: $gray3;
+
+        .tsi-ellipsisMenuItem {
+            &:hover {
+                background-color: $gray2;
+            }
+        }
+    }
+    &.tsi-ellipsisMenuShown{
+        .tsi-ellipsisButton{
+            background-color: $gray2;
+        }
+    }
+}
+
+.tsi-ellipsisMenuContainer {
+    left: 0px;
+    top: 0px;
+    width: 24px;
+    height: 24px;
+
+    &.tsi-ellipsisMenuShown{
+        .tsi-ellipsisMenu{
+            animation: tsi-slideIn 0.367s cubic-bezier(0.1, 0.9, 0.2, 1) forwards;
+            display: block;
+        }
+    }
+
+    .tsi-ellipsisButton {
+        cursor: pointer;
+        width: 100%;
+        height: 100%;
+        background-repeat: no-repeat;
+        display: flex;
+        background-position-x: 2px;
+        background-position-y: 3px;
+        border-radius: 2px;
+        transition: background-color .15s ease;
+    }
+
+    .tsi-ellipsisMenu {
+        position: absolute;
+        border-width: 1px;
+        border-radius: 2px;
+        border-style: solid;
+        cursor: pointer;
+        min-width: 180px;
+        top: 24px;
+        right: 0;
+        white-space: nowrap;
+        z-index: 10000;
+        padding: 4px 0;
+        display: none;
+
+        .tsi-ellipsisMenuItem {
+            overflow: hidden;
+            height: 24px;
+            font-size: 12px;
+            padding: 4px 8px;
+            display: flex;
+            align-items: center;
+            
+            .tsi-ellipsisMenuIcon {
+                background-size: 20px 20px;
+                background-repeat: no-repeat;
+                height: 20px;
+                width: 20px; 
+                margin-right: 12px;
+                top: 2px;
+                display: inline-block;
+                position: relative;
+                flex-shrink: 0;
+            }
+
+            .tsi-ellipsisMenuLabel {
+                display: inline-block;
+                position: relative;
+                width: calc(100% - 60px);
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                overflow: hidden;
+            }
+        }
+    }
+
+    .tsi-actionElement {
+        padding: 4px 16px;
+        cursor: default;
+        font-size: 12px;
+    }
+	
+	&.tsi-dark{
+        $grays: grays('dark');
+        @include ellipsisMenuColors($grays);
+        .tsi-ellipsisButton {
+            background-size: 20px 20px;
+            background-image: url(../../Icons/Ellipsis_Icon_Dark_Theme.svg);            
+        }
+
+        .tsi-ellipsisMenu {
+            .tsi-ellipsisMenuItem {
+                .tsi-ellipsisMenuIcon {
+                    &.flagIcon {
+                        background-size: 20px 20px;
+                        background-image: url(../../Icons/flag_dark_theme.svg);
+                    }
+                    &.gridIcon {
+                        background-size: 20px 20px;
+                        background-image: url(../../Icons/Grid_Icon_Dark_Theme.svg);
+                    }
+                    &.downloadIcon {
+                        background-size: 16px 16px;
+                        background-image: url(../../Icons/Download_Icon_Dark.svg);
+                    }
+                }
+            }
+        }
+    }
+    &.tsi-light{
+        $grays: grays('light');
+        @include ellipsisMenuColors($grays);
+        .tsi-ellipsisButton {
+            background-size: 20px 20px;
+            background-image: url(../../Icons/Ellipsis_Icon_Light_Theme.svg);            
+        }
+
+        .tsi-ellipsisMenu {
+            .tsi-ellipsisMenuItem {
+                .tsi-ellipsisMenuIcon {
+                    &.flagIcon {
+                        background-size: 20px 20px;                        
+                        background-image: url(../../Icons/flag_light_theme.svg);
+                    }
+                    &.gridIcon {
+                        background-size: 20px 20px;
+                        background-image: url(../../Icons/Grid_Icon_Light_Theme.svg);
+                    }
+                    &.downloadIcon {
+                        background-size: 16px 16px;
+                        background-image: url(../../Icons/Download_Icon_Light.svg);
+                    }
+                }
+            }
+        }
+    }
+}

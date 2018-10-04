@@ -8,7 +8,7 @@
     $gray5: nth($grays, 5);
     $gray6: nth($grays, 6); // hover
 
-    
+
     color: $gray1;
     background: $gray3;
     .tsi-lineChartSVG{
@@ -34,29 +34,75 @@
             stroke: $gray1 !important;
         }
     }
+
     .tsi-scooterContainer {
         color: $gray1;
         .tsi-scooterTimeLabel {
             background-color: $gray3;
             border-color: $gray6;
+            .tsi-closeButton {
+                &:hover {
+                    background-color: $gray2;
+                }
+            }
         }
 
         .tsi-scooterLine, .tsi-scooterDragger {
             background-color: $gray6;
         }
     }
+    .tsi-markerInstructions {
+        background-color: rgba($gray3, .9);
+    }
     @include chartColors($grays);
 }
 
 .tsi-lineChart {
+
+    .tsi-chartControlsPanel {
+        z-index: 2;
+        pointer-events: none;
+
+        .tsi-ellipsisMenuContainer {
+            pointer-events: all;
+            .tsi-ellipsisMenu {
+                z-index: 2 !important;
+            }
+        }
+
+        .tsi-stackedButton {
+            pointer-events: all;
+        }
+
+    }
+
+    .tsi-tooltip {
+        z-index: 1;
+    }
+
+    .tsi-markerInstructions {
+        height: 24px;
+        width: calc(100% - 8px);
+        font-size: 16px;
+        text-align: center;
+        padding: 4px;
+        position: absolute;
+        border-radius: 3px;
+        bottom: 0px;
+    }
+
     .tsi-scooterContainer {
         position: absolute;
         pointer-events: none;
         width: 2px;
         transform: translateX(-1px);
+        z-index: 1;
 
         .tsi-scooterDragger, .tsi-scooterTimeLabel {
             pointer-events: all;
+        }
+
+        .tsi-scooterDragger {
             -webkit-transform: translateX(calc(-50% + 1px));
             transform: translateX(calc(-50% + 1px));
         }
@@ -67,6 +113,7 @@
             width: 2px;
             left: 0px;
             top: 0px;
+            cursor: move;
         } 
 
         .tsi-scooterDragger {
@@ -109,15 +156,28 @@
             }    
         }
         .tsi-scooterTimeLabel {
+            cursor: move;
             bottom: 100%;
             position: absolute;
             left: 0px;
             white-space: nowrap;
             font-size: 12px;
-            padding: 4px;
+            padding: 4px 24px 4px 8px;
             border-width: 1px;
             border-style: solid;
             box-shadow: 0px 0px 2px 0px rgba(0, 0, 0, 0.3);	
+            .tsi-closeButton {
+                border-radius: 3px;
+                position: absolute;
+                right: 4px;
+                top: 5px;
+                width: 15px;
+                height: 15px;
+                background-size: 12px 12px;
+                background-position: 2px 2px;
+                background-repeat: no-repeat;
+                cursor: pointer;
+            }
         }
     }
 
@@ -219,13 +279,12 @@
             background-image: url(../../Icons/Layer_Icon_Dark_Theme.svg);
         }
     }
-    .tsi-gridButton { 
-        &.tsi-lightTheme {
-            background-image: url(../../Icons/Grid_Icon_Light_Theme.svg);
-        }
-        &.tsi-darkTheme {
-            background-image: url(../..//Icons/Grid_Icon_Dark_Theme.svg);
-        }
+
+    .tsi-ellipsisContainerDiv {
+        left: auto;
+        right: 20px;
+        top: 0px;
+        position: absolute;
     }
 
     .tsi-scooterButton {
@@ -239,6 +298,26 @@
         }
         &.tsi-darkTheme {
             background-image: url(../..//Icons/flag_dark_theme.svg);
+        }
+    }
+
+    &.tsi-light {
+        .tsi-scooterContainer {
+            .tsi-scooterTimeLabel {
+                .tsi-closeButton {
+                    background-image: url(../../Icons/Close_Icon_Light_Theme.svg);
+                }
+            }
+        }
+    }
+
+    &.tsi-dark {
+        .tsi-scooterContainer {
+            .tsi-scooterTimeLabel {
+                .tsi-closeButton {
+                    background-image: url(../../Icons/Close_Icon_Dark_Theme.svg);
+                }
+            }
         }
     }
 }

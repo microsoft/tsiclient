@@ -386,7 +386,7 @@ class AvailabilityChart extends ChartComponent{
     }
 
     private isCustomTime (fromMillis, toMillis) {
-        if (toMillis != this.toMillis)
+        if (toMillis != this.toMillis) 
             return true;
         return !this.quickTimeArray.reduce((isQuickTime, currQuickTime) => {
             return isQuickTime || (currQuickTime[1] == (toMillis - fromMillis));
@@ -515,6 +515,10 @@ class AvailabilityChart extends ChartComponent{
 
         options.filter((d) => d[0] == "Last 7 Days")
             .attr("selected", "selected");
+
+        options.filter((d) => d[0] == "Custom")
+            .attr("disabled", true)
+            .style("display", "none");
 
         var self = this;
         select.on('change', function (d) {

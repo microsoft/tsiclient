@@ -18,15 +18,18 @@ class Legend extends Component {
         this.legendElement = d3.select(renderTarget).insert("div", ":first-child")
                                 .attr("class", "tsi-legend")
                                 .style("left", "0px")
-                                .style("width", this.legendWidth + "px");
+                                .style("width", (this.legendWidth - 16) + "px"); // - 16 for the width of the padding
     }
 
     private labelMouseoutWrapper (labelMouseout, svgSelection) {
         return (svgSelection, aggKey) => {
             d3.event.stopPropagation();
             svgSelection.selectAll(".valueElement")
+                        .filter(function () { return !d3.select(this).classed("valueEnvelope"); })
                         .attr("stroke-opacity", 1)
                         .attr("fill-opacity", 1);
+            svgSelection.selectAll(".valueEnvelope")
+                        .attr("fill-opacity", .2);
             labelMouseout(svgSelection, aggKey);
         }
     }

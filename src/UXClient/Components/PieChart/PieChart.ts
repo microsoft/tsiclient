@@ -9,6 +9,7 @@ import { PieChartData } from '../../Models/PieChartData';
 import { Slider } from '../Slider/Slider';
 import { Tooltip } from '../Tooltip/Tooltip';
 import { ChartOptions } from '../../Models/ChartOptions';
+import { EllipsisMenu } from '../EllipsisMenu/EllipsisMenu';
 
 
 class PieChart extends ChartComponent {
@@ -16,6 +17,8 @@ class PieChart extends ChartComponent {
     private legendObject: Legend;
     private contextMenu: ContextMenu;
     public draw: any;
+    private ellipsisContainer: any;
+    private ellipsisMenu: EllipsisMenu;
     chartComponentData = new PieChartData();
     
     private chartMargins: any = {
@@ -77,6 +80,23 @@ class PieChart extends ChartComponent {
                 var timestamp = (this.chartOptions.timestamp != undefined) ? this.chartOptions.timestamp : Object.keys(firstTerm[firstSplitByKey])[0];
                 this.chartComponentData.updateFlatValueArray(timestamp);
                 super.themify(targetElement, this.chartOptions.theme);
+
+                var chartControlsPanel = Utils.createControlPanel(this.renderTarget, this.CONTROLSWIDTH, this.chartMargins.top + 20, this.chartOptions);
+
+                if (this.chartOptions.canDownload || this.chartOptions.grid) {
+                    this.ellipsisContainer = chartControlsPanel.append("div")
+                        .attr("class", "tsi-ellipsisContainerDiv");
+                    this.ellipsisMenu = new EllipsisMenu(this.ellipsisContainer.node());
+
+                    var ellipsisItems = [];
+                    if (this.chartOptions.grid) {
+                        ellipsisItems.push(Utils.createGridEllipsisOption(this.renderTarget, this.chartOptions, this.aggregateExpressionOptions, this.chartComponentData));
+                    }
+                    if (this.chartOptions.canDownload) {
+                        ellipsisItems.push(Utils.createDownloadEllipsisOption(() => this.chartComponentData.generateCSVString()));
+                    }
+                    this.ellipsisMenu.render(ellipsisItems, {theme: this.chartOptions.theme});
+                }
 
 
                 var labelMouseover = (aggKey: string, splitBy: string = null) => {
@@ -240,6 +260,12 @@ class PieChart extends ChartComponent {
             });
         }
         this.draw();
+
+        d3.select("html").on("click." + Utils.guid(), () => {
+            if (this.ellipsisContainer && d3.event.target != this.ellipsisContainer.select(".tsi-ellipsisButton").node()) {
+                this.ellipsisMenu.setMenuVisibility(false);
+            }
+        });
     }
 }
 export {PieChart}

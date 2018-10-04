@@ -14,8 +14,23 @@ class ChartComponentData {
     public fromMillis: number = Infinity;
     public toMillis: number = 0;
     public stickiedKey: any = null;
+    public allTimestampsArray: any;
 
 	constructor(){
+    }
+
+
+    protected setAllTimestampsArray () {
+        var allTimestamps = {};
+        this.data.forEach(ae => {
+            var aeObj = ae[Object.keys(ae)[0]];
+            Object.keys(aeObj).forEach(timeseries => {
+                Object.keys(aeObj[timeseries]).forEach(timestamp => {
+                    allTimestamps[timestamp] = true;
+                })
+            })
+        })
+        this.allTimestampsArray = Object.keys(allTimestamps).sort();
     }
 
     //add colors if none present
@@ -162,9 +177,10 @@ class ChartComponentData {
         }
 
         this.displayState = newDisplayState;
+        this.setAllTimestampsArray();
     }
 
-    private determineMeasureTypes(timeArray) {
+    private determineMeasureTypes (timeArray) {
         var measureTypes = timeArray.reduce((measureTypes, curr) => {
             if (curr && Object.keys(curr.measures).length) {
                 Object.keys(curr.measures).forEach((measure) => {
@@ -309,6 +325,12 @@ class ChartComponentData {
         return this.displayState[aggI].splitBys[splitBy].visible;
     }
 
+    public isPossibleEnvelope(aggKey: string, splitBy: string) {
+        return (this.displayState[aggKey].splitBys[splitBy].visibleType == "avg") &&
+            (this.displayState[aggKey].splitBys[splitBy].types.indexOf("min") != -1) &&
+            (this.displayState[aggKey].splitBys[splitBy].types.indexOf("max") != -1);
+    }
+
     public getVisibleMeasure(aggI: string, splitBy: string) {
         if (this.displayState[aggI] == undefined || this.displayState[aggI].splitBys[splitBy] == undefined)
             return null;
@@ -343,6 +365,62 @@ class ChartComponentData {
         this.filteredAggregates = Object.keys(this.displayState).filter((aggKey) => {
             return this.displayState[aggKey].visible;
         });
+    }
+    
+
+    public generateCSVString (offset: number = 0): string {
+        //replace comma at end of line with end line character
+        var endLine = (s: string): string => {
+            return s.slice(0, s.length - 1) + "\n";
+        }
+
+        var csvString = "";
+        var headerString = "Interval,";
+
+        var rowMap = {};
+        var rowOrder = [];
+        this.data.forEach(aggObj => {
+            var aggKey = aggObj.aggKey;
+            var splitByObject = this.displayState[aggKey].aggregateExpression.splitByObject;
+            Object.keys(this.timeArrays[aggKey]).forEach((splitBy) => {
+                
+                var splitByString = this.displayState[aggKey].name;
+                if (splitByObject != null) {
+                    splitByString += "/" + splitByObject.property + "/" + splitBy;
+                }
+                this.displayState[aggKey].splitBys[splitBy].types.forEach((type) => {
+                    var rowKey = aggKey + "_" + splitBy + "_" + type; 
+                    rowMap[rowKey] = { };
+                    rowOrder.push(rowKey);
+                    headerString += splitByString + "." + type + ",";
+                });
+            });
+        });
+
+        csvString = endLine(headerString);
+
+        this.allValues.forEach((value) => {
+            if (value.measures && Object.keys(value.measures).length != 0) {
+                Object.keys(value.measures).forEach((type) => {
+                    var rowKey = value.aggregateKey + "_" + value.splitBy + "_" + type;
+                    rowMap[rowKey][value.dateTime.valueOf()] = 
+                        (value.measures[type] == null || value.measures[type] == undefined) ? 
+                        "" : value.measures[type];
+                });
+            }
+        });
+        
+
+        this.allTimestampsArray.forEach((timeString: string) => {
+            var millis = (new Date(timeString)).valueOf();
+            csvString += Utils.timeFormat(this.usesSeconds, this.usesMillis, offset)(new Date(millis)) + ",";
+            rowOrder.forEach((rowKey) => {
+                csvString += (rowMap[rowKey][millis] != undefined ? rowMap[rowKey][millis] : "")  + ",";
+            });
+            csvString = endLine(csvString);
+        });
+        
+        return csvString;
     }
 }
 export {ChartComponentData}

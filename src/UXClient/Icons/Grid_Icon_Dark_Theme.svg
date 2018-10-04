@@ -1,53 +1,17 @@
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 20 20">
-  <defs>
-    <style>
-      .cls-1 {
-        clip-path: url(#clip-Grid_Icon_Dark_Theme_20_2_);
-      }
-
-      .cls-2, .cls-4, .cls-7 {
-        fill: none;
-      }
-
-      .cls-3 {
-        fill: transparent;
-      }
-
-      .cls-4 {
-        stroke: #b7b7b7;
-      }
-
-      .cls-4, .cls-7 {
-      }
-
-      .cls-5 {
-        fill: #b7b7b7;
-      }
-
-      .cls-6 {
-        fill: rgba(244,244,244,0.3);
-      }
-
-      .cls-7 {
-        stroke: #b7b7b7;
-      }
-
-      .cls-8 {
-        fill: #fff;
-      }
-    </style>
-    <clipPath id="clip-Grid_Icon_Dark_Theme_20_2_">
-      <rect width="20" height="20"/>
-    </clipPath>
-  </defs>
-  <g id="Grid_Icon_Dark_Theme_20_2_" data-name="Grid_Icon_Dark_Theme_20(2)" class="cls-1">
-    <g id="Grid_Icon">
-      <rect id="BG" class="cls-2" width="20" height="20"/>
-      <path id="Back_Fill" data-name="Back Fill" class="cls-3" d="M522.193,710.464v9h18v-9Z" transform="translate(-521.193 -702.464)"/>
-      <path id="Back_Outline" data-name="Back Outline" class="cls-4" d="M523.075,710.44v10h19v-10Z" transform="translate(-522.575 -702.94)"/>
-      <path id="Union_2" data-name="Union 2" class="cls-5" d="M11.571,8.572v-4h-6v4h-1v-4h-5v-1h5v-4h1v4h6v-4h1v4h5v1h-5v4Z" transform="translate(1.428 8.428)"/>
-      <path id="TopOutline" class="cls-6" d="M798.4,837.25h-18v4h18Z" transform="translate(-779.4 -834.25)"/>
-      <path id="TopFill" class="cls-7" d="M780.6,837.411h19v5h-19Z" transform="translate(-780.096 -834.911)"/>
-    </g>
-  </g>
+<svg xmlns="http://www.w3.org/2000/svg" width="18" height="15" viewBox="0 0 18 15" fill="none" shape-rendering="geometricPrecision">
+<path opacity="0.75" fill-rule="evenodd" clip-rule="evenodd" d="M2.52246 4.4883V12.503H15.5225V4.4883H2.52246Z" fill="#E8E8E8" stroke="#F2F2F2" stroke-miterlimit="1"/>
+<path opacity="0.1" d="M15.5 2.5H2.5V5.5H15.5V2.5Z" stroke="black" stroke-miterlimit="1"/>
+<path d="M15.5 1.5H2.5V4.5H15.5V1.5Z" fill="white" fill-opacity="0.3" stroke="#F4F4F4" stroke-miterlimit="1"/>
+<path d="M10 10H8V12H10V10Z" fill="#1F1F20"/>
+<path d="M6 10H4V12H6V10Z" fill="#1F1F20"/>
+<path d="M14 10H12V12H14V10Z" fill="#1F1F20"/>
+<path d="M10 7H8V9H10V7Z" fill="#1F1F20"/>
+<path d="M6 7H4V9H6V7Z" fill="#1F1F20"/>
+<path d="M14 7H12V9H14V7Z" fill="#1F1F20"/>
+<path d="M10 9H8V11H10V9Z" fill="#C5C5C5"/>
+<path d="M6 9H4V11H6V9Z" fill="#C5C5C5"/>
+<path d="M14 9H12V11H14V9Z" fill="#C5C5C5"/>
+<path d="M10 6H8V8H10V6Z" fill="#C5C5C5"/>
+<path d="M6 6H4V8H6V6Z" fill="#C5C5C5"/>
+<path d="M14 6H12V8H14V6Z" fill="#C5C5C5"/>
 </svg>
