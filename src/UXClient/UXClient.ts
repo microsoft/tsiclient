@@ -293,6 +293,11 @@ class UXClient {
         });
         return result;
     }
+
+    // exposed publicly to use for highlighting elements in the well on hover/focus
+    public createEntityKey (aggName: string, aggIndex: number = 0) {
+        return Utils.createEntityKey(aggName, aggIndex);
+    }
 }
 
 

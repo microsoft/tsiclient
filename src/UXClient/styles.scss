@@ -9,6 +9,10 @@
     }
 }
 
+*{
+    box-sizing: border-box;
+}
+
 .tsi-hidden{
     display: none;
 }
@@ -61,11 +65,12 @@
     border-radius: 2px;
     border-style: solid;
     box-shadow: 0px 0px 2px 0px rgba(0, 0, 0, 0.3);	
+    text-align: left;
     > div, > li{
         padding: 4px 8px;
         font-size: 12px;
         cursor: pointer;
-        height: 24px;
+        height: 28px;
         display: flex;
         align-items: center;
         overflow: hidden;

@@ -707,32 +707,20 @@
                 'Factory1': {
                     'Station1': {
                         'GC4F-286 (Temp)': {$leaf: true, click: function(n){
-                            if(!n._ae)
-                                n._ae = new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory1' AND Station = 'Station1'"}, {property: 'Temperature', type: "Double"}, ['avg'],
-                                { from: startDate, to: endDate, bucketSize: '10s' }, null, '#D869CB', 'F1S1Temp');
-                            renderHierarchyLineChart(n);
+                            console.log(n);
                         }},
                         'F92-21B (Pressure)': {$leaf: true, click: function(n){
-                            if(!n._ae)
-                                n._ae = new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory1' AND Station = 'Station1'"}, {property: 'Pressure', type: "Double"}, ['avg'],
-                                { from: startDate, to: endDate, bucketSize: '1m' }, null, '#60B9AE', 'F1S1Pressure');
-                            renderHierarchyLineChart(n);
+                            console.log(n);
                         }}                    
                     }
                 },
                 'Factory2': {
                     'Station1': {
                         '19C2-F8 (Temp)': {$leaf: true, click: function(n){
-                            if(!n._ae)
-                                n._ae = new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory2' AND Station = 'Station1'"}, {property: 'Temperature', type: "Double"}, ['avg'],
-                                { from: startDate, to: endDate, bucketSize: '10s' }, null, '#C8E139', 'F2S1Temp');
-                            renderHierarchyLineChart(n);
+                            console.log(n);
                         }},
                         'B9-C86 (Pressure)': {$leaf: true, click: function(n){
-                            if(!n._ae)
-                                n._ae = new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory2' AND Station = 'Station1'"}, {property: 'Pressure', type: "Double"}, ['avg'],
-                                { from: startDate, to: endDate, bucketSize: '1m' }, null, '#FF8C00', 'F2S1Pressure');
-                            renderHierarchyLineChart(n);
+                            console.log(n);
                         }}                    
                     }
                 }

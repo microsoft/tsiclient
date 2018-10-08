@@ -178,10 +178,11 @@ class ModelSearch extends Component{
                     </div>
                     <div class="tsi-modelHighlights">
                         ${Object.keys(i.highlights).map(k => {
-                            if(typeof(i.highlights[k]) === 'object'){
-                                i.highlights[k] = i.highlights[k].join(' ');
+                            let highlight = i.highlights[k];
+                            if(typeof(highlight) === 'object'){
+                                highlight = highlight.join(' ');
                             }
-                            let highlighted = i.highlights[k].split('<hit>').map(h => h.split('</hit>').map(h2 => Utils.strip(h2)).join('</hit>')).join('<hit>');
+                            let highlighted = highlight.split('<hit>').map(h => h.split('</hit>').map(h2 => Utils.strip(h2)).join('</hit>')).join('<hit>');
                             return Utils.strip(k) + ': ' + highlighted;
                         }).join('<br/>')}
                     </div>

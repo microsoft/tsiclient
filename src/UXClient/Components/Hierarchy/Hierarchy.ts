@@ -12,7 +12,7 @@ class Hierarchy extends Component {
     private contextMenu: any;
     private clickedNode: any;
     private hierarchyList: any;
-    private chartOptions: ChartOptions;
+    private chartOptions: ChartOptions = new ChartOptions();
 
     constructor(renderTarget: Element){
         super(renderTarget);
@@ -126,13 +126,14 @@ class Hierarchy extends Component {
                     this.clickedNode = el.node();
                     this.contextMenu = this.hierarchyList.append('div');
                     node.children.forEach(n => {
-                        this.contextMenu.append('div').html(`Show ${n.name}`);
+                        this.contextMenu.append('div').html(`Show ${n.name}`).on('click', () => n.click(n));
                     })
                     this.contextMenu.classed('tsi-hierarchyContextMenu', true);
                     let mouseWrapper = d3.mouse(this.hierarchyList.node());
                     let mouseElt = d3.mouse(el.node());
                     this.contextMenu.attr('style', () => `top: ${mouseWrapper[1] - mouseElt[1]}px`);
                     el.classed('tsi-resultSelected', true);
+                    this.hierarchyList.selectAll('.tsi-noPad').on('scroll', () => {this.closeContextMenu()});
                 }
                 else{
                     this.clickedNode = null;

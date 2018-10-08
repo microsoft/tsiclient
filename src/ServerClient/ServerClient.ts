@@ -84,10 +84,10 @@ class ServerClient {
         })
     }
 
-    public getTimeseriesInstances(token: string, environmentFqdn: string, timeSeriesIds: Array<any> = null) {
-        if(!timeSeriesIds) {
+    public getTimeseriesInstances(token: string, environmentFqdn: string, limit: number = 10000, timeSeriesIds: Array<any> = null) {
+        if(!timeSeriesIds || timeSeriesIds.length === 0) {
             return new Promise((resolve: any, reject: any) => {
-                this.getDataWithContinuationBatch(token, resolve, reject, [], 'https://' + environmentFqdn + '/timeseries/instances/' + this.tsmTsqApiVersion, 'GET', 'instances', 10000);
+                this.getDataWithContinuationBatch(token, resolve, reject, [], 'https://' + environmentFqdn + '/timeseries/instances/' + this.tsmTsqApiVersion, 'GET', 'instances', null, limit);
             });        
         }
         else {

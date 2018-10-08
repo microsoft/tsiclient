@@ -65,7 +65,7 @@ body{
 	border-radius: 2px;
 } 
 .cardTitle{
-	height: 24px; 
+	height: 40px; 
 	border-bottom: 1px solid #ddd;
 	padding: 8px 0; 
 	color: black;
@@ -84,7 +84,7 @@ body{
 	border-bottom: 1px solid #555;
 }
 .cardChart{
-	height: calc(100% - 41px); 
+	height: calc(100% - 40px); 
 	width: 100%;
 }
 .header{ 
@@ -93,7 +93,7 @@ body{
 	position: fixed; 
 	top: 0; 
 	left: 0; 
-	height: 24px; 
+	height: 40px; 
 	padding: 8px; 
 	border-bottom: 1px solid #888; 
 	width: 100%; 
@@ -107,7 +107,7 @@ body{
 	border-left: 1px solid #888; 
 	padding: 8px 16px; 
 	white-space: normal; 
-	height: 12px; 
+	height: 28px; 
 } 
 .rightSide{ 
 	position: absolute; 
