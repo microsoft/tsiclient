@@ -355,7 +355,7 @@ class Utils {
     static createControlPanel (renderTarget: any, legendWidth: number, topChartMargin: number, chartOptions: any) {
         d3.select(renderTarget).selectAll(".tsi-chartControlsPanel").remove();
         var controlPanelWidth = Math.max(1, (<any>d3.select(renderTarget).node()).clientWidth - 
-                                            (chartOptions.legend == "shown" ? (legendWidth + 16) : 0));
+                                            (chartOptions.legend == "shown" ? legendWidth : 0));
         var chartControlsPanel = d3.select(renderTarget).append("div")
             .attr("class", "tsi-chartControlsPanel")
             .style("width", controlPanelWidth + "px")
