@@ -253,6 +253,9 @@ class ChartComponentData {
                 return 1;
             return 0;
         })[0];
+        if (firstKey == undefined) {
+            return null;
+        }
 
         var currMillis = firstKey.valueOf();
         if (currMillis <= fromMillis)
