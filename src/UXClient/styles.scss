@@ -9,6 +9,10 @@
     }
 }
 
+*{
+    box-sizing: border-box;
+}
+
 .tsi-hidden{
     display: none;
 }
@@ -24,6 +28,54 @@
     }
 }
 
+@keyframes tsi-slideRight {   
+    from {
+        transform: translateX(-10px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0px);
+        opacity: 1; 
+    }
+}
+
+@mixin baseContextMenuColors($grays){
+    $gray1: nth($grays, 1); // text
+    $gray2: nth($grays, 2); // hover
+    $gray3: nth($grays, 3); // element
+    $gray4: nth($grays, 4); // background
+	$gray5: nth($grays, 5); // alt element
+    $gray6: nth($grays, 6);
+    .tsi-baseContextMenu{
+        border-color: $gray6;
+        background-color: $gray3;
+        > div {
+            &:hover {
+                background-color: $gray2;
+            }
+        }     
+    }
+}
+
+.tsi-baseContextMenu{
+    white-space: nowrap;
+    padding: 4px 0;
+    animation: tsi-slideRight 0.367s cubic-bezier(0.1, 0.9, 0.2, 1) forwards;
+    border-width: 1px;
+    border-radius: 2px;
+    border-style: solid;
+    box-shadow: 0px 0px 2px 0px rgba(0, 0, 0, 0.3);	
+    text-align: left;
+    > div, > li{
+        padding: 4px 8px;
+        font-size: 12px;
+        cursor: pointer;
+        height: 28px;
+        display: flex;
+        align-items: center;
+        overflow: hidden;
+    }
+}
 .tsi-primaryButton {
     height: 36px;
     border-radius: 4px;

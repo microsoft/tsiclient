@@ -10,6 +10,7 @@ import {Hierarchy} from "./Components/Hierarchy/Hierarchy";
 import {AggregateExpression} from "./Models/AggregateExpression";
 import {Heatmap} from "./Components/Heatmap/Heatmap";
 import {EventsTable} from "./Components/EventsTable/EventsTable";
+import {ModelSearch} from "./Components/ModelSearch/ModelSearch"; 
 import {DateTimePicker} from "./Components/DateTimePicker/DateTimePicker";
 import {TimezonePicker} from "./Components/TimezonePicker/TimezonePicker";
 
@@ -78,6 +79,10 @@ class UXClient {
 
     public EventsTable(renderTarget) {
         return new EventsTable(renderTarget);
+    }
+
+    public ModelSearch(renderTarget) {
+        return new ModelSearch(renderTarget);
     }
 
     public TimezonePicker(renderTarget) {
@@ -287,6 +292,11 @@ class UXClient {
             result.push(transformedAggregate);
         });
         return result;
+    }
+
+    // exposed publicly to use for highlighting elements in the well on hover/focus
+    public createEntityKey (aggName: string, aggIndex: number = 0) {
+        return Utils.createEntityKey(aggName, aggIndex);
     }
 }
 

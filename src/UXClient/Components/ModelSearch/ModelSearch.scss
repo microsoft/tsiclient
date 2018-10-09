@@ -1,0 +1,192 @@
+@import "../../styles";
+
+@mixin modelSearchColors($grays){
+	$gray1: nth($grays, 1); // text
+    $gray2: nth($grays, 2); // hover
+    $gray3: nth($grays, 3); // element
+    $gray4: nth($grays, 4); // background
+	$gray5: nth($grays, 5); // alt element
+    $gray6: nth($grays, 6);
+    
+    background: $gray3;
+    color: $gray1;
+    
+    hit{
+        background: yellow;
+        color: black;
+    }
+    .tsi-showMore{
+        color: $gray6;
+    }
+    .tsi-modelSearchInstances{
+        > div{
+            &:hover, &.tsi-resultSelected{
+                background-color: $gray2;
+                &::after{
+                    content: "";
+                    position: absolute;
+                    width: 14px;
+                    height: 14px;
+                    top: 8px;
+                    left: calc(100% - 20px);
+                    background: url(../../Icons/chevron.svg) no-repeat;
+                    transform: rotate(-90deg);
+                }
+            }
+        }
+    }
+    @include baseContextMenuColors($grays);
+    :global{
+        .awesomplete > ul {
+            background: $gray4;
+            color: $gray1;
+            border: 1px solid $gray1;
+            li[aria-selected="true"], li:hover{
+                background: $gray2;
+            }
+        }
+    }
+}
+
+
+.tsi-modelSearchWrapper{
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    position: relative;
+
+    .tsi-hierarchyWrapper{
+        position: absolute;
+        top: 40px;
+        width: 100%;
+        height: calc(100% - 40px);
+        left: 0;
+        .tsi-filterWrapper{
+            display: none;
+        }
+        .tsi-navTabWrapper{
+            display: none;
+        }
+    }
+    
+    &.tsi-dark{
+        $grays: grays('dark');
+        @include modelSearchColors($grays);
+    }
+    &.tsi-light{
+        $grays: grays('light');
+        @include modelSearchColors($grays);
+    }
+
+    .tsi-modelSearchInputWrapper{
+        height: 48px;
+        width: 100%;
+        display: flex;
+        flex-shrink: 0;
+        align-items: center;
+        .tsi-modelSearchInput{
+            margin: 8px;
+            padding: 4px;
+        }
+        :global{
+            .awesomplete [hidden] {
+                display: none;
+            }
+
+            .awesomplete .visually-hidden {
+                position: absolute;
+                clip: rect(0, 0, 0, 0);
+            }
+
+            .awesomplete {
+                display: inline-block;
+                position: relative;
+                width: 100%;
+            }
+
+            .awesomplete > input {
+                display: block;
+                z-index: 2;
+                position: relative;
+                width: calc(100% - 40px);
+                margin: 8px 20px;
+            }
+
+            .awesomplete > ul {
+                @extend .tsi-baseContextMenu;
+                animation: tsi-slideIn 0.367s cubic-bezier(0.1, 0.9, 0.2, 1) forwards;
+                position: absolute;
+                left: 0;
+                z-index: 1;
+                list-style: none;
+                padding: 0;
+                border-radius: 0px;
+                margin: 8px 20px;
+                font-size: 13px;
+                width: calc(100% - 40px);
+                margin-top: -8px;
+                &:before{
+                    display: none;
+                }
+                li:hover{
+                    cursor: pointer;
+                }
+            }
+
+            .awesomplete > ul:empty {
+                display: none;
+            }
+        }
+    }
+
+    .tsi-modelSearchResults{
+        flex-grow: 1;
+        display: flex;
+        height: calc(100% - 48px);
+        overflow: auto;
+        .tsi-noResults{
+            padding: 20px;
+            white-space: nowrap;
+            height: 40px;
+            margin-left: 40px;
+        }
+        .tsi-showMore{
+            cursor: pointer;
+            text-align: center;
+            padding-bottom: 8px;
+            font-size: 13px;
+            &:hover{
+                text-decoration: underline;
+            }
+        }
+        .tsi-modelSearchInstancesWrapper{
+            width: 100%;
+        }
+        .tsi-modelSearchInstances{
+            flex-grow: 1;
+            > div{
+                cursor: pointer;
+                position: relative;
+                .tsi-modelResult{
+                    margin: 8px;
+                    pointer-events: none;
+                    padding: 4px 12px;
+                    margin-top: 0;
+                    .tsi-modelPK{
+                        font-weight: 600;   
+                    }
+                    .tsi-modelHighlights{
+                        font-size: 11px;
+                        margin-left: 8px;
+                    }
+                }
+            }
+        }
+    }
+    .tsi-modelSearchContextMenu{
+        @extend .tsi-baseContextMenu;
+        position: absolute;
+        left: calc(100% - 20px);
+    }
+}

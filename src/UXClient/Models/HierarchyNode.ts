@@ -12,6 +12,7 @@ class HierarchyNode {
     public selfInFilter: boolean = false;
     public color: (n: HierarchyNode) => string = () => null;
     public click = (n) => {};
+    public isLeafParent: boolean = false; // used in the event of context menut to denote that we should use a context menu for children
     
 	constructor(name: string){
         this.name = name;
