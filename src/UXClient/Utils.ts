@@ -89,7 +89,7 @@ class Utils {
         var hours = Math.floor(rangeMillis / oneHour) % 24;
         var minutes = Math.floor(rangeMillis / oneMinute) % 60;
         var seconds = Math.floor(rangeMillis / oneSecond) % 60;
-        var millis = rangeMillis % 1000;
+        var millis = Math.floor(rangeMillis % 1000);
 
         if (rangeMillis >= oneDay) {
             return days + "d " + (hours > 0 ? (hours + "h") : "");
@@ -98,7 +98,10 @@ class Utils {
         } else if (rangeMillis >= oneMinute) {
             return minutes + "m " + (seconds > 0 ? (seconds + "s") : "");
         }
-        return seconds + (millis != 0 ? "." + millis : "") + "s";
+        else if (rangeMillis >= oneSecond) {
+            return seconds + (millis != 0 ? "." + millis : "") + "s";
+        }
+        return millis + "ms";
     }
 
     
