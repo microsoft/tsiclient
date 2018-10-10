@@ -27,6 +27,7 @@
         "@types/d3": "^4.13.0",
         "awesomplete": "^1.1.2",
         "d3": "^4.13.0",
+        "d3-interpolate-path": "^1.1.1",
         "moment-timezone": "^0.5.21",
         "npm": "^6.4.0",
         "pikaday": "^1.7.0",

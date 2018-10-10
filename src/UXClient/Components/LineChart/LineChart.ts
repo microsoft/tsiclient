@@ -1,4 +1,5 @@
 import * as d3 from 'd3';
+import { interpolatePath } from 'd3-interpolate-path';
 import './LineChart.scss';
 import {Utils} from "./../../Utils";
 import {Legend} from "./../Legend/Legend";
@@ -975,8 +976,12 @@ class LineChart extends ChartComponent {
                 .transition()
                 .duration(this.chartOptions.noAnimate ? 0 : this.TRANSDURATION)
                 .ease(d3.easeExp)                                         
-                .attr("stroke-dasharray","5,5")            
-                .attr("d", aggLine);
+                .attr("stroke-dasharray","5,5")      
+                .attrTween('d', function (d) {
+                    var previous = d3.select(this).attr('d');
+                    var current = aggLine(d);
+                    return interpolatePath(previous, current);
+                });
 
             var path = g.selectAll(".valueLine" + tsIterator)
                 .data([this.chartComponentData.timeArrays[aggKey][splitBy]]);
@@ -992,8 +997,12 @@ class LineChart extends ChartComponent {
                 .duration(this.chartOptions.noAnimate ? 0 : this.TRANSDURATION)
                 .ease(d3.easeExp)
                 .attr("stroke", splitByColors[j])
-                .attr("stroke-opacity", this.strokeOpacity)                       
-                .attr("d", aggLine);
+                .attr("stroke-opacity", this.strokeOpacity)
+                .attrTween('d', function (d) {
+                    var previous = d3.select(this).attr('d');
+                    var current = aggLine(d);
+                    return interpolatePath(previous, current);
+                });
             
             if (this.chartOptions.includeEnvelope && this.chartComponentData.isPossibleEnvelope(aggKey, splitBy)) {
                 var envelopeData = this.chartComponentData.timeArrays[aggKey][splitBy].map((d: any) => ({...d, isEnvelope: true}));
