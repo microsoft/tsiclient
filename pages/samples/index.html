@@ -11,8 +11,8 @@
     
     <!-- PROD RESOURCE LINKS -->
     <!-- <link rel="stylesheet" type="text/css" href="sampleStyles.css"></link>
-    <script src="https://unpkg.com/tsiclient@1.2.3/tsiclient.js"></script>
-    <link rel="stylesheet" type="text/css" href="https://unpkg.com/tsiclient@1.2.3/tsiclient.css"></link> -->
+    <script src="https://unpkg.com/tsiclient@1.2.7/tsiclient.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://unpkg.com/tsiclient@1.2.7/tsiclient.css"></link> -->
 
     <!-- DEV RESOURCE LINKS -->
     <link rel="stylesheet" type="text/css" href="pages/samples/sampleStyles.css" />
@@ -55,6 +55,7 @@
                     <option value="12">12. Line Chart With Min/Max Envelope and Step Interpolation</option>
                     <option value="13">13. Line Chart From L1 SKU Environment</option>
                     <option value="14">14. Model Search Component With Hierarchy</option>
+                    <option value="15">15. A Standalone Model Autocomplete Component</option>
                 </select>
             </div>
             <div id="charts">
@@ -691,7 +692,6 @@
             authContext.getTsiToken().then(function(token){
                 tsiClient.server.getTsqResults(token, 'c74fddd1-fb33-4ff8-a12f-bab37d881264.env.crystal-dev.windows-int.net', tsqExpressions.map(function(ae){return ae.toTsq()})).then(function(result){
                     var transformedResult = tsiClient.ux.transformTsqResultsForVisualization(result, tsqExpressions);
-                    debugger;
                     var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart1'));
                     lineChart.render(transformedResult, {theme: 'dark', grid: true, tooltip: true, legend: 'compact'}, tsqExpressions);
                 });
@@ -736,6 +736,15 @@
 
             var modelSearch = new tsiClient.ux.ModelSearch(document.getElementById('chart1'));	            
             modelSearch.render('c74fddd1-fb33-4ff8-a12f-bab37d881264.env.crystal-dev.windows-int.net', authContext.getTsiToken, hierarchy, {theme: 'light', onInstanceClick: onInstanceClick});
+        }
+
+        // 15. A Standalone Model Autocomplete Component
+        var example15 = function() {
+            renderChartContainers(1);
+            var modelAutocomplete = new tsiClient.ux.ModelAutocomplete(document.getElementById('chart1'));	            
+            var onInput = function(searchText){console.log(searchText)};
+            var onKeydown = function(d3Event, awesompleteObject){console.log(d3Event); console.log(awesompleteObject)};
+            modelAutocomplete.render('c74fddd1-fb33-4ff8-a12f-bab37d881264.env.crystal-dev.windows-int.net', authContext.getTsiToken, {onInput: onInput, onKeydown: onKeydown});
         }
 
         // Initial load, supports linking to a specific example by hash

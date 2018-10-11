@@ -18,7 +18,7 @@ class Legend extends Component {
         this.legendElement = d3.select(renderTarget).insert("div", ":first-child")
                                 .attr("class", "tsi-legend")
                                 .style("left", "0px")
-                                .style("width", (this.legendWidth - 16) + "px"); // - 16 for the width of the padding
+                                .style("width", (this.legendWidth) + "px"); // - 16 for the width of the padding
     }
 
     private labelMouseoutWrapper (labelMouseout, svgSelection) {

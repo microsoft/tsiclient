@@ -18,6 +18,7 @@ import {Utils} from "./Utils";
 import './styles.scss'
 import { EllipsisMenu } from "./Components/EllipsisMenu/EllipsisMenu";
 import { TsqExpression } from "./Models/TsqExpression";
+import { ModelAutocomplete } from "./Components/ModelAutocomplete/ModelAutocomplete";
 
 class UXClient {
     UXClient () {
@@ -83,6 +84,10 @@ class UXClient {
 
     public ModelSearch(renderTarget) {
         return new ModelSearch(renderTarget);
+    }
+
+    public ModelAutocomplete(renderTarget) {
+        return new ModelAutocomplete(renderTarget);
     }
 
     public TimezonePicker(renderTarget) {

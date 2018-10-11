@@ -1,0 +1,97 @@
+@import "../../styles";
+
+
+@mixin modelAutocompleteColors($grays){
+	$gray1: nth($grays, 1); // text
+    $gray2: nth($grays, 2); // hover
+    $gray3: nth($grays, 3); // element
+    $gray4: nth($grays, 4); // background
+	$gray5: nth($grays, 5); // alt element
+    $gray6: nth($grays, 6);
+    
+    background: $gray3;
+    color: $gray1;
+    @include baseContextMenuColors($grays);
+    :global{
+        .awesomplete > ul {
+            background: $gray4;
+            color: $gray1;
+            border: 1px solid $gray1;
+            li[aria-selected="true"], li:hover{
+                background: $gray2;
+            }
+        }
+    }
+}
+
+.tsi-modelAutocompleteWrapper{
+    &.tsi-dark{
+        $grays: grays('dark');
+        @include modelAutocompleteColors($grays);
+    }
+    &.tsi-light{
+        $grays: grays('light');
+        @include modelAutocompleteColors($grays);
+    }
+
+    .tsi-modelAutocompleteInputWrapper{
+        height: 48px;
+        width: 100%;
+        display: flex;
+        flex-shrink: 0;
+        align-items: center;
+        .tsi-modelAutocompleteInput{
+            margin: 8px;
+            padding: 4px;
+        }
+        :global{
+            .awesomplete [hidden] {
+                display: none;
+            }
+
+            .awesomplete .visually-hidden {
+                position: absolute;
+                clip: rect(0, 0, 0, 0);
+            }
+
+            .awesomplete {
+                display: inline-block;
+                position: relative;
+                width: 100%;
+            }
+
+            .awesomplete > input {
+                display: block;
+                z-index: 2;
+                position: relative;
+                width: calc(100% - 40px);
+                margin: 8px 20px;
+            }
+
+            .awesomplete > ul {
+                @extend .tsi-baseContextMenu;
+                animation: tsi-slideIn 0.367s cubic-bezier(0.1, 0.9, 0.2, 1) forwards;
+                position: absolute;
+                left: 0;
+                z-index: 1;
+                list-style: none;
+                padding: 0;
+                border-radius: 0px;
+                margin: 8px 20px;
+                font-size: 13px;
+                width: calc(100% - 40px);
+                margin-top: -8px;
+                &:before{
+                    display: none;
+                }
+                li:hover{
+                    cursor: pointer;
+                }
+            }
+
+            .awesomplete > ul:empty {
+                display: none;
+            }
+        }
+    }
+}
