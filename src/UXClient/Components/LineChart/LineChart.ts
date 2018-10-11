@@ -1305,6 +1305,9 @@ class LineChart extends ChartComponent {
                     .extent([[this.xLowerBound, this.chartOptions.aggTopMargin],
                              [this.xUpperBound, this.chartHeight]])
                     .on("start", function() {
+                        if (self.activeScooter != null && self.isDroppingScooter) {
+                            self.voronoiClick(this);
+                        }
                         var handleHeight = self.getHandleHeight();
                         self.brushElem.selectAll('.handle')
                             .attr('height', handleHeight)
