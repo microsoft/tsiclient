@@ -1416,7 +1416,7 @@ class LineChart extends ChartComponent {
                     }); 
 
                     this.svgSelection.selectAll(".valueElement").sort(function (a: any, b: any) {
-                        if (a == undefined || a.length == 0)
+                        if (a == undefined || a.length == 0 || b == undefined || b.length == 0)
                             return 0;
                         return (a[0].isEnvelope == b[0].isEnvelope ? 0 : (a[0].isEnvelope ? -1 : 1));
                     });

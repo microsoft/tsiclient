@@ -6,17 +6,19 @@ import {ServerClient} from '../../../ServerClient/ServerClient';
 import 'awesomplete';
 import { Hierarchy } from '../Hierarchy/Hierarchy';
 import { ChartOptions } from '../../Models/ChartOptions';
+import { ModelAutocomplete } from '../ModelAutocomplete/ModelAutocomplete';
 
 class ModelSearch extends Component{
     private server: ServerClient; 
-    private model;
     private hierarchies;
     private clickedInstance;
     private wrapper;
     private types;
-	public chartOptions: ChartOptions = new ChartOptions;
+    public chartOptions: ChartOptions = new ChartOptions();
+    private instanceResults;
     private usedContinuationTokens = {};
     private contextMenu; 
+    private currentResultIndex= -1;
 
 	constructor(renderTarget: Element){ 
         super(renderTarget); 
@@ -42,64 +44,47 @@ class ModelSearch extends Component{
         super.themify(this.wrapper, this.chartOptions.theme);
         let inputWrapper = this.wrapper.append("div")
             .attr("class", "tsi-modelSearchInputWrapper");
-        let input = inputWrapper.append("input")
-            .attr("class", "tsi-modelSearchInput")
-            .attr("placeholder", "Search...");
-        let Awesomplete = (window as any).Awesomplete;
-        let ap = new Awesomplete(input.node(), {minChars: 1});
-        let noSuggest = false;
-        (input.node() as any).addEventListener('awesomplete-selectcomplete', () => {noSuggest = true; input.dispatch('input'); ap.close();});
+
+        let autocompleteOnInput = (st) => {
+            self.usedContinuationTokens = {};
+
+            // blow results away if no text
+            if(st.length === 0){
+                self.instanceResults.html('');
+                self.currentResultIndex= -1;
+                (hierarchyElement.node() as any).style.display = 'block';
+                (showMore.node() as any).style.display = 'none';
+                return;
+            }
+            (hierarchyElement.node() as any).style.display = 'none';
+            self.instanceResults.html('');
+            self.currentResultIndex = -1;
+            noResults.style('display', 'none');
+            searchInstances(st);
+            searchText = st;
+        }
+
+        let modelAutocomplete = new ModelAutocomplete(inputWrapper.node());
+        modelAutocomplete.render(environmentFqdn, getToken, {onInput: autocompleteOnInput, onKeydown: (event, ap) => {this.handleKeydown(event, ap)}, ...chartOptions});
+        var ap = modelAutocomplete.ap;
 
         let results = this.wrapper.append('div')
             .attr("class", "tsi-modelSearchResults").on('scroll', function(){
                 self.closeContextMenu();
                 let that = this as any;
-                if(that.scrollTop + that.clientHeight + 150 > (instanceResults.node() as any).clientHeight){
+                if(that.scrollTop + that.clientHeight + 150 > (self.instanceResults.node() as any).clientHeight){
                     searchInstances(searchText, continuationToken);
                 }
             })
         let noResults = results.append('div').html('No results').classed('tsi-noResults', true).style('display', 'none');
         let instanceResultsWrapper = results.append('div').attr('class', 'tsi-modelSearchInstancesWrapper')
-        let instanceResults = instanceResultsWrapper.append('div').attr('class', 'tsi-modelSearchInstances');
+        this.instanceResults = instanceResultsWrapper.append('div').attr('class', 'tsi-modelSearchInstances');
         let showMore = instanceResultsWrapper.append('div').attr('class', 'tsi-showMore').html('Show more...').on('click', () => searchInstances(searchText, continuationToken)).style('display', 'none');
 
         let hierarchyElement = this.wrapper.append('div')
             .attr("class", "tsi-hierarchyWrapper");
         let hierarchy = new Hierarchy(hierarchyElement.node() as any);
         hierarchy.render(hierarchyData, {...this.chartOptions, withContextMenu: true});
-
-        input.on('keyup', function(){
-            if(d3.event.which === 13 || d3.event.keyCode === 13){
-                noSuggest = true;
-                ap.close();
-            }
-        });
-
-        input.on('input', function() { 
-            searchText = (<any>this).value;
-            self.usedContinuationTokens = {};
-
-            // blow results away if no text
-            if(searchText.length === 0){
-                instanceResults.html('');
-                (hierarchyElement.node() as any).style.display = 'block';
-                (showMore.node() as any).style.display = 'none';
-                return;
-            }
-            (hierarchyElement.node() as any).style.display = 'none';
-            if(!noSuggest){
-                getToken().then(token => {
-                    self.server.getTimeseriesInstancesSuggestions(token, environmentFqdn, searchText).then(r => {
-                        ap.list = r.suggestions.map(s => s.searchString);
-                    })
-                })
-            }
-            noSuggest = false;
-
-            instanceResults.html('');
-            noResults.style('display', 'none');
-            searchInstances(searchText);
-        })
 
         let searchInstances = (searchText, ct = null) => {
             var self = this;
@@ -117,38 +102,46 @@ class ModelSearch extends Component{
                             noResults.style('display', 'block');
                         }
                         r.instances.forEach(i => {
-                            instanceResults.append('div').html(self.getInstanceHtml(i)).on('click', function() {
+                            let handleClick = (elt, wrapperMousePos, eltMousePos) => {
                                 self.closeContextMenu();
-                                if(self.clickedInstance != this){
-                                    self.clickedInstance = this;
-                                    i.type = self.types.filter(t => t.name === i.highlights.type)[0];
+                                if(self.clickedInstance != elt){
+                                    self.clickedInstance = elt;
+                                    i.type = self.types.filter(t => t.name === i.highlights.type.split('<hit>').join('').split('</hit>').join(''))[0];
                                     let contextMenuActions = self.chartOptions.onInstanceClick(i);
                                     self.contextMenu = self.wrapper.append('div');
                                     Object.keys(contextMenuActions).forEach(k => {
                                         self.contextMenu.append('div').html(k).on('click', contextMenuActions[k]);
                                     });
-                                    let mouseWrapper = d3.mouse(self.wrapper.node());
-                                    let mouseElt = d3.mouse(this as any);
-                                    self.contextMenu.attr('style', () => `top: ${mouseWrapper[1] - mouseElt[1]}px`);
+                                    self.contextMenu.attr('style', () => `top: ${wrapperMousePos - eltMousePos}px`);
                                     self.contextMenu.classed('tsi-modelSearchContextMenu', true);
-                                    d3.select(this).classed('tsi-resultSelected', true);
+                                    d3.select(elt).classed('tsi-resultSelected', true);
                                 }
                                 else{
                                     self.clickedInstance = null;
                                 }
-                            });                            
+                            }
+                            this.instanceResults.append('div').html(self.getInstanceHtml(i)).on('click', function() {
+                                let mouseWrapper = d3.mouse(self.wrapper.node());
+                                let mouseElt = d3.mouse(this as any);
+                                handleClick(this, mouseWrapper[1], mouseElt[1]);
+                            })
+                            .on('keydown', () => {
+                                let evt = d3.event;
+                                if(evt.keyCode === 13){
+                                    let resultsNodes = this.instanceResults.selectAll('.tsi-modelResultWrapper').nodes();
+                                    let height = 0;
+                                    for(var i = 0; i < this.currentResultIndex; i++) {
+                                        height += resultsNodes[0].clientHeight;
+                                    }
+                                    handleClick(this.instanceResults.select('.tsi-modelResultWrapper:focus').node(), height - results.node().scrollTop + 48, 0);
+                                }
+                                self.handleKeydown(evt, ap);
+                            }).attr('tabindex', '0').classed('tsi-modelResultWrapper', true);                            
                         })
                     })
                 })
             }
         }
-
-        // get model
-        getToken().then(token => {
-            this.server.getTimeseriesModel(token, environmentFqdn).then(r => {
-                this.model = r.model;
-            })
-        })
 
         getToken().then(token => {
             this.server.getTimeseriesHierarchies(token, environmentFqdn).then(r => {
@@ -162,6 +155,28 @@ class ModelSearch extends Component{
                 this.types = r.types;
             })
         })
+    }
+
+    public handleKeydown(event, ap) {
+        if(!ap.isOpened) {
+            let results = this.instanceResults.selectAll('.tsi-modelResultWrapper')
+            if(results.size()) {
+                if(event.keyCode === 40 && this.currentResultIndex < results.nodes().length) {
+                    this.currentResultIndex++;
+                    results.nodes()[this.currentResultIndex].focus();
+                }
+                else if(event.keyCode === 38){
+                    this.currentResultIndex--;
+                    if(this.currentResultIndex <= -1){
+                        this.currentResultIndex = 0
+                        ap.input.focus();
+                    }
+                    else{
+                        results.nodes()[this.currentResultIndex].focus();
+                    }
+                }
+            }
+        }
     }
 
     private closeContextMenu() {

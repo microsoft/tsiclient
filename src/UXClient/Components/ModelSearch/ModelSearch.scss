@@ -20,7 +20,7 @@
     }
     .tsi-modelSearchInstances{
         > div{
-            &:hover, &.tsi-resultSelected{
+            &:hover, &:focus, &.tsi-resultSelected{
                 background-color: $gray2;
                 &::after{
                     content: "";
@@ -56,6 +56,12 @@
     flex-wrap: wrap;
     position: relative;
 
+    .tsi-modelSearchInputWrapper{
+        width: 100%;
+        z-index: 2;
+        height: 48px;
+    }
+
     .tsi-hierarchyWrapper{
         position: absolute;
         top: 40px;
@@ -77,67 +83,6 @@
     &.tsi-light{
         $grays: grays('light');
         @include modelSearchColors($grays);
-    }
-
-    .tsi-modelSearchInputWrapper{
-        height: 48px;
-        width: 100%;
-        display: flex;
-        flex-shrink: 0;
-        align-items: center;
-        .tsi-modelSearchInput{
-            margin: 8px;
-            padding: 4px;
-        }
-        :global{
-            .awesomplete [hidden] {
-                display: none;
-            }
-
-            .awesomplete .visually-hidden {
-                position: absolute;
-                clip: rect(0, 0, 0, 0);
-            }
-
-            .awesomplete {
-                display: inline-block;
-                position: relative;
-                width: 100%;
-            }
-
-            .awesomplete > input {
-                display: block;
-                z-index: 2;
-                position: relative;
-                width: calc(100% - 40px);
-                margin: 8px 20px;
-            }
-
-            .awesomplete > ul {
-                @extend .tsi-baseContextMenu;
-                animation: tsi-slideIn 0.367s cubic-bezier(0.1, 0.9, 0.2, 1) forwards;
-                position: absolute;
-                left: 0;
-                z-index: 1;
-                list-style: none;
-                padding: 0;
-                border-radius: 0px;
-                margin: 8px 20px;
-                font-size: 13px;
-                width: calc(100% - 40px);
-                margin-top: -8px;
-                &:before{
-                    display: none;
-                }
-                li:hover{
-                    cursor: pointer;
-                }
-            }
-
-            .awesomplete > ul:empty {
-                display: none;
-            }
-        }
     }
 
     .tsi-modelSearchResults{
@@ -165,14 +110,13 @@
         }
         .tsi-modelSearchInstances{
             flex-grow: 1;
-            > div{
+            .tsi-modelResultWrapper{
                 cursor: pointer;
                 position: relative;
                 .tsi-modelResult{
-                    margin: 8px;
+                    margin: 0 8px;
                     pointer-events: none;
                     padding: 4px 12px;
-                    margin-top: 0;
                     .tsi-modelPK{
                         font-weight: 600;   
                     }
@@ -188,5 +132,6 @@
         @extend .tsi-baseContextMenu;
         position: absolute;
         left: calc(100% - 20px);
+        z-index: 3;
     }
 }

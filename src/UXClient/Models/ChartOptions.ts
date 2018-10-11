@@ -36,6 +36,8 @@ class ChartOptions {
     public onMouseover: (aggKey: string, splitBy: string) => void;
     public onSticky: (aggKey: string, splitBy: string) => void;
     public onUnsticky: (aggKey: string, splitBy: string) => void;
+    public onKeydown: (d3Event: any, awesompleteObject: any) => void;  // for handling keydown actions in ModelAutocomplete
+    public onInput: (searchText: string) => void; // for handling after input actions in ModelAutocomplete
     public preserveAvailabilityState: boolean; // whether state in availability chart is saved or blown away on render
     public scaledToCurrentTime: boolean; //whether slider base component's scale is based on current time's values (or all values)
     public singleLineXAxisLabel: boolean; // whether x axis time labels are on a single line (else split into two lines)
@@ -127,6 +129,8 @@ class ChartOptions {
         this.onMouseover = this.getValueOrDefault(chartOptionsObj, 'onMouseover', () => {});
         this.onSticky = this.getValueOrDefault(chartOptionsObj, 'onSticky', () => {});
         this.onUnsticky = this.getValueOrDefault(chartOptionsObj, 'onUnsticky', () => {});
+        this.onKeydown= this.getValueOrDefault(chartOptionsObj, 'onKeydown', () => {});
+        this.onInput = this.getValueOrDefault(chartOptionsObj, 'onInput', () => {});
         this.brushHandlesVisible = this.getValueOrDefault(chartOptionsObj, 'brushHandlesVisible', false);
         this.hideChartControlPanel = this.getValueOrDefault(chartOptionsObj, 'hideChartControlPanel', false);
         this.offset = this.getValueOrDefault(chartOptionsObj, 'offset', 0);
@@ -181,6 +185,8 @@ class ChartOptions {
             onMouseover: this.onMouseover,
             onSticky: this.onSticky,
             onUnsticky: this.onUnsticky,
+            onKeydown: this.onKeydown,
+            onInput: this.onInput,
             brushHandlesVisible: this.brushHandlesVisible,
             hideChartControlPanel: this.hideChartControlPanel,
             offset: this.offset,
