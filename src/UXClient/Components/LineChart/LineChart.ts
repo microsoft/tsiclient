@@ -1060,7 +1060,7 @@ class LineChart extends ChartComponent {
                 let svgId = Utils.guid();
                 let lg = defs.selectAll('linearGradient')
                         .data([this.chartComponentData.timeArrays[aggKey][splitBy]]);
-                var gradient = lg.enter
+                var gradient = lg.enter()
                     .append('linearGradient');
                 gradient.merge(lg)
                     .attr('id', svgId).attr('x1', '0%').attr('x2', '0%').attr('y1', '0%').attr('y2', '100%');
