@@ -435,6 +435,20 @@ class LineChart extends ChartComponent {
         return this.chartMargins.left + (this.chartOptions.legend == "shown" ? legendWidth : 0);
     }
 
+    // when re-rendering, scooters need to be repositioned - this function takes in a scooter and outputs the time on the timemap which 
+    private findClosestScooterTime (prevMillis: number): number {
+        var minDistance = Infinity;
+        var closestValue = null;
+        Object.keys(this.chartComponentData.timeMap).forEach((intervalCenterString) => {
+            var intervalCenter = Number(intervalCenterString);
+            if (Math.abs(intervalCenter - prevMillis) < minDistance) {
+                minDistance = Math.abs(intervalCenter - prevMillis);
+                closestValue = intervalCenter;
+            }
+        });
+        return closestValue;
+    }
+
     private setScooterPosition (scooter, rawMillis: number = null) {
         var closestTime;
         if (rawMillis != null) {
@@ -442,13 +456,17 @@ class LineChart extends ChartComponent {
             this.scooterGuidMap[scooter.datum()] = closestTime;    
         }
         closestTime = this.scooterGuidMap[scooter.datum()];
-        scooter.style("display", "block")
-            .style("left", (d) => {
-                var closestTime = this.scooterGuidMap[d];
-                return (Math.round(this.x(closestTime) + this.getScooterMarginLeft()) + "px");
-            })
-            .style("top", this.chartMargins.top + this.chartOptions.aggTopMargin + "px")
-            .style("height", this.height - (this.chartMargins.top + this.chartMargins.bottom + this.chartOptions.aggTopMargin) + "px");
+        if (closestTime < this.chartComponentData.fromMillis || closestTime > this.chartComponentData.toMillis) {
+            scooter.style("display", "none");
+        } else {
+            scooter.style("display", "block")
+                .style("left", (d) => {
+                    var closestTime = this.scooterGuidMap[d];
+                    return (Math.round(this.x(closestTime) + this.getScooterMarginLeft()) + "px");
+                })
+                .style("top", this.chartMargins.top + this.chartOptions.aggTopMargin + "px")
+                .style("height", this.height - (this.chartMargins.top + this.chartMargins.bottom + this.chartOptions.aggTopMargin) + "px");
+        }
 
         d3.select(this.renderTarget).selectAll(".tsi-scooterContainer").sort((a: string, b: string) =>  { 
             return (this.scooterGuidMap[a] < this.scooterGuidMap[b]) ? 1 : -1;            
@@ -458,6 +476,9 @@ class LineChart extends ChartComponent {
     private setScooterTimeLabel (scooter) {
         var millis = this.scooterGuidMap[scooter.datum()];
         var values: Array<any> = this.chartComponentData.timeMap[millis];
+        if (values == undefined || values.length == 0) {
+            return;
+        }
         var firstValue = values[0].dateTime;
         var secondValue = new Date(values[0].dateTime.valueOf() + (values[0].bucketSize != null ? values[0].bucketSize : 0));
         var timeFormat = Utils.timeFormat(this.chartComponentData.usesSeconds, this.chartComponentData.usesMillis, 
@@ -797,7 +818,14 @@ class LineChart extends ChartComponent {
         var self = this;
         scooterSelection.each(function () {
             var currScooter = d3.select(this);
+            var millis = Number(self.scooterGuidMap[String(currScooter.datum())]);
+
+            if (self.chartComponentData.timeMap[millis] == undefined && millis >= self.chartComponentData.fromMillis && millis <= self.chartComponentData.toMillis) {
+                self.scooterGuidMap[String(currScooter.datum())] = self.findClosestScooterTime(millis);
+            }
             self.setScooterLabels(currScooter, true);
+            self.setScooterPosition(currScooter);
+            self.setScooterTimeLabel(currScooter);
             currScooter.transition()
                 .duration(self.chartOptions.noAnimate ? 0 : self.TRANSDURATION)
                 .style("left", (d) => (Math.round(self.x(d) + self.getScooterMarginLeft()) + "px"));
@@ -1032,7 +1060,7 @@ class LineChart extends ChartComponent {
                 let svgId = Utils.guid();
                 let lg = defs.selectAll('linearGradient')
                         .data([this.chartComponentData.timeArrays[aggKey][splitBy]]);
-                var gradient = lg.enter()
+                var gradient = lg.enter
                     .append('linearGradient');
                 gradient.merge(lg)
                     .attr('id', svgId).attr('x1', '0%').attr('x2', '0%').attr('y1', '0%').attr('y2', '100%');
@@ -1305,6 +1333,9 @@ class LineChart extends ChartComponent {
                     .extent([[this.xLowerBound, this.chartOptions.aggTopMargin],
                              [this.xUpperBound, this.chartHeight]])
                     .on("start", function() {
+                        if (self.activeScooter != null && self.isDroppingScooter) {
+                            self.voronoiClick(this);
+                        }
                         var handleHeight = self.getHandleHeight();
                         self.brushElem.selectAll('.handle')
                             .attr('height', handleHeight)

@@ -56,6 +56,7 @@
                     <option value="13">13. Line Chart From L1 SKU Environment</option>
                     <option value="14">14. Model Search Component With Hierarchy</option>
                     <option value="15">15. A Standalone Model Autocomplete Component</option>
+                    <option value="16">16. to be removed </option>
                 </select>
             </div>
             <div id="charts">
@@ -745,6 +746,78 @@
             var onInput = function(searchText){console.log(searchText)};
             var onKeydown = function(d3Event, awesompleteObject){console.log(d3Event); console.log(awesompleteObject)};
             modelAutocomplete.render('c74fddd1-fb33-4ff8-a12f-bab37d881264.env.crystal-dev.windows-int.net', authContext.getTsiToken, {onInput: onInput, onKeydown: onKeydown});
+        }
+
+        var example16 = function () {
+            renderChartContainers(1);
+            var startDate = new Date('2017-04-12T13:00:00Z');
+            var endDate = new Date(startDate.valueOf() + 1000*60*60*1);
+
+            authContext.getTsiToken().then(function(token){
+                var aggregateExpressions = [];
+                var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart1'));
+
+                var contextMenuActions = [{
+                    "name": "zoom all the way out",
+                    action: function(ae, splitBy, timestamp) {
+                        
+                    }
+                }];
+
+                aggregateExpressions.push(new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory3'"}, {property: 'Temperature', type: "Double"}, ['avg', 'min'],
+                    { from: startDate, to: endDate, bucketSize: '2m' }, {property: 'Station', type: 'String'}, '#F7727E', 'Factory3Temperature'));
+                aggregateExpressions.push(new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory2'"}, {property: 'Temperature', type: "Double"}, ['avg', 'min'],
+                    { from: startDate, to: endDate, bucketSize: '2m' }, {property: 'Station', type: 'String'}, '#60B9AE', 'Factory1Temperature'));
+                
+                var determineBucketSize = function (fromDate, toDate) {
+                    if (toDate.valueOf() - fromDate.valueOf() < 1 * 60 * 1000) {
+                        return '1s';
+                    }
+                    if (toDate.valueOf() - fromDate.valueOf() < 5 * 60 * 1000) {
+                        return '5s';
+                    }
+                    if (toDate.valueOf() - fromDate.valueOf() < 15 * 60 * 1000) {
+                        return '20s';
+                    }
+                    if (toDate.valueOf() - fromDate.valueOf() < 30 * 60 * 1000) {
+                        return '1m'
+                    }
+                    return '2m';
+                }
+                
+                var renderWithFromTo = function (fromDate, toDate) {
+                    var bucketSize = determineBucketSize(fromDate, toDate);
+                    aggregateExpressions.forEach(function(ae){
+                        ae.searchSpan.from = fromDate; 
+                        ae.searchSpan.to = toDate;
+                        ae.searchSpan.bucketSize = bucketSize; 
+                    });
+                    tsiClient.server.getAggregates(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com', aggregateExpressions.map(function(ae){return ae.toTsx()})).then(function(result){
+                        var transformedResult = tsiClient.ux.transformAggregatesForVisualization(result, aggregateExpressions);
+                        lineChart.render(transformedResult, {noAnimate: true}, aggregateExpressions);
+                    });
+                }
+
+                var brushActions = [{
+                    name: "Zoom in on this region",
+                    action: function(fromTime, toTime) {
+                        renderWithFromTo(new Date(fromTime), new Date(toTime));
+                    }
+                }, 
+                {
+                    name: "Zoom all the way out",
+                    action: function (fromTime, toTime) {
+                        renderWithFromTo(startDate, endDate);
+                    }
+                }];
+
+                authContext.getTsiToken().then(function(token){
+                    tsiClient.server.getAggregates(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com', aggregateExpressions.map(function(ae){return ae.toTsx()})).then(function(result){
+                        var transformedResult = tsiClient.ux.transformAggregatesForVisualization(result, aggregateExpressions);
+                        lineChart.render(transformedResult, {theme: "light", legend: "compact", brushContextMenuActions: brushActions, grid: true, snapBrush: true}, aggregateExpressions);
+                    });
+                });
+            });
         }
 
         // Initial load, supports linking to a specific example by hash
