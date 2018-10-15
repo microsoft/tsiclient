@@ -625,7 +625,7 @@ class LineChart extends ChartComponent {
         const [mx, my] = d3.mouse(mouseEvent);
         var filteredValues = this.getFilteredAndSticky(this.chartComponentData.allValues);
         if (filteredValues == null || filteredValues.length == 0)
-            return
+            return;
         const site: any = this.voronoi(filteredValues).find(mx, my);
         this.voronoiMouseout(site.data); 
         if (!this.isDroppingScooter) {
@@ -1455,7 +1455,8 @@ class LineChart extends ChartComponent {
 
                     var self = this;
                     this.voronoi = d3.voronoi()
-                        .x(function(d: any) { return self.x(d.dateTime); })
+                        .x(function(d: any) {
+                            return (d.bucketSize != undefined ? self.x(new Date(d.dateTime.valueOf() + (d.bucketSize / 2))) : self.x(d.dateTime))})
                         .y(function(d: any) { 
                             if (d.measures) {
                                 var value = self.getValueOfVisible(d)
