@@ -1,6 +1,6 @@
 const path = require('path');
 const webpack = require('webpack');
-const ExtractTextPlugin = require("extract-text-webpack-plugin");
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 module.exports = {
   entry: './src/TsiClient.ts',
@@ -13,10 +13,13 @@ module.exports = {
       },
       {
         test: /\.(scss|css)$/,
-        use: ExtractTextPlugin.extract({
-          fallback: 'style-loader',
-          use: ['css-loader', 'sass-loader']
-        })
+        use: [
+          {
+            loader: MiniCssExtractPlugin.loader
+          },
+          'css-loader',
+          'sass-loader'
+        ]
       },
       {
         test: /\.(png|jp(e*)g|svg)$/,  
@@ -38,9 +41,12 @@ module.exports = {
   output: {
     filename: 'tsiclient.js',
     path: path.resolve(__dirname, 'dist'),
+    publicPath: '/dist/',
     libraryTarget: 'umd'
   },
   plugins: [
-    new ExtractTextPlugin('tsiclient.css')
+    new MiniCssExtractPlugin({
+      filename: 'tsiclient.css'
+    })
   ]
 };
