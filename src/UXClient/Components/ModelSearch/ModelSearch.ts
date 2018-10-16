@@ -102,19 +102,38 @@ class ModelSearch extends Component{
                             noResults.style('display', 'block');
                         }
                         r.instances.forEach(i => {
-                            let handleClick = (elt, wrapperMousePos, eltMousePos) => {
+                            let handleClick = (elt, wrapperMousePos, eltMousePos, fromKeyboard = false) => {
                                 self.closeContextMenu();
                                 if(self.clickedInstance != elt){
                                     self.clickedInstance = elt;
                                     i.type = self.types.filter(t => t.name === i.highlights.type.split('<hit>').join('').split('</hit>').join(''))[0];
                                     let contextMenuActions = self.chartOptions.onInstanceClick(i);
                                     self.contextMenu = self.wrapper.append('div');
-                                    Object.keys(contextMenuActions).forEach(k => {
-                                        self.contextMenu.append('div').html(k).on('click', contextMenuActions[k]);
+                                    Object.keys(contextMenuActions).forEach((k, cmaIdx) => {
+                                        self.contextMenu.append('div').html(k).on('click', contextMenuActions[k]).on('keydown', function(){
+                                            let evt = d3.event;
+                                            if(evt.keyCode === 13){
+                                                this.click();
+                                            }
+                                            if(evt.keyCode === 13 || evt.keyCode === 37){
+                                                self.closeContextMenu();
+                                                let results = self.instanceResults.selectAll('.tsi-modelResultWrapper')
+                                                results.nodes()[self.currentResultIndex].focus();
+                                            }
+                                            if(evt.keyCode === 40 && cmaIdx < self.contextMenu.node().children.length){ // down
+                                                self.contextMenu.node().children[cmaIdx + 1].focus();
+                                            }
+                                            if(evt.keyCode === 38 && cmaIdx > 0){ // up
+                                                self.contextMenu.node().children[cmaIdx - 1].focus();
+                                            }
+                                        }).attr('tabindex', '0');
                                     });
                                     self.contextMenu.attr('style', () => `top: ${wrapperMousePos - eltMousePos}px`);
                                     self.contextMenu.classed('tsi-modelSearchContextMenu', true);
                                     d3.select(elt).classed('tsi-resultSelected', true);
+                                    if(self.contextMenu.node().children.length > 0 && fromKeyboard){
+                                        self.contextMenu.node().children[0].focus();
+                                    }
                                 }
                                 else{
                                     self.clickedInstance = null;
@@ -133,7 +152,7 @@ class ModelSearch extends Component{
                                     for(var i = 0; i < this.currentResultIndex; i++) {
                                         height += resultsNodes[0].clientHeight;
                                     }
-                                    handleClick(this.instanceResults.select('.tsi-modelResultWrapper:focus').node(), height - results.node().scrollTop + 48, 0);
+                                    handleClick(this.instanceResults.select('.tsi-modelResultWrapper:focus').node(), height - results.node().scrollTop + 48, 0, true);
                                 }
                                 self.handleKeydown(evt, ap);
                             }).attr('tabindex', '0').classed('tsi-modelResultWrapper', true);                            
@@ -161,14 +180,14 @@ class ModelSearch extends Component{
         if(!ap.isOpened) {
             let results = this.instanceResults.selectAll('.tsi-modelResultWrapper')
             if(results.size()) {
-                if(event.keyCode === 40 && this.currentResultIndex < results.nodes().length) {
+                if(event.keyCode === 40 && this.currentResultIndex < results.nodes().length - 1) {
                     this.currentResultIndex++;
                     results.nodes()[this.currentResultIndex].focus();
                 }
                 else if(event.keyCode === 38){
                     this.currentResultIndex--;
                     if(this.currentResultIndex <= -1){
-                        this.currentResultIndex = 0
+                        this.currentResultIndex = -1;
                         ap.input.focus();
                     }
                     else{
