@@ -1490,7 +1490,7 @@ class LineChart extends ChartComponent {
 
                     if (this.brushElem) {
                         this.brushElem.selectAll(".selection, .handle").on("contextmenu", function (d) {
-                            if (!self.brushContextMenu)
+                            if (!self.chartOptions.brushContextMenuActions || self.chartOptions.brushContextMenuActions.length == 0)
                                 return;
                             var mousePosition = d3.mouse(<any>self.targetElement.node());
                             d3.event.preventDefault();
