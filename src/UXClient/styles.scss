@@ -50,7 +50,7 @@
         border-color: $gray6;
         background-color: $gray3;
         > div {
-            &:hover {
+            &:hover, &:focus {
                 background-color: $gray2;
             }
         }     
