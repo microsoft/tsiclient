@@ -731,6 +731,8 @@
                 Object.keys(instance.type.variables).forEach(function(vName){
                     contextMenuActions['Show ' + vName] = function(){console.log(instance.type.variables[vName])}
                 });
+                contextMenuActions['Show some other var'] = function(){console.log('var2')}
+                contextMenuActions['Show another var'] = function(){console.log('var3')}
                 return contextMenuActions;
             }
 
