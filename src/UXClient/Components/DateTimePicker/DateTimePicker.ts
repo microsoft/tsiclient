@@ -227,9 +227,11 @@ class DateTimePicker extends ChartComponent{
 
     private setIsValid (isValid: boolean){
         this.isValid = isValid;
-        this.targetElement.select(".tsi-saveButtonContainer").select(".tsi-saveButton")
-            .attr("disabled", this.isValid ? null : true)
-            .classed("tsi-buttonDisabled", !this.isValid);
+
+        // For now, lets allow users to save the time even in the presence of errors
+        // this.targetElement.select(".tsi-saveButtonContainer").select(".tsi-saveButton")
+        //     .attr("disabled", this.isValid ? null : true)
+        //     .classed("tsi-buttonDisabled", !this.isValid);
 
     }
 

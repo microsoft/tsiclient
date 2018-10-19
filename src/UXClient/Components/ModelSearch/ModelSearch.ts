@@ -205,22 +205,25 @@ class ModelSearch extends Component{
         d3.selectAll('.tsi-resultSelected').classed('tsi-resultSelected', false);
     }
 
+    private stripHits = (str) => {
+        return str.split('<hit>').map(h => h.split('</hit>').map(h2 => Utils.strip(h2)).join('</hit>')).join('<hit>')
+    }
+
     private getInstanceHtml(i) {
         return `<div class="tsi-modelResult">
                     <div class="tsi-modelPK">
-                        ${Utils.strip(i.timeSeriesId.join(' '))}
+                        ${this.stripHits(i.highlights.timeSeriesIds.join(' '))}
                     </div>
                     <div class="tsi-modelHighlights">
-                        ${Object.keys(i.highlights).map(k => {
-                            let highlight = i.highlights[k];
-                            if(typeof(highlight) === 'object'){
-                                highlight = highlight.join(' ');
-                            }
-                            let highlighted = highlight.split('<hit>').map(h => h.split('</hit>').map(h2 => Utils.strip(h2)).join('</hit>')).join('<hit>');
-                            return Utils.strip(k) + ': ' + highlighted;
-                        }).join('<br/>')}
+                        ${this.stripHits(i.highlights.description && i.highlights.description.length ? i.highlights.description : 'No description')}
+                        <br/><table>
+                        ${i.highlights.instanceFieldNames.map((ifn, idx) => {
+                            var val = i.highlights.instanceFieldValues[idx];
+                            return val.length === 0 ? '' :  '<tr><td>' + this.stripHits(ifn) + '</td><td>' + this.stripHits(i.highlights.instanceFieldValues[idx]) + '</tr>';
+                        }).join('')}
+                        </table>
                     </div>
-                </div>`
+                </div>`;
     }
 }
 

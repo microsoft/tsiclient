@@ -330,14 +330,14 @@ class AvailabilityChart extends ChartComponent{
             this.sparkLineChart.setBrushEndTime(new Date(this.toMillis)); 
             this.zoomedFromMillis = this.fromMillis; 
             this.zoomedToMillis = this.toMillis; 
-            this.setFromAndToTimes(this.toMillis - (7 * 24 * 60 * 60 * 1000), this.toMillis); 
-            this.setBrush(this.toMillis - (7 * 24 * 60 * 60 * 1000), this.toMillis); 
+            this.setFromAndToTimes(this.toMillis - (24 * 60 * 60 * 1000), this.toMillis); 
+            this.setBrush(this.toMillis - (24 * 60 * 60 * 1000), this.toMillis); 
         } else {
             if (this.zoomedFromMillis == null) this.zoomedFromMillis = this.fromMillis; 
             if (this.zoomedToMillis == null) this.zoomedToMillis = this.toMillis; 
             if (this.sparkLineChart.brushStartTime == null) this.sparkLineChart.setBrushStartTime(new Date(this.zoomedFromMillis)); 
             if (this.sparkLineChart.brushEndTime == null) this.sparkLineChart.setBrushEndTime(new Date(this.zoomedToMillis)); 
-            if (this.selectedFromMillis == null || this.selectedToMillis == null) this.setFromAndToTimes(this.toMillis - (7 * 24 * 60 * 60 * 1000), this.toMillis); 
+            if (this.selectedFromMillis == null || this.selectedToMillis == null) this.setFromAndToTimes(this.toMillis - (24 * 60 * 60 * 1000), this.toMillis); 
             this.drawGhost();
             this.setBrush(this.selectedFromMillis, this.selectedToMillis);
         }
@@ -513,7 +513,7 @@ class AvailabilityChart extends ChartComponent{
             .text(function (d) { return d[0]; })
             .property("value", function (d) { return d[1]; });
 
-        options.filter((d) => d[0] == "Last 7 Days")
+        options.filter((d) => d[0] == "Last 24 Hours")
             .attr("selected", "selected");
 
         options.filter((d) => d[0] == "Custom")

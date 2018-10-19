@@ -81,7 +81,7 @@
     }
 
     .tsi-markerInstructions {
-        height: 24px;
+        height: 39px;
         width: calc(100% - 8px);
         font-size: 16px;
         text-align: center;
@@ -89,6 +89,7 @@
         position: absolute;
         border-radius: 3px;
         bottom: 0px;
+        line-height: 26px;
     }
 
     .tsi-scooterContainer {
