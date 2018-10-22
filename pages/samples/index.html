@@ -56,6 +56,7 @@
                     <option value="13">13. Line Chart From L1 SKU Environment</option>
                     <option value="14">14. Model Search Component With Hierarchy</option>
                     <option value="15">15. A Standalone Model Autocomplete Component</option>
+                    <option value="16">16. Aggregates With Many Splity Values</option>                    
                 </select>
             </div>
             <div id="charts">
@@ -747,6 +748,31 @@
             var onInput = function(searchText){console.log(searchText)};
             var onKeydown = function(d3Event, awesompleteObject){console.log(d3Event); console.log(awesompleteObject)};
             modelAutocomplete.render('c74fddd1-fb33-4ff8-a12f-bab37d881264.env.crystal-dev.windows-int.net', authContext.getTsiToken, {onInput: onInput, onKeydown: onKeydown});
+        }
+
+
+        // 16. Aggregates with a lot of splitby values
+        var example16 = function(){
+            renderChartContainers(2, [true, true]);
+
+            var aggregateExpressions = [];
+            var startDate = new Date('2018-09-23T00:00:00.000Z');
+            var endDate = new Date(startDate.valueOf() + 1000*60*60*24*25);
+
+            aggregateExpressions.push(new tsiClient.ux.AggregateExpression({predicateString: ""}, {property: 'score', type: 'string'}, ['count'],
+                { from: startDate, to: endDate, bucketSize: '8h' }, {property: 'score', type: 'String'}, '#FF8C00', 'Split by Score'));
+            aggregateExpressions.push(new tsiClient.ux.AggregateExpression({predicateString: ""}, {property: 'score', type: 'string'}, ['count'],
+                { from: startDate, to: endDate, bucketSize: '8h' }, {property: 'score', type: 'String'}, '#FF008C', 'Split by Score 2'));
+            aggregateExpressions.push(new tsiClient.ux.AggregateExpression({predicateString: ""}, {property: 'score', type: 'string'}, ['count'],
+                { from: startDate, to: endDate, bucketSize: '8h' }, {property: 'score', type: 'String'}, '#008CFF', 'Split by Score 3'));
+            
+            authContext.getTsiToken().then(function(token){
+                tsiClient.server.getAggregates(token, 'bec25c6b-ed2e-4416-856d-5057957a1575.env.timeseries.azure.com', aggregateExpressions.map(function(ae){return ae.toTsx()})).then(function(result){
+                    var transformedResult = tsiClient.ux.transformAggregatesForVisualization(result, aggregateExpressions);
+                    var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart1'));
+                    lineChart.render(transformedResult, {theme: 'dark', grid: true, tooltip: true, legend: 'shown'}, aggregateExpressions);
+                });
+            });
         }
 
         // Initial load, supports linking to a specific example by hash

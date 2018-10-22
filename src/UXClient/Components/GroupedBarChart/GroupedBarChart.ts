@@ -432,7 +432,7 @@ class GroupedBarChart extends ChartComponent {
                         if (self.contextMenu && self.contextMenu.contextMenuVisible)
                             return;
                         focus.style("display", "none");                        
-                        (<any>legendObject.legendElement.selectAll('.splitByLabel').filter((labelData: any) => {
+                        (<any>legendObject.legendElement.selectAll('.tsi-splitByLabel').filter((labelData: any) => {
                             return (labelData[0] == d.aggKey) && (labelData[1] == d.splitBy);
                         })).classed("inFocus", false);
                         d3.event.stopPropagation();
@@ -456,7 +456,7 @@ class GroupedBarChart extends ChartComponent {
                             if (self.contextMenu && self.contextMenu.contextMenuVisible)
                                 return;
                             
-                            (legendObject.legendElement.selectAll('.splitByLabel').filter((labelData: any) => {
+                            (legendObject.legendElement.selectAll('.tsi-splitByLabel').filter((labelData: any) => {
                                 return (labelData[0] == d.aggKey) && (labelData[1] == d.splitBy);
                             })).classed("inFocus", true);
                             labelMouseover(d.aggKey, d.splitBy);

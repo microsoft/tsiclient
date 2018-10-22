@@ -67,8 +67,8 @@ class Heatmap extends ChartComponent {
 
                             function onCellFocus (focusStartTime, focusEndTime, focusX1, focusX2, focusY, splitBy) {
                                 self.renderTimeLabels(focusStartTime, focusEndTime, focusX1, focusX2, focusY, (aggI * canvasWrapperHeight / visibleAggs.length));
-                                self.legend.legendElement.selectAll('.splitByLabel').classed("inFocus", false);
-                                self.legend.legendElement.selectAll('.splitByLabel').filter((labelData: any) => {
+                                self.legend.legendElement.selectAll('.tsi-splitByLabel').classed("inFocus", false);
+                                self.legend.legendElement.selectAll('.tsi-splitByLabel').filter((labelData: any) => {
                                     return (labelData[0] == aggKey) && (labelData[1] == splitBy);
                                 }).classed("inFocus", true);
                             }
@@ -78,7 +78,7 @@ class Heatmap extends ChartComponent {
                         renderHeatmapCanvas();         
                     }).on("mouseleave", () => {
                         self.timeLabels.selectAll("*").remove();
-                        self.legend.legendElement.selectAll('.splitByLabel').classed("inFocus", false);
+                        self.legend.legendElement.selectAll('.tsi-splitByLabel').classed("inFocus", false);
                     })
                 canvasWrappers.exit().remove();
 
@@ -97,7 +97,7 @@ class Heatmap extends ChartComponent {
                     this.heatmapWrapper, this.chartOptions, mouseout);
 
                 //remove all the colorKeys
-                this.legend.legendElement.selectAll(".seriesLabel").selectAll(".splitByLabel").selectAll(".colorKey").style("display", "none");
+                this.legend.legendElement.selectAll(".seriesLabel").selectAll(".tsi-splitByLabel").selectAll(".colorKey").style("display", "none");
             }
         }
         this.legend = new Legend(this.draw, this.renderTarget, this.CONTROLSWIDTH);

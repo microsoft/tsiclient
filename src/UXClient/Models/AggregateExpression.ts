@@ -7,6 +7,7 @@ class AggregateExpression extends ChartableExpression {
     public measureObject: any;
     public splitByObject;
     public predicate: Object; // predicate TSX
+    public visibleSplitByCap: number = 10;
 
 	constructor(predicateObject: any, measureObject: any, measureTypes: Array<string>, searchSpan: any, 
                 splitByObject: any = null, color: string, alias: string, contextMenu: Array<any>){

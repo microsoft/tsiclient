@@ -102,13 +102,18 @@ class ChartComponentData {
                     splitBys: [],
                     name: aggName,
                     color: ((aggregateExpressionOptions[i] && aggregateExpressionOptions[i].color) ? 
-                             aggregateExpressionOptions[i].color : "teal")
+                             aggregateExpressionOptions[i].color : "teal"),
+                    visibleSplitByCap: 10
                 }                    
             } 
             if (aggregateExpressionOptions) {
                 newDisplayState[aggKey].contextMenuActions = aggregateExpressionOptions[i] ? 
                                                 aggregateExpressionOptions[i].contextMenu : [];
                 newDisplayState[aggKey].aggregateExpression = aggregateExpressionOptions[i];
+                // impose cap on visible splitBys if relevant
+                if (aggregateExpressionOptions[i] && aggregateExpressionOptions[i].visibleSplitByCap) {
+                    newDisplayState[aggKey].visibleSplitByCap = aggregateExpressionOptions[i].visibleSplitByCap;
+                }
             } else {
                 //revert to previous context menu actions if no new ones passed in and old ones exist
                 var oldContextMenuActions = (this.displayState[aggKey] && this.displayState[aggKey].contextMenuActions) ? 
@@ -129,7 +134,7 @@ class ChartComponentData {
             var aggregateVisible = newDisplayState[aggKey].visible;
             this.timeArrays[aggKey] = [];
             this.visibleTAs[aggKey] = {};
-            Object.keys(data[i][aggName]).forEach((splitBy: string) => {
+            Object.keys(data[i][aggName]).forEach((splitBy: string, splitByI: number) => {
                 this.timeArrays[aggKey][splitBy] = 
                     this.convertAggregateToArray(data[i][aggName][splitBy], aggKey, aggName, splitBy, 
                                                  newDisplayState[aggKey].from, newDisplayState[aggKey].to, 
@@ -138,7 +143,7 @@ class ChartComponentData {
                     newDisplayState[aggKey].splitBys[splitBy] = this.displayState[aggKey].splitBys[splitBy];
                 } else {
                     newDisplayState[aggKey].splitBys[splitBy] = {
-                        visible: true,
+                        visible: splitByI < newDisplayState[aggKey].visibleSplitByCap,
                         visibleType : null,
                         types : []
                     }
