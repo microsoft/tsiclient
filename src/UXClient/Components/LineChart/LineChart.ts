@@ -259,8 +259,8 @@ class LineChart extends ChartComponent {
             this.tooltip.hide();
         
         (<any>this.focus.node()).parentNode.appendChild(this.focus.node());
-        (<any>this.legendObject.legendElement.selectAll('.tsi-splitByLabel').filter((labelData: any) => {
-            return (labelData[0] == d.aggregateKey) && (labelData[1] == d.splitBy);
+        (<any>this.legendObject.legendElement.selectAll('.tsi-splitByLabel').filter(function (filteredSplitBy: string) {
+            return (d3.select(this.parentNode).datum() == d.aggregateKey) && (filteredSplitBy == d.splitBy);
         })).classed("inFocus", true);
 
         /** update the y axis for in focus aggregate */
@@ -354,8 +354,8 @@ class LineChart extends ChartComponent {
             splitBy: (splitBy == null ? null : splitBy)
         };
 
-        (<any>this.legendObject.legendElement.selectAll('.tsi-splitByLabel').filter((labelData: any) => {
-            return (labelData[0] == aggregateKey) && (labelData[1] == splitBy);
+        (<any>this.legendObject.legendElement.selectAll('.tsi-splitByLabel').filter(function (filteredSplitBy: any)  {
+            return (d3.select(this.parentNode).datum() == aggregateKey) && (filteredSplitBy == splitBy);
         })).classed("stickied", true);
         
     }
