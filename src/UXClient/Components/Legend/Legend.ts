@@ -193,6 +193,9 @@ class Legend extends Component {
                 d3.select(this).append("div")
                     .attr("class", 'tsi-colorKey')
                     .style('background-color', () => {
+                        if (chartComponentData.isFromHeatmap) {
+                            return chartComponentData.displayState[aggKey].color;
+                        }
                         return colors[j];
                     });
 

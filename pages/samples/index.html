@@ -773,6 +773,14 @@
                     lineChart.render(transformedResult, {theme: 'dark', grid: true, tooltip: true, legend: 'shown'}, aggregateExpressions);
                 });
             });
+
+            authContext.getTsiToken().then(function(token){
+                tsiClient.server.getAggregates(token, 'bec25c6b-ed2e-4416-856d-5057957a1575.env.timeseries.azure.com', aggregateExpressions.map(function(ae){return ae.toTsx()})).then(function(result){
+                    var transformedResult = tsiClient.ux.transformAggregatesForVisualization(result, aggregateExpressions);
+                    var heatmap = new tsiClient.ux.Heatmap(document.getElementById('chart2'));
+                    heatmap.render(transformedResult, {theme: "dark"}, aggregateExpressions);
+                });
+            });
         }
 
         // Initial load, supports linking to a specific example by hash

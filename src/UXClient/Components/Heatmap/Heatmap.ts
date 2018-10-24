@@ -6,6 +6,7 @@ import { ChartComponent } from '../../Interfaces/ChartComponent';
 import { Legend } from '../Legend/Legend';
 import { HeatmapCanvas} from '../HeatmapCanvas/HeatmapCanvas';
 import { ChartOptions } from '../../Models/ChartOptions';
+import { AggregateExpression } from '../../Models/AggregateExpression';
 
 class Heatmap extends ChartComponent {
     private lineHeight = 12;
@@ -21,12 +22,16 @@ class Heatmap extends ChartComponent {
     private timeLabelsHeight = 50;
 
     public render (data, chartOptions, aggregateExpressions) {
+        // override visibleSplitByCap
+        aggregateExpressions = aggregateExpressions.map((aE: AggregateExpression) => {
+            return {...aE, visibleSplitByCap : 10000 };
+        });
         this.chartOptions.setOptions(chartOptions);
         var targetElement = d3.select(this.renderTarget).classed("tsi-heatmapComponent", true);
 		if(targetElement.style("position") == "static")
             targetElement.style("position", "relative");
         var width: number = targetElement.node().getBoundingClientRect().width - (this.chartOptions.legend == "shown" ? 250 : 0);
-        this.height = targetElement.node().getBoundingClientRect().height
+        this.height = targetElement.node().getBoundingClientRect().height;
 
         this.chartComponentData.mergeDataToDisplayStateAndTimeArrays(data, aggregateExpressions);
             
@@ -68,12 +73,12 @@ class Heatmap extends ChartComponent {
                             function onCellFocus (focusStartTime, focusEndTime, focusX1, focusX2, focusY, splitBy) {
                                 self.renderTimeLabels(focusStartTime, focusEndTime, focusX1, focusX2, focusY, (aggI * canvasWrapperHeight / visibleAggs.length));
                                 self.legend.legendElement.selectAll('.tsi-splitByLabel').classed("inFocus", false);
-                                self.legend.legendElement.selectAll('.tsi-splitByLabel').filter((labelData: any) => {
-                                    return (labelData[0] == aggKey) && (labelData[1] == splitBy);
+                                self.legend.legendElement.selectAll('.tsi-splitByLabel').filter(function (labelData: any) {
+                                    return (d3.select(this.parentNode).datum() == aggKey) && (labelData == splitBy);
                                 }).classed("inFocus", true);
                             }
 
-                            heatmapCanvas.render(self.chartComponentData, self.chartOptions, aggKey, null, null, onCellFocus);
+                            heatmapCanvas.render(self.chartComponentData, self.chartOptions, aggKey, null, null, onCellFocus, aggI);
                         }
                         renderHeatmapCanvas();         
                     }).on("mouseleave", () => {
