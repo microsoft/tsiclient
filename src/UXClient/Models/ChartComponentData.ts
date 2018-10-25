@@ -95,7 +95,8 @@ class ChartComponentData {
                     name: this.displayState[aggKey].name,
                     color: ((aggregateExpressionOptions[i] && aggregateExpressionOptions[i].color) ? 
                              aggregateExpressionOptions[i].color : this.displayState[aggKey].color),
-                    splitBys: []
+                    splitBys: [],
+                    shownSplitBys: 20
                 }
             } else {
                 newDisplayState[aggKey] = {
@@ -104,7 +105,8 @@ class ChartComponentData {
                     name: aggName,
                     color: ((aggregateExpressionOptions[i] && aggregateExpressionOptions[i].color) ? 
                              aggregateExpressionOptions[i].color : "teal"),
-                    visibleSplitByCap: 10
+                    visibleSplitByCap: 10,
+                    shownSplitBys: 20
                 }                    
             } 
             if (aggregateExpressionOptions) {

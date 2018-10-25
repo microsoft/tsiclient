@@ -259,9 +259,7 @@ class LineChart extends ChartComponent {
             this.tooltip.hide();
         
         (<any>this.focus.node()).parentNode.appendChild(this.focus.node());
-        (<any>this.legendObject.legendElement.selectAll('.tsi-splitByLabel').filter(function (filteredSplitBy: string) {
-            return (d3.select(this.parentNode).datum() == d.aggregateKey) && (filteredSplitBy == d.splitBy);
-        })).classed("inFocus", true);
+        this.legendObject.triggerSplitByFocus(d.aggregateKey, d.splitBy);
 
         /** update the y axis for in focus aggregate */
         if (this.yAxisState == "overlap") {

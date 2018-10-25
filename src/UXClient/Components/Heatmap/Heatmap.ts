@@ -44,7 +44,6 @@ class Heatmap extends ChartComponent {
             this.draw = () => { 
                 width = Math.floor(targetElement.node().getBoundingClientRect().width) - (this.chartOptions.legend == "shown" ? 250 : 0);
                 this.height = Math.floor(targetElement.node().getBoundingClientRect().height);
-                this.chartComponentData.mergeDataToDisplayStateAndTimeArrays(data, aggregateExpressions);
                 this.heatmapWrapper.style("width", (width - 10) + "px");
 
                 var canvasWrapperHeight = this.height - this.timeLabelsHeight;
@@ -72,10 +71,7 @@ class Heatmap extends ChartComponent {
 
                             function onCellFocus (focusStartTime, focusEndTime, focusX1, focusX2, focusY, splitBy) {
                                 self.renderTimeLabels(focusStartTime, focusEndTime, focusX1, focusX2, focusY, (aggI * canvasWrapperHeight / visibleAggs.length));
-                                self.legend.legendElement.selectAll('.tsi-splitByLabel').classed("inFocus", false);
-                                self.legend.legendElement.selectAll('.tsi-splitByLabel').filter(function (labelData: any) {
-                                    return (d3.select(this.parentNode).datum() == aggKey) && (labelData == splitBy);
-                                }).classed("inFocus", true);
+                                self.legend.triggerSplitByFocus(aggKey, splitBy);
                             }
 
                             heatmapCanvas.render(self.chartComponentData, self.chartOptions, aggKey, null, null, onCellFocus, aggI);
@@ -106,6 +102,7 @@ class Heatmap extends ChartComponent {
             }
         }
         this.legend = new Legend(this.draw, this.renderTarget, this.CONTROLSWIDTH);
+        this.chartComponentData.mergeDataToDisplayStateAndTimeArrays(data, aggregateExpressions);
         this.draw();
         this.timeLabels = this.heatmapWrapper.append('svg').attr("class", "tsi-heatmapTimeLabels");
         window.addEventListener("resize", () => {
