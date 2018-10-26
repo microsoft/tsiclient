@@ -37,6 +37,9 @@ class Legend extends Component {
     }
 
     public triggerSplitByFocus (aggKey: string, splitBy: string) {
+        if (this.chartOptions.legend == "hidden") {
+            return;
+        }
         this.legendElement.selectAll('.tsi-splitByLabel').classed("inFocus", false);
         this.legendElement.selectAll('.tsi-splitByLabel').filter(function (labelData: any) {
             return (d3.select(this.parentNode).datum() == aggKey) && (labelData == splitBy);
@@ -96,10 +99,9 @@ class Legend extends Component {
         }
 
         if (legendState == "hidden") {
-            legend.style("display", "none");
-            legend.style("width", "0px"); 
-            return; 
-        }
+            legend.classed("hidden", true)
+                .style("width", "0px"); 
+        } 
         if(legendState == "compact")
             legend.classed("compact", true)
         else
@@ -161,9 +163,19 @@ class Legend extends Component {
             seriesNameLabelText.exit().remove();
             enteredSeriesNameLabel.exit().remove();
 
+            var splitByContainerHeight;
+            if (splitByLabelData.length > 4) {
+                splitByContainerHeight = Math.max(160, ((legend.node().clientHeight - 20) / seriesLabelsEntered.size()) - 40);
+            } else if (splitByLabelData.length > 1) {
+                splitByContainerHeight = splitByLabelData.length * 40;
+            } else {
+                splitByContainerHeight = 44;
+            }
+
             var splitByContainer = d3.select(this).selectAll(".tsi-splitByContainer").data([aggKey]);
             var splitByContainerEntered = splitByContainer.enter().append("div")
                 .merge(splitByContainer)
+                .style("height", splitByContainerHeight + "px")
                 .classed("tsi-splitByContainer", true);
 
 
@@ -199,7 +211,7 @@ class Legend extends Component {
                         svgSelection.selectAll(".valueElement")
                                     .attr("stroke-opacity", 1)
                                     .attr("fill-opacity", 1);
-                        labelMouseout(svgSelection, splitBy);
+                        labelMouseout(svgSelection, aggKey);
                     })
                     .attr("class", (splitBy, i) => {
                         return "tsi-splitByLabel tsi-splitByLabel" + (Utils.getAgVisible(self.chartComponentData.displayState, aggKey, splitBy) ? " shown" : "")

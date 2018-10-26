@@ -57,7 +57,14 @@
     &.tsi-light{
         $grays: grays('light');
         @include legendColors($grays);
-    }
+	}
+	
+	&.hidden {
+		display: none;
+	}
+	&:not(.hidden) {
+		display: block;
+	}
 	
 	&.compact{
 		margin-left: 20px;
@@ -132,8 +139,7 @@
 
 		.tsi-seriesLabel {
 			.tsi-splitByContainer {
-				max-height: 160px;
-				overflow-y: scroll;
+				overflow-y: auto;
 				visibility: hidden;
 
 				.tsi-splitByLabel,

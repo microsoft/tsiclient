@@ -89,9 +89,9 @@ class Heatmap extends ChartComponent {
                         heatmapCanvas.render(self.chartComponentData, self.chartOptions, hoveredAggKey, hoveredSplitBy, null, null);
                 }
                 var mouseout = (selection, hoveredAggKey) => {
-                    var heatmapCanvas = self.heatmapCanvasMap[hoveredAggKey];
+                    var heatmapCanvas: HeatmapCanvas = self.heatmapCanvasMap[hoveredAggKey];
                     if (heatmapCanvas)
-                        heatmapCanvas.render(self.chartComponentData, self.chartOptions, hoveredAggKey, null, null, null);
+                        heatmapCanvas.render(self.chartComponentData, self.chartOptions, hoveredAggKey, null, null, null, null);
                 }
 
                 this.legend.draw(this.chartOptions.legend, this.chartComponentData, mouseover, 
