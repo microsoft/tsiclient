@@ -101,7 +101,7 @@ class Legend extends Component {
         if (legendState == "hidden") {
             legend.classed("hidden", true)
                 .style("width", "0px"); 
-        } 
+        }
         if(legendState == "compact")
             legend.classed("compact", true)
         else
@@ -126,6 +126,17 @@ class Legend extends Component {
             });
 
         var self = this;
+
+        var events: any = (this.chartComponentData.displayState.events) ? this.chartComponentData.displayState.events : [];
+        var states: any = (this.chartComponentData.displayState.states) ? this.chartComponentData.displayState.states : [];
+
+        const heightPerSplitBy: number = 40;
+        const heightPerNameLabel: number = 25;
+        const verticalPaddingPerSeriesLabel: number = 12;
+
+        const usableLegendHeight: number = legend.node().clientHeight - ((Object.keys(events).length + Object.keys(states).length) * (heightPerNameLabel + verticalPaddingPerSeriesLabel)) - 16;
+        var prospectiveAggregateHeight = Math.ceil(Math.max(201, (usableLegendHeight / seriesLabelsEntered.size())));
+
         seriesLabelsEntered.each(function (aggKey: string, i: number) {
             var splitByLabelData = Object.keys(self.chartComponentData.timeArrays[aggKey]);
             var noSplitBys: boolean = splitByLabelData.length == 1 && splitByLabelData[0] == "";
@@ -165,17 +176,19 @@ class Legend extends Component {
 
             var splitByContainerHeight;
             if (splitByLabelData.length > 4) {
-                splitByContainerHeight = Math.max(160, ((legend.node().clientHeight - 20) / seriesLabelsEntered.size()) - 40);
-            } else if (splitByLabelData.length > 1) {
-                splitByContainerHeight = splitByLabelData.length * 40;
+                splitByContainerHeight = prospectiveAggregateHeight - heightPerNameLabel;
+            } else if (splitByLabelData.length > 1 || (splitByLabelData.length == 1 && splitByLabelData[0] != "")) {
+                splitByContainerHeight = splitByLabelData.length * heightPerSplitBy + heightPerNameLabel;
             } else {
                 splitByContainerHeight = 44;
+            }
+            if (self.chartOptions.legend == "shown") {
+                d3.select(this).style("height", splitByContainerHeight + "px");
             }
 
             var splitByContainer = d3.select(this).selectAll(".tsi-splitByContainer").data([aggKey]);
             var splitByContainerEntered = splitByContainer.enter().append("div")
                 .merge(splitByContainer)
-                .style("height", splitByContainerHeight + "px")
                 .classed("tsi-splitByContainer", true);
 
 
@@ -295,11 +308,28 @@ class Legend extends Component {
 
         });
 
+        if (this.chartOptions.legend == 'shown') {
+            var legendHeight = legend.node().clientHeight;
+            var contentHeight = 0;
+            seriesLabelsEntered.each(function () {
+                contentHeight += d3.select(this).node().clientHeight + 8; 
+            });
+            //minSplitBysForFlexGrow: the minimum number of split bys for flex-grow to be triggered 
+            var minSplitByForFlexGrow = (prospectiveAggregateHeight - heightPerNameLabel) / heightPerSplitBy;
+            if (contentHeight < legendHeight) {
+                seriesLabelsEntered.each(function () {
+                    var splitBysCount = Object.keys(self.chartComponentData.displayState[String(d3.select(this).data()[0])].splitBys).length;
+                    if (splitBysCount > minSplitByForFlexGrow) {
+                        d3.select(this).style("flex-grow", 1);
+                    }
+                });
+            }
+        }
+
         seriesLabelsEntered.exit().remove();
 
         /** Events ************************************************************************************************/
 
-        var events: any = (this.chartComponentData.displayState.events) ? this.chartComponentData.displayState.events : [];
         var eventSeriesLabels: any = legend.selectAll(".tsi-eventSeriesLabel")
             .data(Object.keys(events));
         var eventSeriesLabelsEntered = eventSeriesLabels
@@ -341,7 +371,6 @@ class Legend extends Component {
 
         /** States ************************************************************************************************/
         
-        var states: any = (this.chartComponentData.displayState.states) ? this.chartComponentData.displayState.states : [];
         var stateSeriesLabels: any = legend.selectAll(".tsi-stateSeriesLabel")
             .data(Object.keys(states));
         var stateSeriesLabelsEntered = stateSeriesLabels

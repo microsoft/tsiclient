@@ -49,7 +49,7 @@
 	overflow-y: auto;
 	overflow-x: hidden;
 	height: calc(100% - 16px);
-	padding: 8px;
+	padding-left: 8px;
 	&.tsi-dark{
         $grays: grays('dark');
         @include legendColors($grays);
@@ -78,6 +78,7 @@
 		justify-content: center;
 		border-right: none;
 		padding: 0;
+		padding-left: 0px;
 
 		.tsi-seriesLabel {
 			overflow-y: hidden;
@@ -135,12 +136,16 @@
 	}
 
 	&:not(.compact) {
-
+		display: flex;
+		flex-direction: column;
 
 		.tsi-seriesLabel {
 			.tsi-splitByContainer {
 				overflow-y: auto;
 				visibility: hidden;
+				padding: 1px;
+				min-height: 42px;
+				height: calc(100% - 32px);
 
 				.tsi-splitByLabel,
 				&:hover,
@@ -203,7 +208,10 @@
 	}
 
 	.tsi-seriesLabel, .tsi-eventSeriesLabel, .tsi-stateSeriesLabel {
-		margin: 8px;
+		margin-left: 8px;
+		margin-right: 8px;
+		margin-top: 8px;
+		margin-bottom: 4px;
 		.tsi-seriesNameLabel, .tsi-splitByContainer .tsi-splitByLabel {
 			display:flex;
 			h4, h5 {
