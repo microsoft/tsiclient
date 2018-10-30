@@ -111,7 +111,7 @@ class Legend extends Component {
         legend.style("width", this.legendWidth + "px");
 
         var seriesLabels: any = legend.selectAll(".tsi-seriesLabel")
-            .data(Object.keys(this.chartComponentData.timeArrays));
+            .data(Object.keys(this.chartComponentData.displayState), d => d);
 
         var seriesLabelsEntered = seriesLabels.enter()
             .append("div") 
@@ -165,14 +165,14 @@ class Legend extends Component {
             });
 
             var seriesNameLabelText = enteredSeriesNameLabel.selectAll("h4").data([aggKey]);
-            seriesNameLabelText = seriesNameLabelText.enter()
+            var seriesNameLabelTextEntered = seriesNameLabelText.enter()
                 .append("h4")
                 .merge(seriesNameLabelText)
                 .attr("title", (d: string) => self.chartComponentData.displayState[d].name)
                 .text((d: string) => self.chartComponentData.displayState[d].name);
 
             seriesNameLabelText.exit().remove();
-            enteredSeriesNameLabel.exit().remove();
+            seriesNameLabel.exit().remove();
 
             var splitByContainerHeight;
             if (splitByLabelData.length > 4) {
@@ -293,18 +293,20 @@ class Legend extends Component {
                         typeLabels.exit().remove();
                     });
                 });
-                splitByLabelsEntered.exit().remove();
+                splitByLabels.exit().remove();
 
-                return splitByContainerEntered;
+                return [splitByContainer, splitByContainerEntered];
             }
-            var splitByContainerEntered = renderSplitBys();
+            var sBs = renderSplitBys();
+            var splitByContainer = sBs[0];
+            var splitByContainerEntered = sBs[1];
             splitByContainerEntered.on("scroll", function () {
                 if ((<any>this).scrollTop + (<any>this).clientHeight + 40 > (<any>this).scrollHeight) {
                     self.chartComponentData.displayState[aggKey].shownSplitBys += 20;
                     renderSplitBys();
                 }
             });
-            splitByContainerEntered.exit().remove();
+            splitByContainer.exit().remove();
 
         });
 
@@ -326,7 +328,7 @@ class Legend extends Component {
             }
         }
 
-        seriesLabelsEntered.exit().remove();
+        seriesLabels.exit().remove();
 
         /** Events ************************************************************************************************/
 
@@ -369,6 +371,8 @@ class Legend extends Component {
             return d3.select(this).html() + events[d].name;
         });
 
+        eventSeriesLabels.exit().remove();
+
         /** States ************************************************************************************************/
         
         var stateSeriesLabels: any = legend.selectAll(".tsi-stateSeriesLabel")
@@ -407,6 +411,8 @@ class Legend extends Component {
         stateSeriesLabelText.html(function(d) { 
             return d3.select(this).html() + states[d].name;
         });
+
+        stateSeriesLabels.exit().remove();
 	}
 }
 
