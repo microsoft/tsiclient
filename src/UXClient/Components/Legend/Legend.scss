@@ -136,16 +136,18 @@
 	}
 
 	&:not(.compact) {
-		display: flex;
-		flex-direction: column;
-
+		&.tsi-flexLegend {
+			display: flex;
+			flex-direction: column;	
+		}
+	
 		.tsi-seriesLabel {
 			.tsi-splitByContainer {
 				overflow-y: auto;
 				visibility: hidden;
 				padding: 1px;
 				min-height: 42px;
-				height: calc(100% - 32px);
+				height: calc(100% - 25px);
 
 				.tsi-splitByLabel,
 				&:hover,
@@ -165,7 +167,7 @@
 				position: absolute;
 				height: 100%;
 				width: 16px;
-				right: 8px;
+				left: 120px;
 			}
 			.tsi-eyeIcon {
 				cursor: pointer;
@@ -208,10 +210,7 @@
 	}
 
 	.tsi-seriesLabel, .tsi-eventSeriesLabel, .tsi-stateSeriesLabel {
-		margin-left: 8px;
-		margin-right: 8px;
-		margin-top: 8px;
-		margin-bottom: 4px;
+		margin: 8px;
 		.tsi-seriesNameLabel, .tsi-splitByContainer .tsi-splitByLabel {
 			display:flex;
 			h4, h5 {
