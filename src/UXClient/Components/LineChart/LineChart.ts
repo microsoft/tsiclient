@@ -129,7 +129,7 @@ class LineChart extends ChartComponent {
         
         this.focus.style("display", "none");
         d3.select(this.renderTarget).select(".tooltip").style("display", "none");
-        (<any>this.legendObject.legendElement.selectAll('.splitByLabel')).classed("inFocus", false);
+        (<any>this.legendObject.legendElement.selectAll('.tsi-splitByLabel')).classed("inFocus", false);
         if (d3.event && d3.event.type != 'end') {
             d3.event.stopPropagation();
         }
@@ -259,9 +259,7 @@ class LineChart extends ChartComponent {
             this.tooltip.hide();
         
         (<any>this.focus.node()).parentNode.appendChild(this.focus.node());
-        (<any>this.legendObject.legendElement.selectAll('.splitByLabel').filter((labelData: any) => {
-            return (labelData[0] == d.aggregateKey) && (labelData[1] == d.splitBy);
-        })).classed("inFocus", true);
+        this.legendObject.triggerSplitByFocus(d.aggregateKey, d.splitBy);
 
         /** update the y axis for in focus aggregate */
         if (this.yAxisState == "overlap") {
@@ -354,8 +352,8 @@ class LineChart extends ChartComponent {
             splitBy: (splitBy == null ? null : splitBy)
         };
 
-        (<any>this.legendObject.legendElement.selectAll('.splitByLabel').filter((labelData: any) => {
-            return (labelData[0] == aggregateKey) && (labelData[1] == splitBy);
+        (<any>this.legendObject.legendElement.selectAll('.tsi-splitByLabel').filter(function (filteredSplitBy: any)  {
+            return (d3.select(this.parentNode).datum() == aggregateKey) && (filteredSplitBy == splitBy);
         })).classed("stickied", true);
         
     }
@@ -432,7 +430,7 @@ class LineChart extends ChartComponent {
 
     private getScooterMarginLeft () {
         var legendWidth = this.legendObject.legendElement.node().getBoundingClientRect().width;
-        return this.chartMargins.left + (this.chartOptions.legend == "shown" ? legendWidth : 0);
+        return this.chartMargins.left + (this.chartOptions.legend == "shown" || this.chartOptions.legend == "hidden" ? legendWidth : 0);
     }
 
     // when re-rendering, scooters need to be repositioned - this function takes in a scooter and outputs the time on the timemap which 
@@ -661,7 +659,7 @@ class LineChart extends ChartComponent {
         if (!this.isDroppingScooter) {
             if (this.chartComponentData.stickiedKey != null) {
                 this.chartComponentData.stickiedKey = null;
-                (<any>this.legendObject.legendElement.selectAll('.splitByLabel')).classed("stickied", false);
+                (<any>this.legendObject.legendElement.selectAll('.tsi-splitByLabel')).classed("stickied", false);
                 // recompute voronoi with no sticky
                 site = this.voronoi(this.getFilteredAndSticky(this.chartComponentData.allValues)).find(mx, my);
                 this.voronoiMouseout(site.data);
@@ -747,7 +745,7 @@ class LineChart extends ChartComponent {
             var site: any = this.voronoi(this.getFilteredAndSticky(this.chartComponentData.allValues)).find(mx, my);
             if (this.chartComponentData.stickiedKey != null) {
                 this.chartComponentData.stickiedKey = null;
-                (<any>this.legendObject.legendElement.selectAll('.splitByLabel')).classed("stickied", false);
+                (<any>this.legendObject.legendElement.selectAll('.tsi-splitByLabel')).classed("stickied", false);
                 // recompute voronoi with no sticky
                 site = this.voronoi(this.getFilteredAndSticky(this.chartComponentData.allValues)).find(mx, my);
                 this.voronoiMouseout(site.data);

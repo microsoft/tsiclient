@@ -14,8 +14,8 @@
 		stroke: $gray1;
 	}
 
-	.seriesLabel{
-		.seriesNameLabel, .splitByLabel {
+	.tsi-seriesLabel{
+		.tsi-seriesNameLabel, .tsi-splitByContainer .tsi-splitByLabel {
 			select {
 				color: #999;
 				background-color: transparent;
@@ -25,12 +25,12 @@
 				}
 			}			
 		}
-		.seriesNameLabel {
+		.tsi-seriesNameLabel {
 			&.shown {
 				background-color: $gray3;
 			}
 		}
-		.splitByLabel, .seriesNameLabel {
+		.tsi-splitByContainer .tsi-splitByLabel, .tsi-seriesNameLabel {
 			&:hover, &.inFocus {
 				color: $gray6;    
 			}
@@ -49,7 +49,7 @@
 	overflow-y: auto;
 	overflow-x: hidden;
 	height: calc(100% - 16px);
-	padding: 8px;
+	padding-left: 8px;
 	&.tsi-dark{
         $grays: grays('dark');
         @include legendColors($grays);
@@ -57,7 +57,14 @@
     &.tsi-light{
         $grays: grays('light');
         @include legendColors($grays);
-    }
+	}
+	
+	&.hidden {
+		display: none;
+	}
+	&:not(.hidden) {
+		display: block;
+	}
 	
 	&.compact{
 		margin-left: 20px;
@@ -66,23 +73,23 @@
 		height: 48px !important;
 		width: calc(100% - 40px) !important;
 		position: absolute;
-		overflow: visible;
 		display: flex;
 		justify-content: center;
 		border-right: none;
 		padding: 0;
+		padding-left: 0px;
 
-		.seriesLabel {
+		.tsi-seriesLabel {
 			overflow-y: hidden;
 			overflow-x: hidden;
 			&:hover {
 				overflow-x: auto;
 			}
 			white-space: nowrap;
-
+			flex-basis: 124px;
 		}
 
-		.seriesLabel, .eventSeriesLabel{
+		.tsi-seriesLabel, .tsi-eventSeriesLabel{
 			border: none;
 			padding: 0;
 			text-align: center;
@@ -91,41 +98,67 @@
 			&:not(.shown) {
 				border: none;
 			}
-			.seriesNameLabel{
+			.tsi-seriesNameLabel{
 				display: none;
 			}
 			select{
 				display: none;
 			}
-			.splitByLabel{
-				display: inline-block;
-				margin: 0 4px;
-				padding: 0 4px 1px 4px;
-				height: 20px;
-				margin-top: 1px;
-				overflow: hidden;
-				.colorKey{
-					display: block;
-					position: absolute;
-					height: 10px;
-					width: 10px;
-					top: -3px;
-				}
-				h5{
-					max-width: 100px;
-					margin-left: 16px;
-					margin-right: 0px;
-					text-align: left;
-					width: initial;
-					font-size: 12px;
+			.tsi-splitByContainer {
+				max-height: 140px;
+
+				.tsi-splitByLabel{
+					display: inline-block;
+					margin: 0 4px;
+					padding: 0 4px 1px 4px;
+					height: 20px;
+					margin-top: 1px;
+					overflow: hidden;
+					.tsi-colorKey{
+						display: block;
+						position: absolute;
+						height: 10px;
+						width: 10px;
+						top: -3px;
+					}
+					h5{
+						max-width: 100px;
+						margin-left: 16px;
+						margin-right: 0px;
+						text-align: left;
+						width: initial;
+						font-size: 12px;
+					}
 				}
 			}
 		}
 	}
 
 	&:not(.compact) {
-		.seriesLabel, .eventSeriesLabel, .stateSeriesLabel {
-			.seriesNameLabel .eyeIcon, .splitByLabel .eyeIcon {
+		&.tsi-flexLegend {
+			display: flex;
+			flex-direction: column;	
+		}
+	
+		.tsi-seriesLabel {
+			.tsi-splitByContainer {
+				overflow-y: auto;
+				visibility: hidden;
+				padding: 1px;
+				min-height: 42px;
+				height: calc(100% - 25px);
+
+				.tsi-splitByLabel,
+				&:hover,
+				&:focus {
+					visibility: visible;
+				}
+			}
+		}
+
+
+		.tsi-seriesLabel, .tsi-eventSeriesLabel, .tsi-stateSeriesLabel {
+			.tsi-seriesNameLabel .tsi-eyeIcon, .tsi-splitByContainer .tsi-splitByLabel .tsi-eyeIcon {
 				display: block;
 				background-size: 16px 16px;
 				background-repeat: no-repeat;
@@ -133,39 +166,40 @@
 				position: absolute;
 				height: 100%;
 				width: 16px;
-				right: 8px;
+				left: 124px;
 			}
-			.eyeIcon {
+			.tsi-eyeIcon {
 				cursor: pointer;
 			}
 		}
 
 		&.tsi-light {
-			.seriesLabel, .eventSeriesLabel, .stateSeriesLabel {
-				.seriesNameLabel .eyeIcon, .splitByLabel .eyeIcon {
+
+			.tsi-seriesLabel, .tsi-eventSeriesLabel, .tsi-stateSeriesLabel {
+				.tsi-seriesNameLabel .tsi-eyeIcon, .tsi-splitByContainer .tsi-splitByLabel .tsi-eyeIcon {
 					background-image: url(../../Icons/Eye_light_theme.svg);
 				}
 
-				.seriesNameLabel.stickied .eyeIcon, .splitByLabel.stickied .eyeIcon {
+				.tsi-seriesNameLabel.stickied .tsi-eyeIcon, .tsi-splitByContainer .tsi-splitByLabel.stickied .tsi-eyeIcon {
 					background-image: url(../../Icons/Eye_dark_theme.svg);
 				}
 			}
 		}
 
 		&.tsi-dark {
-			.seriesLabel, .eventSeriesLabel, .stateSeriesLabel {
-				.seriesNameLabel .eyeIcon, .splitByLabel .eyeIcon {
+			.tsi-seriesLabel, .tsi-eventSeriesLabel, .tsi-stateSeriesLabel {
+				.tsi-seriesNameLabel .tsi-eyeIcon, .tsi-splitByContainer .tsi-splitByLabel .tsi-eyeIcon {
 					background-image: url(../../Icons/Eye_dark_theme.svg);
 				}
 
-				.seriesNameLabel.stickied .eyeIcon, .splitByLabel.stickied .eyeIcon {
+				.tsi-seriesNameLabel.stickied .tsi-eyeIcon, .tsi-splitByContainer .tsi-splitByLabel.stickied .tsi-eyeIcon {
 					background-image: url(../../Icons/Eye_light_theme.svg);
 				}
 			}
 		}
 	}
 
-	.eventSeriesLabel, .stateSeriesLabel, .seriesLabel .seriesNameLabel, .seriesLabel .splitByLabel {
+	.tsi-eventSeriesLabel, .tsi-stateSeriesLabel, .tsi-seriesLabel .tsi-seriesNameLabel, .tsi-seriesLabel .tsi-splitByContainer .tsi-splitByLabel {
 		&:not(.shown) {
 			opacity:.3;
 		}
@@ -174,9 +208,17 @@
 		}
 	}
 
-	.seriesLabel, .eventSeriesLabel, .stateSeriesLabel {
+	.tsi-seriesLabel, .tsi-eventSeriesLabel, .tsi-stateSeriesLabel {
 		margin: 8px;
-		.seriesNameLabel, .splitByLabel {
+		&.tsi-nsb{
+			.tsi-splitByContainer{
+				overflow-y: hidden;
+			}
+			.tsi-seriesNameLabel {
+				display: none;
+			}
+		}
+		.tsi-seriesNameLabel, .tsi-splitByContainer .tsi-splitByLabel {
 			display:flex;
 			h4, h5 {
 				text-overflow: ellipsis;
@@ -185,7 +227,7 @@
 				margin-top:2px;
 				margin-bottom:4px;
 				font-weight: 400;
-				margin-right: 36px;
+				margin-right: 46px;
 			}
 
 			h4 {
@@ -218,10 +260,7 @@
 				display: none; /* remove default arrow on ie10 and ie11 */
 			}
 		}
-		.seriesNameLabel {
-			&.tsi-nsb{
-				display: none;
-			}
+		.tsi-seriesNameLabel {
 			svg {
 				display: inline-block;
 			}
@@ -237,7 +276,7 @@
 				display: none;
 			}
 		}
-		.splitByLabel {
+		.tsi-splitByContainer .tsi-splitByLabel {
 			font-size: 16px;
 			padding: 0 4px;
 			position: relative;
@@ -250,7 +289,7 @@
 				padding: 0;
 			}
 			
-			.colorKey {
+			.tsi-colorKey {
 				flex-shrink: 0;
 				width: 12px;
 				height: 12px;
@@ -261,7 +300,7 @@
 				top: -2px;
 			}
 		}
-		.seriesTypeLabel {
+		.tsi-seriesTypeLabel {
 			margin: 0;
 			cursor: pointer;
 			font-weight: normal;

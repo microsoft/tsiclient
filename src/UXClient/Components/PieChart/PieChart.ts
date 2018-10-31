@@ -181,7 +181,7 @@ class PieChart extends ChartComponent {
                         return;
                     tooltip.hide();
                     labelMouseout(d.data.aggKey, d.data.splitBy);
-                    (<any>self.legendObject.legendElement.selectAll('.splitByLabel')).classed("inFocus", false);
+                    (<any>self.legendObject.legendElement.selectAll('.tsi-splitByLabel')).classed("inFocus", false);
                 } 
 
                 function pathMouseInteraction (d: any)  {
@@ -189,8 +189,8 @@ class PieChart extends ChartComponent {
                         return;
                     pathMouseout(d); 
                     labelMouseover(d.data.aggKey, d.data.splitBy);
-                    (<any>self.legendObject.legendElement.selectAll('.splitByLabel').filter((labelData: any) => {
-                        return (labelData[0] == d.data.aggKey) && (labelData[1] == d.data.splitBy);
+                    (<any>self.legendObject.legendElement.selectAll('.tsi-splitByLabel').filter(function (filteredSplitBy: string) {
+                        return (d3.select(this.parentNode).datum() == d.data.aggKey) && (filteredSplitBy == d.data.splitBy);
                     })).classed("inFocus", true);
                     drawTooltip(d, d3.mouse(self.svgSelection.node()));
                 }
