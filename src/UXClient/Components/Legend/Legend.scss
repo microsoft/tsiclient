@@ -73,7 +73,6 @@
 		height: 48px !important;
 		width: calc(100% - 40px) !important;
 		position: absolute;
-		overflow: visible;
 		display: flex;
 		justify-content: center;
 		border-right: none;
@@ -87,7 +86,7 @@
 				overflow-x: auto;
 			}
 			white-space: nowrap;
-
+			flex-basis: 124px;
 		}
 
 		.tsi-seriesLabel, .tsi-eventSeriesLabel{
@@ -167,7 +166,7 @@
 				position: absolute;
 				height: 100%;
 				width: 16px;
-				left: 120px;
+				left: 124px;
 			}
 			.tsi-eyeIcon {
 				cursor: pointer;
@@ -211,6 +210,14 @@
 
 	.tsi-seriesLabel, .tsi-eventSeriesLabel, .tsi-stateSeriesLabel {
 		margin: 8px;
+		&.tsi-nsb{
+			.tsi-splitByContainer{
+				overflow-y: hidden;
+			}
+			.tsi-seriesNameLabel {
+				display: none;
+			}
+		}
 		.tsi-seriesNameLabel, .tsi-splitByContainer .tsi-splitByLabel {
 			display:flex;
 			h4, h5 {
@@ -220,7 +227,7 @@
 				margin-top:2px;
 				margin-bottom:4px;
 				font-weight: 400;
-				margin-right: 36px;
+				margin-right: 46px;
 			}
 
 			h4 {
@@ -254,9 +261,6 @@
 			}
 		}
 		.tsi-seriesNameLabel {
-			&.tsi-nsb{
-				display: none;
-			}
 			svg {
 				display: inline-block;
 			}

@@ -145,10 +145,11 @@ class Legend extends Component {
             var splitByLabelData = Object.keys(self.chartComponentData.timeArrays[aggKey]);
             var noSplitBys: boolean = splitByLabelData.length == 1 && splitByLabelData[0] == "";
             var seriesNameLabel = d3.select(this).selectAll(".tsi-seriesNameLabel").data([aggKey]);
+            d3.select(this).classed('tsi-nsb', noSplitBys);
             var enteredSeriesNameLabel = seriesNameLabel.enter().append("div")
             .merge(seriesNameLabel)
             .attr("class", (agg: string, i) => {
-                return "tsi-seriesNameLabel" + (noSplitBys ? ' tsi-nsb' : '') + (self.chartComponentData.displayState[agg].visible ? " shown" : "");
+                return "tsi-seriesNameLabel" + (self.chartComponentData.displayState[agg].visible ? " shown" : "");
             })                    
             .on("click", function (d: string, i: number) {
                 var newState = !self.chartComponentData.displayState[d].visible;
@@ -307,16 +308,34 @@ class Legend extends Component {
             var sBs = renderSplitBys();
             var splitByContainer = sBs[0];
             var splitByContainerEntered = sBs[1];
+            if (self.chartOptions.legend == 'compact') {
+                var growWidth = splitByLabelData.length * 124 > d3.select(this).node().parentNode.clientWidth / seriesLabelsEntered.size();
+                var shouldAllShrink = d3.select(this).node().parentNode.clientWidth / seriesLabelsEntered.size() < 124;
+                d3.select(this).style("flex-basis", (growWidth && !shouldAllShrink) ? 'inherit' : '124px').style('flex-shrink', shouldAllShrink ? 1 : (growWidth ? 1 : 0));
+            }
             splitByContainerEntered.on("scroll", function () {
-                if ((<any>this).scrollTop + (<any>this).clientHeight + 40 > (<any>this).scrollHeight) {
-                    const oldShownSplitBys = self.chartComponentData.displayState[aggKey].shownSplitBys; 
-                    self.chartComponentData.displayState[aggKey].shownSplitBys = Math.min(oldShownSplitBys + 20, splitByLabelData.length);
-                    if (oldShownSplitBys != self.chartComponentData.displayState[aggKey].shownSplitBys) {
-                        renderSplitBys();                        
-                    }
+                if (self.chartOptions.legend == "shown") {
+                    if ((<any>this).scrollTop + (<any>this).clientHeight + 40 > (<any>this).scrollHeight) {
+                        const oldShownSplitBys = self.chartComponentData.displayState[aggKey].shownSplitBys; 
+                        self.chartComponentData.displayState[aggKey].shownSplitBys = Math.min(oldShownSplitBys + 20, splitByLabelData.length);
+                        if (oldShownSplitBys != self.chartComponentData.displayState[aggKey].shownSplitBys) {
+                            renderSplitBys();                        
+                        }
+                    }    
                 }
             });
             splitByContainer.exit().remove();
+            d3.select(this).on('scroll', function () {
+                if (self.chartOptions.legend == "compact") {
+                    if ((<any>this).scrollLeft + (<any>this).clientWidth + 40 > (<any>this).scrollWidth) {
+                        const oldShownSplitBys = self.chartComponentData.displayState[aggKey].shownSplitBys; 
+                        self.chartComponentData.displayState[aggKey].shownSplitBys = Math.min(oldShownSplitBys + 20, splitByLabelData.length);
+                        if (oldShownSplitBys != self.chartComponentData.displayState[aggKey].shownSplitBys) {
+                            renderSplitBys();                   
+                        }
+                    }    
+                }
+            });
 
         });
 
