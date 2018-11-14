@@ -11,6 +11,7 @@ class Slider extends Component{
     private width: number;
     private sliderWidth: number;
     private selectedLabel: string;
+    private isAscendingTimePeriods: boolean;
 
     private margins = {
         left: 60,
@@ -23,10 +24,52 @@ class Slider extends Component{
 	}
 
 	Slider() {
-	}
+    }
+    
+    private getXPositionOfLabel (label: string) {
+        if (this.data.map(d => d.label).indexOf(label) != -1) {
+            return this.xScale(label);
+        }
+        // find approximate position if ascending time periods and label is a time label as well
+        if ((Utils.parseTimeInput(label) > -1) && this.isAscendingTimePeriods && this.data.length > 1) {
+            let labelMillis = Utils.parseTimeInput(label);
+            for (var i = 0; i < this.data.length; i++) {
+                if (Utils.parseTimeInput(this.data[i].label) > labelMillis) {
+                    return (this.xScale(this.data[i].label) + this.xScale(this.data[Math.max(i - 1, 0)].label)) / 2;
+                } 
+            }
+            return this.xScale(this.data[this.data.length - 1].label);
+        }
+        return 0;
+    }
+
+    private determineIfAscendingTimePeriods () {
+        let finalPeriod = this.data.reduce((prevPeriod, curr) => {
+            let currTimePeriod = Utils.parseTimeInput(curr.label);
+            if (currTimePeriod > prevPeriod) {
+                return currTimePeriod
+            } else {
+                return Infinity;
+            }
+        }, -1);
+        return (finalPeriod > -1);
+    }
+
+    private setPositionFromTimePeriod () {
+        let finalPeriod = this.data.reduce((prevPeriod, curr, i) => {
+            let currTimePeriod = Utils.parseTimeInput(curr.label);
+            if (currTimePeriod > prevPeriod) {
+                return currTimePeriod
+            } else {
+                return Infinity;
+            }
+        }, -1);
+    }
+
 	
 	public render(data: Array<any>, options: any, width: number, selectedLabel: string = null){
         this.data = data;
+        this.isAscendingTimePeriods = this.determineIfAscendingTimePeriods();
         this.width = width;
         var marginsTotal = this.margins.left + this.margins.right
         this.sliderWidth = width - marginsTotal;
@@ -107,8 +150,8 @@ class Slider extends Component{
     private onDrag (h) {
         //find the closest time and set position to that
         var newSelectedLabel = this.data.reduce((prev, curr) => {
-            var currDiff = Math.abs(this.xScale(curr.label) - h);
-            var prevDiff = Math.abs(this.xScale(prev.label) - h);
+            var currDiff = Math.abs(this.getXPositionOfLabel(curr.label) - h);
+            var prevDiff = Math.abs(this.getXPositionOfLabel(prev.label) - h);
             return (currDiff < prevDiff) ? curr : prev;
         }, {label: this.selectedLabel, action: () => {}});
         this.selectedLabel = (newSelectedLabel != null) ? newSelectedLabel.label : this.selectedLabel;
@@ -119,11 +162,11 @@ class Slider extends Component{
     
     //set the position of the slider and text, and set the text, given a label
     private setStateFromLabel () {
-        this.sliderSVG.select(".handle").attr("cx", this.xScale(this.selectedLabel));
+        this.sliderSVG.select(".handle").attr("cx", this.getXPositionOfLabel(this.selectedLabel));
         this.sliderTextDiv.text(this.selectedLabel);
         //adjust until center lines up with 
         var centerDivOffset = this.sliderTextDiv.node().getBoundingClientRect().width / 2;
-        this.sliderTextDiv.style("right", (this.width - (this.margins.right + this.xScale(this.selectedLabel))) - centerDivOffset + "px");
+        this.sliderTextDiv.style("right", (this.width - (this.margins.right + this.getXPositionOfLabel(this.selectedLabel))) - centerDivOffset + "px");
     }
 
     private moveLeft () {

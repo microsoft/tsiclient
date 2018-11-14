@@ -216,7 +216,7 @@
             var startDate = new Date('2017-04-19T13:00:00Z');
             var endDate = new Date(startDate.valueOf() + 1000*60*60*1);
             var firstAe = new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory3'"}, {property: 'Temperature', type: "Double"}, ['avg', 'min'],
-                { from: startDate, to: endDate, bucketSize: '2m' }, {property: 'Station', type: 'String'}, '#F7727E', 'Factory3Temperature');
+                { from: startDate, to: endDate, bucketSize: '2m' }, {property: 'Station', type: 'String'}, '#F7727E', 'Factory3Temperature', [], [true, ['Station2', 'Station4']]);
             aggregateExpressions.push(firstAe);
             authContext.getTsiToken().then(function(token){
                 tsiClient.server.getAggregates(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com', aggregateExpressions.map(function(ae){return ae.toTsx()})).then(function(result){
@@ -230,7 +230,7 @@
 
                     var pieChart = new tsiClient.ux.PieChart(document.getElementById('chart3'));
                     pieChart.render(transformedResult, {legend: "compact", zeroYAxis: false, tooltip: true}, aggregateExpressions);
-                    
+
                     var counter = 0;
                     currentSetInterval = setInterval(function () {
                         if(counter < 50){ // so this doesnt just DDOS the backend if the tab is left open
@@ -238,7 +238,7 @@
                                 aggregateExpressions.pop();
                             } else{
                                 var secondAe = new tsiClient.ux.AggregateExpression({predicateString: ""}, {property: 'Temperature', type: "Double"}, ['min', 'avg', 'max'],
-                                    { from: startDate, to: endDate, bucketSize: '2m' }, {property: 'Station', type: 'String'}, '#C8E139', 'Factory1Temp');
+                                    { from: startDate, to: endDate, bucketSize: '2m' }, {property: 'Station', type: 'String'}, '#C8E139', 'Factory1Temp', []);
                                 aggregateExpressions.push(secondAe);
                             }
                             var options = (aggregateExpressions.length == 2) ? {legend: "compact", zeroYAxis: false, theme: 'light'} : {legend: "compact", tooltip: true, grid: true, zeroYAxis: false, theme: 'dark'};
@@ -508,7 +508,7 @@
                 tsiClient.server.getAggregates(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com', aggregateExpressions.map(function(ae){return ae.toTsx()})).then(function(result){
                     var transformedResult = tsiClient.ux.transformAggregatesForVisualization(result, aggregateExpressions);
                     var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart1'));
-                    lineChart.render(transformedResult, {theme: "light", legend: "compact", brushContextMenuActions: brushActions, grid: true, snapBrush: true}, aggregateExpressions);
+                    lineChart.render(transformedResult, {theme: "light", legend: "compact", brushContextMenuActions: brushActions, grid: true, snapBrush: true, autoTriggerBrushContextMenu: true}, aggregateExpressions);
                 });
             });
         }
