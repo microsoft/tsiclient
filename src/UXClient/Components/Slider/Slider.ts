@@ -52,20 +52,8 @@ class Slider extends Component{
                 return Infinity;
             }
         }, -1);
-        return (finalPeriod > -1);
+        return (finalPeriod > -1 && finalPeriod != Infinity);
     }
-
-    private setPositionFromTimePeriod () {
-        let finalPeriod = this.data.reduce((prevPeriod, curr, i) => {
-            let currTimePeriod = Utils.parseTimeInput(curr.label);
-            if (currTimePeriod > prevPeriod) {
-                return currTimePeriod
-            } else {
-                return Infinity;
-            }
-        }, -1);
-    }
-
 	
 	public render(data: Array<any>, options: any, width: number, selectedLabel: string = null){
         this.data = data;
