@@ -44,15 +44,12 @@ class Slider extends Component{
     }
 
     private determineIfAscendingTimePeriods () {
-        let finalPeriod = this.data.reduce((prevPeriod, curr) => {
-            let currTimePeriod = Utils.parseTimeInput(curr.label);
-            if (currTimePeriod > prevPeriod) {
-                return currTimePeriod
-            } else {
-                return Infinity;
-            }
-        }, -1);
-        return (finalPeriod > -1 && finalPeriod != Infinity);
+        let left = this.data.length > 0 ? Utils.parseTimeInput(this.data[0].label) : -1;
+        let isAscending = left !== -1;
+        for( let i = 0; isAscending && i < this.data.length - 1; i++) {
+            isAscending = left < (left = Utils.parseTimeInput(this.data[i+1].label));
+        }
+        return isAscending;
     }
 	
 	public render(data: Array<any>, options: any, width: number, selectedLabel: string = null){
