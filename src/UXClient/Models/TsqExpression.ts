@@ -27,7 +27,7 @@ class TsqExpression extends ChartableExpression {
         tsq['timeSeriesId'] = this.instanceObject.timeSeriesId;
         tsq['inlineVariables'] = this.variableObject;
         tsq['projectedVariables'] = Object.keys(this.variableObject);
-        return {getSeries: tsq};
+        return {aggregateSeries: tsq};
     }
 }
 export {TsqExpression}
