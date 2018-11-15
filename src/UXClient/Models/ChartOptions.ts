@@ -4,6 +4,7 @@ import { quadtree } from 'd3';
 class ChartOptions {
     public aggTopMargin: number; // margin on top of each aggregate line(s)
     public arcWidthRatio: number; // number between 0 and 1 which determines how thic the pie chart arc is
+    public autoTriggerBrushContextMenu: boolean; // whether the brush context menu gets triggered on brush mouse up
     public availabilityLeftMargin: number; // number which sets the left margin of the availability chart
     public brushClearable: boolean; // whether to keep the brush selected region upon clear and non-selection of a new region
     public brushContextMenuActions: Array<any>; // pairs of names/actions for context menu for the brush
@@ -142,6 +143,7 @@ class ChartOptions {
         this.includeEnvelope = this.getValueOrDefault(chartOptionsObj, 'includeEnvelope', false);
         this.canDownload = this.getValueOrDefault(chartOptionsObj, 'canDownload', true);
         this.withContextMenu = this.getValueOrDefault(chartOptionsObj, 'withContextMenu', false);
+        this.autoTriggerBrushContextMenu = this.getValueOrDefault(chartOptionsObj, 'autoTriggerBrushContextMenu', false);
     }
 
     public toObject () {
@@ -197,7 +199,8 @@ class ChartOptions {
             interpolationFunction: this.interpolationFunction,
             includeEnvelope: this.includeEnvelope,
             canDownload: this.canDownload,
-            withContextMenu: this.withContextMenu
+            withContextMenu: this.withContextMenu,
+            autoTriggerBrushContextMenu: this.autoTriggerBrushContextMenu
         }
     }
 }

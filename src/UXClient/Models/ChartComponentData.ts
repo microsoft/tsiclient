@@ -100,7 +100,8 @@ class ChartComponentData {
                 }
             } else {
                 newDisplayState[aggKey] = {
-                    visible: true,
+                    visible: (aggregateExpressionOptions[i] && aggregateExpressionOptions[i].visibilityState) ? 
+                        aggregateExpressionOptions[i].visibilityState[0] : true,
                     splitBys: [],
                     name: aggName,
                     color: ((aggregateExpressionOptions[i] && aggregateExpressionOptions[i].color) ? 
@@ -145,8 +146,10 @@ class ChartComponentData {
                 if (this.displayState[aggKey] && this.displayState[aggKey].splitBys[splitBy]) {
                     newDisplayState[aggKey].splitBys[splitBy] = this.displayState[aggKey].splitBys[splitBy];
                 } else {
+                    let visibilityFromAEO = (aggregateExpressionOptions[i] && aggregateExpressionOptions[i].visibilityState) ? 
+                                                aggregateExpressionOptions[i].visibilityState[1].indexOf(splitBy) != -1 : true;
                     newDisplayState[aggKey].splitBys[splitBy] = {
-                        visible: splitByI < newDisplayState[aggKey].visibleSplitByCap,
+                        visible: ((splitByI < newDisplayState[aggKey].visibleSplitByCap) && visibilityFromAEO),
                         visibleType : null,
                         types : []
                     }
@@ -432,6 +435,22 @@ class ChartComponentData {
         });
         
         return csvString;
+    }
+
+    public getVisibilityState () {
+        let visibilityStateArray = [];
+        Object.keys(this.displayState).forEach((aggKey) => {
+            let aggDisplayState = this.displayState[aggKey]; 
+            let visibleSplitBys = !aggDisplayState.visible ? [] : 
+                Object.keys(aggDisplayState.splitBys).filter((splitByName) => {
+                    return aggDisplayState.splitBys[splitByName].visible
+                });
+            let aggName = aggDisplayState.name;
+            let visibilityObject = {};
+            visibilityObject[aggName] = [aggDisplayState.visible, visibleSplitBys];
+            visibilityStateArray.push(visibilityObject);
+        });
+        return visibilityStateArray;
     }
 }
 export {ChartComponentData}

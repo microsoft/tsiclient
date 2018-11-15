@@ -62,6 +62,9 @@ class Utils {
 
 
     static getOffsetMinutes(offset: any, millis: number) {
+        if (offset == 'Local') {
+            return -momentTZ.tz.zone(momentTZ.tz.guess()).parse(millis);
+        }
         if (typeof offset == "string") {
             return -momentTZ.tz.zone(offset).parse(millis);
         } else {
@@ -71,6 +74,9 @@ class Utils {
 
     // inverse of getOffsetMinutes, this is the conversion factor of an offsettedTime to UTC in minutes 
     static getMinutesToUTC (offset: any, millisInOffset: number) {
+        if (offset == 'Local') {
+            return momentTZ.tz.zone(momentTZ.tz.guess()).utcOffset(millisInOffset);
+        }
         if (typeof offset == "string") {
             return momentTZ.tz.zone(offset).utcOffset(millisInOffset);
         } else {
