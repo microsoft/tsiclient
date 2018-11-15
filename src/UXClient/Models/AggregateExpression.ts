@@ -8,13 +8,15 @@ class AggregateExpression extends ChartableExpression {
     public splitByObject;
     public predicate: Object; // predicate TSX
     public visibleSplitByCap: number = 10;
+    public visibilityState: Array<any>;
 
 	constructor(predicateObject: any, measureObject: any, measureTypes: Array<string>, searchSpan: any, 
-                splitByObject: any = null, color: string, alias: string, contextMenu: Array<any>){
+                splitByObject: any = null, color: string, alias: string, contextMenu: Array<any>, visibilityState: Array<any> = null){
         super(searchSpan, color, alias, contextMenu, measureTypes);
         this.predicate = predicateObject;
         this.measureTypes = measureTypes;
         this.splitByObject = splitByObject;
+        this.visibilityState = visibilityState;
         this.measureObject = ((measureTypes.length == 1 && measureTypes[0] == 'count') || measureObject.property == 'Events Count') ?  {count: {}} : {input : measureObject};
     }
     

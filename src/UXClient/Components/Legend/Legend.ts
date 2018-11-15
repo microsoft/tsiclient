@@ -98,17 +98,10 @@ class Legend extends Component {
             }
         }
 
-        if (legendState == "hidden") {
-            legend.classed("hidden", true)
-                .style("width", "0px"); 
-        }
-        if(legendState == "compact")
-            legend.classed("compact", true)
-        else
-            legend.classed("compact", false)
-            
-        legend.style("visibility", "visible");
-        legend.style("width", this.legendWidth + "px");
+        legend.style('visibility', legendState != 'hidden')
+            .classed('compact', legendState == 'compact')
+            .classed('hidden', legendState == 'hidden')
+            .style('width', legendState == 'hidden' ? '0px' : this.legendWidth + "px");
 
         var seriesLabels: any = legend.selectAll(".tsi-seriesLabel")
             .data(Object.keys(this.chartComponentData.displayState).filter((seriesName: string) => {

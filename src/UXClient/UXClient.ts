@@ -65,8 +65,10 @@ class UXClient {
     }
 
     public AggregateExpression(predicateObject: any, measureObject: any, measureTypes: Array<string>, searchSpan: any, 
-                                        splitByObject: any = null, color: string = null, alias: string = '', contextMenu: Array<any> = []): any {
-        return new AggregateExpression(predicateObject, measureObject, measureTypes, searchSpan, splitByObject, color, alias, contextMenu)
+                                        splitByObject: any = null, color: string = null, alias: string = '', 
+                                        contextMenu: Array<any> = [], visibilityState: Array<any> = null): any {
+        return new AggregateExpression(predicateObject, measureObject, measureTypes, searchSpan, splitByObject, color, 
+                                        alias, contextMenu, visibilityState);
     }
 
     public TsqExpression(instanceObject: any, variableObject: any, searchSpan: any, 

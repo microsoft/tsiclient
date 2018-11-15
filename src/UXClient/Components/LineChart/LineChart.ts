@@ -647,6 +647,9 @@ class LineChart extends ChartComponent {
             this.contextMenu.draw(this.chartComponentData, this.renderTarget, this.chartOptions, 
                                 mousePosition, site.data.aggregateKey, site.data.splitBy, null,
                                 site.data.dateTime);
+            if (this.brushContextMenu) {
+                this.brushContextMenu.hide();
+            }
             this.voronoiMouseover(site.data);
         }
     }
@@ -686,6 +689,10 @@ class LineChart extends ChartComponent {
                 return d.measures[visibleMeasure];
         } 
         return null;
+    }
+
+    public getVisibilityState () {
+        return this.chartComponentData.getVisibilityState();
     }
 
     private brushBrush () {
@@ -734,6 +741,9 @@ class LineChart extends ChartComponent {
     private brushEnd (mouseEvent) {
         if (this.isClearingBrush) {
             this.isClearingBrush = false;
+            if (this.brushContextMenu) {
+                this.brushContextMenu.hide();
+            }
             return;
         }
         if (d3.event && d3.event.selection == null && d3.event.sourceEvent && d3.event.sourceEvent.type == "mouseup" && this.chartOptions.minBrushWidth == 0) {
@@ -767,6 +777,7 @@ class LineChart extends ChartComponent {
             return;
         }
         var transformCall = null; //if the brush needs to be transformed due to snap brush or it being too small, this is envoked
+        var isZeroWidth = false; //clear the brush context menu if the brush has 0 width
         if (this.chartOptions.snapBrush) {
             //find the closest possible value and set to that
             if (this.possibleTimesArray.length > 0) {
@@ -791,18 +802,32 @@ class LineChart extends ChartComponent {
                     this.brushStartPosition = this.x(this.brushStartTime);
                     this.brushEndPosition = this.x(this.brushEndTime);
                     transformCall = () => d3.select(mouseEvent).transition().call(d3.event.target.move, [this.x(this.brushStartTime), this.x(this.brushEndTime)]);
+                    isZeroWidth = this.x(this.brushStartTime) == this.x(this.brushEndTime);
                 }
             }
         }
         if (d3.event.selection[1] - d3.event.selection[0] < this.minBrushWidth) {
             let rightSide = Math.min(d3.event.selection[0] + this.minBrushWidth, this.x.range()[1]);
             transformCall = () => d3.select(mouseEvent).transition().call(d3.event.target.move, [rightSide - this.minBrushWidth, rightSide]);
+            isZeroWidth = (rightSide - this.minBrushWidth == rightSide);
         }
         if (this.chartOptions.brushMoveEndAction && (d3.event.sourceEvent && d3.event.sourceEvent.type == 'mouseup')) {
             this.chartOptions.brushMoveEndAction(this.brushStartTime, this.brushEndTime);
         }
-        if (transformCall)
+        if (this.chartOptions.brushContextMenuActions && this.chartOptions.autoTriggerBrushContextMenu && 
+            (d3.event.sourceEvent && d3.event.sourceEvent.type == 'mouseup')) {
+            if (!this.chartOptions.brushContextMenuActions || this.chartOptions.brushContextMenuActions.length == 0)
+                return;
+            var mousePosition = d3.mouse(<any>this.targetElement.node());
+            this.brushContextMenu.draw(this.chartComponentData, this.renderTarget, this.chartOptions, 
+                                mousePosition, null, null, null, this.brushStartTime, this.brushEndTime);
+        }
+        if (transformCall) {
             transformCall();
+            if (this.brushContextMenu && isZeroWidth) {
+                this.brushContextMenu.hide();
+            } 
+        }
     }
 
     // updates the display of scooters but not their underlying data. Updates all if no scooter is passed in
@@ -1488,7 +1513,7 @@ class LineChart extends ChartComponent {
 
                     if (this.brushElem) {
                         this.brushElem.selectAll(".selection, .handle").on("contextmenu", function (d) {
-                            if (!self.chartOptions.brushContextMenuActions || self.chartOptions.brushContextMenuActions.length == 0)
+                            if (!self.chartOptions.brushContextMenuActions || self.chartOptions.brushContextMenuActions.length == 0 || self.chartOptions.autoTriggerBrushContextMenu)
                                 return;
                             var mousePosition = d3.mouse(<any>self.targetElement.node());
                             d3.event.preventDefault();

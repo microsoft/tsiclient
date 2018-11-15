@@ -45,7 +45,7 @@ class GroupedBarChart extends ChartComponent {
             this.isStacked = this.chartOptions.stacked;
         } 
 
-        if (this.chartOptions.legend == "compact")
+        if (this.chartOptions.legend == 'compact')
             this.chartMargins.top = 84;
         else
             this.chartMargins.top = 52;
@@ -273,7 +273,8 @@ class GroupedBarChart extends ChartComponent {
                 
                 var aggregateCount = Math.max(Object.keys(this.chartComponentData.filteredAggregates).length, 1);
                 
-                g.selectAll('.barGroup')
+                svgSelection.select('g').attr("transform", "translate(" + this.chartMargins.left + "," + this.chartMargins.top + ")")
+                    .selectAll('.barGroup')
                     .attr("visibility", "hidden");
                 var barGroups = g.selectAll('.barGroup').data(Object.keys(this.chartComponentData.displayState));
                 var spacePerAggregate = calcSpacePerAgg();
@@ -357,7 +358,6 @@ class GroupedBarChart extends ChartComponent {
                         .attr("width", 0)
                         .attr("height", 0);
 
-                    // labelText.enter()
                     labelGroupEntered
                         .merge(labelGroup)
                         .select("text")
