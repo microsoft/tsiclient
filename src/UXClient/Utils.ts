@@ -121,7 +121,7 @@ class Utils {
             var stringFormat = "MM/DD/YYYY " + (is24HourTime ? "HH" : "hh") + ":mm" + 
                 (usesSeconds ? (":ss" + (usesMillis ? ".SSS" : "")) : "") + (is24HourTime ? "" : " A");
             if (typeof offset == "string") {
-                return momentTZ.tz(d, "UTC").tz(offset).format(stringFormat);
+                return momentTZ.tz(d, "UTC").tz(offset === 'Local' ? momentTZ.tz.guess() : offset).format(stringFormat);
             } else {
                 return momentTZ.tz(d, "UTC").utcOffset(offset).format(stringFormat);
             }
