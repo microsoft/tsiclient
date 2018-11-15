@@ -126,7 +126,7 @@ class Hierarchy extends Component {
                     this.clickedNode = el.node();
                     this.contextMenu = this.hierarchyList.append('div');
                     node.children.forEach(n => {
-                        this.contextMenu.append('div').html(`Show ${n.name}`).on('click', () => n.click(n));
+                        this.contextMenu.append('div').html(`${n.name}`).on('click', () => n.click(n));
                     })
                     this.contextMenu.classed('tsi-hierarchyContextMenu', true);
                     let mouseWrapper = d3.mouse(this.hierarchyList.node());

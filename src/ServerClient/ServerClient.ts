@@ -1,9 +1,8 @@
 import * as Promise from 'promise-polyfill';
 
 class ServerClient {
-    private eventsWebsocket;
     private apiVersionUrlParam = "?api-version=2016-12-12";
-    private tsmTsqApiVersion = "?api-version=2018-10-01-privatepreview"
+    private tsmTsqApiVersion = "?api-version=2018-11-01-preview"
 
     Server () {
     }
@@ -64,13 +63,12 @@ class ServerClient {
         });
         
         return new Promise((resolve: any, reject: any) => {
-            tsqArray.forEach((tsq, i) => {
+            tsqArray.forEach((tsq, i) => { 
                 this.getQueryApiResult(token, tsqResults, tsq, i, `https://${uri}/timeseries/query${this.tsmTsqApiVersion}`, resolve, message => message);
             })
         });
     }
-    
- 
+
     public getAggregates(token: string, uri: string, tsxArray: Array<any>, options: any) {
         var aggregateResults = [];
         tsxArray.forEach(ae => {
@@ -131,6 +129,11 @@ class ServerClient {
         return this.createPromiseFromXhr(uri, "GET", {}, token, (responseText) => {return JSON.parse(responseText);});
     }
 
+    public getSampleEnvironments(token: string, endpoint = 'https://api.timeseries.azure.com'){
+        var uri = endpoint + '/sampleenvironments' + this.apiVersionUrlParam;
+        return this.createPromiseFromXhr(uri, "GET", {}, token, (responseText) => {return JSON.parse(responseText);});
+    }
+
     public getMetadata(token: string, environmentFqdn: string, minMillis: number, maxMillis: number) {
         var uri = 'https://' + environmentFqdn + '/metadata' + this.apiVersionUrlParam;
         var searchSpan = {searchSpan: { from: new Date(minMillis).toISOString(), to: new Date(maxMillis).toISOString() }};
@@ -138,8 +141,15 @@ class ServerClient {
         return this.createPromiseFromXhr(uri, "POST", payload, token, (responseText) => {return JSON.parse(responseText).properties;});
     }
 
-    public getAvailability(token: string, environmentFqdn: string) {
-        var uri = 'https://' + environmentFqdn + '/availability' + this.apiVersionUrlParam;
+    public getEventSchema(token: string, environmentFqdn: string, minMillis: number, maxMillis: number) {
+        var uri = 'https://' + environmentFqdn + '/eventSchema' + this.tsmTsqApiVersion;
+        var searchSpan = {searchSpan: { from: new Date(minMillis).toISOString(), to: new Date(maxMillis).toISOString() }};
+        var payload = JSON.stringify(searchSpan);
+        return this.createPromiseFromXhr(uri, "POST", payload, token, (responseText) => {return JSON.parse(responseText).properties;});
+    }
+
+    public getAvailability(token: string, environmentFqdn: string, apiVersion: string = this.apiVersionUrlParam) {
+        var uri = 'https://' + environmentFqdn + '/availability' + apiVersion;
         return this.createPromiseFromXhr(uri, "GET", {}, token, (responseText) => {return JSON.parse(responseText);});
     }
 

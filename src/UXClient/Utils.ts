@@ -33,21 +33,26 @@ class Utils {
     }
 
     // format [0-9]+[ms|s|m|h|d], convert to millis
-    static parseTimeInput (inputString) {
+    static parseTimeInput (inputString: string) {
+        inputString = inputString.toLowerCase();
+        let getNumber = (inputString, charsFromEnd) => {
+            let startAt = inputString.indexOf('pt') !== -1 ? 2 : 0;
+            return Number(inputString.slice(startAt, inputString.length - charsFromEnd));
+        }
         if (inputString.indexOf('ms') == inputString.length - 2) {
-            return Number(inputString.slice(0, inputString.length - 2));
+            return getNumber(inputString, 2);
         }
         if (inputString.indexOf('s') == inputString.length - 1) {
-            return Number(inputString.slice(0, inputString.length - 1)) * 1000;
+            return getNumber(inputString, 1) * 1000;
         }
         if (inputString.indexOf('m') == inputString.length - 1) {
-            return Number(inputString.slice(0, inputString.length - 1)) * 60 * 1000;
+            return getNumber(inputString, 1) * 60 * 1000;
         }
         if (inputString.indexOf('h') == inputString.length - 1) {
-            return Number(inputString.slice(0, inputString.length - 1)) * 60 * 60 * 1000;
+            return getNumber(inputString, 1) * 60 * 60 * 1000;
         }
         if (inputString.indexOf('d') == inputString.length - 1) {
-            return Number(inputString.slice(0, inputString.length - 1)) * 24 * 60 * 60 * 1000;
+            return getNumber(inputString, 1) * 24 * 60 * 60 * 1000;
         }
         return -1;
     }
@@ -116,7 +121,7 @@ class Utils {
             var stringFormat = "MM/DD/YYYY " + (is24HourTime ? "HH" : "hh") + ":mm" + 
                 (usesSeconds ? (":ss" + (usesMillis ? ".SSS" : "")) : "") + (is24HourTime ? "" : " A");
             if (typeof offset == "string") {
-                return momentTZ.tz(d, "UTC").tz(offset).format(stringFormat);
+                return momentTZ.tz(d, "UTC").tz(offset === 'Local' ? momentTZ.tz.guess() : offset).format(stringFormat);
             } else {
                 return momentTZ.tz(d, "UTC").utcOffset(offset).format(stringFormat);
             }

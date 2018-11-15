@@ -198,11 +198,9 @@ class UXClient {
 
     //specifiedRange gives the subset of availability buckets to be returned. If not included, will return all buckets
     public transformAvailabilityForVisualization(availabilityTsx: any): Array<any> {
-        var result = [];
         var from = new Date(availabilityTsx.range.from);
         var to = new Date(availabilityTsx.range.to);
         var rawBucketSize = Utils.parseTimeInput(availabilityTsx.intervalSize);
-        var rawBucketNumber = Math.ceil((to.valueOf() - from.valueOf()) / rawBucketSize);
 
         var buckets = {};
         var startBucket = Math.round(Math.floor(from.valueOf() / rawBucketSize) * rawBucketSize);
@@ -250,8 +248,8 @@ class UXClient {
                 transformedAggregate[''] = {};
             else{
                 tsqr.timestamps.forEach((ts, j) => {
-                    aggregatesObject[ts] = Object.keys(tsqr.variables).reduce((p,c) => {p[c] = tsqr.variables[c]['values'][j]; return p;}, {});
-                });
+                    aggregatesObject[ts] = tsqr.properties.reduce((p,c) => {p[c.name] = c['values'][j]; return p;}, {});
+                }); 
             }
             result.push(transformedAggregate);
         });
