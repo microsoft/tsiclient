@@ -41,12 +41,12 @@ class ServerClient {
             if(xhr.status == 200){
                 var message = JSON.parse(xhr.responseText);
                 results[index] = messageProperty(message);
-                if(results.map(ar => ar!=null).reduce((p,c) => { p = c && p; return p}, true))
+                if(results.map(ar => ar!=false).reduce((p,c) => { p = c && p; return p}, true))
                     resolve(results);
             }
             else{
                 results[index] = {__tsiError__: JSON.parse(xhr.responseText)};
-                if(results.map(ar => ar!=null).reduce((p,c) => { p = c && p; return p}, true))
+                if(results.map(ar => ar!=false).reduce((p,c) => { p = c && p; return p}, true))
                     resolve(results);
             }
         }
@@ -59,7 +59,7 @@ class ServerClient {
     public getTsqResults(token: string, uri: string, tsqArray: Array<any>, options: any) {
         var tsqResults = [];
         tsqArray.forEach(tsq => {
-            tsqResults.push(null);
+            tsqResults.push(false);
         });
         
         return new Promise((resolve: any, reject: any) => {
@@ -72,7 +72,7 @@ class ServerClient {
     public getAggregates(token: string, uri: string, tsxArray: Array<any>, options: any) {
         var aggregateResults = [];
         tsxArray.forEach(ae => {
-            aggregateResults.push(null);
+            aggregateResults.push(false);
         });
         
         return new Promise((resolve: any, reject: any) => {

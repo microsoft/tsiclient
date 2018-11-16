@@ -302,9 +302,9 @@ class Legend extends Component {
             var splitByContainer = sBs[0];
             var splitByContainerEntered = sBs[1];
             if (self.chartOptions.legend == 'compact') {
-                var growWidth = splitByLabelData.length * 124 > d3.select(this).node().parentNode.clientWidth / seriesLabelsEntered.size();
-                var shouldAllShrink = d3.select(this).node().parentNode.clientWidth / seriesLabelsEntered.size() < 124;
-                d3.select(this).style("flex-basis", (growWidth && !shouldAllShrink) ? 'inherit' : '124px').style('flex-shrink', shouldAllShrink ? 1 : (growWidth ? 1 : 0));
+                var growWidth = splitByLabelData.length * 132 > d3.select(this).node().parentNode.clientWidth / seriesLabelsEntered.size();
+                var shouldAllShrink = d3.select(this).node().parentNode.clientWidth / seriesLabelsEntered.size() < 132;
+                d3.select(this).style("flex-basis", (growWidth && !shouldAllShrink) ? 'inherit' : '132px').style('flex-shrink', shouldAllShrink ? 1 : (growWidth ? 1 : 0));
             }
             splitByContainerEntered.on("scroll", function () {
                 if (self.chartOptions.legend == "shown") {

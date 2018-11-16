@@ -12,7 +12,7 @@ class TsqExpression extends ChartableExpression {
         this.variableObject = variableObject;
     }
 
-    public toTsq(roundFromTo: boolean = false){
+    public toTsq(roundFromTo: boolean = false, getEvents: boolean = false){
         var tsq = {};
         let fromMillis = this.searchSpan.from.valueOf(), toMillis = this.searchSpan.to.valueOf();
         let bucketSizeInMillis = Utils.parseTimeInput(this.searchSpan.bucketSize);
@@ -23,11 +23,16 @@ class TsqExpression extends ChartableExpression {
             toMillis = roundedToMillis;
         }
         tsq['searchSpan'] = {from: (new Date(fromMillis)).toISOString(), to: (new Date(toMillis)).toISOString()}; 
-        tsq['interval'] = Utils.bucketSizeToTsqInterval(this.searchSpan.bucketSize);
         tsq['timeSeriesId'] = this.instanceObject.timeSeriesId;
-        tsq['inlineVariables'] = this.variableObject;
-        tsq['projectedVariables'] = Object.keys(this.variableObject);
-        return {aggregateSeries: tsq};
+        if (getEvents) {
+            return {getEvents: tsq};
+        }
+        else {
+            tsq['interval'] = Utils.bucketSizeToTsqInterval(this.searchSpan.bucketSize);
+            tsq['inlineVariables'] = this.variableObject;
+            tsq['projectedVariables'] = Object.keys(this.variableObject);
+            return {aggregateSeries: tsq};
+        }
     }
 }
 export {TsqExpression}
