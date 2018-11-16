@@ -109,25 +109,36 @@ class ModelSearch extends Component{
                                     i.type = self.types.filter(t => t.name === i.highlights.type.split('<hit>').join('').split('</hit>').join(''))[0];
                                     let contextMenuActions = self.chartOptions.onInstanceClick(i);
                                     self.contextMenu = self.wrapper.append('div');
-                                    Object.keys(contextMenuActions).forEach((k, cmaIdx) => {
-                                        self.contextMenu.append('div').html(k).on('click', contextMenuActions[k]).on('keydown', function(){
-                                            let evt = d3.event;
-                                            if(evt.keyCode === 13){
-                                                this.click();
-                                            }
-                                            if(evt.keyCode === 13 || evt.keyCode === 37){
-                                                self.closeContextMenu();
-                                                let results = self.instanceResults.selectAll('.tsi-modelResultWrapper')
-                                                results.nodes()[self.currentResultIndex].focus();
-                                            }
-                                            if(evt.keyCode === 40 && cmaIdx < self.contextMenu.node().children.length){ // down
-                                                self.contextMenu.node().children[cmaIdx + 1].focus();
-                                            }
-                                            if(evt.keyCode === 38 && cmaIdx > 0){ // up
-                                                self.contextMenu.node().children[cmaIdx - 1].focus();
-                                            }
-                                        }).attr('tabindex', '0');
-                                    });
+                                    if(!Array.isArray(contextMenuActions)){
+                                        contextMenuActions = [contextMenuActions];
+                                    }
+                                    let totalActionCount = contextMenuActions.map(cma => Object.keys(cma).length).reduce((p,c) => p + c, 0);
+                                    let currentActionIndex = 0
+                                    contextMenuActions.forEach((cma, cmaGroupIdx) => {
+                                        Object.keys(cma).forEach((k, kIdx, kArray) => {
+                                            let localActionIndex = currentActionIndex;
+                                            self.contextMenu.append('div').html(k).on('click', cma[k]).on('keydown', function(){
+                                                let evt = d3.event;
+                                                if(evt.keyCode === 13){
+                                                    this.click();
+                                                }
+                                                if(evt.keyCode === 13 || evt.keyCode === 37){
+                                                    self.closeContextMenu();
+                                                    let results = self.instanceResults.selectAll('.tsi-modelResultWrapper')
+                                                    results.nodes()[self.currentResultIndex].focus();
+                                                }
+                                                console.log(cmaGroupIdx);
+                                                if(evt.keyCode === 40 && (localActionIndex + 1 < totalActionCount)){ // down
+                                                    self.contextMenu.node().children[localActionIndex + 1 + cmaGroupIdx + (kIdx === (kArray.length - 1) ? 1 : 0)].focus();
+                                                }
+                                                if(evt.keyCode === 38 && localActionIndex > 0){ // up
+                                                    self.contextMenu.node().children[localActionIndex - 1 + cmaGroupIdx - (kIdx === 0 ? 1 : 0)].focus();
+                                                }
+                                            }).attr('tabindex', '0');
+                                            currentActionIndex++;
+                                        });
+                                        self.contextMenu.append('div').classed('tsi-break', true);
+                                    })
                                     self.contextMenu.attr('style', () => `top: ${wrapperMousePos - eltMousePos}px`);
                                     self.contextMenu.classed('tsi-modelSearchContextMenu', true);
                                     d3.select(elt).classed('tsi-resultSelected', true);

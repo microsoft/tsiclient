@@ -28,10 +28,16 @@
     &.tsi-dark{
         $grays: grays('dark');
         @include modelAutocompleteColors($grays);
+        .tsi-clear{
+            background-image: url(../../Icons/Close_Icon_Dark_Theme.svg);                    
+        }
     }
     &.tsi-light{
         $grays: grays('light');
         @include modelAutocompleteColors($grays);
+        .tsi-clear{
+            background-image: url(../../Icons/Close_Icon_Light_Theme.svg);                    
+        }
     }
 
     .tsi-modelAutocompleteInputWrapper{
@@ -40,6 +46,19 @@
         display: flex;
         flex-shrink: 0;
         align-items: center;
+        .tsi-clear{
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+            position: absolute;
+            left: calc(100% - 44px);
+            margin-top: 1px;
+            display: none;
+            z-index: 2;
+            &.tsi-shown{
+                display: block;
+            }
+        }
         .tsi-modelAutocompleteInput{
             margin: 8px;
             padding: 4px;

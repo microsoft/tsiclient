@@ -52,6 +52,12 @@
                     background-color: $gray2; 
                 }
             }
+            .tsi-columnToggleCheckbox{
+                &.tsi-notSelected{
+                    background: $gray3;
+                    border: 1px solid rgba($gray1, .2);
+                }
+            }
         }
     }
 }
@@ -228,10 +234,10 @@
                 .tsi-selectAllSomeState {
                     pointer-events: none;
                     position: absolute;
-                    width: 9.5px;
-                    height: 9.5px;
-                    left: 7px;
-                    top: 7px;
+                    width: 8px;
+                    height: 8px;
+                    left: 8px;
+                    top: 8px;
                 }
             }
     
@@ -267,7 +273,6 @@
                     left: 4px;
                     bottom: 1px;
                     position: relative;
-                    background-size: 16px 160px;
                     background-image: url('../../Icons/checkboxes.svg');
                 }
     

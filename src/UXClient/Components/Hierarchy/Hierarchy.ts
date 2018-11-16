@@ -125,8 +125,13 @@ class Hierarchy extends Component {
                 if(this.clickedNode != el.node()){
                     this.clickedNode = el.node();
                     this.contextMenu = this.hierarchyList.append('div');
-                    node.children.forEach(n => {
+                    node.children.filter(n => n.name[0] !== '~').forEach(n => {
                         this.contextMenu.append('div').html(`${n.name}`).on('click', () => n.click(n));
+                    })
+                    this.contextMenu.append('div').classed('tsi-break', true);
+                    node.children.filter(n => n.name[0] === '~').forEach(n => {
+                        let noTildeName = n.name.slice(1);
+                        this.contextMenu.append('div').html(`${noTildeName}`).on('click', () => n.click(n));
                     })
                     this.contextMenu.classed('tsi-hierarchyContextMenu', true);
                     let mouseWrapper = d3.mouse(this.hierarchyList.node());
