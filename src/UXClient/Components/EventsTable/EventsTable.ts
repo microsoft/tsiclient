@@ -166,8 +166,6 @@ class EventsTable extends ChartComponent{
             this.eventsLegend.select("ul").selectAll(".tsi-columnToggle").each(function () {
                 d3.select(this).select(".tsi-columnToggleCheckbox").classed("tsi-notSelected", 
                     (d: any) => !(d.visible));
-                // d3.select(this).select(".tsi-columnToggleCheckbox").style("background-position", 
-                //     (d: any) => (d.visible) ? "center 16px" : "center top");
             })
         }
         this.setSelectAllState();
