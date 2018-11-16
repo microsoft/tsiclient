@@ -53,7 +53,13 @@
             &:hover, &:focus {
                 background-color: $gray2;
             }
-        }     
+        }   
+        .tsi-break{
+            border-top: 1px solid rgba($gray6, .2);
+            &:hover, &:focus {
+                background-color: $gray3;
+            }
+        }  
     }
 }
 
@@ -74,6 +80,15 @@
         display: flex;
         align-items: center;
         overflow: hidden;
+    }
+    .tsi-break{
+        height: 4px;
+        margin-top: 4px;
+        padding: 0 0 4px 0;
+        cursor: default;
+        &:last-of-type{
+            display: none;
+        }
     }
 }
 .tsi-primaryButton {

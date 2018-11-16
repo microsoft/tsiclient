@@ -722,18 +722,28 @@
                         }},
                         'B9-C86 (Pressure)': {$leaf: true, click: function(n){
                             console.log(n);
-                        }}                    
+                        }},         
+                        '~19C2-F8 (Temp)': {$leaf: true, click: function(n){
+                            console.log(n);
+                        }},
+                        '~B9-C86 (Pressure)': {$leaf: true, click: function(n){
+                            console.log(n);
+                        }}           
                     }
                 }
             }
 
             var onInstanceClick = function(instance) {
-                let contextMenuActions = {};
+                let contextMenuActions = [];
                 Object.keys(instance.type.variables).forEach(function(vName){
                     contextMenuActions['Show ' + vName] = function(){console.log(instance.type.variables[vName])}
                 });
-                contextMenuActions['Show some other var'] = function(){console.log('var2')}
-                contextMenuActions['Show another var'] = function(){console.log('var3')}
+                contextMenuActions.push({});
+                contextMenuActions[0]['Show some other var'] = function(){console.log('var2')}
+                contextMenuActions[0]['Show another var'] = function(){console.log('var3')}
+                contextMenuActions.push({});
+                contextMenuActions[1]['Show some other var2'] = function(){console.log('var2')}
+                contextMenuActions[1]['Show another var2'] = function(){console.log('var3')}
                 return contextMenuActions;
             }
 

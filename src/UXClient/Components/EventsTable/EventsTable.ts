@@ -164,8 +164,8 @@ class EventsTable extends ChartComponent{
     public setLegendColumnStates () {
         if (this.eventsLegend.select("ul")) {
             this.eventsLegend.select("ul").selectAll(".tsi-columnToggle").each(function () {
-                d3.select(this).select(".tsi-columnToggleCheckbox").style("background-position", 
-                    (d: any) => (d.visible) ? "center 16px" : "center top");
+                d3.select(this).select(".tsi-columnToggleCheckbox").classed("tsi-notSelected", 
+                    (d: any) => !(d.visible));
             })
         }
         this.setSelectAllState();
@@ -191,7 +191,7 @@ class EventsTable extends ChartComponent{
     public setSelectAllState() {
         var selectAllState: string = this.getSelectAllState();
         this.eventsLegend.select("ul").select(".tsi-selectAllColumns").select(".tsi-columnToggleCheckbox")
-            .style("background-position", () => (selectAllState == "all") ? "center 16px" : "center top");
+            .classed("tsi-notSelected", () => selectAllState !== "all");
         this.eventsLegend.select("ul").select(".tsi-selectAllColumns").select(".tsi-selectAllSomeState")
             .style("visibility", () => (selectAllState == "some") ? "visible" : "hidden");
     }
