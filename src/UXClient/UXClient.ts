@@ -133,7 +133,6 @@ class UXClient {
                 }
             }
 
-            // event[this.getColumnNameAndType('EventSourceName', 'String')] = eventSourceProperties[eventSourceId].eventSourceName;
             event["EventSourceName_String"] = {
                 value: eventSourceProperties[eventSourceId].eventSourceName,
                 name: 'EventSourceName',
@@ -145,7 +144,7 @@ class UXClient {
                     nameToStrippedPropName[name] = Utils.stripForConcat(name);
                 var strippedName = nameToStrippedPropName[name];
                 var type = eventSourceProperties[eventSourceId].propertyNames[propIdx].type;
-                var columnNameAndType = strippedName + "_" + type;//Models.GridColumn.getColumnNameAndType(strippedName, type);
+                var columnNameAndType = strippedName + "_" + type;
                 if (!valueToStrippedValueMap.hasOwnProperty(String(events[eventIdx].values[propIdx])))
                     valueToStrippedValueMap[String(events[eventIdx].values[propIdx])] = Utils.stripForConcat(String(events[eventIdx].values[propIdx]));
                 var eventObject = {
@@ -302,6 +301,21 @@ class UXClient {
     // exposed publicly to use for highlighting elements in the well on hover/focus
     public createEntityKey (aggName: string, aggIndex: number = 0) {
         return Utils.createEntityKey(aggName, aggIndex);
+    }
+
+    public transformTsqResultsToEventsArray (results) {
+        let flattenedResults = [];
+        results.forEach(tsqr => {
+            tsqr.timestamps.forEach((ts, idx) => {
+                let event = {};
+                event['timestamp'] = ts;
+                tsqr.properties.forEach(p => {
+                    event[`${p.name}`] = {name: p.name, type: p.type, value: p.values[idx]};
+                });
+                flattenedResults.push(event); 
+            });
+        });
+        return flattenedResults.sort((a,b) => (new Date(a['Timestamp $ts'])).valueOf() < (new Date(b['Timestamp $ts'])).valueOf() ? 1 : -11);
     }
 }
 
