@@ -315,7 +315,7 @@ class UXClient {
                 flattenedResults.push(event); 
             });
         });
-        return flattenedResults.sort((a,b) => (new Date(a['Timestamp $ts'])).valueOf() < (new Date(b['Timestamp $ts'])).valueOf() ? 1 : -11);
+        return flattenedResults.sort((a,b) => (new Date(a['Timestamp $ts'])).valueOf() < (new Date(b['Timestamp $ts'])).valueOf() ? 1 : -1);
     }
 }
 
