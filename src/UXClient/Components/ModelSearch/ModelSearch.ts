@@ -54,6 +54,7 @@ class ModelSearch extends Component{
                 self.currentResultIndex= -1;
                 (hierarchyElement.node() as any).style.display = 'block';
                 (showMore.node() as any).style.display = 'none';
+                noResults.style('display', 'none');
                 return;
             }
             (hierarchyElement.node() as any).style.display = 'none';

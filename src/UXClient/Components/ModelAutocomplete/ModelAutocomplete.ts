@@ -25,7 +25,7 @@ class ModelAutocomplete extends Component{
             .attr("class", "tsi-modelAutocompleteInputWrapper");
         let input = inputWrapper.append("input")
             .attr("class", "tsi-modelAutocompleteInput")
-            .attr("placeholder", "Search...");
+            .attr("placeholder", "Search Instances...");
         let clear = inputWrapper.append('div').attr('class', 'tsi-clear')
                     .on('click', function(){ (input.node() as any).value = ''; self.chartOptions.onInput(''); d3.select(this).classed('tsi-shown', false); });
         

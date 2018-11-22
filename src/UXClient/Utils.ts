@@ -36,7 +36,7 @@ class Utils {
     static parseTimeInput (inputString: string) {
         inputString = inputString.toLowerCase();
         let getNumber = (inputString, charsFromEnd) => {
-            let startAt = inputString.indexOf('pt') !== -1 ? 2 : 0;
+            let startAt = inputString.indexOf('pt') !== -1 ? 2 : (inputString.indexOf('p') !== -1 ? 1 : 0);
             return Number(inputString.slice(startAt, inputString.length - charsFromEnd));
         }
         if (inputString.indexOf('ms') == inputString.length - 2) {
@@ -58,7 +58,8 @@ class Utils {
     }
 
     static bucketSizeToTsqInterval (bucketSize: string) {
-        return ('PT' + bucketSize).toUpperCase();
+        let prefix = bucketSize.toLowerCase().indexOf('d') !== -1 ? 'P' : 'PT';
+        return (prefix + bucketSize).toUpperCase();
     }
 
     static createEntityKey (aggName: string, aggIndex: number) {
