@@ -127,7 +127,7 @@ class EventsTable extends ChartComponent{
             selectAllColumns.append("span").attr("class", "tsi-columnToggleCheckbox");
             selectAllColumns.append("span").attr("class", "tsi-selectAllSomeState");
             selectAllColumns.append("span").attr("class", "tsi-columnToggleName")
-                .html("ALL COLUMNS");
+                .html("All Columns");
         }
         var toggleableColumnLis = this.eventsLegend.select("ul").selectAll(".tsi-columnToggle")
             .data(columns);
