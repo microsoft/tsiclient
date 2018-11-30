@@ -213,6 +213,7 @@ class DateTimePicker extends ChartComponent{
 
     private setFromDate (d: Date) {
         var fromDate = new Date(this.fromMillis);
+        fromDate.setUTCFullYear(d.getFullYear());
         fromDate.setUTCMonth(d.getMonth());
         fromDate.setUTCDate(d.getDate());
         this.setFromMillis(fromDate.valueOf());
@@ -220,6 +221,7 @@ class DateTimePicker extends ChartComponent{
 
     private setToDate (d: Date) {
         var toDate = new Date(this.toMillis);
+        toDate.setUTCFullYear(d.getFullYear());
         toDate.setUTCMonth(d.getMonth());
         toDate.setUTCDate(d.getDate());
         this.setToMillis(toDate.valueOf());
