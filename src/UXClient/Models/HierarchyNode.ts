@@ -13,9 +13,11 @@ class HierarchyNode {
     public color: (n: HierarchyNode) => string = () => null;
     public click = (n) => {};
     public isLeafParent: boolean = false; // used in the event of context menut to denote that we should use a context menu for children
+    public level: number;
     
-	constructor(name: string){
+	constructor(name: string, level: number){
         this.name = name;
+        this.level = level;
         this.markedName = name;
     }
     

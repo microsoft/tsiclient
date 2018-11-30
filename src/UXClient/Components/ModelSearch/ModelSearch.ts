@@ -102,6 +102,9 @@ class ModelSearch extends Component{
                         if(r.instances.length == 0){
                             noResults.style('display', 'block');
                         }
+                        else{
+                            noResults.style('display', 'none');
+                        }
                         r.instances.forEach(i => {
                             let handleClick = (elt, wrapperMousePos, eltMousePos, fromKeyboard = false) => {
                                 self.closeContextMenu();

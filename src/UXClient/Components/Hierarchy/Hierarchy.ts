@@ -102,7 +102,7 @@ class Hierarchy extends Component {
                         n.click(n)
                         n.colorify(d3.select(this));
                     });
-                    li.append('span').html(n.name);
+                    li.append('span').html(n.name).classed('tsi-markedName', true);
                     n.colorify(li);
                 });
                 filter.attr('disabled', true);
@@ -172,7 +172,8 @@ class Hierarchy extends Component {
                                 .classed('tsi-leafParent', n.isLeafParent && this.withContextMenu)
                                 .classed('tsi-selected', n.isSelected).on('click', clickMethod)
 
-                        li.append('span').html(n.markedName);
+                        li.append('span').classed('tsi-caret', true).attr('style', `left: ${(n.level - 1) * 18}px`);
+                        li.append('span').classed('tsi-markedName', true).html(n.markedName).attr('style', `padding-left: ${40 + (n.level - 1) * 18 - (n.isLeafParent && this.withContextMenu ? 16 : 0)}px`);
                         n.colorify(li);
 
                         if((n.isExpanded || n.childrenInFilter) && !n.isLeaf){
@@ -187,8 +188,8 @@ class Hierarchy extends Component {
     }
 
     public buildTree(data:any){
-        var traverse = (data, key, parent = null) => {
-            var node = new HierarchyNode(key);
+        var traverse = (data, key, level, parent = null) => {
+            var node = new HierarchyNode(key, level);
             node.parent = parent;
             if(data.hasOwnProperty('$leaf')){
                 node.isLeaf = true;
@@ -200,12 +201,12 @@ class Hierarchy extends Component {
             }
             else{
                 Object.keys(data).sort().forEach(k => {
-                    node.children.push(traverse(data[k], k, node));
+                    node.children.push(traverse(data[k], k, level+1, node));
                 })
             }
             return node;
         }
-        return traverse(data, '');
+        return traverse(data, '', 0);
     }
 
     private closeContextMenu() {

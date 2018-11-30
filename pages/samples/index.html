@@ -706,13 +706,15 @@
             document.getElementById("chart1").style.width = '400px';
             var hierarchy = {
                 'Factory1': {
-                    'Station1': {
-                        'GC4F-286 (Temp)': {$leaf: true, click: function(n){
-                            console.log(n);
-                        }},
-                        'F92-21B (Pressure)': {$leaf: true, click: function(n){
-                            console.log(n);
-                        }}                    
+                    'Station1A': {
+                        'Station1': {
+                            'GC4F-286 (Temp)': {$leaf: true, click: function(n){
+                                console.log(n);
+                            }},
+                            'F92-21B (Pressure)': {$leaf: true, click: function(n){
+                                console.log(n);
+                            }}                    
+                        }
                     }
                 },
                 'Factory2': {
@@ -748,7 +750,7 @@
             }
 
             var modelSearch = new tsiClient.ux.ModelSearch(document.getElementById('chart1'));	            
-            modelSearch.render('c74fddd1-fb33-4ff8-a12f-bab37d881264.env.crystal-dev.windows-int.net', authContext.getTsiToken, hierarchy, {theme: 'light', onInstanceClick: onInstanceClick});
+            modelSearch.render('4d221d0b-ba54-4694-968d-f785da70abf5.env.timeseries.azure.com', authContext.getTsiToken, hierarchy, {theme: 'light', onInstanceClick: onInstanceClick});
         }
 
         // 15. A Standalone Model Autocomplete Component
