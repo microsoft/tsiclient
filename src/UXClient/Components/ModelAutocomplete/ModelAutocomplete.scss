@@ -22,6 +22,12 @@
             }
         }
     }
+    .tsi-clear{
+        background-color: $gray3;
+        &:hover{
+            background-color: $gray4;
+        }
+    }
 }
 
 .tsi-modelAutocompleteWrapper{
@@ -47,14 +53,16 @@
         flex-shrink: 0;
         align-items: center;
         .tsi-clear{
-            width: 16px;
-            height: 16px;
+            width: 20px;
+            height: 20px;
             cursor: pointer;
             position: absolute;
             left: calc(100% - 44px);
             margin-top: 1px;
             display: none;
             z-index: 2;
+            background-repeat: no-repeat;
+            background-position: 50%;
             &.tsi-shown{
                 display: block;
             }
@@ -62,6 +70,10 @@
         .tsi-modelAutocompleteInput{
             margin: 8px;
             padding: 4px;
+            padding-right: 32px;
+        }
+        .tsi-modelAutocompleteInput::-ms-clear{
+            display: none;
         }
         :global{
             .awesomplete [hidden] {
