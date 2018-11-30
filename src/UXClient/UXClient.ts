@@ -283,7 +283,7 @@ class UXClient {
                 flattenedResults.push(event); 
             });
         });
-        return flattenedResults.sort((a,b) => (new Date(a['timestamp'])).valueOf() < (new Date(b['timestamp'])).valueOf() ? 1 : -1);
+        return flattenedResults.sort((a,b) => (new Date(a['timestamp'])).valueOf() < (new Date(b['timestamp'])).valueOf() ? -1 : 1);
     }
 }
 
