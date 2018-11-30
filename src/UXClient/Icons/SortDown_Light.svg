@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+    <defs>
+        <style>
+            .cls-sortDown-Light-1{fill:none}.cls-sortDown-Light-2{fill:rgba(0,0,0,.1)}
+        </style>
+    </defs>
+    <g transform="translate(-524 -96)">
+        <path d="M0 0h16v16H0z" class="cls-sortDown-Light-1" transform="translate(524 96)"/>
+        <g transform="translate(524 96)">
+            <path d="M7.486-2.965l-.639-.53L4.486-1.41v-10.555h-1v10.572l-2.361-2.1-.639.53 3.5 3z" class="cls-sortDown-Light-2" transform="translate(4.514 14.965)"/>
+            <path d="M7.486-2.965l-.639-.53L4.486-1.41v-10.555h-1v10.572l-2.361-2.1-.639.53 3.5 3z" transform="translate(4.514 13.965)"/>
+        </g>
+    </g>
+</svg>

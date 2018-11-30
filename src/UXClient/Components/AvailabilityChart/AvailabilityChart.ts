@@ -320,9 +320,11 @@ class AvailabilityChart extends ChartComponent{
         }
 
         var sparkLineOptions: any = this.createSparkLineOptions(chartOptions);
-        this.sparkLineChart.render(this.transformedAvailability, sparkLineOptions, this.ae);
 
-        this.timePickerLineChart.render(this.transformedAvailability, this.chartOptions, this.ae);
+        var visibileAvailability = this.createDisplayBuckets(this.fromMillis, this.toMillis);
+        this.sparkLineChart.render(visibileAvailability, sparkLineOptions, this.ae);
+
+        this.timePickerLineChart.render(visibileAvailability, this.chartOptions, this.ae);
         this.setTicks();
 
         if (!this.chartOptions.preserveAvailabilityState) {
@@ -394,8 +396,8 @@ class AvailabilityChart extends ChartComponent{
     }
 
     private setFromAndToTimes (fromMillis, toMillis) {
-        fromMillis = Math.max(this.fromMillis, fromMillis);
-        toMillis = Math.min(this.toMillis, toMillis);
+        fromMillis = Math.max(this.zoomedFromMillis, fromMillis);
+        toMillis = Math.min(this.zoomedToMillis, toMillis);
         [{"From": fromMillis}, {"To": toMillis}].forEach((fromOrTo) => {
             let fromOrToText = Object.keys(fromOrTo)[0]; 
             this.timePickerTextContainer.select(".tsi-dateTimeTextContainer" + fromOrToText).select(".tsi-dateTimeText")

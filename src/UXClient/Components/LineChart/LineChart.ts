@@ -392,7 +392,7 @@ class LineChart extends ChartComponent {
 
             //if selection is out of range of brush. clear brush
             this.brushElem.call(this.brush.move, null);
-            if ((rawRightSide <= this.xOffset) || (rawLeftSide >= (this.chartWidth - (2 * this.xOffset)))) {
+            if ((rawRightSide < this.xOffset) || (rawLeftSide > (this.chartWidth - (2 * this.xOffset)))) {
                 this.isClearingBrush = true;
                 this.brushElem.call(this.brush.move, null);
                 return;
@@ -747,6 +747,9 @@ class LineChart extends ChartComponent {
             return;
         }
         if (d3.event && d3.event.selection == null && d3.event.sourceEvent && d3.event.sourceEvent.type == "mouseup" && this.chartOptions.minBrushWidth == 0) {
+            if (this.brushContextMenu) {
+                this.brushContextMenu.hide();
+            }
             this.brushStartTime = null;
             this.brushEndTime = null;
             this.brushStartPosition = null;
@@ -819,8 +822,14 @@ class LineChart extends ChartComponent {
             if (!this.chartOptions.brushContextMenuActions || this.chartOptions.brushContextMenuActions.length == 0)
                 return;
             var mousePosition = d3.mouse(<any>this.targetElement.node());
+            //constrain the mouse position to the renderTarget
+            var boundingCRect = this.targetElement.node().getBoundingClientRect();
+            var correctedMousePositionX = Math.min(boundingCRect.width, Math.max(mousePosition[0], 0));
+            var correctedMousePositionY = Math.min(boundingCRect.height, Math.max(mousePosition[1], 0));
+            var correctedMousePosition = [correctedMousePositionX, correctedMousePositionY];
+            
             this.brushContextMenu.draw(this.chartComponentData, this.renderTarget, this.chartOptions, 
-                                mousePosition, null, null, null, this.brushStartTime, this.brushEndTime);
+                                correctedMousePosition, null, null, null, this.brushStartTime, this.brushEndTime);
         }
         if (transformCall) {
             transformCall();

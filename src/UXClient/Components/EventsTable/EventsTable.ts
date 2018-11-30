@@ -15,7 +15,7 @@ class EventsTable extends ChartComponent{
     private headers;
 
     private maxVisibleIndex = 100;
-    private isAscending = false;
+    private isAscending = true;
     private sortColumn = 'timestamp_DateTime';
     private allSelectedState = "all" // all | some | none
 
@@ -65,10 +65,13 @@ class EventsTable extends ChartComponent{
         this.buildTable();
 
         tableLeftPanel.selectAll(".tsi-eventsDownload").remove();
-        tableLeftPanel.append("button")
+        var downloadButton = tableLeftPanel.append("button")
             .attr("class", "tsi-eventsDownload tsi-primaryButton")
-            .html("CSV")
             .on("click", () => Utils.downloadCSV(this.eventsTableData.generateCSVString(true, 0), "Events"));
+        downloadButton.append("div").attr("class", "tsi-downloadEventsIcon");
+        downloadButton.append("div").attr("class", "tsi-downloadEventsText").html("Download as CSV");
+
+
          //listen for table scroll and adjust the headers accordingly
         var self = this;
 
@@ -124,7 +127,7 @@ class EventsTable extends ChartComponent{
             selectAllColumns.append("span").attr("class", "tsi-columnToggleCheckbox");
             selectAllColumns.append("span").attr("class", "tsi-selectAllSomeState");
             selectAllColumns.append("span").attr("class", "tsi-columnToggleName")
-                .html("Select All");
+                .html("All Columns");
         }
         var toggleableColumnLis = this.eventsLegend.select("ul").selectAll(".tsi-columnToggle")
             .data(columns);
@@ -215,16 +218,11 @@ class EventsTable extends ChartComponent{
                 d3.select(this).append("span")
                     .classed("tsi-columnHeaderName", true)
                     .html(self.eventsTableData.columns[d].name);
+                d3.select(this).append("span").attr("class", "tsi-columnSortIcon")
+                    .classed("up", (self.sortColumn == d && self.isAscending))
+                    .classed("down", (self.sortColumn == d && !self.isAscending));
                 d3.select(this).append("span").attr("class", "tsi-columnTypeIcon")
                     .classed(self.eventsTableData.columns[d].type, true);
-                d3.select(this).append("span").attr("class", "tsi-sortDirection").html(() => {
-                    if (self.sortColumn == d) {
-                        if (self.isAscending)
-                            return "▲";
-                        return "▼";
-                    }
-                    return "";
-                });
                 var id = JSON.parse(JSON.stringify(d));
                 d3.select(this).append("button").attr("class", "tsi-sortColumnButton")
                 .on("click", function (f, i) {
@@ -259,7 +257,7 @@ class EventsTable extends ChartComponent{
         this.eventsTable.select(".tsi-columnHeaders").selectAll(".tsi-columnHeader")
             .style("width", function(d) {
                 if (widthDictionary[d])
-                    return (widthDictionary[d] - 19) + "px"; //13 pixel difference in element due to padding/border
+                    return (widthDictionary[d] - 17) + "px"; //17 pixel difference in element due to padding/border
                 else {
                     return d3.select(this).style("width");
                 }
@@ -273,10 +271,12 @@ class EventsTable extends ChartComponent{
         var self = this;
         // this.eventsTableData.sortEvents("Id_String", true);
         var rowsData = this.eventsTableData.events.slice(0, this.maxVisibleIndex);
-        var firstRow = this.eventsTable.select("table").append("tr");
+        var firstRow = this.eventsTable.select("table").append("tr")
+            .classed("tsi-eventRow", true);
         var firstRowCells = firstRow.selectAll("td").data(filteredColumnKeys);
         firstRowCells.enter()
             .append("td")
+            .classed("tsi-eventCell", true)
             .html(d => this.eventsTableData.columns[d].name);
         var rows = this.eventsTable.select("table").selectAll("tsi-eventRow").data(rowsData);
         var rowsEntered = rows.enter()
@@ -292,9 +292,10 @@ class EventsTable extends ChartComponent{
                 var valueCells = d3.select(this).selectAll("td").data(visibleCells);
                 var valueCellsEntered = valueCells.enter()
                     .append("td")
+                    .classed("tsi-eventCell", true)
                     .style("min-width", (d: TimeSeriesEventCell) => {
                         if (widthDictionary[d.key] != null)
-                            return widthDictionary[d.key] + "px";
+                            return Math.ceil(widthDictionary[d.key]) + "px";
                         else
                             return "none";
                     })

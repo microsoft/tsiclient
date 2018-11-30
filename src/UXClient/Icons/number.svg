@@ -1,3 +1,12 @@
-<svg xmlns="http://www.w3.org/2000/svg" id="Layer_1" enable-background="new 0 0 16 16" viewBox="0 0 16 16" x="0px" y="0px" xmlns:xml="http://www.w3.org/XML/1998/namespace" xml:space="preserve" version="1.1">
-<path fill="#AbAdAf" d="M 15 6 V 5 h -4 V 1 h -1 v 4 H 6 V 1 H 5 v 4 H 1 v 1 h 4 v 4 H 1 v 1 h 4 v 4 h 1 v -4 h 4 v 4 h 1 v -4 h 4 v -1 h -4 V 6 H 15 Z M 10 10 H 6 V 6 h 4 V 10 Z" />
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+    <defs>
+        <style>
+            .cls-number-1{fill:none}.cls-number-2{fill:#07f}
+        </style>
+    </defs>
+    <g transform="translate(-56 -132)">
+        <path d="M0 0h16v16H0z" class="cls-number-1" transform="translate(56 132)"/>
+        <path d="M1.189 0l.65-2.6H.088l.146-.727h1.787l.51-2.021H.633l.146-.722h1.928l.656-2.6h.744l-.65 2.6H5l.65-2.6h.75l-.65 2.6H7.5l-.141.721H5.566l-.51 2.021h1.9l-.147.728H4.881L4.23 0h-.75l.65-2.6H2.59L1.939 0zm1.582-3.328h1.542l.51-2.021H3.275z" class="cls-number-2" transform="translate(60 144)"/>
+    </g>
 </svg>
