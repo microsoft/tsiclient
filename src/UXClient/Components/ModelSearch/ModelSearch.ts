@@ -50,19 +50,21 @@ class ModelSearch extends Component{
 
             // blow results away if no text
             if(st.length === 0){
+                searchText = st;
                 self.instanceResults.html('');
                 self.currentResultIndex= -1;
                 (hierarchyElement.node() as any).style.display = 'block';
                 (showMore.node() as any).style.display = 'none';
                 noResults.style('display', 'none');
-                return;
             }
-            (hierarchyElement.node() as any).style.display = 'none';
-            self.instanceResults.html('');
-            self.currentResultIndex = -1;
-            noResults.style('display', 'none');
-            searchInstances(st);
-            searchText = st;
+            else {
+                (hierarchyElement.node() as any).style.display = 'none';
+                self.instanceResults.html('');
+                self.currentResultIndex = -1;
+                noResults.style('display', 'none');
+                searchInstances(st);
+                searchText = st;
+            } 
         }
 
         let modelAutocomplete = new ModelAutocomplete(inputWrapper.node());
@@ -73,7 +75,7 @@ class ModelSearch extends Component{
             .attr("class", "tsi-modelSearchResults").on('scroll', function(){
                 self.closeContextMenu();
                 let that = this as any;
-                if(that.scrollTop + that.clientHeight + 150 > (self.instanceResults.node() as any).clientHeight){
+                if(that.scrollTop + that.clientHeight + 150 > (self.instanceResults.node() as any).clientHeight && searchText.length !== 0){
                     searchInstances(searchText, continuationToken);
                 }
             })

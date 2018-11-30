@@ -158,38 +158,6 @@ class UXClient {
         }
         return rows;
     }
-
-    private bucketSort (a, b) {
-        var aDateValue = new Date(a).valueOf();
-        var bDateValue = new Date(b).valueOf();
-        if (aDateValue < bDateValue) 
-            return -1;
-        if (aDateValue > bDateValue)
-            return 1;
-        return 0;
-    }
-
-    private rollUpBuckets (rawBuckets: any, rollUpMultiplier: number, firstBucketOffset: number, toString: string): any {
-        let sortedKeys = Object.keys(rawBuckets).sort(this.bucketSort);
-        let currentCount = {}
-        let rolledBuckets = sortedKeys.reduce((rolledBuckets, currTimeStamp, currI, sortedTimeStamps) => {
-            var numBuckets = sortedTimeStamps.length;
-            var realI = currI + firstBucketOffset;
-            var roundedBucketIndex = Math.max(currI - (realI % rollUpMultiplier), 0);
-            var numBuckets = sortedTimeStamps.length;
-            var divisor = (roundedBucketIndex + rollUpMultiplier < numBuckets) ? rollUpMultiplier : numBuckets - roundedBucketIndex;
-            var roundedTimestamp = sortedTimeStamps[roundedBucketIndex];
-            if (rolledBuckets[roundedTimestamp]) {
-                rolledBuckets[roundedTimestamp].count += (rawBuckets[currTimeStamp].count / divisor);
-            } else {
-                rolledBuckets[roundedTimestamp] = {count: rawBuckets[currTimeStamp].count / divisor};
-            }
-            currentCount = rolledBuckets[roundedTimestamp]
-            return rolledBuckets;
-        }, {});
-        rolledBuckets[toString] = currentCount;
-        return rolledBuckets;
-    }
     
     private toISONoMillis (dateTime) {
         return dateTime.toISOString().slice(0,-5)+"Z";
@@ -310,12 +278,12 @@ class UXClient {
                 let event = {};
                 event['timestamp'] = ts;
                 tsqr.properties.forEach(p => {
-                    event[`${p.name}`] = {name: p.name, type: p.type, value: p.values[idx]};
+                    event[`${p.name}_${p.type}`] = {name: p.name, type: p.type, value: p.values[idx]};
                 });
                 flattenedResults.push(event); 
             });
         });
-        return flattenedResults.sort((a,b) => (new Date(a['Timestamp $ts'])).valueOf() < (new Date(b['Timestamp $ts'])).valueOf() ? 1 : -1);
+        return flattenedResults.sort((a,b) => (new Date(a['timestamp'])).valueOf() < (new Date(b['timestamp'])).valueOf() ? 1 : -1);
     }
 }
 
