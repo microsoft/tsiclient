@@ -42,12 +42,6 @@
             li{
                 > .tsi-caret{
                     background-image: url(../../Icons/CaretClosed_Dark_Theme.svg);
-                    transform: rotate(0deg);
-                }
-                &.tsi-expanded{
-                    > .tsi-caret{
-                        transform: rotate(90deg);
-                    }
                 }
             }
         }
@@ -59,12 +53,6 @@
             li{
                 > .tsi-caret{
                     background-image: url(../../Icons/CaretClosed_Light_Theme.svg);
-                    transform: rotate(0deg);
-                }
-                &.tsi-expanded{
-                    > .tsi-caret{
-                        transform: rotate(90deg);
-                    }
                 }
             }
         }
@@ -101,6 +89,16 @@
                 margin: 0;
                 overflow: auto;
                 height: 100%;
+            }
+        }
+        li{
+            > .tsi-caret{
+                transform: rotate(0deg);
+            }
+            &.tsi-expanded{
+                > .tsi-caret{
+                    transform: rotate(90deg);
+                }
             }
         }
         li{
