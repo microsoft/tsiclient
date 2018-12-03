@@ -754,13 +754,10 @@ class LineChart extends ChartComponent {
             if (this.brushContextMenu) {
                 this.brushContextMenu.hide();
             }
-            this.brushStartTime = null;
-            this.brushEndTime = null;
-            this.brushStartPosition = null;
-            this.brushEndPosition = null;
             const [mx, my] = d3.mouse(mouseEvent);
             var site: any = this.voronoi(this.getFilteredAndSticky(this.chartComponentData.allValues)).find(mx, my);
-            if (this.chartComponentData.stickiedKey != null && !this.isDroppingScooter) {
+            let isClearingBrush = (this.brushStartPosition !== null) && (this.brushEndPosition !== null);
+            if (this.chartComponentData.stickiedKey != null && !this.isDroppingScooter && !isClearingBrush) {
                 this.chartComponentData.stickiedKey = null;
                 (<any>this.legendObject.legendElement.selectAll('.tsi-splitByLabel')).classed("stickied", false);
                 // recompute voronoi with no sticky
@@ -770,6 +767,12 @@ class LineChart extends ChartComponent {
                 this.chartOptions.onUnsticky(site.data.aggregateKey, site.data.splitBy)
                 return;
             }
+
+            this.brushStartTime = null;
+            this.brushEndTime = null;
+            this.brushStartPosition = null;
+            this.brushEndPosition = null;
+
             if (!this.isDroppingScooter) {
                 this.stickySeries(site.data.aggregateKey, site.data.splitBy);
                 this.chartOptions.onSticky(site.data.aggregateKey, site.data.splitBy);
