@@ -16,7 +16,8 @@ class EventsTable extends ChartComponent{
 
     private maxVisibleIndex = 100;
     private isAscending = true;
-    private sortColumn = 'timestamp_DateTime';
+    private timestampColumnName = 'timestamp ($ts)';
+    private sortColumn = 'timestamp ($ts)';
     private allSelectedState = "all" // all | some | none
 
     private eventsTableData = new EventsTableData();
@@ -95,7 +96,7 @@ class EventsTable extends ChartComponent{
         this.eventsLegend.append("ul");
 
         var columns = Object.keys(this.eventsTableData.columns)
-            .filter((cIdx) => { return cIdx.toLowerCase() != "timestamp_datetime"; }) // filter out timestamp
+            .filter((cIdx) => { return cIdx.toLowerCase() != this.timestampColumnName; }) // filter out timestamp
             .map((cIdx) => this.eventsTableData.columns[cIdx]);
         
         var filteredColumnKeys = this.getFilteredColumnKeys();
@@ -116,7 +117,7 @@ class EventsTable extends ChartComponent{
                         if (setAllVisible) {
                             this.eventsTableData.columns[columnKey].visible = true;
                         } else {
-                            if (columnKey != "timestamp_DateTime")
+                            if (columnKey != this.timestampColumnName)
                                 this.eventsTableData.columns[columnKey].visible = false;
                         }
                         
@@ -176,7 +177,7 @@ class EventsTable extends ChartComponent{
 
     public getSelectAllState() {
         var selectAllState: string = Object.keys(this.eventsTableData.columns).reduce((prev, curr: any) => {
-            if (curr == "timestamp_DateTime") // skip timestamp, will always be visible
+            if (curr == this.timestampColumnName) // skip timestamp, will always be visible
                 return prev;
             if (prev == null) 
                 return (this.eventsTableData.columns[curr].visible) ? "all" : "none";
@@ -300,7 +301,7 @@ class EventsTable extends ChartComponent{
                             return "none";
                     })
                     .html((d: TimeSeriesEventCell) => {
-                        if (d.key.toLowerCase() == "timestamp_datetime") {
+                        if (d.key.toLowerCase() == self.timestampColumnName.toLowerCase()) {
                             var timestampDate = new Date(d.value);
                             if (d.value != null) {
                                 timestampDate = new Date(timestampDate.valueOf() + 

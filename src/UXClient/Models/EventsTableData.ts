@@ -97,8 +97,8 @@ class EventsTableData {
             return s.slice(0, s.length - 1) + "\n";
         }
 
-        var columnKeys = ["timestamp_DateTime"].concat(Object.keys(this.columns).filter((a) => {
-            return a != "timestamp_DateTime";
+        var columnKeys = ["timestamp ($ts)"].concat(Object.keys(this.columns).filter((a) => {
+            return a != "timestamp ($ts)";
         }));
 
         var csvString = endLine(columnKeys.reduce((headerString, columnKey) => {

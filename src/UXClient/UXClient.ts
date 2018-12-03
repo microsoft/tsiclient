@@ -121,7 +121,7 @@ class UXClient {
             }
 
             var timeStamp = (new Date((new Date(events[eventIdx]['$ts'])).valueOf() - timezoneOffset)).toISOString().slice(0,-1).replace('T', ' ');
-            var event = { timestamp: timeStamp };
+            var event = { 'timestamp ($ts)': timeStamp };
 
             // lts logic
             var lts = events[eventIdx]['$lts'] ? events[eventIdx]['$lts'] : null;
@@ -276,14 +276,14 @@ class UXClient {
         results.forEach(tsqr => {
             tsqr.timestamps.forEach((ts, idx) => {
                 let event = {};
-                event['timestamp'] = ts;
+                event['timestamp ($ts)'] = ts;
                 tsqr.properties.forEach(p => {
                     event[`${p.name}_${p.type}`] = {name: p.name, type: p.type, value: p.values[idx]};
                 });
                 flattenedResults.push(event); 
             });
         });
-        return flattenedResults.sort((a,b) => (new Date(a['timestamp'])).valueOf() < (new Date(b['timestamp'])).valueOf() ? -1 : 1);
+        return flattenedResults.sort((a,b) => (new Date(a['timestamp ($ts)'])).valueOf() < (new Date(b['timestamp ($ts)_DateTime'])).valueOf() ? -1 : 1);
     }
 }
 
