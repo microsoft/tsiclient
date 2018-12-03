@@ -773,7 +773,7 @@ class LineChart extends ChartComponent {
             this.brushStartPosition = null;
             this.brushEndPosition = null;
 
-            if (!this.isDroppingScooter) {
+            if (!this.isDroppingScooter && !isClearingBrush) {
                 this.stickySeries(site.data.aggregateKey, site.data.splitBy);
                 this.chartOptions.onSticky(site.data.aggregateKey, site.data.splitBy);
             } else {
