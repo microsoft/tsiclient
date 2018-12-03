@@ -484,11 +484,13 @@ class LineChart extends ChartComponent {
         var dateToTime = (t) => timeFormat(t).split(" ")[1];
         var text = dateToTime(firstValue) + " - " + dateToTime(secondValue);
         var timeLabel = scooter.select(".tsi-scooterTimeLabel");
+        let self = this;
         timeLabel.html(text)
             .append("div")
             .classed("tsi-closeButton", true)
             .on("click", function () {
                 d3.select(d3.select(this).node().parentNode.parentNode).remove();
+                self.setIsDroppingScooter(false);
             });
 
         var scooterLeft: number = Number(scooter.style("left").replace("px", ""));
@@ -675,7 +677,9 @@ class LineChart extends ChartComponent {
         } 
 
         this.destroyMarkerInstructions();
-        this.setIsDroppingScooter(false);
+        if (!this.hasBrush) {
+            this.setIsDroppingScooter(false);
+        }
         if (this.activeScooter != null) {
             this.activeScooter.style("pointer-events", "all");
             this.activeScooter = null;    
@@ -750,13 +754,10 @@ class LineChart extends ChartComponent {
             if (this.brushContextMenu) {
                 this.brushContextMenu.hide();
             }
-            this.brushStartTime = null;
-            this.brushEndTime = null;
-            this.brushStartPosition = null;
-            this.brushEndPosition = null;
             const [mx, my] = d3.mouse(mouseEvent);
             var site: any = this.voronoi(this.getFilteredAndSticky(this.chartComponentData.allValues)).find(mx, my);
-            if (this.chartComponentData.stickiedKey != null) {
+            let isClearingBrush = (this.brushStartPosition !== null) && (this.brushEndPosition !== null);
+            if (this.chartComponentData.stickiedKey != null && !this.isDroppingScooter && !isClearingBrush) {
                 this.chartComponentData.stickiedKey = null;
                 (<any>this.legendObject.legendElement.selectAll('.tsi-splitByLabel')).classed("stickied", false);
                 // recompute voronoi with no sticky
@@ -766,9 +767,17 @@ class LineChart extends ChartComponent {
                 this.chartOptions.onUnsticky(site.data.aggregateKey, site.data.splitBy)
                 return;
             }
+
+            this.brushStartTime = null;
+            this.brushEndTime = null;
+            this.brushStartPosition = null;
+            this.brushEndPosition = null;
+
             if (!this.isDroppingScooter) {
                 this.stickySeries(site.data.aggregateKey, site.data.splitBy);
                 this.chartOptions.onSticky(site.data.aggregateKey, site.data.splitBy);
+            } else {
+                this.setIsDroppingScooter(false);
             }
             return;
         }
