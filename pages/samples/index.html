@@ -584,13 +584,13 @@
             }];
 
             authContext.getTsiToken().then(function(token){
-                tsiClient.server.getAvailability(token, 'bec25c6b-ed2e-4416-856d-5057957a1575.env.timeseries.azure.com').then(function(result){
-                    var transformedResult = tsiClient.ux.transformAvailabilityForVisualization(result, 500);
+                tsiClient.server.getAvailability(token, '10000000-0000-0000-0000-100000000109.env.timeseries.azure.com', '?api-version=2018-11-01-preview').then(function(result){
+                    var transformedResult = tsiClient.ux.transformAvailabilityForVisualization(result.availability, 500);
                     document.getElementById("chart1").style.height = '200px';
                     var availabilityChart = new tsiClient.ux.AvailabilityChart(document.getElementById('chart1'));
                     availabilityChart.render(transformedResult, {theme: 'light', grid: false, tooltip: false, legend: "hidden", 
                         brushContextMenuActions: brushActions, snapBrush: false, maxBuckets: 500,
-                        color: 'purple'}, result);
+                        color: 'purple'}, result.availability);
                     
                     var chart = document.getElementById("chart1");
                     var button = document.createElement("button");
@@ -599,7 +599,7 @@
                         isCompact = !isCompact;
                         availabilityChart.render(transformedResult, {theme: 'light', grid: false, tooltip: false, legend: "hidden", 
                                 brushContextMenuActions: brushActions, snapBrush: false, maxBuckets: 500,
-                                color: 'purple', isCompact: isCompact, preserveAvailabilityState: true}, result);
+                                color: 'purple', isCompact: isCompact, preserveAvailabilityState: true}, result.availability);
                     }
 
                     button.id = "myButton";
