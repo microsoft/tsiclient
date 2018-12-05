@@ -58,6 +58,10 @@ class Utils {
     }
 
     static bucketSizeToTsqInterval (bucketSize: string) {
+        let bucketSizeInMillis = Utils.parseTimeInput(bucketSize);
+        if (bucketSizeInMillis < 1000) {
+            bucketSize = (bucketSize.toLowerCase().indexOf('d') !== -1) ? 'd.' : '.' + bucketSizeInMillis + "s"; 
+        }
         let prefix = bucketSize.toLowerCase().indexOf('d') !== -1 ? 'P' : 'PT';
         return (prefix + bucketSize).toUpperCase();
     }
