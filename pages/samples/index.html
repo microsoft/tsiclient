@@ -124,6 +124,7 @@
                 
                 return promise;
             }
+
         // Code to show an example, called by the dropdown on change
         var showExample = function(select){
             clearInterval(currentSetInterval);
@@ -131,6 +132,7 @@
             window['example' + exampleNumber]();
             window.location.hash = exampleNumber;
         }
+
         // Code to render wrappers to draw charts in
         var renderChartContainers = function(containerNumber, isDarkThemeArray){
             isDarkThemeArray = isDarkThemeArray ? isDarkThemeArray : [];
@@ -141,9 +143,11 @@
                 document.getElementById('charts').innerHTML += '<div style="width: ' + width + '" class="' + cardClass + '"><div class="cardTitle">' + 'Chart ' + i + '</div><div class="cardChart" id="chart' + i + '"></div></div>';
             }
         }
+
         // Relevant globals
         var tsiClient = new TsiClient();
         var currentSetInterval;
+        
         // 1. Static Line Charts
         var example1 = function(){
             renderChartContainers(2, [true, false]);
