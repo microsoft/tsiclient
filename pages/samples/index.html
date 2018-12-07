@@ -124,7 +124,6 @@
                 
                 return promise;
             }
-
         // Code to show an example, called by the dropdown on change
         var showExample = function(select){
             clearInterval(currentSetInterval);
@@ -132,7 +131,6 @@
             window['example' + exampleNumber]();
             window.location.hash = exampleNumber;
         }
-
         // Code to render wrappers to draw charts in
         var renderChartContainers = function(containerNumber, isDarkThemeArray){
             isDarkThemeArray = isDarkThemeArray ? isDarkThemeArray : [];
@@ -143,26 +141,24 @@
                 document.getElementById('charts').innerHTML += '<div style="width: ' + width + '" class="' + cardClass + '"><div class="cardTitle">' + 'Chart ' + i + '</div><div class="cardChart" id="chart' + i + '"></div></div>';
             }
         }
-
         // Relevant globals
         var tsiClient = new TsiClient();
         var currentSetInterval;
-
         // 1. Static Line Charts
         var example1 = function(){
             renderChartContainers(2, [true, false]);
-            // {from: "2018-12-04T16:32:45.000Z", to: "2018-12-04T16:33:31.000Z"}
+            
             var aggregateExpressions = [];
-            var startDate = new Date("2018-12-04T16:32:45.000Z");
-            var endDate = new Date("2018-12-04T16:33:31.000Z");
-            aggregateExpressions.push(new tsiClient.ux.AggregateExpression({predicateString: ""}, {property: 'Event Count'}, ['count'],
-                { from: startDate, to: endDate, bucketSize: '250ms' }, null, '#FF8C00', 'Factory1Pressure'));
-            // aggregateExpressions.push(new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory2'"}, {property: 'Pressure', type: "Double"}, ['avg', 'min', 'max'],
-            //     { from: startDate, to: endDate, bucketSize: '2m' }, null, '#D869CB', 'Factory2Pressure'));
-            // aggregateExpressions.push(new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory3'"}, {property: 'Pressure', type: "Double"}, ['avg', 'min', 'max'],
-            //     { from: startDate, to: endDate, bucketSize: '2m' }, null, '#60B9AE', 'Factory.3.Pressure'));
+            var startDate = new Date('2017-04-14T13:00:00Z');
+            var endDate = new Date(startDate.valueOf() + 1000*60*60*1);
+            aggregateExpressions.push(new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory1'"}, {property: 'Pressure', type: "Double"}, ['avg', 'min', 'max'],
+                { from: startDate, to: endDate, bucketSize: '2m' }, null, '#FF8C00', 'Factory1Pressure'));
+            aggregateExpressions.push(new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory2'"}, {property: 'Pressure', type: "Double"}, ['avg', 'min', 'max'],
+                { from: startDate, to: endDate, bucketSize: '2m' }, null, '#D869CB', 'Factory2Pressure'));
+            aggregateExpressions.push(new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory3'"}, {property: 'Pressure', type: "Double"}, ['avg', 'min', 'max'],
+                { from: startDate, to: endDate, bucketSize: '2m' }, null, '#60B9AE', 'Factory.3.Pressure'));
             authContext.getTsiToken().then(function(token){
-                tsiClient.server.getAggregates(token, 'bec25c6b-ed2e-4416-856d-5057957a1575.env.timeseries.azure.com', aggregateExpressions.map(function(ae){return ae.toTsx()})).then(function(result){
+                tsiClient.server.getAggregates(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com', aggregateExpressions.map(function(ae){return ae.toTsx()})).then(function(result){
                     var transformedResult = tsiClient.ux.transformAggregatesForVisualization(result, aggregateExpressions);
                     var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart1'));
                     lineChart.render(transformedResult, {theme: 'dark', grid: true, tooltip: true, legend: 'compact'}, aggregateExpressions);
@@ -172,7 +168,6 @@
             var aggregateExpressions2 = [];
             aggregateExpressions2.push(new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory3' and Temperature > 31"}, {property: 'Temperature', type: "Double"}, ['avg', 'min'],
                 { from: startDate, to: endDate, bucketSize: '2m' }, {property: 'Station', type: 'String'}, '#F7727E', 'Factory3Temperature'));
-
             authContext.getTsiToken().then(function(token){
                 tsiClient.server.getAggregates(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com', aggregateExpressions2.map(function(ae){return ae.toTsx()})).then(function(result){
                     var transformedResult = tsiClient.ux.transformAggregatesForVisualization(result, aggregateExpressions2);
