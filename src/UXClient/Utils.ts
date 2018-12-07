@@ -70,6 +70,10 @@ class Utils {
         return encodeURIComponent(aggName).split(".").join("_") + "_" + aggIndex;
     }
 
+    static getFractionalSeconds (date: Date) {
+        let secondString = "." + String(date.getMilliseconds());
+        return String(Number(secondString)).slice(1);
+    }
 
     static getOffsetMinutes(offset: any, millis: number) {
         if (offset == 'Local') {
