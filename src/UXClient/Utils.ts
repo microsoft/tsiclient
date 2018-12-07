@@ -70,6 +70,7 @@ class Utils {
         return encodeURIComponent(aggName).split(".").join("_") + "_" + aggIndex;
     }
 
+    
     static getOffsetMinutes(offset: any, millis: number) {
         if (offset == 'Local') {
             return -momentTZ.tz.zone(momentTZ.tz.guess()).parse(millis);
