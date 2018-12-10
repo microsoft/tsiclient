@@ -281,6 +281,12 @@ class ChartComponentData {
     public convertAggregateToArray (agg: any, aggKey: string, aggName: string, splitBy: string, 
                                     from: Date = null, to: Date = null, bucketSize: number = null): Array<any> {
         var aggArray: Array<any> = [];
+        let isoStringAgg = {};
+        Object.keys(agg).forEach((dateString: string) => {
+            let jsISOString = (new Date(dateString)).toISOString();
+            isoStringAgg[jsISOString] = agg[dateString]; 
+        });
+        agg = isoStringAgg;
         var createTimeValueObject = () => {
             var timeValueObject: any = {};
             timeValueObject["aggregateKey"] = aggKey;
@@ -296,15 +302,14 @@ class ChartComponentData {
         if (to)
             this.toMillis = Math.max(to.valueOf(), this.toMillis);
         if (from && to && bucketSize) {
-            var firstBucketMillis = this.findFirstBucket(agg, from.valueOf(), bucketSize);
+            var firstBucketMillis = new Date(this.findFirstBucket(agg, from.valueOf(), bucketSize)).valueOf();
             if (firstBucketMillis != null) {
                 for (var currTime = new Date(firstBucketMillis); (currTime.valueOf() < to.valueOf()); currTime = new Date(currTime.valueOf() + bucketSize)) {
                     var timeValueObject: any = createTimeValueObject();
                     timeValueObject["dateTime"] = currTime;
                     var currTimeString = currTime.toISOString();
-                    var strippedTimeString = currTimeString.slice(0, -5) + "Z"; // without second decimals
-                    if (agg[currTimeString] || agg[strippedTimeString]) {
-                        var currMeasures = agg[currTimeString] ? agg[currTimeString] : agg[strippedTimeString];
+                    if (agg[currTimeString]) {
+                        var currMeasures = agg[currTimeString];
                         Object.keys(currMeasures).forEach((measure: string) => {
                             timeValueObject["measures"][measure] = currMeasures[measure];
                         });
