@@ -30,8 +30,6 @@ class DateTimePicker extends ChartComponent{
     private anchorDate;
     private offsetName: string;
 
-    private monthOfFirstCal;
-
     constructor(renderTarget: Element){
         super(renderTarget);
     }
@@ -137,8 +135,8 @@ class DateTimePicker extends ChartComponent{
 
     private setTimeRange (d: Date, isFromSelect: boolean) {
         if (this.isSettingStartTime) {
-            this.calendarPicker.setStartRange(d, true);
-            this.calendarPicker.setEndRange(null, true);
+            this.calendarPicker.setStartRange(d);
+            this.calendarPicker.setEndRange(null);
             this.startRange = d;
             this.anchorDate = d;
         }
@@ -148,8 +146,8 @@ class DateTimePicker extends ChartComponent{
                     this.setFromDate(this.anchorDate);
                     this.setToDate(d);
                 }
-                this.calendarPicker.setEndRange(d, true);
-                this.calendarPicker.setStartRange(this.anchorDate, true);
+                this.calendarPicker.setEndRange(d);
+                this.calendarPicker.setStartRange(this.anchorDate);
                 this.startRange = this.anchorDate;
                 this.endRange = d;
             } else {
@@ -157,8 +155,9 @@ class DateTimePicker extends ChartComponent{
                     this.setFromDate(d);
                     this.setToDate(this.anchorDate);
                 }
-                this.calendarPicker.setStartRange(d, true);
-                this.calendarPicker.setEndRange(this.anchorDate, true);
+
+                this.calendarPicker.setStartRange(d);
+                this.calendarPicker.setEndRange(this.anchorDate);
                 this.endRange = this.anchorDate;
                 this.startRange = d;
             }
@@ -181,18 +180,11 @@ class DateTimePicker extends ChartComponent{
             i18n: i18nOptions,
             numberOfMonths: 2,
             onSelect: (d) => {
-                console.log("onSelect triggered");
                 this.setTimeRange(d, true);
                 this.isSettingStartTime = !this.isSettingStartTime;
                 this.calendarPicker.draw();
             },
-            onOpen: (d) => {
-                if (this.monthOfFirstCal !== d.calendars[0].month && this.monthOfFirstCal !== undefined) {
-                    console.log("month changed");
-                    console.log("old: " + this.monthOfFirstCal);
-                    console.log("new: " + d.calendars[0].month);
-                }
-                this.monthOfFirstCal = d.calendars[0].month;
+            onDraw: (d) => {
                 if (this.isSettingStartTime)
                     return; 
                 var self = this;
@@ -317,7 +309,7 @@ class DateTimePicker extends ChartComponent{
 
     private updateDisplayedFromDateTime () {
         var fromDate = new Date(this.fromMillis);
-        this.calendarPicker.setStartRange(this.roundDay(this.offsetFromUTC(fromDate)), true);
+        this.calendarPicker.setStartRange(this.roundDay(this.offsetFromUTC(fromDate)));
         var inputContainer = this.timeControls.select(".tsi-timeInputContainer").select(".tsi-startTimeInputContainer");
         var hours = Utils.getUTCHours(fromDate, this.chartOptions.is24HourTime);
         inputContainer.select(".tsi-hoursInput").selectAll("option").filter((d) => d == hours).attr("selected", true);    
@@ -331,7 +323,7 @@ class DateTimePicker extends ChartComponent{
 
     private updateDisplayedToDateTime () {
         var toDate = new Date(this.toMillis);
-        this.calendarPicker.setEndRange(this.roundDay(this.offsetFromUTC(toDate)), true);
+        this.calendarPicker.setEndRange(this.roundDay(this.offsetFromUTC(toDate)));
         var inputContainer = this.timeControls.select(".tsi-timeInputContainer").select(".tsi-endTimeInputContainer");
         var hours = Utils.getUTCHours(toDate, this.chartOptions.is24HourTime);
         inputContainer.select(".tsi-hoursInput").selectAll("option").filter((d) => d == hours).attr("selected", true);    
