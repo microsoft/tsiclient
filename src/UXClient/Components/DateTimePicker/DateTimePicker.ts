@@ -100,7 +100,7 @@ class DateTimePicker extends ChartComponent{
         
         this.targetElement.append("div").classed("tsi-errorMessageContainer", true);
         this.createCalendar();
-        // this.calendarPicker.draw();
+        this.calendarPicker.draw();
         this.createTimePicker();
         this.createTimezonePicker();
 
