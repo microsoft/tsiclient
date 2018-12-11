@@ -1,0 +1,76 @@
+{
+  "_args": [
+    [
+      "pikaday@1.7.0",
+      "C:\\Users\\niusoff.REDMOND\\Desktop\\TsiHelloWorldSampleApp\\tsiclient"
+    ]
+  ],
+  "_from": "pikaday@1.7.0",
+  "_id": "pikaday@1.7.0",
+  "_inBundle": false,
+  "_integrity": "sha512-b1z65oFulNTKOdcg9+wTnZWBzfekf1AqPMCmmK9qH6aT7stqDyh76G6nLeuYr3WqchjW/7QLOBFmok14sCecsA==",
+  "_location": "/pikaday",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "version",
+    "registry": true,
+    "raw": "pikaday@1.7.0",
+    "name": "pikaday",
+    "escapedName": "pikaday",
+    "rawSpec": "1.7.0",
+    "saveSpec": null,
+    "fetchSpec": "1.7.0"
+  },
+  "_requiredBy": [
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/pikaday/-/pikaday-1.7.0.tgz",
+  "_spec": "1.7.0",
+  "_where": "C:\\Users\\niusoff.REDMOND\\Desktop\\TsiHelloWorldSampleApp\\tsiclient",
+  "bugs": {
+    "url": "https://github.com/dbushell/Pikaday/issues"
+  },
+  "dependencies": {
+    "moment": "2.x"
+  },
+  "description": "A refreshing JavaScript Datepicker — lightweight, no dependencies, modular CSS",
+  "devDependencies": {
+    "expect.js": "^0.3.1",
+    "jshint": "^2.9",
+    "mocha": "~1.18.2",
+    "testling": "^1.7"
+  },
+  "homepage": "http://dbushell.github.io/Pikaday/",
+  "keywords": [
+    "datepicker",
+    "calendar",
+    "date"
+  ],
+  "license": "(0BSD OR MIT)",
+  "main": "pikaday.js",
+  "name": "pikaday",
+  "optionalDependencies": {
+    "moment": "2.x"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dbushell/Pikaday.git"
+  },
+  "scripts": {
+    "lint": "jshint *.js plugins/*.js tests/*.js",
+    "test": "testling"
+  },
+  "testling": {
+    "harness": "mocha",
+    "files": "tests/*.js",
+    "browsers": [
+      "ie/7..latest",
+      "chrome/latest",
+      "firefox/3.6",
+      "firefox/latest",
+      "safari/latest",
+      "opera/latest"
+    ]
+  },
+  "version": "1.7.0"
+}
