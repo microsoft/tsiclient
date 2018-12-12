@@ -173,7 +173,9 @@ class Hierarchy extends Component {
                                 .classed('tsi-selected', n.isSelected).on('click', clickMethod)
 
                         li.append('span').classed('tsi-caret', true).attr('style', `left: ${(n.level - 1) * 18}px`);
-                        li.append('span').classed('tsi-markedName', true).html(n.markedName).attr('style', `padding-left: ${40 + (n.level - 1) * 18 - (n.isLeafParent && this.withContextMenu ? 16 : 0)}px`);
+                        li.append('span').classed('tsi-markedName', true).html(n.markedName)
+                          .attr('style', `padding-left: ${40 + (n.level - 1) * 18 - (n.isLeafParent && this.withContextMenu ? 16 : 0)}px`)
+                          .attr('title', n.isLeafParent && this.withContextMenu ? n.name : '');
                         n.colorify(li);
 
                         if((n.isExpanded || n.childrenInFilter) && !n.isLeaf){
