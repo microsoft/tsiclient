@@ -1,7 +1,7 @@
 import * as d3 from 'd3';
-import * as Pikaday from 'pikaday';
+import * as Pikaday from '../../../packages/pikaday/pikaday';
 import './DateTimePicker.scss';
-import 'pikaday/css/pikaday.css';
+import '../../../packages/pikaday/css/pikaday.css';
 import { ChartComponent } from '../../Interfaces/ChartComponent';
 import { TimezonePicker } from '../TimezonePicker/TimezonePicker';
 import { entries } from 'd3';
@@ -155,6 +155,7 @@ class DateTimePicker extends ChartComponent{
                     this.setFromDate(d);
                     this.setToDate(this.anchorDate);
                 }
+
                 this.calendarPicker.setStartRange(d);
                 this.calendarPicker.setEndRange(this.anchorDate);
                 this.endRange = this.anchorDate;
