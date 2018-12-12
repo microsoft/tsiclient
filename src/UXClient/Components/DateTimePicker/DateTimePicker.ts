@@ -1,5 +1,5 @@
 import * as d3 from 'd3';
-import * as Pikaday from '../../../packages/pikaday';
+import * as Pikaday from '../../../packages/pikaday/pikaday';
 import './DateTimePicker.scss';
 import '../../../packages/pikaday/css/pikaday.css';
 import { ChartComponent } from '../../Interfaces/ChartComponent';
