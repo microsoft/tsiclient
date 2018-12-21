@@ -19,6 +19,9 @@
         .pika-select, .pika-select option, .pika-label, .pika-day, .pika-prev, .pika-next {
             color: $gray1;
             background-color: $gray3;    
+            &:focus {
+                border:1px solid green;
+            }
         } 
 
         .pika-prev, .pika-next {

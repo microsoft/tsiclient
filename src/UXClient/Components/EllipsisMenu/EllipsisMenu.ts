@@ -34,7 +34,7 @@ class EllipsisMenu extends Component {
         options.theme = options.theme ? options.theme : "dark";
         super.themify(this.containerElement, options.theme);
 
-        this.buttonElement = d3.select(this.renderTarget).insert("div")
+        this.buttonElement = d3.select(this.renderTarget).insert("button")
             .attr("class", "tsi-ellipsisButton")
             .on("click", () => {
                 this.setMenuVisibility(!this.menuIsVisible)
@@ -46,7 +46,8 @@ class EllipsisMenu extends Component {
         var self = this;
         this.menuElement.selectAll(".tsi-ellipsisMenuItem").data(this.menuItems)
             .enter()
-            .append("div")
+            .append("button")
+            // .attr("tabindex", 0)
             .classed("tsi-ellipsisMenuItem", true)
             .on("click", (d: any) => {
                 d.action();

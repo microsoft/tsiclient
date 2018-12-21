@@ -65,6 +65,7 @@ class LineChart extends ChartComponent {
     private hasBrush: boolean = false;
     private isDroppingScooter: boolean = false;
     private isClearingBrush: boolean = false;
+    private chartControlsPanel: any = null;
 
     private isFirstMarkerDrop = true;
     
@@ -1260,6 +1261,51 @@ class LineChart extends ChartComponent {
                         
             this.yAxisState = this.chartOptions.yAxisState ? this.chartOptions.yAxisState : "stacked"; // stacked, shared, overlap
 
+            if (!this.chartOptions.hideChartControlPanel && this.chartControlsPanel === null) {
+
+                this.chartControlsPanel = Utils.createControlPanel(this.renderTarget, this.CONTROLSWIDTH, Math.max((this.chartMargins.top + 12), 0), this.chartOptions);
+
+                var self = this;
+                this.hasStackedButton = true;
+                this.stackedButton = this.chartControlsPanel.append("button")
+                    .style("left", "60px")
+                    .attr("class", "tsi-stackedButton")
+                    // .attr("tabindex", 0)
+                    .on("click", function () {
+                        if (self.yAxisState == "stacked") 
+                            self.yAxisState = "shared";
+                        else if (self.yAxisState == "shared")
+                            self.yAxisState = "overlap";
+                        else  
+                            self.yAxisState = "stacked";
+                        self.draw();
+                        setTimeout (() => (d3.select(this).node() as any).focus(), 200);
+                    });
+
+                this.ellipsisContainer = this.chartControlsPanel.append("div")
+                    .attr("class", "tsi-ellipsisContainerDiv");
+                this.ellipsisMenu = new EllipsisMenu(this.ellipsisContainer.node());
+                var ellipsisItems = [{
+                    iconClass: "flag",
+                    label: "Drop a Marker",
+                    action: this.scooterButtonClick,
+                    description: ""
+                }];
+                if (this.chartOptions.grid) {
+                    ellipsisItems.push(Utils.createGridEllipsisOption(this.renderTarget, this.chartOptions, this.aggregateExpressionOptions, this.chartComponentData));
+                }
+
+                if (this.chartOptions.canDownload) {
+                    ellipsisItems.push(Utils.createDownloadEllipsisOption(() => this.chartComponentData.generateCSVString()));
+                }
+                this.ellipsisMenu.render(ellipsisItems, {theme: this.chartOptions.theme});
+
+            } else  if (this.chartOptions.hideChartControlPanel && this.chartControlsPanel !== null){
+                this.hasStackedButton = false;
+                this.chartControlsPanel.remove();
+                this.chartControlsPanel = null;
+            }
+
             var draw = () => {  
 
                 this.minBrushWidth = (this.chartOptions.minBrushWidth) ? this.chartOptions.minBrushWidth : this.minBrushWidth;
@@ -1290,47 +1336,48 @@ class LineChart extends ChartComponent {
                                             .style("opacity", 1);
                                        }, this.stickySeries);
 
-                if (!this.chartOptions.hideChartControlPanel) {
+                // if (!this.chartOptions.hideChartControlPanel) {
 
-                    var chartControlsPanel = Utils.createControlPanel(this.renderTarget, this.CONTROLSWIDTH, Math.max((this.chartMargins.top + 12), 0), this.chartOptions);
+                //     var chartControlsPanel = Utils.createControlPanel(this.renderTarget, this.CONTROLSWIDTH, Math.max((this.chartMargins.top + 12), 0), this.chartOptions);
 
-                    this.hasStackedButton = true;
-                    this.stackedButton = chartControlsPanel.append("div")
-                        .style("left", "60px")
-                        .attr("class", "tsi-stackedButton")
-                        .on("click", () => {
-                            if (this.yAxisState == "stacked") 
-                                this.yAxisState = "shared";
-                            else if (this.yAxisState == "shared")
-                                this.yAxisState = "overlap";
-                            else  
-                                this.yAxisState = "stacked";
-                            this.draw();
-                        });
+                //     var self = this;
+                //     this.hasStackedButton = true;
+                //     this.stackedButton = chartControlsPanel.append("button")
+                //         .style("left", "60px")
+                //         .attr("class", "tsi-stackedButton")
+                //         // .attr("tabindex", 0)
+                //         .on("click", function () {
+                //             if (self.yAxisState == "stacked") 
+                //                 self.yAxisState = "shared";
+                //             else if (self.yAxisState == "shared")
+                //                 self.yAxisState = "overlap";
+                //             else  
+                //                 self.yAxisState = "stacked";
+                //             self.draw();
+                //             setTimeout (() => (d3.select(this).node() as any).focus(), 200);
+                //         });
 
-                    var self = this;
+                //     this.ellipsisContainer = chartControlsPanel.append("div")
+                //         .attr("class", "tsi-ellipsisContainerDiv");
+                //     this.ellipsisMenu = new EllipsisMenu(this.ellipsisContainer.node());
+                //     var ellipsisItems = [{
+                //         iconClass: "flag",
+                //         label: "Drop a Marker",
+                //         action: this.scooterButtonClick,
+                //         description: ""
+                //     }];
+                //     if (this.chartOptions.grid) {
+                //         ellipsisItems.push(Utils.createGridEllipsisOption(this.renderTarget, this.chartOptions, this.aggregateExpressionOptions, this.chartComponentData));
+                //     }
 
-                    this.ellipsisContainer = chartControlsPanel.append("div")
-                        .attr("class", "tsi-ellipsisContainerDiv");
-                    this.ellipsisMenu = new EllipsisMenu(this.ellipsisContainer.node());
-                    var ellipsisItems = [{
-                        iconClass: "flag",
-                        label: "Drop a Marker",
-                        action: this.scooterButtonClick,
-                        description: ""
-                    }];
-                    if (this.chartOptions.grid) {
-                        ellipsisItems.push(Utils.createGridEllipsisOption(this.renderTarget, this.chartOptions, this.aggregateExpressionOptions, this.chartComponentData));
-                    }
+                //     if (this.chartOptions.canDownload) {
+                //         ellipsisItems.push(Utils.createDownloadEllipsisOption(() => this.chartComponentData.generateCSVString()));
+                //     }
+                //     this.ellipsisMenu.render(ellipsisItems, {theme: this.chartOptions.theme});
 
-                    if (this.chartOptions.canDownload) {
-                        ellipsisItems.push(Utils.createDownloadEllipsisOption(() => this.chartComponentData.generateCSVString()));
-                    }
-                    this.ellipsisMenu.render(ellipsisItems, {theme: this.chartOptions.theme});
-
-                } else {
-                    this.hasStackedButton = false;
-                }
+                // } else {
+                //     this.hasStackedButton = false;
+                // }
     
                 this.svgSelection.selectAll('.valueElement').style("visibility", "hidden");
                 this.svgSelection.selectAll(".yAxis").style("visibility", "hidden");    

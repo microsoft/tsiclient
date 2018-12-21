@@ -47,6 +47,8 @@
 
     .tsi-ellipsisButton {
         cursor: pointer;
+        border: none;
+        background-color: transparent;
         width: 100%;
         height: 100%;
         background-repeat: no-repeat;
@@ -61,13 +63,19 @@
         @extend .tsi-baseContextMenu;
         position: absolute;
         cursor: pointer;
-        min-width: 180px;
+        min-width: 180px;           
         top: 24px;
         right: 0;
         z-index: 10000;
         display: none;
+        flex-direction: column;
 
         .tsi-ellipsisMenuItem {
+            background-color: transparent;
+            border: none;
+            color: inherit;
+            width: 100%;
+            text-align: left;
             
             .tsi-ellipsisMenuIcon {
                 background-size: 20px 20px;

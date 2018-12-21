@@ -114,6 +114,9 @@
 					height: 20px;
 					margin-top: 1px;
 					overflow: hidden;
+					.tsi-eyeIcon {
+						display: none;
+					}
 					.tsi-colorKey{
 						display: block;
 						position: absolute;
@@ -169,7 +172,10 @@
 				left: 124px;
 			}
 			.tsi-eyeIcon {
+				display: inherit;
 				cursor: pointer;
+				border: none;
+				background-color: transparent;
 			}
 		}
 
