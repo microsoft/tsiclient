@@ -69,7 +69,7 @@ class LineChart extends ChartComponent {
 
     private isFirstMarkerDrop = true;
     
-    public chartMargins: any = {
+    public chartMargins: any = {        
         top: 40,
         bottom: 40,
         left: 70, 
@@ -167,7 +167,7 @@ class LineChart extends ChartComponent {
 
     private destroyMarkerInstructions() {
         this.targetElement.selectAll(".tsi-markerInstructions").remove();
-    }
+    }   
     
     private tooltipFormat (d, text) {
         var title = d.aggregateName;   
@@ -472,6 +472,12 @@ class LineChart extends ChartComponent {
         });
     }
 
+    private focusOnEllipsis () {
+        if (this.ellipsisContainer !== null) {
+            this.ellipsisContainer.select(".tsi-ellipsisButton").node().focus();
+        }
+    }
+
     private setScooterTimeLabel (scooter) {
         var millis = this.scooterGuidMap[scooter.datum()];
         var values: Array<any> = this.chartComponentData.timeMap[millis];
@@ -487,11 +493,12 @@ class LineChart extends ChartComponent {
         var timeLabel = scooter.select(".tsi-scooterTimeLabel");
         let self = this;
         timeLabel.html(text)
-            .append("div")
+            .append("button")
             .classed("tsi-closeButton", true)
             .on("click", function () {
                 d3.select(d3.select(this).node().parentNode.parentNode).remove();
                 self.setIsDroppingScooter(false);
+                self.focusOnEllipsis();
             });
 
         var scooterLeft: number = Number(scooter.style("left").replace("px", ""));
@@ -585,7 +592,7 @@ class LineChart extends ChartComponent {
         
         this.activeScooter.append("div")
             .attr("class", "tsi-scooterLine");
-            
+
         var self = this;
         this.activeScooter.append("div")
             .attr("class", "tsi-scooterDragger")
@@ -683,7 +690,7 @@ class LineChart extends ChartComponent {
         }
         if (this.activeScooter != null) {
             this.activeScooter.style("pointer-events", "all");
-            this.activeScooter = null;    
+            this.activeScooter = null;
         }
     }
 
@@ -1296,7 +1303,8 @@ class LineChart extends ChartComponent {
                 }
 
                 if (this.chartOptions.canDownload) {
-                    ellipsisItems.push(Utils.createDownloadEllipsisOption(() => this.chartComponentData.generateCSVString()));
+                    ellipsisItems.push(Utils.createDownloadEllipsisOption(() => this.chartComponentData.generateCSVString(), 
+                        () => this.focusOnEllipsis()));
                 }
                 this.ellipsisMenu.render(ellipsisItems, {theme: this.chartOptions.theme});
 
@@ -1336,49 +1344,6 @@ class LineChart extends ChartComponent {
                                             .style("opacity", 1);
                                        }, this.stickySeries);
 
-                // if (!this.chartOptions.hideChartControlPanel) {
-
-                //     var chartControlsPanel = Utils.createControlPanel(this.renderTarget, this.CONTROLSWIDTH, Math.max((this.chartMargins.top + 12), 0), this.chartOptions);
-
-                //     var self = this;
-                //     this.hasStackedButton = true;
-                //     this.stackedButton = chartControlsPanel.append("button")
-                //         .style("left", "60px")
-                //         .attr("class", "tsi-stackedButton")
-                //         // .attr("tabindex", 0)
-                //         .on("click", function () {
-                //             if (self.yAxisState == "stacked") 
-                //                 self.yAxisState = "shared";
-                //             else if (self.yAxisState == "shared")
-                //                 self.yAxisState = "overlap";
-                //             else  
-                //                 self.yAxisState = "stacked";
-                //             self.draw();
-                //             setTimeout (() => (d3.select(this).node() as any).focus(), 200);
-                //         });
-
-                //     this.ellipsisContainer = chartControlsPanel.append("div")
-                //         .attr("class", "tsi-ellipsisContainerDiv");
-                //     this.ellipsisMenu = new EllipsisMenu(this.ellipsisContainer.node());
-                //     var ellipsisItems = [{
-                //         iconClass: "flag",
-                //         label: "Drop a Marker",
-                //         action: this.scooterButtonClick,
-                //         description: ""
-                //     }];
-                //     if (this.chartOptions.grid) {
-                //         ellipsisItems.push(Utils.createGridEllipsisOption(this.renderTarget, this.chartOptions, this.aggregateExpressionOptions, this.chartComponentData));
-                //     }
-
-                //     if (this.chartOptions.canDownload) {
-                //         ellipsisItems.push(Utils.createDownloadEllipsisOption(() => this.chartComponentData.generateCSVString()));
-                //     }
-                //     this.ellipsisMenu.render(ellipsisItems, {theme: this.chartOptions.theme});
-
-                // } else {
-                //     this.hasStackedButton = false;
-                // }
-    
                 this.svgSelection.selectAll('.valueElement').style("visibility", "hidden");
                 this.svgSelection.selectAll(".yAxis").style("visibility", "hidden");    
 

@@ -23,6 +23,7 @@ class GroupedBarChart extends ChartComponent {
     private stackedButton: any = null;
     private ellipsisContainer: any;
     private ellipsisMenu: EllipsisMenu;
+    private chartControlsPanel = null;
     chartComponentData = new GroupedBarChartData();
     
     private chartMargins: any = {
@@ -229,30 +230,36 @@ class GroupedBarChart extends ChartComponent {
                 
                 super.themify(targetElement, this.chartOptions.theme);
 
-                var chartControlsPanel = Utils.createControlPanel(this.renderTarget, this.CONTROLSWIDTH, this.chartMargins.top, this.chartOptions);
+                if (!this.chartOptions.hideChartControlPanel && this.chartControlsPanel === null) {
+                    this.chartControlsPanel = Utils.createControlPanel(this.renderTarget, this.CONTROLSWIDTH, this.chartMargins.top, this.chartOptions);
 
-                this.stackedButton = chartControlsPanel.append("div")
-                    .style("left", "60px")
-                    .attr("class", "tsi-stackedButton").on("click", () => {
-                        this.chartOptions.stacked = !this.chartOptions.stacked;
-                        this.draw();
-                    })
-                    .attr('title', 'Stack/Unstack Bars');
+                    this.stackedButton = this.chartControlsPanel.append("button")
+                        .style("left", "60px")
+                        .attr("class", "tsi-stackedButton").on("click", () => {
+                            this.chartOptions.stacked = !this.chartOptions.stacked;
+                            this.draw();
+                        })
+                        .attr('title', 'Stack/Unstack Bars');
 
-                if (this.chartOptions.canDownload || this.chartOptions.grid) {
-                    this.ellipsisContainer = chartControlsPanel.append("div")
-                        .attr("class", "tsi-ellipsisContainerDiv");
-                    this.ellipsisMenu = new EllipsisMenu(this.ellipsisContainer.node());
-
-                    var ellipsisItems = [];
-                    if (this.chartOptions.grid) {
-                        ellipsisItems.push(Utils.createGridEllipsisOption(this.renderTarget, this.chartOptions, this.aggregateExpressionOptions, this.chartComponentData));
+                    if (this.chartOptions.canDownload || this.chartOptions.grid) {
+                        this.ellipsisContainer = this.chartControlsPanel.append("div")
+                            .attr("class", "tsi-ellipsisContainerDiv");
+                        this.ellipsisMenu = new EllipsisMenu(this.ellipsisContainer.node());
+    
+                        var ellipsisItems = [];
+                        if (this.chartOptions.grid) {
+                            ellipsisItems.push(Utils.createGridEllipsisOption(this.renderTarget, this.chartOptions, this.aggregateExpressionOptions, this.chartComponentData));
+                        }
+                        if (this.chartOptions.canDownload) {
+                            ellipsisItems.push(Utils.createDownloadEllipsisOption(() => this.chartComponentData.generateCSVString(), () => Utils.focusOnEllipsisButton(this.renderTarget)));
+                        }
+    
+                        this.ellipsisMenu.render(ellipsisItems, {theme: this.chartOptions.theme});
                     }
-                    if (this.chartOptions.canDownload) {
-                        ellipsisItems.push(Utils.createDownloadEllipsisOption(() => this.chartComponentData.generateCSVString()));
-                    }
 
-                    this.ellipsisMenu.render(ellipsisItems, {theme: this.chartOptions.theme});
+                } else  if (this.chartOptions.hideChartControlPanel && this.chartControlsPanel !== null){
+                    this.chartControlsPanel.remove();
+                    this.chartControlsPanel = null;
                 }
 
                 /********* Determine the number of timestamps present, add margin for slider *********/

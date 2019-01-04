@@ -9,6 +9,7 @@ class Grid extends Component {
 	private rowLabelKey: string = "__tsiLabel__";
 	private colorKey: string = "__tsiColor__";
 
+	private targetElement;
 	public usesSeconds: boolean = false;
 	public usesMillis:boolean = false;
 	public chartOptions: ChartOptions = new ChartOptions
@@ -18,6 +19,19 @@ class Grid extends Component {
 	}
 
 	Grid() {
+	}
+
+	private cellClass = (ridx, cidx) => {
+		return "tsi-table-" + ridx + '-' + cidx;
+	}
+
+	public focus = (rowIdx, colIdx) => { 
+		try {
+			(<any>this.targetElement.select('.' + this.cellClass(rowIdx, colIdx)).node())
+				.focus();
+	 	} catch(e) {
+			console.log(e)
+		}
 	}
 	
 	public renderFromAggregates(data: any, options: any, aggregateExpressionOptions: any) {
@@ -41,13 +55,22 @@ class Grid extends Component {
 	
 	public render(data: any, options: any, aggregateExpressionOptions: any) {
 		this.chartOptions.setOptions(options);
-		var targetElement = d3.select(this.renderTarget);
-		if(targetElement.style("position") == "static")
-			targetElement.style("position", "relative")
+		this.targetElement = d3.select(this.renderTarget);
+
+		if(this.targetElement.style("position") == "static")
+			this.targetElement.style("position", "relative")
 		if(this.gridComponent)
 			this.gridComponent.remove();
-		this.gridComponent = targetElement.append('div').attr("class", "tsi-gridComponent").classed("tsi-fromChart", !!options.fromChart).attr("aria-label", "A grid of values.  Use tab to enter, and the arrow keys to navigate the values of each cell");
-		var grid = this.gridComponent.append('div').attr("class", "tsi-gridWrapper").attr("tabindex", 0).on("click", () => {focus(0,0)});
+		this.gridComponent = this.targetElement.append('div').attr("class", "tsi-gridComponent").classed("tsi-fromChart", !!options.fromChart).attr("aria-label", "A grid of values.  Use tab to enter, and the arrow keys to navigate the values of each cell");
+		var grid = this.gridComponent
+			.append('div')
+			.attr("class", "tsi-gridWrapper")
+			.attr("tabindex", 0)
+			.on("click", () => { 
+				if (this) {
+					this.focus(0,0);
+				} 
+			});
 		var headers = Object.keys(data.reduce((p,c) => {
 			Object.keys(c).forEach(k => {
 				if(k != this.rowLabelKey && k != this.colorKey)
@@ -59,10 +82,10 @@ class Grid extends Component {
 		var draw = () => {
 			var table = grid.append('table');
 			var headersRow = table.append('tr')
-			headersRow.append('th').attr("tabindex", 0).attr("class", "tsi-topLeft " + cellClass(0,0)).on("keydown", () => {arrowNavigate(d3.event, 0, 0)}).attr("aria-label", "A grid of values.  Use the arrow keys to navigate the values of each cell");
+			headersRow.append('th').attr("tabindex", 0).attr("class", "tsi-topLeft " + this.cellClass(0,0)).on("keydown", () => {arrowNavigate(d3.event, 0, 0)}).attr("aria-label", "A grid of values.  Use the arrow keys to navigate the values of each cell");
 			
 			headers.forEach((h, i) => {
-				headersRow.append('th').attr("tabindex", 0).attr("class", cellClass(0, i+1)).on("keydown", () => {arrowNavigate(d3.event, 0, i+1)}).text(() => {
+				headersRow.append('th').attr("tabindex", 0).attr("class", this.cellClass(0, i+1)).on("keydown", () => {arrowNavigate(d3.event, 0, i+1)}).text(() => {
 					var hAsDate = <any>(new Date(h));
 					if(hAsDate != 'Invalid Date')
 						return Utils.timeFormat(this.usesSeconds, this.usesMillis, this.chartOptions.offset)(hAsDate);
@@ -74,7 +97,7 @@ class Grid extends Component {
 				var currentRow = table.append('tr');
 				if(d.hasOwnProperty(this.rowLabelKey)){
 					var headerTd = currentRow.append('td').attr("tabindex", 0)
-								   .attr("class", "tsi-rowHeaderWrapper " + cellClass(i + 1, 0))
+								   .attr("class", "tsi-rowHeaderWrapper " + this.cellClass(i + 1, 0))
 								   .on("keydown", () => {arrowNavigate(d3.event, i + 1, 0)})
 								   .attr("aria-label", "Label for row " + (i+1) + ", has value " + d[this.rowLabelKey])
 					var headerDiv = headerTd.append('div');
@@ -89,9 +112,13 @@ class Grid extends Component {
 				}
 				headers.forEach((h, j) => {
 					var currentTd = currentRow.append('td')
-									.attr("tabindex", 0).attr("class", cellClass(i+1, j+1))
-									.on("keydown", () => {arrowNavigate(d3.event, i+1, j+1)})
-									.attr("aria-label", getAriaLabel(d.hasOwnProperty(this.rowLabelKey) ? d[this.rowLabelKey] : '', h, i+1, j+1, d.hasOwnProperty(h) ? d[h] : 'No values'));
+									.attr("tabindex", 0)
+									.attr("class", this.cellClass(i+1, j+1))
+									.on("keydown", () => {
+										arrowNavigate(d3.event, i+1, j+1);
+									})
+									.attr("aria-label", getAriaLabel(d.hasOwnProperty(this.rowLabelKey) ? 
+										d[this.rowLabelKey] : '', h, i+1, j+1, d.hasOwnProperty(h) ? d[h] : 'No values'));
 					if(d.hasOwnProperty(h)){
 						Object.keys(d[h]).forEach(mt => {
 							currentTd.append('div').text(d[h][mt]);
@@ -118,19 +145,19 @@ class Grid extends Component {
 				return;
 			switch(codeIndex){
 				case 0:
-					focus(rowIdx, colIdx - 1);
+					this.focus(rowIdx, colIdx - 1);
 					d3event.preventDefault();
 					break;
 				case 1:
-					focus(rowIdx - 1, colIdx);
+					this.focus(rowIdx - 1, colIdx);
 					d3event.preventDefault();
 					break;
 				case 2:
-					focus(rowIdx, colIdx + 1);
+					this.focus(rowIdx, colIdx + 1);
 					d3event.preventDefault();
 					break;		
 				case 3:
-					focus(rowIdx + 1, colIdx);
+					this.focus(rowIdx + 1, colIdx);
 					d3event.preventDefault();
 					break;
 				default:
@@ -147,14 +174,16 @@ class Grid extends Component {
 			text;
 		}
 		
-		var cellClass = (ridx, cidx) => {
-			return "tsi-table-" + ridx + '-' + cidx;
-		}
-		
-		var focus = (rowIdx, colIdx) => { try{(<any>targetElement.select('.' + cellClass(rowIdx, colIdx)).node()).focus();}catch(e){console.log(e)} }
 		draw();
-		var closeButton = grid.append('button').attr("class", "tsi-closeButton").html('&times').on("click", () => {if(!!options.fromChart)this.gridComponent.remove()});
-		return {focus: ()=>{focus(0,0)}};
+		var closeButton = grid.append('button')
+			.attr("class", "tsi-closeButton")
+			.html('&times')
+			.on("click", () => {
+				if(!!options.fromChart) {
+					Utils.focusOnEllipsisButton(this.renderTarget);
+					this.gridComponent.remove();
+				}
+			});
 	}
 }
 

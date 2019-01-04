@@ -90,10 +90,12 @@ class PieChart extends ChartComponent {
 
                     var ellipsisItems = [];
                     if (this.chartOptions.grid) {
-                        ellipsisItems.push(Utils.createGridEllipsisOption(this.renderTarget, this.chartOptions, this.aggregateExpressionOptions, this.chartComponentData));
+                        ellipsisItems.push(Utils.createGridEllipsisOption(this.renderTarget, this.chartOptions, 
+                            this.aggregateExpressionOptions, this.chartComponentData));
                     }
                     if (this.chartOptions.canDownload) {
-                        ellipsisItems.push(Utils.createDownloadEllipsisOption(() => this.chartComponentData.generateCSVString()));
+                        ellipsisItems.push(Utils.createDownloadEllipsisOption(() => this.chartComponentData.generateCSVString(),
+                        () => Utils.focusOnEllipsisButton(this.renderTarget)));
                     }
                     this.ellipsisMenu.render(ellipsisItems, {theme: this.chartOptions.theme});
                 }
