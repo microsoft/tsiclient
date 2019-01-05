@@ -260,7 +260,8 @@ class AvailabilityChart extends ChartComponent{
 
         if (this.timePickerContainer == null) {
             this.targetElement.html("");
-            this.timePickerContainer = this.targetElement.append("div").classed("tsi-timePickerContainer", true);
+            this.timePickerContainer = this.targetElement.append("div")
+                .classed("tsi-timePickerContainer", true);
             this.timePickerChart = this.timePickerContainer.append("div").classed("tsi-timePickerChart", true);
             var sparkLineContainer = this.targetElement.append("div").classed("tsi-sparklineContainer", true);
             this.timePickerTextContainer = this.targetElement.append("div").classed("tsi-timePickerTextContainer", true)
@@ -491,6 +492,7 @@ class AvailabilityChart extends ChartComponent{
                                                 self.sparkLineChart.chartOptions.offset = offset;
                                                 self.dateTimePickerAction(fromMillis - (Utils.getOffsetMinutes(self.chartOptions.offset, fromMillis) * 60 * 1000), 
                                                                           toMillis -  (Utils.getOffsetMinutes(self.chartOptions.offset, toMillis) * 60 * 1000));
+                                                (<any>d3.select(self.renderTarget).select(".tsi-dateTimeContainer").node()).focus();
                                             });
 
             })

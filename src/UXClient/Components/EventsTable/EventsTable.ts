@@ -68,6 +68,7 @@ class EventsTable extends ChartComponent{
         tableLeftPanel.selectAll(".tsi-eventsDownload").remove();
         var downloadButton = tableLeftPanel.append("button")
             .attr("class", "tsi-eventsDownload tsi-primaryButton")
+            .attr("aria-label", "download as CSV")
             .on("click", () => Utils.downloadCSV(this.eventsTableData.generateCSVString(true, 0), "Events"));
         downloadButton.append("div").attr("class", "tsi-downloadEventsIcon");
         downloadButton.append("div").attr("class", "tsi-downloadEventsText").html("Download as CSV");
@@ -107,6 +108,10 @@ class EventsTable extends ChartComponent{
             var selectAllColumns = this.eventsLegend.select("ul")
                 .append("li").attr("class", "tsi-selectAllColumns");
             selectAllColumns.append("button").attr("class", "tsi-columnToggleButton")
+                .attr("aria-label", () => {
+                    var selectAllState = this.getSelectAllState();
+                    return selectAllState !== "all" ? "Toggle all columns" : "Toggle all columns";
+                })
                 .on("click", () => {
                     var setAllVisible: boolean = false;
                     var selectAllState = this.getSelectAllState();
@@ -140,6 +145,7 @@ class EventsTable extends ChartComponent{
         var self = this;
         toggleableColumnLisEntered.each(function (d) {
             d3.select(this).append("button").attr("class", "tsi-columnToggleButton")
+                .attr("aria-label", (d: any) => "toggle column " + d.key)
                 .on("click", (d: any) => {
                     d.visible = !d.visible;
                     self.setLegendColumnStates();
@@ -194,8 +200,11 @@ class EventsTable extends ChartComponent{
 
     public setSelectAllState() {
         var selectAllState: string = this.getSelectAllState();
-        this.eventsLegend.select("ul").select(".tsi-selectAllColumns").select(".tsi-columnToggleCheckbox")
+        let selectAllColumns = this.eventsLegend.select("ul").select(".tsi-selectAllColumns");
+        selectAllColumns.select(".tsi-columnToggleCheckbox")
             .classed("tsi-notSelected", () => selectAllState !== "all");
+        selectAllColumns.select(".tsi-columnToggleButton")
+            .attr("aria-label", (selectAllState !== "all" ? "Toggle all columns on" : "Toggle all columns off"));
         this.eventsLegend.select("ul").select(".tsi-selectAllColumns").select(".tsi-selectAllSomeState")
             .style("visibility", () => (selectAllState == "some") ? "visible" : "hidden");
     }
@@ -207,7 +216,7 @@ class EventsTable extends ChartComponent{
     }
 
     //creates columnHeaders, returns a dictionary of widths so that buildTable can know the min width of each column
-    private buildHeaders (filteredColumnKeys) {
+    private buildHeaders (filteredColumnKeys, focusedHeader = null) {
         this.eventsTable.select(".tsi-columnHeaders").html("");
         var self = this;
         var columnHeaders = this.eventsTable.select(".tsi-columnHeaders").selectAll(".tsi-columnHeader")
@@ -226,26 +235,39 @@ class EventsTable extends ChartComponent{
                     .classed(self.eventsTableData.columns[d].type, true);
                 var id = JSON.parse(JSON.stringify(d));
                 d3.select(this).append("button").attr("class", "tsi-sortColumnButton")
-                .on("click", function (f, i) {
-                    //set sort column and direction
-                    if (self.sortColumn == d) {
-                        self.isAscending = !self.isAscending;
-                    } else {
-                        self.isAscending = false;
-                    }
-                    self.sortColumn = d;
+                    .attr("aria-label", title => "Sort by column " + title)
+                    .on("click", function (f, i) {
+                        //set sort column and direction
+                        if (self.sortColumn == d) {
+                            self.isAscending = !self.isAscending;
+                        } else {
+                            self.isAscending = false;
+                        }
+                        self.sortColumn = d;
 
-                    self.eventsTableData.sortEvents(d, self.isAscending);
-                    self.buildTable();
-                    self.eventsTable.select('.tsi-columnHeaders').node().scrollLeft = 
-                        self.eventsTable.select('.tsi-eventRowsContainer').node().scrollLeft;
-                });
+                        self.eventsTableData.sortEvents(d, self.isAscending);
+                        self.buildTable(f);
+                        self.eventsTable.select('.tsi-columnHeaders').node().scrollLeft = 
+                            self.eventsTable.select('.tsi-eventRowsContainer').node().scrollLeft;
+                        
+                    });
             });
         var widthDictionary = {};
         columnHeadersEntered.each(function (d) {
             widthDictionary[d] = d3.select(this).node().getBoundingClientRect().width;
         })
         columnHeaders.exit().remove();
+
+        if (focusedHeader !== null) {
+            let columnHeader = d3.select(columnHeadersEntered.filter((d) => {
+                return d === focusedHeader;
+            }).nodes()[0]);
+
+            if (columnHeader) {
+                (<any>columnHeader.select("button").node()).focus();
+            }
+        }
+
         return widthDictionary;
     }
 
@@ -265,9 +287,9 @@ class EventsTable extends ChartComponent{
             })
     }
 
-    private buildTable () {
+    private buildTable (currentSortedCol = null) {
         var filteredColumnKeys = this.getFilteredColumnKeys();
-        var widthDictionary = this.buildHeaders(filteredColumnKeys);
+        var widthDictionary = this.buildHeaders(filteredColumnKeys, currentSortedCol);
         this.eventsTable.select("table").html("");
         var self = this;
         // this.eventsTableData.sortEvents("Id_String", true);

@@ -6,6 +6,10 @@ body {
 	margin: 0;
 } 
 
+* {
+	box-sizing: border-box;
+}
+
 button {
 	font-family: "Segoe UI", sans-serif; 
 }

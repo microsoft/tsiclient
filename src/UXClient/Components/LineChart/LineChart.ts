@@ -165,7 +165,7 @@ class LineChart extends ChartComponent {
             .html("Click to drop marker, drag to reposition."); 
     }
 
-    private destroyMarkerInstructions() {
+    private destroyMarkerInstructions () {
         this.targetElement.selectAll(".tsi-markerInstructions").remove();
     }   
     
@@ -494,6 +494,7 @@ class LineChart extends ChartComponent {
         let self = this;
         timeLabel.html(text)
             .append("button")
+            .attr("aria-label", "Delete marker at " + text) 
             .classed("tsi-closeButton", true)
             .on("click", function () {
                 d3.select(d3.select(this).node().parentNode.parentNode).remove();
@@ -577,6 +578,7 @@ class LineChart extends ChartComponent {
         this.setIsDroppingScooter(!this.isDroppingScooter); 
         if (!this.isDroppingScooter) {
             this.activeScooter.remove();
+            this.destroyMarkerInstructions();
             return;
         }
 
@@ -626,6 +628,7 @@ class LineChart extends ChartComponent {
             );
             
         this.activeScooter.style("pointer-events", "none");
+        Utils.focusOnEllipsisButton(this.renderTarget);
     }
 
     private voronoiMousemove (mouseEvent)  { 
@@ -1143,6 +1146,15 @@ class LineChart extends ChartComponent {
         return Math.max(0, this.width - this.chartMargins.left - this.chartMargins.right - (this.chartOptions.legend == "shown" ? this.CONTROLSWIDTH + 16 : 0));
     }
 
+    private nextStackedState = () => {
+        if (this.yAxisState == "stacked") 
+            return "shared";
+        else if (this.yAxisState == "shared")
+            return "overlap";
+        else  
+            return "stacked";
+    };
+
     public render(data: any, options: any, aggregateExpressionOptions: any) {
         this.data = data;
         this.hasBrush = options.brushMoveAction || options.brushMoveEndAction || options.brushContextMenuActions;
@@ -1277,14 +1289,10 @@ class LineChart extends ChartComponent {
                 this.stackedButton = this.chartControlsPanel.append("button")
                     .style("left", "60px")
                     .attr("class", "tsi-stackedButton")
-                    // .attr("tabindex", 0)
+                    .attr("aria-label", () => "set axis state to " + this.nextStackedState())
                     .on("click", function () {
-                        if (self.yAxisState == "stacked") 
-                            self.yAxisState = "shared";
-                        else if (self.yAxisState == "shared")
-                            self.yAxisState = "overlap";
-                        else  
-                            self.yAxisState = "stacked";
+                        d3.select(this).attr("aria-label", () => "set axis state to " + self.nextStackedState());
+                        self.yAxisState = self.nextStackedState();
                         self.draw();
                         setTimeout (() => (d3.select(this).node() as any).focus(), 200);
                     });
