@@ -139,11 +139,12 @@ class Legend extends Component {
             var noSplitBys: boolean = splitByLabelData.length == 1 && splitByLabelData[0] == "";
             var seriesNameLabel = d3.select(this).selectAll(".tsi-seriesNameLabel").data([aggKey]);
             d3.select(this).classed('tsi-nsb', noSplitBys);
-            var enteredSeriesNameLabel = seriesNameLabel.enter().append("div")
+            var enteredSeriesNameLabel = seriesNameLabel.enter().append("button")
             .merge(seriesNameLabel)
             .attr("class", (agg: string, i) => {
                 return "tsi-seriesNameLabel" + (self.chartComponentData.displayState[agg].visible ? " shown" : "");
-            })                    
+            }) 
+            .attr("aria-label", (agg: string) => "toggle visibility for " + agg)   
             .on("click", function (d: string, i: number) {
                 var newState = !self.chartComponentData.displayState[d].visible;
                 self.chartComponentData.displayState[d].visible = newState;
@@ -253,6 +254,7 @@ class Legend extends Component {
                     if (d3.select(this).select('.tsi-eyeIcon').empty()) {
                         d3.select(this).append("button")
                             .attr("class", "tsi-eyeIcon")
+                            .attr('aria-label', "toggle visibility for " + splitBy)
                             .on("click", function (data: any, i: number) {
                                 d3.event.stopPropagation();
                                 toggleSplitByVisible(aggKey, splitBy);
@@ -271,6 +273,7 @@ class Legend extends Component {
                     
                     if (d3.select(this).select('.tsi-seriesTypeSelection').empty()) {
                         d3.select(this).append("select")
+                            .attr('aria-label', "Series type selection for " + splitBy)
                             .attr('class', 'tsi-seriesTypeSelection')
                             .on("change", function (data: any) {
                                 var seriesType: any = d3.select(this).property("value");

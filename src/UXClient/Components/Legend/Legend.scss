@@ -16,6 +16,8 @@
 
 	.tsi-seriesLabel{
 		.tsi-seriesNameLabel, .tsi-splitByContainer .tsi-splitByLabel {
+			fill: $gray1;
+			color: $gray1;
 			select {
 				color: #999;
 				background-color: transparent;
@@ -26,6 +28,8 @@
 			}			
 		}
 		.tsi-seriesNameLabel {
+			border: none;
+			background-color: transparent;
 			&.shown {
 				background-color: $gray3;
 			}
@@ -273,6 +277,7 @@
 			cursor: pointer;
 			padding: 0 4px;
 			position: relative;
+			width: 100%;
 			select{
 				height: 17px;
 				width: 50px;
