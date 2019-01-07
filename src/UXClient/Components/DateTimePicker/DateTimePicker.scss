@@ -7,6 +7,7 @@
     $gray3: nth($grays, 3); // element
     $gray4: nth($grays, 4); // background
     $gray5: nth($grays, 5);
+    $gray6: nth($grays, 6);
 
     background-color: $gray3;
     color: $gray1;
@@ -20,12 +21,12 @@
             color: $gray1;
             background-color: $gray3;    
             &:focus {
-                border:1px solid green;
+                border:1px solid $gray6;
             }
         } 
 
         .pika-prev, .pika-next {
-            color: green;
+            color: $gray6;
             background-color: white;
         }
 
