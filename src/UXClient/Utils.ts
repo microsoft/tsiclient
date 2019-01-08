@@ -227,30 +227,6 @@ class Utils {
         return colors;
     }
 
-    static createGridButton(chartControlsPanel: any, component: ChartComponent, usesSeconds: boolean = false, usesMillis: boolean = false, chartMargins: any) {
-        var showGrid = () => {
-            component.chartOptions.fromChart = true; 
-            var gridComponent: Grid = new Grid(component.renderTarget);
-            gridComponent.usesSeconds = component.chartComponentData.usesSeconds;
-            gridComponent.usesMillis = component.chartComponentData.usesMillis; 
-            var grid = gridComponent.renderFromAggregates(component.chartComponentData.data, component.chartOptions, component.aggregateExpressionOptions);
-            grid.focus();
-        }
-
-        var gridButton = chartControlsPanel.append("div")
-            .style("right", chartMargins.right + "px")
-            .attr("class", "tsi-gridButton")
-            .attr("tabindex", 0)
-            .on("click", showGrid)
-            .on("keydown", () => {
-                if(d3.event.code == 'Enter')
-                    showGrid();
-            })
-            .attr('title', 'Show a grid of values');
-            
-        return gridButton; 
-    }
-
     static createSplitByColors(displayState: any, aggKey: string, ignoreIsOnlyAgg: boolean = false) {
         if (Object.keys(displayState[aggKey]["splitBys"]).length == 1) 
             return [displayState[aggKey].color];
@@ -335,21 +311,24 @@ class Utils {
         var link = document.createElement("a");
         link.setAttribute("href", blobURL);
         link.setAttribute("download", csvName + ".csv");
+        link.setAttribute("tabindex", "0");
         link.innerHTML= "";
         document.body.appendChild(link);
         link.click();
     }  
 
-    static showGrid(renderTarget: any, chartOptions: ChartOptions, aggregateExpressionOptions: any, chartComponentData: ChartComponentData) {
+    static showGrid(renderTarget: any, chartOptions: ChartOptions, aggregateExpressionOptions: any, 
+            chartComponentData: ChartComponentData) {
         chartOptions.fromChart = true; 
         var gridComponent: Grid= new Grid(renderTarget);
         gridComponent.usesSeconds = chartComponentData.usesSeconds;
         gridComponent.usesMillis = chartComponentData.usesMillis; 
         var grid = gridComponent.renderFromAggregates(chartComponentData.data, chartOptions, aggregateExpressionOptions);
-        grid.focus();
+        gridComponent.focus(0,0);
     }
 
-    static createGridEllipsisOption (renderTarget: any, chartOptions: ChartOptions, aggregateExpressionOptions: any, chartComponentData: ChartComponentData) {
+    static createGridEllipsisOption (renderTarget: any, chartOptions: ChartOptions, aggregateExpressionOptions: any, 
+                                     chartComponentData: ChartComponentData) {
         return {
             iconClass: "grid",
             label: "Display Grid",
@@ -361,11 +340,21 @@ class Utils {
         };
     }
 
-    static createDownloadEllipsisOption (csvStringGenerator) {
+    static focusOnEllipsisButton (renderTarget) {
+        let ellipsisContainer = d3.select(renderTarget).select(".tsi-ellipsisContainerDiv");
+        if (!ellipsisContainer.empty()) {
+            (<any>ellipsisContainer.select(".tsi-ellipsisButton").node()).focus();
+        }
+    }
+
+    static createDownloadEllipsisOption (csvStringGenerator, action = () => {}) {
         return {
             iconClass: "download",
             label: "Download as CSV",
-            action:() =>  Utils.downloadCSV(csvStringGenerator()),
+            action:() => {
+                Utils.downloadCSV(csvStringGenerator());
+                action();  
+            },
             description: ""
         };
     }

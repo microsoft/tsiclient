@@ -188,23 +188,24 @@ class DateTimePicker extends ChartComponent{
                 if (this.isSettingStartTime)
                     return; 
                 var self = this;
-                this.calendar.select(".pika-single").selectAll(".pika-day").on("mouseover", function (d) { 
-                    var date = new Date( Number(d3.select(this).attr("data-pika-year")),
-                                         Number(d3.select(this).attr("data-pika-month")), 
-                                         Number(d3.select(this).attr("data-pika-day")));
-                    if (!self.isSettingStartTime) {
-                        if (date.valueOf() < self.anchorDate.valueOf() && self.startRange.valueOf() != date.valueOf()) {
-                            self.setTimeRange(date, false);
-                            self.calendarPicker.draw();
-                            return;
+                this.calendar.select(".pika-single").selectAll(".pika-day")
+                    .on("mouseover", function (d) { 
+                        var date = new Date( Number(d3.select(this).attr("data-pika-year")),
+                                            Number(d3.select(this).attr("data-pika-month")), 
+                                            Number(d3.select(this).attr("data-pika-day")));
+                        if (!self.isSettingStartTime) {
+                            if (date.valueOf() < self.anchorDate.valueOf() && self.startRange.valueOf() != date.valueOf()) {
+                                self.setTimeRange(date, false);
+                                self.calendarPicker.draw();
+                                return;
+                            }
+                            if (date.valueOf() >= self.anchorDate.valueOf() && (self.endRange == undefined || self.endRange.valueOf() != date.valueOf())) {
+                                self.setTimeRange(date, false);
+                                self.calendarPicker.draw();
+                                return;
+                            }
                         }
-                        if (date.valueOf() >= self.anchorDate.valueOf() && (self.endRange == undefined || self.endRange.valueOf() != date.valueOf())) {
-                            self.setTimeRange(date, false);
-                            self.calendarPicker.draw();
-                            return;
-                        }
-                    }
-                });
+                    });
             },
             minDate: this.offsetFromUTC(new Date(this.minMillis)),
             maxDate: this.offsetFromUTC(new Date(this.maxMillis)),

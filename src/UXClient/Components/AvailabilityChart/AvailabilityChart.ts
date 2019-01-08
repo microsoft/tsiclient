@@ -260,7 +260,8 @@ class AvailabilityChart extends ChartComponent{
 
         if (this.timePickerContainer == null) {
             this.targetElement.html("");
-            this.timePickerContainer = this.targetElement.append("div").classed("tsi-timePickerContainer", true);
+            this.timePickerContainer = this.targetElement.append("div")
+                .classed("tsi-timePickerContainer", true);
             this.timePickerChart = this.timePickerContainer.append("div").classed("tsi-timePickerChart", true);
             var sparkLineContainer = this.targetElement.append("div").classed("tsi-sparklineContainer", true);
             this.timePickerTextContainer = this.targetElement.append("div").classed("tsi-timePickerTextContainer", true)
@@ -288,14 +289,16 @@ class AvailabilityChart extends ChartComponent{
 
             var self = this;
             var equalToEventTarget = (function ()  {
-                return (this == d3.event.target) || (this == self.timeContainer.node());
+                return (this == d3.event.target);
             });
 
             var dateTimeTextChildren = this.targetElement.select(".tsi-dateTimeContainer").selectAll("*");
             var pickerContainerChildren;
             d3.select("html").on("click." + Utils.guid(), () => {
                 pickerContainerChildren = this.targetElement.select(".tsi-dateTimePickerContainer").selectAll("*");
-                var outside = dateTimeTextChildren.filter(equalToEventTarget).empty();
+                var outside = dateTimeTextChildren.filter(equalToEventTarget).empty() 
+                    && this.targetElement.selectAll(".tsi-dateTimeContainer").filter(equalToEventTarget).empty();
+                this.targetElement.selectAll(".tsi-dateTimeContainer").filter(equalToEventTarget).empty()
                 var inClickTarget = pickerContainerChildren.filter(equalToEventTarget).empty();
                 if (outside && inClickTarget) {
                     this.dateTimePickerContainer.style("display", "none");
@@ -474,7 +477,7 @@ class AvailabilityChart extends ChartComponent{
 
     private buildFromAndToContainer () {
         var self = this;
-        this.timeContainer = this.timePickerTextContainer.append("div")
+        this.timeContainer = this.timePickerTextContainer.append("button")
             .classed('tsi-dateTimeContainer', true)
             .on("click", function () {
                 self.dateTimePickerContainer.style("display", "block");
@@ -489,6 +492,7 @@ class AvailabilityChart extends ChartComponent{
                                                 self.sparkLineChart.chartOptions.offset = offset;
                                                 self.dateTimePickerAction(fromMillis - (Utils.getOffsetMinutes(self.chartOptions.offset, fromMillis) * 60 * 1000), 
                                                                           toMillis -  (Utils.getOffsetMinutes(self.chartOptions.offset, toMillis) * 60 * 1000));
+                                                (<any>d3.select(self.renderTarget).select(".tsi-dateTimeContainer").node()).focus();
                                             });
 
             })

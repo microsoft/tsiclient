@@ -96,6 +96,7 @@ class Slider extends Component{
             this.sliderTextDiv = targetElement.append("div")
                 .attr("class", "tsi-sliderLabel")
                 .attr("tabindex", 0)
+                .attr("aria-label", selectedLabel)
                 .on("keydown", () => {
                     if (d3.event.keyCode == 37) {
                         this.moveLeft();
@@ -145,10 +146,17 @@ class Slider extends Component{
         this.setStateFromLabel(); 
     }
     
+    private setSliderTextDivLabel = () => {
+        this.sliderTextDiv.attr("aria-label", () => {
+            return "Currently displayed time is " + this.selectedLabel + ". Left arrow to go back in time, right arrow to go forward"; 
+        });
+    }
+
     //set the position of the slider and text, and set the text, given a label
     private setStateFromLabel () {
         this.sliderSVG.select(".handle").attr("cx", this.getXPositionOfLabel(this.selectedLabel));
         this.sliderTextDiv.text(this.selectedLabel);
+        this.setSliderTextDivLabel();
         //adjust until center lines up with 
         var centerDivOffset = this.sliderTextDiv.node().getBoundingClientRect().width / 2;
         this.sliderTextDiv.style("right", (this.width - (this.margins.right + this.getXPositionOfLabel(this.selectedLabel))) - centerDivOffset + "px");
