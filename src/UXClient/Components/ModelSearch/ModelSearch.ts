@@ -133,7 +133,6 @@ class ModelSearch extends Component{
                                                     let results = self.instanceResults.selectAll('.tsi-modelResultWrapper')
                                                     results.nodes()[self.currentResultIndex].focus();
                                                 }
-                                                console.log(cmaGroupIdx);
                                                 if(evt.keyCode === 40 && (localActionIndex + 1 < totalActionCount)){ // down
                                                     self.contextMenu.node().children[localActionIndex + 1 + cmaGroupIdx + (kIdx === (kArray.length - 1) ? 1 : 0)].focus();
                                                 }
@@ -229,11 +228,12 @@ class ModelSearch extends Component{
     private getInstanceHtml(i) {
         return `<div class="tsi-modelResult">
                     <div class="tsi-modelPK">
-                        ${this.stripHits(i.highlights.timeSeriesIds.join(' '))}
+                        ${i.highlights.name ? this.stripHits(i.highlights.name) : this.stripHits(i.highlights.timeSeriesIds.join(' '))}
                     </div>
                     <div class="tsi-modelHighlights">
                         ${this.stripHits(i.highlights.description && i.highlights.description.length ? i.highlights.description : 'No description')}
                         <br/><table>
+                        ${i.highlights.name ? ('<tr><td>Time Series ID</td><td>' + this.stripHits(i.highlights.timeSeriesIds.join(' ')) + '</td></tr>') : ''}                        
                         ${i.highlights.instanceFieldNames.map((ifn, idx) => {
                             var val = i.highlights.instanceFieldValues[idx];
                             return val.length === 0 ? '' :  '<tr><td>' + this.stripHits(ifn) + '</td><td>' + this.stripHits(i.highlights.instanceFieldValues[idx]) + '</tr>';
