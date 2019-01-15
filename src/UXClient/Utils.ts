@@ -387,6 +387,11 @@ class Utils {
             return stringToEscape;
         }
     };
+
+    static getControlPanelWidth (renderTarget, legendWidth, isLegendShown) {
+        return Math.max(1, (<any>d3.select(renderTarget).node()).clientWidth -
+                (isLegendShown ? legendWidth : 0));
+    };
 }
 
 export {Utils};

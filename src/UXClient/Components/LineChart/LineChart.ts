@@ -1618,6 +1618,11 @@ class LineChart extends ChartComponent {
                     });
                 }
 
+                if (!this.chartOptions.hideChartControlPanel && this.chartControlsPanel !== null) {
+                    let controlPanelWidth = Utils.getControlPanelWidth(this.renderTarget, this.CONTROLSWIDTH, this.chartOptions.legend === 'shown');
+                    this.chartControlsPanel.style("width", controlPanelWidth + "px");
+                }
+
                 if (Object.keys(this.chartComponentData.timeMap).length == 0) {
                     d3.select(this.renderTarget).selectAll(".tsi-scooterContainer").style("display", "none");
                 } else {

@@ -302,8 +302,9 @@ class ChartComponentData {
         if (to)
             this.toMillis = Math.max(to.valueOf(), this.toMillis);
         if (from && to && bucketSize) {
-            var firstBucketMillis = new Date(this.findFirstBucket(agg, from.valueOf(), bucketSize)).valueOf();
-            if (firstBucketMillis != null) {
+            let firstBucket = this.findFirstBucket(agg, from.valueOf(), bucketSize);
+            if (firstBucket !== null) {
+                let firstBucketMillis = firstBucket.valueOf();
                 for (var currTime = new Date(firstBucketMillis); (currTime.valueOf() < to.valueOf()); currTime = new Date(currTime.valueOf() + bucketSize)) {
                     var timeValueObject: any = createTimeValueObject();
                     timeValueObject["dateTime"] = currTime;

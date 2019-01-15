@@ -645,6 +645,11 @@ class GroupedBarChart extends ChartComponent {
                     slider.remove();
                     d3.select(this.renderTarget).select('.tsi-sliderWrapper').classed('tsi-hidden', true);
                 }
+
+                if (!this.chartOptions.hideChartControlPanel && this.chartControlsPanel !== null) {
+                    let controlPanelWidth = Utils.getControlPanelWidth(this.renderTarget, this.CONTROLSWIDTH, this.chartOptions.legend === 'shown');
+                    this.chartControlsPanel.style("width", controlPanelWidth + "px");
+                }
             }
 
             this.legendObject = new Legend(draw, this.renderTarget, this.CONTROLSWIDTH);
