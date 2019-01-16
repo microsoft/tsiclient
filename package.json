@@ -9,7 +9,7 @@
     "scripts": {
         "build": "webpack",
         "watch": "webpack --watch",
-        "start:dev": "webpack-dev-server --mode development --public insights-local.timeseries.azure.com:443 --host 127.0.0.1 --port 443 --https"
+        "start:dev": "webpack-dev-server --contentBase pages/samples --mode development --public insights-local.timeseries.azure.com:443 --host 127.0.0.1 --port 443 --https"
     },
     "devDependencies": {
         "css-loader": "^0.28.11",
@@ -35,7 +35,6 @@
         "d3-interpolate-path": "^1.1.1",
         "moment-timezone": "^0.5.21",
         "npm": "^6.4.0",
-        "promise-polyfill": "^7.1.0",
-        "webpack": "^3.11.0"
+        "promise-polyfill": "^7.1.0"
     }
 }
