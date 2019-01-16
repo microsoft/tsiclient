@@ -6,11 +6,14 @@
     $gray2: nth($grays, 2); // hover
     $gray3: nth($grays, 3); // element
     $gray4: nth($grays, 4); // background
+    $gray5: nth($grays, 5); // header background
+    $gray7: nth($grays, 7); // border color
 
     background-color: $gray3;
     .tsi-eventsTable {
         background-color: $gray3;
         color: $gray1;
+        border-left: 1px solid $gray7;
         .tsi-eventRowsContainer {
             .tsi-eventRows {
                 tr {
@@ -18,16 +21,16 @@
                         background-color: $gray2;
                     } 
                     td {
-                        border: 1px solid $gray1;
+                        border: 1px solid $gray7;
                     }
                 }
             }
         }
         .tsi-columnHeaders {
             .tsi-columnHeader {
-                border-right: 1px solid $gray1;
-                border-bottom: 1px solid $gray1;
-                background-color: $gray4;
+                border-right: 1px solid $gray7;
+                border-bottom: 1px solid $gray7;
+                background-color: $gray5;
                 &:hover{
                     background-color: $gray2;
                 }
@@ -37,7 +40,6 @@
 
     .tsi-tableLeftPanel {
         .tsi-tableLegend {
-            border-right-color: $gray1;
             background-color: $gray3;
             .tsi-selectAllColumns {
                 .tsi-selectAllSomeState {
@@ -52,6 +54,16 @@
                     background-color: $gray2; 
                 }
             }
+            .tsi-columnToggleCheckbox{
+                &.tsi-notSelected{
+                    background: $gray3;
+                    border: 1px solid rgba($gray1, .2);
+                }
+            }
+
+            .tsi-eventsDownload {
+                background-color: $gray4;
+            }
         }
     }
 }
@@ -63,16 +75,35 @@
         $grays: grays('dark');
         @include chartColors($grays);
         @include tableColors($grays);
-        .tsi-eventsDownload {
-            background: url('../../Icons/Download_Icon_Dark.svg') 16px / 16px no-repeat;
+        .tsi-downloadEventsIcon {
+            background-image: url('../../Icons/Download_Icon_Dark.svg');
         }
+
+        .tsi-columnSortIcon {
+            &.down {
+                background-image: url('../../Icons/SortDown_Dark.svg');
+            }
+            &.up {
+                background-image: url('../../Icons/SortUp_Dark.svg');            
+            }
+        }
+
 	}
 	&.tsi-light{
         $grays: grays('light');
         @include chartColors($grays);
         @include tableColors($grays);
-        .tsi-eventsDownload {
-            background: url('../../Icons/Download_Icon_Light.svg') 16px / 16px no-repeat;;
+        .tsi-downloadEventsIcon {
+            background-image: url('../../Icons/Download_Icon_Light.svg');
+        }
+
+        .tsi-columnSortIcon {
+            &.down {
+                background-image: url('../../Icons/SortDown_Light.svg');
+            }
+            &.up {
+                background-image: url('../../Icons/SortUp_Light.svg');            
+            }
         }
     }
 
@@ -93,6 +124,11 @@
             background-image: url('../../Icons/boolean.svg');
         }
     }
+
+    .tsi-columnSortIcon {
+        width: 16px;
+        height: 16px;
+    }
     
     .tsi-eventsTable {
         position: absolute;
@@ -101,7 +137,7 @@
         width: calc(100% - 245px);
         height: 100%;
         font-family: consolas;
-        font-size: 12px;
+        font-size: 13px;
 
         .tsi-columnHeaders {
             overflow-x: hidden;
@@ -115,7 +151,7 @@
             .tsi-columnHeader {
                 display: inline-block;
                 top: 0px;
-                height: 20px;
+                height: 24px;
                 padding-left: 6px;
                 padding-right: 12px;
                 position: relative;
@@ -126,19 +162,16 @@
                 .tsi-columnHeaderName {
                     display: inline-block;
                     font-weight: bold;
+                    margin-right: 52px;
+                }
+                .tsi-columnSortIcon {
+                    right: 28px;
+                    position: absolute;
                 }
                 .tsi-columnTypeIcon {
-                    display: inline-flex;
-                    vertical-align: bottom;
-                    margin-left: 6px;
-                }
-                .tsi-sortDirection {
-                    display: inline-block;
-                    margin-left: 6px;
-                    width: 10px;
-                    height: 10px;
-                    right: 5px;
                     position: absolute;
+                    vertical-align: bottom;
+                    right: 8px;
                 }
                 .tsi-sortColumnButton {
                     background-color: transparent;
@@ -167,14 +200,25 @@
                 position:absolute;
                 top: 0px;
                 left: 0px;
+                height: 24px;
                 tr {
-                    height: 20px;
                     td {
                         min-width: 60px;
-                        padding-left: 5px;
-                        padding-right: 5px;
                     }
                 }
+            }
+        }
+
+        .tsi-eventRowsContainer .tsi-eventRow, .tsi-columnHeaders {
+            .tsi-eventCell, .tsi-columnHeader {
+                height: 24px;
+                padding-left: 8px;
+                padding-right: 8px;
+            }
+            .tsi-columnHeader {
+                display: inline-flex;
+                align-items: center;
+                
             }
         }
     }
@@ -184,12 +228,11 @@
         left: 0px;
         top: 0px;
         width: 244px;
-        border-right-width: 1px;
-        border-right-style: solid;
         height: 100%;
 
         .tsi-eventsDownload {
-            margin: 0 auto;
+            border: none;
+            height: 32px;
             display: block;
             bottom: 16px;
             background-position-y: 8px;
@@ -198,6 +241,22 @@
             text-align: center;
             padding: 8px 12px;
             cursor: pointer;
+
+            align-items: center;
+            display: flex;
+            justify-items: center;
+            justify-content: center;
+            margin: 20px;
+
+            .tsi-downloadEventsIcon {
+                height: 16px;
+                width: 16px;
+                display: inline-flex;
+            }
+            .tsi-downloadEventsText {
+                display: inline-flex;
+                margin-left: 8px;
+            }
         }
 
         .tsi-tableLegend {
@@ -206,7 +265,9 @@
             ul {
                 padding: 0;
                 margin: 8px;
+                margin-left: 16px;
             }
+            font-size: 14px;
     
             .tsi-selectAllColumns {
                 .tsi-selectAllText {
@@ -228,10 +289,10 @@
                 .tsi-selectAllSomeState {
                     pointer-events: none;
                     position: absolute;
-                    width: 9.5px;
-                    height: 9.5px;
-                    left: 7px;
-                    top: 7px;
+                    width: 8px;
+                    height: 8px;
+                    left: 8px;
+                    top: 8px;
                 }
             }
     
@@ -242,6 +303,8 @@
                 position: relative;
                 overflow-y: hidden;
                 white-space: nowrap;
+                display: flex;
+                align-items: center;
     
                 .tsi-columnToggleName {
                     left: 20px;
@@ -265,15 +328,12 @@
                     width: 16px;
                     height: 16px;
                     left: 4px;
-                    bottom: 1px;
                     position: relative;
-                    background-size: 16px 160px;
                     background-image: url('../../Icons/checkboxes.svg');
                 }
     
                 .tsi-columnTypeIcon {
                     display: inline-block;
-                    bottom: 2px;
                     position: relative;
                     left: 12px;
                 }
@@ -306,6 +366,10 @@
                     position: absolute;
                     border: none;
                 }
+            }
+            .tsi-selectAllColumns {
+                font-weight: bold;
+                text-transform: capitalize;
             }
         }
     }

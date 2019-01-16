@@ -50,18 +50,21 @@ class ModelSearch extends Component{
 
             // blow results away if no text
             if(st.length === 0){
+                searchText = st;
                 self.instanceResults.html('');
                 self.currentResultIndex= -1;
                 (hierarchyElement.node() as any).style.display = 'block';
                 (showMore.node() as any).style.display = 'none';
-                return;
+                noResults.style('display', 'none');
             }
-            (hierarchyElement.node() as any).style.display = 'none';
-            self.instanceResults.html('');
-            self.currentResultIndex = -1;
-            noResults.style('display', 'none');
-            searchInstances(st);
-            searchText = st;
+            else {
+                (hierarchyElement.node() as any).style.display = 'none';
+                self.instanceResults.html('');
+                self.currentResultIndex = -1;
+                noResults.style('display', 'none');
+                searchInstances(st);
+                searchText = st;
+            } 
         }
 
         let modelAutocomplete = new ModelAutocomplete(inputWrapper.node());
@@ -72,7 +75,7 @@ class ModelSearch extends Component{
             .attr("class", "tsi-modelSearchResults").on('scroll', function(){
                 self.closeContextMenu();
                 let that = this as any;
-                if(that.scrollTop + that.clientHeight + 150 > (self.instanceResults.node() as any).clientHeight){
+                if(that.scrollTop + that.clientHeight + 150 > (self.instanceResults.node() as any).clientHeight && searchText.length !== 0){
                     searchInstances(searchText, continuationToken);
                 }
             })
@@ -101,6 +104,9 @@ class ModelSearch extends Component{
                         if(r.instances.length == 0){
                             noResults.style('display', 'block');
                         }
+                        else{
+                            noResults.style('display', 'none');
+                        }
                         r.instances.forEach(i => {
                             let handleClick = (elt, wrapperMousePos, eltMousePos, fromKeyboard = false) => {
                                 self.closeContextMenu();
@@ -109,25 +115,35 @@ class ModelSearch extends Component{
                                     i.type = self.types.filter(t => t.name === i.highlights.type.split('<hit>').join('').split('</hit>').join(''))[0];
                                     let contextMenuActions = self.chartOptions.onInstanceClick(i);
                                     self.contextMenu = self.wrapper.append('div');
-                                    Object.keys(contextMenuActions).forEach((k, cmaIdx) => {
-                                        self.contextMenu.append('div').html(k).on('click', contextMenuActions[k]).on('keydown', function(){
-                                            let evt = d3.event;
-                                            if(evt.keyCode === 13){
-                                                this.click();
-                                            }
-                                            if(evt.keyCode === 13 || evt.keyCode === 37){
-                                                self.closeContextMenu();
-                                                let results = self.instanceResults.selectAll('.tsi-modelResultWrapper')
-                                                results.nodes()[self.currentResultIndex].focus();
-                                            }
-                                            if(evt.keyCode === 40 && cmaIdx < self.contextMenu.node().children.length){ // down
-                                                self.contextMenu.node().children[cmaIdx + 1].focus();
-                                            }
-                                            if(evt.keyCode === 38 && cmaIdx > 0){ // up
-                                                self.contextMenu.node().children[cmaIdx - 1].focus();
-                                            }
-                                        }).attr('tabindex', '0');
-                                    });
+                                    if(!Array.isArray(contextMenuActions)){
+                                        contextMenuActions = [contextMenuActions];
+                                    }
+                                    let totalActionCount = contextMenuActions.map(cma => Object.keys(cma).length).reduce((p,c) => p + c, 0);
+                                    let currentActionIndex = 0
+                                    contextMenuActions.forEach((cma, cmaGroupIdx) => {
+                                        Object.keys(cma).forEach((k, kIdx, kArray) => {
+                                            let localActionIndex = currentActionIndex;
+                                            self.contextMenu.append('div').html(k).on('click', cma[k]).on('keydown', function(){
+                                                let evt = d3.event;
+                                                if(evt.keyCode === 13){
+                                                    this.click();
+                                                }
+                                                if(evt.keyCode === 13 || evt.keyCode === 37){
+                                                    self.closeContextMenu();
+                                                    let results = self.instanceResults.selectAll('.tsi-modelResultWrapper')
+                                                    results.nodes()[self.currentResultIndex].focus();
+                                                }
+                                                if(evt.keyCode === 40 && (localActionIndex + 1 < totalActionCount)){ // down
+                                                    self.contextMenu.node().children[localActionIndex + 1 + cmaGroupIdx + (kIdx === (kArray.length - 1) ? 1 : 0)].focus();
+                                                }
+                                                if(evt.keyCode === 38 && localActionIndex > 0){ // up
+                                                    self.contextMenu.node().children[localActionIndex - 1 + cmaGroupIdx - (kIdx === 0 ? 1 : 0)].focus();
+                                                }
+                                            }).attr('tabindex', '0');
+                                            currentActionIndex++;
+                                        });
+                                        self.contextMenu.append('div').classed('tsi-break', true);
+                                    })
                                     self.contextMenu.attr('style', () => `top: ${wrapperMousePos - eltMousePos}px`);
                                     self.contextMenu.classed('tsi-modelSearchContextMenu', true);
                                     d3.select(elt).classed('tsi-resultSelected', true);
@@ -205,22 +221,26 @@ class ModelSearch extends Component{
         d3.selectAll('.tsi-resultSelected').classed('tsi-resultSelected', false);
     }
 
+    private stripHits = (str) => {
+        return str.split('<hit>').map(h => h.split('</hit>').map(h2 => Utils.strip(h2)).join('</hit>')).join('<hit>')
+    }
+
     private getInstanceHtml(i) {
         return `<div class="tsi-modelResult">
                     <div class="tsi-modelPK">
-                        ${Utils.strip(i.timeSeriesId.join(' '))}
+                        ${i.highlights.name ? this.stripHits(i.highlights.name) : this.stripHits(i.highlights.timeSeriesIds.join(' '))}
                     </div>
                     <div class="tsi-modelHighlights">
-                        ${Object.keys(i.highlights).map(k => {
-                            let highlight = i.highlights[k];
-                            if(typeof(highlight) === 'object'){
-                                highlight = highlight.join(' ');
-                            }
-                            let highlighted = highlight.split('<hit>').map(h => h.split('</hit>').map(h2 => Utils.strip(h2)).join('</hit>')).join('<hit>');
-                            return Utils.strip(k) + ': ' + highlighted;
-                        }).join('<br/>')}
+                        ${this.stripHits(i.highlights.description && i.highlights.description.length ? i.highlights.description : 'No description')}
+                        <br/><table>
+                        ${i.highlights.name ? ('<tr><td>Time Series ID</td><td>' + this.stripHits(i.highlights.timeSeriesIds.join(' ')) + '</td></tr>') : ''}                        
+                        ${i.highlights.instanceFieldNames.map((ifn, idx) => {
+                            var val = i.highlights.instanceFieldValues[idx];
+                            return val.length === 0 ? '' :  '<tr><td>' + this.stripHits(ifn) + '</td><td>' + this.stripHits(i.highlights.instanceFieldValues[idx]) + '</tr>';
+                        }).join('')}
+                        </table>
                     </div>
-                </div>`
+                </div>`;
     }
 }
 

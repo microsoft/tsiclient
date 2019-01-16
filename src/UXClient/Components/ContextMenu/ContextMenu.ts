@@ -39,9 +39,7 @@ class ContextMenu extends Component {
         });
 
         super.themify(this.contextMenuElement, options.theme);
-        this.contextMenuElement.style("display", "block")
-            .style("left", mousePosition[0] + 'px')
-            .style("top", mousePosition[1] + 'px');
+        this.contextMenuElement.style("display", "block");
         var actionElements = this.contextMenuElement.selectAll(".tsi-actionElement")
             .data(this.actions);
         var actionElementsEntered = actionElements.enter()
@@ -59,7 +57,27 @@ class ContextMenu extends Component {
                     d.action(ae, splitBy, timestamp);
                 }
             });
-        
+
+        var left = mousePosition[0];
+        var contextMenuWidth = this.contextMenuElement.node().getBoundingClientRect().width; 
+        var renderTargetWidth = this.renderTarget.getBoundingClientRect().width;
+        var right = contextMenuWidth + mousePosition[0];
+        if (right > renderTargetWidth) {
+            left = renderTargetWidth - contextMenuWidth;
+        }
+
+        var top = mousePosition[1];
+        var contextMenuHeight = this.contextMenuElement.node().getBoundingClientRect().height; 
+        var renderTargetHeight = this.renderTarget.getBoundingClientRect().height;
+        var bottom = contextMenuHeight + mousePosition[1];
+        if (bottom > renderTargetHeight) {
+            top = renderTargetHeight - contextMenuHeight;
+        }
+
+        this.contextMenuElement
+            .style('left', left + 'px')
+            .style('top', top + 'px');
+
         actionElementsEntered.exit().remove();
     }
     public hide () {

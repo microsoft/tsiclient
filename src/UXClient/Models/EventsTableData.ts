@@ -96,11 +96,7 @@ class EventsTableData {
         var endLine = (s: string): string => {
             return s.slice(0, s.length - 1) + "\n";
         }
-
-        var columnKeys = ["timestamp_DateTime"].concat(Object.keys(this.columns).filter((a) => {
-            return a != "timestamp_DateTime";
-        }));
-
+        let columnKeys = Object.keys(this.columns);
         var csvString = endLine(columnKeys.reduce((headerString, columnKey) => {
             return headerString + this.columns[columnKey].name + ",";
         }, ""));

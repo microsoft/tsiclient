@@ -1,7 +1,7 @@
 import * as d3 from 'd3';
-import * as Pikaday from 'pikaday';
+import * as Pikaday from '../../../packages/pikaday/pikaday';
 import './DateTimePicker.scss';
-import 'pikaday/css/pikaday.css';
+import '../../../packages/pikaday/css/pikaday.css';
 import { ChartComponent } from '../../Interfaces/ChartComponent';
 import { TimezonePicker } from '../TimezonePicker/TimezonePicker';
 import { entries } from 'd3';
@@ -155,6 +155,7 @@ class DateTimePicker extends ChartComponent{
                     this.setFromDate(d);
                     this.setToDate(this.anchorDate);
                 }
+
                 this.calendarPicker.setStartRange(d);
                 this.calendarPicker.setEndRange(this.anchorDate);
                 this.endRange = this.anchorDate;
@@ -187,23 +188,24 @@ class DateTimePicker extends ChartComponent{
                 if (this.isSettingStartTime)
                     return; 
                 var self = this;
-                this.calendar.select(".pika-single").selectAll(".pika-day").on("mouseover", function (d) { 
-                    var date = new Date( Number(d3.select(this).attr("data-pika-year")),
-                                         Number(d3.select(this).attr("data-pika-month")), 
-                                         Number(d3.select(this).attr("data-pika-day")));
-                    if (!self.isSettingStartTime) {
-                        if (date.valueOf() < self.anchorDate.valueOf() && self.startRange.valueOf() != date.valueOf()) {
-                            self.setTimeRange(date, false);
-                            self.calendarPicker.draw();
-                            return;
+                this.calendar.select(".pika-single").selectAll(".pika-day")
+                    .on("mouseover", function (d) { 
+                        var date = new Date( Number(d3.select(this).attr("data-pika-year")),
+                                            Number(d3.select(this).attr("data-pika-month")), 
+                                            Number(d3.select(this).attr("data-pika-day")));
+                        if (!self.isSettingStartTime) {
+                            if (date.valueOf() < self.anchorDate.valueOf() && self.startRange.valueOf() != date.valueOf()) {
+                                self.setTimeRange(date, false);
+                                self.calendarPicker.draw();
+                                return;
+                            }
+                            if (date.valueOf() >= self.anchorDate.valueOf() && (self.endRange == undefined || self.endRange.valueOf() != date.valueOf())) {
+                                self.setTimeRange(date, false);
+                                self.calendarPicker.draw();
+                                return;
+                            }
                         }
-                        if (date.valueOf() >= self.anchorDate.valueOf() && (self.endRange == undefined || self.endRange.valueOf() != date.valueOf())) {
-                            self.setTimeRange(date, false);
-                            self.calendarPicker.draw();
-                            return;
-                        }
-                    }
-                });
+                    });
             },
             minDate: this.offsetFromUTC(new Date(this.minMillis)),
             maxDate: this.offsetFromUTC(new Date(this.maxMillis)),
@@ -213,6 +215,7 @@ class DateTimePicker extends ChartComponent{
 
     private setFromDate (d: Date) {
         var fromDate = new Date(this.fromMillis);
+        fromDate.setUTCFullYear(d.getFullYear());
         fromDate.setUTCMonth(d.getMonth());
         fromDate.setUTCDate(d.getDate());
         this.setFromMillis(fromDate.valueOf());
@@ -220,6 +223,7 @@ class DateTimePicker extends ChartComponent{
 
     private setToDate (d: Date) {
         var toDate = new Date(this.toMillis);
+        toDate.setUTCFullYear(d.getFullYear());
         toDate.setUTCMonth(d.getMonth());
         toDate.setUTCDate(d.getDate());
         this.setToMillis(toDate.valueOf());
@@ -227,9 +231,11 @@ class DateTimePicker extends ChartComponent{
 
     private setIsValid (isValid: boolean){
         this.isValid = isValid;
-        this.targetElement.select(".tsi-saveButtonContainer").select(".tsi-saveButton")
-            .attr("disabled", this.isValid ? null : true)
-            .classed("tsi-buttonDisabled", !this.isValid);
+
+        // For now, lets allow users to save the time even in the presence of errors
+        // this.targetElement.select(".tsi-saveButtonContainer").select(".tsi-saveButton")
+        //     .attr("disabled", this.isValid ? null : true)
+        //     .classed("tsi-buttonDisabled", !this.isValid);
 
     }
 

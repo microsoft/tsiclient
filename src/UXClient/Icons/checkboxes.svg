@@ -1,42 +1,6 @@
-<svg id="disabled" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 166">
-  <defs>
-    <style>.cls-1{fill:#d3d4d4;}.cls-2{fill:#b5b7b9;}.cls-3{fill:#f2f2f2;}.cls-4{fill:#808387;}.cls-5{fill:#00B294;}.cls-6{fill:#008272;}</style>
-  </defs>
-  <title>Untitled-2</title>
-  <g id="disabled-2" data-name="disabled">
-    <g id="checkbox:_default" data-name="checkbox: default">
-      <path class="cls-1" d="M15,121v14H1V121H15m1-1H0v16H16V120h0Z"/>
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 14 14">
+    <g transform="translate(-160 -223)">
+      <path style="fill: #0077ff; stroke: #0077ff" class="tsiIconCbBg" d="M2,0H12a2,2,0,0,1,2,2V12a2,2,0,0,1-2,2H2a2,2,0,0,1-2-2V2A2,2,0,0,1,2,0Z" transform="translate(160 223)" />
+      <path style="fill: #f8f8f8" class="tsiIconCbCheck" d="M10.764-8.736,4.5-2.467,1.236-5.736l.527-.527L4.5-3.533l5.736-5.73Z" transform="translate(161 236)" />
     </g>
-    <line class="cls-2" x1="1" y1="121" x2="15" y2="121"/>
-    <polyline class="cls-3" points="15 121 15 135 1 135 1 121 15 121"/>
-  </g>
-  <g id="disabled-checked">
-    <g id="checkbox:_default-2" data-name="checkbox: default">
-      <path class="cls-1" d="M15,151v14H1V151H15m1-1H0v16H16V150h0Z"/>
-    </g>
-    <polyline class="cls-3" points="15 151 15 165 1 165 1 151 15 151"/>
-    <polygon class="cls-4" points="6.3 162.58 2.46 158.57 3.54 157.54 6.3 160.42 12.46 153.98 13.54 155.02 6.3 162.58"/>
-  </g>
-  <g id="hover-2" data-name="hover">
-    <g id="checkbox:_default-3" data-name="checkbox: default">
-      <path class="cls-5" d="M15,61V75H1V61H15m1-1H0V76H16V60h0Z"/>
-    </g>
-  </g>
-  <g id="hover-checked">
-    <g id="checkbox:_default-4" data-name="checkbox: default">
-      <path class="cls-5" d="M15,91v14H1V91H15m1-1H0v16H16V90h0Z"/>
-    </g>
-    <polygon class="cls-6" points="6.3 102.58 2.46 98.58 3.54 97.54 6.3 100.42 12.46 93.98 13.54 95.02 6.3 102.58"/>
-  </g>
-  <g id="normal-2" data-name="normal">
-    <g id="checkbox:_default-5" data-name="checkbox: default">
-      <path class="cls-2" d="M15,1V15H1V1H15m1-1H0V16H16V0h0Z"/>
-    </g>
-  </g>
-  <g id="normal-checked">
-    <g id="checkbox:_default-6" data-name="checkbox: default">
-      <path class="cls-2" d="M15,31V45H1V31H15m1-1H0V46H16V30h0Z"/>
-    </g>
-    <polygon class="cls-6" points="6.3 42.58 2.46 38.58 3.54 37.54 6.3 40.42 12.46 33.98 13.54 35.02 6.3 42.58"/>
-  </g>
-</svg>
+  </svg>

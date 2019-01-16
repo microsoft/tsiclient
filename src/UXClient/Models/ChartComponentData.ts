@@ -15,6 +15,7 @@ class ChartComponentData {
     public toMillis: number = 0;
     public stickiedKey: any = null;
     public allTimestampsArray: any;
+    public isFromHeatmap: boolean = false;
 
 	constructor(){
     }
@@ -94,21 +95,29 @@ class ChartComponentData {
                     name: this.displayState[aggKey].name,
                     color: ((aggregateExpressionOptions[i] && aggregateExpressionOptions[i].color) ? 
                              aggregateExpressionOptions[i].color : this.displayState[aggKey].color),
-                    splitBys: []
+                    splitBys: [],
+                    shownSplitBys: 20
                 }
             } else {
                 newDisplayState[aggKey] = {
-                    visible: true,
+                    visible: (aggregateExpressionOptions[i] && aggregateExpressionOptions[i].visibilityState) ? 
+                        aggregateExpressionOptions[i].visibilityState[0] : true,
                     splitBys: [],
                     name: aggName,
                     color: ((aggregateExpressionOptions[i] && aggregateExpressionOptions[i].color) ? 
-                             aggregateExpressionOptions[i].color : "teal")
+                             aggregateExpressionOptions[i].color : "teal"),
+                    visibleSplitByCap: 10,
+                    shownSplitBys: 20
                 }                    
             } 
             if (aggregateExpressionOptions) {
                 newDisplayState[aggKey].contextMenuActions = aggregateExpressionOptions[i] ? 
                                                 aggregateExpressionOptions[i].contextMenu : [];
                 newDisplayState[aggKey].aggregateExpression = aggregateExpressionOptions[i];
+                // impose cap on visible splitBys if relevant
+                if (aggregateExpressionOptions[i] && aggregateExpressionOptions[i].visibleSplitByCap) {
+                    newDisplayState[aggKey].visibleSplitByCap = aggregateExpressionOptions[i].visibleSplitByCap;
+                }
             } else {
                 //revert to previous context menu actions if no new ones passed in and old ones exist
                 var oldContextMenuActions = (this.displayState[aggKey] && this.displayState[aggKey].contextMenuActions) ? 
@@ -129,7 +138,7 @@ class ChartComponentData {
             var aggregateVisible = newDisplayState[aggKey].visible;
             this.timeArrays[aggKey] = [];
             this.visibleTAs[aggKey] = {};
-            Object.keys(data[i][aggName]).forEach((splitBy: string) => {
+            Object.keys(data[i][aggName]).forEach((splitBy: string, splitByI: number) => {
                 this.timeArrays[aggKey][splitBy] = 
                     this.convertAggregateToArray(data[i][aggName][splitBy], aggKey, aggName, splitBy, 
                                                  newDisplayState[aggKey].from, newDisplayState[aggKey].to, 
@@ -137,8 +146,10 @@ class ChartComponentData {
                 if (this.displayState[aggKey] && this.displayState[aggKey].splitBys[splitBy]) {
                     newDisplayState[aggKey].splitBys[splitBy] = this.displayState[aggKey].splitBys[splitBy];
                 } else {
+                    let visibilityFromAEO = (aggregateExpressionOptions[i] && aggregateExpressionOptions[i].visibilityState) ? 
+                                                aggregateExpressionOptions[i].visibilityState[1].indexOf(splitBy) != -1 : true;
                     newDisplayState[aggKey].splitBys[splitBy] = {
-                        visible: true,
+                        visible: ((splitByI < newDisplayState[aggKey].visibleSplitByCap) && visibilityFromAEO),
                         visibleType : null,
                         types : []
                     }
@@ -270,6 +281,12 @@ class ChartComponentData {
     public convertAggregateToArray (agg: any, aggKey: string, aggName: string, splitBy: string, 
                                     from: Date = null, to: Date = null, bucketSize: number = null): Array<any> {
         var aggArray: Array<any> = [];
+        let isoStringAgg = {};
+        Object.keys(agg).forEach((dateString: string) => {
+            let jsISOString = (new Date(dateString)).toISOString();
+            isoStringAgg[jsISOString] = agg[dateString]; 
+        });
+        agg = isoStringAgg;
         var createTimeValueObject = () => {
             var timeValueObject: any = {};
             timeValueObject["aggregateKey"] = aggKey;
@@ -285,15 +302,15 @@ class ChartComponentData {
         if (to)
             this.toMillis = Math.max(to.valueOf(), this.toMillis);
         if (from && to && bucketSize) {
-            var firstBucketMillis = this.findFirstBucket(agg, from.valueOf(), bucketSize);
-            if (firstBucketMillis != null) {
+            let firstBucket = this.findFirstBucket(agg, from.valueOf(), bucketSize);
+            if (firstBucket !== null) {
+                let firstBucketMillis = firstBucket.valueOf();
                 for (var currTime = new Date(firstBucketMillis); (currTime.valueOf() < to.valueOf()); currTime = new Date(currTime.valueOf() + bucketSize)) {
                     var timeValueObject: any = createTimeValueObject();
                     timeValueObject["dateTime"] = currTime;
                     var currTimeString = currTime.toISOString();
-                    var strippedTimeString = currTimeString.slice(0, -5) + "Z"; // without second decimals
-                    if (agg[currTimeString] || agg[strippedTimeString]) {
-                        var currMeasures = agg[currTimeString] ? agg[currTimeString] : agg[strippedTimeString];
+                    if (agg[currTimeString]) {
+                        var currMeasures = agg[currTimeString];
                         Object.keys(currMeasures).forEach((measure: string) => {
                             timeValueObject["measures"][measure] = currMeasures[measure];
                         });
@@ -424,6 +441,22 @@ class ChartComponentData {
         });
         
         return csvString;
+    }
+
+    public getVisibilityState () {
+        let visibilityStateArray = [];
+        Object.keys(this.displayState).forEach((aggKey) => {
+            let aggDisplayState = this.displayState[aggKey]; 
+            let visibleSplitBys = !aggDisplayState.visible ? [] : 
+                Object.keys(aggDisplayState.splitBys).filter((splitByName) => {
+                    return aggDisplayState.splitBys[splitByName].visible
+                });
+            let aggName = aggDisplayState.name;
+            let visibilityObject = {};
+            visibilityObject[aggName] = [aggDisplayState.visible, visibleSplitBys];
+            visibilityStateArray.push(visibilityObject);
+        });
+        return visibilityStateArray;
     }
 }
 export {ChartComponentData}

@@ -12,7 +12,8 @@
     color: $gray1;
     
     hit{
-        background: yellow;
+        background: #fff9a8;
+        font-weight: 600;
         color: black;
     }
     .tsi-showMore{
@@ -20,6 +21,7 @@
     }
     .tsi-modelSearchInstances{
         > div{
+            border-bottom: 1px solid rgba($gray1, .05);
             &:hover, &:focus, &.tsi-resultSelected{
                 background-color: $gray2;
                 &::after{
@@ -113,16 +115,34 @@
             .tsi-modelResultWrapper{
                 cursor: pointer;
                 position: relative;
+                max-height: 206px;
+                overflow: hidden;
                 .tsi-modelResult{
-                    margin: 0 8px;
                     pointer-events: none;
-                    padding: 4px 12px;
+                    padding: 8px 20px;
                     .tsi-modelPK{
                         font-weight: 600;   
+                        font-size: 14px
                     }
                     .tsi-modelHighlights{
-                        font-size: 11px;
-                        margin-left: 8px;
+                        font-size: 12px;
+                        padding-top: 2px;
+                        padding-left: 8px;
+                        padding-bottom: 2px;
+                        table{
+                            border-spacing: 0;
+                            margin-top: 2px;
+                            tr{
+                                td:first-of-type{
+                                    padding: 0;
+                                    opacity: .6;
+                                }
+                                td:nth-of-type(2){
+                                    padding: 0;
+                                    padding-left: 8px;
+                                }
+                            }
+                        }
                     }
                 }
             }

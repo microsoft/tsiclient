@@ -34,20 +34,23 @@ class EllipsisMenu extends Component {
         options.theme = options.theme ? options.theme : "dark";
         super.themify(this.containerElement, options.theme);
 
-        this.buttonElement = d3.select(this.renderTarget).insert("div")
+        let self = this;
+        this.buttonElement = d3.select(this.renderTarget).insert("button")
             .attr("class", "tsi-ellipsisButton")
-            .on("click", () => {
-                this.setMenuVisibility(!this.menuIsVisible)
+            .attr("aria-label", "Show ellipsis menu")
+            .on("click", function () {
+                d3.select(this).attr("aria-label", self.menuIsVisible ? "Show ellipsis menu" : "Hide ellipsis menu");
+                self.setMenuVisibility(!self.menuIsVisible)
             })
         
         this.menuElement = d3.select(this.renderTarget).insert("div")
             .attr("class", "tsi-ellipsisMenu");
 
-        var self = this;
         this.menuElement.selectAll(".tsi-ellipsisMenuItem").data(this.menuItems)
             .enter()
-            .append("div")
+            .append("button")
             .classed("tsi-ellipsisMenuItem", true)
+            .attr("aria-label", d => d.label)
             .on("click", (d: any) => {
                 d.action();
             })

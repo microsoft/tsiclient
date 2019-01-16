@@ -15,8 +15,9 @@ class EventsTable extends ChartComponent{
     private headers;
 
     private maxVisibleIndex = 100;
-    private isAscending = false;
-    private sortColumn = 'timestamp_DateTime';
+    private isAscending = true;
+    private timestampColumnName = 'timestamp ($ts)';
+    private sortColumn = 'timestamp ($ts)';
     private allSelectedState = "all" // all | some | none
 
     private eventsTableData = new EventsTableData();
@@ -65,10 +66,14 @@ class EventsTable extends ChartComponent{
         this.buildTable();
 
         tableLeftPanel.selectAll(".tsi-eventsDownload").remove();
-        tableLeftPanel.append("button")
+        var downloadButton = tableLeftPanel.append("button")
             .attr("class", "tsi-eventsDownload tsi-primaryButton")
-            .html("CSV")
+            .attr("aria-label", "download as CSV")
             .on("click", () => Utils.downloadCSV(this.eventsTableData.generateCSVString(true, 0), "Events"));
+        downloadButton.append("div").attr("class", "tsi-downloadEventsIcon");
+        downloadButton.append("div").attr("class", "tsi-downloadEventsText").html("Download as CSV");
+
+
          //listen for table scroll and adjust the headers accordingly
         var self = this;
 
@@ -92,7 +97,7 @@ class EventsTable extends ChartComponent{
         this.eventsLegend.append("ul");
 
         var columns = Object.keys(this.eventsTableData.columns)
-            .filter((cIdx) => { return cIdx.toLowerCase() != "timestamp_datetime"; }) // filter out timestamp
+            .filter((cIdx) => { return cIdx.toLowerCase() != this.timestampColumnName; }) // filter out timestamp
             .map((cIdx) => this.eventsTableData.columns[cIdx]);
         
         var filteredColumnKeys = this.getFilteredColumnKeys();
@@ -103,6 +108,10 @@ class EventsTable extends ChartComponent{
             var selectAllColumns = this.eventsLegend.select("ul")
                 .append("li").attr("class", "tsi-selectAllColumns");
             selectAllColumns.append("button").attr("class", "tsi-columnToggleButton")
+                .attr("aria-label", () => {
+                    var selectAllState = this.getSelectAllState();
+                    return selectAllState !== "all" ? "Toggle all columns" : "Toggle all columns";
+                })
                 .on("click", () => {
                     var setAllVisible: boolean = false;
                     var selectAllState = this.getSelectAllState();
@@ -113,7 +122,7 @@ class EventsTable extends ChartComponent{
                         if (setAllVisible) {
                             this.eventsTableData.columns[columnKey].visible = true;
                         } else {
-                            if (columnKey != "timestamp_DateTime")
+                            if (columnKey != this.timestampColumnName)
                                 this.eventsTableData.columns[columnKey].visible = false;
                         }
                         
@@ -124,7 +133,7 @@ class EventsTable extends ChartComponent{
             selectAllColumns.append("span").attr("class", "tsi-columnToggleCheckbox");
             selectAllColumns.append("span").attr("class", "tsi-selectAllSomeState");
             selectAllColumns.append("span").attr("class", "tsi-columnToggleName")
-                .html("Select All");
+                .html("All Columns");
         }
         var toggleableColumnLis = this.eventsLegend.select("ul").selectAll(".tsi-columnToggle")
             .data(columns);
@@ -136,6 +145,7 @@ class EventsTable extends ChartComponent{
         var self = this;
         toggleableColumnLisEntered.each(function (d) {
             d3.select(this).append("button").attr("class", "tsi-columnToggleButton")
+                .attr("aria-label", (d: any) => "toggle column " + d.key)
                 .on("click", (d: any) => {
                     d.visible = !d.visible;
                     self.setLegendColumnStates();
@@ -164,8 +174,8 @@ class EventsTable extends ChartComponent{
     public setLegendColumnStates () {
         if (this.eventsLegend.select("ul")) {
             this.eventsLegend.select("ul").selectAll(".tsi-columnToggle").each(function () {
-                d3.select(this).select(".tsi-columnToggleCheckbox").style("background-position", 
-                    (d: any) => (d.visible) ? "center 16px" : "center top");
+                d3.select(this).select(".tsi-columnToggleCheckbox").classed("tsi-notSelected", 
+                    (d: any) => !(d.visible));
             })
         }
         this.setSelectAllState();
@@ -173,7 +183,7 @@ class EventsTable extends ChartComponent{
 
     public getSelectAllState() {
         var selectAllState: string = Object.keys(this.eventsTableData.columns).reduce((prev, curr: any) => {
-            if (curr == "timestamp_DateTime") // skip timestamp, will always be visible
+            if (curr == this.timestampColumnName) // skip timestamp, will always be visible
                 return prev;
             if (prev == null) 
                 return (this.eventsTableData.columns[curr].visible) ? "all" : "none";
@@ -190,8 +200,11 @@ class EventsTable extends ChartComponent{
 
     public setSelectAllState() {
         var selectAllState: string = this.getSelectAllState();
-        this.eventsLegend.select("ul").select(".tsi-selectAllColumns").select(".tsi-columnToggleCheckbox")
-            .style("background-position", () => (selectAllState == "all") ? "center 16px" : "center top");
+        let selectAllColumns = this.eventsLegend.select("ul").select(".tsi-selectAllColumns");
+        selectAllColumns.select(".tsi-columnToggleCheckbox")
+            .classed("tsi-notSelected", () => selectAllState !== "all");
+        selectAllColumns.select(".tsi-columnToggleButton")
+            .attr("aria-label", (selectAllState !== "all" ? "Toggle all columns on" : "Toggle all columns off"));
         this.eventsLegend.select("ul").select(".tsi-selectAllColumns").select(".tsi-selectAllSomeState")
             .style("visibility", () => (selectAllState == "some") ? "visible" : "hidden");
     }
@@ -203,7 +216,7 @@ class EventsTable extends ChartComponent{
     }
 
     //creates columnHeaders, returns a dictionary of widths so that buildTable can know the min width of each column
-    private buildHeaders (filteredColumnKeys) {
+    private buildHeaders (filteredColumnKeys, focusedHeader = null) {
         this.eventsTable.select(".tsi-columnHeaders").html("");
         var self = this;
         var columnHeaders = this.eventsTable.select(".tsi-columnHeaders").selectAll(".tsi-columnHeader")
@@ -215,38 +228,46 @@ class EventsTable extends ChartComponent{
                 d3.select(this).append("span")
                     .classed("tsi-columnHeaderName", true)
                     .html(self.eventsTableData.columns[d].name);
+                d3.select(this).append("span").attr("class", "tsi-columnSortIcon")
+                    .classed("up", (self.sortColumn == d && self.isAscending))
+                    .classed("down", (self.sortColumn == d && !self.isAscending));
                 d3.select(this).append("span").attr("class", "tsi-columnTypeIcon")
                     .classed(self.eventsTableData.columns[d].type, true);
-                d3.select(this).append("span").attr("class", "tsi-sortDirection").html(() => {
-                    if (self.sortColumn == d) {
-                        if (self.isAscending)
-                            return "▲";
-                        return "▼";
-                    }
-                    return "";
-                });
                 var id = JSON.parse(JSON.stringify(d));
                 d3.select(this).append("button").attr("class", "tsi-sortColumnButton")
-                .on("click", function (f, i) {
-                    //set sort column and direction
-                    if (self.sortColumn == d) {
-                        self.isAscending = !self.isAscending;
-                    } else {
-                        self.isAscending = false;
-                    }
-                    self.sortColumn = d;
+                    .attr("aria-label", title => "Sort by column " + title)
+                    .on("click", function (f, i) {
+                        //set sort column and direction
+                        if (self.sortColumn == d) {
+                            self.isAscending = !self.isAscending;
+                        } else {
+                            self.isAscending = false;
+                        }
+                        self.sortColumn = d;
 
-                    self.eventsTableData.sortEvents(d, self.isAscending);
-                    self.buildTable();
-                    self.eventsTable.select('.tsi-columnHeaders').node().scrollLeft = 
-                        self.eventsTable.select('.tsi-eventRowsContainer').node().scrollLeft;
-                });
+                        self.eventsTableData.sortEvents(d, self.isAscending);
+                        self.buildTable(f);
+                        self.eventsTable.select('.tsi-columnHeaders').node().scrollLeft = 
+                            self.eventsTable.select('.tsi-eventRowsContainer').node().scrollLeft;
+                        
+                    });
             });
         var widthDictionary = {};
         columnHeadersEntered.each(function (d) {
             widthDictionary[d] = d3.select(this).node().getBoundingClientRect().width;
         })
         columnHeaders.exit().remove();
+
+        if (focusedHeader !== null) {
+            let columnHeader = d3.select(columnHeadersEntered.filter((d) => {
+                return d === focusedHeader;
+            }).nodes()[0]);
+
+            if (columnHeader) {
+                (<any>columnHeader.select("button").node()).focus();
+            }
+        }
+
         return widthDictionary;
     }
 
@@ -259,24 +280,26 @@ class EventsTable extends ChartComponent{
         this.eventsTable.select(".tsi-columnHeaders").selectAll(".tsi-columnHeader")
             .style("width", function(d) {
                 if (widthDictionary[d])
-                    return (widthDictionary[d] - 19) + "px"; //13 pixel difference in element due to padding/border
+                    return (widthDictionary[d] - 17) + "px"; //17 pixel difference in element due to padding/border
                 else {
                     return d3.select(this).style("width");
                 }
             })
     }
 
-    private buildTable () {
+    private buildTable (currentSortedCol = null) {
         var filteredColumnKeys = this.getFilteredColumnKeys();
-        var widthDictionary = this.buildHeaders(filteredColumnKeys);
+        var widthDictionary = this.buildHeaders(filteredColumnKeys, currentSortedCol);
         this.eventsTable.select("table").html("");
         var self = this;
         // this.eventsTableData.sortEvents("Id_String", true);
         var rowsData = this.eventsTableData.events.slice(0, this.maxVisibleIndex);
-        var firstRow = this.eventsTable.select("table").append("tr");
+        var firstRow = this.eventsTable.select("table").append("tr")
+            .classed("tsi-eventRow", true);
         var firstRowCells = firstRow.selectAll("td").data(filteredColumnKeys);
         firstRowCells.enter()
             .append("td")
+            .classed("tsi-eventCell", true)
             .html(d => this.eventsTableData.columns[d].name);
         var rows = this.eventsTable.select("table").selectAll("tsi-eventRow").data(rowsData);
         var rowsEntered = rows.enter()
@@ -292,14 +315,15 @@ class EventsTable extends ChartComponent{
                 var valueCells = d3.select(this).selectAll("td").data(visibleCells);
                 var valueCellsEntered = valueCells.enter()
                     .append("td")
+                    .classed("tsi-eventCell", true)
                     .style("min-width", (d: TimeSeriesEventCell) => {
                         if (widthDictionary[d.key] != null)
-                            return widthDictionary[d.key] + "px";
+                            return Math.ceil(widthDictionary[d.key]) + "px";
                         else
                             return "none";
                     })
                     .html((d: TimeSeriesEventCell) => {
-                        if (d.key.toLowerCase() == "timestamp_datetime") {
+                        if (d.key.toLowerCase() == self.timestampColumnName.toLowerCase()) {
                             var timestampDate = new Date(d.value);
                             if (d.value != null) {
                                 timestampDate = new Date(timestampDate.valueOf() + 

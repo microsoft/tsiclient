@@ -33,27 +33,37 @@ class Utils {
     }
 
     // format [0-9]+[ms|s|m|h|d], convert to millis
-    static parseTimeInput (inputString) {
+    static parseTimeInput (inputString: string) {
+        inputString = inputString.toLowerCase();
+        let getNumber = (inputString, charsFromEnd) => {
+            let startAt = inputString.indexOf('pt') !== -1 ? 2 : (inputString.indexOf('p') !== -1 ? 1 : 0);
+            return Number(inputString.slice(startAt, inputString.length - charsFromEnd));
+        }
         if (inputString.indexOf('ms') == inputString.length - 2) {
-            return Number(inputString.slice(0, inputString.length - 2));
+            return getNumber(inputString, 2);
         }
         if (inputString.indexOf('s') == inputString.length - 1) {
-            return Number(inputString.slice(0, inputString.length - 1)) * 1000;
+            return getNumber(inputString, 1) * 1000;
         }
         if (inputString.indexOf('m') == inputString.length - 1) {
-            return Number(inputString.slice(0, inputString.length - 1)) * 60 * 1000;
+            return getNumber(inputString, 1) * 60 * 1000;
         }
         if (inputString.indexOf('h') == inputString.length - 1) {
-            return Number(inputString.slice(0, inputString.length - 1)) * 60 * 60 * 1000;
+            return getNumber(inputString, 1) * 60 * 60 * 1000;
         }
         if (inputString.indexOf('d') == inputString.length - 1) {
-            return Number(inputString.slice(0, inputString.length - 1)) * 24 * 60 * 60 * 1000;
+            return getNumber(inputString, 1) * 24 * 60 * 60 * 1000;
         }
         return -1;
     }
 
     static bucketSizeToTsqInterval (bucketSize: string) {
-        return ('PT' + bucketSize).toUpperCase();
+        let bucketSizeInMillis = Utils.parseTimeInput(bucketSize);
+        if (bucketSizeInMillis < 1000) {
+            bucketSize = (bucketSize.toLowerCase().indexOf('d') !== -1) ? 'd.' : '.' + bucketSizeInMillis + "s"; 
+        }
+        let prefix = bucketSize.toLowerCase().indexOf('d') !== -1 ? 'P' : 'PT';
+        return (prefix + bucketSize).toUpperCase();
     }
 
     static createEntityKey (aggName: string, aggIndex: number) {
@@ -62,6 +72,9 @@ class Utils {
 
 
     static getOffsetMinutes(offset: any, millis: number) {
+        if (offset == 'Local') {
+            return -momentTZ.tz.zone(momentTZ.tz.guess()).parse(millis);
+        }
         if (typeof offset == "string") {
             return -momentTZ.tz.zone(offset).parse(millis);
         } else {
@@ -71,6 +84,9 @@ class Utils {
 
     // inverse of getOffsetMinutes, this is the conversion factor of an offsettedTime to UTC in minutes 
     static getMinutesToUTC (offset: any, millisInOffset: number) {
+        if (offset == 'Local') {
+            return momentTZ.tz.zone(momentTZ.tz.guess()).utcOffset(millisInOffset);
+        }
         if (typeof offset == "string") {
             return momentTZ.tz.zone(offset).utcOffset(millisInOffset);
         } else {
@@ -110,7 +126,7 @@ class Utils {
             var stringFormat = "MM/DD/YYYY " + (is24HourTime ? "HH" : "hh") + ":mm" + 
                 (usesSeconds ? (":ss" + (usesMillis ? ".SSS" : "")) : "") + (is24HourTime ? "" : " A");
             if (typeof offset == "string") {
-                return momentTZ.tz(d, "UTC").tz(offset).format(stringFormat);
+                return momentTZ.tz(d, "UTC").tz(offset === 'Local' ? momentTZ.tz.guess() : offset).format(stringFormat);
             } else {
                 return momentTZ.tz(d, "UTC").utcOffset(offset).format(stringFormat);
             }
@@ -211,30 +227,6 @@ class Utils {
         return colors;
     }
 
-    static createGridButton(chartControlsPanel: any, component: ChartComponent, usesSeconds: boolean = false, usesMillis: boolean = false, chartMargins: any) {
-        var showGrid = () => {
-            component.chartOptions.fromChart = true; 
-            var gridComponent: Grid = new Grid(component.renderTarget);
-            gridComponent.usesSeconds = component.chartComponentData.usesSeconds;
-            gridComponent.usesMillis = component.chartComponentData.usesMillis; 
-            var grid = gridComponent.renderFromAggregates(component.chartComponentData.data, component.chartOptions, component.aggregateExpressionOptions);
-            grid.focus();
-        }
-
-        var gridButton = chartControlsPanel.append("div")
-            .style("right", chartMargins.right + "px")
-            .attr("class", "tsi-gridButton")
-            .attr("tabindex", 0)
-            .on("click", showGrid)
-            .on("keydown", () => {
-                if(d3.event.code == 'Enter')
-                    showGrid();
-            })
-            .attr('title', 'Show a grid of values');
-            
-        return gridButton; 
-    }
-
     static createSplitByColors(displayState: any, aggKey: string, ignoreIsOnlyAgg: boolean = false) {
         if (Object.keys(displayState[aggKey]["splitBys"]).length == 1) 
             return [displayState[aggKey].color];
@@ -319,21 +311,24 @@ class Utils {
         var link = document.createElement("a");
         link.setAttribute("href", blobURL);
         link.setAttribute("download", csvName + ".csv");
+        link.setAttribute("tabindex", "0");
         link.innerHTML= "";
         document.body.appendChild(link);
         link.click();
     }  
 
-    static showGrid(renderTarget: any, chartOptions: ChartOptions, aggregateExpressionOptions: any, chartComponentData: ChartComponentData) {
+    static showGrid(renderTarget: any, chartOptions: ChartOptions, aggregateExpressionOptions: any, 
+            chartComponentData: ChartComponentData) {
         chartOptions.fromChart = true; 
         var gridComponent: Grid= new Grid(renderTarget);
         gridComponent.usesSeconds = chartComponentData.usesSeconds;
         gridComponent.usesMillis = chartComponentData.usesMillis; 
         var grid = gridComponent.renderFromAggregates(chartComponentData.data, chartOptions, aggregateExpressionOptions);
-        grid.focus();
+        gridComponent.focus(0,0);
     }
 
-    static createGridEllipsisOption (renderTarget: any, chartOptions: ChartOptions, aggregateExpressionOptions: any, chartComponentData: ChartComponentData) {
+    static createGridEllipsisOption (renderTarget: any, chartOptions: ChartOptions, aggregateExpressionOptions: any, 
+                                     chartComponentData: ChartComponentData) {
         return {
             iconClass: "grid",
             label: "Display Grid",
@@ -345,11 +340,21 @@ class Utils {
         };
     }
 
-    static createDownloadEllipsisOption (csvStringGenerator) {
+    static focusOnEllipsisButton (renderTarget) {
+        let ellipsisContainer = d3.select(renderTarget).select(".tsi-ellipsisContainerDiv");
+        if (!ellipsisContainer.empty()) {
+            (<any>ellipsisContainer.select(".tsi-ellipsisButton").node()).focus();
+        }
+    }
+
+    static createDownloadEllipsisOption (csvStringGenerator, action = () => {}) {
         return {
             iconClass: "download",
             label: "Download as CSV",
-            action:() =>  Utils.downloadCSV(csvStringGenerator()),
+            action:() => {
+                Utils.downloadCSV(csvStringGenerator());
+                action();  
+            },
             description: ""
         };
     }
@@ -381,6 +386,11 @@ class Utils {
         else {
             return stringToEscape;
         }
+    };
+
+    static getControlPanelWidth (renderTarget, legendWidth, isLegendShown) {
+        return Math.max(1, (<any>d3.select(renderTarget).node()).clientWidth -
+                (isLegendShown ? legendWidth : 0));
     };
 }
 

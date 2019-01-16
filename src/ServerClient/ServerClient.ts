@@ -1,9 +1,8 @@
 import * as Promise from 'promise-polyfill';
 
 class ServerClient {
-    private eventsWebsocket;
     private apiVersionUrlParam = "?api-version=2016-12-12";
-    private tsmTsqApiVersion = "?api-version=2018-10-01-privatepreview"
+    private tsmTsqApiVersion = "?api-version=2018-11-01-preview"
 
     Server () {
     }
@@ -42,12 +41,12 @@ class ServerClient {
             if(xhr.status == 200){
                 var message = JSON.parse(xhr.responseText);
                 results[index] = messageProperty(message);
-                if(results.map(ar => ar!=null).reduce((p,c) => { p = c && p; return p}, true))
+                if(results.map(ar => ar!=false).reduce((p,c) => { p = c && p; return p}, true))
                     resolve(results);
             }
             else{
                 results[index] = {__tsiError__: JSON.parse(xhr.responseText)};
-                if(results.map(ar => ar!=null).reduce((p,c) => { p = c && p; return p}, true))
+                if(results.map(ar => ar!=false).reduce((p,c) => { p = c && p; return p}, true))
                     resolve(results);
             }
         }
@@ -60,21 +59,20 @@ class ServerClient {
     public getTsqResults(token: string, uri: string, tsqArray: Array<any>, options: any) {
         var tsqResults = [];
         tsqArray.forEach(tsq => {
-            tsqResults.push(null);
+            tsqResults.push(false);
         });
         
         return new Promise((resolve: any, reject: any) => {
-            tsqArray.forEach((tsq, i) => {
+            tsqArray.forEach((tsq, i) => { 
                 this.getQueryApiResult(token, tsqResults, tsq, i, `https://${uri}/timeseries/query${this.tsmTsqApiVersion}`, resolve, message => message);
             })
         });
     }
-    
- 
+
     public getAggregates(token: string, uri: string, tsxArray: Array<any>, options: any) {
         var aggregateResults = [];
         tsxArray.forEach(ae => {
-            aggregateResults.push(null);
+            aggregateResults.push(false);
         });
         
         return new Promise((resolve: any, reject: any) => {
@@ -131,6 +129,11 @@ class ServerClient {
         return this.createPromiseFromXhr(uri, "GET", {}, token, (responseText) => {return JSON.parse(responseText);});
     }
 
+    public getSampleEnvironments(token: string, endpoint = 'https://api.timeseries.azure.com'){
+        var uri = endpoint + '/sampleenvironments' + this.apiVersionUrlParam;
+        return this.createPromiseFromXhr(uri, "GET", {}, token, (responseText) => {return JSON.parse(responseText);});
+    }
+
     public getMetadata(token: string, environmentFqdn: string, minMillis: number, maxMillis: number) {
         var uri = 'https://' + environmentFqdn + '/metadata' + this.apiVersionUrlParam;
         var searchSpan = {searchSpan: { from: new Date(minMillis).toISOString(), to: new Date(maxMillis).toISOString() }};
@@ -138,8 +141,15 @@ class ServerClient {
         return this.createPromiseFromXhr(uri, "POST", payload, token, (responseText) => {return JSON.parse(responseText).properties;});
     }
 
-    public getAvailability(token: string, environmentFqdn: string) {
-        var uri = 'https://' + environmentFqdn + '/availability' + this.apiVersionUrlParam;
+    public getEventSchema(token: string, environmentFqdn: string, minMillis: number, maxMillis: number) {
+        var uri = 'https://' + environmentFqdn + '/eventSchema' + this.tsmTsqApiVersion;
+        var searchSpan = {searchSpan: { from: new Date(minMillis).toISOString(), to: new Date(maxMillis).toISOString() }};
+        var payload = JSON.stringify(searchSpan);
+        return this.createPromiseFromXhr(uri, "POST", payload, token, (responseText) => {return JSON.parse(responseText).properties;});
+    }
+
+    public getAvailability(token: string, environmentFqdn: string, apiVersion: string = this.apiVersionUrlParam) {
+        var uri = 'https://' + environmentFqdn + '/availability' + apiVersion;
         return this.createPromiseFromXhr(uri, "GET", {}, token, (responseText) => {return JSON.parse(responseText);});
     }
 

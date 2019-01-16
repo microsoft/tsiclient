@@ -65,8 +65,10 @@ class UXClient {
     }
 
     public AggregateExpression(predicateObject: any, measureObject: any, measureTypes: Array<string>, searchSpan: any, 
-                                        splitByObject: any = null, color: string = null, alias: string = '', contextMenu: Array<any> = []): any {
-        return new AggregateExpression(predicateObject, measureObject, measureTypes, searchSpan, splitByObject, color, alias, contextMenu)
+                                        splitByObject: any = null, color: string = null, alias: string = '', 
+                                        contextMenu: Array<any> = [], visibilityState: Array<any> = null): any {
+        return new AggregateExpression(predicateObject, measureObject, measureTypes, searchSpan, splitByObject, color, 
+                                        alias, contextMenu, visibilityState);
     }
 
     public TsqExpression(instanceObject: any, variableObject: any, searchSpan: any, 
@@ -119,7 +121,7 @@ class UXClient {
             }
 
             var timeStamp = (new Date((new Date(events[eventIdx]['$ts'])).valueOf() - timezoneOffset)).toISOString().slice(0,-1).replace('T', ' ');
-            var event = { timestamp: timeStamp };
+            var event = { 'timestamp ($ts)': timeStamp };
 
             // lts logic
             var lts = events[eventIdx]['$lts'] ? events[eventIdx]['$lts'] : null;
@@ -131,7 +133,6 @@ class UXClient {
                 }
             }
 
-            // event[this.getColumnNameAndType('EventSourceName', 'String')] = eventSourceProperties[eventSourceId].eventSourceName;
             event["EventSourceName_String"] = {
                 value: eventSourceProperties[eventSourceId].eventSourceName,
                 name: 'EventSourceName',
@@ -143,7 +144,7 @@ class UXClient {
                     nameToStrippedPropName[name] = Utils.stripForConcat(name);
                 var strippedName = nameToStrippedPropName[name];
                 var type = eventSourceProperties[eventSourceId].propertyNames[propIdx].type;
-                var columnNameAndType = strippedName + "_" + type;//Models.GridColumn.getColumnNameAndType(strippedName, type);
+                var columnNameAndType = strippedName + "_" + type;
                 if (!valueToStrippedValueMap.hasOwnProperty(String(events[eventIdx].values[propIdx])))
                     valueToStrippedValueMap[String(events[eventIdx].values[propIdx])] = Utils.stripForConcat(String(events[eventIdx].values[propIdx]));
                 var eventObject = {
@@ -157,38 +158,6 @@ class UXClient {
         }
         return rows;
     }
-
-    private bucketSort (a, b) {
-        var aDateValue = new Date(a).valueOf();
-        var bDateValue = new Date(b).valueOf();
-        if (aDateValue < bDateValue) 
-            return -1;
-        if (aDateValue > bDateValue)
-            return 1;
-        return 0;
-    }
-
-    private rollUpBuckets (rawBuckets: any, rollUpMultiplier: number, firstBucketOffset: number, toString: string): any {
-        let sortedKeys = Object.keys(rawBuckets).sort(this.bucketSort);
-        let currentCount = {}
-        let rolledBuckets = sortedKeys.reduce((rolledBuckets, currTimeStamp, currI, sortedTimeStamps) => {
-            var numBuckets = sortedTimeStamps.length;
-            var realI = currI + firstBucketOffset;
-            var roundedBucketIndex = Math.max(currI - (realI % rollUpMultiplier), 0);
-            var numBuckets = sortedTimeStamps.length;
-            var divisor = (roundedBucketIndex + rollUpMultiplier < numBuckets) ? rollUpMultiplier : numBuckets - roundedBucketIndex;
-            var roundedTimestamp = sortedTimeStamps[roundedBucketIndex];
-            if (rolledBuckets[roundedTimestamp]) {
-                rolledBuckets[roundedTimestamp].count += (rawBuckets[currTimeStamp].count / divisor);
-            } else {
-                rolledBuckets[roundedTimestamp] = {count: rawBuckets[currTimeStamp].count / divisor};
-            }
-            currentCount = rolledBuckets[roundedTimestamp]
-            return rolledBuckets;
-        }, {});
-        rolledBuckets[toString] = currentCount;
-        return rolledBuckets;
-    }
     
     private toISONoMillis (dateTime) {
         return dateTime.toISOString().slice(0,-5)+"Z";
@@ -196,11 +165,9 @@ class UXClient {
 
     //specifiedRange gives the subset of availability buckets to be returned. If not included, will return all buckets
     public transformAvailabilityForVisualization(availabilityTsx: any): Array<any> {
-        var result = [];
         var from = new Date(availabilityTsx.range.from);
         var to = new Date(availabilityTsx.range.to);
         var rawBucketSize = Utils.parseTimeInput(availabilityTsx.intervalSize);
-        var rawBucketNumber = Math.ceil((to.valueOf() - from.valueOf()) / rawBucketSize);
 
         var buckets = {};
         var startBucket = Math.round(Math.floor(from.valueOf() / rawBucketSize) * rawBucketSize);
@@ -248,8 +215,8 @@ class UXClient {
                 transformedAggregate[''] = {};
             else{
                 tsqr.timestamps.forEach((ts, j) => {
-                    aggregatesObject[ts] = Object.keys(tsqr.variables).reduce((p,c) => {p[c] = tsqr.variables[c]['values'][j]; return p;}, {});
-                });
+                    aggregatesObject[ts] = tsqr.properties.reduce((p,c) => {p[c.name] = c['values'][j]; return p;}, {});
+                }); 
             }
             result.push(transformedAggregate);
         });
@@ -302,6 +269,21 @@ class UXClient {
     // exposed publicly to use for highlighting elements in the well on hover/focus
     public createEntityKey (aggName: string, aggIndex: number = 0) {
         return Utils.createEntityKey(aggName, aggIndex);
+    }
+
+    public transformTsqResultsToEventsArray (results) {
+        let flattenedResults = [];
+        results.forEach(tsqr => {
+            tsqr.timestamps.forEach((ts, idx) => {
+                let event = {};
+                event['timestamp ($ts)'] = ts;
+                tsqr.properties.forEach(p => {
+                    event[`${p.name}_${p.type}`] = {name: p.name, type: p.type, value: p.values[idx]};
+                });
+                flattenedResults.push(event); 
+            });
+        });
+        return flattenedResults.sort((a,b) => (new Date(a['timestamp ($ts)'])).valueOf() < (new Date(b['timestamp ($ts)_DateTime'])).valueOf() ? -1 : 1);
     }
 }
 

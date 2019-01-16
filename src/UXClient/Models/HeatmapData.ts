@@ -20,6 +20,7 @@ class HeatmapData {
 	constructor(chartComponentData: ChartComponentData, aggKey: string){
         this.aggKey = aggKey;
         this.chartComponentData = chartComponentData;
+        this.chartComponentData.isFromHeatmap = true;
         this.visibleSBs = Object.keys(this.chartComponentData.displayState[aggKey].splitBys).filter((sb) => {
             return (this.chartComponentData.getSplitByVisible(aggKey, sb));
         });
@@ -34,12 +35,18 @@ class HeatmapData {
         this.timeValues = {};
         this.allValues = [];
         //turn time array into an object keyed by timestamp 
+        var colI = 0;
         for (var currTime = this.from; (currTime.valueOf() < this.to.valueOf()); 
-             currTime = new Date(currTime.valueOf() + this.bucketSize)) {
-            this.timeValues[currTime.toString()] = this.visibleSBs.reduce((obj, splitBy) => {
-                obj[splitBy] = null;
+            currTime = new Date(currTime.valueOf() + this.bucketSize)) {
+            this.timeValues[currTime.toString()] = this.visibleSBs.reduce((obj, splitBy, splitByI) => {
+                obj[splitBy] = {
+                    colI: colI,
+                    rowI: splitByI,
+                    value: null
+                };
                 return obj;
             }, {});
+            colI += 1;
         }
         this.numCols = Object.keys(this.timeValues).length;
 
@@ -48,12 +55,9 @@ class HeatmapData {
                 var timestamp = valueObject.dateTime.toString();
                 var visibleMeasure = this.chartComponentData.getVisibleMeasure(this.aggKey, splitBy);
                 if (this.timeValues[timestamp]) {                    
-                    this.timeValues[timestamp][splitBy] = {
-                        value: valueObject.measures[visibleMeasure],
-                        rowI: rowI,
-                        colI: colI
-                    }
-                    this.allValues.push(valueObject.measures[visibleMeasure]);
+                    this.timeValues[timestamp][splitBy].value = valueObject.measures ? valueObject.measures[visibleMeasure] : null;
+                    if (valueObject.measures && valueObject.measures[visibleMeasure])
+                        this.allValues.push(valueObject.measures[visibleMeasure]);
                 }
             });
         });

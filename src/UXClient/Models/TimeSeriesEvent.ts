@@ -7,8 +7,8 @@ class TimeSeriesEvent {
 	constructor(rawEvent){
         this.cells = Object.keys(rawEvent).reduce((cellObj, propId) => {
             var cell: TimeSeriesEventCell;
-            if (propId == "timestamp")
-                cell = new TimeSeriesEventCell('timestamp', rawEvent[propId], 'DateTime');
+            if (propId == "timestamp ($ts)")
+                cell = new TimeSeriesEventCell('timestamp ($ts)', rawEvent[propId], 'DateTime');
             else {
                 cell = new TimeSeriesEventCell(rawEvent[propId]['name'], rawEvent[propId]['value'], rawEvent[propId]['type']);
             }

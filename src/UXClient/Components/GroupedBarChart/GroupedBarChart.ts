@@ -23,6 +23,7 @@ class GroupedBarChart extends ChartComponent {
     private stackedButton: any = null;
     private ellipsisContainer: any;
     private ellipsisMenu: EllipsisMenu;
+    private chartControlsPanel = null;
     chartComponentData = new GroupedBarChartData();
     
     private chartMargins: any = {
@@ -45,7 +46,7 @@ class GroupedBarChart extends ChartComponent {
             this.isStacked = this.chartOptions.stacked;
         } 
 
-        if (this.chartOptions.legend == "compact")
+        if (this.chartOptions.legend == 'compact')
             this.chartMargins.top = 84;
         else
             this.chartMargins.top = 52;
@@ -229,30 +230,41 @@ class GroupedBarChart extends ChartComponent {
                 
                 super.themify(targetElement, this.chartOptions.theme);
 
-                var chartControlsPanel = Utils.createControlPanel(this.renderTarget, this.CONTROLSWIDTH, this.chartMargins.top, this.chartOptions);
+                if (!this.chartOptions.hideChartControlPanel && this.chartControlsPanel === null) {
+                    this.chartControlsPanel = Utils.createControlPanel(this.renderTarget, this.CONTROLSWIDTH, this.chartMargins.top, this.chartOptions);
 
-                this.stackedButton = chartControlsPanel.append("div")
-                    .style("left", "60px")
-                    .attr("class", "tsi-stackedButton").on("click", () => {
-                        this.chartOptions.stacked = !this.chartOptions.stacked;
-                        this.draw();
-                    })
-                    .attr('title', 'Stack/Unstack Bars');
+                    let labelStackedButton = () => {
+                        return this.chartOptions.stacked ? "Unstack bars" : "Stack bars";
+                    } 
+                    this.stackedButton = this.chartControlsPanel.append("button")
+                        .style("left", "60px")
+                        .attr("aria-label", labelStackedButton)
+                        .attr("class", "tsi-stackedButton").on("click", function () {
+                            self.chartOptions.stacked = !self.chartOptions.stacked;
+                            d3.select(this).attr("aria-label", labelStackedButton);
+                            self.draw();
+                        })
+                        .attr('title', 'Stack/Unstack Bars');
 
-                if (this.chartOptions.canDownload || this.chartOptions.grid) {
-                    this.ellipsisContainer = chartControlsPanel.append("div")
-                        .attr("class", "tsi-ellipsisContainerDiv");
-                    this.ellipsisMenu = new EllipsisMenu(this.ellipsisContainer.node());
-
-                    var ellipsisItems = [];
-                    if (this.chartOptions.grid) {
-                        ellipsisItems.push(Utils.createGridEllipsisOption(this.renderTarget, this.chartOptions, this.aggregateExpressionOptions, this.chartComponentData));
+                    if (this.chartOptions.canDownload || this.chartOptions.grid) {
+                        this.ellipsisContainer = this.chartControlsPanel.append("div")
+                            .attr("class", "tsi-ellipsisContainerDiv");
+                        this.ellipsisMenu = new EllipsisMenu(this.ellipsisContainer.node());
+    
+                        var ellipsisItems = [];
+                        if (this.chartOptions.grid) {
+                            ellipsisItems.push(Utils.createGridEllipsisOption(this.renderTarget, this.chartOptions, this.aggregateExpressionOptions, this.chartComponentData));
+                        }
+                        if (this.chartOptions.canDownload) {
+                            ellipsisItems.push(Utils.createDownloadEllipsisOption(() => this.chartComponentData.generateCSVString(), () => Utils.focusOnEllipsisButton(this.renderTarget)));
+                        }
+    
+                        this.ellipsisMenu.render(ellipsisItems, {theme: this.chartOptions.theme});
                     }
-                    if (this.chartOptions.canDownload) {
-                        ellipsisItems.push(Utils.createDownloadEllipsisOption(() => this.chartComponentData.generateCSVString()));
-                    }
 
-                    this.ellipsisMenu.render(ellipsisItems, {theme: this.chartOptions.theme});
+                } else  if (this.chartOptions.hideChartControlPanel && this.chartControlsPanel !== null){
+                    this.chartControlsPanel.remove();
+                    this.chartControlsPanel = null;
                 }
 
                 /********* Determine the number of timestamps present, add margin for slider *********/
@@ -273,7 +285,8 @@ class GroupedBarChart extends ChartComponent {
                 
                 var aggregateCount = Math.max(Object.keys(this.chartComponentData.filteredAggregates).length, 1);
                 
-                g.selectAll('.barGroup')
+                svgSelection.select('g').attr("transform", "translate(" + this.chartMargins.left + "," + this.chartMargins.top + ")")
+                    .selectAll('.barGroup')
                     .attr("visibility", "hidden");
                 var barGroups = g.selectAll('.barGroup').data(Object.keys(this.chartComponentData.displayState));
                 var spacePerAggregate = calcSpacePerAgg();
@@ -357,7 +370,6 @@ class GroupedBarChart extends ChartComponent {
                         .attr("width", 0)
                         .attr("height", 0);
 
-                    // labelText.enter()
                     labelGroupEntered
                         .merge(labelGroup)
                         .select("text")
@@ -432,8 +444,8 @@ class GroupedBarChart extends ChartComponent {
                         if (self.contextMenu && self.contextMenu.contextMenuVisible)
                             return;
                         focus.style("display", "none");                        
-                        (<any>legendObject.legendElement.selectAll('.splitByLabel').filter((labelData: any) => {
-                            return (labelData[0] == d.aggKey) && (labelData[1] == d.splitBy);
+                        (<any>legendObject.legendElement.selectAll('.tsi-splitByLabel').filter(function (filteredSplitBy: string) {
+                            return (d3.select(this.parentNode).datum() == d.aggKey) && (filteredSplitBy == d.splitBy);
                         })).classed("inFocus", false);
                         d3.event.stopPropagation();
                         svgSelection.selectAll(".valueElement")
@@ -456,8 +468,8 @@ class GroupedBarChart extends ChartComponent {
                             if (self.contextMenu && self.contextMenu.contextMenuVisible)
                                 return;
                             
-                            (legendObject.legendElement.selectAll('.splitByLabel').filter((labelData: any) => {
-                                return (labelData[0] == d.aggKey) && (labelData[1] == d.splitBy);
+                            (legendObject.legendElement.selectAll('.tsi-splitByLabel').filter(function (filteredSplitBy: string) {
+                                return (d3.select(this.parentNode).datum() == d.aggKey) && (filteredSplitBy == d.splitBy);
                             })).classed("inFocus", true);
                             labelMouseover(d.aggKey, d.splitBy);
 
@@ -632,6 +644,11 @@ class GroupedBarChart extends ChartComponent {
                 else{
                     slider.remove();
                     d3.select(this.renderTarget).select('.tsi-sliderWrapper').classed('tsi-hidden', true);
+                }
+
+                if (!this.chartOptions.hideChartControlPanel && this.chartControlsPanel !== null) {
+                    let controlPanelWidth = Utils.getControlPanelWidth(this.renderTarget, this.CONTROLSWIDTH, this.chartOptions.legend === 'shown');
+                    this.chartControlsPanel.style("width", controlPanelWidth + "px");
                 }
             }
 

@@ -90,10 +90,12 @@ class PieChart extends ChartComponent {
 
                     var ellipsisItems = [];
                     if (this.chartOptions.grid) {
-                        ellipsisItems.push(Utils.createGridEllipsisOption(this.renderTarget, this.chartOptions, this.aggregateExpressionOptions, this.chartComponentData));
+                        ellipsisItems.push(Utils.createGridEllipsisOption(this.renderTarget, this.chartOptions, 
+                            this.aggregateExpressionOptions, this.chartComponentData));
                     }
                     if (this.chartOptions.canDownload) {
-                        ellipsisItems.push(Utils.createDownloadEllipsisOption(() => this.chartComponentData.generateCSVString()));
+                        ellipsisItems.push(Utils.createDownloadEllipsisOption(() => this.chartComponentData.generateCSVString(),
+                        () => Utils.focusOnEllipsisButton(this.renderTarget)));
                     }
                     this.ellipsisMenu.render(ellipsisItems, {theme: this.chartOptions.theme});
                 }
@@ -181,7 +183,7 @@ class PieChart extends ChartComponent {
                         return;
                     tooltip.hide();
                     labelMouseout(d.data.aggKey, d.data.splitBy);
-                    (<any>self.legendObject.legendElement.selectAll('.splitByLabel')).classed("inFocus", false);
+                    (<any>self.legendObject.legendElement.selectAll('.tsi-splitByLabel')).classed("inFocus", false);
                 } 
 
                 function pathMouseInteraction (d: any)  {
@@ -189,8 +191,8 @@ class PieChart extends ChartComponent {
                         return;
                     pathMouseout(d); 
                     labelMouseover(d.data.aggKey, d.data.splitBy);
-                    (<any>self.legendObject.legendElement.selectAll('.splitByLabel').filter((labelData: any) => {
-                        return (labelData[0] == d.data.aggKey) && (labelData[1] == d.data.splitBy);
+                    (<any>self.legendObject.legendElement.selectAll('.tsi-splitByLabel').filter(function (filteredSplitBy: string) {
+                        return (d3.select(this.parentNode).datum() == d.data.aggKey) && (filteredSplitBy == d.data.splitBy);
                     })).classed("inFocus", true);
                     drawTooltip(d, d3.mouse(self.svgSelection.node()));
                 }

@@ -65,10 +65,11 @@ class LineChart extends ChartComponent {
     private hasBrush: boolean = false;
     private isDroppingScooter: boolean = false;
     private isClearingBrush: boolean = false;
+    private chartControlsPanel: any = null;
 
     private isFirstMarkerDrop = true;
     
-    public chartMargins: any = {
+    public chartMargins: any = {        
         top: 40,
         bottom: 40,
         left: 70, 
@@ -129,7 +130,7 @@ class LineChart extends ChartComponent {
         
         this.focus.style("display", "none");
         d3.select(this.renderTarget).select(".tooltip").style("display", "none");
-        (<any>this.legendObject.legendElement.selectAll('.splitByLabel')).classed("inFocus", false);
+        (<any>this.legendObject.legendElement.selectAll('.tsi-splitByLabel')).classed("inFocus", false);
         if (d3.event && d3.event.type != 'end') {
             d3.event.stopPropagation();
         }
@@ -164,9 +165,9 @@ class LineChart extends ChartComponent {
             .html("Click to drop marker, drag to reposition."); 
     }
 
-    private destroyMarkerInstructions() {
+    private destroyMarkerInstructions () {
         this.targetElement.selectAll(".tsi-markerInstructions").remove();
-    }
+    }   
     
     private tooltipFormat (d, text) {
         var title = d.aggregateName;   
@@ -259,9 +260,7 @@ class LineChart extends ChartComponent {
             this.tooltip.hide();
         
         (<any>this.focus.node()).parentNode.appendChild(this.focus.node());
-        (<any>this.legendObject.legendElement.selectAll('.splitByLabel').filter((labelData: any) => {
-            return (labelData[0] == d.aggregateKey) && (labelData[1] == d.splitBy);
-        })).classed("inFocus", true);
+        this.legendObject.triggerSplitByFocus(d.aggregateKey, d.splitBy);
 
         /** update the y axis for in focus aggregate */
         if (this.yAxisState == "overlap") {
@@ -354,8 +353,8 @@ class LineChart extends ChartComponent {
             splitBy: (splitBy == null ? null : splitBy)
         };
 
-        (<any>this.legendObject.legendElement.selectAll('.splitByLabel').filter((labelData: any) => {
-            return (labelData[0] == aggregateKey) && (labelData[1] == splitBy);
+        (<any>this.legendObject.legendElement.selectAll('.tsi-splitByLabel').filter(function (filteredSplitBy: any)  {
+            return (d3.select(this.parentNode).datum() == aggregateKey) && (filteredSplitBy == splitBy);
         })).classed("stickied", true);
         
     }
@@ -394,7 +393,7 @@ class LineChart extends ChartComponent {
 
             //if selection is out of range of brush. clear brush
             this.brushElem.call(this.brush.move, null);
-            if ((rawRightSide <= this.xOffset) || (rawLeftSide >= (this.chartWidth - (2 * this.xOffset)))) {
+            if ((rawRightSide < this.xOffset) || (rawLeftSide > (this.chartWidth - (2 * this.xOffset)))) {
                 this.isClearingBrush = true;
                 this.brushElem.call(this.brush.move, null);
                 return;
@@ -432,7 +431,7 @@ class LineChart extends ChartComponent {
 
     private getScooterMarginLeft () {
         var legendWidth = this.legendObject.legendElement.node().getBoundingClientRect().width;
-        return this.chartMargins.left + (this.chartOptions.legend == "shown" ? legendWidth : 0);
+        return this.chartMargins.left + (this.chartOptions.legend == "shown" || this.chartOptions.legend == "hidden" ? legendWidth : 0);
     }
 
     // when re-rendering, scooters need to be repositioned - this function takes in a scooter and outputs the time on the timemap which 
@@ -473,6 +472,12 @@ class LineChart extends ChartComponent {
         });
     }
 
+    private focusOnEllipsis () {
+        if (this.ellipsisContainer !== null) {
+            this.ellipsisContainer.select(".tsi-ellipsisButton").node().focus();
+        }
+    }
+
     private setScooterTimeLabel (scooter) {
         var millis = this.scooterGuidMap[scooter.datum()];
         var values: Array<any> = this.chartComponentData.timeMap[millis];
@@ -486,11 +491,15 @@ class LineChart extends ChartComponent {
         var dateToTime = (t) => timeFormat(t).split(" ")[1];
         var text = dateToTime(firstValue) + " - " + dateToTime(secondValue);
         var timeLabel = scooter.select(".tsi-scooterTimeLabel");
+        let self = this;
         timeLabel.html(text)
-            .append("div")
+            .append("button")
+            .attr("aria-label", "Delete marker at " + text) 
             .classed("tsi-closeButton", true)
             .on("click", function () {
                 d3.select(d3.select(this).node().parentNode.parentNode).remove();
+                self.setIsDroppingScooter(false);
+                self.focusOnEllipsis();
             });
 
         var scooterLeft: number = Number(scooter.style("left").replace("px", ""));
@@ -569,6 +578,7 @@ class LineChart extends ChartComponent {
         this.setIsDroppingScooter(!this.isDroppingScooter); 
         if (!this.isDroppingScooter) {
             this.activeScooter.remove();
+            this.destroyMarkerInstructions();
             return;
         }
 
@@ -584,7 +594,7 @@ class LineChart extends ChartComponent {
         
         this.activeScooter.append("div")
             .attr("class", "tsi-scooterLine");
-            
+
         var self = this;
         this.activeScooter.append("div")
             .attr("class", "tsi-scooterDragger")
@@ -618,6 +628,7 @@ class LineChart extends ChartComponent {
             );
             
         this.activeScooter.style("pointer-events", "none");
+        Utils.focusOnEllipsisButton(this.renderTarget);
     }
 
     private voronoiMousemove (mouseEvent)  { 
@@ -649,6 +660,9 @@ class LineChart extends ChartComponent {
             this.contextMenu.draw(this.chartComponentData, this.renderTarget, this.chartOptions, 
                                 mousePosition, site.data.aggregateKey, site.data.splitBy, null,
                                 site.data.dateTime);
+            if (this.brushContextMenu) {
+                this.brushContextMenu.hide();
+            }
             this.voronoiMouseover(site.data);
         }
     }
@@ -661,7 +675,7 @@ class LineChart extends ChartComponent {
         if (!this.isDroppingScooter) {
             if (this.chartComponentData.stickiedKey != null) {
                 this.chartComponentData.stickiedKey = null;
-                (<any>this.legendObject.legendElement.selectAll('.splitByLabel')).classed("stickied", false);
+                (<any>this.legendObject.legendElement.selectAll('.tsi-splitByLabel')).classed("stickied", false);
                 // recompute voronoi with no sticky
                 site = this.voronoi(this.getFilteredAndSticky(this.chartComponentData.allValues)).find(mx, my);
                 this.voronoiMouseout(site.data);
@@ -674,10 +688,12 @@ class LineChart extends ChartComponent {
         } 
 
         this.destroyMarkerInstructions();
-        this.setIsDroppingScooter(false);
+        if (!this.hasBrush) {
+            this.setIsDroppingScooter(false);
+        }
         if (this.activeScooter != null) {
             this.activeScooter.style("pointer-events", "all");
-            this.activeScooter = null;    
+            this.activeScooter = null;
         }
     }
 
@@ -688,6 +704,10 @@ class LineChart extends ChartComponent {
                 return d.measures[visibleMeasure];
         } 
         return null;
+    }
+
+    public getVisibilityState () {
+        return this.chartComponentData.getVisibilityState();
     }
 
     private brushBrush () {
@@ -736,18 +756,21 @@ class LineChart extends ChartComponent {
     private brushEnd (mouseEvent) {
         if (this.isClearingBrush) {
             this.isClearingBrush = false;
+            if (this.brushContextMenu) {
+                this.brushContextMenu.hide();
+            }
             return;
         }
         if (d3.event && d3.event.selection == null && d3.event.sourceEvent && d3.event.sourceEvent.type == "mouseup" && this.chartOptions.minBrushWidth == 0) {
-            this.brushStartTime = null;
-            this.brushEndTime = null;
-            this.brushStartPosition = null;
-            this.brushEndPosition = null;
+            if (this.brushContextMenu) {
+                this.brushContextMenu.hide();
+            }
             const [mx, my] = d3.mouse(mouseEvent);
             var site: any = this.voronoi(this.getFilteredAndSticky(this.chartComponentData.allValues)).find(mx, my);
-            if (this.chartComponentData.stickiedKey != null) {
+            let isClearingBrush = (this.brushStartPosition !== null) && (this.brushEndPosition !== null);
+            if (this.chartComponentData.stickiedKey != null && !this.isDroppingScooter && !isClearingBrush) {
                 this.chartComponentData.stickiedKey = null;
-                (<any>this.legendObject.legendElement.selectAll('.splitByLabel')).classed("stickied", false);
+                (<any>this.legendObject.legendElement.selectAll('.tsi-splitByLabel')).classed("stickied", false);
                 // recompute voronoi with no sticky
                 site = this.voronoi(this.getFilteredAndSticky(this.chartComponentData.allValues)).find(mx, my);
                 this.voronoiMouseout(site.data);
@@ -755,9 +778,17 @@ class LineChart extends ChartComponent {
                 this.chartOptions.onUnsticky(site.data.aggregateKey, site.data.splitBy)
                 return;
             }
-            if (!this.isDroppingScooter) {
+
+            this.brushStartTime = null;
+            this.brushEndTime = null;
+            this.brushStartPosition = null;
+            this.brushEndPosition = null;
+
+            if (!this.isDroppingScooter && !isClearingBrush) {
                 this.stickySeries(site.data.aggregateKey, site.data.splitBy);
                 this.chartOptions.onSticky(site.data.aggregateKey, site.data.splitBy);
+            } else {
+                this.setIsDroppingScooter(false);
             }
             return;
         }
@@ -769,6 +800,7 @@ class LineChart extends ChartComponent {
             return;
         }
         var transformCall = null; //if the brush needs to be transformed due to snap brush or it being too small, this is envoked
+        var isZeroWidth = false; //clear the brush context menu if the brush has 0 width
         if (this.chartOptions.snapBrush) {
             //find the closest possible value and set to that
             if (this.possibleTimesArray.length > 0) {
@@ -793,18 +825,38 @@ class LineChart extends ChartComponent {
                     this.brushStartPosition = this.x(this.brushStartTime);
                     this.brushEndPosition = this.x(this.brushEndTime);
                     transformCall = () => d3.select(mouseEvent).transition().call(d3.event.target.move, [this.x(this.brushStartTime), this.x(this.brushEndTime)]);
+                    isZeroWidth = this.x(this.brushStartTime) == this.x(this.brushEndTime);
                 }
             }
         }
         if (d3.event.selection[1] - d3.event.selection[0] < this.minBrushWidth) {
             let rightSide = Math.min(d3.event.selection[0] + this.minBrushWidth, this.x.range()[1]);
             transformCall = () => d3.select(mouseEvent).transition().call(d3.event.target.move, [rightSide - this.minBrushWidth, rightSide]);
+            isZeroWidth = (rightSide - this.minBrushWidth == rightSide);
         }
         if (this.chartOptions.brushMoveEndAction && (d3.event.sourceEvent && d3.event.sourceEvent.type == 'mouseup')) {
             this.chartOptions.brushMoveEndAction(this.brushStartTime, this.brushEndTime);
         }
-        if (transformCall)
+        if (this.chartOptions.brushContextMenuActions && this.chartOptions.autoTriggerBrushContextMenu && 
+            (d3.event.sourceEvent && d3.event.sourceEvent.type == 'mouseup')) {
+            if (!this.chartOptions.brushContextMenuActions || this.chartOptions.brushContextMenuActions.length == 0)
+                return;
+            var mousePosition = d3.mouse(<any>this.targetElement.node());
+            //constrain the mouse position to the renderTarget
+            var boundingCRect = this.targetElement.node().getBoundingClientRect();
+            var correctedMousePositionX = Math.min(boundingCRect.width, Math.max(mousePosition[0], 0));
+            var correctedMousePositionY = Math.min(boundingCRect.height, Math.max(mousePosition[1], 0));
+            var correctedMousePosition = [correctedMousePositionX, correctedMousePositionY];
+            
+            this.brushContextMenu.draw(this.chartComponentData, this.renderTarget, this.chartOptions, 
+                                correctedMousePosition, null, null, null, this.brushStartTime, this.brushEndTime);
+        }
+        if (transformCall) {
             transformCall();
+            if (this.brushContextMenu && isZeroWidth) {
+                this.brushContextMenu.hide();
+            } 
+        }
     }
 
     // updates the display of scooters but not their underlying data. Updates all if no scooter is passed in
@@ -1094,6 +1146,15 @@ class LineChart extends ChartComponent {
         return Math.max(0, this.width - this.chartMargins.left - this.chartMargins.right - (this.chartOptions.legend == "shown" ? this.CONTROLSWIDTH + 16 : 0));
     }
 
+    private nextStackedState = () => {
+        if (this.yAxisState == "stacked") 
+            return "shared";
+        else if (this.yAxisState == "shared")
+            return "overlap";
+        else  
+            return "stacked";
+    };
+
     public render(data: any, options: any, aggregateExpressionOptions: any) {
         this.data = data;
         this.hasBrush = options.brushMoveAction || options.brushMoveEndAction || options.brushContextMenuActions;
@@ -1219,6 +1280,48 @@ class LineChart extends ChartComponent {
                         
             this.yAxisState = this.chartOptions.yAxisState ? this.chartOptions.yAxisState : "stacked"; // stacked, shared, overlap
 
+            if (!this.chartOptions.hideChartControlPanel && this.chartControlsPanel === null) {
+
+                this.chartControlsPanel = Utils.createControlPanel(this.renderTarget, this.CONTROLSWIDTH, Math.max((this.chartMargins.top + 12), 0), this.chartOptions);
+
+                var self = this;
+                this.hasStackedButton = true;
+                this.stackedButton = this.chartControlsPanel.append("button")
+                    .style("left", "60px")
+                    .attr("class", "tsi-stackedButton")
+                    .attr("aria-label", () => "set axis state to " + this.nextStackedState())
+                    .on("click", function () {
+                        d3.select(this).attr("aria-label", () => "set axis state to " + self.nextStackedState());
+                        self.yAxisState = self.nextStackedState();
+                        self.draw();
+                        setTimeout (() => (d3.select(this).node() as any).focus(), 200);
+                    });
+
+                this.ellipsisContainer = this.chartControlsPanel.append("div")
+                    .attr("class", "tsi-ellipsisContainerDiv");
+                this.ellipsisMenu = new EllipsisMenu(this.ellipsisContainer.node());
+                var ellipsisItems = [{
+                    iconClass: "flag",
+                    label: "Drop a Marker",
+                    action: this.scooterButtonClick,
+                    description: ""
+                }];
+                if (this.chartOptions.grid) {
+                    ellipsisItems.push(Utils.createGridEllipsisOption(this.renderTarget, this.chartOptions, this.aggregateExpressionOptions, this.chartComponentData));
+                }
+
+                if (this.chartOptions.canDownload) {
+                    ellipsisItems.push(Utils.createDownloadEllipsisOption(() => this.chartComponentData.generateCSVString(), 
+                        () => this.focusOnEllipsis()));
+                }
+                this.ellipsisMenu.render(ellipsisItems, {theme: this.chartOptions.theme});
+
+            } else  if (this.chartOptions.hideChartControlPanel && this.chartControlsPanel !== null){
+                this.hasStackedButton = false;
+                this.chartControlsPanel.remove();
+                this.chartControlsPanel = null;
+            }
+
             var draw = () => {  
 
                 this.minBrushWidth = (this.chartOptions.minBrushWidth) ? this.chartOptions.minBrushWidth : this.minBrushWidth;
@@ -1249,48 +1352,6 @@ class LineChart extends ChartComponent {
                                             .style("opacity", 1);
                                        }, this.stickySeries);
 
-                if (!this.chartOptions.hideChartControlPanel) {
-
-                    var chartControlsPanel = Utils.createControlPanel(this.renderTarget, this.CONTROLSWIDTH, Math.max((this.chartMargins.top + 12), 0), this.chartOptions);
-
-                    this.hasStackedButton = true;
-                    this.stackedButton = chartControlsPanel.append("div")
-                        .style("left", "60px")
-                        .attr("class", "tsi-stackedButton")
-                        .on("click", () => {
-                            if (this.yAxisState == "stacked") 
-                                this.yAxisState = "shared";
-                            else if (this.yAxisState == "shared")
-                                this.yAxisState = "overlap";
-                            else  
-                                this.yAxisState = "stacked";
-                            this.draw();
-                        });
-
-                    var self = this;
-
-                    this.ellipsisContainer = chartControlsPanel.append("div")
-                        .attr("class", "tsi-ellipsisContainerDiv");
-                    this.ellipsisMenu = new EllipsisMenu(this.ellipsisContainer.node());
-                    var ellipsisItems = [{
-                        iconClass: "flag",
-                        label: "Drop a Marker",
-                        action: this.scooterButtonClick,
-                        description: ""
-                    }];
-                    if (this.chartOptions.grid) {
-                        ellipsisItems.push(Utils.createGridEllipsisOption(this.renderTarget, this.chartOptions, this.aggregateExpressionOptions, this.chartComponentData));
-                    }
-
-                    if (this.chartOptions.canDownload) {
-                        ellipsisItems.push(Utils.createDownloadEllipsisOption(() => this.chartComponentData.generateCSVString()));
-                    }
-                    this.ellipsisMenu.render(ellipsisItems, {theme: this.chartOptions.theme});
-
-                } else {
-                    this.hasStackedButton = false;
-                }
-    
                 this.svgSelection.selectAll('.valueElement').style("visibility", "hidden");
                 this.svgSelection.selectAll(".yAxis").style("visibility", "hidden");    
 
@@ -1490,7 +1551,7 @@ class LineChart extends ChartComponent {
 
                     if (this.brushElem) {
                         this.brushElem.selectAll(".selection, .handle").on("contextmenu", function (d) {
-                            if (!self.brushContextMenu)
+                            if (!self.chartOptions.brushContextMenuActions || self.chartOptions.brushContextMenuActions.length == 0 || self.chartOptions.autoTriggerBrushContextMenu)
                                 return;
                             var mousePosition = d3.mouse(<any>self.targetElement.node());
                             d3.event.preventDefault();
@@ -1555,6 +1616,11 @@ class LineChart extends ChartComponent {
                                                                            offset: this.chartOptions.offset,
                                                                            xAxisHidden: true, theme: this.chartOptions.theme});
                     });
+                }
+
+                if (!this.chartOptions.hideChartControlPanel && this.chartControlsPanel !== null) {
+                    let controlPanelWidth = Utils.getControlPanelWidth(this.renderTarget, this.CONTROLSWIDTH, this.chartOptions.legend === 'shown');
+                    this.chartControlsPanel.style("width", controlPanelWidth + "px");
                 }
 
                 if (Object.keys(this.chartComponentData.timeMap).length == 0) {
