@@ -4,7 +4,7 @@
     <title>Time Series Insights JavaScript SDK Examples</title>
     <meta charset="utf-8">
     <meta http-equiv="cache-control" content="no-cache" />
-    <script src="https://secure.aadcdn.microsoftonline-p.com/lib/1.0.11/js/adal.min.js"></script>
+    <script src="https://secure.aadcdn.microsoftonline-p.com/lib/1.0.17/js/adal.min.js"></script>
     
     <!--bluebird for Promise polyfill to support IE in sample client-->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bluebird/3.3.4/bluebird.min.js"></script>    
@@ -53,10 +53,10 @@
                     <option value="10">10. A Table of Events</option>
                     <option value="11">11. An Availability Chart</option>
                     <option value="12">12. Line Chart With Min/Max Envelope and Step Interpolation</option>
-                    <option value="13">13. Line Chart From L1 SKU Environment</option>
+                    <option value="13">13. Line Chart From PAYG SKU Environment</option>
                     <option value="14">14. Model Search Component With Hierarchy</option>
                     <option value="15">15. A Standalone Model Autocomplete Component</option>
-                    <option value="16">16. A Table of Events from an L SKU</option>
+                    <option value="16">16. A Table of Events from a PAYG SKU</option>
                 </select>
             </div>
             <div id="charts">
@@ -68,7 +68,7 @@
           // START: AUTHENTICATION RELATED CODE USING ADAL.JS
             // Set up ADAL
             var authContext = new AuthenticationContext({
-                // clientId: 'b54d43ab-4c7d-41cc-bea4-f39016158011',	
+                // clientId: '11a652b9-f29f-40c8-ab29-5ccbe2271823',	
                 // postLogoutRedirectUri: 'https://tsiclientsample.azurewebsites.net',
                 clientId: '120d688d-1518-4cf7-bd38-182f158850b6',
                 postLogoutRedirectUri: 'https://insights.timeseries.azure.com',
@@ -634,7 +634,7 @@
             });
         }
 
-        // 13. Line Chart From L1 SKU Environment 
+        // 13. Line Chart From PAYG SKU Environment 
         var example13 = function(){
             renderChartContainers(1, [true]);
             
@@ -762,7 +762,7 @@
             modelAutocomplete.render('10000000-0000-0000-0000-100000000109.env.timeseries.azure.com', authContext.getTsiToken, {onInput: onInput, onKeydown: onKeydown});
         }
 
-        // 16. A Table of Events from an L SKU
+        // 16. A Table of Events from a PAYG SKU
         var example16 = function() {
             renderChartContainers(1);
             var tsqExpressions = [];
