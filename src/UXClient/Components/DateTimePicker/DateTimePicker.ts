@@ -372,7 +372,7 @@ class DateTimePicker extends ChartComponent{
             }
             var amPm = ["AM", "PM"];
             var fromOrToContainer = timeInputContainer.append("div").classed("tsi-" + startOrEnd + "Container", true);
-            fromOrToContainer.append("h4").classed("tsi-timeLabel", true).html(startOrEnd);
+            fromOrToContainer.append("h4").classed("tsi-timeLabel", true).html(startOrEnd + " Time");
             var startOrEndTimeContainer = fromOrToContainer.append("div").classed("tsi-" + startOrEnd + "TimeInputContainer", true);
             startOrEndTimeContainer.append("select").attr("class", "tsi-hoursInput tsi-select")
                 .on("change", function (d) {
