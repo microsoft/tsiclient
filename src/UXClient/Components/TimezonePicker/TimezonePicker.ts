@@ -2,6 +2,7 @@ import * as d3 from 'd3';
 import './TimezonePicker.scss';
 import { ChartComponent } from '../../Interfaces/ChartComponent';
 import { Utils } from "./../../Utils";
+import * as momentTZ from 'moment-timezone';
 
 class TimezonePicker extends ChartComponent{
     private targetElement: any;
@@ -17,7 +18,17 @@ class TimezonePicker extends ChartComponent{
         let d = new Date();
         var timezoneSelection = this.targetElement.append("select")
             .attr("class", "tsi-timezonePicker tsi-select");
-        var options = timezoneSelection.selectAll("option").data(this.timeZones).enter().append("option").html(d => d);
+        var options = timezoneSelection.selectAll("option")
+            .data(this.timeZones)
+            .enter()
+            .append("option")
+            .attr('value', d => d)
+            .html(d => {
+                if (d !== 'Local') {
+                    return d;   
+                } 
+                return 'Local (' + momentTZ.tz.guess().replace(/_/g, ' ') + ")";
+            });
         timezoneSelection.on("change", function (d) {
             var timezone = (<any>d3.select(this).node()).value.replace(/\s/g, "_");
             onTimezoneSelect(timezone);
