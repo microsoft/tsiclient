@@ -41,7 +41,7 @@ class EventsTable extends ChartComponent{
     public render(events: any, chartOptions: any, fromTsx: boolean = false) {
         this.chartOptions.setOptions(chartOptions);
         this.maxVisibleIndex = 100;
-        this.eventsTableData.setEvents(events, fromTsx);
+        this.eventsTableData.setEvents(events, fromTsx, chartOptions.offset);
 
         var componentContainer = d3.select(this.renderTarget)
             .classed("tsi-tableComponent", true);
@@ -96,15 +96,12 @@ class EventsTable extends ChartComponent{
         this.eventsLegend.html("");
         this.eventsLegend.append("ul");
 
-        var columns = Object.keys(this.eventsTableData.columns)
-            .filter((cIdx) => { return cIdx.toLowerCase() != this.timestampColumnName; }) // filter out timestamp
+        var columns = this.eventsTableData.sortColumnKeys()
             .map((cIdx) => this.eventsTableData.columns[cIdx]);
         
         var filteredColumnKeys = this.getFilteredColumnKeys();
         this.setSelectAllState();
-        // if (filteredColumnKeys.length == )
         if (columns.length > 2) { // tristate - all selected
-            // var selectAllState = Objethis.eventsTableData.columns
             var selectAllColumns = this.eventsLegend.select("ul")
                 .append("li").attr("class", "tsi-selectAllColumns");
             selectAllColumns.append("button").attr("class", "tsi-columnToggleButton")
@@ -210,7 +207,7 @@ class EventsTable extends ChartComponent{
     }
 
     private getFilteredColumnKeys() {
-        return Object.keys(this.eventsTableData.columns).filter((columnKey: string) => {
+        return this.eventsTableData.sortColumnKeys().filter((columnKey: string) => {
             return this.eventsTableData.columns[columnKey].visible;
         });
     }
@@ -292,7 +289,6 @@ class EventsTable extends ChartComponent{
         var widthDictionary = this.buildHeaders(filteredColumnKeys, currentSortedCol);
         this.eventsTable.select("table").html("");
         var self = this;
-        // this.eventsTableData.sortEvents("Id_String", true);
         var rowsData = this.eventsTableData.events.slice(0, this.maxVisibleIndex);
         var firstRow = this.eventsTable.select("table").append("tr")
             .classed("tsi-eventRow", true);
@@ -323,15 +319,7 @@ class EventsTable extends ChartComponent{
                             return "none";
                     })
                     .html((d: TimeSeriesEventCell) => {
-                        if (d.key.toLowerCase() == self.timestampColumnName.toLowerCase()) {
-                            var timestampDate = new Date(d.value);
-                            if (d.value != null) {
-                                timestampDate = new Date(timestampDate.valueOf() + 
-                                    (self.chartOptions.offset - timestampDate.getTimezoneOffset()) * 60 * 1000);
-                                return timestampDate.toISOString().replace("T", " ").replace("Z", "");
-                            }
-                        }
-                        return d.value;
+                        return self.formatValue(d.value, d.type);
                     });
                 valueCells.exit().remove();
             });
@@ -344,6 +332,13 @@ class EventsTable extends ChartComponent{
         }
         rows.exit().remove();
         this.adjustHeaderWidth(widthDictionary);
+    }
+
+    private formatValue (value, type) {
+        if (type != 'DateTime') {
+            return value;
+        }
+        return Utils.timeFormat(true, true, 0, this.chartOptions.is24HourTime)(Utils.offsetUTC(new Date(value)));
     }
 }
 

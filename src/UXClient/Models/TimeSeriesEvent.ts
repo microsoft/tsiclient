@@ -4,7 +4,18 @@ import { TimeSeriesEventCell } from "./TimeSeriesEventCell";
 class TimeSeriesEvent {
     public cells = {};
 
-	constructor(rawEvent){
+	constructor(rawEvent, offset = null, offsetName: string = null){
+
+        if (offset !== null) {
+            let type = 'DateTime';
+            let utcOffsetDate = Utils.offsetUTC(new Date(Date.parse(rawEvent['timestamp ($ts)'])));
+
+            rawEvent[offsetName + "_" + type] = {
+                name: offsetName,
+                value: Utils.timeFormat(true, true, offset, true)(utcOffsetDate),
+                type: type
+            };
+        } 
         this.cells = Object.keys(rawEvent).reduce((cellObj, propId) => {
             var cell: TimeSeriesEventCell;
             if (propId == "timestamp ($ts)")

@@ -70,6 +70,12 @@ class Utils {
         return encodeURIComponent(aggName).split(".").join("_") + "_" + aggIndex;
     }
 
+    static formatOffsetMinutes (offset) {
+        return (offset < 0 ? '-' : '+') + 
+            Math.floor(offset / 60) + ':' + 
+            (offset % 60 < 10 ? '0' : '') + (offset % 60) + ''; 
+
+    }
 
     static getOffsetMinutes(offset: any, millis: number) {
         if (offset == 'Local') {
@@ -80,6 +86,11 @@ class Utils {
         } else {
             return offset;
         }
+    }
+
+    static offsetUTC (date: Date) {
+        let offsettedDate = new Date(date.valueOf() - date.getTimezoneOffset()*60*1000);
+        return offsettedDate; 
     }
 
     // inverse of getOffsetMinutes, this is the conversion factor of an offsettedTime to UTC in minutes 
