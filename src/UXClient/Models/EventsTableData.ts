@@ -22,7 +22,7 @@ class EventsTableData {
         } else {
             offsetSubstring = Utils.formatOffsetMinutes(offset);
         }
-        return "timetamp (" + offsetSubstring + ")";
+        return "timestamp (" + offsetSubstring + ")";
     }
 
     public sortColumnKeys () {
