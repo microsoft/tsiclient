@@ -18,7 +18,7 @@ class EventsTableData {
     private createOffsetName (offset) {
         var offsetSubstring = "";
         if ((typeof offset) === 'string') {
-            offsetSubstring = offset;
+            offsetSubstring = offset.replace(/_/g, ' ');
         } else {
             offsetSubstring = Utils.formatOffsetMinutes(offset);
         }
