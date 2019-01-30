@@ -377,8 +377,11 @@ class DateTimePicker extends ChartComponent{
                 timeLabel.append("button")
                     .html("snap to last")
                     .on("click", () => {
+                        this.setFromDate(this.startRange);
                         this.setToMillis(this.maxMillis);
+                        // this.setTimeRange(new Date(this.maxMillis), true);
                         this.updateDisplayedToDateTime();
+                        this.isSettingStartTime = true;
                         this.calendarPicker.draw();
                     })
             }
