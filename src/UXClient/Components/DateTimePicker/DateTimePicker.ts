@@ -375,11 +375,11 @@ class DateTimePicker extends ChartComponent{
             let timeLabel = fromOrToContainer.append("h4").classed("tsi-timeLabel", true).html(startOrEnd + " Time");
             if (startOrEnd == 'end') {
                 timeLabel.append("button")
-                    .html("snap to last")
+                    .attr("class", "tsi-snapToEndRangeButton")
+                    .html("(snap to end)")
                     .on("click", () => {
                         this.setFromDate(this.startRange);
                         this.setToMillis(this.maxMillis);
-                        // this.setTimeRange(new Date(this.maxMillis), true);
                         this.updateDisplayedToDateTime();
                         this.isSettingStartTime = true;
                         this.calendarPicker.draw();

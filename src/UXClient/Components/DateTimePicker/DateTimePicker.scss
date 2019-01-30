@@ -133,6 +133,14 @@
                 margin: 0;
                 text-transform: capitalize;
                 margin-bottom: 4px;
+
+                .tsi-snapToEndRangeButton {
+                    text-decoration: underline;
+                    background: transparent;
+                    border: none;
+                    cursor: pointer;
+                    margin-left: 8px;
+                }
             }
         }
 
