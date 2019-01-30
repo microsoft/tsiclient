@@ -11,6 +11,11 @@ class TimezonePicker extends ChartComponent{
         super(renderTarget);
     }
 
+    private addOffsetGuess (timezoneName) {
+        let timezone = momentTZ.tz(new Date(), timezoneName.split(' ').join('_'));
+        return timezone.format('Z z');
+    }
+
     public render (onTimezoneSelect, defaultTimeZone: string = null) {
         this.targetElement = d3.select(this.renderTarget)
             .classed("tsi-timezonePicker", true)
@@ -24,10 +29,17 @@ class TimezonePicker extends ChartComponent{
             .append("option")
             .attr('value', d => d)
             .html(d => {
-                if (d !== 'Local') {
-                    return d;   
+                let timezoneName = d;
+                let localPrefix = '';
+                let offsetSuffix = '';
+                if (d == 'Local') {
+                    timezoneName = momentTZ.tz.guess().replace(/_/g, ' ');
+                    localPrefix = 'Local - ';
                 } 
-                return 'Local (' + momentTZ.tz.guess().replace(/_/g, ' ') + ")";
+                if (d !== 'UTC') {
+                    offsetSuffix = ' (' + this.addOffsetGuess(timezoneName) + ')';
+                }
+                return localPrefix + timezoneName + offsetSuffix;
             });
         timezoneSelection.on("change", function (d) {
             var timezone = (<any>d3.select(this).node()).value.replace(/\s/g, "_");
