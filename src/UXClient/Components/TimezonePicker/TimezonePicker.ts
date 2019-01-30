@@ -13,7 +13,10 @@ class TimezonePicker extends ChartComponent{
 
     private addOffsetGuess (timezoneName) {
         let timezone = momentTZ.tz(new Date(), timezoneName.split(' ').join('_'));
-        return timezone.format('Z z');
+        let formatted = timezone.format('Z z').split(' ');
+        if(formatted.length > 1 && (formatted[1][0] === '-') || formatted[1][0] === '+')
+            formatted.pop();
+        return formatted.join(' ');
     }
 
     public render (onTimezoneSelect, defaultTimeZone: string = null) {
