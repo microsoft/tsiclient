@@ -13,10 +13,36 @@ class TimezonePicker extends ChartComponent{
 
     private addOffsetGuess (timezoneName) {
         let timezone = momentTZ.tz(new Date(), timezoneName.split(' ').join('_'));
-        let formatted = timezone.format('Z z').split(' ');
-        if(formatted.length > 1 && (formatted[1][0] === '-') || formatted[1][0] === '+')
-            formatted.pop();
-        return formatted.join(' ');
+        let formatted = timezone.format('Z');
+        return "UTC" + formatted;
+    }
+
+    private timezoneAbbreviation (timezoneName) {
+        if (timezoneName == 'UTC')
+            return '';
+        let abbr = momentTZ.tz(new Date(), timezoneName).format('z');
+        if (abbr[0] === '-' || abbr[0] === '+')
+            return '';
+        return ': ' + abbr;
+    } 
+
+    private sortTimezones () {
+        let filteredTimezones  = this.timeZones.filter ((tz) => {
+            return !(tz.toLowerCase() == 'local' || tz == 'UTC');
+        }) 
+
+        filteredTimezones.sort((a, b) => {
+            let aOffset = momentTZ.tz(new Date(), a.split(' ').join('_')).utcOffset();
+            let bOffset =  momentTZ.tz(new Date(), b.split(' ').join('_')).utcOffset();
+            if (aOffset < bOffset) {
+                return -1;
+            }
+            if (aOffset > bOffset) {
+                return 1;
+            }
+            return 0;
+        }); 
+        this.timeZones = ['Local', 'UTC'].concat(filteredTimezones);
     }
 
     public render (onTimezoneSelect, defaultTimeZone: string = null) {
@@ -26,29 +52,32 @@ class TimezonePicker extends ChartComponent{
         let d = new Date();
         var timezoneSelection = this.targetElement.append("select")
             .attr("class", "tsi-timezonePicker tsi-select");
+        
+        this.sortTimezones();
+
         var options = timezoneSelection.selectAll("option")
             .data(this.timeZones)
             .enter()
             .append("option")
             .attr('value', d => d)
             .html(d => {
-                let timezoneName = d;
+                let timezoneName =  d.split(' ').join('_');
                 let localPrefix = '';
-                let offsetSuffix = '';
+                let offsetPrefix = '';
                 if (d == 'Local') {
-                    timezoneName = momentTZ.tz.guess().replace(/_/g, ' ');
+                    timezoneName = momentTZ.tz.guess();
                     localPrefix = 'Local - ';
                 } 
                 if (d !== 'UTC') {
-                    offsetSuffix = ' (' + this.addOffsetGuess(timezoneName) + ')';
+                    offsetPrefix = ' (' + this.addOffsetGuess(timezoneName) + ')';
                 }
-                return localPrefix + timezoneName + offsetSuffix;
+                return offsetPrefix + " " + localPrefix + timezoneName.replace(/_/g, ' ') + this.timezoneAbbreviation(timezoneName);
             });
         timezoneSelection.on("change", function (d) {
             var timezone = (<any>d3.select(this).node()).value.replace(/\s/g, "_");
             onTimezoneSelect(timezone);
         });
-        //set all underscores to spaces
+
         defaultTimeZone = defaultTimeZone.replace(/_/g, " ");
         if (defaultTimeZone != null) {
             options.filter((d) => d == defaultTimeZone).attr("selected", true);    

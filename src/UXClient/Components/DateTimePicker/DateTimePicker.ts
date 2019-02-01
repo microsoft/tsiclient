@@ -376,7 +376,7 @@ class DateTimePicker extends ChartComponent{
             if (startOrEnd == 'end') {
                 timeLabel.append("button")
                     .attr("class", "tsi-snapToEndRangeButton")
-                    .html("(snap to end)")
+                    .html("Latest")
                     .on("click", () => {
                         this.setFromDate(this.startRange);
                         this.setToMillis(this.maxMillis);
