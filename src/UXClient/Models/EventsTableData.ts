@@ -8,12 +8,39 @@ class EventsTableData {
     public columns = {};
     public rows = [];
     public events: Array<TimeSeriesEvent> = [];
+    private timestampColumnKey= "timestamp ($ts)_DateTime"
+    private offsetName = null;
 
 	constructor(){
         
     }
 
-    public setEvents (rawEvents, fromTsx) {
+    private createOffsetName (offset) {
+        var offsetSubstring = "";
+        if ((typeof offset) === 'string') {
+            offsetSubstring = Utils.convertTimezoneToLabel(offset);
+        } else {
+            offsetSubstring = Utils.formatOffsetMinutes(offset);
+        }
+        return "timestamp " + offsetSubstring;
+    }
+
+    public sortColumnKeys () {
+        let columnKeys = Object.keys(this.columns);
+        let offsetKey = this.offsetName + "_DateTime";
+
+        let lessTimestamps = columnKeys.filter((columnKey) => {
+            return (columnKey !== this.timestampColumnKey && columnKey !== offsetKey);
+        });
+        let timestamps = [];
+        if (columnKeys.indexOf(this.timestampColumnKey) !== -1) 
+            timestamps.push(this.timestampColumnKey);
+        if (columnKeys.indexOf(offsetKey) !== -1) 
+            timestamps.push(offsetKey);
+        return timestamps.concat(lessTimestamps);
+    }
+
+    public setEvents (rawEvents, fromTsx, offset = null) {
         this.events = [];
         rawEvents.forEach((rawEvent) => {
             if (!fromTsx) {
@@ -25,7 +52,10 @@ class EventsTableData {
                     return newEventMap;
                 }, {});
             }
-            var event = new TimeSeriesEvent(rawEvent);
+            if (offset !== null) {
+                this.offsetName = this.createOffsetName(offset);
+            }
+            var event = new TimeSeriesEvent(rawEvent, offset, (offset !== null ? this.offsetName: null));
             this.events.push(event);
         });
         this.constructColumns();
@@ -96,7 +126,7 @@ class EventsTableData {
         var endLine = (s: string): string => {
             return s.slice(0, s.length - 1) + "\n";
         }
-        let columnKeys = Object.keys(this.columns);
+        let columnKeys = this.sortColumnKeys();
         var csvString = endLine(columnKeys.reduce((headerString, columnKey) => {
             return headerString + this.columns[columnKey].name + ",";
         }, ""));

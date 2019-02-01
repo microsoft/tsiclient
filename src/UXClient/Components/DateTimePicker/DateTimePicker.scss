@@ -33,6 +33,15 @@
         color: $gray1;
         background-color: $gray3;
     }
+    .tsi-timeControlsContainer {
+        .tsi-startContainer, .tsi-endContainer, .tsi-timezoneContainer {
+            .tsi-timeLabel {
+                .tsi-snapToEndRangeButton {
+                    color: $gray6;
+                }
+            }
+        }
+    }
 }
 
 .tsi-dateTimePicker {
@@ -133,6 +142,15 @@
                 margin: 0;
                 text-transform: capitalize;
                 margin-bottom: 4px;
+
+                .tsi-snapToEndRangeButton {
+                    text-decoration: underline;
+                    background: transparent;
+                    border: none;
+                    float: right;
+                    cursor: pointer;
+                    margin-left: 8px;
+                }
             }
         }
 
