@@ -105,6 +105,35 @@ class Utils {
         }
     }
 
+    static addOffsetGuess (timezoneName) {
+        let timezone = momentTZ.tz(new Date(), timezoneName.split(' ').join('_'));
+        let formatted = timezone.format('Z');
+        return "UTC" + formatted;
+    }
+
+    static timezoneAbbreviation (timezoneName) {
+        if (timezoneName == 'UTC')
+            return '';
+        let abbr = momentTZ.tz(new Date(), timezoneName).format('z');
+        if (abbr[0] === '-' || abbr[0] === '+')
+            return '';
+        return ': ' + abbr;
+    } 
+
+    static convertTimezoneToLabel (timezone) {
+        let timezoneName =  timezone.split(' ').join('_');
+        let localPrefix = '';
+        let offsetPrefix = '';
+        if (timezone == 'Local') {
+            timezoneName = momentTZ.tz.guess();
+            localPrefix = 'Local - ';
+        } 
+        if (timezone !== 'UTC') {
+            offsetPrefix = ' (' + this.addOffsetGuess(timezoneName) + ')';
+        }
+        return offsetPrefix + " " + localPrefix + timezoneName.replace(/_/g, ' ') + this.timezoneAbbreviation(timezoneName);
+    }
+
     static rangeTimeFormat (rangeMillis: number) {
         var rangeText = "";
         var oneSecond = 1000;

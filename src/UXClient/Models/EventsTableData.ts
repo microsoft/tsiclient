@@ -18,11 +18,11 @@ class EventsTableData {
     private createOffsetName (offset) {
         var offsetSubstring = "";
         if ((typeof offset) === 'string') {
-            offsetSubstring = offset.replace(/_/g, ' ');
+            offsetSubstring = Utils.convertTimezoneToLabel(offset);
         } else {
             offsetSubstring = Utils.formatOffsetMinutes(offset);
         }
-        return "timestamp (" + offsetSubstring + ")";
+        return "timestamp " + offsetSubstring;
     }
 
     public sortColumnKeys () {
