@@ -103,16 +103,20 @@ class Legend extends Component {
             .classed('hidden', legendState == 'hidden')
             .style('width', legendState == 'hidden' ? '0px' : this.legendWidth + "px");
 
+        let seriesNames = Object.keys(this.chartComponentData.displayState).filter((seriesName: string) => {
+            return (seriesName != 'states' && seriesName != 'events')
+        }); 
         var seriesLabels: any = legend.selectAll(".tsi-seriesLabel")
-            .data(Object.keys(this.chartComponentData.displayState).filter((seriesName: string) => {
-                return (seriesName != 'states' && seriesName != 'events')
-            }), d => d);
+            .data(seriesNames, d => d);
 
         var seriesLabelsEntered = seriesLabels.enter()
             .append("div") 
             .merge(seriesLabels)
             .attr("class", (d, i) => {
                 return "tsi-seriesLabel " + (this.chartComponentData.displayState[d]["visible"] ? " shown" : "");
+            })
+            .style("min-width", () => {
+                return Math.min(124, this.legendElement.node().clientWidth / seriesNames.length) + 'px';  
             })
             .style("border-color", function (d, i) {
                 if (d3.select(this).classed("shown"))
@@ -316,18 +320,13 @@ class Legend extends Component {
             var sBs = renderSplitBys();
             var splitByContainer = sBs[0];
             var splitByContainerEntered = sBs[1];
-            if (self.chartOptions.legend == 'compact') {
-                var growWidth = splitByLabelData.length * 132 > d3.select(this).node().parentNode.clientWidth / seriesLabelsEntered.size();
-                var shouldAllShrink = d3.select(this).node().parentNode.clientWidth / seriesLabelsEntered.size() < 132;
-                d3.select(this).style("flex-basis", (growWidth && !shouldAllShrink) ? 'inherit' : '132px').style('flex-shrink', shouldAllShrink ? 1 : (growWidth ? 1 : 0));
-            }
             splitByContainerEntered.on("scroll", function () {
                 if (self.chartOptions.legend == "shown") {
                     if ((<any>this).scrollTop + (<any>this).clientHeight + 40 > (<any>this).scrollHeight) {
                         const oldShownSplitBys = self.chartComponentData.displayState[aggKey].shownSplitBys; 
                         self.chartComponentData.displayState[aggKey].shownSplitBys = Math.min(oldShownSplitBys + 20, splitByLabelData.length);
                         if (oldShownSplitBys != self.chartComponentData.displayState[aggKey].shownSplitBys) {
-                            renderSplitBys();                        
+                            renderSplitBys();
                         }
                     }    
                 }

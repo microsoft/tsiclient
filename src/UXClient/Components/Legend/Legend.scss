@@ -90,7 +90,8 @@
 				overflow-x: auto;
 			}
 			white-space: nowrap;
-			flex-basis: 124px;
+			flex-basis: auto;
+			flex-shrink: 1;
 		}
 
 		.tsi-seriesLabel, .tsi-eventSeriesLabel{
@@ -110,6 +111,7 @@
 			}
 			.tsi-splitByContainer {
 				max-height: 140px;
+				display: inline-block;
 
 				.tsi-splitByLabel{
 					display: inline-block;
