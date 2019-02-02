@@ -567,7 +567,7 @@
                 tsiClient.server.getEvents(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com', {predicateString: "Factory = 'Factory1'"},  {}, startDate.valueOf(), endDate.valueOf()).then(function (events) {
                     var transformedEvents = tsiClient.ux.transformTsxToEventsArray(events, {});
                     var eventsTable = tsiClient.ux.EventsTable(document.getElementById('chart1'));
-                    eventsTable.render(transformedEvents, {theme: 'light'}, true);
+                    eventsTable.render(transformedEvents, {theme: 'light', offset: "Local"}, true);
                 });
             });
         }
