@@ -1,0 +1,44 @@
+
+<!DOCTYPE html> 
+<html>
+    <head>
+        <!-- boilerplate headers are injected with head.js, grab them from the live example header, or include a link to head.js -->
+        <script src="../../boilerplate/head.js"></script>
+    </head>
+    <body style="font-family: 'Segoe UI', sans-serif;">
+        <div id="chart1" style="width: 100%; height: 600px;"></div>
+        <div id="chart2" style="width: 50%; height: 400px; float: left;"></div>
+        <div id="chart3" style="width: 50%; height: 400px; float: right;"></div>
+        <script>
+            window.onload = function() {
+                
+                // create fake data in the shape our charts expect
+                var data = [];
+                var now = new Date();
+                for(var i = 0; i < 3; i++){
+                    var lines = {};
+                    data.push({[`lineGroup${i}`]: lines});
+                    for(var j = 0; j < 5; j++){
+                        var values = {};
+                        lines[`line${j}`] = values;
+                        for(var k = 0; k < 60; k++){
+                            values[new Date(now.valueOf() + 1000*60*k).toISOString()] = {val: Math.random() * 20};
+                        }
+                    }
+                }
+
+                // render the data in a chart
+                var tsiClient = new TsiClient();
+                var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart1'));
+                lineChart.render(data, {theme: 'light', grid: true, tooltip: true});
+
+                var barChart = new tsiClient.ux.BarChart(document.getElementById('chart2'));
+                barChart.render(data, {theme: 'dark', grid: true, tooltip: true, legend: 'compact'});
+
+                var pieChart = new tsiClient.ux.PieChart(document.getElementById('chart3'));
+                pieChart.render(data, {theme: 'light', grid: true, tooltip: true, legend: 'compact'});
+
+            };
+        </script>
+    </body>
+</html>
