@@ -62,8 +62,7 @@
                     }
                 ];
 
-
-                // get results from server and render them in three charts
+                // get results from server and render them in a line chart
                 authContext.getTsiToken().then(function(token){
                     tsiClient.server.getAggregates(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com', aggregateExpressions.map(function(ae){return ae.toTsx()})).then(function(result){
                         var transformedResult = tsiClient.ux.transformAggregatesForVisualization(result, aggregateExpressions);
