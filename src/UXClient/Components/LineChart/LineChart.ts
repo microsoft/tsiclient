@@ -931,7 +931,6 @@ class LineChart extends ChartComponent {
         var aggEnvelope;
         var aggGapLine;
         var yExtent;
-        // var includeEnvelope = this.chartOptions.includeEnvelope && this.chartComponentData.isPossibleEnvelope(agg, splitBy)
 
         let overwriteYRange = null;
         if ((this.yAxisState == "shared") || (Object.keys(this.chartComponentData.timeArrays)).length < 2 || !aggVisible) {
