@@ -1506,6 +1506,7 @@ class LineChart extends ChartComponent {
                         .merge(aggregateGroups)
                         .transition()
                         .duration((this.chartOptions.noAnimate) ? 0 : self.TRANSDURATION)            
+                        .ease(d3.easeExp)                                         
                         .attr('transform', (agg, i) => {
                             let yTranslate = 0;
                             if (this.yAxisState === "stacked") {
