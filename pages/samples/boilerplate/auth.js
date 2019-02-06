@@ -11,7 +11,7 @@ function initAuth(title){
             <a href="#" onclick="authContext.login(); return false;">Log in</a>
         </div>
     </div>
-    <div style="height: 40px; position: absolute; top: 0; width: 100%;">
+    <div style="position: absolute; top: 0; width: 100%;">
         <div class="header">
             ${title}
             <pre id="api_response2"></pre>

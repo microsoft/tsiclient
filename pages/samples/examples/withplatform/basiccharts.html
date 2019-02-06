@@ -4,7 +4,11 @@
     <head>
         <!-- boilerplate headers are injected with head.js, grab them from the live example header, or include a link to head.js -->
         <script src="../../boilerplate/head.js"></script>
+
+        <!-- boilerplate auth code is injected with auth.js, check it out for auth setup -->
         <script src="../../boilerplate/auth.js"></script>
+
+        <!-- styles are only used for styling header and auth elements, where possible -->
         <link rel="stylesheet" type="text/css" href="../../styles.css" />
     </head>
     <body style="font-family: 'Segoe UI', sans-serif;">
@@ -18,7 +22,7 @@
                 initAuth('Basic charts with platform');  // initiate auth objects, header, and login modal
                 var tsiClient = new TsiClient();
                             
-                // create aggregate expressions, S1/S2 SKU query objects
+                // create aggregate expressions, they are S1/S2 SKU query objects
                 var aggregateExpressions = [];
                 var startDate = new Date('2017-04-14T13:00:00Z');
                 var endDate = new Date(startDate.valueOf() + 1000*60*60*1);
