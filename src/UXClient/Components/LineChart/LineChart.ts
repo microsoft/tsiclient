@@ -941,13 +941,15 @@ class LineChart extends ChartComponent {
             aggY = this.y;
             aggLine = d3.line()
                     .curve(this.chartComponentData.displayState[aggKey].interpolationFunction ? d3[this.chartComponentData.displayState[aggKey].interpolationFunction] : this.chartOptions.interpolationFunction)
-                    .defined((d: any) =>  {
+                    .defined( (d: any) => { 
                         return (d.measures !== null) && 
                                 (d.measures[this.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy)] !== null);
                     })
-                    .x((d: any) => this.getXPosition(d, this.x))
-                    .y((d: any) => {                 
-                        return d.measures ? aggY(d.measures[this.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy)]) : 0;
+                    .x((d: any) => {
+                        return this.getXPosition(d, this.x);
+                    })
+                    .y((d: any) => { 
+                        return d.measures ? this.y(d.measures[this.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy)]) : 0;
                     });
             aggGapLine = null;
             aggEnvelope = this.envelope;
@@ -1424,8 +1426,6 @@ class LineChart extends ChartComponent {
                 var yRange = (yExtent[1] - yExtent[0]) > 0 ? yExtent[1] - yExtent[0] : 1;
                 var yOffsetPercentage = this.chartOptions.isArea ? (1.5 / this.chartHeight) : (10 / this.chartHeight);
                 this.y.domain([yExtent[0] - (yRange * yOffsetPercentage), yExtent[1] + (yRange * (10 / this.chartHeight))]);
-                if (this.chartComponentData.visibleTAs && this.chartComponentData.visibleTSCount != 0) {
-                    /******************** Creating this.x, y and line **********************/
 
                     this.envelope = d3.area()
                         .curve(this.chartOptions.interpolationFunction)
