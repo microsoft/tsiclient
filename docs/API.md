@@ -6,12 +6,12 @@
 
 TsiClient.ux consists of...
 
-* [Analytics Components](UX.md#Components) for visualizing data
-* [Classes](UX.md#Classes) for query and chart option abstraction
-* [Functions](UX.md#Functions) for transforming data into a chartable shape
+* [Components](UX.md#components) for visualizing data
+* [Classes](UX.md#classes) for query and chart option abstraction
+* [Functions](UX.md#functions) for transforming data into a chartable shape
 
 ## TsiClient.server
 
 TsiClient.server consists of...
 
-* [Functions](Server.md#Functions) for querying the TSI Platform API
+* [Functions](Server.md#functions) for querying the TSI Platform API
