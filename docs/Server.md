@@ -1,1 +1,3 @@
 # TsiClient.server Reference
+
+## Functions
