@@ -1,6 +1,6 @@
 # TSIClient: The Azure Time Series Insights JavaScript SDK
 
-<a href="https://tsiclientsample.azurewebsites.net"><img src="https://insights.timeseries.azure.com/favicons/android-chrome-192x192.png" align="left" hspace="10" vspace="6"></a>
+<a href="https://tsiclientsample.azurewebsites.net"><img src="https://insights.timeseries.azure.com/favicons/android-chrome-192x192.png" align="left" hspace="10" vspace="6" height="100px"></a>
 
 The Azure Time Series Insights JavaScript SDK (aka **tsiclient**) is a JavaScript library for Microsoft Azure Time Series Insights, featuring components for data visualization and analytics, utilities for making calls directly to the TSI Platform API, and more.  **tsiclient** also ships with an associated CSS file (which you must include using your preferred css linking method), which makes the components look great out of the box.
 
