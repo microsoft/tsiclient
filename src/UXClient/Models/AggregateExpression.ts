@@ -11,8 +11,8 @@ class AggregateExpression extends ChartableExpression {
     public visibilityState: Array<any>;
 
 	constructor(predicateObject: any, measureObject: any, measureTypes: Array<string>, searchSpan: any, 
-                splitByObject: any = null, color: string, alias: string, contextMenu: Array<any>, visibilityState: Array<any> = null){
-        super(searchSpan, color, alias, contextMenu, measureTypes);
+                splitByObject: any = null, color: string, alias: string, contextMenu: Array<any>, visibilityState: Array<any> = null, intepolationFunction: string){
+        super(searchSpan, color, alias, contextMenu, measureTypes, intepolationFunction);
         this.predicate = predicateObject;
         this.measureTypes = measureTypes;
         this.splitByObject = splitByObject;
