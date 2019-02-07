@@ -8,13 +8,15 @@ abstract class ChartableExpression {
     public alias: string;
     public contextMenu: any; // describes menu shown with a split by member on context menu, and actions
     public measureTypes: Array<string>;  // 
+    public interpolationFunction: string;
 
-    constructor (searchSpan: any, color: string, alias: string, contextMenu: Array<any>, measureTypes: Array<any>){
+    constructor (searchSpan: any, color: string, alias: string, contextMenu: Array<any>, measureTypes: Array<any>, interpolationFunction: string){
         this.searchSpan = searchSpan;
         this.color = color;
         this.alias = alias;
         this.contextMenu = contextMenu;
         this.measureTypes = measureTypes;
+        this.interpolationFunction = interpolationFunction;
     }
 }
 export {ChartableExpression}

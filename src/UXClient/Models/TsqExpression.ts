@@ -6,8 +6,8 @@ class TsqExpression extends ChartableExpression {
     private variableObject: any;
 
     constructor(instanceObject: any, variableObject: any, searchSpan: any, 
-                color: string = Utils.generateColors(1)[0], alias: string = 'Expression1', contextMenu: Array<any> = []){
-        super(searchSpan, color, alias, contextMenu, Object.keys(variableObject));
+                color: string = Utils.generateColors(1)[0], alias: string = 'Expression1', contextMenu: Array<any> = [], interpolationFunction: string){
+        super(searchSpan, color, alias, contextMenu, Object.keys(variableObject), interpolationFunction);
         this.instanceObject = instanceObject;
         this.variableObject = variableObject;
     }
