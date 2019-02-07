@@ -6,7 +6,7 @@ The Azure Time Series Insights JavaScript SDK (aka **tsiclient**) is a JavaScrip
 
 ## Resources
 
-* [API Reference](https://github.com/Microsoft/tsiclient/docs/API.md)
+* [API Reference](docs/API.md)
 * [Examples](https://tsiclientsample.azurewebsites.net)
 
 ## Installing
