@@ -901,16 +901,9 @@ class LineChart extends ChartComponent {
         }
 
         this.svgSelection.selectAll(".valueElement")
-                    .filter(selectedFilter)
-                    .attr("stroke-opacity", .3)
-                    .attr("fill-opacity", .3);
-        this.svgSelection.selectAll(".valueElement").sort(function (a: any, b: any) {
-            if (selectedFilter(a, 0) && !selectedFilter(b, 0))
-                return -1;
-            if (!selectedFilter(a, 0) && selectedFilter(b, 0))
-                return 1;
-            return 0;
-        });
+            .filter(selectedFilter)
+            .attr("stroke-opacity", .3)
+            .attr("fill-opacity", .3);
         this.svgSelection.selectAll(".valueEnvelope")
             .attr("fill-opacity", .3)
             .filter(selectedFilter)
@@ -930,8 +923,7 @@ class LineChart extends ChartComponent {
     }
 
     // returns the next visibleAggI
-    private generateLine (tsIterator, visibleAggI, agg, aggVisible: boolean): number {
-        var g = this.svgSelection.select(".svgGroup");
+    private generateLine = (visibleAggI, agg, aggVisible: boolean, aggregateGroup) => {
         var defs = this.svgSelection.select("defs");
         var aggKey = agg.aggKey;
         var aggY;
@@ -939,8 +931,8 @@ class LineChart extends ChartComponent {
         var aggEnvelope;
         var aggGapLine;
         var yExtent;
-        // var includeEnvelope = this.chartOptions.includeEnvelope && this.chartComponentData.isPossibleEnvelope(agg, splitBy)
 
+        let overwriteYRange = null;
         if ((this.yAxisState == "shared") || (Object.keys(this.chartComponentData.timeArrays)).length < 2 || !aggVisible) {
             yExtent = this.getYExtent(this.chartComponentData.allValues, this.chartOptions.includeEnvelope);
             var yRange = (yExtent[1] - yExtent[0]) > 0 ? yExtent[1] - yExtent[0] : 1;
@@ -968,8 +960,9 @@ class LineChart extends ChartComponent {
             if (this.yAxisState == "overlap") {
                 aggY.range([this.chartHeight, this.chartOptions.aggTopMargin]);
             } else {
-                aggY.range([(this.chartHeight / this.visibleAggCount) * (visibleAggI + 1), 
-                            (this.chartHeight / this.visibleAggCount) * (visibleAggI) + this.chartOptions.aggTopMargin]);
+                overwriteYRange = [(this.chartHeight / this.visibleAggCount) * (visibleAggI + 1), 
+                    (this.chartHeight / this.visibleAggCount) * (visibleAggI) + this.chartOptions.aggTopMargin];
+                aggY.range([(this.chartHeight / this.visibleAggCount), this.chartOptions.aggTopMargin]);
             }
             if (this.chartComponentData.aggHasVisibleSplitBys(aggKey)) {
                 yExtent = this.getYExtent(aggValues, this.chartOptions.includeEnvelope);
@@ -1002,10 +995,13 @@ class LineChart extends ChartComponent {
             aggGapLine = aggLine;
         }
 
-        this.yMap[aggKey] = aggY;
+        let localY = aggY.copy();
+        if (overwriteYRange !== null) {
+            localY.range(overwriteYRange)
+        } 
+        this.yMap[aggKey] = localY;
         
-        var yAxis: any = g.selectAll(".yAxis")
-                .filter((yAggKey) => { return yAggKey == aggKey})
+        var yAxis: any = aggregateGroup.selectAll(".yAxis")
                         .data([aggKey]);
         var visibleYAxis = (aggVisible && (this.yAxisState != "shared" || visibleAggI == 0));
         
@@ -1032,123 +1028,128 @@ class LineChart extends ChartComponent {
             y: aggY,
             visible: visibleYAxis
         };
-        var splitByColors = Utils.createSplitByColors(this.chartComponentData.displayState, aggKey, this.chartOptions.keepSplitByColor);
+        let splitByColors = Utils.createSplitByColors(this.chartComponentData.displayState, aggKey, this.chartOptions.keepSplitByColor);
 
-        Object.keys(this.chartComponentData.timeArrays[aggKey]).forEach((splitBy: string, j: number) => {
-            this.colorMap[aggKey + "_" + splitBy] = splitByColors[j];
-            // createion of segments between each gap in the data
-            var segments = [];
-            var lineData = this.chartComponentData.timeArrays[aggKey][splitBy];
-            var visibleMeasure = this.chartComponentData.getVisibleMeasure(aggKey, splitBy);
-            for (var i = 0; i < lineData.length - 1; i++) {
-                if (lineData[i].measures !== null && lineData[i].measures[visibleMeasure] !== null) {
-                    var scannerI: number = i + 1;
-                    while(scannerI < lineData.length && ((lineData[scannerI].measures == null) || 
-                                                            lineData[scannerI].measures[visibleMeasure] == null)) {
-                        scannerI++;
+        let self = this;        
+        let splitByGroups = aggregateGroup.selectAll(".tsi-splitByGroup")
+            .data(Object.keys(this.chartComponentData.timeArrays[aggKey]));
+        splitByGroups.enter()
+            .append("g")
+            .attr("class", "tsi-splitByGroup " + agg.aggKey)
+            .merge(splitByGroups)
+            .each(function (splitBy, j) {
+                self.colorMap[aggKey + "_" + splitBy] = splitByColors[j];
+                // creation of segments between each gap in the data
+                var segments = [];
+                var lineData = self.chartComponentData.timeArrays[aggKey][splitBy];
+                var visibleMeasure = self.chartComponentData.getVisibleMeasure(aggKey, splitBy);
+                for (var i = 0; i < lineData.length - 1; i++) {
+                    if (lineData[i].measures !== null && lineData[i].measures[visibleMeasure] !== null) {
+                        var scannerI: number = i + 1;
+                        while(scannerI < lineData.length && ((lineData[scannerI].measures == null) || 
+                                                                lineData[scannerI].measures[visibleMeasure] == null)) {
+                            scannerI++;
+                        }
+                        if (scannerI < lineData.length && scannerI != i + 1) {
+                            segments.push([lineData[i], lineData[scannerI]]);
+                        }
+                        i = scannerI - 1;
                     }
-                    if (scannerI < lineData.length && scannerI != i + 1) {
-                        segments.push([lineData[i], lineData[scannerI]]);
-                    }
-                    i = scannerI - 1;
                 }
-            }
-            var gapPath = g.selectAll(".gapLine" + tsIterator)
-                .data(segments);
-            gapPath.enter()
-                .append("path")
-                .attr("class", "valueElement gapLine gapLine" + tsIterator)
-                .merge(gapPath)
-                .style("visibility", (d: any) => { 
-                    return (this.chartComponentData.isSplitByVisible(aggKey, splitBy)) ? "visible" : "hidden";
-                })   
-                .transition()
-                .duration(this.chartOptions.noAnimate ? 0 : this.TRANSDURATION)
-                .ease(d3.easeExp)                                         
-                .attr("stroke-dasharray","5,5")      
-                .attrTween('d', function (d) {
-                    var previous = d3.select(this).attr('d');
-                    var current = aggLine(d);
-                    return interpolatePath(previous, current);
-                });
+                var gapPath = d3.select(this).selectAll(".gapLine")
+                    .data(segments);
+                gapPath.enter()
+                    .append("path")
+                    .attr("class", "valueElement gapLine")
+                    .merge(gapPath)
+                    .style("visibility", (d: any) => { 
+                        return (self.chartComponentData.isSplitByVisible(aggKey, splitBy)) ? "visible" : "hidden";
+                    })   
+                    .transition()
+                    .duration(self.chartOptions.noAnimate ? 0 : self.TRANSDURATION)
+                    .ease(d3.easeExp)                                         
+                    .attr("stroke-dasharray","5,5")      
+                    .attrTween('d', function (d) {
+                        var previous = d3.select(this).attr('d');
+                        var current = aggLine(d);
+                        return interpolatePath(previous, current);
+                    });
 
-            var path = g.selectAll(".valueLine" + tsIterator)
-                .data([this.chartComponentData.timeArrays[aggKey][splitBy]]);
+                var path = d3.select(this).selectAll(".valueLine")
+                    .data([self.chartComponentData.timeArrays[aggKey][splitBy]]);
 
-            path.enter()
-                .append("path")
-                .attr("class", "valueElement valueLine valueLine" + tsIterator)
-                .merge(path)
-                .style("visibility", (d: any) => { 
-                    return (this.chartComponentData.isSplitByVisible(aggKey, splitBy)) ? "visible" : "hidden";
-                })                                            
-                .transition()
-                .duration(this.chartOptions.noAnimate ? 0 : this.TRANSDURATION)
-                .ease(d3.easeExp)
-                .attr("stroke", splitByColors[j])
-                .attr("stroke-opacity", this.strokeOpacity)
-                .attrTween('d', function (d) {
-                    var previous = d3.select(this).attr('d');
-                    var current = aggLine(d);
-                    return interpolatePath(previous, current);
-                });
-            
-            if (this.chartOptions.includeEnvelope && this.chartComponentData.isPossibleEnvelope(aggKey, splitBy)) {
-                var envelopeData = this.chartComponentData.timeArrays[aggKey][splitBy].map((d: any) => ({...d, isEnvelope: true}));
-                var envelope = g.selectAll(".valueEnvelope" + tsIterator)
-                    .data([envelopeData]);
+                path.enter()
+                    .append("path")
+                    .attr("class", "valueElement valueLine")
+                    .merge(path)
+                    .style("visibility", (d: any) => { 
+                        return (self.chartComponentData.isSplitByVisible(aggKey, splitBy)) ? "visible" : "hidden";
+                    })                                            
+                    .transition()
+                    .duration(self.TRANSDURATION)
+                    .ease(d3.easeExp)
+                    .attr("stroke", splitByColors[j])
+                    .attr("stroke-opacity", self.strokeOpacity)
+                    .attrTween('d', function (d) {
+                        var previous = d3.select(this).attr('d');
+                        var current = aggLine(d);
+                        return interpolatePath(previous, current);
+                    });
                 
-                envelope.enter()
-                    .append("path")
-                    .attr("class", "valueElement valueEnvelope valueEnvelope" + tsIterator)
-                    .merge(envelope)
-                    .style("visibility", (d: any) => { 
-                        return (this.chartComponentData.isSplitByVisible(aggKey, splitBy)) ? "visible" : "hidden";
-                    })                                            
-                    .transition()
-                    .duration(this.chartOptions.noAnimate ? 0 : this.TRANSDURATION)
-                    .ease(d3.easeExp)
-                    .style("fill", splitByColors[j])
-                    .attr("fill-opacity", .2)
-                    .attr("d", aggEnvelope);
-            }
+                if (self.chartOptions.includeEnvelope && self.chartComponentData.isPossibleEnvelope(aggKey, splitBy)) {
+                    var envelopeData = self.chartComponentData.timeArrays[aggKey][splitBy].map((d: any) => ({...d, isEnvelope: true}));
+                    var envelope = d3.select(this).selectAll(".valueEnvelope")
+                        .data([envelopeData]);
+                    
+                    envelope.enter()
+                        .append("path")
+                        .attr("class", "valueElement valueEnvelope")
+                        .merge(envelope)
+                        .style("visibility", (d: any) => { 
+                            return (self.chartComponentData.isSplitByVisible(aggKey, splitBy)) ? "visible" : "hidden";
+                        })                                            
+                        .transition()
+                        .duration(self.chartOptions.noAnimate ? 0 : self.TRANSDURATION)
+                        .ease(d3.easeExp)
+                        .style("fill", splitByColors[j])
+                        .attr("fill-opacity", .2)
+                        .attr("d", aggEnvelope);
+                }
 
-            if (this.chartOptions.isArea) {
-                var area = g.selectAll(".valueArea" + tsIterator)
-                    .data([this.chartComponentData.timeArrays[aggKey][splitBy]]);
+                if (self.chartOptions.isArea) {
+                    var area = d3.select(this).selectAll(".valueArea")
+                        .data([self.chartComponentData.timeArrays[aggKey][splitBy]]);
 
-                // logic for shiny gradient fill via url()
-                let svgId = Utils.guid();
-                let lg = defs.selectAll('linearGradient')
-                        .data([this.chartComponentData.timeArrays[aggKey][splitBy]]);
-                var gradient = lg.enter()
-                    .append('linearGradient');
-                gradient.merge(lg)
-                    .attr('id', svgId).attr('x1', '0%').attr('x2', '0%').attr('y1', '0%').attr('y2', '100%');
-                gradient.append('stop').attr('offset', '0%').attr('style', () =>{return 'stop-color:' + splitByColors[j] + ';stop-opacity:.2'});
-                gradient.append('stop').attr('offset', '100%').attr('style', () =>{return 'stop-color:' + splitByColors[j] + ';stop-opacity:.03'});
-                lg.exit().remove();
+                    // logic for shiny gradient fill via url()
+                    let svgId = Utils.guid();
+                    let lg = defs.selectAll('linearGradient')
+                            .data([self.chartComponentData.timeArrays[aggKey][splitBy]]);
+                    var gradient = lg.enter()
+                        .append('linearGradient');
+                    gradient.merge(lg)
+                        .attr('id', svgId).attr('x1', '0%').attr('x2', '0%').attr('y1', '0%').attr('y2', '100%');
+                    gradient.append('stop').attr('offset', '0%').attr('style', () =>{return 'stop-color:' + splitByColors[j] + ';stop-opacity:.2'});
+                    gradient.append('stop').attr('offset', '100%').attr('style', () =>{return 'stop-color:' + splitByColors[j] + ';stop-opacity:.03'});
+                    lg.exit().remove();
 
-                area.enter()
-                    .append("path")
-                    .attr("class", "valueElement valueArea valueArea" + tsIterator)
-                    .merge(area)
-                    .style("fill", 'url(#' + (svgId) + ')')
-                    .style("visibility", (d: any) => { 
-                        return (this.chartComponentData.isSplitByVisible(aggKey, splitBy)) ? "visible" : "hidden";
-                    })                                            
-                    .transition()
-                    .duration(this.chartOptions.noAnimate ? 0 : this.TRANSDURATION)
-                    .ease(d3.easeExp)
-                    .attr("d", this.areaPath);
-                area.exit().remove();
-            }
+                    area.enter()
+                        .append("path")
+                        .attr("class", "valueElement valueArea")
+                        .merge(area)
+                        .style("fill", 'url(#' + (svgId) + ')')
+                        .style("visibility", (d: any) => { 
+                            return (self.chartComponentData.isSplitByVisible(aggKey, splitBy)) ? "visible" : "hidden";
+                        })                                            
+                        .transition()
+                        .duration(self.chartOptions.noAnimate ? 0 : self.TRANSDURATION)
+                        .ease(d3.easeExp)
+                        .attr("d", self.areaPath);
+                    area.exit().remove();
+                }
 
-            gapPath.exit().remove();
-            path.exit().remove();
-            tsIterator += 1;
-        });
-        return tsIterator;
+                gapPath.exit().remove();
+                path.exit().remove();
+            });
     }
 
     private getChartWidth () {
@@ -1486,31 +1487,37 @@ class LineChart extends ChartComponent {
                     }
             
                     /******************** Draw Line and Points ************************/
-                    var tsIterator = 0;
                     this.visibleAggCount = Object.keys(this.chartComponentData.timeArrays).reduce((count: number, aggKey: string): number => {
                         return count + (this.chartComponentData.displayState[aggKey]['visible'] ? 1 : 0);
                     }, 0);
         
                     this.yMap = {};
                     this.colorMap = {};
-                    var visibleAggI = 0;
                     this.svgSelection.selectAll(".yAxis").remove();
-
-                    this.data.forEach((agg, i) => {
-                        var aggVisible = this.chartComponentData.displayState[agg.aggKey]["visible"];
-                        tsIterator = this.generateLine(tsIterator, visibleAggI, agg, aggVisible);
-                        if (aggVisible)
-                            visibleAggI += 1;
-                    }); 
-
-                    this.svgSelection.selectAll(".valueElement").sort(function (a: any, b: any) {
-                        if (a == undefined || a.length == 0 || b == undefined || b.length == 0)
-                            return 0;
-                        return (a[0].isEnvelope == b[0].isEnvelope ? 0 : (a[0].isEnvelope ? -1 : 1));
-                    });
+                    let aggregateGroups = this.svgSelection.select('.svgGroup').selectAll('.tsi-aggGroup')
+                        .data(this.data.filter((agg) => this.chartComponentData.displayState[agg.aggKey]["visible"]), 
+                            (agg) => agg.aggKey);
+                    var self = this;
+                    aggregateGroups.enter()
+                        .append('g')
+                        .classed('tsi-aggGroup', true)
+                        .merge(aggregateGroups)
+                        .transition()
+                        .duration((this.chartOptions.noAnimate) ? 0 : self.TRANSDURATION)            
+                        .ease(d3.easeExp)                                         
+                        .attr('transform', (agg, i) => {
+                            let yTranslate = 0;
+                            if (this.yAxisState === "stacked") {
+                                yTranslate = (i / this.visibleAggCount) * this.chartHeight;
+                            }
+                            return 'translate(0,' + yTranslate + ')';
+                        })
+                        .each(function (agg, i) {
+                            self.generateLine(i, agg, true, d3.select(this));
+                        });
+                    aggregateGroups.exit().remove();
                     /******************** Voronoi diagram for hover action ************************/
 
-                    var self = this;
                     this.voronoi = d3.voronoi()
                         .x(function(d: any) {
                             return (d.bucketSize != undefined ? self.x(new Date(d.dateTime.valueOf() + (d.bucketSize / 2))) : self.x(d.dateTime))})
@@ -1565,18 +1572,16 @@ class LineChart extends ChartComponent {
                             .attr('y', (this.chartHeight - handleHeight) / 2);
                     }
 
-                    /******************** Stack/Unstack button ************************/
-                    if (this.hasStackedButton) {
-                        this.stackedButton.style("opacity",  () => {
-                            if (this.yAxisState == "stacked") return 1;
-                            if (this.yAxisState == "shared") return .6;
-                            return .3;
-                        })
-                        .style("display", this.visibleAggCount < 2 ? "none" : "block")
-                        .classed('tsi-lightTheme', this.chartOptions.theme == 'light')
-                        .classed('tsi-darkTheme', this.chartOptions.theme == 'dark');
-                    }
-                                
+                /******************** Stack/Unstack button ************************/
+                if (this.hasStackedButton) {
+                    this.stackedButton.style("opacity",  () => {
+                        if (this.yAxisState == "stacked") return 1;
+                        if (this.yAxisState == "shared") return .6;
+                        return .3;
+                    })
+                    .style("display", this.visibleAggCount < 2 ? "none" : "block")
+                    .classed('tsi-lightTheme', this.chartOptions.theme == 'light')
+                    .classed('tsi-darkTheme', this.chartOptions.theme == 'dark');
                 }
 
                 var visibleEventsCount = 0;
