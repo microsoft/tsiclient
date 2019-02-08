@@ -54,4 +54,19 @@ The above structure is shown in the [Basic Charts Example](https://tsiclientsamp
 
 ### Chart Options
 
+Chart options are generally the second parameter to a component ``render`` method.  They allow users to change view properties for the chart, like theme, legend layout, etc.  The available parameters for chart options are as follows (bold options represent default values if the option is not provided)...
+
+|Property Name|Value Options|Description|
+|-|-|-|
+|theme|**'dark'**, 'light'|Component color scheme|
+|legend| **'shown'**,'compact','hidden'|Legend layout|
+|grid| **false**|true|if true, an accessible grid is available in the ellipsis menu|
+|tooltip| **false**|true|if true, a tooltip is visible on hover|
+|timestamp| **null**|'2017-04-19T13:00:00Z'|if an ISO string, sets the slider in the bar or pie chart to the specified timestamp|
+|arcWidthRatio| **0**|a number between 0 and 1 that is the ratio between the outer and inner circle in a pie chart to create a donut|
+|noAnimate| **false**|true|suppresses animated chart transitions|
+|brushContextMenuActions| **null**|Array<Object>|an array of objects defining brush actions, for object shape see [Brush Context Menu Actions](#brush-context-menu-actions)|
+
 ### Chart Data Options
+
+### Brush Context Menu Actions
