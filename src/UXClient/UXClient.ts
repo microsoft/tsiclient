@@ -66,13 +66,13 @@ class UXClient {
 
     public AggregateExpression(predicateObject: any, measureObject: any, measureTypes: Array<string>, searchSpan: any, 
                                         splitByObject: any = null, color: string = null, alias: string = '', 
-                                        contextMenu: Array<any> = [], visibilityState: Array<any> = null, interpolationFunction: string, includeEnvelope: boolean): any {
+                                        contextMenu: Array<any> = [], visibilityState: Array<any> = null, interpolationFunction: string = '', includeEnvelope: boolean = false): any {
         return new AggregateExpression(predicateObject, measureObject, measureTypes, searchSpan, splitByObject, color, 
                                         alias, contextMenu, visibilityState, interpolationFunction, includeEnvelope);
     }
 
     public TsqExpression(instanceObject: any, variableObject: any, searchSpan: any, 
-        color: string = Utils.generateColors(1)[0], alias: string = 'Expression1', contextMenu: Array<any> = [], interpolationFunction: string, includeEnvelope: boolean){
+        color: string = Utils.generateColors(1)[0], alias: string = 'Expression1', contextMenu: Array<any> = [], interpolationFunction: string = '', includeEnvelope: boolean = false){
             return new TsqExpression(instanceObject, variableObject, searchSpan, color, alias, contextMenu, interpolationFunction, includeEnvelope);
     }
 
