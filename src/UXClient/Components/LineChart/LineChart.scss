@@ -15,8 +15,10 @@
         text{
             fill: $gray1;
         }
-        circle{
-            fill: $gray1;
+        .focus {
+            circle{
+                fill: $gray1;
+            }    
         }
         .focusLine{
             stroke: $gray2;
@@ -254,9 +256,11 @@
             pointer-events: none;
             transition: stroke-opacity .2s ease;
         }
-        circle {
-            stroke-width: 1px;
-            pointer-events: none;
+        .focus {
+            circle {
+                stroke-width: 1px;
+                pointer-events: none;
+            }    
         }
         .focusLine {
             stroke-width: 1px !important;
@@ -268,6 +272,10 @@
         }
 
         .valueArea {
+            stroke: none;
+        }
+
+        .valueDot {
             stroke: none;
         }
 

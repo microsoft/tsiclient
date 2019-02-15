@@ -1097,6 +1097,36 @@ class LineChart extends ChartComponent {
                         var current = aggLine(d);
                         return interpolatePath(previous, current);
                     });
+
+
+                if (self.chartOptions.includeDots) {
+                    let dots = d3.select(this).selectAll(".valueDot")
+                        .data(self.chartComponentData.timeArrays[aggKey][splitBy]);
+
+                    dots.enter()
+                        .append('circle')
+                        .attr('class', 'valueElement valueDot')
+                        .attr("r", 4)
+                        .merge(dots)
+                        .style("visibility", (d: any) => { 
+                            return (self.chartComponentData.isSplitByVisible(aggKey, splitBy)) ? "visible" : "hidden";
+                        }) 
+                        .transition()
+                        .duration(self.TRANSDURATION)
+                        .ease(d3.easeExp)
+                        .attr("fill", splitByColors[j])
+                        .attr('cx', (d: any) => self.getXPosition(d, self.x))
+                        .attr('cy', (d: any) => {                 
+                            return d.measures ? aggY(d.measures[self.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy)]) : null;
+                        });
+                    
+                    dots.exit().remove();
+                } else {
+                    d3.select(this).selectAll(".valueDot").remove();
+                }
+             
+
+
                 
                 if (self.chartOptions.includeEnvelope && self.chartComponentData.isPossibleEnvelope(aggKey, splitBy)) {
                     var envelopeData = self.chartComponentData.timeArrays[aggKey][splitBy].map((d: any) => ({...d, isEnvelope: true}));
