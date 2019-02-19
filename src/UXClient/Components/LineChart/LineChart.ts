@@ -1088,7 +1088,7 @@ class LineChart extends ChartComponent {
                         return (self.chartComponentData.isSplitByVisible(aggKey, splitBy)) ? "visible" : "hidden";
                     })                                            
                     .transition()
-                    .duration(self.TRANSDURATION)
+                    .duration(self.chartOptions.noAnimate ? 0 : self.TRANSDURATION)
                     .ease(d3.easeExp)
                     .attr("stroke", splitByColors[j])
                     .attr("stroke-opacity", self.strokeOpacity)
@@ -1101,22 +1101,24 @@ class LineChart extends ChartComponent {
 
                 if (self.chartOptions.includeDots) {
                     let dots = d3.select(this).selectAll(".valueDot")
-                        .data(self.chartComponentData.timeArrays[aggKey][splitBy]);
+                        .data(self.chartComponentData.timeArrays[aggKey][splitBy], (d: any, i) => {
+                            return d.dateTime.toString();
+                        });
 
                     dots.enter()
                         .append('circle')
                         .attr('class', 'valueElement valueDot')
-                        .attr("r", 4)
+                        .attr('r', 3)
                         .merge(dots)
                         .style("visibility", (d: any) => { 
-                            return (self.chartComponentData.isSplitByVisible(aggKey, splitBy)) ? "visible" : "hidden";
+                            return (self.chartComponentData.isSplitByVisible(aggKey, splitBy) && d.measures) ? "visible" : "hidden";
                         }) 
                         .transition()
-                        .duration(self.TRANSDURATION)
+                        .duration(self.chartOptions.noAnimate ? 0 : self.TRANSDURATION)
                         .ease(d3.easeExp)
                         .attr("fill", splitByColors[j])
                         .attr('cx', (d: any) => self.getXPosition(d, self.x))
-                        .attr('cy', (d: any) => {                 
+                        .attr('cy', (d: any) => {     
                             return d.measures ? aggY(d.measures[self.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy)]) : null;
                         });
                     
