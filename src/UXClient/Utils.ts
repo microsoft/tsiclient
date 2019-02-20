@@ -432,6 +432,16 @@ class Utils {
         return Math.max(1, (<any>d3.select(renderTarget).node()).clientWidth -
                 (isLegendShown ? legendWidth : 0));
     };
+
+    static getValueOrDefault (chartOptionsObj, propertyName, defaultValue = null) {
+        let propertyValue = chartOptionsObj[propertyName];
+        if (propertyValue == undefined){
+            if (this[propertyName] == undefined)
+                return defaultValue
+            return this[propertyName];
+        } 
+        return propertyValue;  
+    }
 }
 
 export {Utils};

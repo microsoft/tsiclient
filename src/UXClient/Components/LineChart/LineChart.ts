@@ -1101,7 +1101,7 @@ class LineChart extends ChartComponent {
                         return (self.chartComponentData.isSplitByVisible(aggKey, splitBy)) ? "visible" : "hidden";
                     })                                            
                     .transition()
-                    .duration(self.TRANSDURATION)
+                    .duration(self.chartOptions.noAnimate ? 0 : self.TRANSDURATION)
                     .ease(d3.easeExp)
                     .attr("stroke", splitByColors[j])
                     .attr("stroke-opacity", self.strokeOpacity)
@@ -1111,7 +1111,7 @@ class LineChart extends ChartComponent {
                         return interpolatePath(previous, current);
                     });
                 
-                if (self.chartComponentData.displayState[aggKey].includeEnvelope && self.chartComponentData.isPossibleEnvelope(aggKey, splitBy)) {
+                if ((self.chartComponentData.displayState[aggKey].includeEnvelope || self.chartOptions.includeEnvelope) && self.chartComponentData.isPossibleEnvelope(aggKey, splitBy)) {
                     var envelopeData = self.chartComponentData.timeArrays[aggKey][splitBy].map((d: any) => ({...d, isEnvelope: true}));
                     var envelope = d3.select(this).selectAll(".valueEnvelope")
                         .data([envelopeData]);
