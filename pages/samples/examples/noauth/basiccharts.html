@@ -2,8 +2,6 @@
 <!DOCTYPE html> 
 <html>
     <head>
-        <!-- boilerplate headers are injected with head.js, grab them from the live example header, or include a link to head.js -->
-        <script src="../../boilerplate/head.js"></script>
     </head>
     <body style="font-family: 'Segoe UI', sans-serif;">
         <div id="chart1" style="width: 100%; height: 600px;"></div>
@@ -24,8 +22,10 @@
                         var values = {};
                         lines[`Station${j}`] = values;
                         for(var k = 0; k < 60; k++){
-                            var to = new Date(from.valueOf() + 1000*60*k);
-                            values[to.toISOString()] = {avg: Math.random() * 20};
+                            if(!(k%2 && k%3)){  // if check is to create some sparseness in the data
+                                var to = new Date(from.valueOf() + 1000*60*k);
+                                values[to.toISOString()] = {avg: Math.random() * 20};
+                            }
                         }
                     }
                 }
@@ -33,7 +33,8 @@
                 // render the data in a chart
                 var tsiClient = new TsiClient();
                 var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart1'));
-                lineChart.render(data, {theme: 'dark', grid: true, tooltip: true});
+                // BUG: measureTypes must be present for sparse data
+                lineChart.render(data, {theme: 'dark', grid: true, tooltip: true}, [{measureTypes: ['avg'], searchSpan: {from: from.toISOString(), to: to.toISOString(), bucketSize: '1m'}}]);
 
                 var barChart = new tsiClient.ux.BarChart(document.getElementById('chart2'));
                 barChart.render(data, {theme: 'light', grid: true, tooltip: true, legend: 'compact'});
@@ -42,8 +43,11 @@
                 pieChart.render(data, {theme: 'light', grid: true, tooltip: true, legend: 'compact'});
 
                 var heatmap = new tsiClient.ux.Heatmap(document.getElementById('chart4'));
-                heatmap.render(data, {theme: 'dark'}, data.map(d => {return {searchSpan: {from: from.toISOString(), to: to.toISOString(), bucketSize: '1m'}}}));
+                heatmap.render(data, {theme: 'dark'}, data.map(d => {return {measureTypes: ['avg'], searchSpan: {from: from.toISOString(), to: to.toISOString(), bucketSize: '1m'}}}));
             };
         </script>
     </body>
+
+    <!-- boilerplate headers are injected with head.js, grab them from the live example header, or include a link to head.js -->
+    <script src="../../boilerplate/head.js"></script>
 </html>
