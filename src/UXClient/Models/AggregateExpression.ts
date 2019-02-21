@@ -10,7 +10,7 @@ class AggregateExpression extends ChartDataOptions {
     public visibleSplitByCap: number = 10;
 
 	constructor(predicateObject: any, measureObject: any, measureTypes: Array<string>, searchSpan: any, splitByObject: any = null, 
-                colorOrOptionsObject: any, alias: string, contextMenu: Array<any>, visibilityState: Array<any> = null, intepolationFunction: string, includeEnvelope: boolean){
+                colorOrOptionsObject: any, alias: string, contextMenu: Array<any>){
         super(searchSpan, measureTypes, colorOrOptionsObject, alias, contextMenu);
         this.predicate = predicateObject;
         this.splitByObject = splitByObject;
