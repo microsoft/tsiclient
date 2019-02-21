@@ -1,5 +1,6 @@
 import * as d3 from 'd3';
 import { quadtree } from 'd3';
+import { Utils } from '../Utils';
 
 class ChartOptions {
     public aggTopMargin: number; // margin on top of each aggregate line(s)
@@ -57,17 +58,6 @@ class ChartOptions {
     public zeroYAxis: boolean; // whether bar chart's bar's bottom (or top if negative) is zero
     public withContextMenu: boolean; // whether the hierarchy uses a context menu when you click on a parent of leaf nodes
 
-    private getValueOrDefault (chartOptionsObj, propertyName, defaultValue) {
-        let propertyValue = chartOptionsObj[propertyName];
-        if (propertyValue == undefined){
-            if (this[propertyName] == undefined)
-                return defaultValue
-            return this[propertyName];
-        } 
-        return propertyValue;  
-    }
-
-
     private getInterpolationFunction (interpolationName: string) {
         if (interpolationName == "curveLinear")
             return d3.curveLinear;
@@ -92,60 +82,60 @@ class ChartOptions {
     }
     
     setOptions (chartOptionsObj) {
-        this.grid = this.getValueOrDefault(chartOptionsObj, 'grid', false);
-        this.preserveAvailabilityState = this.getValueOrDefault(chartOptionsObj, 'preserveAvailabilityState', false);
-        this.isCompact = this.getValueOrDefault(chartOptionsObj, 'isCompact', false);
-        this.keepBrush = this.getValueOrDefault(chartOptionsObj, 'keepBrush', false);
-        this.isArea = this.getValueOrDefault(chartOptionsObj, 'isArea', false); 
-        this.noAnimate = this.getValueOrDefault(chartOptionsObj, 'noAnimate', false); 
-        this.minutesForTimeLabels = this.getValueOrDefault(chartOptionsObj, 'minutesForTimeLabels', false);
-        this.aggTopMargin = this.getValueOrDefault(chartOptionsObj, 'aggTopMargin', 12);
-        this.color = this.getValueOrDefault(chartOptionsObj, 'color', null);
-        this.maxBuckets = this.getValueOrDefault(chartOptionsObj, 'maxBuckets', 500);
-        this.yAxisHidden = this.getValueOrDefault(chartOptionsObj, 'yAxisHidden', false);
-        this.focusHidden = this.getValueOrDefault(chartOptionsObj, 'focusHidden', false);
-        this.singleLineXAxisLabel = this.getValueOrDefault(chartOptionsObj, 'singleLineXAxisLabel', false);
-        this.legend = this.getValueOrDefault(chartOptionsObj, 'legend', 'shown');
-        this.states = this.getValueOrDefault(chartOptionsObj, 'states', null);
-        this.events = this.getValueOrDefault(chartOptionsObj, 'events', null);
-        this.tooltip = this.getValueOrDefault(chartOptionsObj, 'tooltip', false);
-        this.snapBrush = this.getValueOrDefault(chartOptionsObj, 'snapBrush', false);
-        this.minBrushWidth = this.getValueOrDefault(chartOptionsObj, 'minBrushWidth', 0);
-        this.theme = this.getValueOrDefault(chartOptionsObj, 'theme', 'dark');
-        this.keepSplitByColor = this.getValueOrDefault(chartOptionsObj, 'keepSplitByColor', false);
-        this.brushContextMenuActions = this.getValueOrDefault(chartOptionsObj, 'brushContextMenuActions', null);
-        this.timeFrame = this.getValueOrDefault(chartOptionsObj, 'timeFrame', null);
-        this.fromChart = this.getValueOrDefault(chartOptionsObj, 'fromChart', false);
-        this.timestamp = this.getValueOrDefault(chartOptionsObj, 'timestamp', null);
-        this.stacked = this.getValueOrDefault(chartOptionsObj, 'stacked', false);
-        this.scaledToCurrentTime = this.getValueOrDefault(chartOptionsObj, 'scaledToCurrentTime', false);
-        this.zeroYAxis = this.getValueOrDefault( chartOptionsObj, 'zeroYAxis', true);
-        this.arcWidthRatio = this.getValueOrDefault(chartOptionsObj, 'arcWidthRatio', 0);
-        this.brushClearable = this.getValueOrDefault(chartOptionsObj, 'brushClearable', true);
-        this.brushMoveAction = this.getValueOrDefault(chartOptionsObj, 'brushMoveAction', () => {});
-        this.brushMoveEndAction = this.getValueOrDefault(chartOptionsObj, 'brushMoveEndAction', () => {});
-        this.yAxisState = this.getValueOrDefault(chartOptionsObj, 'yAxisState', 'stacked');
-        this.xAxisHidden = this.getValueOrDefault(chartOptionsObj, 'xAxisHidden', false);
-        this.suppressResizeListener = this.getValueOrDefault(chartOptionsObj, 'suppressResizeListener', false);
-        this.onMouseout = this.getValueOrDefault(chartOptionsObj, 'onMouseout', () => {});
-        this.onMouseover = this.getValueOrDefault(chartOptionsObj, 'onMouseover', () => {});
-        this.onSticky = this.getValueOrDefault(chartOptionsObj, 'onSticky', () => {});
-        this.onUnsticky = this.getValueOrDefault(chartOptionsObj, 'onUnsticky', () => {});
-        this.onKeydown= this.getValueOrDefault(chartOptionsObj, 'onKeydown', () => {});
-        this.onInput = this.getValueOrDefault(chartOptionsObj, 'onInput', () => {});
-        this.brushHandlesVisible = this.getValueOrDefault(chartOptionsObj, 'brushHandlesVisible', false);
-        this.hideChartControlPanel = this.getValueOrDefault(chartOptionsObj, 'hideChartControlPanel', false);
-        this.offset = this.getValueOrDefault(chartOptionsObj, 'offset', 0);
-        this.is24HourTime = this.getValueOrDefault(chartOptionsObj, 'is24HourTime', true);
-        this.includeTimezones = this.getValueOrDefault(chartOptionsObj, 'includeTimezones', true);
-        this.availabilityLeftMargin = this.getValueOrDefault(chartOptionsObj, 'availabilityLeftMargin', 60);
-        this.onInstanceClick = this.getValueOrDefault(chartOptionsObj, 'onInstanceClick', () => {return {}});
-        this.interpolationFunction = this.getInterpolationFunction(this.getValueOrDefault(chartOptionsObj, 'interpolationFunction', ''));
-        this.includeEnvelope = this.getValueOrDefault(chartOptionsObj, 'includeEnvelope', false);
-        this.canDownload = this.getValueOrDefault(chartOptionsObj, 'canDownload', true);
-        this.withContextMenu = this.getValueOrDefault(chartOptionsObj, 'withContextMenu', false);
-        this.autoTriggerBrushContextMenu = this.getValueOrDefault(chartOptionsObj, 'autoTriggerBrushContextMenu', false);
-        this.yAxisRange = this.getValueOrDefault(chartOptionsObj, 'yAxisRange', null);
+        this.grid = Utils.getValueOrDefault(chartOptionsObj, 'grid', false);
+        this.preserveAvailabilityState = Utils.getValueOrDefault(chartOptionsObj, 'preserveAvailabilityState', false);
+        this.isCompact = Utils.getValueOrDefault(chartOptionsObj, 'isCompact', false);
+        this.keepBrush = Utils.getValueOrDefault(chartOptionsObj, 'keepBrush', false);
+        this.isArea = Utils.getValueOrDefault(chartOptionsObj, 'isArea', false); 
+        this.noAnimate = Utils.getValueOrDefault(chartOptionsObj, 'noAnimate', false); 
+        this.minutesForTimeLabels = Utils.getValueOrDefault(chartOptionsObj, 'minutesForTimeLabels', false);
+        this.aggTopMargin = Utils.getValueOrDefault(chartOptionsObj, 'aggTopMargin', 12);
+        this.color = Utils.getValueOrDefault(chartOptionsObj, 'color', null);
+        this.maxBuckets = Utils.getValueOrDefault(chartOptionsObj, 'maxBuckets', 500);
+        this.yAxisHidden = Utils.getValueOrDefault(chartOptionsObj, 'yAxisHidden', false);
+        this.focusHidden = Utils.getValueOrDefault(chartOptionsObj, 'focusHidden', false);
+        this.singleLineXAxisLabel = Utils.getValueOrDefault(chartOptionsObj, 'singleLineXAxisLabel', false);
+        this.legend = Utils.getValueOrDefault(chartOptionsObj, 'legend', 'shown');
+        this.states = Utils.getValueOrDefault(chartOptionsObj, 'states', null);
+        this.events = Utils.getValueOrDefault(chartOptionsObj, 'events', null);
+        this.tooltip = Utils.getValueOrDefault(chartOptionsObj, 'tooltip', false);
+        this.snapBrush = Utils.getValueOrDefault(chartOptionsObj, 'snapBrush', false);
+        this.minBrushWidth = Utils.getValueOrDefault(chartOptionsObj, 'minBrushWidth', 0);
+        this.theme = Utils.getValueOrDefault(chartOptionsObj, 'theme', 'dark');
+        this.keepSplitByColor = Utils.getValueOrDefault(chartOptionsObj, 'keepSplitByColor', false);
+        this.brushContextMenuActions = Utils.getValueOrDefault(chartOptionsObj, 'brushContextMenuActions', null);
+        this.timeFrame = Utils.getValueOrDefault(chartOptionsObj, 'timeFrame', null);
+        this.fromChart = Utils.getValueOrDefault(chartOptionsObj, 'fromChart', false);
+        this.timestamp = Utils.getValueOrDefault(chartOptionsObj, 'timestamp', null);
+        this.stacked = Utils.getValueOrDefault(chartOptionsObj, 'stacked', false);
+        this.scaledToCurrentTime = Utils.getValueOrDefault(chartOptionsObj, 'scaledToCurrentTime', false);
+        this.zeroYAxis = Utils.getValueOrDefault( chartOptionsObj, 'zeroYAxis', true);
+        this.arcWidthRatio = Utils.getValueOrDefault(chartOptionsObj, 'arcWidthRatio', 0);
+        this.brushClearable = Utils.getValueOrDefault(chartOptionsObj, 'brushClearable', true);
+        this.brushMoveAction = Utils.getValueOrDefault(chartOptionsObj, 'brushMoveAction', () => {});
+        this.brushMoveEndAction = Utils.getValueOrDefault(chartOptionsObj, 'brushMoveEndAction', () => {});
+        this.yAxisState = Utils.getValueOrDefault(chartOptionsObj, 'yAxisState', 'stacked');
+        this.xAxisHidden = Utils.getValueOrDefault(chartOptionsObj, 'xAxisHidden', false);
+        this.suppressResizeListener = Utils.getValueOrDefault(chartOptionsObj, 'suppressResizeListener', false);
+        this.onMouseout = Utils.getValueOrDefault(chartOptionsObj, 'onMouseout', () => {});
+        this.onMouseover = Utils.getValueOrDefault(chartOptionsObj, 'onMouseover', () => {});
+        this.onSticky = Utils.getValueOrDefault(chartOptionsObj, 'onSticky', () => {});
+        this.onUnsticky = Utils.getValueOrDefault(chartOptionsObj, 'onUnsticky', () => {});
+        this.onKeydown= Utils.getValueOrDefault(chartOptionsObj, 'onKeydown', () => {});
+        this.onInput = Utils.getValueOrDefault(chartOptionsObj, 'onInput', () => {});
+        this.brushHandlesVisible = Utils.getValueOrDefault(chartOptionsObj, 'brushHandlesVisible', false);
+        this.hideChartControlPanel = Utils.getValueOrDefault(chartOptionsObj, 'hideChartControlPanel', false);
+        this.offset = Utils.getValueOrDefault(chartOptionsObj, 'offset', 0);
+        this.is24HourTime = Utils.getValueOrDefault(chartOptionsObj, 'is24HourTime', true);
+        this.includeTimezones = Utils.getValueOrDefault(chartOptionsObj, 'includeTimezones', true);
+        this.availabilityLeftMargin = Utils.getValueOrDefault(chartOptionsObj, 'availabilityLeftMargin', 60);
+        this.onInstanceClick = Utils.getValueOrDefault(chartOptionsObj, 'onInstanceClick', () => {return {}});
+        this.interpolationFunction = this.getInterpolationFunction(Utils.getValueOrDefault(chartOptionsObj, 'interpolationFunction', ''));
+        this.includeEnvelope = Utils.getValueOrDefault(chartOptionsObj, 'includeEnvelope', false);
+        this.canDownload = Utils.getValueOrDefault(chartOptionsObj, 'canDownload', true);
+        this.withContextMenu = Utils.getValueOrDefault(chartOptionsObj, 'withContextMenu', false);
+        this.autoTriggerBrushContextMenu = Utils.getValueOrDefault(chartOptionsObj, 'autoTriggerBrushContextMenu', false);
+        this.yAxisRange = Utils.getValueOrDefault(chartOptionsObj, 'yAxisRange', null);
     }
 
     public toObject () {
