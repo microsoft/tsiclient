@@ -644,7 +644,7 @@
             
             tsqExpressions.push(new tsiClient.ux.TsqExpression(
                 {timeSeriesId: ['df4412c4-dba2-4a52-87af-780e78ff156b']}, // instance json
-                {AvgValue: {
+                {Max: {
                     kind: 'numeric',
                     value: {tsx: '$event.value.Double'},
                     filter: null,
@@ -656,7 +656,7 @@
 
             tsqExpressions.push(new tsiClient.ux.TsqExpression(
                 {timeSeriesId: ['df4412c4-dba2-4a52-87af-780e78ff156b']}, // instance json
-                {AvgValue: {
+                {Avg: {
                     kind: 'numeric',
                     value: {tsx: '$event.value.Double'},
                     filter: null,
@@ -668,7 +668,7 @@
                 
             tsqExpressions.push(new tsiClient.ux.TsqExpression(
                 {timeSeriesId: ['df4412c4-dba2-4a52-87af-780e78ff156b']}, // instance json
-                {AvgValue: {
+                {Min: {
                     kind: 'numeric',
                     value: {tsx: '$event.value.Double'},
                     filter: null,
@@ -680,7 +680,7 @@
 
             tsqExpressions.push(new tsiClient.ux.TsqExpression(
                 {timeSeriesId: ['df4412c4-dba2-4a52-87af-780e78ff156b']}, // instance json
-                {AvgValue: {
+                {Events: {
                     kind: 'aggregate',
                     value: null,
                     filter: null,
