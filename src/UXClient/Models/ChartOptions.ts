@@ -52,6 +52,7 @@ class ChartOptions {
     public tooltip: boolean; // whether tooltip is visible
     public xAxisHidden: boolean; // whether xAxis is hidden in chart
     public yAxisHidden: boolean; // whether yAxis is hidden in chart
+    public yAxisRange: any; // [min, max] of range of y values in chart
     public yAxisState: string; // state of the y axis in line chart, either: stacked, shared, overlap
     public zeroYAxis: boolean; // whether bar chart's bar's bottom (or top if negative) is zero
     public withContextMenu: boolean; // whether the hierarchy uses a context menu when you click on a parent of leaf nodes
@@ -144,6 +145,7 @@ class ChartOptions {
         this.canDownload = this.getValueOrDefault(chartOptionsObj, 'canDownload', true);
         this.withContextMenu = this.getValueOrDefault(chartOptionsObj, 'withContextMenu', false);
         this.autoTriggerBrushContextMenu = this.getValueOrDefault(chartOptionsObj, 'autoTriggerBrushContextMenu', false);
+        this.yAxisRange = this.getValueOrDefault(chartOptionsObj, 'yAxisRange', null);
     }
 
     public toObject () {
@@ -200,7 +202,8 @@ class ChartOptions {
             includeEnvelope: this.includeEnvelope,
             canDownload: this.canDownload,
             withContextMenu: this.withContextMenu,
-            autoTriggerBrushContextMenu: this.autoTriggerBrushContextMenu
+            autoTriggerBrushContextMenu: this.autoTriggerBrushContextMenu,
+            yAxisRange: this.yAxisRange
         }
     }
 }
