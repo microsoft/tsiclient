@@ -20,8 +20,8 @@ abstract class ChartDataOptions {
             this.color = Utils.getValueOrDefault(colorOrOptionsObject, 'color');
             this.alias = Utils.getValueOrDefault(colorOrOptionsObject, 'alias');
             this.contextMenu = Utils.getValueOrDefault(colorOrOptionsObject, 'contextMenu', []);
-            this.interpolationFunction = Utils.getValueOrDefault(colorOrOptionsObject, 'interpolationFunction');
-            this.includeEnvelope = Utils.getValueOrDefault(colorOrOptionsObject, 'includeEnvelope');
+            this.interpolationFunction = Utils.getValueOrDefault(colorOrOptionsObject, 'interpolationFunction', '');
+            this.includeEnvelope = Utils.getValueOrDefault(colorOrOptionsObject, 'includeEnvelope', false);
             this.visibilityState = Utils.getValueOrDefault(colorOrOptionsObject, 'visibilityState');
         }
         else{
