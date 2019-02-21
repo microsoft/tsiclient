@@ -1274,8 +1274,7 @@ class LineChart extends ChartComponent {
                 .style("pointer-events", "none")
                 .attr("transform", "translate(0," + (this.chartHeight + this.chartOptions.aggTopMargin) + ")");
             var hHoverBox: any = hHoverG.append("rect")
-            .style("pointer-events", "none")
-
+                .style("pointer-events", "none")
                 .attr("class", 'hHoverBox')
                 .attr("x", 0)
                 .attr("y", 4)
@@ -1283,14 +1282,14 @@ class LineChart extends ChartComponent {
                 .attr("height", 0);
     
             var hHoverText: any = hHoverG.append("text")
-            .style("pointer-events", "none")
-            .attr("class", "hHoverText")
+                .style("pointer-events", "none")
+                .attr("class", "hHoverText")
                 .attr("dy", ".71em")
                 .attr("transform", "translate(0,6)")
                 .text(d => d);
 
             var hHoverBar: any = hHoverG.append("line")
-            .style("pointer-events", "none")
+                .style("pointer-events", "none")
                 .attr("class", "hHoverValueBar")
                 .attr("x1", 0)
                 .attr("x2", 0)
