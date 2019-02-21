@@ -9,9 +9,10 @@ abstract class ChartDataOptions {
     public alias: string;
     public contextMenu: any; // describes menu shown with a split by member on context menu, and actions
     public measureTypes: Array<string>;  // 
-    public interpolationFunction: string;
-    public includeEnvelope: boolean;
-    public visibilityState: Array<any>;
+    public interpolationFunction: string = '';
+    public yExtent: any = null;
+    public includeEnvelope: boolean = false;
+    public visibilityState: Array<any> = null;
 
     constructor (searchSpan: any, measureTypes: Array<any>, colorOrOptionsObject: any, alias: string, contextMenu: Array<any>){
         this.searchSpan = searchSpan;
@@ -23,6 +24,7 @@ abstract class ChartDataOptions {
             this.interpolationFunction = Utils.getValueOrDefault(colorOrOptionsObject, 'interpolationFunction', '');
             this.includeEnvelope = Utils.getValueOrDefault(colorOrOptionsObject, 'includeEnvelope', false);
             this.visibilityState = Utils.getValueOrDefault(colorOrOptionsObject, 'visibilityState');
+            this.yExtent = Utils.getValueOrDefault(colorOrOptionsObject, 'yExtent');
         }
         else{
             this.color = colorOrOptionsObject;

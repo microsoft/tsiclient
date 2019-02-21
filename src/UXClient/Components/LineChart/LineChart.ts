@@ -287,10 +287,13 @@ class LineChart extends ChartComponent {
     }
 
     //get the extent of an array of timeValues
-    private getYExtent (aggValues, isEnvelope: boolean = false) {   
-        var extent;
-        if (this.chartOptions.yAxisRange !== null) {
-            return this.chartOptions.yAxisRange;
+    private getYExtent (aggValues, isEnvelope, aggKey = null) {   
+        let extent;
+        if (aggKey !== null && (this.chartComponentData.displayState[aggKey].yExtent !== null)) {
+            return this.chartComponentData.displayState[aggKey].yExtent;
+        }
+        if (this.chartOptions.yExtent !== null) {
+            return this.chartOptions.yExtent;
         } 
         if (isEnvelope) {
             var filteredValues = this.getFilteredValues(aggValues);
@@ -925,14 +928,6 @@ class LineChart extends ChartComponent {
         });
     }
 
-    private createBaseYRange (yExtent) {
-        debugger;
-        if (this.chartOptions.yAxisRange !== null) {
-            return this.chartOptions.yAxisRange;
-        }
-        return (yExtent[1] - yExtent[0]) > 0 ? yExtent[1] - yExtent[0] : 1;
-    }
-
     // returns the next visibleAggI
     private generateLine = (visibleAggI, agg, aggVisible: boolean, aggregateGroup) => {
         var defs = this.svgSelection.select("defs");
@@ -945,7 +940,7 @@ class LineChart extends ChartComponent {
 
         let overwriteYRange = null;
         if ((this.yAxisState == "shared") || (Object.keys(this.chartComponentData.timeArrays)).length < 2 || !aggVisible) {
-            yExtent = this.getYExtent(this.chartComponentData.allValues, this.chartComponentData.displayState[aggKey].includeEnvelope ? this.chartComponentData.displayState[aggKey].includeEnvelope : this.chartOptions.includeEnvelope);
+            yExtent = this.getYExtent(this.chartComponentData.allValues, this.chartComponentData.displayState[aggKey].includeEnvelope ? this.chartComponentData.displayState[aggKey].includeEnvelope : this.chartOptions.includeEnvelope, null);
             var yRange = (yExtent[1] - yExtent[0]) > 0 ? yExtent[1] - yExtent[0] : 1;
             var yOffsetPercentage = this.chartOptions.isArea ? (1.5 / this.chartHeight) : (10 / this.chartHeight);
             this.y.domain([yExtent[0] - (yRange * yOffsetPercentage), yExtent[1] + (yRange * (10 / this.chartHeight))]);
@@ -991,7 +986,7 @@ class LineChart extends ChartComponent {
                 aggY.range([(this.chartHeight / this.visibleAggCount), this.chartOptions.aggTopMargin]);
             }
             if (this.chartComponentData.aggHasVisibleSplitBys(aggKey)) {
-                yExtent = this.getYExtent(aggValues, this.chartComponentData.displayState[aggKey].includeEnvelope ? this.chartComponentData.displayState[aggKey].includeEnvelope : this.chartOptions.includeEnvelope);
+                yExtent = this.getYExtent(aggValues, this.chartComponentData.displayState[aggKey].includeEnvelope ? this.chartComponentData.displayState[aggKey].includeEnvelope : this.chartOptions.includeEnvelope, aggKey);
                 var yRange = (yExtent[1] - yExtent[0]) > 0 ? yExtent[1] - yExtent[0] : 1;
                 var yOffsetPercentage = 10 / (this.chartHeight / ((this.yAxisState == "overlap") ? 1 : this.visibleAggCount));
                 aggY.domain([yExtent[0] - (yRange * yOffsetPercentage), 
@@ -1450,8 +1445,8 @@ class LineChart extends ChartComponent {
                     this.brushElem.call(this.brush);
                     this.setBrush();
                 }
-                    
-                var yExtent: any = this.getYExtent(this.chartComponentData.allValues);
+
+                var yExtent: any = this.getYExtent(this.chartComponentData.allValues, false, null);
                 var yRange = (yExtent[1] - yExtent[0]) > 0 ? yExtent[1] - yExtent[0] : 1;
                 var yOffsetPercentage = this.chartOptions.isArea ? (1.5 / this.chartHeight) : (10 / this.chartHeight);
                 this.y.domain([yExtent[0] - (yRange * yOffsetPercentage), yExtent[1] + (yRange * (10 / this.chartHeight))]);
