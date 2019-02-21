@@ -1,13 +1,13 @@
 import {Utils} from "./../Utils";
-import { ChartableExpression } from "./ChartableExpression";
+import { ChartDataOptions } from "./ChartDataOptions";
 
-class TsqExpression extends ChartableExpression {
+class TsqExpression extends ChartDataOptions {
     private instanceObject: any;
     private variableObject: any;
 
     constructor(instanceObject: any, variableObject: any, searchSpan: any, 
-                color: string = Utils.generateColors(1)[0], alias: string = 'Expression1', contextMenu: Array<any> = []){
-        super(searchSpan, color, alias, contextMenu, Object.keys(variableObject));
+                colorOrOptionsObject: any, alias: string, contextMenu: Array<any>){
+        super(searchSpan, Object.keys(variableObject), colorOrOptionsObject, alias, contextMenu);
         this.instanceObject = instanceObject;
         this.variableObject = variableObject;
     }
