@@ -33,7 +33,7 @@
                 // render the data in a chart
                 var tsiClient = new TsiClient();
                 var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart1'));
-                // BUG: measureTypes must be present for sparse data
+                // BUG: measureTypes must be present for sparse data, null chartOptions explodes
                 lineChart.render(data, {theme: 'dark', grid: true, tooltip: true}, [{measureTypes: ['avg'], searchSpan: {from: from.toISOString(), to: to.toISOString(), bucketSize: '1m'}}]);
 
                 var barChart = new tsiClient.ux.BarChart(document.getElementById('chart2'));
