@@ -48,11 +48,37 @@ var heatmap = new tsiClient.ux.Heatmap(document.getElementById('chart'));
 heatmap.render(data, chartOptions, chartDataOptionsArray);
 ```
 
+### Events Grid
+
+A grid of events can be used to show a generic array of JSON in a scalable way.  Usage is as follows...
+
+```js
+var tsiClient = new TsiClient();
+var eventsTable = tsiClient.ux.EventsTable(document.getElementById('chart'));
+eventsTable.render(events, chartOptions)
+```
+
+where ``events`` is an array of flat JSON objects, with an example shape like this...
+
+```js
+[
+    {
+        timestamp: '2017-04-14T13:00:00Z',
+        temperature: 27.5
+    },
+    {
+        timestamp: '2017-04-14T13:01:00Z',
+        pressure: 27.5
+    }
+]
+```
+
+
 ## Classes
 
 ### AggregateExpression
 
-AggregateExpressions are used to represent API queries against a Time Series Insights S SKU.  They include a method for transforming the object to query the API called ``toTsx()``, when transformed after an API call they become a data group as described in [Chart Data Shape](#chart-data-shape), and they can be used as [Chart Data Options](#chart-data-options).  Their usage is shown in [the basic charts example that uses the TSI platform](https://tsiclientsample.azurewebsites.net/examples/withplatform/basiccharts.html), or as follows...
+AggregateExpressions are used to represent API queries against a Time Series Insights S SKU.  They include a method for transforming the object to query the API called ``toTsx()``, when transformed after an API call they become a data group as described in [Chart Data Shape](#chart-data-shape), and they can be used as [Chart Data Options](#chart-data-options).  Additional Chart Data Options can be specified as the final parameters, with supported properties defined [here](#chart-data-options).  Their usage is shown in [the basic charts example that uses the TSI platform](https://tsiclientsample.azurewebsites.net/examples/withplatform/basiccharts.html), or as follows...
 
 ```js
 var aggregateExpression = new tsiClient.ux.AggregateExpression(
@@ -61,8 +87,8 @@ var aggregateExpression = new tsiClient.ux.AggregateExpression(
     ['avg', 'min', 'max'], // desired measure types
     { from: startDate, to: endDate, bucketSize: '2m' }, // search span object
     {property: 'Station', type: 'String'},  // split by column
-    '#FF8C00', // color
-    'Factory1Pressure'));  // alias
+    {color: '#FF8C00', alias: 'Factory1Pressure') // ChartDataOptions
+    );
 
 // later, to call the API and visualize the result
 tsiClient.server.getAggregates(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com', [aggregateExpression.toTsx())
@@ -86,8 +112,8 @@ var tsqExpression = new tsiClient.ux.TsqExpression(
         aggregation: {tsx: 'max($value)'}
     }}, // variable json
     { from: startDate, to: endDate, bucketSize: '6h' }, // search span object
-    '#60B9AE', // color
-    'MaxValue')); // alias
+    {color: '#60B9AE', alias: 'MaxValue'} // ChartDataOptions
+    );
 
 // later, to call the API and visualize the result
 tsiClient.server.getTsqResults(token, '10000000-0000-0000-0000-100000000109.env.timeseries.azure.com', [tsqExpression.toTsq()])
@@ -184,7 +210,7 @@ The available parameters for chart options are as follows (bold options represen
 
 ### Chart Data Options
 
-Chart data options are generally the third parameter to a component ``render`` method.  They are an array that allows users to define specific properties of the **groups** of data in the chart, like alias, color, etc.
+Chart data options are generally the final parameter for an AggregateExpression(#aggregateexpression) or TsqExpression(#tsqexpression), or third parameter to a component ``render`` method.  In render, chartDataOptions is an array that allows users to define specific properties of the **groups** of data in the chart, like alias, color, etc.
 
 ```js
 // data is an array of length 2
@@ -200,6 +226,8 @@ The available parameters for chart data options are as follows...
 |contextMenu|Array[&lt;groupContextMenuAction>](#group-context-menu-actions)|Actions to take on context menu click on a group, or time series|
 |searchSpan|[searchSpanObject](#search-span-object)|Specifies search span for this group|
 |measureTypes|['min', 'avg', max']|The measure properties specified in the time series of this group|
+|interpolationFunction|'curveStep'|If 'curveStep' is set, step interpolation is used|
+|includeEnvelope|true|If true, and a data group has measure types ['min', 'avg', max'], a shadow will be drawn to show the range of values|
 
 ### Brush Context Menu Actions
 
