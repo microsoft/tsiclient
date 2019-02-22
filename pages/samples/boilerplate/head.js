@@ -29,8 +29,22 @@ document.getElementsByTagName('head')[0].appendChild(metaHttp);
 var githubUrl = 'https://github.com/Microsoft/tsiclient/tree/master/pages/samples/examples/' + (window.location.href.split('examples/')[1]);
 var githubButton = document.createElement('button');
 githubButton.setAttribute('onClick', 'window.open("' + githubUrl + '", "_blank")');
-githubButton.style.marginBottom = '20px';
-githubButton.style.float = 'right';
-githubButton.style.fontSize = '16px';
-githubButton.innerHTML = 'View on Github';
+Object.assign(githubButton.style, {
+    marginBottom: '20px', 
+    float: 'right', 
+    'font-size': '24px', 
+    background: '#1D75BB',
+    color: 'white',
+    border: 'none',
+    display: 'flex',
+    'align-items': 'center',
+    'padding': '0 0 0 12px',
+    transform: 'rotate(-90deg)',
+    position: 'fixed',
+    'z-index': 100000,
+    top: '30%',
+    right: '-86px',
+    'border-radius': '2px',
+    cursor: 'pointer'});
+githubButton.innerHTML = 'View on Github <img style="transform: rotate(90deg)" width="48px" alt="GitHub Logomark" src="https://cdn3.iconfinder.com/data/icons/sociocons/256/github-sociocon.png">';
 document.getElementsByTagName('body')[0].prepend(githubButton);

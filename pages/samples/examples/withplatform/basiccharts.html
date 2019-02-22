@@ -46,6 +46,9 @@
 
                         var pieChart = new tsiClient.ux.PieChart(document.getElementById('chart3'));
                         pieChart.render(transformedResult, {theme: 'light', grid: true, tooltip: true, legend: 'compact'}, aggregateExpressions);
+
+                        var heatmap = new tsiClient.ux.Heatmap(document.getElementById('chart4'));
+                        heatmap.render(transformedResult, null, aggregateExpressions);
                     });
                 });
 
