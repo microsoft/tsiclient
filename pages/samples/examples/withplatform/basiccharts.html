@@ -2,12 +2,6 @@
 <!DOCTYPE html> 
 <html>
     <head>
-        <!-- boilerplate headers are injected with head.js, grab them from the live example header, or include a link to head.js -->
-        <script src="../../boilerplate/head.js"></script>
-
-        <!-- boilerplate auth code is injected with auth.js, check it out for auth setup -->
-        <script src="../../boilerplate/auth.js"></script>
-
         <!-- styles are only used for styling header and auth elements, where possible -->
         <link rel="stylesheet" type="text/css" href="../../styles.css" />
     </head>
@@ -16,6 +10,7 @@
         <div id="chart1" style="width: 100%; height: 600px; margin-top: 40px;"></div>
         <div id="chart2" style="width: 50%; height: 400px; float: left;"></div>
         <div id="chart3" style="width: 50%; height: 400px; float: right;"></div>
+        <div id="chart4" style="width: 100%; height: 600px; margin-top: 40px; float: left;"></div>
         <script>
 
             window.onload = function() {
@@ -27,11 +22,11 @@
                 var startDate = new Date('2017-04-14T13:00:00Z');
                 var endDate = new Date(startDate.valueOf() + 1000*60*60*1);
                 aggregateExpressions.push(new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory1'"}, {property: 'Pressure', type: "Double"}, ['avg', 'min', 'max'],
-                    { from: startDate, to: endDate, bucketSize: '2m' }, null, 'pink', 'Factory1Pressure'));
+                    { from: startDate, to: endDate, bucketSize: '2m' }, {property: 'Station', type: 'String'}, 'pink', 'Factory1Pressure'));
                 aggregateExpressions.push(new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory2'"}, {property: 'Pressure', type: "Double"}, ['avg', 'min', 'max'],
-                    { from: startDate, to: endDate, bucketSize: '2m' }, null, 'orange', 'Factory2Pressure'));
+                    { from: startDate, to: endDate, bucketSize: '2m' }, {property: 'Station', type: 'String'}, 'orange', 'Factory2Pressure'));
                 aggregateExpressions.push(new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory3'"}, {property: 'Pressure', type: "Double"}, ['avg', 'min', 'max'],
-                    { from: startDate, to: endDate, bucketSize: '2m' }, null, 'teal', 'Factory.3.Pressure'));
+                    { from: startDate, to: endDate, bucketSize: '2m' }, {property: 'Station', type: 'String'}, 'teal', 'Factory.3.Pressure'));
                 
                 // get results from server and render them in three charts
                 authContext.getTsiToken().then(function(token){
@@ -48,11 +43,16 @@
                         pieChart.render(transformedResult, {theme: 'light', grid: true, tooltip: true, legend: 'compact'}, aggregateExpressions);
 
                         var heatmap = new tsiClient.ux.Heatmap(document.getElementById('chart4'));
-                        heatmap.render(transformedResult, null, aggregateExpressions);
+                        heatmap.render(transformedResult, {}, aggregateExpressions);
                     });
                 });
 
         }
         </script>
     </body>
+    <!-- boilerplate headers are injected with head.js, grab them from the live example header, or include a link to head.js -->
+    <script src="../../boilerplate/head.js"></script>
+
+    <!-- boilerplate auth code is injected with auth.js, check it out for auth setup -->
+    <script src="../../boilerplate/auth.js"></script>
 </html>
