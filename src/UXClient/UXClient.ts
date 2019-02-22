@@ -65,15 +65,15 @@ class UXClient {
     }
 
     public AggregateExpression(predicateObject: any, measureObject: any, measureTypes: Array<string>, searchSpan: any, 
-                                        splitByObject: any = null, color: string = null, alias: string = '', 
-                                        contextMenu: Array<any> = [], visibilityState: Array<any> = null, interpolationFunction: string): any {
-        return new AggregateExpression(predicateObject, measureObject, measureTypes, searchSpan, splitByObject, color, 
-                                        alias, contextMenu, visibilityState, interpolationFunction);
+                                        splitByObject: any = null, colorOrOptionsObject: any, alias: string = '', 
+                                        contextMenu: Array<any> = []): any {
+        return new AggregateExpression(predicateObject, measureObject, measureTypes, searchSpan, splitByObject, colorOrOptionsObject, 
+                                        alias, contextMenu);
     }
 
     public TsqExpression(instanceObject: any, variableObject: any, searchSpan: any, 
-        color: string = Utils.generateColors(1)[0], alias: string = 'Expression1', contextMenu: Array<any> = [], interpolationFunction: string){
-            return new TsqExpression(instanceObject, variableObject, searchSpan, color, alias, contextMenu, interpolationFunction);
+        colorOrOptionsObject: any, alias: string = '', contextMenu: Array<any> = []){
+            return new TsqExpression(instanceObject, variableObject, searchSpan, colorOrOptionsObject, alias, contextMenu);
     }
 
     public Heatmap(renderTarget) {

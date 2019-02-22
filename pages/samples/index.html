@@ -16,16 +16,28 @@
                     <div class="bigHeader">
                         Standalone Examples
                     </div>
-                    <div onclick="showModal('Basic Line, Bar, and Pie Charts', 'examples/noauth/basiccharts.html', 'https://github.com/Microsoft/tsiclient/tree/master/pages/samples/examples/noauth/basiccharts.html')" class="example">
+                    <div onclick="openTab('examples/noauth/basiccharts.html')" class="example">
                         <div class="subHeader">
-                            Basic Line, Bar, and Pie Charts
+                            Basic Line, Bar, Pie, and Heatmap Charts
                         </div>
                         <div class="pic">
                             <img src="images/noauth-basiccharts.PNG">
                         </div>
-                        <div class="links">
-                            <a onclick="stopPropagation(event)" target="_blank" href="https://github.com/Microsoft/tsiclient/tree/master/pages/samples/examples/noauth/basiccharts.html">View Code</a>
-                            <a target="_blank" href="examples/noauth/basiccharts.html">Open in new tab</a>
+                    </div>
+                    <div onclick="openTab('examples/noauth/multipleseriestypes.html')" class="example">
+                        <div class="subHeader">
+                            Line Chart with Multiple Series Types
+                        </div>
+                        <div class="pic">
+                            <img src="images/noauth-multipleseriestypes.PNG">
+                        </div>
+                    </div>
+                    <div onclick="openTab('examples/noauth/contextmenu.html')" class="example">
+                        <div class="subHeader">
+                            Custom Context Menu Handlers
+                        </div>
+                        <div class="pic">
+                            <img src="images/noauth-contextmenu.PNG">
                         </div>
                     </div>
                 </div>
@@ -35,55 +47,29 @@
                         Platform Integrated Examples
                     </div>
 
-                    <div onclick="showModal('Basic Line, Bar, and Pie Charts', 'examples/withplatform/basiccharts.html', 'https://github.com/Microsoft/tsiclient/tree/master/pages/samples/examples/withplatform/basiccharts.html', true)" class="example">
+                    <div onclick="openTab('examples/withplatform/basiccharts.html')" class="example">
                         <div class="subHeader">
-                            Line, Bar, and Pie Charts with platform
+                            Line, Bar, Pie, and Heatmap w/ platform
                         </div>
                         <div class="pic">
                             <img src="images/withplatform-basiccharts.PNG">
                         </div>
-                        <div class="links">
-                            <a onclick="stopPropagation(event)" target="_blank" href="https://github.com/Microsoft/tsiclient/tree/master/pages/samples/examples/withplatform/basiccharts.html">View Code</a>
-                            <a target="_blank" href="examples/withplatform/basiccharts.html">Open in new tab</a>
-                        </div>
                     </div>
 
-                    <div onclick="showModal('Line chart with explore events', 'examples/withplatform/exploreevents.html', 'https://github.com/Microsoft/tsiclient/tree/master/pages/samples/examples/withplatform/exploreevents.html', true)" class="example">
+                    <div onclick="openTab('examples/withplatform/exploreevents.html')" class="example">
                         <div class="subHeader">
                             Line chart with explore events
                         </div>
                         <div class="pic">
                             <img src="images/withplatform-exploreevents.PNG">
                         </div>
-                        <div class="links">
-                            <a onclick="stopPropagation(event)" target="_blank" href="https://github.com/Microsoft/tsiclient/tree/master/pages/samples/examples/withplatform/exploreevents.html">View Code</a>
-                            <a target="_blank" href="examples/withplatform/exploreevents.html">Open in new tab</a>
-                        </div>
                     </div>
                 </div>
 
         </div>
-        <div id="modal">
-            <div id="modalBox">
-                <div id="modalClose" onclick="closeModal()">&times;</div>
-                <div id="modalTitle"></div>
-                <iframe id="modalContent"></iframe>
-                <div id="modalLinks"></div>
-            </div>
-        </div>
     <script type="text/javascript">
-        function showModal(modalTitle, pageName, codeLocation, isWithAuth){
-            if(isWithAuth){
-                window.open(pageName, '_blank');
-                return;
-            }
-            document.getElementById('modal').style.display = 'flex';
-            document.getElementById('modalTitle').innerHTML = modalTitle;
-            document.getElementById('modalContent').src = '/' + pageName;
-            document.getElementById('modalLinks').innerHTML = `<a target="_blank" href="${codeLocation}">View Code</a><a target="_blank" href="examples/${pageName}">Open in new tab<a></a>`;
-        }
-        function closeModal(){
-            document.getElementById('modal').style.display = 'none';
+        function openTab(pageName){
+            window.open(pageName, '_blank');
         }
         function stopPropagation(e){
             e.stopPropagation();
