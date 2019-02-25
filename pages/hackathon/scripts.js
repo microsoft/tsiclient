@@ -34,6 +34,8 @@ authContext.getTsiToken().then(function(token){
         var transformedEvents = tsiClient.ux.transformTsqResultsForVisualization(result, tsqExpressions);
         var outlierEvents = tsiClient.ux.transformTsqResultsForOutlierEvents(result, tsqExpressions);
         var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart1'));
-        lineChart.render(transformedEvents, {events: outlierEvents}, tsqExpressions.map(tsqe => {return {color: tsqe.color, alias: tsqe.alias} }));
+        var chartDataOptions = tsqExpressions.map(tsqe => {return {color: tsqe.color, alias: tsqe.alias} })
+        chartDataOptions[0].includeDots = true;
+        lineChart.render(transformedEvents, {events: outlierEvents}, chartDataOptions);
     });
 });
