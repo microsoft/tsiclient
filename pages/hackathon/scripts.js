@@ -33,9 +33,9 @@ authContext.getTsiToken().then(function(token){
     tsiClient.server.getTsqResults(token, '52a8c27b-657a-47f8-8e27-07fcf5c708ed.env.crystal-dev.windows-int.net', tsqArray).then(function(result){
         var transformedEvents = tsiClient.ux.transformTsqResultsForVisualization(result, tsqExpressions);
         var outlierEvents = tsiClient.ux.transformTsqResultsForOutlierEvents(result, tsqExpressions);
+        // transformedEvents = tsiClient.ux.augmentTsqResultsWithOutlierSeries(transformedEvents, result, tsqExpressions)
         var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart1'));
         var chartDataOptions = tsqExpressions.map(tsqe => {return {color: tsqe.color, alias: tsqe.alias} })
-        chartDataOptions[0].includeDots = true;
         lineChart.render(transformedEvents, {events: outlierEvents}, chartDataOptions);
     });
 });
