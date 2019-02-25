@@ -1115,7 +1115,7 @@ class LineChart extends ChartComponent {
                         return (self.chartComponentData.isSplitByVisible(aggKey, splitBy)) ? "visible" : "hidden";
                     })                                            
                     .transition()
-                    .duration(self.chartOptions.noAnimate ? 0 : self.TRANSDURATION)
+                    .duration(durationFunction)
                     .ease(d3.easeExp)
                     .attr("stroke", splitByColors[j])
                     .attr("stroke-opacity", self.strokeOpacity)
@@ -1125,8 +1125,7 @@ class LineChart extends ChartComponent {
                         return interpolatePath(previous, current);
                     });
 
-
-                if (self.chartOptions.includeDots) {
+                if (self.chartOptions.includeDots || self.chartComponentData.displayState[aggKey].includeDots) {
                     let dots = d3.select(this).selectAll(".valueDot")
                         .data(self.chartComponentData.timeArrays[aggKey][splitBy], (d: any, i) => {
                             return d.dateTime.toString();

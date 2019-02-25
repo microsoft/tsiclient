@@ -35,7 +35,7 @@
                 var tsiClient = new TsiClient();
                 var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart1'));
                 // BUG: measureTypes must be present for sparse data
-                lineChart.render(data, {yExtent: [-100, 100]}, [{yExtent: [.25,.75]}]);
+                lineChart.render(data, {yExtent: [-100, 100]}, [{yExtent: [.25,.75], includeDots: true}]);
 
                 var barChart = new tsiClient.ux.BarChart(document.getElementById('chart2'));
                 barChart.render(data, {theme: 'light', grid: true, tooltip: true, legend: 'compact'});
