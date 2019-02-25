@@ -204,6 +204,29 @@ class UXClient {
         return [{"availabilityCount" : {"" : buckets}}];
     }
 
+    public transformTsqResultsForOutlierEvents(tsqResults: Array<any>, options): any{
+        var events = [];
+        tsqResults.forEach((tsqr, i) => {
+            var tsAnomaliesWrapper = {};
+            var tsAnomalies = [];
+            tsAnomaliesWrapper[options[i].alias + ' Anomalies'] = tsAnomalies;
+            
+            if(tsqr.hasOwnProperty('__tsiError__')){
+            }
+            else{
+                tsqr.timestamps.forEach((ts, j) => {
+                    tsqr.properties.forEach((prop) => {
+                        if(prop.isUnivariateOutlier[j]){
+                            tsAnomalies.push({[ts]: {color: options[i].color, description: 'foo'}});
+                        }
+                    });
+                }); 
+            }
+            events.push(tsAnomaliesWrapper)
+        });
+        return events;
+    }
+
     public transformTsqResultsForVisualization(tsqResults: Array<any>, options): Array<any> {
         var result = [];
         tsqResults.forEach((tsqr, i) => {
@@ -214,7 +237,6 @@ class UXClient {
             if(tsqr.hasOwnProperty('__tsiError__'))
                 transformedAggregate[''] = {};
             else{
-                debugger;
                 tsqr.timestamps.forEach((ts, j) => {
                     aggregatesObject[ts] = tsqr.properties.reduce((p,c) => {
                         p[c.name] = c['values'][j]; return p;
