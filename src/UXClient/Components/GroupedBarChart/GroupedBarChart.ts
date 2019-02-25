@@ -11,6 +11,7 @@ import { Tooltip } from '../Tooltip/Tooltip';
 import { ChartOptions } from '../../Models/ChartOptions';
 import { EllipsisMenu } from '../EllipsisMenu/EllipsisMenu';
 import { Grid } from '../Grid/Grid';
+import { ChartDataOptions } from '../../Models/ChartDataOptions';
 
 class GroupedBarChart extends ChartComponent {
     private svgSelection: any;
@@ -50,7 +51,7 @@ class GroupedBarChart extends ChartComponent {
             this.chartMargins.top = 84;
         else
             this.chartMargins.top = 52;
-        this.aggregateExpressionOptions = aggregateExpressionOptions;
+        this.aggregateExpressionOptions = data.map((d, i) => Object.assign(d, aggregateExpressionOptions && i in aggregateExpressionOptions  ? new ChartDataOptions(aggregateExpressionOptions[i]) : new ChartDataOptions({})));
         var width = Math.max((<any>d3.select(this.renderTarget).node()).clientWidth, this.MINWIDTH);
         var height = Math.max((<any>d3.select(this.renderTarget).node()).clientHeight, this.MINHEIGHT);
 

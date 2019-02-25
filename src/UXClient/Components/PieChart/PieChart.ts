@@ -10,6 +10,7 @@ import { Slider } from '../Slider/Slider';
 import { Tooltip } from '../Tooltip/Tooltip';
 import { ChartOptions } from '../../Models/ChartOptions';
 import { EllipsisMenu } from '../EllipsisMenu/EllipsisMenu';
+import { ChartDataOptions } from '../../Models/ChartDataOptions';
 
 
 class PieChart extends ChartComponent {
@@ -38,7 +39,7 @@ class PieChart extends ChartComponent {
         var firstTerm = data[0][Object.keys(data[0])[0]];
         var firstSplitByKey = Object.keys(firstTerm)[0];
         var timestamp = (options.timestamp != undefined) ? options.timestamp : Object.keys(firstTerm[firstSplitByKey])[0];
-        this.aggregateExpressionOptions = aggregateExpressionOptions;
+        this.aggregateExpressionOptions = data.map((d, i) => Object.assign(d, aggregateExpressionOptions && i in aggregateExpressionOptions  ? new ChartDataOptions(aggregateExpressionOptions[i]) : new ChartDataOptions({})));
 
         this.chartComponentData.mergeDataToDisplayStateAndTimeArrays(data, timestamp, aggregateExpressionOptions); 
 
