@@ -12,6 +12,7 @@ import { ContextMenu } from '../ContextMenu/ContextMenu';
 import { Tooltip } from '../Tooltip/Tooltip';
 import { ChartOptions } from '../../Models/ChartOptions';
 import { EllipsisMenu } from '../EllipsisMenu/EllipsisMenu';
+import { ChartDataOptions } from '../../Models/ChartDataOptions';
 
 class LineChart extends ChartComponent {
     private svgSelection: any;
@@ -206,8 +207,8 @@ class LineChart extends ChartComponent {
 
         this.focus.style("display", "block");
         this.focus.attr("transform", "translate(" + xPos + "," + yPos + ")");
-        this.focus.select('.hLine').attr("transform", "translate(-" + xPos + ",0)");
-        this.focus.select('.vLine').attr("transform", "translate(0,-" + yPos + ")");
+        this.focus.select('.hLine').attr("transform", "translate(" + (-xPos) + ",0)");
+        this.focus.select('.vLine').attr("transform", "translate(0," + (-yPos) + ")");
         
         this.focus.select('.hHoverG')
             .attr("transform", "translate(0," + (this.chartHeight + this.timelineHeight - yPos) + ")");
@@ -288,8 +289,14 @@ class LineChart extends ChartComponent {
     }
 
     //get the extent of an array of timeValues
-    private getYExtent (aggValues, isEnvelope: boolean = false) {   
-        var extent;
+    private getYExtent (aggValues, isEnvelope, aggKey = null) {   
+        let extent;
+        if (aggKey !== null && (this.chartComponentData.displayState[aggKey].yExtent !== null)) {
+            return this.chartComponentData.displayState[aggKey].yExtent;
+        }
+        if (this.chartOptions.yExtent !== null) {
+            return this.chartOptions.yExtent;
+        } 
         if (isEnvelope) {
             var filteredValues = this.getFilteredValues(aggValues);
             var flatValuesList = [];
@@ -935,7 +942,7 @@ class LineChart extends ChartComponent {
 
         let overwriteYRange = null;
         if ((this.yAxisState == "shared") || (Object.keys(this.chartComponentData.timeArrays)).length < 2 || !aggVisible) {
-            yExtent = this.getYExtent(this.chartComponentData.allValues, this.chartComponentData.displayState[aggKey].includeEnvelope ? this.chartComponentData.displayState[aggKey].includeEnvelope : this.chartOptions.includeEnvelope);
+            yExtent = this.getYExtent(this.chartComponentData.allValues, this.chartComponentData.displayState[aggKey].includeEnvelope ? this.chartComponentData.displayState[aggKey].includeEnvelope : this.chartOptions.includeEnvelope, null);
             var yRange = (yExtent[1] - yExtent[0]) > 0 ? yExtent[1] - yExtent[0] : 1;
             var yOffsetPercentage = this.chartOptions.isArea ? (1.5 / this.chartHeight) : (10 / this.chartHeight);
             this.y.domain([yExtent[0] - (yRange * yOffsetPercentage), yExtent[1] + (yRange * (10 / this.chartHeight))]);
@@ -981,7 +988,7 @@ class LineChart extends ChartComponent {
                 aggY.range([(this.chartHeight / this.visibleAggCount), this.chartOptions.aggTopMargin]);
             }
             if (this.chartComponentData.aggHasVisibleSplitBys(aggKey)) {
-                yExtent = this.getYExtent(aggValues, this.chartComponentData.displayState[aggKey].includeEnvelope ? this.chartComponentData.displayState[aggKey].includeEnvelope : this.chartOptions.includeEnvelope);
+                yExtent = this.getYExtent(aggValues, this.chartComponentData.displayState[aggKey].includeEnvelope ? this.chartComponentData.displayState[aggKey].includeEnvelope : this.chartOptions.includeEnvelope, aggKey);
                 var yRange = (yExtent[1] - yExtent[0]) > 0 ? yExtent[1] - yExtent[0] : 1;
                 var yOffsetPercentage = 10 / (this.chartHeight / ((this.yAxisState == "overlap") ? 1 : this.visibleAggCount));
                 aggY.domain([yExtent[0] - (yRange * yOffsetPercentage), 
@@ -1222,9 +1229,9 @@ class LineChart extends ChartComponent {
 
     public render(data: any, options: any, aggregateExpressionOptions: any) {
         this.data = data;
-        this.hasBrush = options.brushMoveAction || options.brushMoveEndAction || options.brushContextMenuActions;
+        this.hasBrush = options && (options.brushMoveAction || options.brushMoveEndAction || options.brushContextMenuActions);
         this.chartOptions.setOptions(options);
-        this.aggregateExpressionOptions = aggregateExpressionOptions;
+        this.aggregateExpressionOptions = data.map((d, i) => Object.assign(d, aggregateExpressionOptions && i in aggregateExpressionOptions  ? new ChartDataOptions(aggregateExpressionOptions[i]) : new ChartDataOptions({})));
         this.width = Math.max((<any>d3.select(this.renderTarget).node()).clientWidth, this.MINWIDTH);
         this.height = Math.max((<any>d3.select(this.renderTarget).node()).clientHeight, this.MINHEIGHT);
         if (this.chartOptions.legend == "compact")
@@ -1305,8 +1312,10 @@ class LineChart extends ChartComponent {
     
             var hHoverG: any = this.focus.append("g")
                 .attr("class", 'hHoverG')
+                .style("pointer-events", "none")
                 .attr("transform", "translate(0," + (this.chartHeight + this.chartOptions.aggTopMargin) + ")");
             var hHoverBox: any = hHoverG.append("rect")
+                .style("pointer-events", "none")
                 .attr("class", 'hHoverBox')
                 .attr("x", 0)
                 .attr("y", 4)
@@ -1314,12 +1323,14 @@ class LineChart extends ChartComponent {
                 .attr("height", 0);
     
             var hHoverText: any = hHoverG.append("text")
+                .style("pointer-events", "none")
                 .attr("class", "hHoverText")
                 .attr("dy", ".71em")
                 .attr("transform", "translate(0,6)")
                 .text(d => d);
 
             var hHoverBar: any = hHoverG.append("line")
+                .style("pointer-events", "none")
                 .attr("class", "hHoverValueBar")
                 .attr("x1", 0)
                 .attr("x2", 0)
@@ -1474,8 +1485,8 @@ class LineChart extends ChartComponent {
                     this.brushElem.call(this.brush);
                     this.setBrush();
                 }
-                    
-                var yExtent: any = this.getYExtent(this.chartComponentData.allValues);
+
+                var yExtent: any = this.getYExtent(this.chartComponentData.allValues, false, null);
                 var yRange = (yExtent[1] - yExtent[0]) > 0 ? yExtent[1] - yExtent[0] : 1;
                 var yOffsetPercentage = this.chartOptions.isArea ? (1.5 / this.chartHeight) : (10 / this.chartHeight);
                 this.y.domain([yExtent[0] - (yRange * yOffsetPercentage), yExtent[1] + (yRange * (10 / this.chartHeight))]);

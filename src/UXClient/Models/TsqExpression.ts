@@ -7,7 +7,7 @@ class TsqExpression extends ChartDataOptions {
 
     constructor(instanceObject: any, variableObject: any, searchSpan: any, 
                 colorOrOptionsObject: any, alias: string, contextMenu: Array<any>){
-        super(searchSpan, Object.keys(variableObject), colorOrOptionsObject, alias, contextMenu);
+        super((typeof(colorOrOptionsObject) === 'object' && !!colorOrOptionsObject) ? {...colorOrOptionsObject, searchSpan: searchSpan, measureTypes: Object.keys(variableObject)} : {color: colorOrOptionsObject, searchSpan: searchSpan, measureTypes: Object.keys(variableObject), alias: alias, contextMenu: contextMenu });
         this.instanceObject = instanceObject;
         this.variableObject = variableObject;
     }

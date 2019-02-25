@@ -96,6 +96,7 @@ class ChartComponentData {
                     color: ((aggregateExpressionOptions[i] && aggregateExpressionOptions[i].color) ? 
                              aggregateExpressionOptions[i].color : this.displayState[aggKey].color),
                     interpolationFunction: aggregateExpressionOptions[i].interpolationFunction,
+                    yExtent: aggregateExpressionOptions[i].yExtent,
                     includeEnvelope: aggregateExpressionOptions[i].includeEnvelope,
                     splitBys: [],
                     shownSplitBys: 20
@@ -109,6 +110,7 @@ class ChartComponentData {
                     color: ((aggregateExpressionOptions[i] && aggregateExpressionOptions[i].color) ? 
                              aggregateExpressionOptions[i].color : "teal"),
                     interpolationFunction: aggregateExpressionOptions[i].interpolationFunction,
+                    yExtent: aggregateExpressionOptions[i].yExtent,
                     includeEnvelope: aggregateExpressionOptions[i].includeEnvelope,
                     visibleSplitByCap: 10,
                     shownSplitBys: 20

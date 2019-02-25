@@ -155,12 +155,13 @@
             var aggregateExpressions = [];
             var startDate = new Date('2017-04-14T13:00:00Z');
             var endDate = new Date(startDate.valueOf() + 1000*60*60*1);
+            let optionsObject1 = {color: '#FF8C00', alias: 'Factory1Pressure', yExtent: [0, 5000]};
             aggregateExpressions.push(new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory1'"}, {property: 'Pressure', type: "Double"}, ['avg', 'min', 'max'],
-                { from: startDate, to: endDate, bucketSize: '2m' }, null, '#FF8C00', 'Factory1Pressure'));
+                { from: startDate, to: endDate, bucketSize: '2m' }, null, optionsObject1));
             aggregateExpressions.push(new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory2'"}, {property: 'Pressure', type: "Double"}, ['avg', 'min', 'max'],
                 { from: startDate, to: endDate, bucketSize: '2m' }, null, '#D869CB', 'Factory2Pressure'));
             aggregateExpressions.push(new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory3'"}, {property: 'Pressure', type: "Double"}, ['avg', 'min', 'max'],
-                { from: startDate, to: endDate, bucketSize: '2m' }, null, '#60B9AE', 'Factory.3.Pressure'));
+                { from: startDate, to: endDate, bucketSize: '2m' }, null, '#60B9AE', 'Factory 3 Pressure'));
             authContext.getTsiToken().then(function(token){
                 tsiClient.server.getAggregates(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com', aggregateExpressions.map(function(ae){return ae.toTsx()})).then(function(result){
                     var transformedResult = tsiClient.ux.transformAggregatesForVisualization(result, aggregateExpressions);

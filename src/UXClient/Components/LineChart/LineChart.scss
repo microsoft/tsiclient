@@ -34,6 +34,7 @@
 
         .xAxisBaseline {
             stroke: $gray1 !important;
+            pointer-events: none;
         }
     }
 
