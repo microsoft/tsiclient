@@ -19,6 +19,7 @@ class ChartOptions {
     public fromChart: boolean; // whether a component is a subcomponent of another one or is a standalone
     public grid: boolean; // whether the chart includes a grid and grid button
     public hideChartControlPanel: boolean; // whether to hide the panel with chart control buttons
+    public includeDots: boolean; // whether the linechart uses dots for values
     public includeEnvelope: boolean; //whether to include an area showing min/max boundaries in the line chart
     public includeTimezones: boolean; //whether timezone dropdown is included in dateTimePicker
     public interpolationFunction: any; //which interpolation function used for line chart lines
@@ -60,8 +61,6 @@ class ChartOptions {
 
     private getInterpolationFunction (interpolationName: string) {
         if (interpolationName == "curveLinear")
-            return d3.curveLinear;
-        if (interpolationName == "curveLinear") 
             return d3.curveLinear;
         if (interpolationName == "curveStep") 
             return d3.curveStep;
@@ -136,6 +135,7 @@ class ChartOptions {
         this.canDownload = Utils.getValueOrDefault(chartOptionsObj, 'canDownload', true);
         this.withContextMenu = Utils.getValueOrDefault(chartOptionsObj, 'withContextMenu', false);
         this.autoTriggerBrushContextMenu = Utils.getValueOrDefault(chartOptionsObj, 'autoTriggerBrushContextMenu', false);
+        this.includeDots = Utils.getValueOrDefault(chartOptionsObj, 'includeDots', false);
         this.yExtent = Utils.getValueOrDefault(chartOptionsObj, 'yExtent', null);
     }
 
@@ -194,6 +194,7 @@ class ChartOptions {
             canDownload: this.canDownload,
             withContextMenu: this.withContextMenu,
             autoTriggerBrushContextMenu: this.autoTriggerBrushContextMenu,
+            includeDots: this.includeDots,
             yExtent: this.yExtent
         }
     }

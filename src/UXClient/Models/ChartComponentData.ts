@@ -98,6 +98,7 @@ class ChartComponentData {
                     interpolationFunction: aggregateExpressionOptions[i].interpolationFunction,
                     yExtent: aggregateExpressionOptions[i].yExtent,
                     includeEnvelope: aggregateExpressionOptions[i].includeEnvelope,
+                    includeDots: aggregateExpressionOptions[i].includeDots,
                     splitBys: [],
                     shownSplitBys: 20
                 }
@@ -112,6 +113,7 @@ class ChartComponentData {
                     interpolationFunction: aggregateExpressionOptions[i].interpolationFunction,
                     yExtent: aggregateExpressionOptions[i].yExtent,
                     includeEnvelope: aggregateExpressionOptions[i].includeEnvelope,
+                    includeDots: aggregateExpressionOptions[i].includeDots,
                     visibleSplitByCap: 10,
                     shownSplitBys: 20
                 }                    
