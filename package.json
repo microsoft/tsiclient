@@ -9,7 +9,7 @@
     "scripts": {
         "build": "webpack",
         "watch": "webpack --watch --mode development",
-        "start": "webpack-dev-server --contentBase pages/samples-old --mode development --public insights-local.timeseries.azure.com:443 --host insights-local.timeseries.azure.com --port 443 --https"
+        "start": "webpack-dev-server --contentBase pages/samples --mode development --public insights-local.timeseries.azure.com:443 --host insights-local.timeseries.azure.com --port 443 --https"
     },
     "devDependencies": {
         "css-loader": "^0.28.11",
