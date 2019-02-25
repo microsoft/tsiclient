@@ -82,6 +82,7 @@ class ChartOptions {
     }
     
     setOptions (chartOptionsObj) {
+        chartOptionsObj = !chartOptionsObj ? {} : chartOptionsObj
         this.grid = Utils.getValueOrDefault(chartOptionsObj, 'grid', false);
         this.preserveAvailabilityState = Utils.getValueOrDefault(chartOptionsObj, 'preserveAvailabilityState', false);
         this.isCompact = Utils.getValueOrDefault(chartOptionsObj, 'isCompact', false);

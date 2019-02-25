@@ -12,6 +12,7 @@ import { ContextMenu } from '../ContextMenu/ContextMenu';
 import { Tooltip } from '../Tooltip/Tooltip';
 import { ChartOptions } from '../../Models/ChartOptions';
 import { EllipsisMenu } from '../EllipsisMenu/EllipsisMenu';
+import { ChartDataOptions } from '../../Models/ChartDataOptions';
 
 class LineChart extends ChartComponent {
     private svgSelection: any;
@@ -1188,9 +1189,9 @@ class LineChart extends ChartComponent {
 
     public render(data: any, options: any, aggregateExpressionOptions: any) {
         this.data = data;
-        this.hasBrush = options.brushMoveAction || options.brushMoveEndAction || options.brushContextMenuActions;
+        this.hasBrush = options && (options.brushMoveAction || options.brushMoveEndAction || options.brushContextMenuActions);
         this.chartOptions.setOptions(options);
-        this.aggregateExpressionOptions = aggregateExpressionOptions;
+        this.aggregateExpressionOptions = data.map((d, i) => Object.assign(d, aggregateExpressionOptions && i in aggregateExpressionOptions  ? new ChartDataOptions(aggregateExpressionOptions[i]) : new ChartDataOptions({})));
         this.width = Math.max((<any>d3.select(this.renderTarget).node()).clientWidth, this.MINWIDTH);
         this.height = Math.max((<any>d3.select(this.renderTarget).node()).clientHeight, this.MINHEIGHT);
         if (this.chartOptions.legend == "compact")
