@@ -214,8 +214,11 @@ class UXClient {
             if(tsqr.hasOwnProperty('__tsiError__'))
                 transformedAggregate[''] = {};
             else{
+                debugger;
                 tsqr.timestamps.forEach((ts, j) => {
-                    aggregatesObject[ts] = tsqr.properties.reduce((p,c) => {p[c.name] = c['values'][j]; return p;}, {});
+                    aggregatesObject[ts] = tsqr.properties.reduce((p,c) => {
+                        p[c.name] = c['values'][j]; return p;
+                    }, {});
                 }); 
             }
             result.push(transformedAggregate);
