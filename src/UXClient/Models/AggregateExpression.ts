@@ -11,7 +11,7 @@ class AggregateExpression extends ChartDataOptions {
 
 	constructor(predicateObject: any, measureObject: any, measureTypes: Array<string>, searchSpan: any, splitByObject: any = null, 
                 colorOrOptionsObject: any, alias: string, contextMenu: Array<any>){
-        super(searchSpan, measureTypes, colorOrOptionsObject, alias, contextMenu);
+        super((typeof(colorOrOptionsObject) === 'object' && !!colorOrOptionsObject) ? {...colorOrOptionsObject, searchSpan: searchSpan, measureTypes: measureTypes} : {color: colorOrOptionsObject, searchSpan: searchSpan, measureTypes: measureTypes, alias: alias, contextMenu: contextMenu });
         this.predicate = predicateObject;
         this.splitByObject = splitByObject;
         this.measureObject = ((measureTypes.length == 1 && measureTypes[0] == 'count') || measureObject.property == 'Events Count') ?  {count: {}} : {input : measureObject};

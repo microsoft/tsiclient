@@ -7,6 +7,7 @@ import { Legend } from '../Legend/Legend';
 import { HeatmapCanvas} from '../HeatmapCanvas/HeatmapCanvas';
 import { ChartOptions } from '../../Models/ChartOptions';
 import { AggregateExpression } from '../../Models/AggregateExpression';
+import { ChartDataOptions } from '../../Models/ChartDataOptions';
 
 class Heatmap extends ChartComponent {
     private lineHeight = 12;
@@ -21,9 +22,10 @@ class Heatmap extends ChartComponent {
 
     private timeLabelsHeight = 50;
 
-    public render (data, chartOptions, aggregateExpressions) {
+    public render (data, chartOptions, aggregateExpressionOptions) {
+        aggregateExpressionOptions = data.map((d, i) => Object.assign(d, aggregateExpressionOptions && i in aggregateExpressionOptions  ? new ChartDataOptions(aggregateExpressionOptions[i]) : new ChartDataOptions({})));
         // override visibleSplitByCap
-        aggregateExpressions = aggregateExpressions.map((aE: AggregateExpression) => {
+        aggregateExpressionOptions = aggregateExpressionOptions.map((aE: AggregateExpression) => {
             return {...aE, visibleSplitByCap : 10000 };
         });
         this.chartOptions.setOptions(chartOptions);
@@ -33,7 +35,7 @@ class Heatmap extends ChartComponent {
         var width: number = targetElement.node().getBoundingClientRect().width - (this.chartOptions.legend == "shown" ? 250 : 0);
         this.height = targetElement.node().getBoundingClientRect().height;
 
-        this.chartComponentData.mergeDataToDisplayStateAndTimeArrays(data, aggregateExpressions);
+        this.chartComponentData.mergeDataToDisplayStateAndTimeArrays(data, aggregateExpressionOptions);
             
         if (this.heatmapWrapper == null) {
             this.heatmapWrapper = targetElement.append('div')
@@ -102,7 +104,7 @@ class Heatmap extends ChartComponent {
             }
         }
         this.legend = new Legend(this.draw, this.renderTarget, this.CONTROLSWIDTH);
-        this.chartComponentData.mergeDataToDisplayStateAndTimeArrays(data, aggregateExpressions);
+        this.chartComponentData.mergeDataToDisplayStateAndTimeArrays(data, aggregateExpressionOptions);
         this.draw();
         this.timeLabels = this.heatmapWrapper.append('svg').attr("class", "tsi-heatmapTimeLabels");
         window.addEventListener("resize", () => {

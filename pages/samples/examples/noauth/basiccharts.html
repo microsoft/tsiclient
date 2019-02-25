@@ -15,7 +15,7 @@
                 var data = [];
                 var from = new Date();
                 var to;
-                for(var i = 0; i < 3; i++){
+                for(var i = 0; i < 2; i++){
                     var lines = {};
                     data.push({[`Factory${i}`]: lines});
                     for(var j = 0; j < 5; j++){
@@ -24,17 +24,18 @@
                         for(var k = 0; k < 60; k++){
                             if(!(k%2 && k%3)){  // if check is to create some sparseness in the data
                                 var to = new Date(from.valueOf() + 1000*60*k);
-                                values[to.toISOString()] = {avg: Math.random() * 20};
+                                var val = Math.random();
+                                values[to.toISOString()] = {avg: val};
                             }
-                        }
+                        } 
                     }
                 }
 
                 // render the data in a chart
                 var tsiClient = new TsiClient();
                 var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart1'));
-                // BUG: measureTypes must be present for sparse data, null chartOptions explodes
-                lineChart.render(data, {theme: 'dark', grid: true, tooltip: true}, [{measureTypes: ['avg'], searchSpan: {from: from.toISOString(), to: to.toISOString(), bucketSize: '1m'}}]);
+                // BUG: measureTypes must be present for sparse data
+                lineChart.render(data, {yExtent: [-100, 100]}, [{yExtent: [.25,.75]}]);
 
                 var barChart = new tsiClient.ux.BarChart(document.getElementById('chart2'));
                 barChart.render(data, {theme: 'light', grid: true, tooltip: true, legend: 'compact'});

@@ -54,6 +54,7 @@ class ChartOptions {
     public xAxisHidden: boolean; // whether xAxis is hidden in chart
     public yAxisHidden: boolean; // whether yAxis is hidden in chart
     public yAxisState: string; // state of the y axis in line chart, either: stacked, shared, overlap
+    public yExtent: any; // [min, max] of range of y values in chart
     public zeroYAxis: boolean; // whether bar chart's bar's bottom (or top if negative) is zero
     public withContextMenu: boolean; // whether the hierarchy uses a context menu when you click on a parent of leaf nodes
 
@@ -81,6 +82,7 @@ class ChartOptions {
     }
     
     setOptions (chartOptionsObj) {
+        chartOptionsObj = !chartOptionsObj ? {} : chartOptionsObj
         this.grid = Utils.getValueOrDefault(chartOptionsObj, 'grid', false);
         this.preserveAvailabilityState = Utils.getValueOrDefault(chartOptionsObj, 'preserveAvailabilityState', false);
         this.isCompact = Utils.getValueOrDefault(chartOptionsObj, 'isCompact', false);
@@ -134,6 +136,7 @@ class ChartOptions {
         this.canDownload = Utils.getValueOrDefault(chartOptionsObj, 'canDownload', true);
         this.withContextMenu = Utils.getValueOrDefault(chartOptionsObj, 'withContextMenu', false);
         this.autoTriggerBrushContextMenu = Utils.getValueOrDefault(chartOptionsObj, 'autoTriggerBrushContextMenu', false);
+        this.yExtent = Utils.getValueOrDefault(chartOptionsObj, 'yExtent', null);
     }
 
     public toObject () {
@@ -190,7 +193,8 @@ class ChartOptions {
             includeEnvelope: this.includeEnvelope,
             canDownload: this.canDownload,
             withContextMenu: this.withContextMenu,
-            autoTriggerBrushContextMenu: this.autoTriggerBrushContextMenu
+            autoTriggerBrushContextMenu: this.autoTriggerBrushContextMenu,
+            yExtent: this.yExtent
         }
     }
 }
