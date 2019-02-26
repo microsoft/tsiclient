@@ -204,6 +204,20 @@ class UXClient {
         return [{"availabilityCount" : {"" : buckets}}];
     }
 
+    public augmentTsqResultsWithOutlierEvents(tsqResults: Array<any>, outlierEvents: Array<any>, options) {
+        tsqResults.forEach((tsqr, i) => {
+            var values = JSON.parse(JSON.stringify(tsqr[options[i].alias]['']));
+            delete tsqr[options[i].alias][''];
+            tsqr[options[i].alias]['Values'] = values;
+            var anomalyValues = {};
+            tsqr[options[i].alias]['Outliers'] = anomalyValues;
+            outlierEvents[i][Object.keys(outlierEvents[i])[0]].forEach(oe => {
+                var ts = Object.keys(oe)[0];
+                anomalyValues[ts] = {Value: values[ts].Value};
+            });
+        });
+    }
+
     public transformTsqResultsForOutlierEvents(tsqResults: Array<any>, options): any{
         var events = [];
         tsqResults.forEach((tsqr, i) => {

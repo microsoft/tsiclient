@@ -177,3 +177,19 @@ a{
     border-radius: 3px;
     border: 1px solid silver;
 }
+
+.tsi-splitByGroup:nth-child(2) > circle{
+	display: none;
+}
+
+.tsi-splitByGroup:nth-child(3) > path{
+	display: none;
+}
+
+.tsi-splitByGroup:nth-child(3) > circle{
+	fill: orange;
+}
+
+.tsi-splitByLabel:nth-child(2) > .tsi-colorKey{
+	background-color: orange !important;
+}

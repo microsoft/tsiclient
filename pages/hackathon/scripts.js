@@ -33,9 +33,16 @@ authContext.getTsiToken().then(function(token){
     tsiClient.server.getTsqResults(token, '52a8c27b-657a-47f8-8e27-07fcf5c708ed.env.crystal-dev.windows-int.net', tsqArray).then(function(result){
         var transformedEvents = tsiClient.ux.transformTsqResultsForVisualization(result, tsqExpressions);
         var outlierEvents = tsiClient.ux.transformTsqResultsForOutlierEvents(result, tsqExpressions);
-        // transformedEvents = tsiClient.ux.augmentTsqResultsWithOutlierSeries(transformedEvents, result, tsqExpressions)
+        tsiClient.ux.augmentTsqResultsWithOutlierEvents(transformedEvents, outlierEvents, tsqExpressions);
         var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart1'));
         var chartDataOptions = tsqExpressions.map(tsqe => {return {color: tsqe.color, alias: tsqe.alias} })
-        lineChart.render(transformedEvents, {events: outlierEvents}, chartDataOptions);
+        lineChart.render(transformedEvents, {includeDots: true}, chartDataOptions);
+
+        // remove circles for perf
+        for(var i = 0; i < 3; i+=2){
+            var circles = document.getElementsByClassName('tsi-splitByGroup')[i].getElementsByTagName('circle');
+            while(circles.length > 0)
+                circles[0].parentNode.removeChild(circles[0]);
+        }
     });
 });
