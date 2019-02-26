@@ -193,3 +193,15 @@ a{
 .tsi-splitByLabel:nth-child(2) > .tsi-colorKey{
 	background-color: orange !important;
 }
+
+@keyframes fade{
+	0% {opacity: .4;}
+	50% {opacity: 1;}
+	100% {opacity: .4;}	
+}
+
+#spinner{
+	animation: fade 3s infinite;
+	margin: 60px;
+	color: white;
+}

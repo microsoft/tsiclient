@@ -31,6 +31,10 @@ authContext.getTsiToken().then(function(token){
     var tsqArray = tsqExpressions.map(function(ae){return ae.toTsq(true, true)});
     tsqArray.forEach(tsq => {tsq.getEvents.searchSpan.from = startDate.toISOString(); tsq.getEvents.searchSpan.to = endDate.toISOString()});
     tsiClient.server.getTsqResults(token, '52a8c27b-657a-47f8-8e27-07fcf5c708ed.env.crystal-dev.windows-int.net', tsqArray).then(function(result){
+        // remove spinner
+        var spinner = document.getElementById('spinner');
+        spinner.parentNode.removeChild(spinner);
+        
         var transformedEvents = tsiClient.ux.transformTsqResultsForVisualization(result, tsqExpressions);
         var outlierEvents = tsiClient.ux.transformTsqResultsForOutlierEvents(result, tsqExpressions);
         tsiClient.ux.augmentTsqResultsWithOutlierEvents(transformedEvents, outlierEvents, tsqExpressions);
