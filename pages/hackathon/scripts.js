@@ -34,7 +34,7 @@ authContext.getTsiToken().then(function(token){
         // remove spinner
         var spinner = document.getElementById('spinner');
         spinner.parentNode.removeChild(spinner);
-        
+
         var transformedEvents = tsiClient.ux.transformTsqResultsForVisualization(result, tsqExpressions);
         var outlierEvents = tsiClient.ux.transformTsqResultsForOutlierEvents(result, tsqExpressions);
         tsiClient.ux.augmentTsqResultsWithOutlierEvents(transformedEvents, outlierEvents, tsqExpressions);
