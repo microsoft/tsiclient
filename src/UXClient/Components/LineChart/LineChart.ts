@@ -942,7 +942,9 @@ class LineChart extends ChartComponent {
 
         let overwriteYRange = null;
         if ((this.yAxisState == "shared") || (Object.keys(this.chartComponentData.timeArrays)).length < 2 || !aggVisible) {
-            yExtent = this.getYExtent(this.chartComponentData.allValues, this.chartComponentData.displayState[aggKey].includeEnvelope ? this.chartComponentData.displayState[aggKey].includeEnvelope : this.chartOptions.includeEnvelope, null);
+            yExtent = this.getYExtent(this.chartComponentData.allValues, this.chartComponentData.displayState[aggKey].includeEnvelope ? 
+                            this.chartComponentData.displayState[aggKey].includeEnvelope : 
+                            this.chartOptions.includeEnvelope, (this.yAxisState !== "shared" ? aggKey : null));
             var yRange = (yExtent[1] - yExtent[0]) > 0 ? yExtent[1] - yExtent[0] : 1;
             var yOffsetPercentage = this.chartOptions.isArea ? (1.5 / this.chartHeight) : (10 / this.chartHeight);
             this.y.domain([yExtent[0] - (yRange * yOffsetPercentage), yExtent[1] + (yRange * (10 / this.chartHeight))]);
