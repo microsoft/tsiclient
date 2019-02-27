@@ -1,4 +1,4 @@
-# TsiClient.ux Reference
+|# TsiClient.ux Reference
 
 ## Components
 
@@ -277,17 +277,17 @@ lineChart.render(data, chartOptions, [{alias: 'myFaveLines', color: 'red'}, {ali
 
 The available parameters for chart data options are as follows...
 
-|Property Name|Example Value|Description|
-|-|-|-|
-|color|'#4286f4'|The color of this group in a component|
-|alias|'Factory1'|The display name for this group|
-|contextMenu|Array[&lt;groupContextMenuAction>](#group-context-menu-actions)|Actions to take on context menu click on a group, or time series|
-|searchSpan|[searchSpanObject](#search-span-object)|Specifies search span for this group|
-|measureTypes|['min', 'avg', max']|The measure properties specified in the time series of this group|
-|interpolationFunction|'curveStep'|If 'curveStep' is set, step interpolation is used|
-|includeEnvelope|true|If true, and a data group has measure types ['min', 'avg', max'], a shadow will be drawn to show the range of values|
-|includeDots|true|If true, circles will be drawn for each value in the group|
-|yExtent|[0,400]|A minimum and maximum for the extent of the yAxis for this group|
+|Property Name|Value Type|Value Options|Description|
+|-|-|-|-|
+|color|string|'#4286f4'|The color of this group in a component|
+|alias|string|'Factory1'|The display name for this group|
+|contextMenu|Array[&lt;groupContextMenuAction>](#group-context-menu-actions)|TBD|Actions to take on context menu click on a group, or time series|
+|searchSpan|[searchSpanObject](#search-span-object)|TBD|Specifies search span for this group|
+|measureTypes|Array[&lt;string>]|['min', 'avg', max']|The measure properties specified in the time series of this group|
+|interpolationFunction|string|'curveStep'|If 'curveStep' is set, step interpolation is used|
+|includeEnvelope|boolean|true|If true, and a data group has measure types ['min', 'avg', max'], a shadow will be drawn to show the range of values|
+|includeDots|boolean|true|If true, circles will be drawn for each value in the group|
+|yExtent|Array[TBD]|[0,400]|A minimum and maximum for the extent of the yAxis for this group|
 
 ***Note**: Some parameters are present in both chart options and chart data options. For boolean values, the property will evaluate to true if either value is true. For other types of values, the chart data option value will take precendence over the chart option value.* 
 
