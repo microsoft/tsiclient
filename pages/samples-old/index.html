@@ -166,7 +166,7 @@
                 tsiClient.server.getAggregates(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com', aggregateExpressions.map(function(ae){return ae.toTsx()})).then(function(result){
                     var transformedResult = tsiClient.ux.transformAggregatesForVisualization(result, aggregateExpressions);
                     var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart1'));
-                    lineChart.render(transformedResult, {theme: 'dark', grid: true, tooltip: true, legend: 'compact', yExtent: [0,10000]}, aggregateExpressions);
+                    lineChart.render(transformedResult, {theme: 'dark', grid: true, tooltip: true, legend: 'compact', includeDots: true, interpolationFunction: 'curveLinear'}, aggregateExpressions);
                 });
             });
                     
@@ -178,7 +178,7 @@
                 tsiClient.server.getAggregates(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com', aggregateExpressions2.map(function(ae){return ae.toTsx()})).then(function(result){
                     var transformedResult = tsiClient.ux.transformAggregatesForVisualization(result, aggregateExpressions2);
                     var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart2'));
-                    lineChart.render(transformedResult, {theme: 'light', grid: true}, aggregateExpressions2);
+                    lineChart.render(transformedResult, {theme: 'light', grid: true, includeDots: true}, aggregateExpressions2);
                 });
             });
         }
@@ -243,7 +243,7 @@
                                     { from: startDate, to: endDate, bucketSize: '2m' }, {property: 'Station', type: 'String'}, {color: '#C8E139', alias: 'Factory1Temp'});
                                 aggregateExpressions.push(secondAe);
                             }
-                            var options = (aggregateExpressions.length == 2) ? {legend: "compact", zeroYAxis: false, theme: 'light'} : {legend: "compact", tooltip: true, grid: true, zeroYAxis: false, theme: 'dark'};
+                            var options = (aggregateExpressions.length == 2) ? {legend: "compact", zeroYAxis: false, theme: 'light', includeDots: true} : {legend: "compact", tooltip: true, grid: true, zeroYAxis: false, theme: 'dark', includeDots: false};
 
                             tsiClient.server.getAggregates(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com', aggregateExpressions.map(function(ae){return ae.toTsx()})).then(function(result){
                                 var transformedResult = tsiClient.ux.transformAggregatesForVisualization(result, aggregateExpressions);
@@ -274,7 +274,7 @@
                 tsiClient.server.getAggregates(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com', aggregateExpressions.map(function(ae){return ae.toTsx()})).then(function(result){
                     var transformedResult = tsiClient.ux.transformAggregatesForVisualization(result, aggregateExpressions);
                     var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart1'));
-                    lineChart.render(transformedResult, {}, aggregateExpressions);
+                    lineChart.render(transformedResult, {includeDots: true}, aggregateExpressions);
                     var counter = 0;
                     setInterval(function () {
                         if(counter < 50){  // so this doesnt just DDOS the backend if the tab is left open
@@ -283,7 +283,7 @@
                             aggregateExpressions.forEach(function(ae){ae.searchSpan.from = startDate; ae.searchSpan.to = endDate});
                             tsiClient.server.getAggregates(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com', aggregateExpressions.map(function(ae){return ae.toTsx()})).then(function(result){
                                 var transformedResult = tsiClient.ux.transformAggregatesForVisualization(result, aggregateExpressions);
-                                lineChart.render(transformedResult, {noAnimate: true}, aggregateExpressions);
+                                lineChart.render(transformedResult, {noAnimate: true, includeDots: true}, aggregateExpressions);
                             });
                             counter++;
                         }

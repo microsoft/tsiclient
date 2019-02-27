@@ -11,6 +11,7 @@ class ChartDataOptions {
     public interpolationFunction: string = '';
     public yExtent: any = null;
     public includeEnvelope: boolean = false;
+    public includeDots: boolean = false;
     public visibilityState: Array<any> = null;
 
     constructor (optionsObject: Object){
@@ -21,6 +22,7 @@ class ChartDataOptions {
             this.contextMenu = Utils.getValueOrDefault(optionsObject, 'contextMenu', []);
             this.interpolationFunction = Utils.getValueOrDefault(optionsObject, 'interpolationFunction', '');
             this.includeEnvelope = Utils.getValueOrDefault(optionsObject, 'includeEnvelope', false);
+            this.includeDots = Utils.getValueOrDefault(optionsObject, 'includeDots', false);
             this.visibilityState = Utils.getValueOrDefault(optionsObject, 'visibilityState');
             this.yExtent = Utils.getValueOrDefault(optionsObject, 'yExtent');
     }

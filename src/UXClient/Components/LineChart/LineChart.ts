@@ -67,6 +67,7 @@ class LineChart extends ChartComponent {
     private isDroppingScooter: boolean = false;
     private isClearingBrush: boolean = false;
     private chartControlsPanel: any = null;
+    private previousAggregateData: any = d3.local();
 
     private isFirstMarkerDrop = true;
     
@@ -1080,6 +1081,12 @@ class LineChart extends ChartComponent {
                         i = scannerI - 1;
                     }
                 }
+
+                var durationFunction = (d) => {
+                    let previousUndefined = self.previousAggregateData.get(this) === undefined;
+                    return (self.chartOptions.noAnimate || previousUndefined) ? 0 : self.TRANSDURATION
+                }
+
                 var gapPath = d3.select(this).selectAll(".gapLine")
                     .data(segments);
                 gapPath.enter()
@@ -1090,7 +1097,7 @@ class LineChart extends ChartComponent {
                         return (self.chartComponentData.isSplitByVisible(aggKey, splitBy)) ? "visible" : "hidden";
                     })   
                     .transition()
-                    .duration(self.chartOptions.noAnimate ? 0 : self.TRANSDURATION)
+                    .duration(durationFunction)
                     .ease(d3.easeExp)                                         
                     .attr("stroke-dasharray","5,5")      
                     .attrTween('d', function (d) {
@@ -1110,7 +1117,7 @@ class LineChart extends ChartComponent {
                         return (self.chartComponentData.isSplitByVisible(aggKey, splitBy)) ? "visible" : "hidden";
                     })                                            
                     .transition()
-                    .duration(self.chartOptions.noAnimate ? 0 : self.TRANSDURATION)
+                    .duration(durationFunction)
                     .ease(d3.easeExp)
                     .attr("stroke", splitByColors[j])
                     .attr("stroke-opacity", self.strokeOpacity)
@@ -1119,6 +1126,37 @@ class LineChart extends ChartComponent {
                         var current = aggLine(d);
                         return interpolatePath(previous, current);
                     });
+
+                if (self.chartOptions.includeDots || self.chartComponentData.displayState[aggKey].includeDots) {
+                    let dots = d3.select(this).selectAll(".valueDot")
+                        .data(self.chartComponentData.timeArrays[aggKey][splitBy], (d: any, i) => {
+                            return d.dateTime.toString();
+                        });
+
+                    dots.enter()
+                        .append('circle')
+                        .attr('class', 'valueElement valueDot')
+                        .attr('r', 3)
+                        .merge(dots)
+                        .style("visibility", (d: any) => { 
+                            return (self.chartComponentData.isSplitByVisible(aggKey, splitBy) && d.measures) ? "visible" : "hidden";
+                        }) 
+                        .transition()
+                        .duration(durationFunction)
+                        .ease(d3.easeExp)
+                        .attr("fill", splitByColors[j])
+                        .attr('cx', (d: any) => self.getXPosition(d, self.x))
+                        .attr('cy', (d: any) => {     
+                            return d.measures ? aggY(d.measures[self.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy)]) : null;
+                        });
+                    
+                    dots.exit().remove();
+                } else {
+                    d3.select(this).selectAll(".valueDot").remove();
+                }
+             
+
+
                 
                 if ((self.chartComponentData.displayState[aggKey].includeEnvelope || self.chartOptions.includeEnvelope) && self.chartComponentData.isPossibleEnvelope(aggKey, splitBy)) {
                     var envelopeData = self.chartComponentData.timeArrays[aggKey][splitBy].map((d: any) => ({...d, isEnvelope: true}));
@@ -1133,7 +1171,7 @@ class LineChart extends ChartComponent {
                             return (self.chartComponentData.isSplitByVisible(aggKey, splitBy)) ? "visible" : "hidden";
                         })                                            
                         .transition()
-                        .duration(self.chartOptions.noAnimate ? 0 : self.TRANSDURATION)
+                        .duration(durationFunction)
                         .ease(d3.easeExp)
                         .style("fill", splitByColors[j])
                         .attr("fill-opacity", .2)
@@ -1165,7 +1203,7 @@ class LineChart extends ChartComponent {
                             return (self.chartComponentData.isSplitByVisible(aggKey, splitBy)) ? "visible" : "hidden";
                         })                                            
                         .transition()
-                        .duration(self.chartOptions.noAnimate ? 0 : self.TRANSDURATION)
+                        .duration(durationFunction)
                         .ease(d3.easeExp)
                         .attr("d", self.areaPath);
                     area.exit().remove();
@@ -1173,6 +1211,7 @@ class LineChart extends ChartComponent {
 
                 gapPath.exit().remove();
                 path.exit().remove();
+                self.previousAggregateData.set(this, splitBy);
             });
     }
 
