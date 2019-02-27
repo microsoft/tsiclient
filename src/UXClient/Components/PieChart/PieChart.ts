@@ -38,7 +38,7 @@ class PieChart extends ChartComponent {
         this.chartOptions.setOptions(options);
         var firstTerm = data[0][Object.keys(data[0])[0]];
         var firstSplitByKey = Object.keys(firstTerm)[0];
-        var timestamp = (options.timestamp != undefined) ? options.timestamp : Object.keys(firstTerm[firstSplitByKey])[0];
+        var timestamp = (options && options.timestamp != undefined) ? options.timestamp : Object.keys(firstTerm[firstSplitByKey])[0];
         this.aggregateExpressionOptions = data.map((d, i) => Object.assign(d, aggregateExpressionOptions && i in aggregateExpressionOptions  ? new ChartDataOptions(aggregateExpressionOptions[i]) : new ChartDataOptions({})));
 
         this.chartComponentData.mergeDataToDisplayStateAndTimeArrays(data, timestamp, aggregateExpressionOptions); 

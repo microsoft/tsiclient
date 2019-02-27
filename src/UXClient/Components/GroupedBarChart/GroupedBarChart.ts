@@ -43,7 +43,7 @@ class GroupedBarChart extends ChartComponent {
         var isStacked = this.chartOptions && this.chartOptions.stacked;
         this.chartOptions.setOptions(options);
         this.chartOptions.stacked = isStacked
-        if (options.stacked || this.isStacked == null) {
+        if (options && options.stacked || this.isStacked == null) {
             this.isStacked = this.chartOptions.stacked;
         } 
 
@@ -57,7 +57,7 @@ class GroupedBarChart extends ChartComponent {
 
         var firstTerm = data[0][Object.keys(data[0])[0]];
         var firstSplitByKey = Object.keys(firstTerm)[0];
-        this.timestamp = (options.timestamp != undefined) ? options.timestamp : Object.keys(firstTerm[firstSplitByKey])[0];
+        this.timestamp = (options && options.timestamp != undefined) ? options.timestamp : Object.keys(firstTerm[firstSplitByKey])[0];
         this.chartComponentData.mergeDataToDisplayStateAndTimeArrays(data, this.timestamp, aggregateExpressionOptions);
 
         var controlsOffset = (this.chartOptions.legend == "shown" ? this.CONTROLSWIDTH : 0)
