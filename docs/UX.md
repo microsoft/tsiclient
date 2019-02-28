@@ -199,21 +199,21 @@ The most common available parameters for chart options are as follows (bold opti
 |Property Name|Type|Value Options|Description|
 |-|-|-|-|
 |brushContextMenuActions|Array<any>|**null**, Array&lt;[brushContextMenuAction](#brush-context-menu-actions)&gt;|An array of objects defining brush actions
-|events|Array<any>|**null**, Array&lt;**TBD SOMETHING**&gt;|events passed into the linechart, an array of discrete time events|
-|grid|boolen|**false**,true|If true, an accessible grid is available in the ellipsis menu|
-|includeDots|boolean|**false**|whether the linechart plots dots for values|
-|includeEnvelope|boolean|**false**|whether to include an area showing min/max boundaries in the line chart|
-|interpolationFunction|string UPDATE|**''**, 'curveLinear'|which interpolation function used for line chart lines|
+|events|Array<any>|**null**, Array[&lt;Event>](#line-chart-events-and-states-data-shape)|events passed into the linechart, an array of discrete time events|
+|grid|boolen|**false**,true|If true, add accessible grid button to the ellipsis menu|
+|includeDots|boolean|**false**|If true, the linechart plots dots for values|
+|includeEnvelope|boolean|**false**|If true, include an area showing min/max boundaries in the line chart|
+|interpolationFunction|string|**''**, 'curveLinear'|Name for interpolation function used for line chart lines|
 |legend|string|**'shown'**,'compact','hidden'|Legend layout|
-|noAnimate|boolean|**false**,true|Suppresses animated chart transitions|
-|offset|any|**0** -120, America/Los_Angeles|offset for all timestamps in minutes from UTC, or a timezone supported by moment.js|
-|stacked|boolean|**false**|whether bars in barchart are stacked|
-|states|Array<any>|**null**|states passed into the linchart, an array of time range bound states|
+|noAnimate|boolean|**false**,true|If true, uppresses animated chart transitions|
+|offset|any|**0**, -120, 'America/Los_Angeles'|Offset for all timestamps in minutes from UTC, or a timezone supported by moment.js|
+|stacked|boolean|**false**|If true, stack bars in barchart|
+|states|Array<any>|**null**, Array[&lt;State>](#line-chart-events-and-states-data-shape)|An array of time range bound states passed into the linechart|
 |theme|string|**'dark'**, 'light'|Component color scheme|
 |timestamp|string|**null**,'2017-04-19T13:00:00Z'|If an ISO string, sets the slider in the bar or pie chart to the specified timestamp|
-|tooltip|boolean|**false**,true|If true, a tooltip is visible on hover|
-|yAxisState|string|**stacked**, 'shared', 'overlap|State of the y axis in line chart|
-|yExtent|Array<number> UPDATE|**null**, [minValue, maxValue]|A minimum and maximum for the extent of the yAxis for this line chart, when the yAxisState is set to shared|
+|tooltip|boolean|**false**,true|If true, display tooltip on hover over a value element|
+|yAxisState|string|**'stacked'**, 'shared', 'overlap|State of the y axis in line chart|
+|yExtent|[number, number]|**null**, [minValue, maxValue]|A minimum and maximum for the extent of the yAxis for this line chart, when the yAxisState is set to shared|
 
 For very specific user interactions, check out [additional chart options](#additional-chart-options)
 
@@ -234,11 +234,11 @@ The available parameters for chart data options are as follows...
 |alias|string|'Factory1'|The display name for this group|
 |contextMenu|Array[&lt;groupContextMenuAction>](#group-context-menu-actions)|TBD|Actions to take on context menu click on a group, or time series|
 |searchSpan|[searchSpanObject](#search-span-object)|TBD|Specifies search span for this group|
-|measureTypes|Array[&lt;string>]|['min', 'avg', max']|The measure properties specified in the time series of this group|
+|measureTypes|Array&lt;string>|['min', 'avg', max']|The measure properties specified in the time series of this group|
 |interpolationFunction|string|'curveStep'|If 'curveStep' is set, step interpolation is used|
 |includeEnvelope|boolean|true|If true, and a data group has measure types ['min', 'avg', max'], a shadow will be drawn to show the range of values|
-|includeDots|boolean|true|If true, circles will be drawn for each value in the group|
-|yExtent|Array[TBD]|[0,400]|A minimum and maximum for the extent of the yAxis for this group|
+|includeDots|boolean|true|If true, draw circles for each value in the group|
+|yExtent|[number, number]|[0,400]|A minimum and maximum for the extent of the yAxis for this group|
 
 ***Note**: Some parameters are present in both chart options and chart data options. For boolean values, the property will evaluate to true if either value is true. For other types of values, the chart data option value will take precendence over the chart option value.* 
 
@@ -342,42 +342,42 @@ Some less common chart options that can be used for very specific user interacti
 
 |Property Name|Type|Value Options|Description|
 |-|-|-|-|
-|aggTopMargin|number|**12**|margin on top of each aggregate line(s) in pixels|
-|arcWidthRatio|number| **0**|A number between 0 and 1 that is the ratio between the outer and inner circle in a pie chart to create a donut|
-|autoTriggerBrushContextMenu|boolean|**false**, true|When true, opens a menu defined by brushContextMenuActions on brush mouseup|
-|availabilityLeftMargin|number|**60**|number which sets the left margin of the availability chart in pixels|
-|brushClearable|boolean|**true**|whether to keep the brush selected region upon clear and non-selection of a new region|
-|brushHandlesVisible|boolean|**false**|whether handles on the line chart brush are visible|
-|brushMoveAction|() => any UPDATE|**() => {}**|action fired when the brush moves|
-|brushMoveEndAction|() => void UPDATE |**() => {}**|action fired at the end of a mouse movement involving the brush|
-|canDownload|boolean|**true**|whether chart's ellipsis menu contains a download button to download the chart's data|
-|color|string|**null**, 'purple', '#404040'|color of the time selection ghost in availability chart|
-|focusHidden|boolean|**false**|whether focus element is hidden in chart|
-|fromChart|boolean|**false**|whether a component is a subcomponent of another one or is a standalone component|
-|hideChartControlPanel|boolean|**false**|whether to hide the panel with chart control buttons|
-|includeTimezones|boolean|**true**|whether timezone dropdown is included in dateTimePicker|
-|isArea|boolean|**false**|whether lines in LineChart are also areas|
-|isCompact|boolean|**false**|whether availability chart is in compact or expanded mode|
-|is24HourTime|boolean|**true**|whether time is displayed in 24, or 12 hour time with am/pm if parameter is false|
-|keepBrush|boolean|**false**|whether to keep the brush selected region upon re render|
-|keepSplitByColor|boolean|**false**|whether to keep the split By colors when state is updated|
-|maxBuckets|number|**500**|max number of buckets in availability chart|
-|minBrushWidth|number|**0**|minimum possible width of brush in a linechart in pixels|
-|minutesForTimeLabels|boolean|**false**|whether time labels forced to minute granularity|
-|onInstanceClick|(instance: any) => any|**() => {return {}})**|for model search, takes an instance and returns an object of context menu actions|
-|onMouseout|() => void|**() => {} TBD add parameters to all of these**|action fired when the mouse leaves a chart value element (ex: line, bar, pie chart segment, etc.)|
-|onMouseover|(aggKey: string, splitBy: string) => void|**() => {}**|action fired when the mouse enters a chart value element|
-|onSticky|(aggKey: string, splitBy: string) => void|**() => {}**|action fired when a chart value element is stickied|
-|onUnsticky|(aggKey: string, splitBy: string) => void|**() => {}**|action fired when a chart value element is stickied|
-|onKeydown|(d3Event: any, awesompleteObject: any) => void  |**() => {}**|action fired when keydown action performed in ModelAutocomplete|
-|onInput|(searchText: string) => void |**() => {}**|action fired on input actions in ModelAutocomplete|
-|preserveAvailabilityState|boolean|**false**|whether state in availability chart is saved or blown away on render|
-|scaledToCurrentTime|boolean|**false**|whether slider base component's scale is based on current time's values (or all values)|
-|singleLineXAxisLabel|boolean|**false**|whether x axis time labels are on a single line (else split into two lines)|
-|snapBrush|boolean|**false**|whether to snap linechart brush to closest value|
-|suppressResizeListener|boolean|**false**|whether a component's resize function is ignored. Applies to components which draw an SVG|
-|timeFrame|any|**null**|from and to to specify range of an event or state series
-|withContextMenu|boolean|**false**|whether the hierarchy uses a context menu when you click on a parent of leaf nodes
-|xAxisHidden|boolean|**false**|whether xAxis is hidden in chart
-|yAxisHidden|boolean|**false**|whether yAxis is hidden in chart
-|zeroYAxis|boolean|**true**|whether bar chart's bar's bottom (or top if negative) is zero
+|aggTopMargin|number|**12**|Margin on top of each aggregate line(s) in pixels|
+|arcWidthRatio|number| **0**|Ratio of the outer and inner circle in a pie chart, from 0 to 1|
+|autoTriggerBrushContextMenu|boolean|**false**, true|If true, opens a menu defined by brushContextMenuActions on brush mouseup|
+|availabilityLeftMargin|number|**60**|Left margin of the availability chart in pixels|
+|brushClearable|boolean|**true**|If true, maintain brush selected region upon clear and non-selection of a new region|
+|brushHandlesVisible|boolean|**false**|If true, draw handles on the line chart brush|
+|brushMoveAction|(from:DateTime, to:DateTime) => any |**() => {}**|Action fired when the brush moves|
+|brushMoveEndAction|(from:DateTime, to:DateTime) => any|**() => {}**|Action fired at the end of a mouse movement involving the brush|
+|canDownload|boolean|**true**|If true, chart's ellipsis menu contains a download button to download the chart's data|
+|color|string|**null**, 'purple', '#404040'|Color of the time selection ghost in availability chart|
+|focusHidden|boolean|**false**|If true, hide focus element|
+|fromChart|boolean|**false**|If true, a component is a subcomponent of another component|
+|hideChartControlPanel|boolean|**false**|If true, hide panel with chart control buttons|
+|includeTimezones|boolean|**true**|If true, include timezone dropdown in dateTimePicker|
+|isArea|boolean|**false**|If true, lines in LineChart are also areas|
+|isCompact|boolean|**false**|If true, availability chart is in compact mode (expanded mode if false)|
+|is24HourTime|boolean|**true**|If true, display time in 24 hour format, (12 hour time with am/pm if false|
+|keepBrush|boolean|**false**|If true, maintain brush selected region upon render|
+|keepSplitByColor|boolean|**false**|If true, maintain split by colors when state updated|
+|maxBuckets|number|**500**|Max number of buckets in availability chart|
+|minBrushWidth|number|**0**|Minimum possible width of brush in a linechart in pixels|
+|minutesForTimeLabels|boolean|**false**|If true, force time labels to minute granularity|
+|onInstanceClick|(instance: any) => any|**() => {return {}})**|For model search: takes an instance and returns an object of context menu actions|
+|onMouseout|() => void|**() => {}**|Action fired when the mouse leaves a chart value element (ex: line, bar, pie chart segment, etc.)|
+|onMouseover|(aggKey: string, splitBy: string) => void|**() => {}**|Action fired when the mouse enters a chart value element|
+|onSticky|(aggKey: string, splitBy: string) => void|**() => {}**|Action fired when a chart value element is stickied|
+|onUnsticky|(aggKey: string, splitBy: string) => void|**() => {}**|Action fired when a chart value element is stickied|
+|onKeydown|(d3Event: any, awesompleteObject: any) => void  |**() => {}**|Action fired when keydown action performed in ModelAutocomplete|
+|onInput|(searchText: string) => void |**() => {}**|Action fired on input actions in ModelAutocomplete|
+|preserveAvailabilityState|boolean|**false**|If true, save availability chart state on render|
+|scaledToCurrentTime|boolean|**false**|If true,  base slider base component's scale on current time's values (all values if false)|
+|singleLineXAxisLabel|boolean|**false**|If true, display x axis time labels on a single line (split into two lines if false)|
+|snapBrush|boolean|**false**|If true, snap linechart brush to closest value|
+|suppressResizeListener|boolean|**false**|If true, ignore components' resize function. This applies to components which draw an SVG|
+|timeFrame|any|**null**|From and to to specify range of an event or state series
+|withContextMenu|boolean|**false**|If true, the hierarchy uses a context menu when you click on a parent of leaf nodes
+|xAxisHidden|boolean|**false**|If true, hide xAxis in chart
+|yAxisHidden|boolean|**false**|If true, hide yAxis in chart
+|zeroYAxis|boolean|**true**|If true, set bar chart's bar's bottom (or top if negative) to zero
