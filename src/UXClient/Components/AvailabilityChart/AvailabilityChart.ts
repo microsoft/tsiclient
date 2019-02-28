@@ -163,7 +163,7 @@ class AvailabilityChart extends ChartComponent{
         var createKey = (millis) => Math.round(Math.floor(millis / computedBucketSize) * computedBucketSize);
 
         var firstBucket: number = createKey(fromMillis); 
-        var lastBucket: number =createKey(toMillis);
+        var lastBucket: number = createKey(toMillis);
         var buckets = [];
         for (var i: number = firstBucket; i <= lastBucket; i += computedBucketSize) {
             buckets[(new Date(i)).toISOString()] = {count: 0};
@@ -175,9 +175,12 @@ class AvailabilityChart extends ChartComponent{
             buckets[(new Date(computedKey)).toISOString()].count += (keysInRange[ts].count / bucketMultiplier); 
         });
 
-        buckets[(new Date(fromMillis)).toISOString()] = buckets[(new Date(firstBucket)).toISOString()];
-        buckets[(new Date(toMillis)).toISOString()] = buckets[(new Date(lastBucket)).toISOString()];
-
+        if (fromMillis !== null && firstBucket !== null) {
+            buckets[(new Date(fromMillis)).toISOString()] = buckets[(new Date(firstBucket)).toISOString()];
+        }
+        if (toMillis !== null && lastBucket !== null) {
+            buckets[(new Date(toMillis)).toISOString()] = buckets[(new Date(lastBucket)).toISOString()];
+        }
         // delete the bucket before the from time
         if (firstBucket < fromMillis) {
             delete buckets[(new Date(firstBucket)).toISOString()];
@@ -207,19 +210,32 @@ class AvailabilityChart extends ChartComponent{
         } 
     }
 
-    public render (transformedAvailability: any, chartOptions: any, rawAvailability: any) {
+    private setRangeVariables (rawAvailability) {
+        if (Utils.safeNotNullOrUndefined(() => rawAvailability.range.from || rawAvailability.range.to || rawAvailability.intervalSize)) {
+            this.fromMillis = rawAvailability.range.from;
+            this.toMillis = rawAvailability.range.to;
+            this.bucketSize = Utils.parseTimeInput(rawAvailability.intervalSize);
+        } else {
+            this.fromMillis = null;
+            this.toMillis = null;
+            this.bucketSize = null;
+        }
+    }
+
+    public render (transformedAvailability: any, chartOptions: any, rawAvailability: any = {}) {
         this.setChartOptions(chartOptions);
         this.rawAvailability = rawAvailability;
         this.transformedAvailability = transformedAvailability;
         this.color = this.chartOptions.color ? this.chartOptions.color : 'teal'; 
         this.maxBuckets = (this.chartOptions.maxBuckets) ? this.chartOptions.maxBuckets : 500;
-        this.fromMillis = (new Date(rawAvailability.range.from)).valueOf();
-        this.toMillis = (new Date(rawAvailability.range.to)).valueOf();
-        // adjustment if (to - from) less than range 
-        this.bucketSize = Utils.parseTimeInput(rawAvailability.intervalSize);
-        var startBucket = Math.round(Math.floor(this.fromMillis / this.bucketSize) * this.bucketSize);
-        var endBucket = Math.round(Math.floor(this.toMillis / this.bucketSize) * this.bucketSize);
-        if (startBucket == endBucket) {
+        this.setRangeVariables(rawAvailability);
+
+        var startBucket = (this.fromMillis !== null && this.bucketSize !== null) ? 
+            Math.round(Math.floor(this.fromMillis / this.bucketSize) * this.bucketSize) : null;
+        var endBucket = (this.toMillis !== null && this.bucketSize !== null) ? 
+            Math.round(Math.floor(this.toMillis / this.bucketSize) * this.bucketSize) : null;
+        
+        if (startBucket !== null && startBucket === endBucket) {
             this.fromMillis = Math.floor(this.fromMillis / this.bucketSize) * this.bucketSize;
             this.toMillis = this.fromMillis + this.bucketSize; 
             this.bucketSize = this.bucketSize / 60;

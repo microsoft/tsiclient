@@ -437,10 +437,20 @@ class Utils {
         let propertyValue = chartOptionsObj[propertyName];
         if (propertyValue == undefined){
             if (this[propertyName] == undefined)
-                return defaultValue
+                return defaultValue;
             return this[propertyName];
         } 
         return propertyValue;  
+    }
+
+    static safeNotNullOrUndefined (valueLambda) {
+        try {
+            let value = valueLambda();
+            return !(value === null || value === undefined); 
+        }
+        catch (err){
+            return false;
+        }
     }
 }
 

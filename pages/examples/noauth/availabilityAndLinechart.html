@@ -4,7 +4,7 @@
     <head>
     </head>
     <body style="font-family: 'Segoe UI', sans-serif;">
-        <div id="availability" style="width: 100%; height: 180px;"></div>
+        <div id="availability" style="width: 100%; height: 160px; z-index:1;"></div>
         <div id="linechart" style="width: 100%; height: 600px; float: left;"></div>
         <script>
             window.onload = function() {
@@ -16,15 +16,13 @@
                 for(var i = 0; i < 2; i++){
                     var lines = {};
                     data.push({[`Factory${i}`]: lines});
-                    for(var j = 0; j < 5; j++){
+                    for(var j = 1; j < 4; j++){
                         var values = {};
                         lines[`Station${j}`] = values;
                         for(var k = 0; k < 60; k++){
-                            // if(!(k%2 && k%3)){  // if check is to create some sparseness in the data
-                                var to = new Date(from.valueOf() + 1000*60*k);
-                                var val = Math.random();
-                                values[to.toISOString()] = {avg: val};
-                            // }
+                            var to = new Date(from.valueOf() + 1000*60*k);
+                            var val = Math.random();
+                            values[to.toISOString()] = {avg: val};
                         } 
                     }
                 }
@@ -36,10 +34,17 @@
                 var availability = new tsiClient.ux.AvailabilityChart(document.getElementById('availability'));
 
                 var brushMoveEndAction = (from, to) => {
-                    lineChart.render(data, {noAnimate: true}, data.map(d => {return {measureTypes: ['avg'], searchSpan: {from: from.toISOString(), to: to.toISOString(), bucketSize: '1m'}}}));
+                    lineChart.render(data, {noAnimate: true, includeDots: true}, data.map(d => {return {measureTypes: ['avg'], searchSpan: {from: from.toISOString(), to: to.toISOString(), bucketSize: '1m'}}}));
                 }
 
-                availability.render([{availabilityCount: {"": {}}}], {legend: 'hidden', theme: 'light', color: 'purple', brushMoveEndAction: brushMoveEndAction}, {range: {from: from, to: new Date(from.valueOf() + 1000*60*60)}, intervalSize: '1h'});
+                availability.render([{availabilityCount: {"": {}}}], 
+                                    {legend: 'hidden', theme: 'light', color: 'purple', brushMoveEndAction: brushMoveEndAction}, 
+                                    {range: {
+                                        from: from.valueOf(), 
+                                        to: (new Date(from.valueOf() + 1000*60*60)).valueOf()}, 
+                                        intervalSize: '1h'
+                                    }
+                                    );
                 lineChart.render(data, {}, [{includeDots: true}]);
             };
         </script>
