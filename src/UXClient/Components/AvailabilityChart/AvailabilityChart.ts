@@ -351,8 +351,8 @@ class AvailabilityChart extends ChartComponent{
             this.sparkLineChart.setBrushEndTime(new Date(this.toMillis)); 
             this.zoomedFromMillis = this.fromMillis; 
             this.zoomedToMillis = this.toMillis; 
-            this.setFromAndToTimes(this.toMillis - (24 * 60 * 60 * 1000), this.toMillis); 
-            this.setBrush(this.toMillis - (24 * 60 * 60 * 1000), this.toMillis); 
+            this.setFromAndToTimes(Math.max(this.fromMillis , this.toMillis - (24 * 60 * 60 * 1000)), this.toMillis); 
+            this.setBrush(Math.max(this.fromMillis, this.toMillis - (24 * 60 * 60 * 1000)), this.toMillis); 
         } else {
             if (this.zoomedFromMillis == null) this.zoomedFromMillis = this.fromMillis; 
             if (this.zoomedToMillis == null) this.zoomedToMillis = this.toMillis; 
