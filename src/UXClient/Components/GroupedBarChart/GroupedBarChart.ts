@@ -40,25 +40,19 @@ class GroupedBarChart extends ChartComponent {
 
     GroupedBarChart() { }
     public render(data: any, options: any, aggregateExpressionOptions: any) {
-        var isStacked = this.chartOptions && this.chartOptions.stacked;
         this.chartOptions.setOptions(options);
-        this.chartOptions.stacked = isStacked
         if (options && options.stacked || this.isStacked == null) {
             this.isStacked = this.chartOptions.stacked;
         } 
 
-        if (this.chartOptions.legend == 'compact')
-            this.chartMargins.top = 84;
-        else
-            this.chartMargins.top = 52;
+        this.chartMargins.top = (this.chartOptions.legend === 'compact') ? 84 : 52;
+
         this.aggregateExpressionOptions = data.map((d, i) => Object.assign(d, aggregateExpressionOptions && i in aggregateExpressionOptions  ? new ChartDataOptions(aggregateExpressionOptions[i]) : new ChartDataOptions({})));
         var width = Math.max((<any>d3.select(this.renderTarget).node()).clientWidth, this.MINWIDTH);
         var height = Math.max((<any>d3.select(this.renderTarget).node()).clientHeight, this.MINHEIGHT);
 
-        var firstTerm = data[0][Object.keys(data[0])[0]];
-        var firstSplitByKey = Object.keys(firstTerm)[0];
-        this.timestamp = (options && options.timestamp != undefined) ? options.timestamp : Object.keys(firstTerm[firstSplitByKey])[0];
         this.chartComponentData.mergeDataToDisplayStateAndTimeArrays(data, this.timestamp, aggregateExpressionOptions);
+        this.timestamp = (options && options.timestamp != undefined) ? options.timestamp : this.chartComponentData.allTimestampsArray[0]; 
 
         var controlsOffset = (this.chartOptions.legend == "shown" ? this.CONTROLSWIDTH : 0)
         var chartHeight = height - this.chartMargins.bottom - this.chartMargins.top; 
@@ -225,7 +219,7 @@ class GroupedBarChart extends ChartComponent {
                 width = Math.max((<any>d3.select(this.renderTarget).node()).clientWidth, this.MINWIDTH);
                 height = Math.max((<any>d3.select(this.renderTarget).node()).clientHeight, this.MINHEIGHT);
 
-                this.chartComponentData.timestamp = (this.chartOptions.timestamp != undefined) ? this.chartOptions.timestamp : Object.keys(firstTerm[firstSplitByKey])[0];
+                this.chartComponentData.timestamp = (this.chartOptions.timestamp != undefined) ? this.chartOptions.timestamp : this.chartComponentData.allTimestampsArray[0];
                 this.chartComponentData.setFilteredAggregates();
                 
                 

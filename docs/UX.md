@@ -199,7 +199,7 @@ The most common available parameters for chart options are as follows (bold opti
 |Property Name|Type|Value Options|Description|
 |-|-|-|-|
 |brushContextMenuActions|Array<any>|**null**, Array&lt;[brushContextMenuAction](#brush-context-menu-actions)&gt;|An array of objects defining brush actions
-|events|Array<any>|**null**, Array[&lt;Event>](#line-chart-events-and-states-data-shape)|events passed into the linechart, an array of discrete time events|
+|events|Array<any>|**null**, Array&lt;[Event](#line-chart-events-and-states-data-shape)glt;|events passed into the linechart, an array of discrete time events|
 |grid|boolen|**false**,true|If true, add accessible grid button to the ellipsis menu|
 |includeDots|boolean|**false**|If true, the linechart plots dots for values|
 |includeEnvelope|boolean|**false**|If true, include an area showing min/max boundaries in the line chart|
@@ -208,7 +208,7 @@ The most common available parameters for chart options are as follows (bold opti
 |noAnimate|boolean|**false**,true|If true, uppresses animated chart transitions|
 |offset|any|**0**, -120, 'America/Los_Angeles'|Offset for all timestamps in minutes from UTC, or a timezone supported by moment.js|
 |stacked|boolean|**false**|If true, stack bars in barchart|
-|states|Array<any>|**null**, Array[&lt;State>](#line-chart-events-and-states-data-shape)|An array of time range bound states passed into the linechart|
+|states|Array<any>|**null**, Array&lt;[State](#line-chart-events-and-states-data-shape)&gt;|An array of time range bound states passed into the linechart|
 |theme|string|**'dark'**, 'light'|Component color scheme|
 |timestamp|string|**null**,'2017-04-19T13:00:00Z'|If an ISO string, sets the slider in the bar or pie chart to the specified timestamp|
 |tooltip|boolean|**false**,true|If true, display tooltip on hover over a value element|
@@ -232,7 +232,7 @@ The available parameters for chart data options are as follows...
 |-|-|-|-|
 |color|string|'#4286f4'|The color of this group in a component|
 |alias|string|'Factory1'|The display name for this group|
-|contextMenu|Array[&lt;groupContextMenuAction>](#group-context-menu-actions)|TBD|Actions to take on context menu click on a group, or time series|
+|contextMenu|Array&lt;[groupContextMenuAction>](#group-context-menu-actions)&gt;|TBD|Actions to take on context menu click on a group, or time series|
 |searchSpan|[searchSpanObject](#search-span-object)|TBD|Specifies search span for this group|
 |measureTypes|Array&lt;string>|['min', 'avg', max']|The measure properties specified in the time series of this group|
 |interpolationFunction|string|'curveStep'|If 'curveStep' is set, step interpolation is used|
@@ -364,7 +364,7 @@ Some less common chart options that can be used for very specific user interacti
 |maxBuckets|number|**500**|Max number of buckets in availability chart|
 |minBrushWidth|number|**0**|Minimum possible width of brush in a linechart in pixels|
 |minutesForTimeLabels|boolean|**false**|If true, force time labels to minute granularity|
-|onInstanceClick|(instance: any) => any|**() => {return {}})**|For model search: takes an instance and returns an object of context menu actions|
+|onInstanceClick|(instance: any) => any|**() => {return {}}**|For model search: takes an instance and returns an object of context menu actions|
 |onMouseout|() => void|**() => {}**|Action fired when the mouse leaves a chart value element (ex: line, bar, pie chart segment, etc.)|
 |onMouseover|(aggKey: string, splitBy: string) => void|**() => {}**|Action fired when the mouse enters a chart value element|
 |onSticky|(aggKey: string, splitBy: string) => void|**() => {}**|Action fired when a chart value element is stickied|

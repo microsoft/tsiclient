@@ -36,13 +36,11 @@ class PieChart extends ChartComponent {
     PieChart() { }
     public render(data: any, options: any, aggregateExpressionOptions: any) {
         this.chartOptions.setOptions(options);
-        var firstTerm = data[0][Object.keys(data[0])[0]];
-        var firstSplitByKey = Object.keys(firstTerm)[0];
-        var timestamp = (options && options.timestamp != undefined) ? options.timestamp : Object.keys(firstTerm[firstSplitByKey])[0];
         this.aggregateExpressionOptions = data.map((d, i) => Object.assign(d, aggregateExpressionOptions && i in aggregateExpressionOptions  ? new ChartDataOptions(aggregateExpressionOptions[i]) : new ChartDataOptions({})));
 
-        this.chartComponentData.mergeDataToDisplayStateAndTimeArrays(data, timestamp, aggregateExpressionOptions); 
-
+        this.chartComponentData.mergeDataToDisplayStateAndTimeArrays(data, this.chartOptions.timestamp, aggregateExpressionOptions);
+        var timestamp = (options && options.timestamp != undefined) ? options.timestamp : this.chartComponentData.allTimestampsArray[0];
+ 
         var targetElement = d3.select(this.renderTarget)
                                 .classed("tsi-pieChart", true);
 
@@ -78,7 +76,7 @@ class PieChart extends ChartComponent {
                     .attr("height", chartHeight)
                 this.svgSelection.select("g").attr("transform", "translate(" + (chartWidth / 2)  + "," + (chartHeight / 2) + ")");
 
-                var timestamp = (this.chartOptions.timestamp != undefined) ? this.chartOptions.timestamp : Object.keys(firstTerm[firstSplitByKey])[0];
+                var timestamp = (this.chartOptions.timestamp != undefined) ? this.chartOptions.timestamp : this.chartComponentData.allTimestampsArray[0];
                 this.chartComponentData.updateFlatValueArray(timestamp);
                 super.themify(targetElement, this.chartOptions.theme);
 
