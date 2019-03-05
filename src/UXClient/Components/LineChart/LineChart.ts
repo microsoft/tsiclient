@@ -68,6 +68,7 @@ class LineChart extends ChartComponent {
     private isClearingBrush: boolean = false;
     private chartControlsPanel: any = null;
     private previousAggregateData: any = d3.local();
+    private previousIncludeDots: any = d3.local();
 
     private isFirstMarkerDrop = true;
     
@@ -942,9 +943,7 @@ class LineChart extends ChartComponent {
 
         let overwriteYRange = null;
         if ((this.yAxisState == "shared") || (Object.keys(this.chartComponentData.timeArrays)).length < 2 || !aggVisible) {
-            yExtent = this.getYExtent(this.chartComponentData.allValues, this.chartComponentData.displayState[aggKey].includeEnvelope ? 
-                            this.chartComponentData.displayState[aggKey].includeEnvelope : 
-                            this.chartOptions.includeEnvelope, (this.yAxisState !== "shared" ? aggKey : null));
+            yExtent = this.getYExtent(this.chartComponentData.allValues, this.chartComponentData.displayState[aggKey].includeEnvelope ? this.chartComponentData.displayState[aggKey].includeEnvelope : this.chartOptions.includeEnvelope, null);
             var yRange = (yExtent[1] - yExtent[0]) > 0 ? yExtent[1] - yExtent[0] : 1;
             var yOffsetPercentage = this.chartOptions.isArea ? (1.5 / this.chartHeight) : (10 / this.chartHeight);
             this.y.domain([yExtent[0] - (yRange * yOffsetPercentage), yExtent[1] + (yRange * (10 / this.chartHeight))]);
@@ -1055,6 +1054,8 @@ class LineChart extends ChartComponent {
         };
         let splitByColors = Utils.createSplitByColors(this.chartComponentData.displayState, aggKey, this.chartOptions.keepSplitByColor);
 
+        let includeDots = this.chartOptions.includeDots || this.chartComponentData.displayState[aggKey].includeDots;
+
         let self = this;        
         let splitByGroups = aggregateGroup.selectAll(".tsi-splitByGroup")
             .data(Object.keys(this.chartComponentData.timeArrays[aggKey]));
@@ -1127,7 +1128,7 @@ class LineChart extends ChartComponent {
                         return interpolatePath(previous, current);
                     });
 
-                if (self.chartOptions.includeDots || self.chartComponentData.displayState[aggKey].includeDots) {
+                if (includeDots) {
                     let dots = d3.select(this).selectAll(".valueDot")
                         .data(self.chartComponentData.timeArrays[aggKey][splitBy], (d: any, i) => {
                             return d.dateTime.toString();
@@ -1142,21 +1143,27 @@ class LineChart extends ChartComponent {
                             return (self.chartComponentData.isSplitByVisible(aggKey, splitBy) && d.measures) ? "visible" : "hidden";
                         }) 
                         .transition()
-                        .duration(durationFunction)
+                        .duration(function (d, i) {
+                            // debugger;
+                            // console.log(self.previousIncludeDots.get(this));
+                            // return 0;
+                            return (self.previousIncludeDots.get(this) === true) ? durationFunction(d) : 0;
+                        })
                         .ease(d3.easeExp)
                         .attr("fill", splitByColors[j])
                         .attr('cx', (d: any) => self.getXPosition(d, self.x))
                         .attr('cy', (d: any) => {     
                             return d.measures ? aggY(d.measures[self.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy)]) : null;
-                        });
+                        })
+                        .each(function () {
+                            self.previousIncludeDots.set(this, includeDots);
+                        })
                     
                     dots.exit().remove();
                 } else {
                     d3.select(this).selectAll(".valueDot").remove();
                 }
              
-
-
                 
                 if ((self.chartComponentData.displayState[aggKey].includeEnvelope || self.chartOptions.includeEnvelope) && self.chartComponentData.isPossibleEnvelope(aggKey, splitBy)) {
                     var envelopeData = self.chartComponentData.timeArrays[aggKey][splitBy].map((d: any) => ({...d, isEnvelope: true}));
@@ -1212,6 +1219,7 @@ class LineChart extends ChartComponent {
                 gapPath.exit().remove();
                 path.exit().remove();
                 self.previousAggregateData.set(this, splitBy);
+                // self.previousIncludeDots.set(this, includeDots);
             });
     }
 
