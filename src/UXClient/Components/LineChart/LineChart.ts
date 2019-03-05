@@ -1144,9 +1144,6 @@ class LineChart extends ChartComponent {
                         }) 
                         .transition()
                         .duration(function (d, i) {
-                            // debugger;
-                            // console.log(self.previousIncludeDots.get(this));
-                            // return 0;
                             return (self.previousIncludeDots.get(this) === true) ? durationFunction(d) : 0;
                         })
                         .ease(d3.easeExp)
@@ -1219,7 +1216,6 @@ class LineChart extends ChartComponent {
                 gapPath.exit().remove();
                 path.exit().remove();
                 self.previousAggregateData.set(this, splitBy);
-                // self.previousIncludeDots.set(this, includeDots);
             });
     }
 
