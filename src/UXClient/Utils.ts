@@ -81,7 +81,7 @@ class Utils {
         if (offset == 'Local') {
             return -momentTZ.tz.zone(momentTZ.tz.guess()).parse(millis);
         }
-        if (typeof offset == "string") {
+        if (typeof offset == 'string' && isNaN(offset as any)) {
             return -momentTZ.tz.zone(offset).parse(millis);
         } else {
             return offset;
@@ -98,7 +98,7 @@ class Utils {
         if (offset == 'Local') {
             return momentTZ.tz.zone(momentTZ.tz.guess()).utcOffset(millisInOffset);
         }
-        if (typeof offset == "string") {
+        if (typeof offset == 'string' && isNaN(offset as any)) {
             return momentTZ.tz.zone(offset).utcOffset(millisInOffset);
         } else {
             return -offset;
@@ -165,8 +165,8 @@ class Utils {
         return (d) => {
             var stringFormat = "MM/DD/YYYY " + (is24HourTime ? "HH" : "hh") + ":mm" + 
                 (usesSeconds ? (":ss" + (usesMillis ? ".SSS" : "")) : "") + (is24HourTime ? "" : " A");
-            if (typeof offset == "string") {
-                return momentTZ.tz(d, "UTC").tz(offset === 'Local' ? momentTZ.tz.guess() : offset).format(stringFormat);
+            if (typeof offset == 'string' && isNaN(offset as any)) {
+                return momentTZ.tz(d, 'UTC').tz(offset === 'Local' ? momentTZ.tz.guess() : offset).format(stringFormat);
             } else {
                 return momentTZ.tz(d, "UTC").utcOffset(offset).format(stringFormat);
             }
@@ -188,7 +188,7 @@ class Utils {
                     .attr("x", 0)
                     .attr("y", text.attr("y"))
                     .attr("dy", (dy + dy * 1.4) + "em")
-                    .text(lines[1]);
+                    .text(lines[1] + (lines.length === 3 ? ' ' + lines[2] : ''));
             }
         });
     }
