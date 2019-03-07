@@ -100,7 +100,7 @@ tsiClient.server.getAggregates(token, '10000000-0000-0000-0000-100000000108.env.
 
 ### TsqExpression
 
-TsqExpressions are used to represent API queries against a Time Series Insights PAYG SKU.  They include a method for transforming the object to query the API called ``toTsq()``, when transformed after an API call they become a data group as described in [Chart Data Shape](#chart-data-shape), and they can be used as [Chart Data Options](#chart-data-options). An example of TsqExpressions in use can be found [here](https://tsiclientsample.azurewebsites.net/examples/withplatform/PAYG.html) They are used as follows...
+TsqExpressions are used to represent API queries against a Time Series Insights PAYG SKU.  They include a method for transforming the object to query the API called ``toTsq()``, when transformed after an API call they become a data group as described in [Chart Data Shape](#chart-data-shape), and they can be used as [Chart Data Options](#chart-data-options). An example of TsqExpressions in use can be found [here](https://tsiclientsample.azurewebsites.net/examples/withplatform/PAYG.html). They are used as follows...
 
 ```js
 var tsqExpression = new tsiClient.ux.TsqExpression(
@@ -187,7 +187,7 @@ The above structure is shown in the [Basic Charts Example](https://tsiclientsamp
 
 ### Chart Options
 
-Chart options are generally the second parameter to a component ``render`` method.  They allow users to change view properties for the chart, like theme, legend layout, etc, and can be tried out [here](https://tsiclientsample.azurewebsites.net/examples/noauth/chartOptions.html) 
+Chart options are generally the second parameter to a component ``render`` method.  They allow users to change view properties for the chart, like theme, legend layout, etc, and can be explored in the [Chart Options Example](https://tsiclientsample.azurewebsites.net/examples/noauth/chartOptions.html). 
 
 ```js
 lineChart.render(data, {theme: 'light', tooltip: true});
