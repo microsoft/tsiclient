@@ -27,8 +27,10 @@ function initAuth(title){
     </div>`;
 
     authContext = new AuthenticationContext({
-        clientId: '11a652b9-f29f-40c8-ab29-5ccbe2271823',	
-        postLogoutRedirectUri: 'https://tsiclientsample.azurewebsites.net',
+        // clientId: '11a652b9-f29f-40c8-ab29-5ccbe2271823',	
+        // postLogoutRedirectUri: 'https://tsiclientsample.azurewebsites.net',
+        clientId: '120d688d-1518-4cf7-bd38-182f158850b6',
+        postLogoutRedirectUri: 'https://insights.timeseries.azure.com',
         cacheLocation: 'localStorage'
     });
 
