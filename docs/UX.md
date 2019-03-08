@@ -105,14 +105,14 @@ TsqExpressions are used to represent API queries against a Time Series Insights 
 ```js
 var tsqExpression = new tsiClient.ux.TsqExpression(
     {timeSeriesId: ['df4412c4-dba2-4a52-87af-780e78ff156b']}, // time series instance json
-    {AvgValue: {
+    {AvgTemp: {
         kind: 'numeric',
-        value: {tsx: '$event.value.Double'},
+        value: {tsx: '$event.temp.Double'},
         filter: null,
-        aggregation: {tsx: 'max($value)'}
+        aggregation: {tsx: 'avg($value)'}
     }}, // variable json
     { from: startDate, to: endDate, bucketSize: '6h' }, // search span object
-    {color: '#60B9AE', alias: 'MaxValue'} // ChartDataOptions
+    {color: '#60B9AE', alias: 'AvgTemp'} // ChartDataOptions
     );
 
 // later, to call the API and visualize the result

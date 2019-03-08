@@ -1131,7 +1131,7 @@ class LineChart extends ChartComponent {
                         return interpolatePath(previous, current);
                     });
 
-                if (includeDots) {
+                if (self.chartOptions.includeDots || self.chartComponentData.displayState[aggKey].includeDots) {
                     let dots = d3.select(this).selectAll(".valueDot")
                         .data(self.chartComponentData.timeArrays[aggKey][splitBy], (d: any, i) => {
                             return d.dateTime.toString();
@@ -1163,7 +1163,6 @@ class LineChart extends ChartComponent {
                 } else {
                     d3.select(this).selectAll(".valueDot").remove();
                 }
-             
                 
                 if ((self.chartComponentData.displayState[aggKey].includeEnvelope || self.chartOptions.includeEnvelope) && self.chartComponentData.isPossibleEnvelope(aggKey, splitBy)) {
                     var envelopeData = self.chartComponentData.timeArrays[aggKey][splitBy].map((d: any) => ({...d, isEnvelope: true}));
