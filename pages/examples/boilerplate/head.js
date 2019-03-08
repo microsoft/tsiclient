@@ -26,7 +26,7 @@ document.getElementsByTagName('head')[0].appendChild(metaHttp);
 
 
 // github link html
-var githubUrl = 'https://github.com/Microsoft/tsiclient/tree/master/pages/examples/' + (window.location.href.split('examples/')[1]);
+var githubUrl = 'https://github.com/Microsoft/tsiclient/tree/master/pages/examples/' + (window.location.href.split('.com/')[1]);
 var githubButton = document.createElement('button');
 githubButton.setAttribute('onClick', 'window.open("' + githubUrl + '", "_blank")');
 Object.assign(githubButton.style, {

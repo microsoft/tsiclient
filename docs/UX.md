@@ -1,4 +1,4 @@
-|# TsiClient.ux Reference
+# TsiClient.ux Reference
 
 ## Components
 
@@ -232,8 +232,8 @@ The available parameters for chart data options are as follows...
 |-|-|-|-|
 |color|string|'#4286f4'|The color of this group in a component|
 |alias|string|'Factory1'|The display name for this group|
-|contextMenu|Array&lt;[groupContextMenuAction>](#group-context-menu-actions)&gt;|TBD|Actions to take on context menu click on a group, or time series|
-|searchSpan|[searchSpanObject](#search-span-object)|TBD|Specifies search span for this group|
+|contextMenu|Array&lt;[groupContextMenuAction](#group-context-menu-actions)&gt;|[]|Actions to take on context menu click on a group, or time series|
+|searchSpan|[searchSpanObject](#search-span-object)|null|Specifies search span for this group|
 |measureTypes|Array&lt;string>|['min', 'avg', max']|The measure properties specified in the time series of this group|
 |interpolationFunction|string|'curveStep'|If 'curveStep' is set, step interpolation is used|
 |includeEnvelope|boolean|true|If true, and a data group has measure types ['min', 'avg', max'], a shadow will be drawn to show the range of values|
