@@ -212,8 +212,8 @@ class AvailabilityChart extends ChartComponent{
 
     private setRangeVariables (rawAvailability) {
         if (Utils.safeNotNullOrUndefined(() => rawAvailability.range.from || rawAvailability.range.to || rawAvailability.intervalSize)) {
-            this.fromMillis = rawAvailability.range.from;
-            this.toMillis = rawAvailability.range.to;
+            this.fromMillis = (new Date(rawAvailability.range.from)).valueOf();
+            this.toMillis = (new Date(rawAvailability.range.to)).valueOf();
             this.bucketSize = Utils.parseTimeInput(rawAvailability.intervalSize);
         } else {
             this.fromMillis = null;
