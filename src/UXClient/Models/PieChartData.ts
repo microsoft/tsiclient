@@ -14,7 +14,7 @@ class PieChartData extends GroupedBarChartData {
 
     public mergeDataToDisplayStateAndTimeArrays (data, timestamp, aggregateExpressionOptions = null, events = null, states = null ) {
         ChartComponentData.prototype.mergeDataToDisplayStateAndTimeArrays.call(this, data, aggregateExpressionOptions, events, states);
-        this.timestamp = timestamp;
+        this.timestamp = Utils.getValueOrDefault({'':timestamp}, '', this.allTimestampsArray[0]);
         super.setValuesAtTimestamp();
         this.setAllTimestampsArray();
     }
