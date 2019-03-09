@@ -183,7 +183,7 @@ Chart data is generally represented as a set of **groups** that each contain **t
 ]
 ```
 
-The above structure is shown in the [Basic Charts Example](https://tsiclientsample.azurewebsites.net/examples/noauth/basiccharts.html), and the associated [Code](../pages/samples/examples/noauth/basiccharts.html).
+The above structure is shown in the [Basic Charts Example](https://tsiclientsample.azurewebsites.net/examples/noauth/basiccharts.html), and the associated [Code](../pages/examples/noauth/basiccharts.html).
 
 ### Chart Options
 
