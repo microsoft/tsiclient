@@ -41,11 +41,17 @@
         @include hmColors($grays);
     }
 
+    .tsi-chartControlsPanel {
+        top: 12px;
+        height: 28px;
+        .tsi-ellipsisContainerDiv {
+            right: 84px;
+        }
+    }
+
     .tsi-heatmapWrapper {
-        height: calc(100% - 10px);
         position: absolute;
         right: 0px;
-        top: 10px;
         overflow: visible;
     
         .tsi-heatmapTimeLabels {
