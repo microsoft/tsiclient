@@ -68,6 +68,7 @@ class LineChart extends ChartComponent {
     private isClearingBrush: boolean = false;
     private chartControlsPanel: any = null;
     private previousAggregateData: any = d3.local();
+    private previousIncludeDots: any = d3.local();
 
     private isFirstMarkerDrop = true;
     
@@ -283,6 +284,9 @@ class LineChart extends ChartComponent {
         if (this.chartOptions.yAxisHidden) {
             this.svgSelection.selectAll(".yAxis").style("display", "hidden");
         } 
+        if (this.chartOptions.xAxisHidden) {
+            this.svgSelection.selectAll(".xAxis").style("display", "none");
+        }
 
         this.labelMouseover(d.aggregateKey, d.splitBy);
         this.chartOptions.onMouseover(d.aggregateKey, d.splitBy);
@@ -942,9 +946,7 @@ class LineChart extends ChartComponent {
 
         let overwriteYRange = null;
         if ((this.yAxisState == "shared") || (Object.keys(this.chartComponentData.timeArrays)).length < 2 || !aggVisible) {
-            yExtent = this.getYExtent(this.chartComponentData.allValues, this.chartComponentData.displayState[aggKey].includeEnvelope ? 
-                            this.chartComponentData.displayState[aggKey].includeEnvelope : 
-                            this.chartOptions.includeEnvelope, (this.yAxisState !== "shared" ? aggKey : null));
+            yExtent = this.getYExtent(this.chartComponentData.allValues, this.chartComponentData.displayState[aggKey].includeEnvelope ? this.chartComponentData.displayState[aggKey].includeEnvelope : this.chartOptions.includeEnvelope, null);
             var yRange = (yExtent[1] - yExtent[0]) > 0 ? yExtent[1] - yExtent[0] : 1;
             var yOffsetPercentage = this.chartOptions.isArea ? (1.5 / this.chartHeight) : (10 / this.chartHeight);
             this.y.domain([yExtent[0] - (yRange * yOffsetPercentage), yExtent[1] + (yRange * (10 / this.chartHeight))]);
@@ -1055,6 +1057,8 @@ class LineChart extends ChartComponent {
         };
         let splitByColors = Utils.createSplitByColors(this.chartComponentData.displayState, aggKey, this.chartOptions.keepSplitByColor);
 
+        let includeDots = this.chartOptions.includeDots || this.chartComponentData.displayState[aggKey].includeDots;
+
         let self = this;        
         let splitByGroups = aggregateGroup.selectAll(".tsi-splitByGroup")
             .data(Object.keys(this.chartComponentData.timeArrays[aggKey]));
@@ -1142,21 +1146,23 @@ class LineChart extends ChartComponent {
                             return (self.chartComponentData.isSplitByVisible(aggKey, splitBy) && d.measures) ? "visible" : "hidden";
                         }) 
                         .transition()
-                        .duration(durationFunction)
+                        .duration(function (d, i) {
+                            return (self.previousIncludeDots.get(this) === true) ? durationFunction(d) : 0;
+                        })
                         .ease(d3.easeExp)
                         .attr("fill", splitByColors[j])
                         .attr('cx', (d: any) => self.getXPosition(d, self.x))
                         .attr('cy', (d: any) => {     
                             return d.measures ? aggY(d.measures[self.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy)]) : null;
-                        });
+                        })
+                        .each(function () {
+                            self.previousIncludeDots.set(this, includeDots);
+                        })
                     
                     dots.exit().remove();
                 } else {
                     d3.select(this).selectAll(".valueDot").remove();
                 }
-             
-
-
                 
                 if ((self.chartComponentData.displayState[aggKey].includeEnvelope || self.chartOptions.includeEnvelope) && self.chartComponentData.isPossibleEnvelope(aggKey, splitBy)) {
                     var envelopeData = self.chartComponentData.timeArrays[aggKey][splitBy].map((d: any) => ({...d, isEnvelope: true}));
@@ -1265,6 +1271,35 @@ class LineChart extends ChartComponent {
         
         d3.select(this.renderTarget).select(".tsi-tooltip").remove();
 
+        if (!this.chartOptions.hideChartControlPanel && this.chartControlsPanel === null) {
+
+            this.chartControlsPanel = Utils.createControlPanel(this.renderTarget, this.CONTROLSWIDTH, Math.max((this.chartMargins.top + 12), 0), this.chartOptions);
+
+            var self = this;
+            this.hasStackedButton = true;
+            this.stackedButton = this.chartControlsPanel.append("button")
+                .style("left", "60px")
+                .attr("class", "tsi-stackedButton")
+                .attr("aria-label", () => "set axis state to " + this.nextStackedState())
+                .on("click", function () {
+                    d3.select(this).attr("aria-label", () => "set axis state to " + self.nextStackedState());
+                    self.yAxisState = self.nextStackedState();
+                    self.draw();
+                    setTimeout (() => (d3.select(this).node() as any).focus(), 200);
+                });
+
+            this.ellipsisContainer = this.chartControlsPanel.append("div")
+                .attr("class", "tsi-ellipsisContainerDiv");
+            this.ellipsisMenu = new EllipsisMenu(this.ellipsisContainer.node());
+
+        } else  if (this.chartOptions.hideChartControlPanel && this.chartControlsPanel !== null){
+            this.hasStackedButton = false;
+            this.chartControlsPanel.remove();
+            this.chartControlsPanel = null;
+        }
+        
+        this.yAxisState = this.chartOptions.yAxisState ? this.chartOptions.yAxisState : "stacked"; // stacked, shared, overlap
+
         if(this.svgSelection == null){
             
             /******************** Static Elements *********************************/
@@ -1281,7 +1316,7 @@ class LineChart extends ChartComponent {
             var defs = this.svgSelection.append('defs');
             
             this.brushElem = null; 
-            var voronoiRegion
+            var voronoiRegion;
             if (this.hasBrush) {
                 this.brushElem = g.append("g")
                     .attr("class", "brushElem");
@@ -1354,50 +1389,8 @@ class LineChart extends ChartComponent {
                 .text(d => d);
     
             this.tooltip = new Tooltip(d3.select(this.renderTarget));
-                        
             this.yAxisState = this.chartOptions.yAxisState ? this.chartOptions.yAxisState : "stacked"; // stacked, shared, overlap
-
-            if (!this.chartOptions.hideChartControlPanel && this.chartControlsPanel === null) {
-
-                this.chartControlsPanel = Utils.createControlPanel(this.renderTarget, this.CONTROLSWIDTH, Math.max((this.chartMargins.top + 12), 0), this.chartOptions);
-
-                var self = this;
-                this.hasStackedButton = true;
-                this.stackedButton = this.chartControlsPanel.append("button")
-                    .style("left", "60px")
-                    .attr("class", "tsi-stackedButton")
-                    .attr("aria-label", () => "set axis state to " + this.nextStackedState())
-                    .on("click", function () {
-                        d3.select(this).attr("aria-label", () => "set axis state to " + self.nextStackedState());
-                        self.yAxisState = self.nextStackedState();
-                        self.draw();
-                        setTimeout (() => (d3.select(this).node() as any).focus(), 200);
-                    });
-
-                this.ellipsisContainer = this.chartControlsPanel.append("div")
-                    .attr("class", "tsi-ellipsisContainerDiv");
-                this.ellipsisMenu = new EllipsisMenu(this.ellipsisContainer.node());
-                var ellipsisItems = [{
-                    iconClass: "flag",
-                    label: "Drop a Marker",
-                    action: this.scooterButtonClick,
-                    description: ""
-                }];
-                if (this.chartOptions.grid) {
-                    ellipsisItems.push(Utils.createGridEllipsisOption(this.renderTarget, this.chartOptions, this.aggregateExpressionOptions, this.chartComponentData));
-                }
-
-                if (this.chartOptions.canDownload) {
-                    ellipsisItems.push(Utils.createDownloadEllipsisOption(() => this.chartComponentData.generateCSVString(), 
-                        () => this.focusOnEllipsis()));
-                }
-                this.ellipsisMenu.render(ellipsisItems, {theme: this.chartOptions.theme});
-
-            } else  if (this.chartOptions.hideChartControlPanel && this.chartControlsPanel !== null){
-                this.hasStackedButton = false;
-                this.chartControlsPanel.remove();
-                this.chartControlsPanel = null;
-            }
+                        
 
             var draw = () => {  
 
@@ -1414,6 +1407,12 @@ class LineChart extends ChartComponent {
                 this.chartWidth = this.getChartWidth();
                 this.height = Math.max((<any>d3.select(this.renderTarget).node()).clientHeight, this.MINHEIGHT);
                 this.chartHeight = Math.max(1, this.height - this.chartMargins.bottom - this.chartMargins.top - this.timelineHeight); 
+
+                g.attr("transform", "translate(" + this.chartMargins.left + "," + this.chartMargins.top + ")");
+
+                if (this.brushElem) {
+                    this.brushElem.classed("hideBrushHandles", !this.chartOptions.brushHandlesVisible);
+                }
 
                 this.focus.select('.hLine').attr("x2", this.chartWidth);
                 this.focus.select('.vLine').attr("y2", this.chartHeight + this.timelineHeight);
@@ -1534,6 +1533,10 @@ class LineChart extends ChartComponent {
                             .attr("x2", this.chartWidth - this.xOffset);
                         xAxisBaseline.exit().remove();
                     }
+                    if (g.selectAll(".xAxis").size() !== 0) {
+                        g.selectAll(".xAxis").style("visibility", ((!this.chartOptions.xAxisHidden) ? "visible" : "hidden"));
+                    }
+
             
                     /******************** Draw Line and Points ************************/
                     this.visibleAggCount = Object.keys(this.chartComponentData.timeArrays).reduce((count: number, aggKey: string): number => {
@@ -1729,6 +1732,25 @@ class LineChart extends ChartComponent {
         this.chartComponentData.mergeDataToDisplayStateAndTimeArrays(this.data, this.aggregateExpressionOptions, this.events, this.states);
         this.draw();
         this.chartOptions.noAnimate = false;  // ensure internal renders are always animated, overriding the users noAnimate option
+
+
+        var ellipsisItems = [{
+            iconClass: "flag",
+            label: "Drop a Marker",
+            action: this.scooterButtonClick,
+            description: ""
+        }];
+        if (this.chartOptions.grid) {
+            ellipsisItems.push(Utils.createGridEllipsisOption(this.renderTarget, this.chartOptions, this.aggregateExpressionOptions, this.chartComponentData));
+        }
+
+        if (this.chartOptions.canDownload) {
+            ellipsisItems.push(Utils.createDownloadEllipsisOption(() => this.chartComponentData.generateCSVString(), 
+                () => this.focusOnEllipsis()));
+        }
+        if (!this.chartOptions.hideChartControlPanel) {
+            this.ellipsisMenu.render(ellipsisItems, {theme: this.chartOptions.theme});
+        }
 
         d3.select("html").on("click." + Utils.guid(), () => {
             if (this.ellipsisContainer && d3.event.target != this.ellipsisContainer.select(".tsi-ellipsisButton").node()) {

@@ -201,7 +201,7 @@ class ChartComponentData {
 
     private determineMeasureTypes (timeArray) {
         var measureTypes = timeArray.reduce((measureTypes, curr) => {
-            if (curr && Object.keys(curr.measures).length) {
+            if (curr && curr.measures && Object.keys(curr.measures).length) {
                 Object.keys(curr.measures).forEach((measure) => {
                     measureTypes[measure] = true;
                 });

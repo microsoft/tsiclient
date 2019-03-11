@@ -1,0 +1,267 @@
+
+<!DOCTYPE html> 
+<html>
+    <head>
+        <title>Test Chart Options</title>
+        <style>
+            button {    
+                background-color: lightgrey;
+                border: none;
+                padding: 8px;
+                cursor: pointer;
+            }
+            label {
+                display:block;
+            }
+            select {
+                padding: 4px;
+                margin: 4px;
+            }
+        </style>
+    </head>
+    <body style="font-family: 'Segoe UI', sans-serif;">
+        <div style="width:100%; display:flex; flex-direction:row;">
+            <div style="width:320px; overflow-y: auto;">
+                <h3>Chart Options - Generic</h3>
+                <div>
+                    <label for="linechartOffset">legend </label>
+                    <select onchange='(function(){ toggleChartOption("legend", event.target.value) })(event)'>
+                        <option>shown</option>
+                        <option>hidden</option>
+                        <option>compact</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="linechartOffset">offset </label>
+                    <select onchange='(function(){ toggleChartOption("offset", event.target.value) })(event)'>
+                        <option value='Local'>Local</option>
+                        <option value='-120'>-120</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="linechartTooltip">tooltip </label>
+                    <select onchange='(function(){ toggleChartOption("tooltip", (event.target.value === "true")) })(event)'>
+                        <option value='true'>true</option>
+                        <option value='false' selected>false</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="linechartCanDownload">canDownload </label>
+                    <select onchange='(function(){ toggleChartOption("canDownload", (event.target.value === "true")) })(event)'>
+                        <option value='true'>true</option>
+                        <option value='false' selected>false</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="linechartHideChartControlPanel">hideChartControlPanel </label>
+                    <select onchange='(function(){ toggleChartOption("hideChartControlPanel", (event.target.value === "true")) })(event)'>
+                        <option value='true'>true</option>
+                        <option value='false' selected>false</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="linechartIs24HourTime">is24HourTime </label>
+                    <select onchange='(function(){ toggleChartOption("is24HourTime", (event.target.value === "true")) })(event)'>
+                        <option value='true'>true</option>
+                        <option value='false' selected>false</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="linechartSingleLineXAxisLabel">singleLineXAxisLabel </label>
+                    <select onchange='(function(){ toggleChartOption("singleLineXAxisLabel", (event.target.value === "true")) })(event)'>
+                        <option value='true'>true</option>
+                        <option value='false' selected>false</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="linechartXAxisHidden">xAxisHidden </label>
+                    <select onchange='(function(){ toggleChartOption("xAxisHidden", (event.target.value === "true")) })(event)'>
+                        <option value='true'>true</option>
+                        <option value='false' selected>false</option>
+                    </select>
+                </div>
+                <h3>Chart options - Linechart specific</h3>
+                <div>
+                    <label for="linechartYAxisHidden">yAxisHidden </label>
+                    <select onchange='(function(){ toggleChartOption("yAxisHidden", (event.target.value === "true")) })(event)'>
+                        <option value='true'>true</option>
+                        <option value='false' selected>false</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="linechartIncludeDots">includeDots </label>
+                    <select onchange='(function(){ toggleChartOption("includeDots", (event.target.value === "true")) })(event)'>
+                        <option value='true'>true</option>
+                        <option value='false' selected>false</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="linechartIncludeEnvelope">includeEnvelope </label>
+                    <select onchange='(function(){ toggleChartOption("includeEnvelope", (event.target.value === "true")) })(event)'>
+                        <option value='true'>true</option>
+                        <option value='false' selected>false</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="linechartInterpolationFunction">interpolationFunction </label>
+                    <select onchange='(function(){ toggleChartOption("interpolationFunction", event.target.value)})(event)'>
+                        <option selected>curveMonotoneX</option>
+                        <option>curveLinear</option>
+                        <option>curveStep</option> 
+                        <option>curveStepBefore</option> 
+                        <option>curveStepAfter</option> 
+                        <option>curveBasis</option> 
+                        <option>curveCardinal</option> 
+                        <option>curveCatmullRom</option> 
+                    </select>
+                </div>
+                <div>
+                    <label for="linechartYAxisState">yAxisState </label>
+                    <select onchange='(function(){ toggleChartOption("yAxisState", event.target.value)})(event)'>
+                        <option selected>stacked</option>
+                        <option>shared</option>
+                        <option>overlap</option> 
+                    </select>
+                </div>
+                <div>
+                    <label for="linechartbrushHandlesVisible">brushHandlesVisible </label>
+                    <select onchange='(function(){ toggleChartOption("brushHandlesVisible", (event.target.value === "true")) })(event)'>
+                        <option value='true'>true</option>
+                        <option value='false' selected>false</option>
+                    </select>
+                </div>
+                <div>
+                    <label>snapBrush </label>
+                    <select onchange='(function(){ toggleChartOption("snapBrush", (event.target.value === "true")) })(event)'>
+                        <option value='true'>true</option>
+                        <option value='false' selected>false</option>
+                    </select>
+                </div>
+                <h3>Chart options - Barchart specific</h3>
+                <div>
+                    <label>stacked </label>
+                    <select onchange='(function(){ toggleChartOption("stacked", (event.target.value === "true")) })(event)'>
+                        <option value='true'>true</option>
+                        <option value='false' selected>false</option>
+                    </select>
+                </div>
+                <div>
+                    <label>zeroYAxis </label>
+                    <select onchange='(function(){ toggleChartOption("zeroYAxis", (event.target.value === "true")) })(event)'>
+                        <option value='true' selected>true</option>
+                        <option value='false'>false</option>
+                    </select>
+                </div>
+                <h3>Chart options - Piechart specific</h3>
+                <div>
+                    <label>arcWidthRatio </label>
+                    <select onchange='(function(){ toggleChartOption("arcWidthRatio", event.target.value)})(event)'>
+                        <option selected>1</option>
+                        <option>.5</option>
+                        <option>.1</option> 
+                    </select>
+                </div>
+            </div>
+            <div style="width: calc(100% - 320px);"">
+                <div id="linechart" style="width: 100%; height: 400px; margin-bottom:20px;"></div>
+                <div id="barchart" style="width: 100%; height: 400px; margin-bottom: 20px;"></div>
+                <div id="piechart" style="width: 100%; height: 400px;"></div>
+    
+            </div>
+        </div>
+        <script>
+            var chartOptionsLinechart = {yExtent: [0,1], includeDots: true};
+            var brushContextMenu = [{
+                name: "Print parameters to console",
+                action: function(from, to) {
+                    console.log(from);
+                    console.log(to);
+                }
+            }];
+            var chartOptions = {
+                yExtent: [0,1], 
+                legend: 'shown', 
+                offset: 'Local', 
+                tooltip: false, 
+                canDownload: false, 
+                hideChartControlPanel: false, 
+                is24HourTime: false, 
+                singleLineXAxisLabel: '',
+                xAxisHidden: false, 
+                yAxisHidden: false,
+                includeDots: false,
+                includeEnvelope: false,
+                interpolationFunction: 'curveMonotoneX',
+                yAxisState: 'stacked',
+                brushContextMenuActions: brushContextMenu,
+                brushHandlesVisible: false,
+                snapBrush: false,
+                stacked: false, 
+                zeroYAxis: true,
+                arcWidthRatio: 1
+            }
+            var lineChart;
+            var barchart;
+            var piechart;
+            var data;
+            var chartDataOptions;
+
+            function toggleChartOption(property, value = null) {
+                //if value is null, assume a toggle
+                chartOptions[property] = (value === null) ? !chartOptions[property] : value; 
+                lineChart.render(data, chartOptions, chartDataOptions);
+                barchart.render(data, chartOptions);
+                piechart.render(data, chartOptions);
+            }
+            
+            window.onload = function() {
+                
+                // create fake data in the shape our charts expect
+                data = [];
+                var from = new Date();
+                var to;
+                for(var i = 0; i < 2; i++){
+                    var lines = {};
+                    data.push({[`Factory${i}`]: lines});
+                    for(var j = 0; j < 5; j++){
+                        var values = {};
+                        lines[`Station${j}`] = values;
+                        for(var k = 0; k < 20; k++){
+                            if(!(k%2 && k%3)){  // if check is to create some sparseness in the data
+                                var to = new Date(from.valueOf() + 1000*60*k);
+                                var val = Math.random() / 2 + .25;
+                                var minVal = val - (Math.random() / 10);
+                                var maxVal = val + (Math.random() / 10);
+                                values[to.toISOString()] = {avg: val, min: minVal, max: maxVal};
+                            }
+                        } 
+                    }
+                }
+
+                // render the data in a chart
+                var tsiClient = new TsiClient();
+                var searchSpan = {
+                    from: from.toISOString(),
+                    to: to.toISOString(),
+                    bucketSize: '1m'
+                }
+                chartDataOptions = data.map(d => {
+                    return {searchSpan: searchSpan};
+                });
+
+                lineChart = new tsiClient.ux.LineChart(document.getElementById('linechart'));
+                lineChart.render(data, chartOptions, chartDataOptions);
+
+                barchart = new tsiClient.ux.BarChart(document.getElementById('barchart'));
+                barchart.render(data, chartOptions);
+
+                piechart = new tsiClient.ux.PieChart(document.getElementById('piechart'));
+                piechart.render(data, chartOptions);
+
+            };
+        </script>
+    </body>
+
+    <!-- boilerplate headers are injected with head.js, grab them from the live example header, or include a link to head.js -->
+    <script src="../boilerplate/head.js"></script>
+</html>
