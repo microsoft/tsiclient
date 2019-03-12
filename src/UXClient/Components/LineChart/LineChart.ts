@@ -1739,7 +1739,7 @@ class LineChart extends ChartComponent {
             label: "Drop a Marker",
             action: this.scooterButtonClick,
             description: ""
-        }];
+        }].concat(this.chartOptions.ellipsisItems);
         if (this.chartOptions.grid) {
             ellipsisItems.push(Utils.createGridEllipsisOption(this.renderTarget, this.chartOptions, this.aggregateExpressionOptions, this.chartComponentData));
         }

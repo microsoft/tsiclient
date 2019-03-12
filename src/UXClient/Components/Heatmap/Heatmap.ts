@@ -20,7 +20,6 @@ class Heatmap extends ChartComponent {
     private heatmapCanvasMap: any;
     private timeLabels: any;
     private height: number;
-    // private controlPanelHeight: number = 20;
     private heatmapWrapperHeight: number;
     private chartControlsPanel: any = null;
     private ellipsisContainer: any = null;
@@ -41,7 +40,7 @@ class Heatmap extends ChartComponent {
         this.ellipsisContainer = this.chartControlsPanel.append("div")
             .attr("class", "tsi-ellipsisContainerDiv");
         this.ellipsisMenu = new EllipsisMenu(this.ellipsisContainer.node());
-        var ellipsisItems = [];
+        var ellipsisItems = [].concat(this.chartOptions.ellipsisItems);
 
         if (this.chartOptions.canDownload) {
             ellipsisItems.push(Utils.createDownloadEllipsisOption(() => this.chartComponentData.generateCSVString(), 

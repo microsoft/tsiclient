@@ -14,6 +14,7 @@ class ChartOptions {
     public brushMoveEndAction: any; // action fired at the end of a mouse movement
     public canDownload: boolean; // whether chart's ellipsis menu contains download button
     public color: string; // color of the time selection ghost in availability chart
+    public ellipsisItems: Array<any>; //objects reprenting options in the ellipsis menu TBD UPDATE WORDING
     public events: Array<any>; // events passed into the linchart, an array of discrete time events
     public focusHidden: boolean; // whether focus element is hidden in chart
     public fromChart: boolean; // whether a component is a subcomponent of another one or is a standalone
@@ -137,6 +138,7 @@ class ChartOptions {
         this.autoTriggerBrushContextMenu = Utils.getValueOrDefault(chartOptionsObj, 'autoTriggerBrushContextMenu', false);
         this.includeDots = Utils.getValueOrDefault(chartOptionsObj, 'includeDots', false);
         this.yExtent = Utils.getValueOrDefault(chartOptionsObj, 'yExtent', null);
+        this.ellipsisItems = Utils.getValueOrDefault(chartOptionsObj, 'ellipsisItems', []);
     }
 
     public toObject () {
@@ -195,7 +197,8 @@ class ChartOptions {
             withContextMenu: this.withContextMenu,
             autoTriggerBrushContextMenu: this.autoTriggerBrushContextMenu,
             includeDots: this.includeDots,
-            yExtent: this.yExtent
+            yExtent: this.yExtent,
+            ellipsisItems: this.ellipsisItems
         }
     }
 }
