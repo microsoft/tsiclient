@@ -113,7 +113,7 @@ class Heatmap extends ChartComponent {
                                 self.legend.triggerSplitByFocus(aggKey, splitBy);
                             }
 
-                            heatmapCanvas.render(self.chartComponentData, self.chartOptions, aggKey, null, null, onCellFocus, aggI);
+                            heatmapCanvas.render(self.chartComponentData, self.chartOptions, aggKey, null, null, onCellFocus, aggI, visibleAggs.length === 1);
                         }
                         renderHeatmapCanvas();         
                     }).on("mouseleave", () => {
@@ -125,12 +125,12 @@ class Heatmap extends ChartComponent {
                 var mouseover = (hoveredAggKey, hoveredSplitBy) => {
                     var heatmapCanvas = self.heatmapCanvasMap[hoveredAggKey];
                     if (heatmapCanvas)
-                        heatmapCanvas.render(self.chartComponentData, self.chartOptions, hoveredAggKey, hoveredSplitBy, null, null);
+                        heatmapCanvas.render(self.chartComponentData, self.chartOptions, hoveredAggKey, hoveredSplitBy, null, null, null, visibleAggs.length === 1);
                 }
                 var mouseout = (selection, hoveredAggKey) => {
                     var heatmapCanvas: HeatmapCanvas = self.heatmapCanvasMap[hoveredAggKey];
                     if (heatmapCanvas)
-                        heatmapCanvas.render(self.chartComponentData, self.chartOptions, hoveredAggKey, null, null, null, null);
+                        heatmapCanvas.render(self.chartComponentData, self.chartOptions, hoveredAggKey, null, null, null, null, visibleAggs.length === 1);
                 }
 
                 this.legend.draw(this.chartOptions.legend, this.chartComponentData, mouseover, 

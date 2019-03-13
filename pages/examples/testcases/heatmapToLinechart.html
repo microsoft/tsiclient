@@ -23,7 +23,7 @@
                             if(!(k%2 && k%3)){  // if check is to create some sparseness in the data
                                 var to = new Date(from.valueOf() + 1000*60*k);
                                 var val = Math.random();
-                                values[to.toISOString()] = {avg: val};
+                                values[to.toISOString()] = {count: val};
                             }
                         } 
                     }
@@ -58,13 +58,13 @@
                         }
                         chart.classList.remove("tsi-heatmapComponent");
                         var heatmap = new tsiClient.ux.Heatmap(document.getElementById('chart1'));
-                        heatmap.render(data, {theme: 'dark', ellipsisItems: heatmapEllipsisItems}, data.map(d => {return {measureTypes: ['avg'], searchSpan: {from: from.toISOString(), to: to.toISOString(), bucketSize: '1m'}}}));
+                        heatmap.render(data, {theme: 'dark', ellipsisItems: heatmapEllipsisItems}, data.map(d => {return {measureTypes: ['count'], searchSpan: {from: from.toISOString(), to: to.toISOString(), bucketSize: '1m'}}}));
                     },
                     description: ""
                 }];
 
                 var heatmap = new tsiClient.ux.Heatmap(document.getElementById('chart1'));
-                heatmap.render(data, {theme: 'dark', ellipsisItems: heatmapEllipsisItems}, data.map(d => {return {measureTypes: ['avg'], searchSpan: {from: from.toISOString(), to: to.toISOString(), bucketSize: '1m'}}}));
+                heatmap.render(data, {theme: 'dark', ellipsisItems: heatmapEllipsisItems}, data.map(d => {return {measureTypes: ['count'], searchSpan: {from: from.toISOString(), to: to.toISOString(), bucketSize: '1m'}}}));
 
             };
         </script>
