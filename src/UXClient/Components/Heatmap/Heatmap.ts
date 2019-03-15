@@ -77,7 +77,7 @@ class Heatmap extends ChartComponent {
             this.draw = () => { 
 
                 var width: number = targetElement.node().getBoundingClientRect().width - (this.chartOptions.legend == "shown" ? 250 : 0);
-                this.height = (<any>d3.select(this.renderTarget).node()).clientHeight;        
+                this.height = Math.floor(Math.max((<any>d3.select(this.renderTarget).node()).clientHeight, this.MINHEIGHT));        
                 this.heatmapWrapperHeight = this.height - ((12 + (this.chartControlsExist() ? 28 : 0) + (this.chartOptions.legend === 'compact' ? 48 : 0)));
 
                 super.themify(targetElement, this.chartOptions.theme);
@@ -97,8 +97,6 @@ class Heatmap extends ChartComponent {
                 var visibleAggs = Object.keys(this.chartComponentData.displayState).filter((aggKey) => {
                     return this.chartComponentData.getAggVisible(aggKey);
                 });
-
-                console.log(canvasWrapperHeightTotal);
 
                 var self = this;
                 var canvasWrappers = this.heatmapWrapper.selectAll(".tsi-heatmapCanvasWrapper")
