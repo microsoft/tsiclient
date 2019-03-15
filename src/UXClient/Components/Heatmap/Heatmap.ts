@@ -54,9 +54,6 @@ class Heatmap extends ChartComponent {
         var targetElement = d3.select(this.renderTarget).classed("tsi-heatmapComponent", true);
 		if(targetElement.style("position") == "static")
             targetElement.style("position", "relative");
-        var width: number = targetElement.node().getBoundingClientRect().width - (this.chartOptions.legend == "shown" ? 250 : 0);
-        this.height = targetElement.node().getBoundingClientRect().height;
-        this.heatmapWrapperHeight = this.height - ((12 + (this.chartControlsExist() ? 28 : 0) + (this.chartOptions.legend === 'compact' ? 48 : 0)));
 
         this.chartComponentData.mergeDataToDisplayStateAndTimeArrays(data, aggregateExpressionOptions);
 
@@ -78,9 +75,14 @@ class Heatmap extends ChartComponent {
                 .attr("class", "tsi-heatmapWrapper");
 
             this.draw = () => { 
+
+                var width: number = targetElement.node().getBoundingClientRect().width - (this.chartOptions.legend == "shown" ? 250 : 0);
+                this.height = (<any>d3.select(this.renderTarget).node()).clientHeight;        
+                this.heatmapWrapperHeight = this.height - ((12 + (this.chartControlsExist() ? 28 : 0) + (this.chartOptions.legend === 'compact' ? 48 : 0)));
+
                 super.themify(targetElement, this.chartOptions.theme);
                 width = Math.floor(targetElement.node().getBoundingClientRect().width) - (this.chartOptions.legend == "shown" ? 250 : 0);
-                this.height = Math.floor(targetElement.node().getBoundingClientRect().height);
+
                 this.heatmapWrapper.style("width", (width - 12) + "px")
                     .style("height", this.heatmapWrapperHeight + "px")
                     .style("top", (20 + (this.chartControlsExist() ? 36 : 0) + (this.chartOptions.legend === 'compact' ? 40 : 0)) + "px");
@@ -95,6 +97,8 @@ class Heatmap extends ChartComponent {
                 var visibleAggs = Object.keys(this.chartComponentData.displayState).filter((aggKey) => {
                     return this.chartComponentData.getAggVisible(aggKey);
                 });
+
+                console.log(canvasWrapperHeightTotal);
 
                 var self = this;
                 var canvasWrappers = this.heatmapWrapper.selectAll(".tsi-heatmapCanvasWrapper")
