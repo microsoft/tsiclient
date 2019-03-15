@@ -31,7 +31,6 @@ class Heatmap extends ChartComponent {
 
     private createControlsPanel () {
         this.chartControlsPanel = Utils.createControlPanel(this.renderTarget, this.CONTROLSWIDTH, 52, this.chartOptions);
-
         this.ellipsisContainer = this.chartControlsPanel.append("div")
             .attr("class", "tsi-ellipsisContainerDiv");
         this.ellipsisMenu = new EllipsisMenu(this.ellipsisContainer.node());

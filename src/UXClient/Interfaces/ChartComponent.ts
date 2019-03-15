@@ -14,7 +14,7 @@ class ChartComponent extends Component {
 	public aggregateExpressionOptions: any;
 	protected chartControlsPanel = null;
 	protected ellipsisContainer = null;
-	protected ellipsisMenu: EllipsisMenu;
+	protected ellipsisMenu: EllipsisMenu = null;
 	
 	public chartComponentData: ChartComponentData;
 	
@@ -29,7 +29,9 @@ class ChartComponent extends Component {
 				this.ellipsisContainer = this.chartControlsPanel.append("div")
 					.attr("class", "tsi-ellipsisContainerDiv");
 			}
-			this.ellipsisMenu = new EllipsisMenu(this.ellipsisContainer.node());
+			if (this.ellipsisMenu === null) {
+				this.ellipsisMenu = new EllipsisMenu(this.ellipsisContainer.node());
+			}
 
 			var ellipsisItems = [];
 			if (this.chartOptions.grid) {
@@ -52,6 +54,14 @@ class ChartComponent extends Component {
 			this.chartControlsPanel.remove();
 		}
 		this.chartControlsPanel = null;
+		this.ellipsisContainer = null;
+		this.ellipsisMenu = null;
+	}
+
+	protected removeEllipsisMenu () {
+		if (this.ellipsisContainer) {
+			this.ellipsisContainer.remove();
+		}
 		this.ellipsisContainer = null;
 		this.ellipsisMenu = null;
 	}

@@ -35,6 +35,10 @@ class GroupedBarChart extends ChartComponent {
         super(renderTarget);
     }
 
+    private ellipsisItemsExist () {
+        return (this.chartOptions.canDownload || this.chartOptions.ellipsisItems.length > 0 || this.chartOptions.grid);
+    } 
+
     GroupedBarChart() { }
     public render(data: any, options: any, aggregateExpressionOptions: any) {
         this.chartOptions.setOptions(options);
@@ -241,9 +245,11 @@ class GroupedBarChart extends ChartComponent {
                     this.removeControlPanel();
                 }
         
-                if (this.chartControlsPanel !== null) {
+                if (this.chartControlsPanel !== null && this.ellipsisItemsExist()) {
                     this.drawEllipsisMenu();
                     this.chartControlsPanel.style("top", Math.max((this.chartMargins.top - 24), 0) + 'px');
+                } else {
+                    this.removeEllipsisMenu();
                 }
 
                 /********* Determine the number of timestamps present, add margin for slider *********/

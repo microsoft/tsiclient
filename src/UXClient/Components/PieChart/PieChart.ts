@@ -95,6 +95,8 @@ class PieChart extends ChartComponent {
                 if (this.ellipsisItemsExist() && !this.chartOptions.hideChartControlPanel) {
                     this.drawEllipsisMenu();
                     this.chartControlsPanel.style("top", Math.max((this.chartMargins.top - 24), 0) + 'px');
+                } else {
+                    this.removeControlPanel();
                 }
 
 
