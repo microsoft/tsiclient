@@ -18,13 +18,9 @@ class Heatmap extends ChartComponent {
     private legend: Legend;
     public draw: any;
     private heatmapCanvasMap: any;
-    private timeLabels: any;
+    private timeLabels: any = null;
     private height: number;
     private heatmapWrapperHeight: number;
-    private chartControlsPanel: any = null;
-    private ellipsisContainer: any = null;
-    private ellipsisMenu: any;
-
     private timeLabelsHeight = 50;
 
     private focusOnEllipsis () {
@@ -35,18 +31,18 @@ class Heatmap extends ChartComponent {
 
     private createControlsPanel () {
         this.chartControlsPanel = Utils.createControlPanel(this.renderTarget, this.CONTROLSWIDTH, 52, this.chartOptions);
-        this.chartControlsPanel.style("top", "12px")
 
         this.ellipsisContainer = this.chartControlsPanel.append("div")
             .attr("class", "tsi-ellipsisContainerDiv");
         this.ellipsisMenu = new EllipsisMenu(this.ellipsisContainer.node());
-        var ellipsisItems = [].concat(this.chartOptions.ellipsisItems);
+    }
 
-        if (this.chartOptions.canDownload) {
-            ellipsisItems.push(Utils.createDownloadEllipsisOption(() => this.chartComponentData.generateCSVString(), 
-                () => this.focusOnEllipsis()));
-        }
-        this.ellipsisMenu.render(ellipsisItems, {theme: this.chartOptions.theme});
+    private ellipsisItemsExist () {
+        return (this.chartOptions.canDownload || this.chartOptions.ellipsisItems.length > 0);
+    }
+
+    private chartControlsExist () {
+        return (this.ellipsisItemsExist() && !this.chartOptions.hideChartControlPanel);
     }
 
     public render (data, chartOptions, aggregateExpressionOptions) {
@@ -61,29 +57,39 @@ class Heatmap extends ChartComponent {
             targetElement.style("position", "relative");
         var width: number = targetElement.node().getBoundingClientRect().width - (this.chartOptions.legend == "shown" ? 250 : 0);
         this.height = targetElement.node().getBoundingClientRect().height;
-        this.heatmapWrapperHeight = this.height - (this.chartOptions.hideChartControlPanel ? 12 : (28 + 12 + 12));
+        this.heatmapWrapperHeight = this.height - ((12 + (this.chartControlsExist() ? 28 : 0) + (this.chartOptions.legend === 'compact' ? 48 : 0)));
 
         this.chartComponentData.mergeDataToDisplayStateAndTimeArrays(data, aggregateExpressionOptions);
 
-        if (!this.chartOptions.hideChartControlPanel && this.chartControlsPanel === null) {
+
+        if (this.chartControlsExist() && this.chartControlsPanel === null) {
             this.createControlsPanel();
-        } else  if (this.chartOptions.hideChartControlPanel && this.chartControlsPanel !== null){
+        } else  if ((this.chartOptions.hideChartControlPanel || !this.ellipsisItemsExist()) && this.chartControlsPanel !== null){
             this.chartControlsPanel.remove();
             this.chartControlsPanel = null;
+        }
+
+        if (this.chartControlsExist()) {
+            this.chartControlsPanel.style("top", (16 + (this.chartOptions.legend === 'compact' ? 32 : 0)) + 'px');
+            this.drawEllipsisMenu();
         }
             
         if (this.heatmapWrapper == null) {
             this.heatmapWrapper = targetElement.append('div')
                 .attr("class", "tsi-heatmapWrapper");
 
-            super.themify(targetElement, this.chartOptions.theme);
-
             this.draw = () => { 
+                super.themify(targetElement, this.chartOptions.theme);
                 width = Math.floor(targetElement.node().getBoundingClientRect().width) - (this.chartOptions.legend == "shown" ? 250 : 0);
                 this.height = Math.floor(targetElement.node().getBoundingClientRect().height);
                 this.heatmapWrapper.style("width", (width - 12) + "px")
                     .style("height", this.heatmapWrapperHeight + "px")
-                    .style("top", (12 + (this.chartOptions.hideChartControlPanel ? 0 : 40)) + "px");
+                    .style("top", (20 + (this.chartControlsExist() ? 36 : 0) + (this.chartOptions.legend === 'compact' ? 40 : 0)) + "px");
+
+                if (this.chartControlsExist()) {
+                    let controlPanelWidth = Utils.getControlPanelWidth(this.renderTarget, this.CONTROLSWIDTH, this.chartOptions.legend === 'shown');
+                    this.chartControlsPanel.style("width", controlPanelWidth + "px");
+                }    
 
                 var canvasWrapperHeightTotal = this.heatmapWrapperHeight - this.timeLabelsHeight;
                 this.heatmapCanvasMap = {};
@@ -139,11 +145,13 @@ class Heatmap extends ChartComponent {
                 //remove all the colorKeys
                 this.legend.legendElement.selectAll(".seriesLabel").selectAll(".tsi-splitByLabel").selectAll(".colorKey").style("display", "none");
             }
+            this.legend = new Legend(this.draw, this.renderTarget, this.CONTROLSWIDTH);
         }
-        this.legend = new Legend(this.draw, this.renderTarget, this.CONTROLSWIDTH);
         this.chartComponentData.mergeDataToDisplayStateAndTimeArrays(data, aggregateExpressionOptions);
         this.draw();
-        this.timeLabels = this.heatmapWrapper.append('svg').attr("class", "tsi-heatmapTimeLabels");
+        if (this.timeLabels === null) {
+            this.timeLabels = this.heatmapWrapper.append('svg').attr("class", "tsi-heatmapTimeLabels");
+        }
         window.addEventListener("resize", () => {
             if (!this.chartOptions.suppressResizeListener)
                 this.draw();
@@ -171,10 +179,10 @@ class Heatmap extends ChartComponent {
 
         var text = textBoxG.append("text");
         
-        text.append("tspan").text(Utils.timeFormat(false, false, this.chartOptions.offset)(focusStartTime))
+        text.append("tspan").text(Utils.timeFormat(false, false, this.chartOptions.offset, this.chartOptions.is24HourTime)(focusStartTime))
             .attr("x", 0)
             .attr("y", 16);
-        text.append("tspan").text(Utils.timeFormat(false, false, this.chartOptions.offset)(focusEndTime))
+        text.append("tspan").text(Utils.timeFormat(false, false, this.chartOptions.offset, this.chartOptions.is24HourTime)(focusEndTime))
             .attr("x", 0)
             .attr("y", 30);
 

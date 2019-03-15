@@ -190,6 +190,8 @@ class Legend extends Component {
             }
             if (self.chartOptions.legend == "shown") {
                 d3.select(this).style("height", splitByContainerHeight + "px");
+            } else {
+                d3.select(this).style("height", "unset");
             }
 
             var splitByContainer = d3.select(this).selectAll(".tsi-splitByContainer").data([aggKey]);

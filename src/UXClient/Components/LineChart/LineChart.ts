@@ -37,8 +37,6 @@ class LineChart extends ChartComponent {
     private gridButton: any = null;
     private scooterButton: any = null;
     private visibleAggCount: number;
-    private ellipsisContainer: any = null;
-    private ellipsisMenu: EllipsisMenu;
 
     private tooltip: Tooltip;
     private height: number;
@@ -65,7 +63,7 @@ class LineChart extends ChartComponent {
     private hasBrush: boolean = false;
     private isDroppingScooter: boolean = false;
     private isClearingBrush: boolean = false;
-    private chartControlsPanel: any = null;
+    // private chartControlsPanel: any = null;
     private previousAggregateData: any = d3.local();
     private previousIncludeDots: any = d3.local();
 
@@ -1271,9 +1269,7 @@ class LineChart extends ChartComponent {
         d3.select(this.renderTarget).select(".tsi-tooltip").remove();
 
         if (!this.chartOptions.hideChartControlPanel && this.chartControlsPanel === null) {
-
             this.chartControlsPanel = Utils.createControlPanel(this.renderTarget, this.CONTROLSWIDTH, Math.max((this.chartMargins.top + 12), 0), this.chartOptions);
-
             var self = this;
             this.hasStackedButton = true;
             this.stackedButton = this.chartControlsPanel.append("button")
@@ -1286,15 +1282,19 @@ class LineChart extends ChartComponent {
                     self.draw();
                     setTimeout (() => (d3.select(this).node() as any).focus(), 200);
                 });
-
-            this.ellipsisContainer = this.chartControlsPanel.append("div")
-                .attr("class", "tsi-ellipsisContainerDiv");
-            this.ellipsisMenu = new EllipsisMenu(this.ellipsisContainer.node());
-
-        } else  if (this.chartOptions.hideChartControlPanel && this.chartControlsPanel !== null){
+        } else if (this.chartOptions.hideChartControlPanel && this.chartControlsPanel !== null){
             this.hasStackedButton = false;
-            this.chartControlsPanel.remove();
-            this.chartControlsPanel = null;
+            this.removeControlPanel();
+        }
+
+        if (this.chartControlsPanel !== null) {
+            this.drawEllipsisMenu([{
+                iconClass: "flag",
+                label: "Drop a Marker",
+                action: this.scooterButtonClick,
+                description: ""
+            }]);
+            this.chartControlsPanel.style("top", Math.max((this.chartMargins.top - 24), 0) + 'px');
         }
         
         // this.chartOptions.yAxisState = this.chartOptions.yAxisState ? this.chartOptions.yAxisState : "stacked"; // stacked, shared, overlap
@@ -1729,25 +1729,6 @@ class LineChart extends ChartComponent {
         this.chartComponentData.mergeDataToDisplayStateAndTimeArrays(this.data, this.aggregateExpressionOptions, this.events, this.states);
         this.draw();
         this.chartOptions.noAnimate = false;  // ensure internal renders are always animated, overriding the users noAnimate option
-
-
-        var ellipsisItems = [{
-            iconClass: "flag",
-            label: "Drop a Marker",
-            action: this.scooterButtonClick,
-            description: ""
-        }].concat(this.chartOptions.ellipsisItems);
-        if (this.chartOptions.grid) {
-            ellipsisItems.push(Utils.createGridEllipsisOption(this.renderTarget, this.chartOptions, this.aggregateExpressionOptions, this.chartComponentData));
-        }
-
-        if (this.chartOptions.canDownload) {
-            ellipsisItems.push(Utils.createDownloadEllipsisOption(() => this.chartComponentData.generateCSVString(), 
-                () => this.focusOnEllipsis()));
-        }
-        if (!this.chartOptions.hideChartControlPanel) {
-            this.ellipsisMenu.render(ellipsisItems, {theme: this.chartOptions.theme});
-        }
 
         d3.select("html").on("click." + Utils.guid(), () => {
             if (this.ellipsisContainer && d3.event.target != this.ellipsisContainer.select(".tsi-ellipsisButton").node()) {

@@ -24,7 +24,7 @@
             <div style="width:320px; overflow-y: auto;">
                 <h3>Chart Options - Generic</h3>
                 <div>
-                    <label for="linechartOffset">legend </label>
+                    <label>legend </label>
                     <select onchange='(function(){ toggleChartOption("legend", event.target.value) })(event)'>
                         <option>shown</option>
                         <option>hidden</option>
@@ -32,21 +32,28 @@
                     </select>
                 </div>
                 <div>
-                    <label for="linechartOffset">offset </label>
+                    <label>theme </label>
+                    <select onchange='(function(){ toggleChartOption("theme", event.target.value) })(event)'>
+                        <option selected>dark</option>
+                        <option>light</option>
+                    </select>
+                </div>
+                <div>
+                    <label>offset </label>
                     <select onchange='(function(){ toggleChartOption("offset", event.target.value) })(event)'>
                         <option value='Local'>Local</option>
                         <option value='-120'>-120</option>
                     </select>
                 </div>
                 <div>
-                    <label for="linechartTooltip">tooltip </label>
+                    <label>tooltip </label>
                     <select onchange='(function(){ toggleChartOption("tooltip", (event.target.value === "true")) })(event)'>
                         <option value='true'>true</option>
                         <option value='false' selected>false</option>
                     </select>
                 </div>
                 <div>
-                    <label for="linechartCanDownload">canDownload </label>
+                    <label>canDownload </label>
                     <select onchange='(function(){ toggleChartOption("canDownload", (event.target.value === "true")) })(event)'>
                         <option value='true'>true</option>
                         <option value='false' selected>false</option>
@@ -165,8 +172,8 @@
             <div style="width: calc(100% - 320px);"">
                 <div id="linechart" style="width: 100%; height: 400px; margin-bottom:20px;"></div>
                 <div id="barchart" style="width: 100%; height: 400px; margin-bottom: 20px;"></div>
-                <div id="piechart" style="width: 100%; height: 400px;"></div>
-    
+                <div id="piechart" style="width: 100%; height: 400px; margin-bottom: 20px;"></div>
+                <div id="heatmap" style="width: 100%; height: 400px;"></div>
             </div>
         </div>
         <script>
@@ -179,8 +186,9 @@
                 }
             }];
             var chartOptions = {
+                theme: 'dark',
                 yExtent: [0,1], 
-                legend: 'shown', 
+                legend: 'compact', 
                 offset: 'Local', 
                 tooltip: false, 
                 canDownload: false, 
@@ -203,6 +211,7 @@
             var lineChart;
             var barchart;
             var piechart;
+            var heatmap;
             var data;
             var chartDataOptions;
 
@@ -212,13 +221,15 @@
                 lineChart.render(data, chartOptions, chartDataOptions);
                 barchart.render(data, chartOptions);
                 piechart.render(data, chartOptions);
+                heatmap.render(data, chartOptions, chartDataOptions);
             }
             
             window.onload = function() {
                 
                 // create fake data in the shape our charts expect
                 data = [];
-                var from = new Date();
+                var minute = 60*1000
+                var from = new Date(Math.floor(new Date(new Date().valueOf() / minute)) * minute);
                 var to;
                 for(var i = 0; i < 2; i++){
                     var lines = {};
@@ -240,6 +251,7 @@
 
                 // render the data in a chart
                 var tsiClient = new TsiClient();
+                var minuteMillis = 60*1000;
                 var searchSpan = {
                     from: from.toISOString(),
                     to: to.toISOString(),
@@ -258,6 +270,8 @@
                 piechart = new tsiClient.ux.PieChart(document.getElementById('piechart'));
                 piechart.render(data, chartOptions);
 
+                heatmap = new tsiClient.ux.Heatmap(document.getElementById('heatmap'));
+                heatmap.render(data, chartOptions, chartDataOptions);
             };
         </script>
     </body>

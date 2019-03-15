@@ -41,13 +41,6 @@
         @include hmColors($grays);
     }
 
-    .tsi-chartControlsPanel {
-        top: 12px;
-        height: 28px;
-        .tsi-ellipsisContainerDiv {
-            right: 84px;
-        }
-    }
 
     .tsi-heatmapWrapper {
         position: absolute;
