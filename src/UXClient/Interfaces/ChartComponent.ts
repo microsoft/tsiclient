@@ -65,6 +65,11 @@ class ChartComponent extends Component {
 		this.ellipsisContainer = null;
 		this.ellipsisMenu = null;
 	}
+
+	public getVisibilityState () {
+        return this.chartComponentData.getVisibilityState();
+    }
+
 	
 }
 export {ChartComponent}

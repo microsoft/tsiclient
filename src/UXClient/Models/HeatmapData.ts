@@ -60,7 +60,7 @@ class HeatmapData {
                 var visibleMeasure = this.chartComponentData.getVisibleMeasure(this.aggKey, splitBy);
                 if (this.timeValues[timestamp]) {                    
                     this.timeValues[timestamp][splitBy].value = valueObject.measures ? valueObject.measures[visibleMeasure] : null;
-                    if (valueObject.measures && valueObject.measures[visibleMeasure])
+                    if (Utils.safeNotNullOrUndefined(() => valueObject.measures[visibleMeasure]))
                         this.allValues.push(valueObject.measures[visibleMeasure]);
                 }
             });

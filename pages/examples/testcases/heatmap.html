@@ -4,333 +4,932 @@
     </head>
     <body style="font-family: 'Segoe UI', sans-serif;">
         Heatmap testing
-        <div id="chart1" style="width: 100%; height: 50vh;"></div>
+        <div id="chart1" style="width: calc(100% - 60px); height: 50vh;"></div>
         <script>
             window.onload = function() {
-                
-                var data = [{
-                    "Event Count": {
-                    "a": {
-                        "2019-03-11T23:00:00.000Z": {
-                        "count": 50201
-                        },
-                        "2019-03-11T23:15:00Z": {
-                        "count": 42096
-                        },
-                        "2019-03-11T23:30:00Z": {
-                        "count": 52338
-                        },
-                        "2019-03-11T23:45:00Z": {
-                        "count": 46863
-                        },
-                        "2019-03-12T00:00:00Z": {
-                        "count": 63763
-                        },
-                        "2019-03-12T00:15:00Z": {
-                        "count": 58170
-                        },
-                        "2019-03-12T00:30:00Z": {
-                        "count": 52664
-                        },
-                        "2019-03-12T00:45:00Z": {
-                        "count": 47201
-                        },
-                        "2019-03-12T01:00:00Z": {
-                        "count": 49020
-                        },
-                        "2019-03-12T01:15:00Z": {
-                        "count": 46085
-                        },
-                        "2019-03-12T01:30:00Z": {
-                        "count": 46229
-                        },
-                        "2019-03-12T01:45:00Z": {
-                        "count": 43997
-                        },
-                        "2019-03-12T02:00:00Z": {
-                        "count": 45833
-                        },
-                        "2019-03-12T02:15:00Z": {
-                        "count": 42594
-                        },
-                        "2019-03-12T02:30:00Z": {
-                        "count": 42412
-                        },
-                        "2019-03-12T02:45:00Z": {
-                        "count": 40972
-                        },
-                        "2019-03-12T03:00:00Z": {
-                        "count": 43923
-                        },
-                        "2019-03-12T03:15:00Z": {
-                        "count": 40791
-                        },
-                        "2019-03-12T03:30:00Z": {
-                        "count": 41680
-                        },
-                        "2019-03-12T03:45:00Z": {
-                        "count": 41045
-                        },
-                        "2019-03-12T04:00:00Z": {
-                        "count": 42983
-                        },
-                        "2019-03-12T04:15:00Z": {
-                        "count": 38098
-                        },
-                        "2019-03-12T04:30:00Z": {
-                        "count": 38791
-                        },
-                        "2019-03-12T04:45:00Z": {
-                        "count": 36815
-                        },
-                        "2019-03-12T05:00:00Z": {
-                        "count": 39334
-                        },
-                        "2019-03-12T05:15:00Z": {
-                        "count": 37335
-                        },
-                        "2019-03-12T05:30:00Z": {
-                        "count": 38960
-                        },
-                        "2019-03-12T05:45:00Z": {
-                        "count": 37561
-                        },
-                        "2019-03-12T06:00:00Z": {
-                        "count": 42344
-                        },
-                        "2019-03-12T06:15:00Z": {
-                        "count": 38384
-                        },
-                        "2019-03-12T06:30:00Z": {
-                        "count": 39961
-                        },
-                        "2019-03-12T06:45:00Z": {
-                        "count": 37923
-                        },
-                        "2019-03-12T07:00:00Z": {
-                        "count": 41307
-                        },
-                        "2019-03-12T07:15:00Z": {
-                        "count": 37125
-                        },
-                        "2019-03-12T07:30:00Z": {
-                        "count": 38928
-                        },
-                        "2019-03-12T07:45:00Z": {
-                        "count": 37895
-                        },
-                        "2019-03-12T08:00:00Z": {
-                        "count": 40432
-                        },
-                        "2019-03-12T08:15:00Z": {
-                        "count": 36723
-                        },
-                        "2019-03-12T08:30:00Z": {
-                        "count": 38590
-                        },
-                        "2019-03-12T08:45:00Z": {
-                        "count": 36398
-                        },
-                        "2019-03-12T09:00:00Z": {
-                        "count": 39616
-                        },
-                        "2019-03-12T09:15:00Z": {
-                        "count": 35744
-                        },
-                        "2019-03-12T09:30:00Z": {
-                        "count": 38184
-                        },
-                        "2019-03-12T09:45:00Z": {
-                        "count": 36181
-                        },
-                        "2019-03-12T10:00:00Z": {
-                        "count": 38488
-                        },
-                        "2019-03-12T10:15:00Z": {
-                        "count": 34925
-                        },
-                        "2019-03-12T10:30:00Z": {
-                        "count": 36273
-                        },
-                        "2019-03-12T10:45:00Z": {
-                        "count": 35318
-                        },
-                        "2019-03-12T11:00:00Z": {
-                        "count": 37256
-                        },
-                        "2019-03-12T11:15:00Z": {
-                        "count": 35365
-                        },
-                        "2019-03-12T11:30:00Z": {
-                        "count": 35873
-                        },
-                        "2019-03-12T11:45:00Z": {
-                        "count": 35179
-                        },
-                        "2019-03-12T12:00:00Z": {
-                        "count": 38938
-                        },
-                        "2019-03-12T12:15:00Z": {
-                        "count": 38313
-                        },
-                        "2019-03-12T12:30:00Z": {
-                        "count": 40691
-                        },
-                        "2019-03-12T12:45:00Z": {
-                        "count": 39061
-                        },
-                        "2019-03-12T13:00:00Z": {
-                        "count": 40442
-                        },
-                        "2019-03-12T13:15:00Z": {
-                        "count": 38563
-                        },
-                        "2019-03-12T13:30:00Z": {
-                        "count": 39896
-                        },
-                        "2019-03-12T13:45:00Z": {
-                        "count": 40909
-                        },
-                        "2019-03-12T14:00:00Z": {
-                        "count": 43202
-                        },
-                        "2019-03-12T14:15:00Z": {
-                        "count": 42380
-                        },
-                        "2019-03-12T14:30:00Z": {
-                        "count": 44978
-                        },
-                        "2019-03-12T14:45:00Z": {
-                        "count": 45510
-                        },
-                        "2019-03-12T15:00:00Z": {
-                        "count": 51567
-                        },
-                        "2019-03-12T15:15:00Z": {
-                        "count": 48347
-                        },
-                        "2019-03-12T15:30:00Z": {
-                        "count": 52089
-                        },
-                        "2019-03-12T15:45:00Z": {
-                        "count": 52422
-                        },
-                        "2019-03-12T16:00:00Z": {
-                        "count": 57878
-                        },
-                        "2019-03-12T16:15:00Z": {
-                        "count": 46491
-                        },
-                        "2019-03-12T16:30:00Z": {
-                        "count": 48483
-                        },
-                        "2019-03-12T16:45:00Z": {
-                        "count": 46515
-                        },
-                        "2019-03-12T17:00:00Z": {
-                        "count": 52865
-                        },
-                        "2019-03-12T17:15:00Z": {
-                        "count": 49175
-                        },
-                        "2019-03-12T17:30:00Z": {
-                        "count": 52001
-                        },
-                        "2019-03-12T17:45:00Z": {
-                        "count": 46604
-                        },
-                        "2019-03-12T18:00:00Z": {
-                        "count": 52963
-                        },
-                        "2019-03-12T18:15:00Z": {
-                        "count": 45798
-                        },
-                        "2019-03-12T18:30:00Z": {
-                        "count": 48712
-                        },
-                        "2019-03-12T18:45:00Z": {
-                        "count": 45510
-                        },
-                        "2019-03-12T19:00:00Z": {
-                        "count": 54337
-                        },
-                        "2019-03-12T19:15:00Z": {
-                        "count": 45280
-                        },
-                        "2019-03-12T19:30:00Z": {
-                        "count": 50515
-                        },
-                        "2019-03-12T19:45:00Z": {
-                        "count": 48026
-                        },
-                        "2019-03-12T20:00:00Z": {
-                        "count": 53253
-                        },
-                        "2019-03-12T20:15:00Z": {
-                        "count": 44688
-                        },
-                        "2019-03-12T20:30:00Z": {
-                        "count": 47868
-                        },
-                        "2019-03-12T20:45:00Z": {
-                        "count": 45211
-                        },
-                        "2019-03-12T21:00:00Z": {
-                        "count": 52753
-                        },
-                        "2019-03-12T21:15:00Z": {
-                        "count": 46410
-                        },
-                        "2019-03-12T21:30:00Z": {
-                        "count": 49918
-                        },
-                        "2019-03-12T21:45:00Z": {
-                        "count": 46675
-                        },
-                        "2019-03-12T22:00:00Z": {
-                        "count": 51906
-                        },
-                        "2019-03-12T22:15:00Z": {
-                        "count": 44941
-                        },
-                        "2019-03-12T22:30:00Z": {
-                        "count": 46778
-                        },
-                        "2019-03-12T22:45:00Z": {
-                        "count": 42972
-                        },
-                        "2019-03-12T23:00:00Z": {
-                        "count": 36413
-                        }
-                    }
-                    },
-                    "interpolationFunction": "",
-                    "yExtent": null,
-                    "includeEnvelope": false,
-                    "includeDots": false,
-                    "visibilityState": null,
-                    "searchSpan": {
-                    "to": "2019-03-12T23:10:32.869Z",
-                    "from": "2019-03-11T23:10:32.869Z",
-                    "bucketSize": "15m"
-                    },
-                    "measureTypes": [
-                    "count"
-                    ],
-                    "color": "#008272",
-                    "alias": "Event Count",
-                    "contextMenu": [],
-                    "aggKey": "Event%20Count_0"
-                }];
-
+                var data = [
+  {
+    "27a20bcb-e801-45fc-8ea3-60b8a3e33e00": {
+        "a": {
+        "2018-08-01T00:05:00Z": {
+          "EventCount": null,
+          "ev2": 4
+        }},
+      "": {
+        "2018-08-01T00:05:00Z": {
+          "EventCount": null,
+          "ev2": 4
+        },
+        "2018-08-01T00:10:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T00:15:00Z": {
+          "EventCount": 0
+        },
+        "2018-08-01T00:20:00Z": {
+          "EventCount": null,
+          "ev2": 5
+        },
+        "2018-08-01T00:25:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T00:30:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T00:35:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T00:40:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T00:45:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T00:50:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T00:55:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T01:00:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T01:05:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T01:10:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T01:15:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T01:20:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T01:25:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T01:30:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T01:35:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T01:40:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T01:45:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T01:50:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T01:55:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T02:00:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T02:05:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T02:10:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T02:15:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T02:20:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T02:25:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T02:30:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T02:35:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T02:40:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T02:45:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T02:50:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T02:55:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T03:00:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T03:05:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T03:10:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T03:15:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T03:20:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T03:25:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T03:30:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T03:35:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T03:40:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T03:45:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T03:50:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T03:55:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T04:00:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T04:05:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T04:10:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T04:15:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T04:20:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T04:25:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T04:30:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T04:35:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T04:40:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T04:45:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T04:50:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T04:55:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T05:00:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T05:05:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T05:10:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T05:15:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T05:20:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T05:25:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T05:30:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T05:35:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T05:40:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T05:45:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T05:50:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T05:55:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T06:00:00Z": {
+          "EventCount": 1
+        },
+        "2018-08-01T06:05:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T06:10:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T06:15:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T06:20:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T06:25:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T06:30:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T06:35:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T06:40:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T06:45:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T06:50:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T06:55:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T07:00:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T07:05:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T07:10:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T07:15:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T07:20:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T07:25:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T07:30:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T07:35:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T07:40:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T07:45:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T07:50:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T07:55:00Z": {
+          "EventCount": 1
+        },
+        "2018-08-01T08:00:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T08:05:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T08:10:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T08:15:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T08:20:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T08:25:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T08:30:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T08:35:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T08:40:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T08:45:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T08:50:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T08:55:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T09:00:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T09:05:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T09:10:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T09:15:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T09:20:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T09:25:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T09:30:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T09:35:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T09:40:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T09:45:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T09:50:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T09:55:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T10:00:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T10:05:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T10:10:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T10:15:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T10:20:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T10:25:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T10:30:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T10:35:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T10:40:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T10:45:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T10:50:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T10:55:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T11:00:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T11:05:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T11:10:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T11:15:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T11:20:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T11:25:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T11:30:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T11:35:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T11:40:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T11:45:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T11:50:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T11:55:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T12:00:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T12:05:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T12:10:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T12:15:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T12:20:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T12:25:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T12:30:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T12:35:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T12:40:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T12:45:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T12:50:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T12:55:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T13:00:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T13:05:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T13:10:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T13:15:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T13:20:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T13:25:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T13:30:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T13:35:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T13:40:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T13:45:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T13:50:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T13:55:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T14:00:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T14:05:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T14:10:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T14:15:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T14:20:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T14:25:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T14:30:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T14:35:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T14:40:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T14:45:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T14:50:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T14:55:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T15:00:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T15:05:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T15:10:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T15:15:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T15:20:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T15:25:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T15:30:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T15:35:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T15:40:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T15:45:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T15:50:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T15:55:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T16:00:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T16:05:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T16:10:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T16:15:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T16:20:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T16:25:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T16:30:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T16:35:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T16:40:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T16:45:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T16:50:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T16:55:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T17:00:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T17:05:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T17:10:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T17:15:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T17:20:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T17:25:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T17:30:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T17:35:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T17:40:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T17:45:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T17:50:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T17:55:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T18:00:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T18:05:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T18:10:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T18:15:00Z": {
+          "EventCount": 1
+        },
+        "2018-08-01T18:20:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T18:25:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T18:30:00Z": {
+          "EventCount": 1
+        },
+        "2018-08-01T18:35:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T18:40:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T18:45:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T18:50:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T18:55:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T19:00:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T19:05:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T19:10:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T19:15:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T19:20:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T19:25:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T19:30:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T19:35:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T19:40:00Z": {
+          "EventCount": 1
+        },
+        "2018-08-01T19:45:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T19:50:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T19:55:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T20:00:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T20:05:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T20:10:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T20:15:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T20:20:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T20:25:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T20:30:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T20:35:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T20:40:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T20:45:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T20:50:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T20:55:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T21:00:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T21:05:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T21:10:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T21:15:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T21:20:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T21:25:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T21:30:00Z": {
+          "EventCount": 1
+        },
+        "2018-08-01T21:35:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T21:40:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T21:45:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T21:50:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T21:55:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T22:00:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T22:05:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T22:10:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T22:15:00Z": {
+          "EventCount": 1
+        },
+        "2018-08-01T22:20:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T22:25:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T22:30:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T22:35:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T22:40:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T22:45:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T22:50:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T22:55:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T23:00:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T23:05:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T23:10:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T23:15:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T23:20:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T23:25:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T23:30:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T23:35:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T23:40:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T23:45:00Z": {
+          "EventCount": 1
+        },
+        "2018-08-01T23:50:00Z": {
+          "EventCount": null
+        },
+        "2018-08-01T23:55:00Z": {
+          "EventCount": null
+        },
+        "2018-08-02T00:00:00Z": {
+          "EventCount": null
+        }
+      }
+    },
+    "interpolationFunction": "",
+    "yExtent": null,
+    "includeEnvelope": true,
+    "includeDots": false,
+    "visibilityState": [
+  {
+    "27a20bcb-e801-45fc-8ea3-60b8a3e33e00": [
+      true,
+      [
+        "a"
+      ]
+    ]
+  }
+],
+    "searchSpan": {
+      "from": 1533082104672,
+      "to": 1533168000000,
+      "bucketSize": "5m"
+    },
+    "measureTypes": [
+      "EventCount", "ev2"
+    ],
+    "color": "#008272",
+    "alias": "27a20bcb-e801-45fc-8ea3-60b8a3e33e00",
+    "contextMenu": [],
+    "aggKey": "27a20bcb-e801-45fc-8ea3-60b8a3e33e00_0"
+  }
+]
 
                 // render the data in a chart
                 var tsiClient = new TsiClient();
-                var to =  "2019-03-12T23:10:32.869Z";
-                var from = "2019-03-11T23:10:32.869Z";
+                // var to =  "2019-03-12T23:10:32.869Z";
+                // var from = "2019-03-11T23:10:32.869Z";
+                var bucketSize =  "5m"
+                var from =  new Date(1533082104672).toISOString();
+                var to = new Date(1533168000000).toISOString();
 
                 var heatmap = new tsiClient.ux.Heatmap(document.getElementById('chart1'));
-                heatmap.render(data, {theme: 'light'}, data.map(d => {return {measureTypes: ['count'], searchSpan: {from: from, to: to, bucketSize: '15m'}}}));
+                debugger;
+                heatmap.render(data, {theme: 'light'}, data.map((d, i) => {return {measureTypes: ['EventCount', 'ev2'], 
+                    visibilityState: d.visibilityState[i][Object.keys(d)[i]],
+                    searchSpan: {from: from, to: to, bucketSize: bucketSize}}}));
+                
+                setTimeout(() => {
+                    console.log(heatmap.getVisibilityState());
+                }, 2000)
 
             };
         </script>
