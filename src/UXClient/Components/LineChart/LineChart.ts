@@ -715,10 +715,6 @@ class LineChart extends ChartComponent {
         return null;
     }
 
-    public getVisibilityState () {
-        return this.chartComponentData.getVisibilityState();
-    }
-
     private brushBrush () {
         var handleHeight = this.getHandleHeight();
         this.brushElem.selectAll('.handle')
@@ -1130,7 +1126,9 @@ class LineChart extends ChartComponent {
 
                 if (self.chartOptions.includeDots || self.chartComponentData.displayState[aggKey].includeDots) {
                     let dots = d3.select(this).selectAll(".valueDot")
-                        .data(self.chartComponentData.timeArrays[aggKey][splitBy], (d: any, i) => {
+                        .data(self.chartComponentData.timeArrays[aggKey][splitBy].filter((d) => {
+                            return d.measures[self.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy)] !== null;
+                        }), (d: any, i) => {
                             return d.dateTime.toString();
                         });
 
