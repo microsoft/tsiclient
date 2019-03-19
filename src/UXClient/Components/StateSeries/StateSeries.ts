@@ -17,7 +17,7 @@ class StateSeries extends TimelineComponent {
 	}
 	
 	public render(namedData: Array<any>, options: any = {}){
-		this.chartOptions.setOptions(options);
+		this.chartOptions.setOptions(options); 
 		this.margins = {
 			left: (this.chartOptions.xAxisHidden === true) ? 10 : 40,
 			right: (this.chartOptions.xAxisHidden === true) ? 10 : 40

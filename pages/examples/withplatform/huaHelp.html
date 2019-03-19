@@ -1,0 +1,123 @@
+
+<!DOCTYPE html> 
+<html>
+    <head>
+        <!-- styles are only used for styling header and auth elements, where possible -->
+        <link rel="stylesheet" type="text/css" href="../styles.css" />
+        <link rel="stylesheet" type="text/css" href="./huaStyles.css" />
+        <title>Basic Charts</title>
+    </head>
+    <body style="font-family: 'Segoe UI', sans-serif;">
+
+        <div class="chartWrapper">
+            <div class="chartTitle">Usage By Room</div>
+            <div class="legend">
+                <div class="legendItem">
+                    <div class="legendCircle" style="background: #FF8C00">
+                    </div>
+                    True
+                </div>
+                <div class="legendItem">
+                    <div class="legendCircle" style="background: #D869CB">
+                    </div>
+                    False
+                </div>
+                <div class="legendItem">
+                    <div class="legendCircle" style="background: #60B9AE">
+                    </div>
+                    Reserved
+                </div>
+                <div class="legendItem">
+                    <div class="legendCircle" style="background: #C8E139">
+                    </div>
+                    Unreserved
+                </div>
+                <div class="legendItem">
+                    <div class="legendCircle" style="background: gray">
+                    </div>
+                    Null
+                </div>
+            </div>
+            <div id="chart1">
+                <table id="stateTable">
+                </table>
+            </div>
+        </div>
+        <script>
+
+            window.onload = function() {
+                initAuth('For Hua, Forever Ago');  // initiate auth objects, header, and login modal
+                var tsiClient = new TsiClient();
+                            
+                // create aggregate expressions, they are S1/S2 SKU query objects
+                var aggregateExpressions = [];
+                var startDate = new Date((new Date()).valueOf() -  1000*60*60*1);
+                var endDate = new Date(startDate.valueOf() + 1000*60*60*1);
+                var searchSpan = { from: startDate, to: endDate, bucketSize: '1m' };
+                aggregateExpressions.push(new tsiClient.ux.AggregateExpression(
+                    {predicateString: "[DigitalTwins-SensorHardwareId] != null"}, 
+                    {property: 'SensorValue', type: "String"}, 
+                    ['first'],
+                    searchSpan, 
+                    {property: 'DigitalTwins-SensorHardwareId', type: 'String'}, 
+                    'pink', 
+                    'SensorValue'));
+                
+                var tsxArray = aggregateExpressions.map(function(ae){
+                    var tsx =  ae.toTsx();
+                    tsx.predicate.and.pop();
+                    return tsx;
+                })
+
+                // get results from server and render them in three charts
+                authContext.getTsiToken().then(function(token){
+                    tsiClient.server.getAggregates(token, '3e580c27-faca-45fa-a3a4-a7b61b6b8bcb.env.timeseries.azure.com', tsxArray).then(function(result){
+                        var transformedResult = tsiClient.ux.transformAggregatesForVisualization(result, aggregateExpressions);
+                        
+                        // transform result into state series shape
+                        var sensorData = transformedResult[0][Object.keys(transformedResult[0])[0]];
+                        var stateSeries = [];
+                        var colorHash = {'true': '#FF8C00', 'false': '#D869CB', 'reserved': '#60B9AE', 'unreserved': '#C8E139', null: 'gray'};
+                        Object.keys(sensorData).forEach(sensorId => {
+                            var events = [];
+                            stateSeries.push({[sensorId]: events});
+                            Object.keys(sensorData[sensorId]).forEach(ts => {
+                                events.push({[ts]: {
+                                    color: colorHash[sensorData[sensorId][ts].first],
+                                    description: `${sensorId} ${sensorData[sensorId][ts].first}`
+                                }});
+                            })
+                        });
+
+
+                        // create table of state series
+                        var table = document.getElementById('stateTable');
+                        stateSeries.forEach((states, idx) => {
+                            var row = table.insertRow();
+                            var cell = row.insertCell();
+                            cell.innerText = Object.keys(states)[0];
+                            var cell2 = row.insertCell();
+                            if(idx !== stateSeries.length - 1){
+                                var stateSeriesChart = new tsiClient.ux.StateSeries(cell2);
+                            }
+                            else{
+                                var chartWrapperDiv = document.createElement('div');
+                                chartWrapperDiv.setAttribute('class', 'lastStateSeries');
+                                cell2.appendChild(chartWrapperDiv);
+                                var stateSeriesChart = new tsiClient.ux.StateSeries(chartWrapperDiv);
+                            }
+                            stateSeriesChart.render(states, {theme: 'light', timeFrame: searchSpan, tooltip: true, xAxisHidden: idx !== stateSeries.length - 1});
+                        })
+
+                    });
+                });
+
+        }
+        </script>
+    </body>
+    <!-- boilerplate headers are injected with head.js, grab them from the live example header, or include a link to head.js -->
+    <script src="../boilerplate/head.js"></script>
+
+    <!-- boilerplate auth code is injected with auth.js, check it out for auth setup -->
+    <script src="../boilerplate/auth.js"></script>
+</html>
