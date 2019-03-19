@@ -922,7 +922,6 @@
                 var to = new Date(1533168000000).toISOString();
 
                 var heatmap = new tsiClient.ux.Heatmap(document.getElementById('chart1'));
-                debugger;
                 heatmap.render(data, {theme: 'light'}, data.map((d, i) => {return {measureTypes: ['EventCount', 'ev2'], 
                     visibilityState: d.visibilityState[i][Object.keys(d)[i]],
                     searchSpan: {from: from, to: to, bucketSize: bucketSize}}}));

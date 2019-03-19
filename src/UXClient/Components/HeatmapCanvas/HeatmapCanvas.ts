@@ -33,6 +33,9 @@ class HeatmapCanvas extends ChartComponent {
 
     private renderScale () {
         this.colorLegend.selectAll("*").remove();
+        if (this.colorScale.domain() === null || isNaN(this.colorScale.domain()[0]) || isNaN(this.colorScale.domain()[1])) {
+            return;
+        }
         var gradient = this.colorLegend.append("defs")
             .append("linearGradient")
               .attr("id", "gradient" + this.aggI)
