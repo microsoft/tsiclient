@@ -4,7 +4,7 @@
     </head>
     <body style="font-family: 'Segoe UI', sans-serif;">
         Heatmap testing
-        <div id="chart1" style="width: calc(100% - 60px); height: 50vh;"></div>
+        <div id="chart1" style="width: calc(100% - 60px); height: 50vh; background-color:grey;"></div>
         <script>
             window.onload = function() {
                 var data = [
@@ -922,7 +922,7 @@
                 var to = new Date(1533168000000).toISOString();
 
                 var heatmap = new tsiClient.ux.Heatmap(document.getElementById('chart1'));
-                heatmap.render(data, {theme: 'light'}, data.map((d, i) => {return {measureTypes: ['EventCount', 'ev2'], 
+                heatmap.render(data, {theme: 'light', legend: 'compact'}, data.map((d, i) => {return {measureTypes: ['ev2'], 
                     visibilityState: d.visibilityState[i][Object.keys(d)[i]],
                     searchSpan: {from: from, to: to, bucketSize: bucketSize}}}));
                 

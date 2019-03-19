@@ -21,7 +21,14 @@ class Heatmap extends ChartComponent {
     private timeLabels: any = null;
     private height: number;
     private heatmapWrapperHeight: number;
-    private timeLabelsHeight = 50;
+    private timeLabelsHeight = 52;
+
+    public chartMargins: any = {        
+        top: 0,
+        bottom: 8,
+        left: 20, 
+        right: 20
+    };
 
     private focusOnEllipsis () {
         if (this.ellipsisContainer !== null) {
@@ -72,7 +79,8 @@ class Heatmap extends ChartComponent {
             
         if (this.heatmapWrapper == null) {
             this.heatmapWrapper = targetElement.append('div')
-                .attr("class", "tsi-heatmapWrapper");
+                .attr("class", "tsi-heatmapWrapper")
+                .style("right", this.chartMargins.right + "px");
 
             this.draw = () => { 
 
@@ -81,7 +89,7 @@ class Heatmap extends ChartComponent {
                 this.heatmapWrapperHeight = this.height - ((12 + (this.chartControlsExist() ? 28 : 0) + (this.chartOptions.legend === 'compact' ? 48 : 0)));
 
                 super.themify(targetElement, this.chartOptions.theme);
-                width = Math.floor(targetElement.node().getBoundingClientRect().width) - (this.chartOptions.legend == "shown" ? 250 : 0);
+                width = Math.floor(targetElement.node().getBoundingClientRect().width) - (this.chartOptions.legend == "shown" ? 250 : 0) - (this.chartMargins.left + this.chartMargins.right);
 
                 this.heatmapWrapper.style("width", (width - 12) + "px")
                     .style("height", this.heatmapWrapperHeight + "px")
@@ -92,7 +100,7 @@ class Heatmap extends ChartComponent {
                     this.chartControlsPanel.style("width", controlPanelWidth + "px");
                 }    
 
-                var canvasWrapperHeightTotal = this.heatmapWrapperHeight - this.timeLabelsHeight;
+                var canvasWrapperHeightTotal = this.heatmapWrapperHeight - this.timeLabelsHeight - this.chartMargins.bottom;
                 this.heatmapCanvasMap = {};
                 var visibleAggs = Object.keys(this.chartComponentData.displayState).filter((aggKey) => {
                     return this.chartComponentData.getAggVisible(aggKey);
@@ -197,7 +205,7 @@ class Heatmap extends ChartComponent {
         text.node().parentNode.appendChild(text.node());
         var rawOffset = (focusX1 + focusX2) / 2;
         var leftOffset = ((rawOffset - ((textDimensions.width / 2) + 6)) > 0) ? rawOffset : ((textDimensions.width / 2) + 6);
-        textBoxG.attr("transform", "translate(" + leftOffset + "," + (this.heatmapWrapperHeight - this.timeLabelsHeight) + ")");
+        textBoxG.attr("transform", "translate(" + leftOffset + "," + (this.heatmapWrapperHeight - this.timeLabelsHeight - this.chartMargins.bottom) + ")");
     }
 }
 
