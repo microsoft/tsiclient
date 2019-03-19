@@ -63,7 +63,6 @@ class LineChart extends ChartComponent {
     private hasBrush: boolean = false;
     private isDroppingScooter: boolean = false;
     private isClearingBrush: boolean = false;
-    // private chartControlsPanel: any = null;
     private previousAggregateData: any = d3.local();
     private previousIncludeDots: any = d3.local();
 
@@ -1295,7 +1294,6 @@ class LineChart extends ChartComponent {
             this.chartControlsPanel.style("top", Math.max((this.chartMargins.top - 24), 0) + 'px');
         }
         
-        // this.chartOptions.yAxisState = this.chartOptions.yAxisState ? this.chartOptions.yAxisState : "stacked"; // stacked, shared, overlap
 
         if(this.svgSelection == null){
             
