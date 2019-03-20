@@ -11,7 +11,8 @@
                 
                 // create fake data in the shape our charts expect
                 var data = [];
-                var from = new Date();
+                var minute = 60*1000;
+                var from = new Date(Math.floor(new Date(new Date().valueOf() / minute)) * minute);
                 var to;
                 for(var i = 0; i < 2; i++){
                     var lines = {};
@@ -42,8 +43,11 @@
                             chart.removeChild(chart.firstChild);
                         }
                         chart.classList.remove("tsi-heatmapComponent");
+                        chart.classList.remove("tsi-dark");
+                        chart.classList.remove("tsi-light");
                         var linechart = new tsiClient.ux.LineChart(document.getElementById('chart1'));
-                        linechart.render(data, {theme: 'dark', ellipsisItems: linechartEllipsisMenuItems});
+                        linechart.render(data, {theme: 'dark', ellipsisItems: linechartEllipsisMenuItems},
+                        data.map(d => {return {measureTypes: ['count'], searchSpan: {from: from.toISOString(), to: to.toISOString(), bucketSize: '1m'}}}));
                     },
                     description: ""
                 }];
@@ -57,6 +61,8 @@
                             chart.removeChild(chart.firstChild);
                         }
                         chart.classList.remove("tsi-heatmapComponent");
+                        chart.classList.remove("tsi-dark");
+                        chart.classList.remove("tsi-light");
                         var heatmap = new tsiClient.ux.Heatmap(document.getElementById('chart1'));
                         heatmap.render(data, {theme: 'dark', ellipsisItems: heatmapEllipsisItems}, data.map(d => {return {measureTypes: ['count'], searchSpan: {from: from.toISOString(), to: to.toISOString(), bucketSize: '1m'}}}));
                     },
@@ -64,7 +70,7 @@
                 }];
 
                 var heatmap = new tsiClient.ux.Heatmap(document.getElementById('chart1'));
-                heatmap.render(data, {theme: 'dark', ellipsisItems: heatmapEllipsisItems}, data.map(d => {return {measureTypes: ['count'], searchSpan: {from: from.toISOString(), to: to.toISOString(), bucketSize: '1m'}}}));
+                heatmap.render(data, {theme: 'light', ellipsisItems: heatmapEllipsisItems}, data.map(d => {return {measureTypes: ['count'], searchSpan: {from: from.toISOString(), to: to.toISOString(), bucketSize: '1m'}}}));
 
             };
         </script>
