@@ -68,7 +68,11 @@ class ChartComponent extends Component {
 
 	public getVisibilityState () {
         return this.chartComponentData.getVisibilityState();
-    }
+	}
+	
+	protected ellipsisItemsExist () {
+        return (this.chartOptions.canDownload || this.chartOptions.ellipsisItems.length > 0 || this.chartOptions.grid);
+	}
 
 	
 }

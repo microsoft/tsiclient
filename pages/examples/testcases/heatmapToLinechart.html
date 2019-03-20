@@ -12,7 +12,8 @@
                 // create fake data in the shape our charts expect
                 var data = [];
                 var minute = 60*1000;
-                var from = new Date(Math.floor(new Date(new Date().valueOf() / minute)) * minute);
+                var from = new Date();
+                // var from = new Date(Math.floor(new Date(new Date().valueOf() / minute)) * minute);
                 var to;
                 for(var i = 0; i < 2; i++){
                     var lines = {};
@@ -22,7 +23,8 @@
                         lines[`Station${j}`] = values;
                         for(var k = 0; k < 60; k++){
                             if(!(k%2 && k%3)){  // if check is to create some sparseness in the data
-                                var to = new Date(from.valueOf() + 1000*60*k);
+                                var rawToMillis = from.valueOf() + 1000*60*k;
+                                var to = new Date(Math.floor(new Date(rawToMillis / minute)) * minute);
                                 var val = Math.random();
                                 values[to.toISOString()] = {count: val};
                             }

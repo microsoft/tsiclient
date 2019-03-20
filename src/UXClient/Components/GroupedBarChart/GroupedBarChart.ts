@@ -35,10 +35,6 @@ class GroupedBarChart extends ChartComponent {
         super(renderTarget);
     }
 
-    private ellipsisItemsExist () {
-        return (this.chartOptions.canDownload || this.chartOptions.ellipsisItems.length > 0 || this.chartOptions.grid);
-    } 
-
     GroupedBarChart() { }
     public render(data: any, options: any, aggregateExpressionOptions: any) {
         this.chartOptions.setOptions(options);

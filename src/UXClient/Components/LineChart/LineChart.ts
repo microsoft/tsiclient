@@ -3,7 +3,6 @@ import { interpolatePath } from 'd3-interpolate-path';
 import './LineChart.scss';
 import {Utils} from "./../../Utils";
 import {Legend} from "./../Legend/Legend";
-import {Grid} from "./../Grid/Grid";
 import {EventSeries} from "./../EventSeries/EventSeries";
 import {ChartComponent} from "./../../Interfaces/ChartComponent";
 import {StateSeries} from "../StateSeries/StateSeries";
@@ -34,7 +33,6 @@ class LineChart extends ChartComponent {
     private surpressBrushTimeSet: boolean = false;
     private hasStackedButton: boolean = false;
     private stackedButton: any = null;
-    private gridButton: any = null;
     private scooterButton: any = null;
     private visibleAggCount: number;
 

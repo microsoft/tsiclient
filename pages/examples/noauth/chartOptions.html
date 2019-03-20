@@ -60,6 +60,13 @@
                     </select>
                 </div>
                 <div>
+                    <label>grid </label>
+                    <select onchange='(function(){ toggleChartOption("grid", (event.target.value === "true")) })(event)'>
+                        <option value='true'>true</option>
+                        <option value='false' selected>false</option>
+                    </select>
+                </div>
+                <div>
                     <label for="linechartHideChartControlPanel">hideChartControlPanel </label>
                     <select onchange='(function(){ toggleChartOption("hideChartControlPanel", (event.target.value === "true")) })(event)'>
                         <option value='true'>true</option>

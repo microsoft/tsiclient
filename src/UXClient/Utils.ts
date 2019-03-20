@@ -13,7 +13,7 @@ class Utils {
             return d3.format('.2n')(val); // scientific for less than 1 billionth
         else {
             // grouped thousands with 7 significant digits, trim insginificant trailing 0s
-            var formatted = d3.format(',.5r')(val); 
+            var formatted = d3.format(',.7r')(val); 
             if (formatted.indexOf('.') != -1) {
                 var lastChar = formatted[formatted.length - 1]
                 while (lastChar == '0') {

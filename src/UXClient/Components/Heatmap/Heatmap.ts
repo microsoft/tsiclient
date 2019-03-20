@@ -43,10 +43,6 @@ class Heatmap extends ChartComponent {
         this.ellipsisMenu = new EllipsisMenu(this.ellipsisContainer.node());
     }
 
-    private ellipsisItemsExist () {
-        return (this.chartOptions.canDownload || this.chartOptions.ellipsisItems.length > 0);
-    }
-
     private chartControlsExist () {
         return (this.ellipsisItemsExist() && !this.chartOptions.hideChartControlPanel);
     }
