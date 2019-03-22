@@ -112,26 +112,38 @@ class Utils {
     }
 
     static timezoneAbbreviation (timezoneName) {
-        if (timezoneName == 'UTC')
-            return '';
         let abbr = momentTZ.tz(new Date(), timezoneName).format('z');
         if (abbr[0] === '-' || abbr[0] === '+')
             return '';
-        return ': ' + abbr;
+        return abbr;
     } 
 
+    static parseTimezoneName (timezoneRaw: any) {
+        if (!isNaN(timezoneRaw)) {
+            if (timezoneRaw === 0) {
+                return 'UTC';
+            }
+            return '';
+        }
+        if (timezoneRaw == 'Local') {
+            return momentTZ.tz.guess();
+        } 
+        return timezoneRaw !== null ? timezoneRaw.split(' ').join('_'): '';
+    }
+
     static convertTimezoneToLabel (timezone) {
-        let timezoneName =  timezone.split(' ').join('_');
+        let timezoneName = this.parseTimezoneName(timezone);
         let localPrefix = '';
         let offsetPrefix = '';
         if (timezone == 'Local') {
-            timezoneName = momentTZ.tz.guess();
             localPrefix = 'Local - ';
         } 
         if (timezone !== 'UTC') {
             offsetPrefix = ' (' + this.addOffsetGuess(timezoneName) + ')';
         }
-        return offsetPrefix + " " + localPrefix + timezoneName.replace(/_/g, ' ') + this.timezoneAbbreviation(timezoneName);
+        let timezoneAbbreviation = this.timezoneAbbreviation(timezoneName);
+        let timezoneSuffix = (timezoneAbbreviation && timezoneAbbreviation.length !== 0 && timezoneAbbreviation !== 'UTC') ? ': ' + timezoneAbbreviation : '';
+        return offsetPrefix + " " + localPrefix + timezoneName.replace(/_/g, ' ') + timezoneSuffix;
     }
 
     static rangeTimeFormat (rangeMillis: number) {
@@ -163,7 +175,7 @@ class Utils {
     
     static timeFormat(usesSeconds = false, usesMillis = false, offset: any = 0, is24HourTime: boolean = true) {
         return (d) => {
-            var stringFormat = "MM/DD/YYYY " + (is24HourTime ? "HH" : "hh") + ":mm" + 
+            var stringFormat = "L " + (is24HourTime ? "HH" : "hh") + ":mm" + 
                 (usesSeconds ? (":ss" + (usesMillis ? ".SSS" : "")) : "") + (is24HourTime ? "" : " A");
             if (typeof offset == 'string' && isNaN(offset as any)) {
                 return momentTZ.tz(d, 'UTC').tz(offset === 'Local' ? momentTZ.tz.guess() : offset).format(stringFormat);

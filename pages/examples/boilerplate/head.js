@@ -1,6 +1,6 @@
 var sdkJs = document.createElement('script');
-sdkJs.src = 'https://unpkg.com/tsiclient@1.2.30/tsiclient.js';
-// sdkJs.src = '../../../dist/tsiclient.js';  // for local testing
+// sdkJs.src = 'https://unpkg.com/tsiclient@1.2.30/tsiclient.js';
+sdkJs.src = '../../../dist/tsiclient.js';  // for local testing
 
 var promiseJs = document.createElement('script');
 promiseJs.src = 'https://cdnjs.cloudflare.com/ajax/libs/bluebird/3.3.4/bluebird.min.js';
@@ -8,8 +8,8 @@ promiseJs.src = 'https://cdnjs.cloudflare.com/ajax/libs/bluebird/3.3.4/bluebird.
 var sdkCss = document.createElement('link');
 sdkCss.rel = 'stylesheet';
 sdkCss.type = 'text/css';
-sdkCss.href = 'https://unpkg.com/tsiclient@1.2.30/tsiclient.css';
-// sdkCss.href = '../../../dist/tsiclient.css';  // for local testing
+// sdkCss.href = 'https://unpkg.com/tsiclient@1.2.30/tsiclient.css';
+sdkCss.href = '../../../dist/tsiclient.css';  // for local testing
 
 var metaCharset = document.createElement('meta');
 metaCharset.charSet = 'utf-8';

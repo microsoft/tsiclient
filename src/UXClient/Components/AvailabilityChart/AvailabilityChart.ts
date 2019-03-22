@@ -136,7 +136,7 @@ class AvailabilityChart extends ChartComponent{
     }
     private dateTimePickerAction (fromMillis, toMillis) {
         this.setBrush(fromMillis, toMillis);
-        this.chartOptions.brushMoveEndAction(new Date(fromMillis), new Date(toMillis));
+        this.chartOptions.brushMoveEndAction(new Date(fromMillis), new Date(toMillis), this.chartOptions.offset);
         this.setTicks();
         this.dateTimePickerContainer.style("display", "none");
     }
@@ -301,7 +301,6 @@ class AvailabilityChart extends ChartComponent{
                 this.drawAvailabilityRange();
             });
             var pickerContainerAndContent = this.targetElement.selectAll(".tsi-dateTimePickerContainer, .tsi-dateTimePickerContainer *");
-            var dateTimeTextAndContent = this.targetElement.selectAll(".tsi-dateTimeContainer, .tsi-dateTimeContainer *");
 
             var self = this;
             var equalToEventTarget = (function ()  {
@@ -414,15 +413,22 @@ class AvailabilityChart extends ChartComponent{
         }, false);
     }
 
+    private createTimezoneAbbreviation () {
+        let timezone = Utils.parseTimezoneName(this.chartOptions.offset);
+        let timezoneAbbreviation = Utils.timezoneAbbreviation(timezone);
+        return (timezoneAbbreviation.length !== 0 ? timezoneAbbreviation : Utils.addOffsetGuess(timezone));
+    }
+
     private setFromAndToTimes (fromMillis, toMillis) {
-        fromMillis = Math.max(this.zoomedFromMillis, fromMillis);
-        toMillis = Math.min(this.zoomedToMillis, toMillis);
-        [{"From": fromMillis}, {"To": toMillis}].forEach((fromOrTo) => {
-            let fromOrToText = Object.keys(fromOrTo)[0]; 
-            this.timePickerTextContainer.select(".tsi-dateTimeTextContainer" + fromOrToText).select(".tsi-dateTimeText")
-                .node().innerHTML = Utils.timeFormat(false, false, this.chartOptions.offset, this.chartOptions.is24HourTime)
-                                                    (new Date(fromOrTo[fromOrToText]).valueOf());
-        });
+        fromMillis = Math.max(this.fromMillis, fromMillis);
+        toMillis = Math.min(this.toMillis, toMillis);
+        let timezone = Utils.parseTimezoneName(this.chartOptions.offset);
+        let timezoneAbbreviation = Utils.timezoneAbbreviation(timezone);
+        let timezoneSuffix = ' (' + this.createTimezoneAbbreviation() + ')'
+        let timeRangeText = 
+            Utils.timeFormat(false, false, this.chartOptions.offset, this.chartOptions.is24HourTime)(new Date(fromMillis).valueOf()) + " - " +
+            Utils.timeFormat(false, false, this.chartOptions.offset, this.chartOptions.is24HourTime)(new Date(toMillis).valueOf()) + timezoneSuffix;
+        this.timeContainer.node().innerHTML = timeRangeText; 
         this.setSelectedMillis(fromMillis, toMillis);
     }
 
@@ -453,11 +459,13 @@ class AvailabilityChart extends ChartComponent{
                 .classed('tsi-compactFromTo', true)
                 .style('left', (brushPositions.leftPos != null ? Math.max(brushPositions.leftPos, 5) : 5) + 'px')
                 .html(Utils.timeFormat(false, false, this.chartOptions.offset, this.chartOptions.is24HourTime)(new Date(this.selectedFromMillis)));
+            let timezoneAbbreviation = ' (' + this.createTimezoneAbbreviation() + ')';
             rightTimeText = this.timePickerContainer.append('div')
                 .attr('class', 'tsi-compactFromTo')
                 .style('right', brushPositions.rightPos != null ? 'calc(100% - ' + brushPositions.rightPos + 'px)' : '5px')
                 .style('left', 'auto')
-                .html(Utils.timeFormat(false, false, this.chartOptions.offset, this.chartOptions.is24HourTime)(new Date(this.selectedToMillis)));
+                .html(Utils.timeFormat(false, false, this.chartOptions.offset, this.chartOptions.is24HourTime)
+                            (new Date(this.selectedToMillis)) + timezoneAbbreviation);
         }
 
         if (leftTimeText && rightTimeText) {
@@ -492,9 +500,11 @@ class AvailabilityChart extends ChartComponent{
     }
 
     private buildFromAndToContainer () {
-        var self = this;
-        this.timeContainer = this.timePickerTextContainer.append("button")
-            .classed('tsi-dateTimeContainer', true)
+        let self = this;
+        let dateTimeContainer = this.timePickerTextContainer.append('div').classed('tsi-dateTimeContainer', true);
+        dateTimeContainer.append("span").node().innerHTML = "Timeframe";
+        this.timeContainer = dateTimeContainer.append("button")
+            .classed('tsi-dateTimeButton', true)
             .on("click", function () {
                 self.dateTimePickerContainer.style("display", "block");
                 var minMillis = self.fromMillis + (Utils.getOffsetMinutes(self.chartOptions.offset, self.fromMillis) * 60 * 1000);
@@ -511,15 +521,9 @@ class AvailabilityChart extends ChartComponent{
                                                 (<any>d3.select(self.renderTarget).select(".tsi-dateTimeContainer").node()).focus();
                                             });
 
-            })
-        var fromDateTimeContainer = this.timeContainer.append("div").attr("class", "tsi-dateTimeTextContainer tsi-dateTimeTextContainerFrom");
-        var fromLabel = fromDateTimeContainer.append("span").attr("class", "tsi-fromToLabel");
-        fromLabel.node().innerHTML = "from";
-        fromDateTimeContainer.append("span").attr("class", "tsi-dateTimeText");
-        var toDateTimeContainer = this.timeContainer.append("div").attr("class", "tsi-dateTimeTextContainer tsi-dateTimeTextContainerTo");
-        var toLabel = toDateTimeContainer.append("span").attr("class", "tsi-fromToLabel");
-        toLabel.node().innerHTML = "to";
-        toDateTimeContainer.append("span").attr("class", "tsi-dateTimeText");
+            });
+        
+        this.timeContainer.append("span").attr("class", "tsi-dateTimeText");
     }
 
 
@@ -548,7 +552,7 @@ class AvailabilityChart extends ChartComponent{
             if (!isNaN(selectValue)) {
                 self.setBrush(Math.max(self.toMillis - selectValue, self.fromMillis), self.toMillis);
                 if (self.chartOptions.brushMoveEndAction != null) {
-                    self.chartOptions.brushMoveEndAction(new Date(self.selectedFromMillis), new Date(self.selectedToMillis));                    
+                    self.chartOptions.brushMoveEndAction(new Date(self.selectedFromMillis), new Date(self.selectedToMillis), self.chartOptions.offset);                    
                 }
             }
         });
