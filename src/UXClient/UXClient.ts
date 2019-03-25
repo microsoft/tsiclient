@@ -154,6 +154,19 @@ class UXClient {
                 }
                 event[columnNameAndType] = eventObject;
             }
+            if (events[eventIdx].hasOwnProperty('$op')) {
+                let defaultType = 'String';
+                let otherProps = JSON.parse(events[eventIdx]['$op']);
+                Object.keys(otherProps).forEach((propNameRaw) => {
+                    let strippedName = Utils.stripForConcat(propNameRaw);
+                    let colomnNameAndType = strippedName + '_String';
+                    event[columnNameAndType] = {
+                        value: otherProps[propNameRaw],
+                        name: strippedName,
+                        type: defaultType
+                    }
+                });
+            }
             rows.push(event);
         }
         return rows;
