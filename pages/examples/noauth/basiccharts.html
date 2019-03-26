@@ -14,7 +14,7 @@
                 
                 // create fake data in the shape our charts expect
                 var data = [];
-                var from = new Date();
+                var from = new Date(Math.floor((new Date()).valueOf() / (1000*60)) * (1000*60));
                 var to;
                 for(var i = 0; i < 2; i++){
                     var lines = {};

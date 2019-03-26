@@ -288,7 +288,7 @@ class HeatmapCanvas extends ChartComponent {
     private drawCell (rowI, colI, value, outOfFocus: boolean = false) {
         var x = this.calcCellX(colI);
         var y = this.calcCellY(rowI);
-        this.ctx.fillStyle = value !== null ? this.colorScale(value) : "white";
+        this.ctx.fillStyle = value !== null ? this.colorScale(value) : "transparent";
         this.ctx.globalAlpha = outOfFocus ? .3 : 1;
         this.ctx.fillRect(this.calcCellX(colI), this.calcCellY(rowI), this.calcCellWidth(colI), this.calcCellHeight(rowI));
     }
