@@ -26,6 +26,10 @@
                                 var to = new Date(from.valueOf() + 1000*60*k);
                                 var val = Math.random();
                                 values[to.toISOString()] = {avg: val};
+                            } else {
+                                var to = new Date(from.valueOf() + 1000*60*k);
+                                var val = Math.random();
+                                values[to.toISOString()] = {avg: null};
                             }
                         } 
                     }
@@ -34,7 +38,7 @@
                 // render the data in a chart
                 var tsiClient = new TsiClient();
                 var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart1'));
-                lineChart.render(data);
+                lineChart.render(data, {includeDots: true});
 
                 var barChart = new tsiClient.ux.BarChart(document.getElementById('chart2'));
                 barChart.render(data);

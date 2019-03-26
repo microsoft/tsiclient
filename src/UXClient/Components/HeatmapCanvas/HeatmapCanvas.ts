@@ -29,9 +29,13 @@ class HeatmapCanvas extends ChartComponent {
     private highlightedValue: number;
     private onCellFocus;
     private aggI: number;
+    private isOnlyAgg: boolean;
 
     private renderScale () {
         this.colorLegend.selectAll("*").remove();
+        if (this.colorScale.domain() === null || isNaN(this.colorScale.domain()[0]) || isNaN(this.colorScale.domain()[1])) {
+            return;
+        }
         var gradient = this.colorLegend.append("defs")
             .append("linearGradient")
               .attr("id", "gradient" + this.aggI)
@@ -39,16 +43,17 @@ class HeatmapCanvas extends ChartComponent {
               .attr("y1", "100%")
               .attr("x2", "0%")
               .attr("y2", "0%");
-              
-        gradient.append("stop")
-            .attr("offset", "0%")
-            .attr("stop-color", this.colorScale.range()[0])
-            .attr("stop-opacity", 1);
-          
-        gradient.append("stop")
-            .attr("offset", "100%")
-            .attr("stop-color", this.colorScale.range()[1])
-            .attr("stop-opacity", 1);
+
+        let interpolatedColors = [];
+
+        var percentileCalc = (i) => i * (this.colorScale.domain()[1] - this.colorScale.domain()[0]) + this.colorScale.domain()[0]; 
+        for (let i = 0; i <= 20; i++) {
+            let interpolatedColor = this.colorScale(percentileCalc(i / 20));
+            gradient.append("stop")
+                .attr("offset", (i * 5) + "%")
+                .attr("stop-color", interpolatedColor)
+                .attr("stop-opacity", 1);
+        }
 
         var gradientRect = this.colorLegend.append("rect")
             .attr("x", this.legendWidth - this.gradientWidth)
@@ -58,7 +63,7 @@ class HeatmapCanvas extends ChartComponent {
             .style("fill", "url(#gradient" + String(this.aggI) + ")");
 
         var highlightedValueY = null;
-        var range: number = d3.max(this.heatmapData.allValues) - d3.min(this.heatmapData.allValues);
+        var range: number = this.colorScale.domain()[1] - this.colorScale.domain()[0];
 
         var highlightedText = this.colorLegend.append("text").attr("class", "highlightedValueText");
         var highlightedLine = this.colorLegend.append("line").attr("class", "highlightedValueLine");
@@ -70,7 +75,7 @@ class HeatmapCanvas extends ChartComponent {
             if (range == 0) {
                 percentile = .5;
             } else {
-                percentile = (this.highlightedValue != null) ? (this.highlightedValue - d3.min(this.heatmapData.allValues)) / range : 0;
+                percentile = (this.highlightedValue != null) ? (this.highlightedValue - this.colorScale.domain()[0]) / range : 0;
             }
 
             highlightedValueY = (this.height - 6) + (12 - this.height) * percentile;
@@ -91,11 +96,11 @@ class HeatmapCanvas extends ChartComponent {
 
         minText.attr("x", this.legendWidth - this.gradientWidth - 5)
             .attr("y", this.height - 6)
-            .text(Utils.formatYAxisNumber(d3.min(this.heatmapData.allValues)))
+            .text(Utils.formatYAxisNumber(this.colorScale.domain()[0]))
             .attr("fill-width", ((highlightedValueY == null) || highlightedValueY < this.height - 18) ? 1 : 0);
         maxText.attr("x", this.legendWidth - this.gradientWidth - 5)
             .attr("y", 6)
-            .text(Utils.formatYAxisNumber(d3.max(this.heatmapData.allValues)))
+            .text(Utils.formatYAxisNumber(this.colorScale.domain()[1]))
             .attr("fill-opacity", ((highlightedValueY == null) || highlightedValueY > 18) ? 1 : 0);
 
         //render highlightedValue text and line IF there is a highlighted time and split by, OR IF there is an 
@@ -112,18 +117,28 @@ class HeatmapCanvas extends ChartComponent {
             var yPos = d3.mouse(this)[1];
             var percentile = 1 - ((yPos - 6) / (self.height - 12));
 
-            self.highlightedValue = d3.min(self.heatmapData.allValues) + (range * percentile);
+            self.highlightedValue = self.colorScale.domain()[0] + (range * percentile);
             setHighlightedValueLineAndText(highlightedLine, highlightedText);
         })
         .on("mouseleave", () => {
-            this.render(this.data, this.chartOptions, this.aggKey, null, null, this.onCellFocus, null);
+            this.render(this.data, this.chartOptions, this.aggKey, null, null, this.onCellFocus, null, this.isOnlyAgg);
         })
     }
 
-    public render (data, chartOptions, aggKey, highlightedSplitBy: string = null, highlightedTime: Date = null, onCellFocus, aggI: number) {
+    private getExtent () {
+        let rawExtent = d3.extent(this.heatmapData.allValues);
+        let extent = rawExtent;
+        if (rawExtent[0] === rawExtent[1]) {
+            extent = [rawExtent[0] - .05, rawExtent[1] + .05];
+        }
+        return extent;
+    }
+
+    public render (data, chartOptions, aggKey, highlightedSplitBy: string = null, highlightedTime: Date = null, onCellFocus, aggI: number, isOnlyAgg: boolean) {
         this.chartOptions.setOptions(chartOptions);
         this.aggKey = aggKey;
         this.data = data;
+        this.isOnlyAgg = isOnlyAgg;
 
         if (aggI != null) {
             this.aggI = aggI;
@@ -190,11 +205,11 @@ class HeatmapCanvas extends ChartComponent {
                                  Math.max(1, cellX), cellX + self.calcCellWidth(self.focusedXIndex) + 1, 
                                  self.calcCellY(self.focusedYIndex), highlightedSplitBy);
             }
-            self.render(self.data, self.chartOptions, self.aggKey, highlightedSplitBy, this.highlightedTime, self.onCellFocus, null);
+            self.render(self.data, self.chartOptions, self.aggKey, highlightedSplitBy, this.highlightedTime, self.onCellFocus, null, self.isOnlyAgg);
         }).on("mouseout", function () {
             self.focusedXIndex = -1;
             self.focusedYIndex = -1;
-            self.render(self.data, self.chartOptions, self.aggKey, null, null, self.onCellFocus, null);
+            self.render(self.data, self.chartOptions, self.aggKey, null, null, self.onCellFocus, null, self.isOnlyAgg);
         })
         this.aggKey = aggKey;
 
@@ -210,8 +225,13 @@ class HeatmapCanvas extends ChartComponent {
             .style("left", (this.width) + "px");
 
         var aggColor = data.displayState[aggKey].color;
-        this.colorScale = d3.scaleLinear().domain(d3.extent(this.heatmapData.allValues))
+
+        if (isOnlyAgg) {
+            this.colorScale = d3.scaleSequential(d3.interpolateViridis).domain(this.getExtent());
+        } else {
+            this.colorScale = d3.scaleLinear().domain(this.getExtent())
                 .range([<any>d3.hcl(aggColor).brighter(), <any>d3.hcl(aggColor).darker()]);
+        }
 
         this.renderScale();
 
@@ -268,7 +288,7 @@ class HeatmapCanvas extends ChartComponent {
     private drawCell (rowI, colI, value, outOfFocus: boolean = false) {
         var x = this.calcCellX(colI);
         var y = this.calcCellY(rowI);
-        this.ctx.fillStyle = value != null ? this.colorScale(value) : "white";
+        this.ctx.fillStyle = value !== null ? this.colorScale(value) : "transparent";
         this.ctx.globalAlpha = outOfFocus ? .3 : 1;
         this.ctx.fillRect(this.calcCellX(colI), this.calcCellY(rowI), this.calcCellWidth(colI), this.calcCellHeight(rowI));
     }

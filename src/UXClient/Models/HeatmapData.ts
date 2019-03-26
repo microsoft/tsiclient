@@ -31,13 +31,17 @@ class HeatmapData {
         this.createTimeValues();
     }
 
+    private adjustStartTime () {
+        return new Date(Math.floor(new Date(this.from).valueOf() / this.bucketSize) * this.bucketSize);
+    }
+
     private createTimeValues () {
         this.timeValues = {};
         this.allValues = [];
         //turn time array into an object keyed by timestamp 
         var colI = 0;
-        for (var currTime = this.from; (currTime.valueOf() < this.to.valueOf()); 
-            currTime = new Date(currTime.valueOf() + this.bucketSize)) {
+        let adjustedStartTime = this.adjustStartTime();
+        for (var currTime = adjustedStartTime; (currTime.valueOf() < this.to.valueOf()); currTime = new Date(currTime.valueOf() + this.bucketSize)) {
             this.timeValues[currTime.toString()] = this.visibleSBs.reduce((obj, splitBy, splitByI) => {
                 obj[splitBy] = {
                     colI: colI,
@@ -56,7 +60,7 @@ class HeatmapData {
                 var visibleMeasure = this.chartComponentData.getVisibleMeasure(this.aggKey, splitBy);
                 if (this.timeValues[timestamp]) {                    
                     this.timeValues[timestamp][splitBy].value = valueObject.measures ? valueObject.measures[visibleMeasure] : null;
-                    if (valueObject.measures && valueObject.measures[visibleMeasure])
+                    if (Utils.safeNotNullOrUndefined(() => valueObject.measures[visibleMeasure]))
                         this.allValues.push(valueObject.measures[visibleMeasure]);
                 }
             });

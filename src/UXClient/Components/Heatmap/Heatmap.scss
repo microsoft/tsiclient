@@ -5,6 +5,8 @@
     $gray2: nth($grays, 2); // hover
     $gray3: nth($grays, 3); // element
     $gray4: nth($grays, 4); // background
+    $gray5: nth($grays, 5);
+    $gray6: nth($grays, 6);
     
     color: $gray1;
     background: $gray3;
@@ -12,7 +14,7 @@
 
     .tsi-heatmapWrapper {
         .tsi-heatmapTimeLabels {
-            stroke: $gray1;
+            stroke: $gray6;
             .tsi-heatmapTimeLabelTextBox {
                 text {
                     fill: $gray1 !important;
@@ -22,6 +24,9 @@
                 rect {
                     fill: $gray4 !important;
                 }
+            }
+            .tsi-heatmapFocusLine {
+                stroke: $gray2 !important;
             }
         }
     }
@@ -41,11 +46,9 @@
         @include hmColors($grays);
     }
 
+
     .tsi-heatmapWrapper {
-        height: calc(100% - 10px);
         position: absolute;
-        right: 0px;
-        top: 10px;
         overflow: visible;
     
         .tsi-heatmapTimeLabels {

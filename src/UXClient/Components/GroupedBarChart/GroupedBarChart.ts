@@ -22,9 +22,6 @@ class GroupedBarChart extends ChartComponent {
     private timestamp: any;
     private isStacked: boolean = null;
     private stackedButton: any = null;
-    private ellipsisContainer: any;
-    private ellipsisMenu: EllipsisMenu;
-    private chartControlsPanel = null;
     chartComponentData = new GroupedBarChartData();
     
     private chartMargins: any = {
@@ -240,26 +237,15 @@ class GroupedBarChart extends ChartComponent {
                             self.draw();
                         })
                         .attr('title', 'Stack/Unstack Bars');
-
-                    if (this.chartOptions.canDownload || this.chartOptions.grid) {
-                        this.ellipsisContainer = this.chartControlsPanel.append("div")
-                            .attr("class", "tsi-ellipsisContainerDiv");
-                        this.ellipsisMenu = new EllipsisMenu(this.ellipsisContainer.node());
-    
-                        var ellipsisItems = [];
-                        if (this.chartOptions.grid) {
-                            ellipsisItems.push(Utils.createGridEllipsisOption(this.renderTarget, this.chartOptions, this.aggregateExpressionOptions, this.chartComponentData));
-                        }
-                        if (this.chartOptions.canDownload) {
-                            ellipsisItems.push(Utils.createDownloadEllipsisOption(() => this.chartComponentData.generateCSVString(), () => Utils.focusOnEllipsisButton(this.renderTarget)));
-                        }
-    
-                        this.ellipsisMenu.render(ellipsisItems, {theme: this.chartOptions.theme});
-                    }
-
                 } else  if (this.chartOptions.hideChartControlPanel && this.chartControlsPanel !== null){
-                    this.chartControlsPanel.remove();
-                    this.chartControlsPanel = null;
+                    this.removeControlPanel();
+                }
+        
+                if (this.chartControlsPanel !== null && this.ellipsisItemsExist()) {
+                    this.drawEllipsisMenu();
+                    this.chartControlsPanel.style("top", Math.max((this.chartMargins.top - 24), 0) + 'px');
+                } else {
+                    this.removeEllipsisMenu();
                 }
 
                 /********* Determine the number of timestamps present, add margin for slider *********/

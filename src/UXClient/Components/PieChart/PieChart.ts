@@ -18,8 +18,6 @@ class PieChart extends ChartComponent {
     private legendObject: Legend;
     private contextMenu: ContextMenu;
     public draw: any;
-    private ellipsisContainer: any;
-    private ellipsisMenu: EllipsisMenu;
     chartComponentData = new PieChartData();
     
     private chartMargins: any = {
@@ -58,8 +56,11 @@ class PieChart extends ChartComponent {
                 // Determine the number of timestamps present, add margin for slider
                 if(this.chartComponentData.allTimestampsArray.length > 1)
                     this.chartMargins.bottom = 68;
-                if(this.chartOptions.legend == "compact") 
+                if(this.chartOptions.legend == "compact") {
                     this.chartMargins.top = 68;
+                } else {
+                    this.chartMargins.top = 20;
+                }
 
                 var width = +targetElement.node().getBoundingClientRect().width;
                 var height = +targetElement.node().getBoundingClientRect().height;
@@ -80,23 +81,18 @@ class PieChart extends ChartComponent {
                 this.chartComponentData.updateFlatValueArray(timestamp);
                 super.themify(targetElement, this.chartOptions.theme);
 
-                var chartControlsPanel = Utils.createControlPanel(this.renderTarget, this.CONTROLSWIDTH, this.chartMargins.top + 20, this.chartOptions);
 
-                if (this.chartOptions.canDownload || this.chartOptions.grid) {
-                    this.ellipsisContainer = chartControlsPanel.append("div")
-                        .attr("class", "tsi-ellipsisContainerDiv");
-                    this.ellipsisMenu = new EllipsisMenu(this.ellipsisContainer.node());
+                if (!this.chartOptions.hideChartControlPanel && this.chartControlsPanel === null) {
+                    this.chartControlsPanel = Utils.createControlPanel(this.renderTarget, this.CONTROLSWIDTH, this.chartMargins.top, this.chartOptions);
+                } else  if (this.chartOptions.hideChartControlPanel && this.chartControlsPanel !== null){
+                    this.removeControlPanel();
+                }
 
-                    var ellipsisItems = [];
-                    if (this.chartOptions.grid) {
-                        ellipsisItems.push(Utils.createGridEllipsisOption(this.renderTarget, this.chartOptions, 
-                            this.aggregateExpressionOptions, this.chartComponentData));
-                    }
-                    if (this.chartOptions.canDownload) {
-                        ellipsisItems.push(Utils.createDownloadEllipsisOption(() => this.chartComponentData.generateCSVString(),
-                        () => Utils.focusOnEllipsisButton(this.renderTarget)));
-                    }
-                    this.ellipsisMenu.render(ellipsisItems, {theme: this.chartOptions.theme});
+                if (this.ellipsisItemsExist() && !this.chartOptions.hideChartControlPanel) {
+                    this.drawEllipsisMenu();
+                    this.chartControlsPanel.style("top", Math.max((this.chartMargins.top - 24), 0) + 'px');
+                } else {
+                    this.removeControlPanel();
                 }
 
 
