@@ -158,11 +158,11 @@ class UXClient {
                 let defaultType = 'String';
                 let otherProps = JSON.parse(events[eventIdx]['$op']);
                 Object.keys(otherProps).forEach((propNameRaw) => {
-                    let strippedName = Utils.stripForConcat(propNameRaw);
-                    let colomnNameAndType = strippedName + '_String';
-                    event[columnNameAndType] = {
+                    let strippedNameOP = Utils.stripForConcat(propNameRaw);
+                    let columnNameAndTypeOP = strippedNameOP + '_String';
+                    event[columnNameAndTypeOP] = {
                         value: otherProps[propNameRaw],
-                        name: strippedName,
+                        name: strippedNameOP,
                         type: defaultType
                     }
                 });
