@@ -1,5 +1,6 @@
 body {
-    margin: 0px
+    margin: 0px;
+    font-family: Segoe UI,Frutiger,Frutiger Linotype,Dejavu Sans,Helvetica Neue,Arial,sans-serif; 
 }
 
 * {
@@ -29,18 +30,22 @@ body {
     background-image: url(./images/githubLogo.png);    
     background-repeat: no-repeat;  
     background-position-x: 8px;     
-    background-position-y: 7px; 
+    background-position-y: 8px;
+    font-size: 14px;
+    border-radius: 3px;
 }
 
 .titleWrapper {
-    margin-top: 64px;
+    margin-top: 40px;
     padding-left: 84px;
     padding-right: 84px;
     display: flex;
+    justify-content: center;
 }
 .titleTextWrapper {
-    width: 600px;
+    width: 550px;
     height: 100%;
+    text-align: justify;
 }
 .titleText {
     font-size: 20px;
@@ -53,7 +58,7 @@ body {
 }
 .subTitleText {
     font-size: 16px;
-    margin-bottom: 24px;
+    margin-bottom: 30px;
 }
 .titleImageWrapper {
     padding-left: 40px 
@@ -67,7 +72,7 @@ button {
 }
 
 .contentWrapper {
-    margin-top: 40px;
+    margin-top: 20px;
     margin-left: 84px;
 }
 
@@ -107,7 +112,7 @@ button {
 }
 
 .filterButtonSelected {
-    border-color: blue;
+    border-color: #008272;
     font-weight: bold;
 }
 
@@ -123,7 +128,8 @@ button {
     border-bottom: 1px solid lightgray;
 }
 .sampleHeaderTitle {
-    font-size: 24px;
+    font-size: 20px;
+    font-weight: 600;
 }
 .sampleHeaderSubtitle {
     font-size: 14px;
@@ -166,12 +172,29 @@ button {
     height: 48px;
     padding: 8px;
     border-top: 1px solid lightgray;
+    position: relative;
 }
 
 .sampleFooterButton {
-    margin-left: 12px;
+    margin-left: 0;
     margin-right: 12px;
     border: none;
     color: #0078D4;
 }
 
+.sampleFooterButton.viewOnGithubButton {
+    font-size: 13.3333px;
+    background-position-y: 6px;
+}
+
+.sampleFooterButton:hover{
+    text-decoration: underline;
+}
+
+.footerImage{
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    right: 16px;
+    bottom: 12px;
+}

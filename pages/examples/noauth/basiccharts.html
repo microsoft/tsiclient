@@ -35,10 +35,10 @@
                 // render the data in a chart
                 var tsiClient = new TsiClient();
                 var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart1'));
-                lineChart.render(data);
+                lineChart.render(data, {theme: 'light'});
 
                 var barChart = new tsiClient.ux.BarChart(document.getElementById('chart2'));
-                barChart.render(data, {theme: 'light', grid: true, tooltip: true, legend: 'compact'});
+                barChart.render(data, {theme: 'dark', grid: true, tooltip: true, legend: 'compact'});
 
                 var pieChart = new tsiClient.ux.PieChart(document.getElementById('chart3'));
                 pieChart.render(data, {theme: 'light', grid: true, tooltip: true, legend: 'compact'});
