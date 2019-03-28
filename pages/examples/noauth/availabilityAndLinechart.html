@@ -34,12 +34,12 @@
                 var lineChart = new tsiClient.ux.LineChart(document.getElementById('linechart'));
                 var availability = new tsiClient.ux.AvailabilityChart(document.getElementById('availability'));
 
-                var brushMoveEndAction = (from, to) => {
-                    lineChart.render(data, {noAnimate: true, includeDots: true}, data.map(d => {return {measureTypes: ['avg'], searchSpan: {from: from.toISOString(), to: to.toISOString(), bucketSize: '1m'}}}));
+                var brushMoveEndAction = (from, to, timezone) => {
+                    lineChart.render(data, {noAnimate: true, includeDots: true, offset: timezone}, data.map(d => {return {measureTypes: ['avg'], searchSpan: {from: from.toISOString(), to: to.toISOString(), bucketSize: '1m'}}}));
                 }
 
                 availability.render([{availabilityCount: {"": {}}}], 
-                                    {legend: 'hidden', theme: 'light', color: 'purple', brushMoveEndAction: brushMoveEndAction}, 
+                                    {legend: 'hidden', theme: 'light', color: 'purple', brushMoveEndAction: brushMoveEndAction, offset: 'Local' , isCompact: false}, 
                                     {range: 
                                         {
                                             from: from.toISOString(), 
@@ -48,7 +48,7 @@
                                     intervalSize: '1m'
                                     }
                                     );
-                lineChart.render(data, {}, [{includeDots: true}]);
+                lineChart.render(data, {offset: 'Local'}, [{includeDots: true}]);
             };
         </script>
     </body>
