@@ -1,6 +1,8 @@
 body {
     margin: 0px;
     font-family: Segoe UI,Frutiger,Frutiger Linotype,Dejavu Sans,Helvetica Neue,Arial,sans-serif; 
+    display: flex;
+    justify-content: center;
 }
 
 * {
@@ -13,6 +15,12 @@ body {
     font-size: 24px;
     line-height: 32px;
     display: inline-flex;
+    position: absolute;
+    left: 0;
+}
+
+.header:hover{
+    cursor: pointer;
 }
 
 .headerTitle {
@@ -36,11 +44,10 @@ body {
 }
 
 .titleWrapper {
-    margin-top: 40px;
+    margin-top: 104px;
     padding-left: 84px;
     padding-right: 84px;
     display: flex;
-    justify-content: center;
 }
 .titleTextWrapper {
     width: 550px;
