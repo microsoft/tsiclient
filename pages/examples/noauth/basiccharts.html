@@ -16,7 +16,7 @@
                 var data = [];
                 var from = new Date(Math.floor((new Date()).valueOf() / (1000*60)) * (1000*60));
                 var to;
-                for(var i = 0; i < 2; i++){
+                for(var i = 0; i < 3; i++){
                     var lines = {};
                     data.push({[`Factory${i}`]: lines});
                     for(var j = 0; j < 5; j++){
@@ -35,7 +35,7 @@
                 // render the data in a chart
                 var tsiClient = new TsiClient();
                 var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart1'));
-                lineChart.render(data, {yExtent: [-100, 100]}, [{yExtent: [.25,.75], includeDots: true}]);
+                lineChart.render(data);
 
                 var barChart = new tsiClient.ux.BarChart(document.getElementById('chart2'));
                 barChart.render(data, {theme: 'light', grid: true, tooltip: true, legend: 'compact'});

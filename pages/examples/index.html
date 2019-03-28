@@ -1,98 +1,153 @@
 <!DOCTYPE html> 
 <html><head>
     <title>Time Series Insights JavaScript SDK Examples</title>
-    <meta charset="utf-8">
-    <meta http-equiv="cache-control" content="no-cache" />
-    <link rel="stylesheet" type="text/css" href="styles.css" />
+    <meta charset='utf-8'>
+    <meta http-equiv='cache-control' content='no-cache' />
+    <link rel='stylesheet' type='text/css' href='sampleStyles.css' />
 </head>
 <body>
-        <div style="height: 100%; position: absolute; top: 0; width: 100%;">
-            <div class="header">
-                TSI JavaScript SDK Examples
+        <div style='height: 100%; position: absolute; top: 0; width: 100%;'>
+            <div class='header'>
+                <img class="headerImage" src="images/TSILogo.PNG">
+                <div class="headerTitle">Azure Time Series Insights</div>
+            </div>
+            <div class='titleWrapper'>
+                <div class='titleTextWrapper'>
+                    <div class='titleText'>
+                        Time Series Insights
+                    </div>
+                    <div class='bigTitleText'>
+                        Sample Visualizations
+                    </div>
+                    <div class='subTitleText'>
+                        The Azure Time Series Insights JavaScript SDK (aka tsiclient) is a JavaScript library for Microsoft Azure Time Series Insights, featuring components for data visualization and analytics, utilities for making calls directly to the TSI Platform API, and more.
+                    </div>
+                    <a href='https://github.com/Microsoft/tsiclient'>
+                        <button class="viewOnGithubButton">
+                            View on Github
+                        </button>                            
+                    </a>
+                </div>
+                <div class='titleImageWrapper'>
+                    <img src='images/titleImage.png'/>
+                </div>
+            </div>
+            <div class='contentWrapper'>
+                <div class='filterContainer'>
+                    <div class='filterTitle'> Filter by:</div>
+                    <button id='filterButtonAll' class='filterButton filterButtonSelected' onclick='switchVisibleExample("All")'>All</button>
+                    <button id='filterButtonStandalone' class='filterButton' onclick='switchVisibleExample("Standalone")'>Standalone</button>
+                    <button id='filterButtonIntegrated' class='filterButton' onclick='switchVisibleExample("Integrated")'>Integrated</button>
+                </div>
+                <div class='samplesWrapper'>
+                    <div class='sampleContainer standalone'>
+                        <div class='sampleHeader'>
+                            <div class='sampleHeaderTitle'>Basic Charts</div>
+                            <div class='sampleHeaderSubtitle'>Render a basic line, bar, and heatmap chart</div>
+                        </div>
+                        <div class='sampleImageContainer'>
+                            <img src="images/noauth-basiccharts.PNG" class="sampleImage" onclick="openTab('noauth/basiccharts.html')">
+                        </div>
+                        <div class='sampleFooter'>
+                            <button class='sampleFooterButton' onclick="openTab('noauth/basiccharts.html')">View sample</button>
+                            <button class='sampleFooterButton viewOnGithubButton' onclick="openTab('https://github.com/Microsoft/tsiclient/blob/master/pages/examples/noauth/basiccharts.html')">View code</button>
+                        </div>
+                    </div>
+                    <div class='sampleContainer standalone'>
+                        <div class='sampleHeader'>
+                            <div class='sampleHeaderTitle'>Multiple Series Types</div>
+                            <div class='sampleHeaderSubtitle'>Render a line chart with multiple series types</div>
+                        </div>
+                        <div class='sampleImageContainer'>
+                            <img src="images/noauth-multipleseriestypes.PNG" class="sampleImage" onclick="openTab('noauth/multipleseriestypes.html')">
+                        </div>
+                        <div class='sampleFooter'>
+                            <button class='sampleFooterButton' onclick="openTab('noauth/multipleseriestypes.html')">View sample</button>
+                            <button class='sampleFooterButton viewOnGithubButton' onclick="openTab('https://github.com/Microsoft/tsiclient/blob/master/pages/examples/noauth/multipleseriestypes.html')">View code</button>
+                        </div>
+                    </div>
+                    <div class='sampleContainer standalone'>
+                        <div class='sampleHeader'>
+                            <div class='sampleHeaderTitle'>Context Menu</div>
+                            <div class='sampleHeaderSubtitle'>Render a line chart with a custom context menu</div>
+                        </div>
+                        <div class='sampleImageContainer'>
+                            <img src="images/noauth-contextmenu.PNG" class="sampleImage" onclick="openTab('noauth/contextmenu.html')">
+                        </div>
+                        <div class='sampleFooter'>
+                            <button class='sampleFooterButton' onclick="openTab('noauth/contextmenu.html')">View sample</button>
+                            <button class='sampleFooterButton viewOnGithubButton' onclick="openTab('https://github.com/Microsoft/tsiclient/blob/master/pages/examples/noauth/contextmenu.html')">View code</button>
+                        </div>
+                    </div>
+                    <div class='sampleContainer standalone'>
+                        <div class='sampleHeader'>
+                            <div class='sampleHeaderTitle'>Availability and Line Charts</div>
+                            <div class='sampleHeaderSubtitle'>Render an availability chart which controls the linechart</div>    
+                        </div>
+                        <div class='sampleImageContainer'>
+                            <img src="images/noauth-availabilityAndLinechart.PNG" class="sampleImage" onclick="openTab('noauth/availabilityAndLineChart.html')">
+                        </div>
+                        <div class='sampleFooter'>
+                            <button class='sampleFooterButton' onclick="openTab('noauth/availabilityAndLineChart.html')">View sample</button>
+                            <button class='sampleFooterButton viewOnGithubButton' onclick="openTab('https://github.com/Microsoft/tsiclient/blob/master/pages/examples/noauth/availabilityAndLinechart.html')">View code</button>
+                        </div>
+                    </div>
+                    <div class='sampleContainer standalone'>
+                        <div class='sampleHeader'>
+                            <div class='sampleHeaderTitle'>Chart Options</div>
+                            <div class='sampleHeaderSubtitle'>Test various chart options and how they affect charts</div>    
+                        </div>
+                        <div class='sampleImageContainer'>
+                            <img src="images/noauth-chartOptions.PNG" class="sampleImage" onclick="openTab('noauth/chartOptions.html')">
+                        </div>
+                        <div class='sampleFooter'>
+                            <button class='sampleFooterButton' onclick="openTab('noauth/chartOptions.html')">View sample</button>
+                            <button class='sampleFooterButton viewOnGithubButton' onclick="openTab('https://github.com/Microsoft/tsiclient/blob/master/pages/examples/noauth/chartOptions.html')">View code</button>
+                        </div>
+                    </div>
+                    <div class='sampleContainer integrated'>
+                        <div class='sampleHeader'>
+                            <div class='sampleHeaderTitle'>Basic Charts with Platform</div>
+                            <div class='sampleHeaderSubtitle'>Render a basic line, bar, and heatmap chart with TSI data</div>    
+                        </div>
+                        <div class='sampleImageContainer'>
+                            <img src="images/withplatform-basiccharts.PNG" class="sampleImage" onclick="openTab('withplatform/basiccharts.html')">
+                        </div>
+                        <div class='sampleFooter'>
+                            <button class='sampleFooterButton' onclick="openTab('withplatform/basiccharts.html')">View sample</button>
+                            <button class='sampleFooterButton viewOnGithubButton' onclick="openTab('https://github.com/Microsoft/tsiclient/blob/master/pages/examples/withplatform/basiccharts.html')">View code</button>
+                        </div>
+                    </div>
+                    <div class='sampleContainer integrated'>
+                        <div class='sampleHeader'>
+                            <div class='sampleHeaderTitle'>Line Chart with Explore Events</div>
+                            <div class='sampleHeaderSubtitle'>Render a line chart which connects to an events table </div>
+                        </div>
+                        <div class='sampleImageContainer'>
+                            <img src="images/withplatform-exploreevents.PNG" class="sampleImage" onclick="openTab('withplatform/exploreevents.html')">
+                        </div>
+                        <div class='sampleFooter'>
+                            <button class='sampleFooterButton' onclick="openTab('withplatform/exploreevents.html')">View sample</button>
+                            <button class='sampleFooterButton viewOnGithubButton' onclick="openTab('https://github.com/Microsoft/tsiclient/blob/master/pages/examples/withplatform/exploreevents.html')">View code</button>
+                        </div>   
+                    </div>
+                    <div class='sampleContainer integrated'>
+                        <div class='sampleHeader'>
+                            <div class='sampleHeaderTitle'>Basic Charts with PAYG SKU</div>
+                            <div class='sampleHeaderSubtitle'>Rendercharts using a pay-as-you-go SKU environment</div>
+       
+                        </div>
+                        <div class='sampleImageContainer'>
+                            <img src="images/withplatform-PAYG.PNG" class="sampleImage" onclick="openTab('withplatform/PAYG.html')">
+                        </div>
+                        <div class='sampleFooter'>
+                            <button class='sampleFooterButton' onclick="openTab('withplatform/PAYG.html')">View sample</button>
+                            <button class='sampleFooterButton viewOnGithubButton' onclick="openTab('https://github.com/Microsoft/tsiclient/blob/master/pages/examples/withplatform/PAYG.html')">View code</button>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <div class="chartsWrapper">
-                <div class="examples">
-                    <div class="bigHeader">
-                        Standalone Examples
-                    </div>
-                    <div onclick="openTab('noauth/basiccharts.html')" class="example">
-                        <div class="subHeader">
-                            Basic Line, Bar, Pie, and Heatmap Charts
-                        </div>
-                        <div class="pic">
-                            <img src="images/noauth-basiccharts.PNG">
-                        </div>
-                    </div>
-                    <div onclick="openTab('noauth/multipleseriestypes.html')" class="example">
-                        <div class="subHeader">
-                            Line Chart with Multiple Series Types
-                        </div>
-                        <div class="pic">
-                            <img src="images/noauth-multipleseriestypes.PNG">
-                        </div>
-                    </div>
-                    <div onclick="openTab('noauth/contextmenu.html')" class="example">
-                        <div class="subHeader">
-                            Custom Context Menu Handlers
-                        </div>
-                        <div class="pic">
-                            <img src="images/noauth-contextmenu.PNG">
-                        </div>
-                    </div>
-                    <div onclick="openTab('noauth/availabilityAndLineChart.html')" class="example">
-                        <div class="subHeader">
-                            Availability Chart Linked To Line Chart
-                        </div>
-                        <div class="pic">
-                            <img src="images/noauth-availabilityAndLinechart.PNG">
-                        </div>
-                    </div>
-                    <div onclick="openTab('noauth/chartOptions.html')" class="example">
-                        <div class="subHeader">
-                            Test Various Chart Options
-                        </div>
-                        <div class="pic">
-                            <img src="images/noauth-chartOptions.PNG">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="examples">
-                    <div class="bigHeader bordered">
-                        Platform Integrated Examples
-                    </div>
-
-                    <div onclick="openTab('withplatform/basiccharts.html')" class="example">
-                        <div class="subHeader">
-                            Line, Bar, Pie, and Heatmap with Platform
-                        </div>
-                        <div class="pic">
-                            <img src="images/withplatform-basiccharts.PNG">
-                        </div>
-                    </div>
-
-                    <div onclick="openTab('withplatform/exploreevents.html')" class="example">
-                        <div class="subHeader">
-                            Line chart with explore events
-                        </div>
-                        <div class="pic">
-                            <img src="images/withplatform-exploreevents.PNG">
-                        </div>
-                    </div>
-
-                    <div onclick="openTab('withplatform/PAYG.html')" class="example">
-                        <div class="subHeader">
-                            Charts Using the PAYG SKU
-                        </div>
-                        <div class="pic">
-                            <img src="images/withplatform-PAYG.PNG">
-                        </div>
-                    </div>
-
-                </div>
-
-        </div>
     <script type="text/javascript">
         function openTab(pageName){
             window.open(pageName, '_blank');
@@ -100,6 +155,28 @@
         function stopPropagation(e){
             e.stopPropagation();
         }
+
+        function switchVisibleExample (kindVisible) {
+            var filterButtons = document.getElementsByClassName('filterButton');
+            for (var i = 0; i < filterButtons.length; i++) {
+                filterButtons[i].classList.remove('filterButtonSelected');
+            }
+            document.getElementById('filterButton' + kindVisible)
+                .classList.add('filterButtonSelected');
+
+            var sampleContainers = document.getElementsByClassName('sampleContainer');
+            for (var i = 0; i < sampleContainers.length; i++) {
+                sampleContainers[i].classList.remove('sampleContainerHidden');
+                if (kindVisible === 'Standalone' && sampleContainers[i].classList.contains('integrated')) {
+                    sampleContainers[i].classList.add('sampleContainerHidden');
+                }
+                if (kindVisible === 'Integrated' && sampleContainers[i].classList.contains('standalone')) {
+                    sampleContainers[i].classList.add('sampleContainerHidden');
+                }
+            }
+        }
+
+        switchVisibleExample('All');
     </script>
 </body>
 </html>
