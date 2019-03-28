@@ -1,0 +1,200 @@
+body {
+    margin: 0px;
+    font-family: Segoe UI,Frutiger,Frutiger Linotype,Dejavu Sans,Helvetica Neue,Arial,sans-serif; 
+}
+
+* {
+    box-sizing: border-box;
+}
+
+.header {
+    margin-left: 8px;
+    padding: 16px;
+    font-size: 24px;
+    line-height: 32px;
+    display: inline-flex;
+}
+
+.headerTitle {
+    font-weight: bold;
+    margin-left: 16px;
+}
+.headerImage {
+    height: 32px;
+    width: 32px;
+}
+
+.viewOnGithubButton {
+    padding-left: 32px;
+    background-size: 16px 16px;
+    background-image: url(./images/githubLogo.png);    
+    background-repeat: no-repeat;  
+    background-position-x: 8px;     
+    background-position-y: 8px;
+    font-size: 14px;
+    border-radius: 3px;
+}
+
+.titleWrapper {
+    margin-top: 40px;
+    padding-left: 84px;
+    padding-right: 84px;
+    display: flex;
+    justify-content: center;
+}
+.titleTextWrapper {
+    width: 550px;
+    height: 100%;
+    text-align: justify;
+}
+.titleText {
+    font-size: 20px;
+    font-weight: bold;
+}
+.bigTitleText {
+    font-size: 32px;
+    font-weight: bold;
+    margin-bottom: 24px;
+}
+.subTitleText {
+    font-size: 16px;
+    margin-bottom: 30px;
+}
+.titleImageWrapper {
+    padding-left: 40px 
+}
+
+button {
+    padding: 8px;
+    border: 1px solid rgba(0,0,0,.9);
+    background-color: transparent;
+    cursor: pointer;
+}
+
+.contentWrapper {
+    margin-top: 20px;
+    margin-left: 84px;
+}
+
+.filterContainer {
+    display: inline-flex;
+    font-size: 16px !important;
+    margin-bottom: 16px;
+}
+
+.filterTitle {
+    height: 32px;
+    line-height: 32px;
+    font-size: 16px;
+    margin-right: 32px;
+}
+
+.filterButton {
+    border: none;
+    font-size: 16px;
+    margin-left: 16px;
+    margin-right: 16px;
+    padding-left: 2px;
+    padding-right: 2px;
+    border-bottom: 2px solid transparent;
+}
+
+#filterButtonAll {
+    width: 36px;
+}
+
+#filterButtonStandalone {
+    width: 92px;
+}
+
+#filterButtonSelected {
+    width: 76px;
+}
+
+.filterButtonSelected {
+    border-color: #008272;
+    font-weight: bold;
+}
+
+.samplesWrapper {
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%;
+    flex-direction: row;
+}
+.sampleHeader {
+    padding: 16px;
+    padding-top: 12px;
+    border-bottom: 1px solid lightgray;
+}
+.sampleHeaderTitle {
+    font-size: 20px;
+    font-weight: 600;
+}
+.sampleHeaderSubtitle {
+    font-size: 14px;
+    margin-top: 4px;
+}
+.sampleContainer {
+    height: 400px;
+    width: 400px;
+    margin: 12px 24px 12px 0;
+    box-shadow: 0px 1.2px 3.6px rgba(0, 0, 0, 0.108), 0px 6.4px 14.4px rgba(0, 0, 0, 0.132);
+    border-radius: 2px;
+    overflow-x: hidden;
+    overflow-y: hidden;
+}
+
+.sampleContainerHidden {
+    width: 0px;
+    margin: 0px;
+}
+
+.sampleHeader {
+    width: 100%;
+    height: 80px;
+}
+
+.sampleImageContainer {
+    width: 100%;
+    height: calc(100% - 128px);
+    background-color: grey;
+}
+
+.sampleImage {
+    height: 100%;
+    width: 100%;
+    cursor: pointer;
+}
+
+.sampleFooter {
+    width: 100%;
+    height: 48px;
+    padding: 8px;
+    border-top: 1px solid lightgray;
+    position: relative;
+}
+
+.sampleFooterButton {
+    margin-left: 0;
+    margin-right: 12px;
+    border: none;
+    color: #0078D4;
+}
+
+.sampleFooterButton.viewOnGithubButton {
+    font-size: 13.3333px;
+    background-position-y: 6px;
+}
+
+.sampleFooterButton:hover{
+    text-decoration: underline;
+}
+
+.footerImage{
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    right: 16px;
+    bottom: 12px;
+}
