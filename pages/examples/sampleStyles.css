@@ -10,13 +10,15 @@ body {
 }
 
 .header {
-    margin-left: 8px;
     padding: 16px;
     font-size: 24px;
     line-height: 32px;
     display: inline-flex;
-    position: absolute;
-    left: 0;
+    background: white;
+    border-bottom: 1px solid #eee;
+    z-index: 1;
+    width: 100%;
+    position: fixed;
 }
 
 .header:hover{
@@ -128,6 +130,7 @@ button {
     flex-wrap: wrap;
     width: 100%;
     flex-direction: row;
+    padding-bottom: 40px;
 }
 .sampleHeader {
     padding: 16px;
@@ -204,4 +207,28 @@ button {
     height: 24px;
     right: 16px;
     bottom: 12px;
+}
+
+.vHoverBox, .hHoverBox {
+    fill: #fff;
+    stroke: #136BFB;
+}
+
+::-webkit-scrollbar {
+    height: 8px;
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: none; 
+}
+::-webkit-scrollbar-thumb {
+    background: #a6a6a6; 
+    border-radius: 8px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #a6a6a6; 
+}
+::-webkit-scrollbar-track:hover {
+    background: #f2f2f2; 
 }
