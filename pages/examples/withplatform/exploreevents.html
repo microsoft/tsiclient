@@ -63,7 +63,7 @@
                         var transformedResult = tsiClient.ux.transformAggregatesForVisualization(result, aggregateExpressions);
                         
                         lineChart = new tsiClient.ux.LineChart(document.getElementById('chart1'));
-                        lineChart.render(transformedResult, {theme: 'light', grid: true, tooltip: true, brushContextMenuActions: brushActions, autoTriggerBrushContextMenu: true}, aggregateExpressions);
+                        lineChart.render(transformedResult, {theme: 'light', grid: true, tooltip: true, brushContextMenuActions: brushActions, autoTriggerBrushContextMenu: true, offset: 'Local'}, aggregateExpressions);
                     });
                 });
         }
