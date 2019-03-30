@@ -1,7 +1,7 @@
 {
     "name": "my_package",
     "description": "",
-    "version": "1.0.8",
+    "version": "1.2.33",
     "repository": {
         "type": "git",
         "url": "https://github.com/Microsoft/tsiclient"
