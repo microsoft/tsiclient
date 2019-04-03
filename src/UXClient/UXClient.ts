@@ -283,7 +283,6 @@ class UXClient {
                 flattenedResults.push(event); 
             });
         });
-        debugger;
         return flattenedResults.sort((a,b) => (new Date(a['timestamp ($ts)'])).valueOf() < (new Date(b['timestamp ($ts)'])).valueOf() ? -1 : 1);
     }
 }
