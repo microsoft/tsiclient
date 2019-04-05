@@ -178,9 +178,18 @@ class LineChart extends ChartComponent {
                 .attr("class", "value")
                 .text(d.splitBy);
         }
-                                
-        Object.keys(d.measures).forEach((measureType, i) => {
+
+        let shiftMillis = this.chartComponentData.getTemporalShiftMillis(d.aggregateKey);
+
+        if (shiftMillis !== 0) {
             text.append("div")
+                .attr("class", "temporalShiftText")
+                .text('(shifted ' + this.chartComponentData.getTemporalShiftString(d.aggregateKey) + ')');
+        }
+
+        let valueGroup = text.append('div').classed('valueGroup', true);
+        Object.keys(d.measures).forEach((measureType, i) => {
+            valueGroup.append("div")
                 .attr("class",  () => {
                     return "value" + (measureType == this.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy) ? 
                                     " visibleValue" : "");
@@ -193,6 +202,8 @@ class LineChart extends ChartComponent {
             //supress if the context menu is visible
         if (this.contextMenu && this.contextMenu.contextMenuVisible)
             return;
+
+        let shiftMillis = this.chartComponentData.getTemporalShiftMillis(d.aggregateKey);
             
         var yScale = this.yMap[d.aggregateKey];
         var xValue = d.dateTime;
@@ -212,11 +223,11 @@ class LineChart extends ChartComponent {
         var bucketSize = this.chartComponentData.displayState[d.aggregateKey].bucketSize;
         var endValue = bucketSize ? (new Date(xValue.valueOf() + bucketSize)) : null;
         
-        text.append("tspan").text(Utils.timeFormat(false, false, this.chartOptions.offset, this.chartOptions.is24HourTime)(xValue))
+        text.append("tspan").text(Utils.timeFormat(false, false, this.chartOptions.offset, this.chartOptions.is24HourTime, shiftMillis)(xValue))
             .attr("x", 0)
             .attr("y", 4);
         if (endValue) {
-            text.append("tspan").text(Utils.timeFormat(false, false, this.chartOptions.offset, this.chartOptions.is24HourTime)(endValue))
+            text.append("tspan").text(Utils.timeFormat(false, false, this.chartOptions.offset, this.chartOptions.is24HourTime, shiftMillis)(endValue))
                 .attr("x", 0)
                 .attr("y", 27);
             var barWidth = this.x(endValue) - this.x(xValue);
@@ -1719,7 +1730,7 @@ class LineChart extends ChartComponent {
                 stateSeriesComponents = [];
             }
         }    
-        
+
         this.chartComponentData.mergeDataToDisplayStateAndTimeArrays(this.data, this.aggregateExpressionOptions, this.events, this.states);
         this.draw();
         this.chartOptions.noAnimate = false;  // ensure internal renders are always animated, overriding the users noAnimate option

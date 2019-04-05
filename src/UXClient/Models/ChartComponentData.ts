@@ -1,4 +1,5 @@
 import {Utils} from "./../Utils";
+import { ChartDataOptions } from "./ChartDataOptions";
 
 class ChartComponentData {
     public data: any = {};
@@ -150,7 +151,7 @@ class ChartComponentData {
                 this.timeArrays[aggKey][splitBy] = 
                     this.convertAggregateToArray(data[i][aggName][splitBy], aggKey, aggName, splitBy, 
                                                  newDisplayState[aggKey].from, newDisplayState[aggKey].to, 
-                                                 newDisplayState[aggKey].bucketSize);
+                                                 newDisplayState[aggKey].bucketSize, aggregateExpressionOptions[i].temporalShift);
                 if (this.displayState[aggKey] && this.displayState[aggKey].splitBys[splitBy]) {
                     newDisplayState[aggKey].splitBys[splitBy] = this.displayState[aggKey].splitBys[splitBy];
                 } else {
@@ -209,6 +210,20 @@ class ChartComponentData {
             return measureTypes;
         }, {});
         return Object.keys(measureTypes);
+    }
+
+    public getTemporalShiftString (aggKey) {
+        if (this.displayState[aggKey].aggregateExpression && this.displayState[aggKey].aggregateExpression.temporalShift) {
+            return this.displayState[aggKey].aggregateExpression.temporalShift;
+        }
+        return '';
+    } 
+
+    public getTemporalShiftMillis (aggKey) {
+        if (this.displayState[aggKey].aggregateExpression && this.displayState[aggKey].aggregateExpression.temporalShift) {
+            return Utils.parseShift(this.displayState[aggKey].aggregateExpression.temporalShift);
+        } 
+        return 0;
     }
 
     public doesTimeArrayUseSeconds (timeArray) {
@@ -289,11 +304,15 @@ class ChartComponentData {
 
     //aggregates object => array of objects containing timestamp and values. Pad with 
     public convertAggregateToArray (agg: any, aggKey: string, aggName: string, splitBy: string, 
-                                    from: Date = null, to: Date = null, bucketSize: number = null): Array<any> {
-        var aggArray: Array<any> = [];
+                                    from: Date = null, to: Date = null, bucketSize: number = null, 
+                                    temporalShift: string): Array<any> {
+        
+        let aggArray: Array<any> = [];
         let isoStringAgg = {};
+        let shiftValue = Utils.parseShift(temporalShift);
         Object.keys(agg).forEach((dateString: string) => {
-            let jsISOString = (new Date(dateString)).toISOString();
+            let shiftedDate = new Date((new Date(dateString)).valueOf() - shiftValue);
+            let jsISOString = shiftedDate.toISOString();
             isoStringAgg[jsISOString] = agg[dateString]; 
         });
         agg = isoStringAgg;
@@ -308,9 +327,9 @@ class ChartComponentData {
         }
 
         if (from)
-            this.fromMillis = Math.min(from.valueOf(), this.fromMillis);
+            this.fromMillis = Math.min(from.valueOf(), this.fromMillis) - shiftValue;
         if (to)
-            this.toMillis = Math.max(to.valueOf(), this.toMillis);
+            this.toMillis = Math.max(to.valueOf(), this.toMillis) - shiftValue;
         if (from && to && bucketSize) {
             let firstBucket = this.findFirstBucket(agg, from.valueOf(), bucketSize);
             if (firstBucket !== null) {

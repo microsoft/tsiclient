@@ -19,7 +19,9 @@ class AggregateExpression extends ChartDataOptions {
     
     public toTsx(roundFromTo: boolean = false){
         var tsx = {};
-        let fromMillis = this.searchSpan.from.valueOf(), toMillis = this.searchSpan.to.valueOf();
+        let shiftMillis = Utils.parseShift(this.temporalShift);
+        let fromMillis = this.searchSpan.from.valueOf() + shiftMillis;
+        let toMillis = this.searchSpan.to.valueOf() + shiftMillis;
         let bucketSizeInMillis = Utils.parseTimeInput(this.searchSpan.bucketSize);
         let roundedFromMillis = Math.floor((fromMillis + 62135596800000) / (bucketSizeInMillis)) * (bucketSizeInMillis) - 62135596800000; 
         let roundedToMillis = Math.ceil((toMillis + 62135596800000) / (bucketSizeInMillis)) * (bucketSizeInMillis) - 62135596800000;

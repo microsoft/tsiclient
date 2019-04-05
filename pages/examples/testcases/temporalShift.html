@@ -1,0 +1,63 @@
+
+<!DOCTYPE html> 
+<html>
+    <head>
+        <!-- styles are only used for styling header and auth elements, where possible -->
+        <link rel="stylesheet" type="text/css" href="../styles.css" />
+        <title>Basic Charts</title>
+    </head>
+    <body style="font-family: 'Segoe UI', sans-serif;">
+
+        <div id="chart1" style="width: 100%; height: 600px; margin-top: 40px;"></div>
+        <div id="chart2" style="width: 50%; height: 400px; float: left;"></div>
+        <div id="chart3" style="width: 50%; height: 400px; float: right;"></div>
+        <div id="chart4" style="width: 100%; height: 600px; margin-top: 40px; float: left;"></div>
+        <script>
+
+            window.onload = function() {
+                initAuth('Basic charts with platform');  // initiate auth objects, header, and login modal
+                var tsiClient = new TsiClient();
+                            
+                // create aggregate expressions, they are S1/S2 SKU query objects
+                var startDate = new Date('2017-04-14T13:00:00Z');
+                var endDate = new Date(startDate.valueOf() + 1000*60*60*1);
+                var searchSpan = {
+                    from: startDate,
+                    to: endDate,
+                    bucketSize: '2m'
+                }
+                var aggregateExpressions = [];
+                aggregateExpressions.push(new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory1'"}, {property: 'Pressure', type: "Double"}, ['avg', 'min', 'max'],
+                    searchSpan, {property: 'Station', type: 'String'}, {alias: 'Shifted time', temporalShift: '-3d'}));
+                aggregateExpressions.push(new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory1'"}, {property: 'Pressure', type: "Double"}, ['avg', 'min', 'max'],
+                    searchSpan, {property: 'Station', type: 'String'}, 'orange', 'Normal time'));
+                
+
+                // get results from server and render them in three charts
+                authContext.getTsiToken().then(function(token){
+                    tsiClient.server.getAggregates(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com', aggregateExpressions.map(function(ae){return ae.toTsx()})).then(function(result){
+                        var transformedResult = tsiClient.ux.transformAggregatesForVisualization(result, aggregateExpressions);
+                        
+                        var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart1'));
+                        lineChart.render(transformedResult, {theme: 'light', grid: true, tooltip: true}, aggregateExpressions);
+
+                        var barChart = new tsiClient.ux.BarChart(document.getElementById('chart2'));
+                        barChart.render(transformedResult, {theme: 'dark', grid: true, tooltip: true, legend: 'compact'}, aggregateExpressions);
+
+                        var pieChart = new tsiClient.ux.PieChart(document.getElementById('chart3'));
+                        pieChart.render(transformedResult, {theme: 'light', grid: true, tooltip: true, legend: 'compact'}, aggregateExpressions);
+
+                        var heatmap = new tsiClient.ux.Heatmap(document.getElementById('chart4'));
+                        heatmap.render(transformedResult, {}, aggregateExpressions);
+                    });
+                });
+
+        }
+        </script>
+    </body>
+    <!-- boilerplate headers are injected with head.js, grab them from the live example header, or include a link to head.js -->
+    <script src="../boilerplate/head.js"></script>
+
+    <!-- boilerplate auth code is injected with auth.js, check it out for auth setup -->
+    <script src="../boilerplate/auth.js"></script>
+</html>

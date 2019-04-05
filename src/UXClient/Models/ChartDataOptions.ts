@@ -13,6 +13,7 @@ class ChartDataOptions {
     public includeEnvelope: boolean = false;
     public includeDots: boolean = false;
     public visibilityState: Array<any> = null;
+    public temporalShift: string;
 
     constructor (optionsObject: Object){
             this.searchSpan = Utils.getValueOrDefault(optionsObject, 'searchSpan');
@@ -25,6 +26,7 @@ class ChartDataOptions {
             this.includeDots = Utils.getValueOrDefault(optionsObject, 'includeDots', false);
             this.visibilityState = Utils.getValueOrDefault(optionsObject, 'visibilityState');
             this.yExtent = Utils.getValueOrDefault(optionsObject, 'yExtent');
+            this.temporalShift = Utils.getValueOrDefault(optionsObject, 'temporalShift', '');
     }
 }
 export {ChartDataOptions}

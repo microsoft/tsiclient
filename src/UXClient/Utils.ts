@@ -56,6 +56,19 @@ class Utils {
         }
         return -1;
     }
+    
+    static parseShift (inputString: string) {
+        if (inputString === undefined || inputString === null || inputString.length === 0) {
+            return 0;
+        }
+        let millis: number;
+        if (inputString[0] === '-' || inputString[0] === '+') {
+            millis = (inputString[0] === '-' ? -1 : 1) * this.parseTimeInput(inputString.slice(1,inputString.length));
+        } else {
+            millis = this.parseTimeInput(inputString);
+        }
+        return millis;
+    }
 
     static bucketSizeToTsqInterval (bucketSize: string) {
         let bucketSizeInMillis = Utils.parseTimeInput(bucketSize);
@@ -173,8 +186,11 @@ class Utils {
     }
 
     
-    static timeFormat(usesSeconds = false, usesMillis = false, offset: any = 0, is24HourTime: boolean = true) {
+    static timeFormat(usesSeconds = false, usesMillis = false, offset: any = 0, is24HourTime: boolean = true, shiftMillis: number = 0) {
         return (d) => {
+            if (shiftMillis !== 0) {
+                d = new Date(d.valueOf() + shiftMillis);
+            }
             var stringFormat = "L " + (is24HourTime ? "HH" : "hh") + ":mm" + 
                 (usesSeconds ? (":ss" + (usesMillis ? ".SSS" : "")) : "") + (is24HourTime ? "" : " A");
             if (typeof offset == 'string' && isNaN(offset as any)) {
