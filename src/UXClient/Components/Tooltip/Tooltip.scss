@@ -20,7 +20,7 @@
     border-width: 1px;
     border-style: solid;
     
-    padding: 8px 16px 8px 16px;
+    padding: 8px;
 
     -webkit-box-shadow: 0 3px 3px 0 rgba(0, 0, 0, 0.56);
     -moz-box-shadow: 0 3px 3px 0 rgba(0, 0, 0, 0.56);
@@ -42,11 +42,11 @@
 
     .title {
         font-weight: bold;
-        font-size: 16px;
+        font-size: 13px;
     } 
     .value, .temporalShiftText {
         font-weight: normal;
-        font-size: 14px;
+        font-size: 12px;
         font-weight: lighter;
         &.visibleValue {
             font-weight: bold;
