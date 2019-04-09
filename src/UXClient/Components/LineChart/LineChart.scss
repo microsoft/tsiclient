@@ -270,10 +270,12 @@
 
         .valueLine {
             stroke-width: 2px;
+            will-change: stroke-opacity;
         }
 
         .valueArea {
             stroke: none;
+            will-change: fill-opacity;
         }
 
         .valueDot {
