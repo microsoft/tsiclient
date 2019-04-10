@@ -68,6 +68,8 @@ class LineChart extends ChartComponent {
     private voronoiDiagram;
     private mx = null;
     private my = null;
+    private focusedAggKey: string = null;
+    private focusedSplitby: string = null;
 
     private isFirstMarkerDrop = true;
     
@@ -642,6 +644,22 @@ class LineChart extends ChartComponent {
         Utils.focusOnEllipsisButton(this.renderTarget);
     }
 
+    private createValueFilter (aggregateKey, splitBy) {
+        return (d: any, j: number ) => {
+            var currAggKey: string;
+            var currSplitBy: string;
+            if (d.aggregateKey) {
+                currAggKey = d.aggregateKey;
+                currSplitBy = d.splitBy;
+            } else  if (d && d.length){
+                currAggKey = d[0].aggregateKey;
+                currSplitBy = d[0].splitBy
+            } else 
+                return true;
+            return (currAggKey == aggregateKey && (splitBy == null || splitBy == currSplitBy));
+        }     
+    } 
+
     private voronoiMousemove (mouseEvent) {
         if (!this.filteredValueExist()) return;
         this.mx = mouseEvent[0];
@@ -658,7 +676,6 @@ class LineChart extends ChartComponent {
                     return;
                 }
                 this.site = site;
-                this.voronoiMouseout(site.data); 
                 if (!this.isDroppingScooter) {
                     this.voronoiMouseover(site.data);  
                 } else {
@@ -666,6 +683,31 @@ class LineChart extends ChartComponent {
                     this.setScooterPosition(this.activeScooter, rawTime.valueOf());
                     this.setScooterLabels(this.activeScooter);
                     this.setScooterTimeLabel(this.activeScooter);
+                }
+
+                if (site.data.aggregateKey !== this.focusedAggKey || site.data.splitBy !== this.focusedSplitby) {
+                    let selectedFilter = this.createValueFilter(site.data.aggregateKey, site.data.splitBy);
+                    let oldFilter = this.createValueFilter(this.focusedAggKey, this.focusedSplitby);
+                    
+                    this.svgSelection.selectAll(".valueElement")
+                        .filter(selectedFilter)
+                        .attr("stroke-opacity", 1)
+                        .attr("fill-opacity", .3);
+                    this.svgSelection.selectAll(".valueEnvelope")
+                        .filter(selectedFilter)
+                        .attr("fill-opacity", .3);
+
+                    this.svgSelection.selectAll(".valueElement")
+                        .filter(oldFilter)
+                        .attr("stroke-opacity", .3)
+                        .attr("fill-opacity", .1);
+                    this.svgSelection.selectAll(".valueEnvelope")
+                        .filter(selectedFilter)
+                        .attr("fill-opacity", .1);
+
+
+                    this.focusedAggKey = site.data.aggregateKey;
+                    this.focusedSplitby = site.data.splitBy;
                 }
             }, 250);
         }
@@ -917,15 +959,6 @@ class LineChart extends ChartComponent {
                 return true;
             return !(currAggKey == aggregateKey && (splitBy == null || splitBy == currSplitBy));
         }
-
-        this.svgSelection.selectAll(".valueElement")
-            .filter(selectedFilter)
-            .attr("stroke-opacity", .3)
-            .attr("fill-opacity", .3);
-        this.svgSelection.selectAll(".valueEnvelope")
-            .attr("fill-opacity", .3)
-            .filter(selectedFilter)
-            .attr("fill-opacity", .1);
 
         d3.select(this.renderTarget).selectAll(".tsi-scooterValue").style("opacity", 1);
 
@@ -1593,6 +1626,13 @@ class LineChart extends ChartComponent {
                     voronoiSelection.on("mousemove", function () {
                         let mouseEvent = d3.mouse(this);
                         self.voronoiMousemove(mouseEvent);
+                    })
+                    .on("mouseover", function () {
+                        self.svgSelection.selectAll(".valueElement")
+                            .attr("stroke-opacity", .3)
+                            .attr("fill-opacity", .1);
+                        self.svgSelection.selectAll(".valueEnvelope")
+                            .attr("fill-opacity", .1);
                     })
                     .on("mouseout", function (d)  {
                         if (!self.filteredValueExist()) return;
