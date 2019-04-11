@@ -1394,7 +1394,7 @@ class LineChart extends ChartComponent {
     
             this.tooltip = new Tooltip(d3.select(this.renderTarget));                        
 
-            var draw = () => {  
+            this.draw = () => {  
 
                 this.minBrushWidth = (this.chartOptions.minBrushWidth) ? this.chartOptions.minBrushWidth : this.minBrushWidth;
                 this.focus.attr("visibility", (this.chartOptions.focusHidden) ? "hidden" : "visible")
@@ -1549,7 +1549,7 @@ class LineChart extends ChartComponent {
                     this.colorMap = {};
                     this.svgSelection.selectAll(".yAxis").remove();
                     let aggregateGroups = this.svgSelection.select('.svgGroup').selectAll('.tsi-aggGroup')
-                        .data(this.data.filter((agg) => this.chartComponentData.displayState[agg.aggKey]["visible"]), 
+                        .data(this.chartComponentData.data.filter((agg) => this.chartComponentData.displayState[agg.aggKey]["visible"]), 
                             (agg) => agg.aggKey);
                     var self = this;
                     aggregateGroups.enter()
@@ -1578,7 +1578,10 @@ class LineChart extends ChartComponent {
                         .y(function(d: any) { 
                             if (d.measures) {
                                 var value = self.getValueOfVisible(d)
-                                return self.yMap[d.aggregateKey](self.getValueOfVisible(d))
+                                if (self.yMap[d.aggregateKey]) {
+                                    return self.yMap[d.aggregateKey](self.getValueOfVisible(d))
+                                }
+                                return null;
                             }
                             return null;
                         })
@@ -1686,10 +1689,9 @@ class LineChart extends ChartComponent {
                 this.updateScooterPresentation();
             }
 
-            this.legendObject = new Legend(draw, this.renderTarget, this.CONTROLSWIDTH);
-            this.contextMenu = new ContextMenu(draw, this.renderTarget);
-            this.brushContextMenu = new ContextMenu(draw, this.renderTarget);
-            this.draw = draw;
+            this.legendObject = new Legend(this.draw, this.renderTarget, this.CONTROLSWIDTH);
+            this.contextMenu = new ContextMenu(this.draw, this.renderTarget);
+            this.brushContextMenu = new ContextMenu(this.draw, this.renderTarget);
             window.addEventListener("resize", () => {
                 var self = this;
                 if (!this.chartOptions.suppressResizeListener) {

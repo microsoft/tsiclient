@@ -75,11 +75,12 @@ class ChartComponentData {
         this.usesSeconds = false;
         this.usesMillis = false;
         aggregateExpressionOptions = this.fillColors(aggregateExpressionOptions);
-        this.data.forEach((aggregate: any, i: number) => {
+        this.data = this.data.map((aggregate: any, i: number) => {
             var aggName: string = Object.keys(aggregate)[0];
+            let aggregateCopy = {...aggregate};
             
             //construct the aggregate key based on the aggregate index and name
-            var aggKey;
+            let aggKey;
             if (aggregateCounterMap[aggName]) {
                 aggKey = Utils.createEntityKey(aggName, aggregateCounterMap[aggName]);
                 aggregateCounterMap[aggName] += 1;
@@ -88,7 +89,8 @@ class ChartComponentData {
                 aggregateCounterMap[aggName] = 1;
             }
 
-            aggregate.aggKey = aggKey;
+            this.data[i].aggKey = aggKey;
+            aggregateCopy.aggKey = aggKey;
 
             if (this.displayState[aggKey]) {
                 newDisplayState[aggKey] = {
@@ -184,6 +186,7 @@ class ChartComponentData {
                     this.visibleTSCount += 1;
                 }
             });
+            return aggregateCopy;
         });
 
         //ensure that the stickied Key exists in the new data, otherwise revert to null

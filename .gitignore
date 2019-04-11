@@ -2,3 +2,4 @@ node_modules/
 dist/
 .gitignore
 .vscode/settings.json
+scripts
