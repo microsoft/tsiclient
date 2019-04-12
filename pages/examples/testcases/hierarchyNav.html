@@ -8,16 +8,16 @@
     </head>
     <body style="font-family: 'Segoe UI', sans-serif;">
 
-        <div id="hierarchy" style="width: 100%; height: 600px; margin-top: 40px;"></div>
+        <div id="hierarchyWrapper" style="width: 50%; height: 600px; margin-top: 40px;"></div>
         <script>
 
-            var environmentFqdn = 'https://21427c8d-e3d5-4995-baa0-895cb366600b.env.timeseries.azure.com';  //iryildir-test environment
+            var environmentFqdn = '88728b62-954e-4930-836c-c36e5603e5a9.env.crystal-dev.windows-int.net';  //iryildir-test environment
             window.onload = function() {
                 initAuth('Hierarchy Navigation Test');  // initiate auth objects, header, and login modal
                 var tsiClient = new TsiClient();
                 
-                var hierarchy = new tsiClient.ux.HierarchyNavigation(document.getElementById('hierarchy'));
-                hierarchy.render(environmentFqdn, authContext.getTsiToken(), {theme: 'light'});
+                var hierarchy = new tsiClient.ux.HierarchyNavigation(document.getElementById('hierarchyWrapper'));
+                hierarchy.render(environmentFqdn, authContext.getTsiToken, {theme: 'light'});
 
             }
         </script>
