@@ -36,7 +36,6 @@ class LineChart extends ChartComponent {
     private stackedButton: any = null;
     private scooterButton: any = null;
     private visibleAggCount: number;
-    private voronoiTimeout = null;
 
     private tooltip: Tooltip;
     private height: number;
@@ -665,51 +664,47 @@ class LineChart extends ChartComponent {
         this.mx = mouseEvent[0];
         this.my = mouseEvent[1];
         const [mx, my] = mouseEvent;
-        if (!this.voronoiTimeout) {
-            this.voronoiTimeout = setTimeout(() => {
-                this.voronoiTimeout = null;
-                var filteredValues = this.getFilteredAndSticky(this.chartComponentData.allValues);
-                if (filteredValues == null || filteredValues.length == 0)
-                    return;
-                var site: any = this.voronoiDiagram.find(this.mx, this.my);
-                if(site === this.site){
-                    return;
-                }
-                this.site = site;
-                if (!this.isDroppingScooter) {
-                    this.voronoiMouseover(site.data);  
-                } else {
-                    var rawTime = this.x.invert(mx);
-                    this.setScooterPosition(this.activeScooter, rawTime.valueOf());
-                    this.setScooterLabels(this.activeScooter);
-                    this.setScooterTimeLabel(this.activeScooter);
-                }
+      
+        var filteredValues = this.getFilteredAndSticky(this.chartComponentData.allValues);
+        if (filteredValues == null || filteredValues.length == 0)
+            return;
+        var site: any = this.voronoiDiagram.find(this.mx, this.my);
+        if(site === this.site){
+            return;
+        }
+        this.site = site;
+        if (!this.isDroppingScooter) {
+            this.voronoiMouseover(site.data);  
+        } else {
+            var rawTime = this.x.invert(mx);
+            this.setScooterPosition(this.activeScooter, rawTime.valueOf());
+            this.setScooterLabels(this.activeScooter);
+            this.setScooterTimeLabel(this.activeScooter);
+        }
 
-                if (site.data.aggregateKey !== this.focusedAggKey || site.data.splitBy !== this.focusedSplitby) {
-                    let selectedFilter = this.createValueFilter(site.data.aggregateKey, site.data.splitBy);
-                    let oldFilter = this.createValueFilter(this.focusedAggKey, this.focusedSplitby);
-                    
-                    this.svgSelection.selectAll(".valueElement")
-                        .filter(selectedFilter)
-                        .attr("stroke-opacity", 1)
-                        .attr("fill-opacity", .3);
-                    this.svgSelection.selectAll(".valueEnvelope")
-                        .filter(selectedFilter)
-                        .attr("fill-opacity", .3);
+        if (site.data.aggregateKey !== this.focusedAggKey || site.data.splitBy !== this.focusedSplitby) {
+            let selectedFilter = this.createValueFilter(site.data.aggregateKey, site.data.splitBy);
+            let oldFilter = this.createValueFilter(this.focusedAggKey, this.focusedSplitby);
+            
+            this.svgSelection.selectAll(".valueElement")
+                .filter(selectedFilter)
+                .attr("stroke-opacity", 1)
+                .attr("fill-opacity", .3);
+            this.svgSelection.selectAll(".valueEnvelope")
+                .filter(selectedFilter)
+                .attr("fill-opacity", .3);
 
-                    this.svgSelection.selectAll(".valueElement")
-                        .filter(oldFilter)
-                        .attr("stroke-opacity", .3)
-                        .attr("fill-opacity", .1);
-                    this.svgSelection.selectAll(".valueEnvelope")
-                        .filter(selectedFilter)
-                        .attr("fill-opacity", .1);
+            this.svgSelection.selectAll(".valueElement")
+                .filter(oldFilter)
+                .attr("stroke-opacity", .3)
+                .attr("fill-opacity", .1);
+            this.svgSelection.selectAll(".valueEnvelope")
+                .filter(selectedFilter)
+                .attr("fill-opacity", .1);
 
 
-                    this.focusedAggKey = site.data.aggregateKey;
-                    this.focusedSplitby = site.data.splitBy;
-                }
-            }, 250);
+            this.focusedAggKey = site.data.aggregateKey;
+            this.focusedSplitby = site.data.splitBy;
         }
     } 
 
