@@ -18,7 +18,7 @@
                 for(var i = 0; i < 5; i++){
                     var lines = {};
                     data.push({[`Factory${i}`]: lines});
-                    for(var j = 0; j < 10; j++){
+                    for(var j = 0; j < 1; j++){
                         var values = {};
                         lines[`Station${j}`] = values;
                         for(var k = 0; k < 1000; k++){
@@ -32,7 +32,8 @@
                 // render the data in a chart
                 var tsiClient = new TsiClient();
                 var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart1'));
-                lineChart.render(data, {includeDots: false});
+                lineChart.render(data, {includeDots: false, brushContextMenuActions: [{name: 'zoom', action: () => {}}]}, 
+                [{contextMenu: [{name: 'zoom', action: () => {}}]}]);
             };
         </script>
     </body>

@@ -14,7 +14,6 @@ import { EllipsisMenu } from '../EllipsisMenu/EllipsisMenu';
 import { ChartDataOptions } from '../../Models/ChartDataOptions';
 
 class LineChart extends ChartComponent {
-    private site: any;
     private svgSelection: any;
     private targetElement: any;
     private legendObject: Legend;
@@ -159,6 +158,8 @@ class LineChart extends ChartComponent {
                 .classed("standardYAxisText", false)
                 .style("font-weight", "normal");
         }
+        this.focusedAggKey = null;
+        this.focusedSplitby = null;
     }
 
     private createMarkerInstructions () {
@@ -669,10 +670,6 @@ class LineChart extends ChartComponent {
         if (filteredValues == null || filteredValues.length == 0)
             return;
         var site: any = this.voronoiDiagram.find(this.mx, this.my);
-        if(site === this.site){
-            return;
-        }
-        this.site = site;
         if (!this.isDroppingScooter) {
             this.voronoiMouseover(site.data);  
         } else {
@@ -680,6 +677,7 @@ class LineChart extends ChartComponent {
             this.setScooterPosition(this.activeScooter, rawTime.valueOf());
             this.setScooterLabels(this.activeScooter);
             this.setScooterTimeLabel(this.activeScooter);
+            return;
         }
 
         if (site.data.aggregateKey !== this.focusedAggKey || site.data.splitBy !== this.focusedSplitby) {
@@ -1623,11 +1621,13 @@ class LineChart extends ChartComponent {
                         self.voronoiMousemove(mouseEvent);
                     })
                     .on("mouseover", function () {
-                        self.svgSelection.selectAll(".valueElement")
-                            .attr("stroke-opacity", .3)
-                            .attr("fill-opacity", .1);
-                        self.svgSelection.selectAll(".valueEnvelope")
-                            .attr("fill-opacity", .1);
+                        if (!self.isDroppingScooter) {
+                            self.svgSelection.selectAll(".valueElement")
+                                .attr("stroke-opacity", .3)
+                                .attr("fill-opacity", .1);
+                            self.svgSelection.selectAll(".valueEnvelope")
+                                .attr("fill-opacity", .1);
+                        }
                     })
                     .on("mouseout", function (d)  {
                         if (!self.filteredValueExist()) return;
