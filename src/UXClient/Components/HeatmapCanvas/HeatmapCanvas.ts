@@ -153,8 +153,8 @@ class HeatmapCanvas extends ChartComponent {
         this.highlightedTime = highlightedTime;
     
         if (this.highlightedSplitBy != null && this.highlightedTime) {
-            if (this.heatmapData.timeValues[this.highlightedTime.toString()][this.highlightedSplitBy] != null) {
-                this.highlightedValue = this.heatmapData.timeValues[this.highlightedTime.toString()][this.highlightedSplitBy].value;
+            if (this.heatmapData.timeValues[this.highlightedTime.toISOString()][this.highlightedSplitBy] != null) {
+                this.highlightedValue = this.heatmapData.timeValues[this.highlightedTime.toISOString()][this.highlightedSplitBy].value;
             }
         }
 
