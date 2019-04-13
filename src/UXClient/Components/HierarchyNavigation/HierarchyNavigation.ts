@@ -7,11 +7,11 @@ import { ChartOptions } from '../../Models/ChartOptions';
 
 class HierarchyNavigation extends Component{
     private server: ServerClient;
-    private getToken;
-    private environmentFqdn;
     private wrapper;
-    private hierarchyList: any;
+    private usedHierarchyContToken;
+    private usedInstancesContToken;
     public chartOptions: ChartOptions = new ChartOptions();
+
     1
     constructor(renderTarget: Element){ 
         super(renderTarget); 
@@ -22,8 +22,6 @@ class HierarchyNavigation extends Component{
     }
     
     public render(environmentFqdn: string, getToken: any, chartOptions: any){
-        this.getToken = getToken;
-        this.environmentFqdn = environmentFqdn;
         this.chartOptions.setOptions(chartOptions);
         let targetElement = d3.select(this.renderTarget);   
         targetElement.html(''); 
@@ -34,7 +32,6 @@ class HierarchyNavigation extends Component{
         });
 
         var list = this.wrapper.append('div').classed('tsi-hierarchyList', true);
-        this.hierarchyList = list;
         this.pathSearch(getToken, environmentFqdn, "", [], list);
     }
 
@@ -44,8 +41,12 @@ class HierarchyNavigation extends Component{
             var li = list.append('li').classed('tsi-leaf', data[el].isLeaf)
                 .classed('tsi-leafParent', data[el].isLeaf && options.withContextMenu);
 
-            li.append('span').classed('tsi-caret', true).attr('style', `left: ${(data[el].level - 1) * 18}px`);
-            li.append('span').classed('tsi-markedName', true).attr('style', `margin-left: ${(data[el].level - 1) * 18}px`).html(el).on('click', () => {data[el].isExpanded ? data[el].collapse() : data[el].expand()});
+            if(el === "Show More Hierarchies") {
+                li.append('a').classed('tsi-markedName', true).attr('style', `margin-left: ${(data[el].level - 1) * 18}px`).html(el).on('click', data[el].onClick);
+            } else {
+                li.append('span').classed('tsi-caret', true).attr('style', `left: ${(data[el].level - 1) * 18}px`);
+                li.append('span').classed('tsi-markedName', true).attr('style', `margin-left: ${(data[el].level - 1) * 18}px`).html(el).on('click', () => {data[el].isExpanded ? data[el].collapse() : data[el].expand()});
+            }
             data[el].node = li;
             data[el].isExpanded = false;
         });
@@ -63,7 +64,12 @@ class HierarchyNavigation extends Component{
                         hierarchy.collapse = () => {hierarchy.isExpanded = false; hierarchy.node.classed('tsi-expanded', false); hierarchy.node.selectAll('ul').remove();};
                         hierarchyData[h.name + " (" + h.cumulativeInstanceCount + ")"] = hierarchy;
                     });
-                } 
+                }
+                if (r.hierarchyNodes.continuationToken && r.hierarchyNodes.continuationToken !== 'END') {
+                    let showMorehierarchy = new HierarchyNode("Show More Hierarchies", path);
+                    showMorehierarchy.onClick = () => {target.selectAll('a').remove(); self.pathSearch(getToken, envFqdn, searchText, path, target, 10, 10, null, r.hierarchyNodes.continuationToken)};
+                    hierarchyData[showMorehierarchy.name] = showMorehierarchy;
+                }
                 if (r.instances.hits.length > 0) {
                     r.instances.hits.forEach((i) => {
                         hierarchyData[i.timeSeriesId.join(" ")] = new InstanceNode(i.timeSeriesId, i.name, i.typeId, this.chartOptions.onInstanceClick, path.length);
