@@ -42,7 +42,9 @@ class HierarchyNavigation extends Component{
                 .classed('tsi-leafParent', data[el].isLeaf && options.withContextMenu);
 
             if(el === "Show More Hierarchies") {
-                li.append('a').classed('tsi-markedName', true).attr('style', `margin-left: ${(data[el].level - 1) * 18}px`).html(el).on('click', data[el].onClick);
+                li.append('a').classed('tsi-markedName hierarchy', true).attr('style', `margin-left: ${(data[el].level - 1) * 18}px`).html(el).on('click', data[el].onClick);
+            } else if (el === "Show More Instances") {
+                li.append('a').classed('tsi-markedName instance', true).attr('style', `margin-left: ${(data[el].level - 1) * 18}px`).html(el).on('click', data[el].onClick);
             } else {
                 li.append('span').classed('tsi-caret', true).attr('style', `left: ${(data[el].level - 1) * 18}px`);
                 li.append('span').classed('tsi-markedName', true).attr('style', `margin-left: ${(data[el].level - 1) * 18}px`).html(el).on('click', () => {data[el].isExpanded ? data[el].collapse() : data[el].expand()});
@@ -57,23 +59,30 @@ class HierarchyNavigation extends Component{
         getToken().then(token => {
             self.server.getTimeseriesInstancesPathSearch(token, envFqdn, searchText, path, instancesPageSize, hierarchyiesPageSize, instancesContinuationToken, hierarchiesContinuationToken).then(r => {
                 let hierarchyData = {};
+                target.selectAll('a.hierarchy').remove();
+                target.selectAll('a.instance').remove(); 
                 if (r.hierarchyNodes.hits.length > 0) {
                     r.hierarchyNodes.hits.forEach((h) => {
                         let hierarchy = new HierarchyNode(h.name, path);
                         hierarchy.expand = () => {hierarchy.isExpanded = true; hierarchy.node.classed('tsi-expanded', true); self.pathSearch(getToken, envFqdn, searchText, hierarchy.path, hierarchy.node)};
                         hierarchy.collapse = () => {hierarchy.isExpanded = false; hierarchy.node.classed('tsi-expanded', false); hierarchy.node.selectAll('ul').remove();};
-                        hierarchyData[h.name + " (" + h.cumulativeInstanceCount + ")"] = hierarchy;
+                        hierarchyData[(h.name === "" ? "(Empty)" : h.name) + " (" + h.cumulativeInstanceCount + ")"] = hierarchy;
                     });
                 }
                 if (r.hierarchyNodes.continuationToken && r.hierarchyNodes.continuationToken !== 'END') {
                     let showMorehierarchy = new HierarchyNode("Show More Hierarchies", path);
-                    showMorehierarchy.onClick = () => {target.selectAll('a').remove(); self.pathSearch(getToken, envFqdn, searchText, path, target, 10, 10, null, r.hierarchyNodes.continuationToken)};
+                    showMorehierarchy.onClick = () => self.pathSearch(getToken, envFqdn, searchText, path, target, 10, 10, null, r.hierarchyNodes.continuationToken);
                     hierarchyData[showMorehierarchy.name] = showMorehierarchy;
                 }
                 if (r.instances.hits.length > 0) {
                     r.instances.hits.forEach((i) => {
                         hierarchyData[i.timeSeriesId.join(" ")] = new InstanceNode(i.timeSeriesId, i.name, i.typeId, this.chartOptions.onInstanceClick, path.length);
                     });
+                }
+                if (r.instances.continuationToken && r.instances.continuationToken !== 'END') {
+                    let showMoreInstances = new InstanceNode(null, "Show More Instances", null, this.chartOptions.onInstanceClick, path.length);
+                    showMoreInstances.onClick = () => self.pathSearch(getToken, envFqdn, searchText, path, target, 10, 10, null, r.instances.continuationToken);
+                    hierarchyData[showMoreInstances.name] = showMoreInstances;
                 }
                 this.renderTree(hierarchyData, target, {...this.chartOptions, withContextMenu: true});
             });
