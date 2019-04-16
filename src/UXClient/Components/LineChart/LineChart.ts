@@ -665,7 +665,7 @@ class LineChart extends ChartComponent {
     } 
 
     private voronoiMousemove (mouseEvent) {
-=        if (!this.filteredValueExist()) return;
+        if (!this.filteredValueExist()) return;
         this.mx = mouseEvent[0];
         this.my = mouseEvent[1];
         const [mx, my] = mouseEvent;
@@ -1170,7 +1170,7 @@ class LineChart extends ChartComponent {
                 if (self.chartOptions.includeDots || self.chartComponentData.displayState[aggKey].includeDots) {
                     let dots = d3.select(this).selectAll(".valueDot")
                         .data(self.chartComponentData.timeArrays[aggKey][splitBy].filter((d) => {
-                            return d && d.measures[self.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy)] !== null;
+                            return d && d.measures && d.measures[self.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy)] !== null;
                         }), (d: any, i) => {
                             return d.dateTime.toString();
                         });
