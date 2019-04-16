@@ -29,6 +29,7 @@ class LineChart extends ChartComponent {
     private states: any;
     private minBrushWidth = 1;
     private strokeOpacity = 1;
+    private nonFocusStrokeOpactiy = .3;
     chartComponentData = new LineChartData();
     private surpressBrushTimeSet: boolean = false;
     private hasStackedButton: boolean = false;
@@ -661,6 +662,7 @@ class LineChart extends ChartComponent {
     } 
 
     private voronoiMousemove (mouseEvent) {
+        console.log("voronoiMousemove");
         if (!this.filteredValueExist()) return;
         this.mx = mouseEvent[0];
         this.my = mouseEvent[1];
@@ -686,18 +688,18 @@ class LineChart extends ChartComponent {
             
             this.svgSelection.selectAll(".valueElement")
                 .filter(selectedFilter)
-                .attr("stroke-opacity", 1)
-                .attr("fill-opacity", .3);
+                .attr("stroke-opacity", this.strokeOpacity)
+                .attr("fill-opacity", 1);
             this.svgSelection.selectAll(".valueEnvelope")
                 .filter(selectedFilter)
                 .attr("fill-opacity", .3);
 
             this.svgSelection.selectAll(".valueElement")
                 .filter(oldFilter)
-                .attr("stroke-opacity", .3)
-                .attr("fill-opacity", .1);
+                .attr("stroke-opacity", this.nonFocusStrokeOpactiy)
+                .attr("fill-opacity", .3);
             this.svgSelection.selectAll(".valueEnvelope")
-                .filter(selectedFilter)
+                .filter(oldFilter)
                 .attr("fill-opacity", .1);
 
 
@@ -1236,7 +1238,7 @@ class LineChart extends ChartComponent {
 
                     area.enter()
                         .append("path")
-                        .attr("class", "valueElement valueArea")
+                        .attr("class", "valueArea")
                         .merge(area)
                         .style("fill", 'url(#' + (svgId) + ')')
                         .style("visibility", (d: any) => { 
@@ -1287,6 +1289,7 @@ class LineChart extends ChartComponent {
         this.events = (this.chartOptions.events != undefined) ? this.chartOptions.events : null;
         this.states = (this.chartOptions.states != undefined) ? this.chartOptions.states : null;
         this.strokeOpacity = this.chartOptions.isArea ? .55 : 1;
+        this.nonFocusStrokeOpactiy = this.chartOptions.isArea ? .55 : .3;
 
         this.chartComponentData.mergeDataToDisplayStateAndTimeArrays(data, aggregateExpressionOptions, this.events, this.states);
         if (this.chartOptions.xAxisHidden && this.chartOptions.focusHidden) {
@@ -1623,8 +1626,8 @@ class LineChart extends ChartComponent {
                     .on("mouseover", function () {
                         if (!self.isDroppingScooter) {
                             self.svgSelection.selectAll(".valueElement")
-                                .attr("stroke-opacity", .3)
-                                .attr("fill-opacity", .1);
+                                .attr("stroke-opacity", self.nonFocusStrokeOpactiy)
+                                .attr("fill-opacity", .3);
                             self.svgSelection.selectAll(".valueEnvelope")
                                 .attr("fill-opacity", .1);
                         }
