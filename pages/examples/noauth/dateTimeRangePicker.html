@@ -1,0 +1,41 @@
+
+<!DOCTYPE html> 
+<html>
+    <head>
+        <title>Standalone Date Time Range Picker</title>
+
+        <!-- boilerplate headers are injected with head.js, grab them from the live example header, or include a link to head.js -->
+        <script src="../boilerplate/head.js"></script>
+    </head>
+    <body style="font-family: 'Segoe UI', sans-serif;">
+        <button onclick="showDtp()" id="dtpButton"></button>
+        <div id="dtp"></div>
+        <script>
+            window.onload = function() {
+                var tsiClient = new TsiClient();
+                var dtp = new tsiClient.ux.DateTimePicker(dtpElement);
+                var fromMillis = (new Date()).valueOf() - 1000*60*60*24
+                var toMillis = (new Date()).valueOf();
+                dtp.render({theme: 'light'}, 0, new Date().valueOf(), fromMillis, toMillis, onSet);
+                dtpButton.innerHTML = dateFormat(fromMillis, toMillis, 'UTC');
+            };
+
+            var dtpElement = document.getElementById('dtp');
+            var dtpButton = document.getElementById('dtpButton');
+            var onSet = (fromMillis, toMillis, offset) => {
+                dtpButton.innerHTML = dateFormat(fromMillis, toMillis, offset)
+                dtpElement.style.display = 'none';
+            }
+            dtpElement.style.display = 'none';
+            var showDtp = () => {
+                dtpElement.style.display = 'block';
+            }
+            var dateFormat = (fromMillis, toMillis, offset) => {
+                var fromDate = new Date(fromMillis);
+                var toDate = new Date(toMillis);
+                var formatMinutes = minutes => String(minutes).length === 1 ? `0${minutes}` : minutes;
+                return `${fromDate.toLocaleDateString()} ${fromDate.getHours()}:${formatMinutes(fromDate.getMinutes())} - ${toDate.toLocaleDateString()} ${toDate.getHours()}:${formatMinutes(toDate.getMinutes())} (${offset === 0 ? 'UTC' : offset})`
+            }
+        </script>
+    </body>
+</html>

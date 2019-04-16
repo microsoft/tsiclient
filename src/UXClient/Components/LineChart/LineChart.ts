@@ -361,6 +361,8 @@ class LineChart extends ChartComponent {
         var filteredValues = this.getFilteredAndSticky(this.chartComponentData.allValues);
         if (filteredValues == null || filteredValues.length == 0)
             return;
+        this.focusedAggKey = null;
+        this.focusedSplitby = null;
 
         this.chartComponentData.stickiedKey = {
             aggregateKey: aggregateKey,
@@ -370,7 +372,8 @@ class LineChart extends ChartComponent {
         (<any>this.legendObject.legendElement.selectAll('.tsi-splitByLabel').filter(function (filteredSplitBy: any)  {
             return (d3.select(this.parentNode).datum() == aggregateKey) && (filteredSplitBy == splitBy);
         })).classed("stickied", true);
-        
+
+        this.voronoiDiagram = this.voronoi(this.getFilteredAndSticky(this.chartComponentData.allValues));
     }
 
     private getHandleHeight (): number {
@@ -735,9 +738,9 @@ class LineChart extends ChartComponent {
                 this.chartComponentData.stickiedKey = null;
                 (<any>this.legendObject.legendElement.selectAll('.tsi-splitByLabel')).classed("stickied", false);
                 // recompute voronoi with no sticky
+                this.voronoiDiagram = this.voronoi(this.getFilteredAndSticky(this.chartComponentData.allValues));
                 site = this.voronoiDiagram.find(mx, my);
-                this.voronoiMouseout(site.data);
-                this.voronoiMouseover(site.data);
+                this.voronoiMousemove(site.data);
                 this.chartOptions.onUnsticky(site.data.aggregateKey, site.data.splitBy)
                 return;
             }
@@ -826,9 +829,9 @@ class LineChart extends ChartComponent {
                 this.chartComponentData.stickiedKey = null;
                 (<any>this.legendObject.legendElement.selectAll('.tsi-splitByLabel')).classed("stickied", false);
                 // recompute voronoi with no sticky
+                this.voronoiDiagram = this.voronoi(this.getFilteredAndSticky(this.chartComponentData.allValues));
                 site = this.voronoiDiagram.find(mx, my);
-                this.voronoiMouseout(site.data);
-                this.voronoiMouseover(site.data);
+                this.voronoiMousemove(site.data);
                 this.chartOptions.onUnsticky(site.data.aggregateKey, site.data.splitBy)
                 return;
             }
