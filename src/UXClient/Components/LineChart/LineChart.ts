@@ -662,8 +662,7 @@ class LineChart extends ChartComponent {
     } 
 
     private voronoiMousemove (mouseEvent) {
-        console.log("voronoiMousemove");
-        if (!this.filteredValueExist()) return;
+=        if (!this.filteredValueExist()) return;
         this.mx = mouseEvent[0];
         this.my = mouseEvent[1];
         const [mx, my] = mouseEvent;
