@@ -63,6 +63,11 @@ class LineChart extends ChartComponent {
     private isClearingBrush: boolean = false;
     private previousAggregateData: any = d3.local();
     private previousIncludeDots: any = d3.local();
+    private voronoiDiagram;
+    private mx = null;
+    private my = null;
+    private focusedAggKey: string = null;
+    private focusedSplitby: string = null;
 
     private isFirstMarkerDrop = true;
     
@@ -153,6 +158,8 @@ class LineChart extends ChartComponent {
                 .classed("standardYAxisText", false)
                 .style("font-weight", "normal");
         }
+        this.focusedAggKey = null;
+        this.focusedSplitby = null;
     }
 
     private createMarkerInstructions () {
@@ -199,12 +206,11 @@ class LineChart extends ChartComponent {
     }
 
     private voronoiMouseover = (d: any) => {
-            //supress if the context menu is visible
+        //supress if the context menu is visible
         if (this.contextMenu && this.contextMenu.contextMenuVisible)
             return;
 
         let shiftMillis = this.chartComponentData.getTemporalShiftMillis(d.aggregateKey);
-            
         var yScale = this.yMap[d.aggregateKey];
         var xValue = d.dateTime;
         var xPos = this.getXPosition(d, this.x);
@@ -364,6 +370,8 @@ class LineChart extends ChartComponent {
         var filteredValues = this.getFilteredAndSticky(this.chartComponentData.allValues);
         if (filteredValues == null || filteredValues.length == 0)
             return;
+        this.focusedAggKey = null;
+        this.focusedSplitby = null;
 
         this.chartComponentData.stickiedKey = {
             aggregateKey: aggregateKey,
@@ -373,7 +381,8 @@ class LineChart extends ChartComponent {
         (<any>this.legendObject.legendElement.selectAll('.tsi-splitByLabel').filter(function (filteredSplitBy: any)  {
             return (d3.select(this.parentNode).datum() == aggregateKey) && (filteredSplitBy == splitBy);
         })).classed("stickied", true);
-        
+
+        this.voronoiDiagram = this.voronoi(this.getFilteredAndSticky(this.chartComponentData.allValues));
     }
 
     private getHandleHeight (): number {
@@ -648,14 +657,32 @@ class LineChart extends ChartComponent {
         Utils.focusOnEllipsisButton(this.renderTarget);
     }
 
-    private voronoiMousemove (mouseEvent)  { 
+    private createValueFilter (aggregateKey, splitBy) {
+        return (d: any, j: number ) => {
+            var currAggKey: string;
+            var currSplitBy: string;
+            if (d.aggregateKey) {
+                currAggKey = d.aggregateKey;
+                currSplitBy = d.splitBy;
+            } else  if (d && d.length){
+                currAggKey = d[0].aggregateKey;
+                currSplitBy = d[0].splitBy
+            } else 
+                return true;
+            return (currAggKey == aggregateKey && (splitBy == null || splitBy == currSplitBy));
+        }     
+    } 
+
+    private voronoiMousemove (mouseEvent) {
         if (!this.filteredValueExist()) return;
-        const [mx, my] = d3.mouse(mouseEvent);
+        this.mx = mouseEvent[0];
+        this.my = mouseEvent[1];
+        const [mx, my] = mouseEvent;
+      
         var filteredValues = this.getFilteredAndSticky(this.chartComponentData.allValues);
         if (filteredValues == null || filteredValues.length == 0)
             return;
-        const site: any = this.voronoi(filteredValues).find(mx, my);
-        this.voronoiMouseout(site.data); 
+        var site: any = this.voronoiDiagram.find(this.mx, this.my);
         if (!this.isDroppingScooter) {
             this.voronoiMouseover(site.data);  
         } else {
@@ -663,13 +690,39 @@ class LineChart extends ChartComponent {
             this.setScooterPosition(this.activeScooter, rawTime.valueOf());
             this.setScooterLabels(this.activeScooter);
             this.setScooterTimeLabel(this.activeScooter);
+            return;
         }
-    }
+
+        if (site.data.aggregateKey !== this.focusedAggKey || site.data.splitBy !== this.focusedSplitby) {
+            let selectedFilter = this.createValueFilter(site.data.aggregateKey, site.data.splitBy);
+            let oldFilter = this.createValueFilter(this.focusedAggKey, this.focusedSplitby);
+            
+            this.svgSelection.selectAll(".valueElement")
+                .filter(selectedFilter)
+                .attr("stroke-opacity", 1)
+                .attr("fill-opacity", .3);
+            this.svgSelection.selectAll(".valueEnvelope")
+                .filter(selectedFilter)
+                .attr("fill-opacity", .3);
+
+            this.svgSelection.selectAll(".valueElement")
+                .filter(oldFilter)
+                .attr("stroke-opacity", .3)
+                .attr("fill-opacity", .1);
+            this.svgSelection.selectAll(".valueEnvelope")
+                .filter(selectedFilter)
+                .attr("fill-opacity", .1);
+
+
+            this.focusedAggKey = site.data.aggregateKey;
+            this.focusedSplitby = site.data.splitBy;
+        }
+    } 
 
     private voronoiContextMenu (mouseEvent) {
         if (!this.filteredValueExist()) return;
         const [mx, my] = d3.mouse(mouseEvent);
-        const site: any = this.voronoi(this.getFilteredAndSticky(this.chartComponentData.allValues)).find(mx, my);
+        const site: any = this.voronoiDiagram.find(mx, my);
         if (this.chartComponentData.displayState[site.data.aggregateKey].contextMenuActions && 
             this.chartComponentData.displayState[site.data.aggregateKey].contextMenuActions.length) {
             var mousePosition = d3.mouse(<any>this.targetElement.node());
@@ -688,15 +741,15 @@ class LineChart extends ChartComponent {
         if (!this.filteredValueExist()) return;
         if (this.brushElem && !this.isDroppingScooter) return;
         const [mx, my] = d3.mouse(mouseEvent);
-        var site: any = this.voronoi(this.getFilteredAndSticky(this.chartComponentData.allValues)).find(mx, my);
+        var site: any = this.voronoiDiagram.find(mx, my);
         if (!this.isDroppingScooter) {
             if (this.chartComponentData.stickiedKey != null) {
                 this.chartComponentData.stickiedKey = null;
                 (<any>this.legendObject.legendElement.selectAll('.tsi-splitByLabel')).classed("stickied", false);
                 // recompute voronoi with no sticky
-                site = this.voronoi(this.getFilteredAndSticky(this.chartComponentData.allValues)).find(mx, my);
-                this.voronoiMouseout(site.data);
-                this.voronoiMouseover(site.data);
+                this.voronoiDiagram = this.voronoi(this.getFilteredAndSticky(this.chartComponentData.allValues));
+                site = this.voronoiDiagram.find(mx, my);
+                this.voronoiMousemove(site.data);
                 this.chartOptions.onUnsticky(site.data.aggregateKey, site.data.splitBy)
                 return;
             }
@@ -779,15 +832,15 @@ class LineChart extends ChartComponent {
                 this.brushContextMenu.hide();
             }
             const [mx, my] = d3.mouse(mouseEvent);
-            var site: any = this.voronoi(this.getFilteredAndSticky(this.chartComponentData.allValues)).find(mx, my);
+            var site: any = this.voronoiDiagram.find(mx, my);
             let isClearingBrush = (this.brushStartPosition !== null) && (this.brushEndPosition !== null);
             if (this.chartComponentData.stickiedKey != null && !this.isDroppingScooter && !isClearingBrush) {
                 this.chartComponentData.stickiedKey = null;
                 (<any>this.legendObject.legendElement.selectAll('.tsi-splitByLabel')).classed("stickied", false);
                 // recompute voronoi with no sticky
-                site = this.voronoi(this.getFilteredAndSticky(this.chartComponentData.allValues)).find(mx, my);
-                this.voronoiMouseout(site.data);
-                this.voronoiMouseover(site.data);
+                this.voronoiDiagram = this.voronoi(this.getFilteredAndSticky(this.chartComponentData.allValues));
+                site = this.voronoiDiagram.find(mx, my);
+                this.voronoiMousemove(site.data);
                 this.chartOptions.onUnsticky(site.data.aggregateKey, site.data.splitBy)
                 return;
             }
@@ -912,15 +965,6 @@ class LineChart extends ChartComponent {
                 return true;
             return !(currAggKey == aggregateKey && (splitBy == null || splitBy == currSplitBy));
         }
-
-        this.svgSelection.selectAll(".valueElement")
-            .filter(selectedFilter)
-            .attr("stroke-opacity", .3)
-            .attr("fill-opacity", .3);
-        this.svgSelection.selectAll(".valueEnvelope")
-            .attr("fill-opacity", .3)
-            .filter(selectedFilter)
-            .attr("fill-opacity", .1);
 
         d3.select(this.renderTarget).selectAll(".tsi-scooterValue").style("opacity", 1);
 
@@ -1303,7 +1347,6 @@ class LineChart extends ChartComponent {
             this.chartControlsPanel.style("top", Math.max((this.chartMargins.top - 24), 0) + 'px');
         }
         
-
         if(this.svgSelection == null){
             
             /******************** Static Elements *********************************/
@@ -1591,12 +1634,22 @@ class LineChart extends ChartComponent {
                     var voronoiSelection = (this.brushElem ? this.brushElem.select(".overlay") : voronoiRegion);
                     
                     voronoiSelection.on("mousemove", function () {
-                        self.voronoiMousemove(this);
+                        let mouseEvent = d3.mouse(this);
+                        self.voronoiMousemove(mouseEvent);
+                    })
+                    .on("mouseover", function () {
+                        if (!self.isDroppingScooter) {
+                            self.svgSelection.selectAll(".valueElement")
+                                .attr("stroke-opacity", .3)
+                                .attr("fill-opacity", .1);
+                            self.svgSelection.selectAll(".valueEnvelope")
+                                .attr("fill-opacity", .1);
+                        }
                     })
                     .on("mouseout", function (d)  {
                         if (!self.filteredValueExist()) return;
                         const [mx, my] = d3.mouse(this);
-                        const site = self.voronoi(self.getFilteredAndSticky(self.chartComponentData.allValues)).find(mx, my);
+                        const site = self.voronoiDiagram.find(mx, my);
                         self.voronoiMouseout(site.data); 
                         self.chartOptions.onMouseout();
                         if (self.tooltip)
@@ -1687,6 +1740,7 @@ class LineChart extends ChartComponent {
                     d3.select(this.renderTarget).selectAll(".tsi-scooterContainer").style("display", "block");
                 }
                 this.updateScooterPresentation();
+                this.voronoiDiagram = this.voronoi(this.getFilteredAndSticky(this.chartComponentData.allValues));
             }
 
             this.legendObject = new Legend(this.draw, this.renderTarget, this.CONTROLSWIDTH);

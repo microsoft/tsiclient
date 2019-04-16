@@ -70,6 +70,11 @@ class Utils {
         return millis;
     }
 
+    static adjustStartMillisToAbsoluteZero (fromMillis, bucketSize) {
+        let epochAdjustment = 62135596800000;
+        return Math.floor((fromMillis + epochAdjustment) / bucketSize) * bucketSize - epochAdjustment;
+    }
+
     static bucketSizeToTsqInterval (bucketSize: string) {
         let bucketSizeInMillis = Utils.parseTimeInput(bucketSize);
         if (bucketSizeInMillis < 1000) {

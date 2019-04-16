@@ -17,18 +17,16 @@
                 var data = [];
                 var from = new Date();
                 var to;
-                for(var i = 0; i < 2; i++){
+                for(var i = 0; i < 5; i++){
                     var lines = {};
                     data.push({[`Factory${i}`]: lines});
-                    for(var j = 0; j < 5; j++){
+                    for(var j = 0; j < 1; j++){
                         var values = {};
                         lines[`Station${j}`] = values;
-                        for(var k = 0; k < 60; k++){
-                            if(!(k%2 && k%3)){  // if check is to create some sparseness in the data
-                                var to = new Date(from.valueOf() + 1000*60*k);
-                                var val = Math.random();
-                                values[to.toISOString()] = {avg: val};
-                            }
+                        for(var k = 0; k < 1000; k++){
+                            var to = new Date(from.valueOf() + 1000*60*k);
+                            var val = Math.random();
+                            values[to.toISOString()] = {avg: val};
                         } 
                     }
                 }
@@ -36,13 +34,8 @@
                 // render the data in a chart
                 var tsiClient = new TsiClient();
                 var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart1'));
-                lineChart.render(data);
-
-                var barChart = new tsiClient.ux.BarChart(document.getElementById('chart2'));
-                barChart.render(data);
-
-                var pieChart = new tsiClient.ux.PieChart(document.getElementById('chart3'));
-                pieChart.render(data);
+                lineChart.render(data, {includeDots: false, brushContextMenuActions: [{name: 'zoom', action: () => {}}]}, 
+                [{contextMenu: [{name: 'zoom', action: () => {}}]}]);
             };
         </script>
     </body>

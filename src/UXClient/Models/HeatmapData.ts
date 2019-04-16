@@ -32,7 +32,7 @@ class HeatmapData {
     }
 
     private adjustStartTime () {
-        return new Date(Math.floor(new Date(this.from).valueOf() / this.bucketSize) * this.bucketSize);
+        return new Date(Utils.adjustStartMillisToAbsoluteZero(new Date(this.from).valueOf(), this.bucketSize));
     }
 
     private createTimeValues () {
@@ -42,7 +42,7 @@ class HeatmapData {
         var colI = 0;
         let adjustedStartTime = this.adjustStartTime();
         for (var currTime = adjustedStartTime; (currTime.valueOf() < this.to.valueOf()); currTime = new Date(currTime.valueOf() + this.bucketSize)) {
-            this.timeValues[currTime.toString()] = this.visibleSBs.reduce((obj, splitBy, splitByI) => {
+            this.timeValues[currTime.toISOString()] = this.visibleSBs.reduce((obj, splitBy, splitByI) => {
                 obj[splitBy] = {
                     colI: colI,
                     rowI: splitByI,
@@ -56,7 +56,7 @@ class HeatmapData {
 
         this.visibleSBs.forEach((splitBy, rowI) => {
             this.chartComponentData.timeArrays[this.aggKey][splitBy].forEach((valueObject, colI) => {
-                var timestamp = valueObject.dateTime.toString();
+                var timestamp = valueObject.dateTime.toISOString();
                 var visibleMeasure = this.chartComponentData.getVisibleMeasure(this.aggKey, splitBy);
                 if (this.timeValues[timestamp]) {                    
                     this.timeValues[timestamp][splitBy].value = valueObject.measures ? valueObject.measures[visibleMeasure] : null;
