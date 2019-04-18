@@ -36,9 +36,9 @@
 
 .tsi-hierarchy{
     height: 100%;
-    overflow: auto;
-    padding: 8px;
-    width: 100%;
+    width: 100%; 
+    overflow-y: auto;
+    overflow-x: hidden;
 
     &.tsi-dark{
         $grays: grays('dark');
@@ -48,9 +48,10 @@
                 > .tsi-caret{
                     background-image: url(../../Icons/CaretClosed_Dark_Theme.svg);
                 }
-            }
-            a {
-                color: #70a4ff;
+
+                .show-more {
+                    color: #70a4ff;
+                }
             }
         }
     }
@@ -62,10 +63,10 @@
                 > .tsi-caret{
                     background-image: url(../../Icons/CaretClosed_Light_Theme.svg);
                 }
-            }
 
-            a {
-                color: #3169ff;
+                .show-more {
+                    color: #3169ff;
+                }
             }
         }
     }
@@ -92,7 +93,6 @@
 
     .tsi-hierarchyList{
         position: relative;
-        margin-left: 20px;
         ul{
             list-style: none;
             padding: 0;
@@ -104,7 +104,7 @@
             }
         }
         li{
-            animation: fade-in .5s forwards;
+            animation: fade-in .2s ease-in-out;
             @keyframes fade-in {
                 0% { opacity: 0; }
                 100% { opacity: 1; }
@@ -139,7 +139,6 @@
                 display: flex;
                 position: relative;
                 margin: 0;
-                padding-left: 28px;
                 height: 32px;
                 font-size: 14px;
                 align-items: center;
@@ -170,15 +169,36 @@
                         cursor: move;
                     }
                 }
+                &.selected {
+                    background: #b3d6f2;
+                }
             }
         }
     }
     .tsi-noBefore .tsi-caret{
         content: '' !important;
     }
-    .tsi-hierarchyContextMenu{
+    .tsi-hierarchyNavigationContextMenu{
         @extend .tsi-baseContextMenu;
         position: absolute;
-        left: calc(100% - 32px);   
+        left: calc(100% - 32px);
+        top: 0px;
+        z-index: 10;
+
+        ul {
+            li:hover{
+                background: #b3d6f2;
+            }
+        }
+
+        li {
+            padding: 4px 8px;
+            font-size: 12px;
+            cursor: pointer;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+        }
     }
 }

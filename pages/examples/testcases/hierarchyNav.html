@@ -17,12 +17,19 @@
         <script>
 
             var environmentFqdn = '88728b62-954e-4930-836c-c36e5603e5a9.env.crystal-dev.windows-int.net';  //iryildir-test environment
+            onInstanceClick = function(instance) {
+                let contextMenuActions = [{}, {}];
+                contextMenuActions[0]['Show Event Count'] = () => {alert("Show Event Count")};
+                contextMenuActions[1]['Show Value'] = () => {alert("Show Value")};
+                return contextMenuActions;
+            }
+
             window.onload = function() {
                 initAuth('Hierarchy Navigation Test');  // initiate auth objects, header, and login modal
                 var tsiClient = new TsiClient();
                 
                 var hierarchy = new tsiClient.ux.HierarchyNavigation(document.getElementById('hierarchyWrapper'));
-                hierarchy.render(environmentFqdn, authContext.getTsiToken, {theme: 'light'});
+                hierarchy.render(environmentFqdn, authContext.getTsiToken, {theme: 'light', onInstanceClick: instance => this.onInstanceClick(instance)});
 
             }
         </script>
