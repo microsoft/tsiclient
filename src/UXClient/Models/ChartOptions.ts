@@ -30,6 +30,7 @@ class ChartOptions {
     public keepBrush: boolean; // whether to keep the brush selected region upon re render
     public keepSplitByColor: boolean; //whether to keep the split By colors when state is updated
     public legend: string; //state of the legend: shown, hidden, or compact
+    public markers: Array<number>; // millisecond timestamps of the location of markers loaded into the linechart 
     public maxBuckets: number // max number of buckets in availability chart
     public minBrushWidth: number // minimum possible width of brush in linechart
     public minutesForTimeLabels: boolean; // whether time labels forced to minute granularity
@@ -139,6 +140,7 @@ class ChartOptions {
         this.includeDots = this.mergeValue(chartOptionsObj, 'includeDots', false);
         this.yExtent = this.mergeValue(chartOptionsObj, 'yExtent', null);
         this.ellipsisItems = this.mergeValue(chartOptionsObj, 'ellipsisItems', []);
+        this.markers = Utils.getValueOrDefault(chartOptionsObj, 'markers', null); // intentionally not mergeValue
     }
 
     private mergeValue (chartOptionsObj, propertyName, defaultValue) {
@@ -205,7 +207,8 @@ class ChartOptions {
             autoTriggerBrushContextMenu: this.autoTriggerBrushContextMenu,
             includeDots: this.includeDots,
             yExtent: this.yExtent,
-            ellipsisItems: this.ellipsisItems
+            ellipsisItems: this.ellipsisItems,
+            markers: this.markers
         }
     }
 }

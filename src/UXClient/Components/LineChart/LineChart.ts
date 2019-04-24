@@ -489,6 +489,23 @@ class LineChart extends ChartComponent {
         });
     }
 
+    public exportMarkers () {
+        return Object.keys(this.scooterGuidMap).map((guid) => this.scooterGuidMap[guid]);
+    }
+
+    private importMarkers () {
+        if (this.chartOptions.markers && this.chartOptions.markers.length > 0) {
+            this.chartOptions.markers.forEach((markerMillis) => {
+                let scooterUID = Utils.guid();
+                let scooter = this.createScooter(scooterUID);
+                this.scooterGuidMap[scooterUID] = markerMillis;
+                this.setScooterPosition(scooter, markerMillis);
+                this.setScooterLabels(scooter);
+                this.setScooterTimeLabel(scooter);
+            });
+        }
+    }
+
     private focusOnEllipsis () {
         if (this.ellipsisContainer !== null) {
             this.ellipsisContainer.select(".tsi-ellipsisButton").node().focus();
@@ -587,33 +604,19 @@ class LineChart extends ChartComponent {
         return !(filteredValues == null || filteredValues.length == 0)
     }
 
-    private scooterButtonClick = () => {
-        if (this.isFirstMarkerDrop) {
-            this.isFirstMarkerDrop = false;
-            this.createMarkerInstructions();
-        }
-        this.setIsDroppingScooter(!this.isDroppingScooter); 
-        if (!this.isDroppingScooter) {
-            this.activeScooter.remove();
-            this.destroyMarkerInstructions();
-            return;
-        }
-
-        var scooterUID = Utils.guid();
-        this.scooterGuidMap[scooterUID] = 0;
-
-        this.activeScooter = d3.select(this.renderTarget).append("div")
+    private createScooter = (scooterUID) => {
+        let scooter: any = d3.select(this.renderTarget).append("div")
             .datum(scooterUID)
             .attr("class", "tsi-scooterContainer")
             .style("top", this.chartMargins.top + this.chartOptions.aggTopMargin + "px")
             .style("height", this.height - (this.chartMargins.top + this.chartMargins.bottom + this.chartOptions.aggTopMargin) + "px")
             .style("display", "none");
         
-        this.activeScooter.append("div")
+        scooter.append("div")
             .attr("class", "tsi-scooterLine");
 
         var self = this;
-        this.activeScooter.append("div")
+        scooter.append("div")
             .attr("class", "tsi-scooterDragger")
             .on("mouseover", function () {
                 d3.select(this).classed("tsi-isHover", true);
@@ -625,10 +628,10 @@ class LineChart extends ChartComponent {
                 d3.select(d3.select(this).node().parentNode).remove();
                 d3.event.preventDefault();
             });
-        var timeLabel = this.activeScooter.append("div")
+        var timeLabel = scooter.append("div")
             .attr("class", "tsi-scooterTimeLabel");
         
-        this.activeScooter.selectAll(".tsi-scooterDragger,.tsi-scooterTimeLabel,.tsi-scooterLine")
+        scooter.selectAll(".tsi-scooterDragger,.tsi-scooterTimeLabel,.tsi-scooterLine")
             .call(d3.drag()
                 .on("drag", function (d) {
                     if (d3.select(d3.event.sourceEvent.target).classed("tsi-closeButton")) {
@@ -644,7 +647,26 @@ class LineChart extends ChartComponent {
                 })
             );
             
-        this.activeScooter.style("pointer-events", "none");
+        scooter.style("pointer-events", "none");
+        return scooter;
+    }
+
+    private scooterButtonClick = () => {
+        if (this.isFirstMarkerDrop) {
+            this.isFirstMarkerDrop = false;
+            this.createMarkerInstructions();
+        }
+        this.setIsDroppingScooter(!this.isDroppingScooter); 
+        if (!this.isDroppingScooter) {
+            this.activeScooter.remove();
+            this.destroyMarkerInstructions();
+            return;
+        }
+
+        var scooterUID = Utils.guid();
+        this.scooterGuidMap[scooterUID] = 0;
+
+        this.activeScooter = this.createScooter(scooterUID);
         Utils.focusOnEllipsisButton(this.renderTarget);
     }
 
@@ -1780,6 +1802,10 @@ class LineChart extends ChartComponent {
         this.chartComponentData.mergeDataToDisplayStateAndTimeArrays(this.data, this.aggregateExpressionOptions, this.events, this.states);
         this.draw();
         this.chartOptions.noAnimate = false;  // ensure internal renders are always animated, overriding the users noAnimate option
+
+        if (this.chartOptions.markers && this.chartOptions.markers.length > 0) {
+            this.importMarkers();
+        }
 
         d3.select("html").on("click." + Utils.guid(), () => {
             if (this.ellipsisContainer && d3.event.target != this.ellipsisContainer.select(".tsi-ellipsisButton").node()) {
