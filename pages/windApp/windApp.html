@@ -8,7 +8,6 @@
     <link rel="stylesheet" href="https://atlas.microsoft.com/sdk/css/atlas.min.css?api-version=1.0" type="text/css" />
     <script src="https://atlas.microsoft.com/sdk/js/atlas.min.js?api-version=1.0"></script>
 
-
     <script src="https://secure.aadcdn.microsoftonline-p.com/lib/1.0.11/js/adal.min.js"></script>
     
     <!--bluebird for Promise polyfill to support IE in sample client-->
@@ -16,18 +15,17 @@
 
     <!-- PROD RESOURCE LINKS -->
     <!-- <script src="windApp.js" defer></script>
-    <link rel="stylesheet" type="text/css" href="sampleStyles.css"></link>
-    <link rel="stylesheet" type="text/css" href="windApp.css"></link>
+    <link rel="stylesheet" type="text/css" href="./sampleStyles.css">
+    <link rel="stylesheet" type="text/css" href="./windApp.css">
     <script src="https://unpkg.com/tsiclient@1.1.4/tsiclient.js"></script>
-    <link rel="stylesheet" type="text/css" href="https://unpkg.com/tsiclient@1.1.4/tsiclient.css"></link> -->
-
+    <link rel="stylesheet" type="text/css" href="https://unpkg.com/tsiclient@1.1.4/tsiclient.css"> -->
 
     <!-- DEV RESOURCE LINKS -->
     <script src="pages/windApp/windApp.js" defer></script>	
-    <link rel="stylesheet" type="text/css" href="pages/samples/sampleStyles.css"></link>	
-    <link rel="stylesheet" type="text/css" href="pages/windApp/windApp.css"></link>	
-    <script src="dist/tsiclient.js"></script>
-    <link rel="stylesheet" type="text/css" href="dist/tsiclient.css"></link>
+    <link rel="stylesheet" type="text/css" href="./sampleStyles.css">
+    <link rel="stylesheet" type="text/css" href="./windApp.css">	
+    <script src="../../dist/tsiclient.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../dist/tsiclient.css">
     
 </head>
 <body>
@@ -111,7 +109,7 @@
         // START: AUTHENTICATION RELATED CODE USING ADAL.JS
             // Set up ADAL
             var authContext = new AuthenticationContext({
-                clientId: 'b54d43ab-4c7d-41cc-bea4-f39016158011',
+                clientId: '000000-000000-000000-000000',
                 postLogoutRedirectUri: 'https://tsiclientsample.azurewebsites.net',
                 cacheLocation: 'localStorage'
             });
