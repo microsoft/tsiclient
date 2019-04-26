@@ -108,9 +108,9 @@ class ServerClient {
         return this.createPromiseFromXhr(uri, "GET", {}, token, (responseText) => {return JSON.parse(responseText);});
     }
 
-    public getTimeseriesInstancesPathSearch(token: string, environmentFqdn: string, searchString: string, path: Array<string>, instancesPageSize: number = 10, hierarchiesPageSize: number = 10, instancesContinuationToken = null, hierarchiesContinuationToken = null) {
+    public getTimeseriesInstancesPathSearch(token: string, environmentFqdn: string, payload, instancesContinuationToken = null, hierarchiesContinuationToken = null) {
         let uri = 'https://' + environmentFqdn + '/timeseries/instances/navigate' + this.tsmTsqApiVersion;
-        return this.createPromiseFromXhr(uri, "POST", JSON.stringify({searchString: searchString, path: path, instancesPageSize: instancesPageSize, hierarchiesPageSize: hierarchiesPageSize}), token, (responseText) => {return JSON.parse(responseText);}, instancesContinuationToken || hierarchiesContinuationToken);
+        return this.createPromiseFromXhr(uri, "POST", JSON.stringify(payload), token, (responseText) => {return JSON.parse(responseText);}, instancesContinuationToken || hierarchiesContinuationToken);
     }
 
     public getTimeseriesInstancesSuggestions(token: string, environmentFqdn: string, searchString: string, take: number = 10) {

@@ -8,28 +8,96 @@
     </head>
     <body style="font-family: 'Segoe UI', sans-serif;">
 
-        <div id="hierarchyWrapper" style="
+        <div style="width:350px; overflow-y: auto; padding: 20px; background: grey;">
+            <h3>Options</h3>
+            <div>
+                <label>Theme</label>
+                <select onchange="toggleHierarchyNaOption('theme', event.target.value)">
+                    <option selected>light</option>
+                    <option>dark</option>
+                </select>
+            </div>
+            <div>
+                <label>Instances Page Size</label>
+                <input style="width:50px;" type="number" value=10 onchange="toggleHierarchyNaOption('instancesPageSize', event.target.value)"></input>
+            </div>
+            <div>
+                <label>Instances Recursive</label>
+                <select onchange="toggleHierarchyNaOption('isInstancesRecursive', event.target.value)">
+                    <option selected>false</option>
+                    <option>true</option>
+                </select>
+            </div>
+            <div>
+                <label>Instances Highlighted</label>
+                <select onchange="toggleHierarchyNaOption('isInstancesHighlighted', event.target.value)">
+                    <option selected>false</option>
+                    <option>true</option>
+                </select>
+            </div>
+            <div>
+                <label>Instances Sort</label>
+                <select onchange="toggleHierarchyNaOption('instancesSort', event.target.value)">
+                    <option selected>DisplayName</option>
+                    <option>Rank</option>
+                </select>
+            </div>
+            <div>
+                <label>Hierarchies Page Size</label>
+                <input style="width:50px;" type="number" value=10 onchange="toggleHierarchyNaOption('hierarchiesPageSize', event.target.value)"></input>
+            </div>
+            <div>
+                <label>Hierarchies Expand</label>
+                <select onchange="toggleHierarchyNaOption('hierarchiesExpand', event.target.value)">
+                    <option selected>ByLevel</option>
+                    <option>UntilFork</option>
+                </select>
+            </div>
+            <div>
+                <label>Hierarchies Sort</label>
+                <select onchange="toggleHierarchyNaOption('hierarchiesSort', event.target.value)">
+                    <option selected>Name</option>
+                    <option>CumulativeInstanceCount</option>
+                </select>
+            </div>
+        </div>
+        <div id="hierarchyNav" style="
                 width: 300px;
                 height: calc(100% - 40px);
                 margin-top: 40px;
                 position: fixed;">
         </div>
         <script>
-
-            var environmentFqdn = '88728b62-954e-4930-836c-c36e5603e5a9.env.crystal-dev.windows-int.net';  //iryildir-test environment
+            var hierarchy;
+            var environmentFqdn = 'dcbba382-10bd-40ea-ba06-454094aee00a.env.timeseries.azure.com'//'88728b62-954e-4930-836c-c36e5603e5a9.env.crystal-dev.windows-int.net';  //iryildir-test environment
             onInstanceClick = function(instance) {
                 let contextMenuActions = [{}, {}];
-                contextMenuActions[0]['Show Event Count'] = () => {alert("Show Event Count")};
-                contextMenuActions[1]['Show Value'] = () => {alert("Show Value")};
+                contextMenuActions[0]['Show Event Count'] = () => {alert("Show " + instance.timeSeriesId)};
+                contextMenuActions[1]['Show Value'] = () => {alert("Show " + instance.name)};
                 return contextMenuActions;
+            }
+            var hierarchyNavOptions = {
+                theme: 'light',
+                instancesPageSize: 10,
+                hierarchiesPageSize: 10,
+                isInstancesRecursive: false,
+                isInstancesHighlighted: false,
+                instancesSort: "DisplayName",
+                hierarchiesExpand: "ByLevel",
+                hierarchiesSort: "Name"
+            }
+
+            toggleHierarchyNaOption = function(property, value = null) {
+                hierarchyNavOptions[property] = (value === null) ? !hierarchyNavOptions[property] : value; 
+                hierarchy.render(environmentFqdn, authContext.getTsiToken, {...hierarchyNavOptions, onInstanceClick: instance => this.onInstanceClick(instance)});
             }
 
             window.onload = function() {
                 initAuth('Hierarchy Navigation Test');  // initiate auth objects, header, and login modal
                 var tsiClient = new TsiClient();
                 
-                var hierarchy = new tsiClient.ux.HierarchyNavigation(document.getElementById('hierarchyWrapper'));
-                hierarchy.render(environmentFqdn, authContext.getTsiToken, {theme: 'light', onInstanceClick: instance => this.onInstanceClick(instance)});
+                hierarchy = new tsiClient.ux.HierarchyNavigation(document.getElementById('hierarchyNav'));
+                hierarchy.render(environmentFqdn, authContext.getTsiToken, {...hierarchyNavOptions, onInstanceClick: instance => this.onInstanceClick(instance)});
 
             }
         </script>

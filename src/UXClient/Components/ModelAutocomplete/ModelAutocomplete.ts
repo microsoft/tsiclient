@@ -52,11 +52,11 @@ class ModelAutocomplete extends Component{
                 getToken().then(token => {
                     self.server.getTimeseriesInstancesSuggestions(token, environmentFqdn, searchText).then(r => {
                         self.ap.list = r.suggestions.map(s => s.searchString);
+                        self.chartOptions.onInput(searchText);
                     })
                 })
             }
             noSuggest = false;
-            self.chartOptions.onInput(searchText);
             clear.classed('tsi-shown', searchText.length);
         })
     }
