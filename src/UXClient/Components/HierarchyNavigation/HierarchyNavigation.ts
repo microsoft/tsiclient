@@ -359,15 +359,25 @@ function InstanceNode (tsId, name = null, typeId, hierarchyIds, highlights, cont
     this.highlights = highlights;
     this.onClick = (hierarchyWrapper, hierarchy, wrapperMousePos, eltMousePos, fromKeyboard = false) => {
         this.node.classed('selected', true);
-        let contextMenuActions = contextMenuFunc(this);
-        this.contextMenu = hierarchyWrapper.append('div').classed('tsi-hierarchyNavigationContextMenu', true).attr('style', () => `top: ${wrapperMousePos - eltMousePos}px`);
+        this.prepareForContextMenu(hierarchyWrapper, hierarchy, wrapperMousePos, eltMousePos)
+        contextMenuFunc(this);
+    };
+    this.prepareForContextMenu = (hierarchyWrapper, hierarchy, wrapperMousePos, eltMousePos) => {
+        this.contextMenuProps = {};
+        this.contextMenuProps['hierarchyWrapper'] = hierarchyWrapper;
+        this.contextMenuProps['hierarchy'] = hierarchy;
+        this.contextMenuProps['wrapperMousePos'] = wrapperMousePos;
+        this.contextMenuProps['eltMousePos'] = eltMousePos;
+    }
+    this.drawContextMenu = (contextMenuActions) => {
+        this.contextMenu = this.contextMenuProps['hierarchyWrapper'].append('div').classed('tsi-hierarchyNavigationContextMenu', true).attr('style', () => `top: ${this.contextMenuProps['wrapperMousePos'] - this.contextMenuProps['eltMousePos']}px`);
         var contextMenuList = this.contextMenu.append('ul');
         contextMenuActions.forEach((a) => {
             var option = Object.keys(a)[0];
             contextMenuList.append('li').html(option).on('click', a[option]);
         });
-        hierarchy.attr('style', `padding-bottom: ${this.contextMenu.node().getBoundingClientRect().height}px`);
-    };
+        this.contextMenuProps['hierarchy'].attr('style', `padding-bottom: ${this.contextMenu.node().getBoundingClientRect().height}px`);
+    }
     this.isLeaf = true;
     this.level = level;
     this.node = null;

@@ -93,9 +93,13 @@ class ServerClient {
         }
     }
     
-    public getTimeseriesTypes(token: string, environmentFqdn: string) {
-        let uri = 'https://' + environmentFqdn + '/timeseries/types/' + this.tsmTsqApiVersion;
-        return this.createPromiseFromXhr(uri, "GET", {}, token, (responseText) => {return JSON.parse(responseText);});
+    public getTimeseriesTypes(token: string, environmentFqdn: string, typeIds: Array<any> = null) {
+        if(!typeIds || typeIds.length === 0) {
+            let uri = 'https://' + environmentFqdn + '/timeseries/types/' + this.tsmTsqApiVersion;
+            return this.createPromiseFromXhr(uri, "GET", {}, token, (responseText) => {return JSON.parse(responseText);});
+        } else {
+            return this.createPromiseFromXhr('https://' + environmentFqdn + '/timeseries/types/$batch' + this.tsmTsqApiVersion, "POST", JSON.stringify({get: {typeIds: typeIds, names: null}}), token, (responseText) => {return JSON.parse(responseText);});
+        }
     }
 
     public getTimeseriesHierarchies(token: string, environmentFqdn: string) {
