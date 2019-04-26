@@ -42,19 +42,7 @@
                     }
                 }]
 
-                var lineChartDataContextMenu = [...genericDataContextMenu,
-                {
-                    name: "Plot as a Pie Chart",
-                    action: function(dataGroup, timeSeriesName, timestamp) {
-                        pieChart.render(data.filter(d => Object.keys(d)[0] === dataGroup.alias), {timestamp: timestamp}, [{contextMenu: genericDataContextMenu}]);
-                    }
-                }, {
-                    name: "Plot as a Bar Chart",
-                    action: function(dataGroup, timeSeriesName, timestamp) {
-                        barChart.render(data.filter(d => Object.keys(d)[0] === dataGroup.alias), {timestamp: timestamp}, [{contextMenu: genericDataContextMenu}]);
-                    }
-                }];
-
+           
                 var brushContextMenu = [{
                     name: "Print parameters to console",
                     action: function(from, to) {
@@ -67,8 +55,10 @@
                 var tsiClient = new TsiClient();
                 var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart1'));
                 // BUG: measureTypes must be present for sparse data
-                lineChart.render(JSON.parse(JSON.stringify(data)), {legend: 'compact', theme: 'dark', grid: true, tooltip: true, brushContextMenuActions: brushContextMenu, markers: [from.valueOf() + (60*1000*20), from.valueOf() + (60*1000*25)]}, 
-                    [{measureTypes: ['avg'], searchSpan: {from: from.toISOString(), to: to.toISOString(), bucketSize: '1m'}, contextMenu: lineChartDataContextMenu, alias: 'Factory0'}, {contextMenu: lineChartDataContextMenu, alias: 'Factory1'}]);
+                lineChart.render(JSON.parse(JSON.stringify(data)), {legend: 'compact', theme: 'dark', grid: true, tooltip: true, 
+                    brushContextMenuActions: brushContextMenu, markers: [from.valueOf() + (60*1000*20), 
+                        from.valueOf() + (60*1000*25)], onMarkersChange: (markers) => {console.log(markers)}},
+                    [{measureTypes: ['avg'], searchSpan: {from: from.toISOString(), to: to.toISOString(), bucketSize: '1m'}, alias: 'Factory0'}, {alias: 'Factory1'}]);
 
                 exportMarkers = function () {
                     console.log(lineChart.exportMarkers());

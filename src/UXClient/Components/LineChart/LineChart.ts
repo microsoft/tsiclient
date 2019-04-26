@@ -466,6 +466,9 @@ class LineChart extends ChartComponent {
     }
 
     private setScooterPosition (scooter, rawMillis: number = null) {
+        if (!scooter) {
+            return;
+        }
         var closestTime;
         if (rawMillis != null) {
             closestTime = this.findClosestValidTime(rawMillis);
@@ -490,16 +493,21 @@ class LineChart extends ChartComponent {
     }
 
     public exportMarkers () {
-        return Object.keys(this.scooterGuidMap).map((guid) => this.scooterGuidMap[guid]);
+        return Object.keys(this.scooterGuidMap)
+        .map((guid) => this.scooterGuidMap[guid]);
     }
 
     private importMarkers () {
         if (this.chartOptions.markers && this.chartOptions.markers.length > 0) {
+            this.scooterGuidMap = {};
+            d3.select(this.renderTarget).selectAll(".tsi-scooterContainer").remove();
+            
             this.chartOptions.markers.forEach((markerMillis) => {
                 let scooterUID = Utils.guid();
-                let scooter = this.createScooter(scooterUID);
                 this.scooterGuidMap[scooterUID] = markerMillis;
-                this.setScooterPosition(scooter, markerMillis);
+                let millis = (markerMillis < this.chartComponentData.fromMillis || markerMillis > this.chartComponentData.toMillis) ? null : markerMillis;
+                let scooter = this.createScooter(scooterUID);
+                this.setScooterPosition(scooter, millis);
                 this.setScooterLabels(scooter);
                 this.setScooterTimeLabel(scooter);
             });
@@ -531,9 +539,12 @@ class LineChart extends ChartComponent {
             .attr("aria-label", "Delete marker at " + text) 
             .classed("tsi-closeButton", true)
             .on("click", function () {
+                let markerGuid: string = String(d3.select(d3.select(this).node().parentNode.parentNode).datum());
+                delete self.scooterGuidMap[markerGuid];
                 d3.select(d3.select(this).node().parentNode.parentNode).remove();
                 self.setIsDroppingScooter(false);
                 self.focusOnEllipsis();
+                self.chartOptions.onMarkersChange(self.exportMarkers());
             });
 
         var scooterLeft: number = Number(scooter.style("left").replace("px", ""));
@@ -644,6 +655,7 @@ class LineChart extends ChartComponent {
                     self.setScooterPosition(scooter, self.x.invert(newPosition).valueOf());
                     self.setScooterLabels(scooter);
                     self.setScooterTimeLabel(scooter);
+                    self.chartOptions.onMarkersChange(self.exportMarkers());
                 })
             );
             
@@ -777,6 +789,7 @@ class LineChart extends ChartComponent {
         if (this.activeScooter != null) {
             this.activeScooter.style("pointer-events", "all");
             this.activeScooter = null;
+            this.chartOptions.onMarkersChange(this.exportMarkers());
         }
     }
 

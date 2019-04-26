@@ -37,6 +37,7 @@ class ChartOptions {
     public noAnimate: boolean; // whether animations happen on state change
     public offset: any; // offset for all timestamps in minutes from UTC
     public onInstanceClick: (instance: any) => any;  // for model search, takes an instance and returns an object of context menu actions
+    public onMarkersChange: (markers: Array<number>) => any; //triggered when a marker is either added or removed in the linechart
     public onMouseout: () => void;
     public onMouseover: (aggKey: string, splitBy: string) => void;
     public onSticky: (aggKey: string, splitBy: string) => void;
@@ -141,6 +142,7 @@ class ChartOptions {
         this.yExtent = this.mergeValue(chartOptionsObj, 'yExtent', null);
         this.ellipsisItems = this.mergeValue(chartOptionsObj, 'ellipsisItems', []);
         this.markers = Utils.getValueOrDefault(chartOptionsObj, 'markers', null); // intentionally not mergeValue
+        this.onMarkersChange = this.mergeValue(chartOptionsObj, 'onMarkersChange', (markers) => {});
     }
 
     private mergeValue (chartOptionsObj, propertyName, defaultValue) {
@@ -208,7 +210,8 @@ class ChartOptions {
             includeDots: this.includeDots,
             yExtent: this.yExtent,
             ellipsisItems: this.ellipsisItems,
-            markers: this.markers
+            markers: this.markers,
+            onMarkersChange: this.onMarkersChange
         }
     }
 }
