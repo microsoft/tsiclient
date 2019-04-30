@@ -1150,6 +1150,7 @@ class LineChart extends ChartComponent {
                     .duration(durationFunction)
                     .ease(d3.easeExp)                                         
                     .attr("stroke-dasharray","5,5")      
+                    .attr("stroke", splitByColors[j])
                     .attrTween('d', function (d) {
                         var previous = d3.select(this).attr('d');
                         var current = aggLine(d);

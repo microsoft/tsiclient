@@ -305,6 +305,10 @@ class ChartComponentData {
         return firstMillis;
     }
 
+    private getNumberOfPaddedBuckets (from, to, bucketSize) {
+        return Math.ceil((to - from) / bucketSize);
+    }
+
     //aggregates object => array of objects containing timestamp and values. Pad with 
     public convertAggregateToArray (agg: any, aggKey: string, aggName: string, splitBy: string, 
                                     from: Date = null, to: Date = null, bucketSize: number = null, 
@@ -337,21 +341,35 @@ class ChartComponentData {
             let firstBucket = this.findFirstBucket(agg, from.valueOf(), bucketSize);
             if (firstBucket !== null) {
                 let firstBucketMillis = firstBucket.valueOf();
-                for (var currTime = new Date(firstBucketMillis); (currTime.valueOf() < to.valueOf()); currTime = new Date(currTime.valueOf() + bucketSize)) {
-                    var timeValueObject: any = createTimeValueObject();
-                    timeValueObject["dateTime"] = currTime;
-                    var currTimeString = currTime.toISOString();
-                    if (agg[currTimeString]) {
+                let isExcessiveBucketCount = (this.getNumberOfPaddedBuckets(firstBucketMillis, to.valueOf(), bucketSize) > 10000);
+                // pad if not an excessive number of buckets
+                if (!isExcessiveBucketCount) {
+                    for (var currTime = new Date(firstBucketMillis); (currTime.valueOf() < to.valueOf()); currTime = new Date(currTime.valueOf() + bucketSize)) {
+                        var timeValueObject: any = createTimeValueObject();
+                        timeValueObject["dateTime"] = currTime;
+                        var currTimeString = currTime.toISOString();
+                        if (agg[currTimeString]) {
+                            var currMeasures = agg[currTimeString];
+                            Object.keys(currMeasures).forEach((measure: string) => {
+                                timeValueObject["measures"][measure] = currMeasures[measure];
+                            });
+                        } else {
+                            timeValueObject["measures"] = null;
+                        }
+                        aggArray.push(timeValueObject);
+                        this.fromMillis = Math.min(from.valueOf(), currTime.valueOf());
+                        this.toMillis = Math.max(to.valueOf(), currTime.valueOf() + bucketSize);
+                    }    
+                } else {
+                    Object.keys(agg).forEach((currTimeString) => {
+                        var timeValueObject: any = createTimeValueObject();
+                        timeValueObject["dateTime"] = new Date(currTimeString);    
                         var currMeasures = agg[currTimeString];
                         Object.keys(currMeasures).forEach((measure: string) => {
                             timeValueObject["measures"][measure] = currMeasures[measure];
                         });
-                    } else {
-                        timeValueObject["measures"] = null;
-                    }
-                    aggArray.push(timeValueObject);
-                    this.fromMillis = Math.min(from.valueOf(), currTime.valueOf());
-                    this.toMillis = Math.max(to.valueOf(), currTime.valueOf() + bucketSize);
+                        aggArray.push(timeValueObject);                        
+                    });
                 }
             }
         } else {
