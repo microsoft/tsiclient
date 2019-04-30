@@ -97,17 +97,28 @@ class ModelSearch extends Component{
                 self.usedContinuationTokens[ct] = true;
                 getToken().then(token => {
                     self.server.getTimeseriesInstancesSearch(token, environmentFqdn, searchText, ct).then(r => {
-                        continuationToken = r.instancesContinuationToken;
+                        let instances;
+                        if (Array.isArray(r.instances)) {
+                            continuationToken = r.instancesContinuationToken;
+                            instances = r.instances;
+                        } else { //new search api with the support of hierarchy navigation
+                            if (r.instances.hasOwnProperty('hits')) {
+                                instances = r.instances.hits;
+                                continuationToken = r.instances.hits.continuationToken;
+                            }
+                            
+                        }
+                        
                         if(!continuationToken)
                             continuationToken = 'END';
                         (showMore.node() as any).style.display = continuationToken !== 'END' ? 'block' : 'none';
-                        if(r.instances.length == 0){
+                        if(instances.length == 0){
                             noResults.style('display', 'block');
                         }
                         else{
                             noResults.style('display', 'none');
                         }
-                        r.instances.forEach(i => {
+                        instances.forEach(i => {
                             let handleClick = (elt, wrapperMousePos, eltMousePos, fromKeyboard = false) => {
                                 self.closeContextMenu();
                                 if(self.clickedInstance != elt){
