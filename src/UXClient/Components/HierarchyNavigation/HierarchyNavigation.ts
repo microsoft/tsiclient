@@ -12,9 +12,10 @@ class HierarchyNavigation extends Component{
     private hierarchy;
     private hierarchyInstancesWrapper;
     private hierarchyInstances;
+    private hierarchyFiltered;
     private envHierarchies = {};
     private selectedHierarchyId = HierarchySelectionValues.All;
-    private mode: State = "navigate";
+    private mode = State.Navigate;
     private searchString = "";
     private path: Array<string> = [];
     public hierarchyNavOptions = new HiararchyNavigationOptions();
@@ -62,7 +63,7 @@ class HierarchyNavigation extends Component{
                     (self.hierarchyInstancesWrapper.node() as any).style.display = 'none';
                     (self.hierarchyWrapper.node() as any).style.display = 'block';
                     self.hierarchy.html('');
-                    self.pathSearch(getToken, environmentFqdn, self.requestPayload(), self.hierarchy);
+                    self.pathSearch(getToken, environmentFqdn, self.requestPayload(self.path), self.hierarchy);
                 });
 
                 hierarchySelect.append('option').attr("value", HierarchySelectionValues.All).text('All');
@@ -79,33 +80,35 @@ class HierarchyNavigation extends Component{
                 this.hierarchy = this.hierarchyWrapper.append('div').classed('tsi-hierarchy', true);
 
                 this.hierarchyInstancesWrapper = hierarchyNavWrapper.append('div').classed('tsi-hierarchy-instances-wrapper', true);
-                this.hierarchyInstances = this.hierarchyWrapper.append('div').classed('tsi-hierarchy-instances', true);
+                this.hierarchyInstances = this.hierarchyInstancesWrapper.append('div').classed('tsi-hierarchy-instances', true);
+                this.hierarchyFiltered = this.hierarchyInstancesWrapper.append('div').classed('tsi-hierarchy-filtered', true);
 
-                this.pathSearch(getToken, environmentFqdn, self.requestPayload(), this.hierarchy);
+                this.pathSearch(getToken, environmentFqdn, self.requestPayload(self.path), this.hierarchy);
             });
         });
 
         let autocompleteOnInput = (st) => {
+            this.searchString = st;
             if(st.length === 0){
                 this.setParamsForNavigate();
                 this.hierarchyInstances.html('');
+                this.hierarchyFiltered.html('');
                 (this.hierarchyInstancesWrapper.node() as any).style.display = 'none';
                 (this.hierarchyWrapper.node() as any).style.display = 'block';
             }
             else {
                 this.setParamsForSearch();
                 this.hierarchyInstances.html('');
+                this.hierarchyFiltered.html('');
                 (this.hierarchyWrapper.node() as any).style.display = 'none';
                 (this.hierarchyInstancesWrapper.node() as any).style.display = 'block';
+                this.pathSearch(getToken, environmentFqdn, self.requestPayload(self.path), [this.hierarchyFiltered, this.hierarchyInstances]);
             }
-
-            this.searchString = st;
-            this.pathSearch(getToken, environmentFqdn, self.requestPayload(), this.hierarchyInstances);
         }
     }
 
     private setParamsForSearch () {
-        this.mode = "search";
+        this.mode = State.Search;
         this.hierarchyNavOptions.isInstancesRecursive = true;
         this.hierarchyNavOptions.isInstancesHighlighted = true;
         this.hierarchyNavOptions.instancesSort = InstancesSort.Rank;
@@ -114,7 +117,7 @@ class HierarchyNavigation extends Component{
     }
 
     private setParamsForNavigate () {
-        this.mode = "navigate";
+        this.mode = State.Navigate;
         this.hierarchyNavOptions.isInstancesRecursive = false;
         this.hierarchyNavOptions.isInstancesHighlighted = false;
         this.hierarchyNavOptions.instancesSort = InstancesSort.DisplayName;
@@ -122,29 +125,36 @@ class HierarchyNavigation extends Component{
         this.hierarchyNavOptions.hierarchiesSort = HierarchiesSort.Name;
     }
 
-    private requestPayload () {
+    private requestPayload (path) {
         let payload = {};
         payload["searchString"] = this.searchString;
-        payload["path"] = this.path;
+        payload["path"] = path;
         payload["instances"] = {recursive: this.hierarchyNavOptions.isInstancesRecursive, sort: {by: this.hierarchyNavOptions.instancesSort}, highlights: this.hierarchyNavOptions.isInstancesHighlighted, pageSize: this.hierarchyNavOptions.instancesPageSize};
         payload["hierarchies"] = {expand: {kind: this.hierarchyNavOptions.hierarchiesExpand}, sort: {by: this.hierarchyNavOptions.hierarchiesSort}, pageSize: this.hierarchyNavOptions.hierarchiesPageSize};
 
         return payload;
     }
 
-    private renderTree (data, target) {
+    private renderTree (data, target, locInTarget = null) {
         let self = this;
-        target.selectAll('.show-more.hierarchy').remove();
-        target.selectAll('.show-more.instance').remove();
-        var list = target.append('ul');
+        let list;
+        if (!locInTarget) {
+            list = target.append('ul');
+        }
         Object.keys(data).forEach((el) => {
-            var li = list.append('li').classed('tsi-leaf', data[el].isLeaf)
-                .classed('tsi-leafParent', data[el].isLeaf);
+            let li;
+            if (locInTarget) {
+                li = target.select('ul').insert('li', locInTarget).classed('tsi-leaf', data[el].isLeaf);
+            } else {
+                li = list.append('li').classed('tsi-leaf', data[el].isLeaf);
+            }       
 
             if(el === "Show More Hierarchies") {
-                li.append('span').classed('tsi-markedName hierarchy show-more', true).attr('style', `padding-left: ${(data[el].level + 1) * 18}px`).html(el).on('click', data[el].onClick);
+                target.select('ul').select('.tsi-show-more.hierarchy').remove();
+                li.classed('tsi-show-more hierarchy', true).append('span').classed('tsi-markedName', true).attr('style', `padding-left: ${(data[el].level + 1) * 18}px`).html(el).on('click', data[el].onClick);
             } else if (el === "Show More Instances") {
-                li.append('span').classed('tsi-markedName instance show-more', true).attr('style', `padding-left: ${(data[el].level + 1) * 18}px`).html(el).on('click', data[el].onClick);
+                target.select('ul').select('.tsi-show-more.instance').remove();
+                li.classed('tsi-show-more instance', true).append('span').classed('tsi-markedName', true).attr('style', `padding-left: ${(data[el].level + 1) * 18}px`).html(el).on('click', data[el].onClick);
             } else {
                 li.append('span').classed('tsi-caret', true).attr('style', `left: ${(data[el].level) * 18}px`);
                 li.append('span').classed('tsi-markedName', true).attr('style', `padding-left: ${(data[el].level + 1) * 18}px`).html(el).on('click', function() {
@@ -162,63 +172,65 @@ class HierarchyNavigation extends Component{
             }
             data[el].node = li;
             data[el].isExpanded = false;
+            if (data[el].children) {
+                data[el].isExpanded = true;
+                data[el].node.classed('tsi-expanded', true);
+                this.renderTree(data[el].children, data[el].node);
+            }
         });
     }
 
     private renderInstances (data, target) {
         let self = this;
-        target.selectAll('.show-more.instance').remove();
+        target.select('.tsi-show-more.instance').remove();
 
         Object.keys(data).forEach((i) => {
-            let div = target.append('div').html(this.getInstanceHtml(data[i])).on('click', function() {
-                d3.event.stopPropagation();
-                self.closeContextMenu();
-                self.clickedInstance = data[i]; 
-                let mouseWrapper = d3.mouse(self.hierarchyInstancesWrapper.node());
-                let mouseElt = d3.mouse(this as any);
-                data[i].onClick(self.hierarchyInstancesWrapper, self.hierarchy, mouseWrapper[1], mouseElt[1]);
-            });
+            let div;
+            if (data[i].name === "Show More Instances") {
+                div = target.append('div').classed('tsi-show-more instance', true);
+                div.append('span').classed('tsi-markedName', true).html(i).on('click', data[i].onClick);
+            } else {
+                div = target.append('div').classed('tsi-modelResultWrapper', true).html(this.getInstanceHtml(data[i])).on('click', function() {
+                    d3.event.stopPropagation();
+                    self.closeContextMenu();
+                    self.clickedInstance = data[i]; 
+                    let mouseWrapper = d3.mouse(self.hierarchyInstancesWrapper.node());
+                    let mouseElt = d3.mouse(this as any);
+                    data[i].onClick(self.hierarchyInstancesWrapper, self.hierarchy, mouseWrapper[1], mouseElt[1]);
+                });
+            }
             data[i].node = div;
         });
-
-        target.append('span').classed('tsi-markedName instance show-more', true).html("Show More Instances").on('click', data["Show More Instances"].onClick);
     }
 
-    private pathSearch = (getToken, envFqdn, payload, target, instancesContinuationToken = null, hierarchiesContinuationToken = null) => {
+    private pathSearch = (getToken, envFqdn, payload, target: any, locInTarget = null, instancesContinuationToken = null, hierarchiesContinuationToken = null) => {
         let self = this;
+        let hierarchyData = {};
+        let instancesData = {};
         getToken().then(token => {
             self.server.getTimeseriesInstancesPathSearch(token, envFqdn, payload, instancesContinuationToken, hierarchiesContinuationToken).then(r => {
-                let data = {};
-                if(this.selectedHierarchyId !== HierarchySelectionValues.Unparented) {
-                    if (r.hierarchyNodes.hits.length > 0) {
-                        r.hierarchyNodes.hits.forEach((h) => {
-                            let hierarchy = new HierarchyNode(h.name, payload.path);
-                            hierarchy.expand = () => {self.pathSearch(getToken, envFqdn, payload, hierarchy.node); hierarchy.isExpanded = true; hierarchy.node.classed('tsi-expanded', true);};
-                            hierarchy.collapse = () => {hierarchy.isExpanded = false; hierarchy.node.classed('tsi-expanded', false); hierarchy.node.selectAll('ul').remove();};
-                            data[(h.name === "" ? "(Empty)" : h.name) + " (" + h.cumulativeInstanceCount + ")"] = hierarchy;
-                        });
-                    }
-                    if (r.hierarchyNodes.continuationToken && r.hierarchyNodes.continuationToken !== 'END') {
-                        let showMorehierarchy = new HierarchyNode("Show More Hierarchies", payload.path);
-                        showMorehierarchy.onClick = () => self.pathSearch(getToken, envFqdn, payload, target, null, r.hierarchyNodes.continuationToken);
-                        data[showMorehierarchy.name] = showMorehierarchy;
-                    }
+                if (r.hierarchyNodes.hits.length > 0) {
+                    hierarchyData = this.fillDataRecursively(r.hierarchyNodes, getToken, envFqdn, payload, target);
                 }
                 if (r.instances.hits.length > 0) {
                     r.instances.hits.forEach((i) => {
-                        data[i.timeSeriesId.join(" ")] = new InstanceNode(i.timeSeriesId, i.name, i.typeId, i.hierarchyIds, i.highlights, this.hierarchyNavOptions.onInstanceClick, payload.path.length);
+                        instancesData[i.timeSeriesId.join(" ")] = new InstanceNode(i.timeSeriesId, i.name, i.typeId, i.hierarchyIds, i.highlights, this.hierarchyNavOptions.onInstanceClick, payload.path.length);
                     });
                 }
-                if (r.instances.continuationToken && r.instances.continuationToken !== 'END') {
+                if (r.instances.hasOwnProperty('continuationToken') && r.instances['continuationToken'] !== 'END') {
                     let showMoreInstances = new InstanceNode(null, "Show More Instances", null, null, null, this.hierarchyNavOptions.onInstanceClick, payload.path.length);
-                    showMoreInstances.onClick = () => self.pathSearch(getToken, envFqdn, payload, target, null, r.instances.continuationToken);
-                    data[showMoreInstances.name] = showMoreInstances;
+                    showMoreInstances.onClick = () => self.pathSearch(getToken, envFqdn, payload, target, '.tsi-show-more.instance', null, r.instances['continuationToken']);
+                    instancesData[showMoreInstances.name] = showMoreInstances;
                 }
 
-                if (this.mode === "navigate") {
-                    this.renderTree(data, target);
-                } else if (this.mode === "search") {
-                    this.renderInstances(data, target);
+                if (this.mode === State.Navigate) {
+                    if (this.selectedHierarchyId !== HierarchySelectionValues.Unparented) {
+                        this.renderTree({...hierarchyData, ...instancesData}, target, locInTarget);
+                    } else {
+                        this.renderTree(instancesData, target, locInTarget);
+                    }
+                } else if (this.mode === State.Search) {
+                    this.renderInstances(instancesData, target);
                 } else {
 
                 }
@@ -238,7 +250,7 @@ class HierarchyNavigation extends Component{
                                     "1643004c-0a84-48a5-80e5-7688c5ae9295"
                                 ],
                                 "highlights": {
-                                    "timeSeriesId": [
+                                    "timeSeriesIds": [ // FIX THIS!!!
                                         "006dfc2d-0324-4937-998c-d16f3b4f1952",
                                         "T1"
                                     ],
@@ -264,51 +276,83 @@ class HierarchyNavigation extends Component{
                             {
                                 "name": "Physical",
                                 "cumulativeInstanceCount": 4214,
-                            },
-                            {
-                                "name": "",
-                                "cumulativeInstanceCount": 1,
+                                "hierarchyNodes": {
+                                    "hits": [
+                                        {
+                                            "name": "USA",
+                                            "cumulativeInstanceCount": 4214
+                                        },
+                                        {
+                                            "name": "Canada",
+                                            "cumulativeInstanceCount": 22
+                                        }
+                                    ],
+                                    "hitCount": 2,
+                                    "continuationToken": "bHsic2tpcCI6MTEsInRha2UiOjExLCJyZXF1ZXN0SGFzaENvZGUiOi00Njk4MDY2MzYsImVudmlyb25tZW50SWQiOiI4ODcyOGI2Mi05NTRlLTQ5MzAtODM2Yy1jMzZlNTYwM2U1YTkifQ=="
+                                }
                             }
                         ],
-                        "hitCount": 2,
-                        "continuationToken": "bHsic2tpcCI6MTEsInRha2UiOjExLCJyZXF1ZXN0SGFzaENvZGUiOi00Njk4MDY2MzYsImVudmlyb25tZW50SWQiOiI4ODcyOGI2Mi05NTRlLTQ5MzAtODM2Yy1jMzZlNTYwM2U1YTkifQ=="
+                        "hitCount": 1
+                        // "continuationToken": "bHsic2tpcCI6MTEsInRha2UiOjExLCJyZXF1ZXN0SGFzaENvZGUiOi00Njk4MDY2MzYsImVudmlyb25tZW50SWQiOiI4ODcyOGI2Mi05NTRlLTQ5MzAtODM2Yy1jMzZlNTYwM2U1YTkifQ=="
                     }
                 };
-                if(self.selectedHierarchyId !== HierarchySelectionValues.Unparented) {
-                    if (r.hierarchyNodes.hits.length > 0) {
-                        r.hierarchyNodes.hits.forEach((h) => {
-                            let hierarchy = new HierarchyNode(h.name, payload.path);
-                            hierarchy.expand = () => {self.pathSearch(getToken, envFqdn, payload, hierarchy.node); hierarchy.isExpanded = true; hierarchy.node.classed('tsi-expanded', true);};
-                            hierarchy.collapse = () => {hierarchy.isExpanded = false; hierarchy.node.classed('tsi-expanded', false); hierarchy.node.selectAll('ul').remove();};
-                            data[(h.name === "" ? "(Empty)" : h.name) + " (" + h.cumulativeInstanceCount + ")"] = hierarchy;
-                        });
-                    }
-                    if (r.hierarchyNodes.continuationToken && r.hierarchyNodes.continuationToken !== 'END') {
-                        let showMorehierarchy = new HierarchyNode("Show More Hierarchies", payload.path);
-                        showMorehierarchy.onClick = () => self.pathSearch(getToken, envFqdn, payload, target, null, r.hierarchyNodes.continuationToken);
-                        data[showMorehierarchy.name] = showMorehierarchy;
-                    }
+                if (r.hierarchyNodes.hits.length > 0) {
+                    hierarchyData = self.fillDataRecursively(r.hierarchyNodes, getToken, envFqdn, payload, target);
                 }
                 if (r.instances.hits.length > 0) {
                     r.instances.hits.forEach((i) => {
-                        data[i.timeSeriesId.join(" ")] = new InstanceNode(i.timeSeriesId, i.name, i.typeId, i.hierarchyIds, i.highlights, self.hierarchyNavOptions.onInstanceClick, payload.path.length);
+                        instancesData[i.timeSeriesId.join(" ")] = new InstanceNode(i.timeSeriesId, i.name, i.typeId, i.hierarchyIds, i.highlights, self.hierarchyNavOptions.onInstanceClick, payload.path.length);
                     });
                 }
-                if (r.instances.continuationToken && r.instances.continuationToken !== 'END') {
+                if (r.instances.hasOwnProperty('continuationToken') && r.instances['continuationToken'] !== 'END') {
                     let showMoreInstances = new InstanceNode(null, "Show More Instances", null, null, null, self.hierarchyNavOptions.onInstanceClick, payload.path.length);
-                    showMoreInstances.onClick = () => self.pathSearch(getToken, envFqdn, payload, target, null, r.instances.continuationToken);
-                    data[showMoreInstances.name] = showMoreInstances;
+                    showMoreInstances.onClick = () => self.pathSearch(getToken, envFqdn, payload, target, '.show-more.instance', null, r.instances['continuationToken']);
+                    instancesData[showMoreInstances.name] = showMoreInstances;
                 }
 
-                if (self.mode === "navigate") {
-                    self.renderTree(data, target);
-                } else if (self.mode === "search") {
-                    self.renderInstances(data, target);
+                if (self.mode === State.Navigate) {
+                    if (self.selectedHierarchyId !== HierarchySelectionValues.Unparented) {
+                        self.renderTree({...hierarchyData, ...instancesData}, target, locInTarget);
+                    } else {
+                        self.renderTree(instancesData, target, locInTarget);
+                    }
+                } else if (self.mode === State.Search) {
+                    self.renderTree(hierarchyData, target[0], locInTarget);
+                    self.renderInstances(instancesData, target[1]);
                 } else {
 
                 }
             })
         });
+    }
+
+    private fillDataRecursively(hierarchyNodes, getToken, envFqdn, payload, target) {
+        let data = {};
+        hierarchyNodes.hits.forEach((h) => {
+            let hierarchy = new HierarchyNode(h.name, payload.path);
+            hierarchy.expand = () => {
+                if (this.mode === State.Search) {
+                    this.pathSearch(getToken, envFqdn, this.requestPayload(hierarchy.path), [hierarchy.node, this.hierarchyInstances]);
+                } else {
+                    this.pathSearch(getToken, envFqdn, this.requestPayload(hierarchy.path), hierarchy.node);
+                } 
+                hierarchy.isExpanded = true; 
+                hierarchy.node.classed('tsi-expanded', true);
+            };
+            hierarchy.collapse = () => {hierarchy.isExpanded = false; hierarchy.node.classed('tsi-expanded', false); hierarchy.node.selectAll('ul').remove();};
+            data[(h.name === "" ? "(Empty)" : h.name) + " (" + h.cumulativeInstanceCount + ")"] = hierarchy;
+            if (h.hierarchyNodes) {
+                hierarchy.children = this.fillDataRecursively(h.hierarchyNodes, getToken, envFqdn, this.requestPayload(hierarchy.path), hierarchy.node);
+            }
+        });
+
+        if (hierarchyNodes.hasOwnProperty('continuationToken') && hierarchyNodes['continuationToken'] !== 'END') {
+            let showMorehierarchy = new HierarchyNode("Show More Hierarchies", payload.path);
+            showMorehierarchy.onClick = () => this.pathSearch(getToken, envFqdn, payload, showMorehierarchy.node.select(function() { return this.parentNode.parentNode; }), '.tsi-show-more.hierarchy', null, hierarchyNodes.continuationToken);
+            data[showMorehierarchy.name] = showMorehierarchy;
+        }
+        
+        return data;
     }
 
     private closeContextMenu() {
@@ -348,6 +392,7 @@ function HierarchyNode (name, parentPath) {
     this.collapse = () => {};
     this.level = parentPath.length;
     this.node = null;
+    this.children = null;
     this.isExpanded = false;
 }
 
@@ -413,6 +458,6 @@ export enum HierarchiesExpand {"UntilFork", "ByLevel"};
 export enum HierarchiesSort {"Name", "CumulativeInstanceCount"};
 export enum HierarchySelectionValues {"All" = "0", "Unparented" = "-1"};
 export enum Theme {"light", "dark"};
-type State = "navigate" | "search" | "filter";
+export enum State {"Navigate", "Search", "Filter"};
 
 export {HierarchyNavigation}

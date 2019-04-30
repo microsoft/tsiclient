@@ -8,7 +8,7 @@
     </head>
     <body style="font-family: 'Segoe UI', sans-serif;">
 
-        <div style="width:350px; overflow-y: auto; padding: 20px; background: grey;">
+        <div style="width:500px; overflow-y: auto; padding: 20px; background: grey;">
             <h3>Options</h3>
             <div>
                 <label>Theme</label>
@@ -62,9 +62,8 @@
             </div>
         </div>
         <div id="hierarchyNav" style="
-                width: 300px;
-                height: calc(100% - 40px);
-                margin-top: 40px;
+                width: 500px;
+                height: calc(100% - 280px);
                 position: fixed;">
         </div>
         <script>
@@ -79,11 +78,13 @@
                             r.get.forEach((t) => {
                                 let type = t.timeSeriesType;
                                 Object.keys(type.variables).forEach((vName) => {
-                                    if (type.variables[vName].aggregation.tsx === 'avg($value)') {
-                                        type = this.getTsmTypeFromVariable(type.variables[vName]);
-                                    }
                                     let option = {};
-                                    option['Show ' + vName] = () => alert(JSON.stringify(type));//addInstanceAction(type, vName);
+                                    if (type.variables[vName].aggregation.tsx === 'avg($value)') {
+                                        let newType = this.getTsmTypeFromVariable(type.variables[vName]);
+                                        option['Show ' + vName] = () => alert(JSON.stringify(newType.variables));
+                                    } else {
+                                        option['Show ' + vName] = () => alert(JSON.stringify(type.variables));//addInstanceAction(type, vName);
+                                    }
                                     contextMenuActions.push(option);
                                 });
                             });
