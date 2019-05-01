@@ -1,0 +1,69 @@
+
+<!DOCTYPE html> 
+<html>
+    <head>
+        <title>Context Menu</title>
+
+        <!-- boilerplate headers are injected with head.js, grab them from the live example header, or include a link to head.js -->
+        <script src="../boilerplate/head.js"></script>
+    </head>
+    <body style="font-family: 'Segoe UI', sans-serif; display: flex; justify-content: space-between; flex-wrap: wrap">
+        <div id="chart1" style="width: 100%; height: 600px;"></div>
+        <button onclick="exportMarkers()">Export markers</button>
+        <script>
+
+            var exportMarkers;
+            window.onload = function() {
+                // create fake data in the shape our charts expect
+                var data = [];
+                var from = new Date();
+                var to;
+                for(var i = 0; i < 2; i++){
+                    var lines = {};
+                    data.push({[`Factory${i}`]: lines});
+                    for(var j = 0; j < 5; j++){
+                        var values = {};
+                        lines[`Station${j}`] = values;
+                        for(var k = 0; k < 60; k++){
+                            if(!(k%2 && k%3)){  // if check is to create some sparseness in the data
+                                var to = new Date(from.valueOf() + 1000*60*k);
+                                values[to.toISOString().split('.')[0]+"Z"] = {avg: Math.random() * 20};
+                            }
+                        }
+                    }
+                }
+
+                var genericDataContextMenu = [{
+                    name: "Print parameters to console",
+                    action: function(dataGroup, timeSeriesName, timestamp) {
+                        console.log(dataGroup);
+                        console.log(timeSeriesName);
+                        console.log(timestamp);
+                    }
+                }]
+
+           
+                var brushContextMenu = [{
+                    name: "Print parameters to console",
+                    action: function(from, to) {
+                        console.log(from);
+                        console.log(to);
+                    }
+                }]
+
+                // render the data in a chart
+                var tsiClient = new TsiClient();
+                var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart1'));
+                // BUG: measureTypes must be present for sparse data
+                lineChart.render(JSON.parse(JSON.stringify(data)), {legend: 'compact', theme: 'dark', grid: true, tooltip: true, 
+                    brushContextMenuActions: brushContextMenu, markers: [from.valueOf() + (60*1000*20), 
+                        from.valueOf() + (60*1000*25)], onMarkersChange: (markers) => {console.log(markers)}},
+                    [{measureTypes: ['avg'], searchSpan: {from: from.toISOString(), to: to.toISOString(), bucketSize: '1m'}, alias: 'Factory0'}, {alias: 'Factory1'}]);
+
+                exportMarkers = function () {
+                    console.log(lineChart.exportMarkers());
+                }
+            };
+        </script>
+    </body>
+</html>
