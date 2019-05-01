@@ -80,8 +80,8 @@ class HierarchyNavigation extends Component{
                 this.hierarchy = this.hierarchyWrapper.append('div').classed('tsi-hierarchy', true);
 
                 this.hierarchyInstancesWrapper = hierarchyNavWrapper.append('div').classed('tsi-hierarchy-instances-wrapper', true);
-                this.hierarchyInstances = this.hierarchyInstancesWrapper.append('div').classed('tsi-hierarchy-instances', true);
                 this.hierarchyFiltered = this.hierarchyInstancesWrapper.append('div').classed('tsi-hierarchy-filtered', true);
+                this.hierarchyInstances = this.hierarchyInstancesWrapper.append('div').classed('tsi-hierarchy-instances', true);
 
                 this.pathSearch(getToken, environmentFqdn, self.requestPayload(self.path), this.hierarchy);
             });
@@ -138,22 +138,24 @@ class HierarchyNavigation extends Component{
     private renderTree (data, target, locInTarget = null) {
         let self = this;
         let list;
+        target.select('ul').select('.tsi-show-more.hierarchy').remove();
+        target.select('ul').select('.tsi-show-more.instance').remove();
+
         if (!locInTarget) {
             list = target.append('ul');
         }
         Object.keys(data).forEach((el) => {
             let li;
             if (locInTarget) {
-                li = target.select('ul').insert('li', locInTarget).classed('tsi-leaf', data[el].isLeaf);
+                li = target.select('ul').append('li').classed('tsi-leaf', data[el].isLeaf);
             } else {
                 li = list.append('li').classed('tsi-leaf', data[el].isLeaf);
             }       
 
             if(el === "Show More Hierarchies") {
-                target.select('ul').select('.tsi-show-more.hierarchy').remove();
                 li.classed('tsi-show-more hierarchy', true).append('span').classed('tsi-markedName', true).attr('style', `padding-left: ${(data[el].level + 1) * 18}px`).html(el).on('click', data[el].onClick);
             } else if (el === "Show More Instances") {
-                target.select('ul').select('.tsi-show-more.instance').remove();
+                
                 li.classed('tsi-show-more instance', true).append('span').classed('tsi-markedName', true).attr('style', `padding-left: ${(data[el].level + 1) * 18}px`).html(el).on('click', data[el].onClick);
             } else {
                 li.append('span').classed('tsi-caret', true).attr('style', `left: ${(data[el].level) * 18}px`);
@@ -210,7 +212,7 @@ class HierarchyNavigation extends Component{
         getToken().then(token => {
             self.server.getTimeseriesInstancesPathSearch(token, envFqdn, payload, instancesContinuationToken, hierarchiesContinuationToken).then(r => {
                 if (r.hierarchyNodes.hits.length > 0) {
-                    hierarchyData = this.fillDataRecursively(r.hierarchyNodes, getToken, envFqdn, payload, target);
+                    hierarchyData = this.fillDataRecursively(r.hierarchyNodes, getToken, envFqdn, payload);
                 }
                 if (r.instances.hits.length > 0) {
                     r.instances.hits.forEach((i) => {
@@ -297,7 +299,7 @@ class HierarchyNavigation extends Component{
                     }
                 };
                 if (r.hierarchyNodes.hits.length > 0) {
-                    hierarchyData = self.fillDataRecursively(r.hierarchyNodes, getToken, envFqdn, payload, target);
+                    hierarchyData = self.fillDataRecursively(r.hierarchyNodes, getToken, envFqdn, payload);
                 }
                 if (r.instances.hits.length > 0) {
                     r.instances.hits.forEach((i) => {
@@ -326,7 +328,7 @@ class HierarchyNavigation extends Component{
         });
     }
 
-    private fillDataRecursively(hierarchyNodes, getToken, envFqdn, payload, target) {
+    private fillDataRecursively(hierarchyNodes, getToken, envFqdn, payload) {
         let data = {};
         hierarchyNodes.hits.forEach((h) => {
             let hierarchy = new HierarchyNode(h.name, payload.path);
@@ -342,7 +344,7 @@ class HierarchyNavigation extends Component{
             hierarchy.collapse = () => {hierarchy.isExpanded = false; hierarchy.node.classed('tsi-expanded', false); hierarchy.node.selectAll('ul').remove();};
             data[(h.name === "" ? "(Empty)" : h.name) + " (" + h.cumulativeInstanceCount + ")"] = hierarchy;
             if (h.hierarchyNodes) {
-                hierarchy.children = this.fillDataRecursively(h.hierarchyNodes, getToken, envFqdn, this.requestPayload(hierarchy.path), hierarchy.node);
+                hierarchy.children = this.fillDataRecursively(h.hierarchyNodes, getToken, envFqdn, this.requestPayload(hierarchy.path));
             }
         });
 

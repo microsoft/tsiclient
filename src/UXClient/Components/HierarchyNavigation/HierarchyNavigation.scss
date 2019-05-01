@@ -20,7 +20,7 @@
         color: $gray6;
     }
 
-    .tsi-hierarchy-wrapper{
+    .tsi-hierarchy-wrapper, .tsi-hierarchy-instances-wrapper{
         li{
             .tsi-markedName{
                 &:hover{
@@ -93,9 +93,8 @@
         padding: 0px;
         height: 40px;
 
-        input{
-            width: 100%;
-            padding: 4px;
+        ul {
+            z-index: 2 !important;
         }
     }
 
@@ -114,9 +113,10 @@
 
         .tsi-hierarchy-instances {
             flex-grow: 1;
-            height: 50%;
+            height: 100%;
             float: left;
             overflow-y: auto;
+            width: 50%;
 
             .tsi-modelResultWrapper {
                 cursor: pointer;
@@ -193,25 +193,15 @@
             height: 100%;
         }
     }
-    li{
+
+    li {
+        position: relative;
         animation: fade-in .2s ease-in-out;
         @keyframes fade-in {
             0% { opacity: 0; }
             100% { opacity: 1; }
         }
 
-        > .tsi-caret{
-            transform: rotate(0deg);
-        }
-        &.tsi-expanded{
-            > .tsi-caret{
-                transform: rotate(90deg);
-            }
-        }
-    }
-
-    li {
-        position: relative;
         .tsi-caret{
             position: absolute;
             display: block;
@@ -225,6 +215,7 @@
             background-position: 50%;
             transition: all .2s ease;
             pointer-events: none;
+            transform: rotate(0deg);
         }
         .tsi-markedName{
             display: flex;
@@ -238,9 +229,10 @@
             white-space: nowrap;
         }
         &.tsi-expanded{
-            .tsi-caret{
+            > .tsi-caret{
                 content: '';
                 cursor: pointer;
+                transform: rotate(90deg);
             }
         }
         &.tsi-leaf {
