@@ -655,7 +655,11 @@ class LineChart extends ChartComponent {
                     self.setScooterPosition(scooter, self.x.invert(newPosition).valueOf());
                     self.setScooterLabels(scooter);
                     self.setScooterTimeLabel(scooter);
-                    self.chartOptions.onMarkersChange(self.exportMarkers());
+                })
+                .on("end", function (d) {
+                    if (!d3.select(d3.event.sourceEvent.target).classed("tsi-closeButton")) {
+                        self.chartOptions.onMarkersChange(self.exportMarkers());
+                    }
                 })
             );
             
