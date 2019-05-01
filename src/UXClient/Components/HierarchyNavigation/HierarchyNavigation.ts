@@ -14,6 +14,7 @@ class HierarchyNavigation extends Component{
     private hierarchyInstances;
     private hierarchyFiltered;
     private envHierarchies = {};
+    private envTypes = {};
     private selectedHierarchyId = HierarchySelectionValues.All;
     private mode = State.Navigate;
     private searchString = "";
@@ -86,6 +87,15 @@ class HierarchyNavigation extends Component{
                 this.pathSearch(getToken, environmentFqdn, self.requestPayload(self.path), this.hierarchy);
             });
         });
+
+
+        getToken().then(token => {
+            this.server.getTimeseriesTypes(token, environmentFqdn).then(r => {
+                r.types.forEach(t => {
+                    this.envTypes[t.id] = t;
+                });
+            })
+        })
 
         let autocompleteOnInput = (st) => {
             this.searchString = st;
