@@ -45,7 +45,7 @@ class ModelSearch extends Component{
         let inputWrapper = this.wrapper.append("div")
             .attr("class", "tsi-modelSearchInputWrapper");
 
-        let autocompleteOnInput = (st) => {
+        let autocompleteOnInput = (st, event) => {
             self.usedContinuationTokens = {};
 
             // blow results away if no text
@@ -57,14 +57,14 @@ class ModelSearch extends Component{
                 (showMore.node() as any).style.display = 'none';
                 noResults.style('display', 'none');
             }
-            else {
+            else if (event.which === 13 || event.keyCode === 13) {
                 (hierarchyElement.node() as any).style.display = 'none';
                 self.instanceResults.html('');
                 self.currentResultIndex = -1;
                 noResults.style('display', 'none');
                 searchInstances(st);
                 searchText = st;
-            } 
+            }  
         }
 
         let modelAutocomplete = new ModelAutocomplete(inputWrapper.node());
@@ -250,7 +250,9 @@ class ModelSearch extends Component{
                         ${i.highlights.name ? ('<tr><td>Time Series ID</td><td>' + this.stripHits(i.highlights.timeSeriesIds.join(' ')) + '</td></tr>') : ''}                        
                         ${i.highlights.instanceFieldNames.map((ifn, idx) => {
                             var val = i.highlights.instanceFieldValues[idx];
-                            return val.length === 0 ? '' :  '<tr><td>' + this.stripHits(ifn) + '</td><td>' + this.stripHits(i.highlights.instanceFieldValues[idx]) + '</tr>';
+                            if (ifn.indexOf('<hit>') !== -1 || val.indexOf('<hit>') !== -1) {
+                                return val.length === 0 ? '' :  '<tr><td>' + this.stripHits(ifn) + '</td><td>' + this.stripHits(val) + '</tr>';
+                            }
                         }).join('')}
                         </table>
                     </div>

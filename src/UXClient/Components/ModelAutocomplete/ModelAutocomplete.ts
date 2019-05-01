@@ -41,6 +41,7 @@ class ModelAutocomplete extends Component{
             if(d3.event.which === 13 || d3.event.keyCode === 13){
                 noSuggest = true;
                 self.ap.close();
+                self.chartOptions.onInput(searchText, d3.event);
             }
         });
 
@@ -56,7 +57,7 @@ class ModelAutocomplete extends Component{
                 })
             }
             noSuggest = false;
-            self.chartOptions.onInput(searchText);
+            self.chartOptions.onInput(searchText, d3.event);
             clear.classed('tsi-shown', searchText.length);
         })
     }
