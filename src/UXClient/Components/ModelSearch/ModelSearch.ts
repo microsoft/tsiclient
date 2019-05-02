@@ -125,7 +125,7 @@ class ModelSearch extends Component{
                                     self.clickedInstance = elt;
 
                                     i.type = self.types.filter(t => {
-                                        return t.name.replace(/\s/g, '') === i.highlights.type.split('<hit>').join('').split('</hit>').join('');
+                                        return t.name.replace(/\s/g, '') === i.highlights.type.split('<hit>').join('').split('</hit>').join('').replace(/\s/g, '');
                                     })[0];
                                     let contextMenuActions = self.chartOptions.onInstanceClick(i);
                                     self.contextMenu = self.wrapper.append('div');
