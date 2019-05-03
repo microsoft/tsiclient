@@ -49,8 +49,8 @@
             <div>
                 <label>Hierarchies Expand</label>
                 <select onchange="toggleHierarchyNaOption('hierarchiesExpand', event.target.value)">
-                    <option selected>ByLevel</option>
-                    <option>UntilFork</option>
+                    <option selected>OneLevel</option>
+                    <option>UntilChildren</option>
                 </select>
             </div>
             <div>
@@ -72,8 +72,8 @@
             var tsiClient;
             onInstanceClick = function(instance) {
                 let contextMenuActions = [];
-                authContext.getTsiToken().then(token => {
-                    tsiClient.server.getTimeseriesTypes(token, environmentFqdn, [instance.typeId]).then(r => {
+                authContext.getTsiToken().then(token => { //TODO: change this to Observable with Observable.from with .takeUntil(Observable.of(true).delay(2000)) to return default type variables, or maybe move this onclick into HierarchyNavigation component using rxjs lib
+                    tsiClient.server.getTimeseriesTypes(token, environmentFqdn, [instance.type.id]).then(r => {
                         if (r.get && Array.isArray(r.get)) {
                             r.get.forEach((t) => {
                                 let type = t.timeSeriesType;
@@ -90,7 +90,21 @@
                             });
                             instance.drawContextMenu(contextMenuActions);
                         }
-                    })
+                    }).catch(function (err) {
+                        let typeVariables = instance.type.variables;
+                        
+                        Object.keys(typeVariables).forEach((vName) => {
+                            let option = {};
+                            if (typeVariables[vName].aggregation.tsx === 'avg($value)') {
+                                let newType = this.getTsmTypeFromVariable(typeVariables[vName]);
+                                option['Show ' + vName] = () => alert(JSON.stringify(newType.variables));
+                            } else {
+                                option['Show ' + vName] = () => alert(JSON.stringify(instance.type.variables));//addInstanceAction(type, vName);
+                            }
+                            contextMenuActions.push(option);
+                        });
+                        instance.drawContextMenu(contextMenuActions);
+                    });
                 });
                 
             }
@@ -135,7 +149,7 @@
                 isInstancesRecursive: false,
                 isInstancesHighlighted: false,
                 instancesSort: "DisplayName",
-                hierarchiesExpand: "ByLevel",
+                hierarchiesExpand: "OneLevel",
                 hierarchiesSort: "Name"
             }
 
