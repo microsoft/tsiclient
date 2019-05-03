@@ -1,5 +1,4 @@
-
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html>
     <head>
         <!-- styles are only used for styling header and auth elements, where possible -->
@@ -8,8 +7,9 @@
     </head>
     <body style="font-family: 'Segoe UI', sans-serif;">
 
-        <div style="width:500px; overflow-y: auto; padding: 20px; background: grey;">
+        <div style="width:350px; overflow-y: auto; padding: 20px; background: grey;">
             <h3>Options</h3>
+            <p>Note: Options are overriden with search.</p>
             <div>
                 <label>Theme</label>
                 <select onchange="toggleHierarchyNaOption('theme', event.target.value)">
@@ -62,13 +62,13 @@
             </div>
         </div>
         <div id="hierarchyNav" style="
-                width: 500px;
+                width: 308px;
                 height: calc(100% - 280px);
                 position: fixed;">
         </div>
         <script>
             var hierarchy;
-            var environmentFqdn = 'dcbba382-10bd-40ea-ba06-454094aee00a.env.timeseries.azure.com'//'88728b62-954e-4930-836c-c36e5603e5a9.env.crystal-dev.windows-int.net';  //iryildir-test environment
+            var environmentFqdn = '88728b62-954e-4930-836c-c36e5603e5a9.env.crystal-dev.windows-int.net';  //'dcbba382-10bd-40ea-ba06-454094aee00a.env.timeseries.azure.com'
             var tsiClient;
             onInstanceClick = function(instance) {
                 let contextMenuActions = [];

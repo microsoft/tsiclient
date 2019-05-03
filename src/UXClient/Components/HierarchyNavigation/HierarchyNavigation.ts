@@ -51,7 +51,12 @@ class HierarchyNavigation extends Component{
                     this.envHierarchies[h.id] = h;
                 });
 
-                let hierarchySelectionWrapper = hierarchyNavWrapper.append('div').classed('tsi-hierarchy-selection-wrapper', true);
+                let searchWrapper = hierarchyNavWrapper.append('div').classed('tsi-hierarchy-search', true);
+                let modelAutocomplete = new ModelAutocomplete(searchWrapper.node() as Element);
+                modelAutocomplete.render(environmentFqdn, getToken, {onInput: autocompleteOnInput, theme: hierarchyNavOptions.theme});
+
+                this.hierarchyWrapper = hierarchyNavWrapper.append('div').classed('tsi-hierarchy-wrapper', true);
+                let hierarchySelectionWrapper = this.hierarchyWrapper.append('div').classed('tsi-hierarchy-selection-wrapper', true);
                 let hierarchySelect = hierarchySelectionWrapper.append('select').classed('tsi-hierarchy-select', true).on('change', function() {
                     var selectValue = d3.select(this).property('value');
                     self.selectedHierarchyId = selectValue;
@@ -67,18 +72,11 @@ class HierarchyNavigation extends Component{
                     self.hierarchy.html('');
                     self.pathSearch(getToken, environmentFqdn, self.requestPayload(self.path), self.hierarchy);
                 });
-
                 hierarchySelect.append('option').attr("value", HierarchySelectionValues.All).text('All');
                 Object.keys(this.envHierarchies).forEach((hId) => {
                     hierarchySelect.append('option').attr("value", hId).text(this.envHierarchies[hId].name);
                 });
                 hierarchySelect.append('option').attr("value", HierarchySelectionValues.Unparented).text('Unassigned Time Series Instances');
-
-                let searchWrapper = hierarchyNavWrapper.append('div').classed('tsi-hierarchy-search', true);
-                let modelAutocomplete = new ModelAutocomplete(searchWrapper.node() as Element);
-                modelAutocomplete.render(environmentFqdn, getToken, {onInput: autocompleteOnInput, theme: hierarchyNavOptions.theme});
-
-                this.hierarchyWrapper = hierarchyNavWrapper.append('div').classed('tsi-hierarchy-wrapper', true);
                 this.hierarchy = this.hierarchyWrapper.append('div').classed('tsi-hierarchy', true);
 
                 this.hierarchyInstancesWrapper = hierarchyNavWrapper.append('div').classed('tsi-hierarchy-instances-wrapper', true);
@@ -184,13 +182,13 @@ class HierarchyNavigation extends Component{
             }       
 
             if(el === "Show More Hierarchies") {
-                li.classed('tsi-show-more hierarchy', true).append('span').classed('tsi-markedName', true).attr('style', `padding-left: ${(data[el].level + 1) * 18}px`).html(el).on('click', data[el].onClick);
+                li.classed('tsi-show-more hierarchy', true).append('span').classed('tsi-markedName', true).attr('style', `padding-left: ${(data[el].level) * 18}px`).html(el).on('click', data[el].onClick);
             } else if (el === "Show More Instances") {
                 
-                li.classed('tsi-show-more instance', true).append('span').classed('tsi-markedName', true).attr('style', `padding-left: ${(data[el].level + 1) * 18}px`).html(el).on('click', data[el].onClick);
+                li.classed('tsi-show-more instance', true).append('span').classed('tsi-markedName', true).attr('style', `padding-left: ${(data[el].level) * 18}px`).html(el).on('click', data[el].onClick);
             } else {
-                li.append('span').classed('tsi-caret', true).attr('style', `left: ${(data[el].level) * 18}px`);
-                li.append('span').classed('tsi-markedName', true).attr('style', `padding-left: ${(data[el].level + 1) * 18}px`).html(el).on('click', function() {
+                li.append('span').classed('tsi-caret', !data[el].isLeaf).classed('tsi-flag', data[el].isLeaf).attr('style', `left: ${(data[el].level) * 18}px`);
+                li.append('span').classed('tsi-markedName', true).attr('style', `padding-left: ${data[el].isLeaf ? data[el].level * 18 : (data[el].level + 1) * 18}px`).html(el).on('click', function() {
                     if (data[el].onClick) {
                         d3.event.stopPropagation();
                         self.closeContextMenu();
@@ -258,7 +256,7 @@ class HierarchyNavigation extends Component{
 
                 if (this.mode === State.Navigate) {
                     if (this.selectedHierarchyId !== HierarchySelectionValues.Unparented) {
-                        this.renderTree({...hierarchyData, ...instancesData}, target, locInTarget);
+                        this.renderTree({...hierarchyData, ...instancesData}, target, locInTarget); //when show more instances clicked in the navigation tree, since there wont be any hierarchyNodes returned it is safe to concatenate instancesData with hierarchyData 
                     } else {
                         this.renderTree(instancesData, target, locInTarget);
                     }
@@ -502,11 +500,11 @@ function HiararchyNavigationOptions () {
     }
 }
 
-export enum InstancesSort {"DisplayName", "Rank"};
-export enum HierarchiesExpand {"UntilChildren", "OneLevel"};
-export enum HierarchiesSort {"Name", "CumulativeInstanceCount"};
-export enum HierarchySelectionValues {"All" = "0", "Unparented" = "-1"};
-export enum Theme {"light", "dark"};
+export enum InstancesSort {DisplayName = "DisplayName", Rank = "Rank"};
+export enum HierarchiesExpand {UntilChildren = "UntilChildren", OneLevel = "OneLevel"};
+export enum HierarchiesSort {Name = "Name", CumulativeInstanceCount = "CumulativeInstanceCount"};
+export enum HierarchySelectionValues {All = "0", Unparented = "-1"};
+export enum Theme {light = "light", dark = "dark"};
 export enum State {"Navigate", "Search", "Filter"};
 
 export {HierarchyNavigation}

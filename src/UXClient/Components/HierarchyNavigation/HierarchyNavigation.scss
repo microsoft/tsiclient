@@ -87,32 +87,8 @@
         }
     }
 
-    .tsi-hierarchy-selection-wrapper {
-        text-align: left;
-        padding: 16px;
-
-        .tsi-hierarchy-select {
-            border-radius: 3px;
-            padding: 4px 12px;
-            width: 100%;
-            font-size: 14px;
-            font-weight: 600;
-            height: 36px;
-            font-family: Segoe UI Regular,Segoe UI,Segoe WP,Tahoma,Arial,sans-serif;
-
-            &:focus{
-                border: 1px solid #136bfb;
-            }
-
-            &:hover {
-                border: 1px solid #eaeaea;
-            }
-        }
-    }
-
     .tsi-hierarchy-search {
-        padding: 0px;
-        height: 40px;
+        padding-top: 16px;
 
         ul {
             z-index: 2 !important;
@@ -214,15 +190,59 @@
         position: absolute;
         width: 100%;
 
+        .tsi-hierarchy-selection-wrapper {
+            text-align: left;
+            padding: 0 16px 4px;
+    
+            .tsi-hierarchy-select {
+                font-family: Segoe UI Regular,Segoe UI,Segoe WP,Tahoma,Arial,sans-serif;
+                font-size: 16px;
+                font-weight: 600;
+                background-position-y: 12px;
+                position: relative;
+                z-index: 1;
+                border: 1px solid transparent;
+                max-width: 277px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                background-color: #fff;
+            }
+        }
+
         .tsi-hierarchy {
             height: 100%;
             overflow-y: auto;
+            padding-left: 16px;
+        }
+    }
+
+    select{
+        background: url(data:image/svg+xml;base64,DQo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHZpZXdCb3g9IjAgMCAxMyA3Ij4NCiAgPGRlZnM+DQogICAgPHN0eWxlPg0KICAgICAgLmNscy0xIHsNCiAgICAgICAgY2xpcC1wYXRoOiB1cmwoI2NsaXAtQ2hldnJvbl9saWdodF90aGVtZV8xKTsNCiAgICAgIH0NCg0KICAgICAgLmNscy0yLCAuY2xzLTMgew0KICAgICAgICBmaWxsOiBub25lOw0KICAgICAgICBzdHJva2UtbGluZWNhcDogc3F1YXJlOw0KICAgICAgICBzdHJva2UtbWl0ZXJsaW1pdDogMTsNCiAgICAgIH0NCg0KICAgICAgLmNscy0yIHsNCiAgICAgICAgc3Ryb2tlOiByZ2JhKDAsMCwwLDAuMSk7DQogICAgICB9DQoNCiAgICAgIC5jbHMtMyB7DQogICAgICAgIHN0cm9rZTogIzY2NjsNCiAgICAgIH0NCg0KICAgICAgLmNscy00IHsNCiAgICAgICAgZmlsbDogI2ZmZjsNCiAgICAgIH0NCiAgICA8L3N0eWxlPg0KICAgIDxjbGlwUGF0aCBpZD0iY2xpcC1DaGV2cm9uX2xpZ2h0X3RoZW1lXzEiPg0KICAgICAgPHJlY3Qgd2lkdGg9IjEzIiBoZWlnaHQ9IjciLz4NCiAgICA8L2NsaXBQYXRoPg0KICA8L2RlZnM+DQogIDxnIGlkPSJDaGV2cm9uX2xpZ2h0X3RoZW1lXzEiIGRhdGEtbmFtZT0iQ2hldnJvbiBsaWdodCB0aGVtZSDigJMgMSIgY2xhc3M9ImNscy0xIj4NCiAgICA8ZyBpZD0iR3JvdXBfMjIzNjkiIGRhdGEtbmFtZT0iR3JvdXAgMjIzNjkiIHRyYW5zZm9ybT0idHJhbnNsYXRlKC0xOTkuNiAtNjQ2LjI3MykiPg0KICAgICAgPHBhdGggaWQ9IlBhdGhfNDQ3MzciIGRhdGEtbmFtZT0iUGF0aCA0NDczNyIgY2xhc3M9ImNscy0yIiBkPSJNOC41LDMzLjhsLTUsNSw1LDUiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDE2Ny44IDY1NS44KSByb3RhdGUoLTkwKSIvPg0KICAgICAgPHBhdGggaWQ9IlBhdGhfNDQ3MzgiIGRhdGEtbmFtZT0iUGF0aCA0NDczOCIgY2xhc3M9ImNscy0zIiBkPSJNOC41LDMyLjhsLTUsNSw1LDUiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDE2Ny44IDY1NS44KSByb3RhdGUoLTkwKSIvPg0KICAgIDwvZz4NCiAgPC9nPg0KPC9zdmc+DQo=) 16px/16px no-repeat;
+        background-position-y: 10px;
+        background-position-x: calc(100% - 4px);
+        padding: 4px;
+        padding-right: 32px;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        border-width: 1px;
+        border-radius: 2px;
+        border-style: solid;
+        white-space: nowrap;
+        overflow: hidden;
+        &:hover {
+            border: 1px solid #eaeaea !important;
+        }
+
+        &:focus {
+            border: 1px solid #136bfb !important;
+            outline: none;
         }
     }
 
     ul{
         list-style: none;
         padding: 0;
+        margin: 0;
         width: 100%;
         
         &.tsi-noPad{
@@ -241,7 +261,7 @@
             100% { opacity: 1; }
         }
 
-        .tsi-caret{
+        .tsi-caret {
             position: absolute;
             display: block;
             height: 10px;
@@ -276,9 +296,6 @@
         }
         &.tsi-leaf {
             font-weight: 600;
-            .tsi-caret{
-                display: none;
-            }
             &.selected {
                 background: #b3d6f2;
             }
