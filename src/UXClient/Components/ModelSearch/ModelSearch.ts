@@ -125,7 +125,7 @@ class ModelSearch extends Component{
                                     self.clickedInstance = elt;
 
                                     i.type = self.types.filter(t => {
-                                        return t.name.replace(/\s/g, '') === i.highlights.type.split('<hit>').join('').split('</hit>').join('');
+                                        return t.name.replace(/\s/g, '') === (i.highlights.type ? i.highlights.type.split('<hit>').join('').split('</hit>').join('') : i.highlights.typeName.split('<hit>').join('').split('</hit>').join(''));
                                     })[0];
                                     let contextMenuActions = self.chartOptions.onInstanceClick(i);
                                     self.contextMenu = self.wrapper.append('div');
@@ -242,12 +242,12 @@ class ModelSearch extends Component{
     private getInstanceHtml(i) {
         return `<div class="tsi-modelResult">
                     <div class="tsi-modelPK">
-                        ${i.highlights.name ? this.stripHits(i.highlights.name) : this.stripHits(i.highlights.timeSeriesIds.join(' '))}
+                        ${i.highlights.name ? this.stripHits(i.highlights.name) : this.stripHits(i.highlights.timeSeriesIds ? i.highlights.timeSeriesIds.join(' ') : i.highlights.timeSeriesId.join(' '))}
                     </div>
                     <div class="tsi-modelHighlights">
                         ${this.stripHits(i.highlights.description && i.highlights.description.length ? i.highlights.description : 'No description')}
                         <br/><table>
-                        ${i.highlights.name ? ('<tr><td>Time Series ID</td><td>' + this.stripHits(i.highlights.timeSeriesIds.join(' ')) + '</td></tr>') : ''}                        
+                        ${i.highlights.name ? ('<tr><td>Time Series ID</td><td>' + this.stripHits(i.highlights.timeSeriesIds ? i.highlights.timeSeriesIds.join(' ') : i.highlights.timeSeriesId.join(' ')) + '</td></tr>') : ''}                        
                         ${i.highlights.instanceFieldNames.map((ifn, idx) => {
                             var val = i.highlights.instanceFieldValues[idx];
                             if (ifn.indexOf('<hit>') !== -1 || val.indexOf('<hit>') !== -1) {
