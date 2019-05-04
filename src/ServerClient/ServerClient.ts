@@ -113,8 +113,12 @@ class ServerClient {
     }
 
     public getTimeseriesInstancesPathSearch(token: string, environmentFqdn: string, payload, instancesContinuationToken = null, hierarchiesContinuationToken = null) {
-        let uri = 'https://' + environmentFqdn + '/timeseries/instances/navigate' + this.tsmTsqApiVersion;
-        return this.createPromiseFromXhr(uri, "POST", JSON.stringify(payload), token, (responseText) => {return JSON.parse(responseText);}, instancesContinuationToken || hierarchiesContinuationToken);
+        let uri = 'https://' + environmentFqdn + '/timeseries/instances/search' + this.tsmTsqApiVersion;
+        let requestPayload = {...payload};
+        if (requestPayload.path.length == 0) {
+            requestPayload.path = null;
+        }
+        return this.createPromiseFromXhr(uri, "POST", JSON.stringify(requestPayload), token, (responseText) => {return JSON.parse(responseText);}, instancesContinuationToken || hierarchiesContinuationToken);
     }
 
     public getTimeseriesInstancesSuggestions(token: string, environmentFqdn: string, searchString: string, take: number = 10) {

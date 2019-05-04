@@ -9,7 +9,7 @@
 
         <div style="width:350px; overflow-y: auto; padding: 20px; background: grey;">
             <h3>Options</h3>
-            <p>Note: Options are overriden with search.</p>
+            <p>Note: Options are customizable for navigate only, refresh after search.</p>
             <div>
                 <label>Theme</label>
                 <select onchange="toggleHierarchyNaOption('theme', event.target.value)">
@@ -63,12 +63,12 @@
         </div>
         <div id="hierarchyNav" style="
                 width: 308px;
-                height: calc(100% - 280px);
+                height: calc(100% - 338px);
                 position: fixed;">
         </div>
         <script>
             var hierarchy;
-            var environmentFqdn = '88728b62-954e-4930-836c-c36e5603e5a9.env.crystal-dev.windows-int.net';  //'dcbba382-10bd-40ea-ba06-454094aee00a.env.timeseries.azure.com'
+            var environmentFqdn = 'bf43f133-3f68-4ec0-bcb4-fd64530e4256.env.crystal-dev.windows-int.net';  //'dcbba382-10bd-40ea-ba06-454094aee00a.env.timeseries.azure.com'
             var tsiClient;
             onInstanceClick = function(instance) {
                 let contextMenuActions = [];
