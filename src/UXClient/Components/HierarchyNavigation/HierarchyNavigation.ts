@@ -117,36 +117,33 @@ class HierarchyNavigation extends Component{
 
         let autocompleteOnInput = (st) => {
             this.searchString = st;
+            this.hierarchyInstances.html('');
+            this.hierarchyFiltered.html('');
+
             if(st.length === 0){
                 this.switchToNavTab(NavTabs.Hierarchy);
-                this.setPropsForNavigate();
-                this.hierarchyInstances.html('');
-                this.hierarchyFiltered.html('');
+                this.setRequestParamsForNavigate();
                 d3.select('.tsi-filter-path').property('value', '');
                 (this.hierarchyInstancesWrapper.node() as any).style.display = 'none';
                 (this.hierarchyWrapper.node() as any).style.display = 'block';
             }
             else {
                 if (this.selectedNavTab === NavTabs.Hierarchy) {
-                    this.setPropsForFilter();
+                    if (st.length === 1) { //first time switching from navigate to filter
+                        this.mode = State.Filter;
+                        this.setRequestParamsForFilter();
+                        (this.hierarchyWrapper.node() as any).style.display = 'none';
+                        (this.hierarchyInstancesWrapper.node() as any).style.display = 'block';
+                    }
                     this.pathSearch(getToken, environmentFqdn, self.requestPayload(), this.hierarchyFiltered);
-                } else { 
-                    this.setPropsForSearch();
+                } else {
                     this.pathSearch(getToken, environmentFqdn, self.requestPayload(), this.hierarchyInstances);
                 }
-                this.hierarchyInstances.html('');
-                this.hierarchyFiltered.html('');
-                (this.hierarchyWrapper.node() as any).style.display = 'none';
-                (this.hierarchyInstancesWrapper.node() as any).style.display = 'block';
             }
         }
     }
 
-    private setPropsForSearch () {
-        this.mode = State.Search;
-        if(!d3.select('.tsi-filter-path').property('value')) {
-            this.path = [];
-        }
+    private setRequestParamsForSearch () {
         this.hierarchyNavOptions.isInstancesRecursive = true;
         this.hierarchyNavOptions.isInstancesHighlighted = true;
         this.hierarchyNavOptions.instancesSort = InstancesSort.Rank;
@@ -154,7 +151,7 @@ class HierarchyNavigation extends Component{
         this.hierarchyNavOptions.hierarchiesSort = HierarchiesSort.CumulativeInstanceCount;
     }
 
-    private setPropsForNavigate () {
+    private setRequestParamsForNavigate () {
         this.mode = State.Navigate;
         this.path = (this.selectedHierarchyId === HierarchySelectionValues.All) || (this.selectedHierarchyId === HierarchySelectionValues.Unparented) ? [] : this.envHierarchies[this.selectedHierarchyId]['name'];
         this.hierarchyNavOptions.isInstancesRecursive = false;
@@ -164,11 +161,7 @@ class HierarchyNavigation extends Component{
         this.hierarchyNavOptions.hierarchiesSort = HierarchiesSort.Name;
     }
 
-    private setPropsForFilter () {
-        this.mode = State.Filter;
-        if(!d3.select('.tsi-filter-path').property('value')) {
-            this.path = [];
-        }
+    private setRequestParamsForFilter () {
         this.hierarchyNavOptions.isInstancesRecursive = false;
         this.hierarchyNavOptions.isInstancesHighlighted = true;
         this.hierarchyNavOptions.instancesSort = InstancesSort.DisplayName;
@@ -179,14 +172,19 @@ class HierarchyNavigation extends Component{
     private switchToNavTab = (tab: NavTabs) => {
         if (tab === NavTabs.Hierarchy) {
             this.selectedNavTab = NavTabs.Hierarchy;
-            this.setPropsForFilter();
+            this.mode = State.Filter;
+            this.setRequestParamsForFilter();
+            if (d3.selectAll('.tsi-filtered-hierarchy ul').size() === 0) {
+                this.pathSearch(this.getToken, this.environmentFqdn, this.requestPayload(), this.hierarchyFiltered);
+            }
             this.hierarchyInstancesWrapper.select('.tsi-nav-tab.tsi-filtered-hierarchy').classed('tsi-selected', true);
             this.hierarchyInstancesWrapper.select('.tsi-nav-tab.tsi-instance-results').classed('tsi-selected', false);
             (this.hierarchyFiltered.node() as any).style.display = 'block';
             (this.hierarchyInstances.node() as any).style.display = 'none';
         } else {
             this.selectedNavTab = NavTabs.Instances;
-            this.setPropsForSearch();
+            this.mode = State.Search;
+            this.setRequestParamsForSearch();
             if (d3.selectAll('.tsi-modelResultWrapper').size() === 0) {
                 this.pathSearch(this.getToken, this.environmentFqdn, this.requestPayload(), this.hierarchyInstances);
             }
@@ -207,19 +205,30 @@ class HierarchyNavigation extends Component{
         return payload;
     }
 
-    private renderTree (data, target, locInTarget = null) {
+    private renderTree (data, target, locInTarget = null) { //locInTarget is to refer 'show more' in the target
         let self = this;
-        let list;
-        target.select('ul').select('.tsi-show-more.hierarchy').remove();
-        target.select('ul').select('.tsi-show-more.instance').remove();
-
+        if (Object.keys(data).length === 0) {
+            target.append('p').html('No results');
+            return;
+        }
+        let list, currentShowMore;
         if (!locInTarget) {
             list = target.append('ul');
+        } else {
+            if (locInTarget === '.tsi-show-more.hierarchy')
+                currentShowMore = target.selectAll('ul > .tsi-show-more.hierarchy').filter(function(d, i,list) {
+                    return i === list.length - 1;
+                });
+            else
+                currentShowMore = target.selectAll('ul > .tsi-show-more.instance').filter(function(d, i,list) {
+                    return i === list.length - 1;
+                });
+            currentShowMore.node().style.display = 'none';
         }
         Object.keys(data).forEach((el) => {
             let li;
             if (locInTarget) {
-                li = target.select('ul').append('li').classed('tsi-leaf', data[el].isLeaf);
+                li = target.select('ul').insert('li', locInTarget).classed('tsi-leaf', data[el].isLeaf);
             } else {
                 li = list.append('li').classed('tsi-leaf', data[el].isLeaf);
             }       
@@ -256,7 +265,7 @@ class HierarchyNavigation extends Component{
                     }
                 });
                 if (!data[el].isLeaf && this.mode !== State.Navigate) {
-                    li.append('div').classed('tsi-flag', true).on('click', function() {
+                    li.append('div').classed('tsi-flag', true).attr('title', 'Add to Filter Path').on('click', function() {
                         self.path = data[el].path;
                         d3.select('.tsi-filter-path').property('value', self.path.map((a) => a ? a : "(Empty)").join(" / "));
                         self.hierarchyInstances.html('');
@@ -276,10 +285,17 @@ class HierarchyNavigation extends Component{
                 this.renderTree(data[el].children, data[el].node);
             }
         });
+        if(locInTarget) {
+            currentShowMore.remove();
+        }
     }
 
     private renderInstances (data, target) {
         let self = this;
+        if (Object.keys(data).length === 0) {
+            target.append('p').html('No results');
+            return;
+        }
         target.select('.tsi-show-more.instance').remove();
 
         Object.keys(data).forEach((i) => {
@@ -387,9 +403,9 @@ class HierarchyNavigation extends Component{
 
     private getFilterHtml(hORi, key) {
         if (this.mode !== State.Navigate) {
-            if (hORi.highlights) //TODO: for hierarchy vs instance check, add additional check when we have highlights for hierarchy in the future as well
+            if (hORi.highlights) //TODO: for hierarchy vs instance check (when there is higlights it is instance), add additional check when we have highlights for hierarchy in the future as well
                 return hORi.highlights.name ? this.stripHits(hORi.highlights.name) : this.stripHits(hORi.highlights.timeSeriesIds ? hORi.highlights.timeSeriesIds.join(' ') : hORi.highlights.timeSeriesId.join(' '));
-            else if (key.toLowerCase().indexOf(this.searchString.toLowerCase()) !== -1) //emulate hierarchy highlights?
+            else if (key.toLowerCase().indexOf(this.searchString.toLowerCase()) !== -1) //tweak hierarchy highlights?
                 return `<hit>${Utils.strip(key)}</hit>`;
             else return key;
         } else return key;
