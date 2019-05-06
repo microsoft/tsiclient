@@ -228,7 +228,7 @@ class HierarchyNavigation extends Component{
         Object.keys(data).forEach((el) => {
             let li;
             if (locInTarget) {
-                li = target.select('ul').insert('li', locInTarget).classed('tsi-leaf', data[el].isLeaf);
+                li = target.select('ul').insert('li', locInTarget + ':first-child').classed('tsi-leaf', data[el].isLeaf);
             } else {
                 li = list.append('li').classed('tsi-leaf', data[el].isLeaf);
             }       
