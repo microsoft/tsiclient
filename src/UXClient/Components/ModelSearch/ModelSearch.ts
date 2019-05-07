@@ -45,7 +45,7 @@ class ModelSearch extends Component{
         let inputWrapper = this.wrapper.append("div")
             .attr("class", "tsi-modelSearchInputWrapper");
 
-        let autocompleteOnInput = (st) => {
+        let autocompleteOnInput = (st, event) => {
             self.usedContinuationTokens = {};
 
             // blow results away if no text
@@ -57,14 +57,14 @@ class ModelSearch extends Component{
                 (showMore.node() as any).style.display = 'none';
                 noResults.style('display', 'none');
             }
-            else {
+            else if (event.which === 13 || event.keyCode === 13) {
                 (hierarchyElement.node() as any).style.display = 'none';
                 self.instanceResults.html('');
                 self.currentResultIndex = -1;
                 noResults.style('display', 'none');
                 searchInstances(st);
                 searchText = st;
-            } 
+            }  
         }
 
         let modelAutocomplete = new ModelAutocomplete(inputWrapper.node());
@@ -125,7 +125,7 @@ class ModelSearch extends Component{
                                     self.clickedInstance = elt;
 
                                     i.type = self.types.filter(t => {
-                                        return t.name.replace(/\s/g, '') === i.highlights.type.split('<hit>').join('').split('</hit>').join('').replace(/\s/g, '');
+                                        return t.name.replace(/\s/g, '') === (i.highlights.type ? i.highlights.type.split('<hit>').join('').split('</hit>').join('').replace(/\s/g, '') : i.highlights.typeName.split('<hit>').join('').split('</hit>').join('').replace(/\s/g, ''));
                                     })[0];
                                     let contextMenuActions = self.chartOptions.onInstanceClick(i);
                                     self.contextMenu = self.wrapper.append('div');
@@ -242,15 +242,17 @@ class ModelSearch extends Component{
     private getInstanceHtml(i) {
         return `<div class="tsi-modelResult">
                     <div class="tsi-modelPK">
-                        ${i.highlights.name ? this.stripHits(i.highlights.name) : this.stripHits(i.highlights.timeSeriesIds.join(' '))}
+                        ${i.highlights.name ? this.stripHits(i.highlights.name) : this.stripHits(i.highlights.timeSeriesIds ? i.highlights.timeSeriesIds.join(' ') : i.highlights.timeSeriesId.join(' '))}
                     </div>
                     <div class="tsi-modelHighlights">
                         ${this.stripHits(i.highlights.description && i.highlights.description.length ? i.highlights.description : 'No description')}
                         <br/><table>
-                        ${i.highlights.name ? ('<tr><td>Time Series ID</td><td>' + this.stripHits(i.highlights.timeSeriesIds.join(' ')) + '</td></tr>') : ''}                        
+                        ${i.highlights.name ? ('<tr><td>Time Series ID</td><td>' + this.stripHits(i.highlights.timeSeriesIds ? i.highlights.timeSeriesIds.join(' ') : i.highlights.timeSeriesId.join(' ')) + '</td></tr>') : ''}                        
                         ${i.highlights.instanceFieldNames.map((ifn, idx) => {
                             var val = i.highlights.instanceFieldValues[idx];
-                            return val.length === 0 ? '' :  '<tr><td>' + this.stripHits(ifn) + '</td><td>' + this.stripHits(i.highlights.instanceFieldValues[idx]) + '</tr>';
+                            if (ifn.indexOf('<hit>') !== -1 || val.indexOf('<hit>') !== -1) {
+                                return val.length === 0 ? '' :  '<tr><td>' + this.stripHits(ifn) + '</td><td>' + this.stripHits(val) + '</tr>';
+                            }
                         }).join('')}
                         </table>
                     </div>
