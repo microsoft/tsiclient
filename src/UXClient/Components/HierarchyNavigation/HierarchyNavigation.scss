@@ -20,7 +20,7 @@
         color: $gray6;
     }
 
-    .tsi-hierarchy-wrapper, .tsi-hierarchy-instances-wrapper{
+    .tsi-hierarchy-or-instances-wrapper {
         li{
             .tsi-markedName{
                 &:hover{
@@ -67,29 +67,51 @@
     &.tsi-dark{
         $grays: grays('dark');
         @include hierarchyColors($grays);
-        .tsi-hierarchy-wrapper, .tsi-hierarchy-instances-wrapper {
-            li{
-                > .tsi-caret{
-                    background-image: url(../../Icons/CaretClosed_Dark_Theme.svg);
-                }
-                > .tsi-flag {
-                    background-image: url(../../Icons/flag_dark_theme.svg);
-                }
-            }
+        .tsi-caret{
+            background-image: url(../../Icons/CaretClosed_Dark_Theme.svg);
+        }
+        .tsi-flag {
+            background-image: url(../../Icons/flag_dark_theme.svg);
         }
     }
     &.tsi-light{
         $grays: grays('light');
         @include hierarchyColors($grays);
-        .tsi-hierarchy-wrapper, .tsi-hierarchy-instances-wrapper{
-            li{
-                > .tsi-caret{
-                    background-image: url(../../Icons/CaretClosed_Light_Theme.svg);
-                }
-                > .tsi-flag {
-                    background-image: url(../../Icons/flag_light_theme.svg);
-                }
-            }
+        .tsi-caret{
+            background-image: url(../../Icons/CaretClosed_Light_Theme.svg);
+        }
+        .tsi-flag {
+            background-image: url(../../Icons/flag_light_theme.svg);
+        }
+    }
+
+    .tsi-hierarchy-selection-wrapper {
+        text-align: left;
+        padding: 8px 16px 4px;
+
+        .tsi-hierarchy-select {
+            font-family: Segoe UI Regular,Segoe UI,Segoe WP,Tahoma,Arial,sans-serif;
+            font-size: 16px;
+            font-weight: 600;
+            background-position-y: 12px;
+            position: relative;
+            z-index: 1;
+            border: 1px solid transparent;
+            max-width: 277px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            background-color: #fff;
+        }
+    }
+
+    .tsi-filter-path-wrapper {
+        .tsi-filter-path {
+            margin-left: 20px;
+            width: 80%;
+            font-style: italic;
+            color: grey;
+            border: none;
+            background: transparent;
         }
     }
 
@@ -101,18 +123,10 @@
         }
     }
 
-    .tsi-hierarchy-instances-wrapper {
-        display: none;
-        height: calc(100% - 110px);
+    .tsi-hierarchy-or-instances-wrapper {
+        height: calc(100% - 130px);
         position: absolute;
         width: 100%;
-
-        .tsi-filter-path {
-            margin-left: 20px;
-            width: 80%;
-            font-style: italic;
-            color: grey;
-        }
 
         .tsi-nav-tab-wrapper {
             width: 100%;
@@ -198,35 +212,18 @@
         }
     }
 
-    .tsi-hierarchy-wrapper{
-        height: calc(100% - 110px);
+    .tsi-flag {
+        z-index: 10 !important;
+        right: 0px;
         position: absolute;
-        width: 100%;
-
-        .tsi-hierarchy-selection-wrapper {
-            text-align: left;
-            padding: 8px 16px 4px;
-    
-            .tsi-hierarchy-select {
-                font-family: Segoe UI Regular,Segoe UI,Segoe WP,Tahoma,Arial,sans-serif;
-                font-size: 16px;
-                font-weight: 600;
-                background-position-y: 12px;
-                position: relative;
-                z-index: 1;
-                border: 1px solid transparent;
-                max-width: 277px;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                background-color: #fff;
-            }
-        }
-
-        .tsi-hierarchy {
-            height: 100%;
-            overflow-y: auto;
-            padding-left: 16px;
-        }
+        display: block;
+        height: 10px;
+        width: 10px;
+        cursor: pointer;
+        background-size: 10px;
+        background-repeat: no-repeat;
+        top: 11px;
+        background-position: 50%;
     }
 
     select{
@@ -288,19 +285,6 @@
             transition: all .2s ease;
             pointer-events: none;
             transform: rotate(0deg);
-        }
-        .tsi-flag {
-            z-index: 10 !important;
-            right: 0px;
-            position: absolute;
-            display: block;
-            height: 10px;
-            width: 10px;
-            cursor: pointer;
-            background-size: 10px;
-            background-repeat: no-repeat;
-            top: 11px;
-            background-position: 50%;
         }
         .tsi-markedName{
             display: flex;
