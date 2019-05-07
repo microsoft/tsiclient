@@ -105,19 +105,25 @@
     }
 
     .tsi-filter-path-wrapper {
+        visibility: hidden;
+        background: #eeeeee;
+        padding: 4px;
+
         .tsi-filter-path {
             margin-left: 20px;
-            width: 80%;
+            width: 70%;
             font-style: italic;
             color: grey;
             border: none;
             background: transparent;
         }
+
+        .tsi-filter-clear {
+            margin-left: 4px;
+        }
     }
 
     .tsi-hierarchy-search {
-        padding-top: 16px;
-
         ul {
             z-index: 2 !important;
         }
@@ -214,7 +220,7 @@
 
     .tsi-flag {
         z-index: 10 !important;
-        right: 0px;
+        right: 20px;
         position: absolute;
         display: block;
         height: 10px;
