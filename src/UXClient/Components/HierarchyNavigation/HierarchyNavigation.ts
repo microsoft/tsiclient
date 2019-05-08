@@ -487,7 +487,7 @@ function InstanceNode (tsId, name = null, type, hierarchyIds, highlights, contex
             var option = Object.keys(a)[0];
             contextMenuList.append('li').html(option).on('click', a[option]);
         });
-        // this.contextMenuProps['hierarchy'].attr('style', `padding-bottom: ${this.contextMenu.node().getBoundingClientRect().height}px`);
+        // this.contextMenuProps['hierarchy'].attr('style', `padding-bottom: ${this.contextMenu.node().getBoundingClientRect().height}px`);  margin-top = -*height of context menu
     }
     this.isLeaf = true;
     this.level = level;
@@ -495,8 +495,8 @@ function InstanceNode (tsId, name = null, type, hierarchyIds, highlights, contex
 }
 
 function HiararchyNavigationOptions () {
-    this.instancesPageSize = 10;
-    this.hierarchiesPageSize = 10;
+    this.instancesPageSize = 50;
+    this.hierarchiesPageSize = 50;
     this.isInstancesRecursive = false;
     this.isInstancesHighlighted = false;
     this.instancesSort = InstancesSort.DisplayName;
