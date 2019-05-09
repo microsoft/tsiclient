@@ -89,7 +89,7 @@ class LineChart extends ChartComponent {
     }
 
     public getXTickNumber (singleLineXAxisLabel) {
-        return (singleLineXAxisLabel ? Math.floor(this.chartWidth / 300) :  Math.floor(this.chartWidth / 160));
+        return Math.max((singleLineXAxisLabel ? Math.floor(this.chartWidth / 300) :  Math.floor(this.chartWidth / 160)), 2);
     }
 
     private setIsDroppingScooter (isDropping: boolean) {
