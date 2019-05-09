@@ -1663,11 +1663,7 @@ class LineChart extends ChartComponent {
                             return (d.bucketSize != undefined ? self.x(new Date(d.dateTime.valueOf() + (d.bucketSize / 2))) : self.x(d.dateTime))})
                         .y(function(d: any) { 
                             if (d.measures) {
-                                var value = self.getValueOfVisible(d)
-                                if (self.yMap[d.aggregateKey]) {
-                                    return self.yMap[d.aggregateKey](self.getValueOfVisible(d))
-                                }
-                                return null;
+                                return self.yMap[d.aggregateKey] ? self.yMap[d.aggregateKey](self.getValueOfVisible(d)) : null;
                             }
                             return null;
                         })
