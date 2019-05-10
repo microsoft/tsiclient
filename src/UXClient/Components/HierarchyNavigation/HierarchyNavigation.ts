@@ -67,14 +67,14 @@ class HierarchyNavigation extends Component{
                     if (selectValue === HierarchySelectionValues.All || selectValue === HierarchySelectionValues.Unparented) {
                         self.path = [];
                         d3.select('.tsi-filter-path').property('value', '').attr('title', '');
-                        (self.filterPathWrapper.node() as any).style.visibility = 'hidden';
+                        (self.filterPathWrapper.node() as any).style.display = 'none';
                         if ((selectValue === HierarchySelectionValues.Unparented) && (self.selectedNavTab === NavTabs.Instances)) {
                             self.hierarchyNavOptions.isInstancesRecursive = false;
                         }
                     } else {
                         self.path = [self.envHierarchies[selectValue].name];
                         d3.select('.tsi-filter-path').property('value', self.envHierarchies[selectValue].name).attr('title', self.envHierarchies[selectValue].name);
-                        (self.filterPathWrapper.node() as any).style.visibility = 'visible';
+                        (self.filterPathWrapper.node() as any).style.display = 'block';
                     }
                     self.clearAndGetResults();
                 });
@@ -94,7 +94,7 @@ class HierarchyNavigation extends Component{
                         d3.select('.tsi-hierarchy-select').property('value', HierarchySelectionValues.All);
                     } 
                     d3.select('.tsi-filter-path').property('value', '').attr('title', '');
-                    (self.filterPathWrapper.node() as any).style.visibility = 'hidden';
+                    (self.filterPathWrapper.node() as any).style.display = 'none';
                     self.clearAndGetResults();
                 });
                 
@@ -319,7 +319,7 @@ class HierarchyNavigation extends Component{
                             target = self.instanceList.parentNode;
                         }
                         let mouseWrapper = d3.mouse(target.select(function() { return this.parentNode}).node());
-                        data[el].onClick(target, mouseWrapper[1], mouseElt[1]);
+                        data[el].onClick(target, mouseWrapper[1], mouseElt[1], self.path.length);
                     } else {
                         data[el].isExpanded ? data[el].collapse() : data[el].expand()
                     }
@@ -329,7 +329,7 @@ class HierarchyNavigation extends Component{
                         self.path = data[el].path;
                         let pathStr = self.path.map((a) => a ? a : "(Empty)").join(" / ");
                         d3.select('.tsi-filter-path').property('value', pathStr).attr('title', pathStr);
-                        (self.filterPathWrapper.node() as any).style.visibility = 'visible';
+                        (self.filterPathWrapper.node() as any).style.display = 'block';
                         self.clearAndGetResults();
                     });
                 }
@@ -368,7 +368,7 @@ class HierarchyNavigation extends Component{
                     self.clickedInstance = data[i];
                     let mouseWrapper = d3.mouse(self.instanceList.select(function() { return this.parentNode.parentNode}).node());
                     let mouseElt = d3.mouse(this as any);
-                    data[i].onClick(self.instanceList, mouseWrapper[1], mouseElt[1]);
+                    data[i].onClick(self.instanceList, mouseWrapper[1], mouseElt[1], self.path.length);
                 });
             }
             data[i].node = div;
@@ -531,19 +531,20 @@ function InstanceNode (tsId, name = null, type, hierarchyIds, highlights, contex
     this.type = type;
     this.hierarchyIds = hierarchyIds;
     this.highlights = highlights;
-    this.onClick = (target, wrapperMousePos, eltMousePos, fromKeyboard = false) => {
+    this.onClick = (target, wrapperMousePos, eltMousePos, isPathActive: boolean = false) => {
         this.node.classed('selected', true);
-        this.prepareForContextMenu(target, wrapperMousePos, eltMousePos)
+        this.prepareForContextMenu(target, wrapperMousePos, eltMousePos, isPathActive)
         contextMenuFunc(this);
     };
-    this.prepareForContextMenu = (target, wrapperMousePos, eltMousePos) => {
+    this.prepareForContextMenu = (target, wrapperMousePos, eltMousePos, isPathActive) => {
         this.contextMenuProps = {};
         this.contextMenuProps['resultsWrapper'] = target;
         this.contextMenuProps['wrapperMousePos'] = wrapperMousePos;
         this.contextMenuProps['eltMousePos'] = eltMousePos;
+        this.contextMenuProps['isPathActive'] = isPathActive;
     }
     this.drawContextMenu = (contextMenuActions) => {
-        this.contextMenu = this.contextMenuProps['resultsWrapper'].append('div').classed('tsi-hierarchyNavigationContextMenu', true).attr('style', () => `top: ${this.contextMenuProps['wrapperMousePos'] - this.contextMenuProps['eltMousePos']}px`);
+        this.contextMenu = this.contextMenuProps['resultsWrapper'].append('div').classed('tsi-hierarchyNavigationContextMenu', true).attr('style', () => `top: ${this.contextMenuProps['wrapperMousePos'] - this.contextMenuProps['eltMousePos'] + (this.contextMenuProps['isPathActive'] ? 121 : 90)}px`);
         var contextMenuList = this.contextMenu.append('ul');
         contextMenuActions.forEach((a) => {
             var option = Object.keys(a)[0];

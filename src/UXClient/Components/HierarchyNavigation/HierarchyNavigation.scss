@@ -61,8 +61,10 @@
 }   
 
 .tsi-hierarchy-nav-wrapper{
-    height: 100%;
     width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
 
     &.tsi-dark{
         $grays: grays('dark');
@@ -105,21 +107,35 @@
     }
 
     .tsi-filter-path-wrapper {
-        visibility: hidden;
+        display: none;
+        animation: fadeIn 0.367s cubic-bezier(0.1, 0.9, 0.2, 1) forwards;
         background: #eeeeee;
         padding: 4px;
 
         .tsi-filter-path {
             margin-left: 20px;
-            width: 70%;
+            width: calc(100% - 88px);
             font-style: italic;
             color: grey;
             border: none;
             background: transparent;
+            padding-right: 20px;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
         }
 
         .tsi-filter-clear {
             margin-left: 4px;
+        }
+
+        @keyframes fadeIn {
+            from {
+              opacity: 0;
+            }
+            to {
+              opacity: 1
+            } 
         }
     }
 
@@ -130,14 +146,15 @@
     }
 
     .tsi-hierarchy-or-instances-wrapper {
-        height: calc(100% - 130px);
-        position: absolute;
         width: 100%;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
 
         .tsi-nav-tab-wrapper {
             width: 100%;
             height: 40px;
-            padding-left: 8px;
+            padding: 8px;
             align-items: center;
             display: flex;
 
@@ -149,6 +166,7 @@
                 cursor: pointer;
                 width: 50%;
                 text-align: center;
+                padding: 2px;
             } 
         }
 
@@ -161,8 +179,9 @@
 
         .tsi-hierarchy-filtered {
             width: 100%;
-            height: calc(100% - 40px);
             overflow-y: auto;
+            min-height: calc(100% - 37px);
+            flex-grow: 1;
         }
 
         .tsi-hierarchy-instances {
