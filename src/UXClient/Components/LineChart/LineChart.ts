@@ -123,7 +123,7 @@ class LineChart extends ChartComponent {
     public createXAxis (singleLineXAxisLabel) {
         return d3.axisBottom(this.x)
             .ticks(this.getXTickNumber(singleLineXAxisLabel))
-            .tickFormat(Utils.timeFormat(this.labelFormatUsesSeconds(), this.labelFormatUsesMillis(), this.chartOptions.offset, this.chartOptions.is24HourTime));
+            .tickFormat(Utils.timeFormat(this.labelFormatUsesSeconds(), this.labelFormatUsesMillis(), this.chartOptions.offset, this.chartOptions.is24HourTime, this.chartOptions.xAxisTimeFormat));
     }
 
     private voronoiMouseout (d: any)  {
@@ -220,11 +220,11 @@ class LineChart extends ChartComponent {
         var bucketSize = this.chartComponentData.displayState[d.aggregateKey].bucketSize;
         var endValue = bucketSize ? (new Date(xValue.valueOf() + bucketSize)) : null;
         
-        text.append("tspan").text(Utils.timeFormat(false, false, this.chartOptions.offset, this.chartOptions.is24HourTime)(xValue))
+        text.append("tspan").text(Utils.timeFormat(this.chartComponentData.usesSeconds, this.chartComponentData.usesMillis, this.chartOptions.offset, this.chartOptions.is24HourTime, this.chartOptions.xAxisTimeFormat)(xValue))
             .attr("x", 0)
             .attr("y", 4);
         if (endValue) {
-            text.append("tspan").text(Utils.timeFormat(false, false, this.chartOptions.offset, this.chartOptions.is24HourTime)(endValue))
+            text.append("tspan").text(Utils.timeFormat(this.chartComponentData.usesSeconds, this.chartComponentData.usesMillis, this.chartOptions.offset, this.chartOptions.is24HourTime, this.chartOptions.xAxisTimeFormat)(endValue))
                 .attr("x", 0)
                 .attr("y", 27);
             var barWidth = this.x(endValue) - this.x(xValue);
@@ -529,8 +529,8 @@ class LineChart extends ChartComponent {
         var firstValue = values[0].dateTime;
         var secondValue = new Date(values[0].dateTime.valueOf() + (values[0].bucketSize != null ? values[0].bucketSize : 0));
         var timeFormat = Utils.timeFormat(this.chartComponentData.usesSeconds, this.chartComponentData.usesMillis, 
-            this.chartOptions.offset, this.chartOptions.is24HourTime);
-        var dateToTime = (t) => timeFormat(t).split(" ")[1];
+            this.chartOptions.offset, this.chartOptions.is24HourTime, this.chartOptions.xAxisTimeFormat);
+        var dateToTime = (t) => ((timeFormat(t).split(" ") && timeFormat(t).split(" ").length > 1) ? timeFormat(t).split(" ")[1] : '');
         var text = dateToTime(firstValue) + " - " + dateToTime(secondValue);
         var timeLabel = scooter.select(".tsi-scooterTimeLabel");
         let self = this;

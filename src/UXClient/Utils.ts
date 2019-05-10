@@ -178,10 +178,15 @@ class Utils {
     }
 
     
-    static timeFormat(usesSeconds = false, usesMillis = false, offset: any = 0, is24HourTime: boolean = true) {
+    static timeFormat(usesSeconds = false, usesMillis = false, offset: any = 0, is24HourTime: boolean = true, timeFormat: string = null) {
         return (d) => {
-            var stringFormat = "L " + (is24HourTime ? "HH" : "hh") + ":mm" + 
-                (usesSeconds ? (":ss" + (usesMillis ? ".SSS" : "")) : "") + (is24HourTime ? "" : " A");
+            let stringFormat;
+            if (timeFormat !== null) {
+                stringFormat = timeFormat;
+            } else {
+                stringFormat = "L " + (is24HourTime ? "HH" : "hh") + ":mm" + 
+                    (usesSeconds ? (":ss" + (usesMillis ? ".SSS" : "")) : "") + (is24HourTime ? "" : " A");
+            }
             if (typeof offset == 'string' && isNaN(offset as any)) {
                 return momentTZ.tz(d, 'UTC').tz(offset === 'Local' ? momentTZ.tz.guess() : offset).format(stringFormat);
             } else {

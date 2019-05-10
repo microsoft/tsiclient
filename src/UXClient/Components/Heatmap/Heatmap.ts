@@ -184,10 +184,10 @@ class Heatmap extends ChartComponent {
 
         var text = textBoxG.append("text");
         
-        text.append("tspan").text(Utils.timeFormat(false, false, this.chartOptions.offset, this.chartOptions.is24HourTime)(focusStartTime))
+        text.append("tspan").text(Utils.timeFormat(this.chartComponentData.usesSeconds, this.chartComponentData.usesMillis, this.chartOptions.offset, this.chartOptions.is24HourTime)(focusStartTime))
             .attr("x", 0)
             .attr("y", 16);
-        text.append("tspan").text(Utils.timeFormat(false, false, this.chartOptions.offset, this.chartOptions.is24HourTime)(focusEndTime))
+        text.append("tspan").text(Utils.timeFormat(this.chartComponentData.usesSeconds, this.chartComponentData.usesMillis, this.chartOptions.offset, this.chartOptions.is24HourTime)(focusEndTime))
             .attr("x", 0)
             .attr("y", 30);
 
