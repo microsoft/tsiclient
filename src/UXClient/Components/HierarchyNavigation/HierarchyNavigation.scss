@@ -25,7 +25,7 @@
             .tsi-markedName{
                 &:hover{
                     cursor: pointer;
-                    background: $gray2;
+                    background: $gray4;
                 }
             }
             &.tsi-resultSelected{
@@ -152,6 +152,13 @@
             } 
         }
 
+        .tsi-noResults {
+            display: block;
+            white-space: nowrap;
+            margin-left: 20px;
+            font-size: 14px;
+        }
+
         .tsi-hierarchy-filtered {
             width: 100%;
             height: calc(100% - 40px);
@@ -159,7 +166,6 @@
         }
 
         .tsi-hierarchy-instances {
-            display: none;
             flex-grow: 1;
             height: calc(100% - 40px);
             float: left;
@@ -296,12 +302,35 @@
             display: flex;
             position: relative;
             margin: 0;
-            height: 32px;
+            min-height: 32px;
             font-size: 14px;
             align-items: center;
             text-overflow: ellipsis;
             overflow: hidden;
             white-space: nowrap;
+
+            .tsi-highlights-detail {
+                font-weight: 400;
+                font-size: 12px;
+                padding-top: 2px;
+                padding-left: 8px;
+                padding-bottom: 2px;
+                display: block;
+            
+                table {
+                    margin-top: 2px;
+                    tr {
+                        td:first-of-type{
+                            padding: 0;
+                            opacity: .6;
+                        }
+                        td:nth-of-type(2){
+                            padding: 0;
+                            padding-left: 8px;
+                        }
+                    }
+                }
+            }
         }
         &.tsi-expanded{
             > .tsi-caret{

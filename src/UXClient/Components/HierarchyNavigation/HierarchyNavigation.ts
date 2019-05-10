@@ -12,8 +12,11 @@ class HierarchyNavigation extends Component{
     private clickedInstance;
     private navTabs;
     private filterPathWrapper;
+    private noResults;
     private hierarchy;
     private instanceList;
+    private lastInstanceContinuationToken;
+    private usedInstanceSearchContinuationTokens = {};
     private envHierarchies = {};
     private envTypes = {};
     private selectedHierarchyId = HierarchySelectionValues.All;
@@ -105,10 +108,26 @@ class HierarchyNavigation extends Component{
                 this.navTabs = results.append('div').classed('tsi-nav-tab-wrapper', true);
                 this.navTabs.append('div').classed('tsi-nav-tab tsi-filtered-hierarchy tsi-selected', true).text('Hierarchy').on('click', () => this.switchToNavTab(NavTabs.Hierarchy));
                 this.navTabs.append('div').classed('tsi-nav-tab tsi-instance-results', true).text('Instances').on('click', () => this.switchToNavTab(NavTabs.Instances));
+                //no results
+                this.noResults = results.append('div').html('No results').classed('tsi-noResults', true).style('display', 'none');
                 //tree
-                this.hierarchy = results.append('div').classed('tsi-hierarchy-filtered', true);
+                this.hierarchy = results.append('div').classed('tsi-hierarchy-filtered', true).on('scroll', function(){
+                    self.closeContextMenu();
+                });
                 //flat list
-                this.instanceList = results.append('div').classed('tsi-hierarchy-instances', true);
+                let instanceListWrapper = results.append('div').classed('tsi-hierarchy-instances', true).on('scroll', function(){
+                    if (self.selectedNavTab === NavTabs.Instances && self.lastInstanceContinuationToken !== "END") {
+                        self.closeContextMenu();
+                        let that = this as any;
+                        if(that.scrollTop + that.clientHeight + 50 > (self.instanceList.node() as any).clientHeight){
+                            if (self.lastInstanceContinuationToken === null || !self.usedInstanceSearchContinuationTokens[self.lastInstanceContinuationToken]) {
+                                self.usedInstanceSearchContinuationTokens[self.lastInstanceContinuationToken] = true;
+                                self.pathSearch(getToken, environmentFqdn, self.requestPayload(), self.instanceList, '.show-more.instance', null, self.lastInstanceContinuationToken);
+                            }
+                        }
+                    }
+                });
+                this.instanceList = instanceListWrapper.append('div').classed('tsi-search-results', true);
 
                 this.pathSearch(getToken, environmentFqdn, self.requestPayload(), this.hierarchy);
             });
@@ -125,6 +144,8 @@ class HierarchyNavigation extends Component{
 
         let autocompleteOnInput = (st) => {
             this.searchString = st;
+            self.usedInstanceSearchContinuationTokens = {};
+            self.lastInstanceContinuationToken = null;
             this.instanceList.html('');
             this.hierarchy.html('');
 
@@ -139,10 +160,10 @@ class HierarchyNavigation extends Component{
             }
             else {
                 if (this.selectedNavTab === NavTabs.Hierarchy) {
-                    //if (st.length === 1) { //first time switching from navigate to filter TODO:not working after clear is clicked, check modelAutocomplete component
+                    if (st.length === 1) {
                         this.mode = State.Filter;
                         this.setRequestParamsForFilter();
-                    //}
+                    }
                     this.pathSearch(getToken, environmentFqdn, self.requestPayload(), this.hierarchy);
                 } else {
                     this.pathSearch(getToken, environmentFqdn, self.requestPayload(), this.instanceList);
@@ -211,6 +232,8 @@ class HierarchyNavigation extends Component{
             }
             if (d3.selectAll('.tsi-modelResultWrapper').size() === 0) {
                 this.instanceList.html('');
+                this.lastInstanceContinuationToken = null;
+                this.usedInstanceSearchContinuationTokens = {};
                 this.pathSearch(this.getToken, this.environmentFqdn, this.requestPayload(), this.instanceList);
             }
             this.navTabs.select('.tsi-filtered-hierarchy').classed('tsi-selected', false);
@@ -233,6 +256,8 @@ class HierarchyNavigation extends Component{
     private clearAndGetResults () {
         this.instanceList.html('');
         this.hierarchy.html('');
+        this.lastInstanceContinuationToken = null;
+        this.usedInstanceSearchContinuationTokens = {};
         if (this.selectedNavTab === NavTabs.Hierarchy)
             this.pathSearch(this.getToken, this.environmentFqdn, this.requestPayload(), this.hierarchy);
         else
@@ -242,9 +267,10 @@ class HierarchyNavigation extends Component{
     private renderTree (data, target, locInTarget = null) { //locInTarget is to refer 'show more' in the target
         let self = this;
         if (Object.keys(data).length === 0) {
-            target.append('p').html('No results').classed('tsi-noResults', true);
+            this.noResults.style('display', 'block');
             return;
-        }
+        } else
+            this.noResults.style('display', 'none');
         let list, currentShowMore;
         if (!locInTarget) {
             list = target.append('ul');
@@ -273,7 +299,14 @@ class HierarchyNavigation extends Component{
                 li.classed('tsi-show-more instance', true).append('span').classed('tsi-markedName', true).attr('style', `padding-left: ${(data[el].level) * 18 + 20}px`).html(el).on('click', data[el].onClick);
             } else {
                 li.append('span').classed('tsi-caret', !data[el].isLeaf).attr('style', `left: ${(data[el].level) * 18 + 20}px`);
-                li.append('span').classed('tsi-markedName', true).attr('style', `padding-left: ${data[el].isLeaf ? data[el].level * 18 + 20 : (data[el].level + 1) * 18 + 20}px`).html(this.getFilterHtml(data[el], el)).on('click', function() {
+                let newListElem;
+                if (!data[el].highlights) {
+                    newListElem = li.append('span');
+                } else {
+                    newListElem = li.append('div');
+                }
+                    
+                newListElem.classed('tsi-markedName', true).attr('style', `padding-left: ${data[el].isLeaf ? data[el].level * 18 + 20 : (data[el].level + 1) * 18 + 20}px`).html(this.getFilterHtml(data[el], el)).on('click', function() {
                     if (data[el].onClick) {
                         d3.event.stopPropagation();
                         self.closeContextMenu();
@@ -283,7 +316,7 @@ class HierarchyNavigation extends Component{
                         if (self.selectedNavTab === NavTabs.Hierarchy) {
                             target = self.hierarchy;
                         } else {
-                            target = self.instanceList;
+                            target = self.instanceList.parentNode;
                         }
                         let mouseWrapper = d3.mouse(target.select(function() { return this.parentNode}).node());
                         data[el].onClick(target, mouseWrapper[1], mouseElt[1]);
@@ -317,9 +350,10 @@ class HierarchyNavigation extends Component{
     private renderInstances (data, target) {
         let self = this;
         if (Object.keys(data).length === 0) {
-            target.append('p').html('No results').classed('tsi-noResults', true);
+            this.noResults.style('display', 'block');
             return;
-        }
+        } else
+            this.noResults.style('display', 'none');
         target.select('.tsi-show-more.instance').remove();
 
         Object.keys(data).forEach((i) => {
@@ -332,7 +366,7 @@ class HierarchyNavigation extends Component{
                     d3.event.stopPropagation();
                     self.closeContextMenu();
                     self.clickedInstance = data[i];
-                    let mouseWrapper = d3.mouse(self.instanceList.select(function() { return this.parentNode}).node());
+                    let mouseWrapper = d3.mouse(self.instanceList.select(function() { return this.parentNode.parentNode}).node());
                     let mouseElt = d3.mouse(this as any);
                     data[i].onClick(self.instanceList, mouseWrapper[1], mouseElt[1]);
                 });
@@ -359,6 +393,14 @@ class HierarchyNavigation extends Component{
                     let showMoreInstances = new InstanceNode(null, "Show More Instances", null, null, null, self.hierarchyNavOptions.onInstanceClick, payload.path.length - self.path.length);
                     showMoreInstances.onClick = () => self.pathSearch(getToken, envFqdn, payload, target, '.show-more.instance', null, r.instances['continuationToken']);
                     instancesData[showMoreInstances.name] = showMoreInstances;
+
+                    if ((self.mode === State.Search) && (!self.usedInstanceSearchContinuationTokens[r.instances.continuationToken])){
+                        self.lastInstanceContinuationToken = r.instances.continuationToken;
+                    }
+                } else {
+                    if (self.mode === State.Search) {
+                        self.lastInstanceContinuationToken = "END";
+                    }
                 }
 
                 if (self.mode === State.Navigate) {
@@ -427,8 +469,21 @@ class HierarchyNavigation extends Component{
 
     private getFilterHtml(hORi, key) {
         if (this.mode !== State.Navigate) {
-            if (hORi.highlights)
-                return hORi.highlights.name ? this.stripHits(hORi.highlights.name) : this.stripHits(hORi.highlights.timeSeriesIds ? hORi.highlights.timeSeriesIds.join(' ') : hORi.highlights.timeSeriesId.join(' '));
+            if (hORi.highlights) {
+                return `<span>
+                            ${hORi.highlights.name ? this.stripHits(hORi.highlights.name) : this.stripHits(hORi.highlights.timeSeriesIds ? hORi.highlights.timeSeriesIds.join(' ') : hORi.highlights.timeSeriesId.join(' '))}
+                            <br>
+                            <span class="tsi-highlights-detail">
+                                ${hORi.highlights.description && hORi.highlights.description.indexOf("<hit>") !== -1 ? this.stripHits(hORi.highlights.description) : ''}
+                                <table>
+                                    ${hORi.highlights.instanceFieldNames.map((ifn, idx) => {
+                                        var val = hORi.highlights.instanceFieldValues[idx];
+                                        return this.hasHits(ifn) || this.hasHits(val) ? '<tr><td>' + this.stripHits(ifn) + '</td><td>' + this.stripHits(hORi.highlights.instanceFieldValues[idx]) + '</tr>' : '';
+                                    }).join('')}
+                                </table>
+                            </span>
+                        </span>`; 
+            }
             else return key;
         } else return key;
     }
@@ -444,11 +499,18 @@ class HierarchyNavigation extends Component{
                         ${i.highlights.name ? ('<tr><td>Time Series ID</td><td>' + this.stripHits(i.highlights.timeSeriesIds ? i.highlights.timeSeriesIds.join(' ') : i.highlights.timeSeriesId.join(' ')) + '</td></tr>') : ''}                        
                         ${i.highlights.instanceFieldNames.map((ifn, idx) => {
                             var val = i.highlights.instanceFieldValues[idx];
-                            return val.length === 0 ? '' :  '<tr><td>' + this.stripHits(ifn) + '</td><td>' + this.stripHits(i.highlights.instanceFieldValues[idx]) + '</tr>';
+                            if (this.searchString)
+                                return this.hasHits(ifn) || this.hasHits(val) ? '<tr><td>' + this.stripHits(ifn) + '</td><td>' + this.stripHits(i.highlights.instanceFieldValues[idx]) + '</tr>' : '' ;
+                            else
+                                return val.length === 0 ? '' :  '<tr><td>' + this.stripHits(ifn) + '</td><td>' + this.stripHits(i.highlights.instanceFieldValues[idx]) + '</tr>';
                         }).join('')}
                         </table>
                     </div>
                 </div>`;
+    }
+
+    private hasHits = (str) => {
+        return str && (str.indexOf("<hit>") !== -1);
     }
 }
 
@@ -495,8 +557,8 @@ function InstanceNode (tsId, name = null, type, hierarchyIds, highlights, contex
 }
 
 function HiararchyNavigationOptions () {
-    this.instancesPageSize = 50;
-    this.hierarchiesPageSize = 50;
+    this.instancesPageSize = 10;
+    this.hierarchiesPageSize = 10;
     this.isInstancesRecursive = false;
     this.isInstancesHighlighted = false;
     this.instancesSort = InstancesSort.DisplayName;
