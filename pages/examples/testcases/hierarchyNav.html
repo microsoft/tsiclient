@@ -12,50 +12,50 @@
             <p>Note: Options are customizable for navigate only, refresh after search.</p>
             <div>
                 <label>Theme</label>
-                <select onchange="toggleHierarchyNaOption('theme', event.target.value)">
+                <select onchange="toggleHierarchyNavigationOption('theme', event.target.value)">
                     <option selected>light</option>
                     <option>dark</option>
                 </select>
             </div>
             <div>
                 <label>Instances Page Size</label>
-                <input style="width:50px;" type="number" value=10 onchange="toggleHierarchyNaOption('instancesPageSize', event.target.value)"></input>
+                <input style="width:50px;" type="number" value=10 onchange="toggleHierarchyNavigationOption('instancesPageSize', event.target.value)"></input>
             </div>
             <div>
                 <label>Instances Recursive</label>
-                <select onchange="toggleHierarchyNaOption('isInstancesRecursive', event.target.value)">
+                <select onchange="toggleHierarchyNavigationOption('isInstancesRecursive', event.target.value)">
                     <option selected>false</option>
                     <option>true</option>
                 </select>
             </div>
             <div>
                 <label>Instances Highlighted</label>
-                <select onchange="toggleHierarchyNaOption('isInstancesHighlighted', event.target.value)">
+                <select onchange="toggleHierarchyNavigationOption('isInstancesHighlighted', event.target.value)">
                     <option selected>false</option>
                     <option>true</option>
                 </select>
             </div>
             <div>
                 <label>Instances Sort</label>
-                <select onchange="toggleHierarchyNaOption('instancesSort', event.target.value)">
+                <select onchange="toggleHierarchyNavigationOption('instancesSort', event.target.value)">
                     <option selected>DisplayName</option>
                     <option>Rank</option>
                 </select>
             </div>
             <div>
                 <label>Hierarchies Page Size</label>
-                <input style="width:50px;" type="number" value=10 onchange="toggleHierarchyNaOption('hierarchiesPageSize', event.target.value)"></input>
+                <input style="width:50px;" type="number" value=10 onchange="toggleHierarchyNavigationOption('hierarchiesPageSize', event.target.value)"></input>
             </div>
             <div>
                 <label>Hierarchies Expand</label>
-                <select onchange="toggleHierarchyNaOption('hierarchiesExpand', event.target.value)">
+                <select onchange="toggleHierarchyNavigationOption('hierarchiesExpand', event.target.value)">
                     <option selected>OneLevel</option>
                     <option>UntilChildren</option>
                 </select>
             </div>
             <div>
                 <label>Hierarchies Sort</label>
-                <select onchange="toggleHierarchyNaOption('hierarchiesSort', event.target.value)">
+                <select onchange="toggleHierarchyNavigationOption('hierarchiesSort', event.target.value)">
                     <option selected>Name</option>
                     <option>CumulativeInstanceCount</option>
                 </select>
@@ -140,8 +140,6 @@
                 return type;
             }
 
-
-
             var hierarchyNavOptions = {
                 theme: 'light',
                 instancesPageSize: 10,
@@ -153,7 +151,7 @@
                 hierarchiesSort: "Name"
             }
 
-            toggleHierarchyNaOption = function(property, value = null) {
+            toggleHierarchyNavigationOption = function(property, value = null) {
                 hierarchyNavOptions[property] = (value === null) ? !hierarchyNavOptions[property] : value; 
                 hierarchy.render(environmentFqdn, authContext.getTsiToken, {...hierarchyNavOptions, onInstanceClick: instance => this.onInstanceClick(instance)});
             }

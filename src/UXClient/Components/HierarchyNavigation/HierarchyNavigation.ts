@@ -412,11 +412,10 @@ class HierarchyNavigation extends Component{
                     }
                 } else if (self.mode === State.Filter) {
                     self.renderTree({...hierarchyData, ...instancesData}, target, locInTarget);
-                } else { //search
+                } else {
                     self.renderInstances(instancesData, target);
                 }
             }).catch(function (err) {
-                alert(err)
             })
         });
     }
