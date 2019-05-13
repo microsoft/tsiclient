@@ -205,6 +205,7 @@ class HierarchyNavigation extends Component{
     }
 
     private switchToNavTab = (tab: NavTabs) => {
+        this.closeContextMenu();
         if (tab === NavTabs.Hierarchy) {
             this.selectedNavTab = NavTabs.Hierarchy;
             if (this.searchString) {
@@ -531,7 +532,7 @@ function InstanceNode (tsId, name = null, type, hierarchyIds, highlights, contex
     this.type = type;
     this.hierarchyIds = hierarchyIds;
     this.highlights = highlights;
-    this.onClick = (target, wrapperMousePos, eltMousePos, isPathActive: boolean = false) => {
+    this.onClick = (target, wrapperMousePos, eltMousePos, isPathActive) => {
         this.node.classed('selected', true);
         this.prepareForContextMenu(target, wrapperMousePos, eltMousePos, isPathActive)
         contextMenuFunc(this);
