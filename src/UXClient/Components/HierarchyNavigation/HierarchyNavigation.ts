@@ -385,7 +385,7 @@ class HierarchyNavigation extends Component{
                 if (r.hierarchyNodes && r.hierarchyNodes.hits.length) {
                     hierarchyData = self.fillDataRecursively(r.hierarchyNodes, getToken, envFqdn, payload);
                 }
-                if (r.instances && r.instances.hits.length) {
+                if (r.instances && r.instances.hits && r.instances.hits.length) {
                     r.instances.hits.forEach((i) => {
                         instancesData[i.name ? i.name : i.timeSeriesId.join(" ")] = new InstanceNode(i.timeSeriesId, i.name, self.envTypes[i.typeId], i.hierarchyIds, i.highlights, self.hierarchyNavOptions.onInstanceClick, payload.path.length - self.path.length);
                     });
