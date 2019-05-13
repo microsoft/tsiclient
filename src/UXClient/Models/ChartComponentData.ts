@@ -153,7 +153,7 @@ class ChartComponentData {
                 this.timeArrays[aggKey][splitBy] = 
                     this.convertAggregateToArray(data[i][aggName][splitBy], aggKey, aggName, splitBy, 
                                                  newDisplayState[aggKey].from, newDisplayState[aggKey].to, 
-                                                 newDisplayState[aggKey].bucketSize, aggregateExpressionOptions[i].temporalShift);
+                                                 newDisplayState[aggKey].bucketSize, aggregateExpressionOptions[i].timeShift);
                 if (this.displayState[aggKey] && this.displayState[aggKey].splitBys[splitBy]) {
                     newDisplayState[aggKey].splitBys[splitBy] = this.displayState[aggKey].splitBys[splitBy];
                 } else {
@@ -216,15 +216,15 @@ class ChartComponentData {
     }
 
     public getTemporalShiftString (aggKey) {
-        if (this.displayState[aggKey].aggregateExpression && this.displayState[aggKey].aggregateExpression.temporalShift) {
-            return this.displayState[aggKey].aggregateExpression.temporalShift;
+        if (this.displayState[aggKey].aggregateExpression && this.displayState[aggKey].aggregateExpression.timeShift) {
+            return this.displayState[aggKey].aggregateExpression.timeShift;
         }
         return '';
     } 
 
     public getTemporalShiftMillis (aggKey) {
-        if (this.displayState[aggKey].aggregateExpression && this.displayState[aggKey].aggregateExpression.temporalShift) {
-            return Utils.parseShift(this.displayState[aggKey].aggregateExpression.temporalShift);
+        if (this.displayState[aggKey].aggregateExpression && this.displayState[aggKey].aggregateExpression.timeShift) {
+            return Utils.parseShift(this.displayState[aggKey].aggregateExpression.timeShift);
         } 
         return 0;
     }
@@ -312,11 +312,11 @@ class ChartComponentData {
     //aggregates object => array of objects containing timestamp and values. Pad with 
     public convertAggregateToArray (agg: any, aggKey: string, aggName: string, splitBy: string, 
                                     from: Date = null, to: Date = null, bucketSize: number = null, 
-                                    temporalShift: string): Array<any> {
+                                    timeShift: string): Array<any> {
         
         let aggArray: Array<any> = [];
         let isoStringAgg = {};
-        let shiftValue = Utils.parseShift(temporalShift);
+        let shiftValue = Utils.parseShift(timeShift);
         Object.keys(agg).forEach((dateString: string) => {
             let shiftedDate = new Date((new Date(dateString)).valueOf() - shiftValue);
             let jsISOString = shiftedDate.toISOString();

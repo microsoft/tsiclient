@@ -19,7 +19,7 @@ class AggregateExpression extends ChartDataOptions {
     
     public toTsx(roundFromTo: boolean = false){
         var tsx = {};
-        let shiftMillis = Utils.parseShift(this.temporalShift);
+        let shiftMillis = Utils.parseShift(this.timeShift);
         let fromMillis = this.searchSpan.from.valueOf() + shiftMillis;
         let toMillis = this.searchSpan.to.valueOf() + shiftMillis;
         let bucketSizeInMillis = Utils.parseTimeInput(this.searchSpan.bucketSize);

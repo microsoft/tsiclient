@@ -14,7 +14,7 @@ class TsqExpression extends ChartDataOptions {
 
     public toTsq(roundFromTo: boolean = false, getEvents: boolean = false){
         var tsq = {};
-        let shiftMillis = Utils.parseShift(this.temporalShift);
+        let shiftMillis = Utils.parseShift(this.timeShift);
         let fromMillis = this.searchSpan.from.valueOf() + shiftMillis;
         let toMillis = this.searchSpan.to.valueOf() + shiftMillis;
         let bucketSizeInMillis = Utils.parseTimeInput(this.searchSpan.bucketSize);
