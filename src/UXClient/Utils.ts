@@ -56,6 +56,19 @@ class Utils {
         }
         return -1;
     }
+    
+    static parseShift (inputString: string) {
+        if (inputString === undefined || inputString === null || inputString.length === 0) {
+            return 0;
+        }
+        let millis: number;
+        if (inputString[0] === '-' || inputString[0] === '+') {
+            millis = (inputString[0] === '-' ? -1 : 1) * this.parseTimeInput(inputString.slice(1,inputString.length));
+        } else {
+            millis = this.parseTimeInput(inputString);
+        }
+        return millis;
+    }
 
     static adjustStartMillisToAbsoluteZero (fromMillis, bucketSize) {
         let epochAdjustment = 62135596800000;

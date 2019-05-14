@@ -172,9 +172,18 @@ class LineChart extends TemporalXAxisComponent {
                 .attr("class", "value")
                 .text(d.splitBy);
         }
-                                
-        Object.keys(d.measures).forEach((measureType, i) => {
+
+        let shiftMillis = this.chartComponentData.getTemporalShiftMillis(d.aggregateKey);
+
+        if (shiftMillis !== 0) {
             text.append("div")
+                .attr("class", "temporalShiftText")
+                .text('(shifted ' + this.chartComponentData.getTemporalShiftString(d.aggregateKey) + ')');
+        }
+
+        let valueGroup = text.append('div').classed('valueGroup', true);
+        Object.keys(d.measures).forEach((measureType, i) => {
+            valueGroup.append("div")
                 .attr("class",  () => {
                     return "value" + (measureType == this.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy) ? 
                                     " visibleValue" : "");
@@ -188,6 +197,7 @@ class LineChart extends TemporalXAxisComponent {
         if (this.contextMenu && this.contextMenu.contextMenuVisible)
             return;
 
+        let shiftMillis = this.chartComponentData.getTemporalShiftMillis(d.aggregateKey);
         var yScale = this.yMap[d.aggregateKey];
         var xValue = d.dateTime;
         var xPos = this.getXPosition(d, this.x);
@@ -1448,7 +1458,7 @@ class LineChart extends TemporalXAxisComponent {
     
             this.tooltip = new Tooltip(d3.select(this.renderTarget));                        
 
-            var draw = () => {  
+            this.draw = () => {  
 
                 this.minBrushWidth = (this.chartOptions.minBrushWidth) ? this.chartOptions.minBrushWidth : this.minBrushWidth;
                 this.focus.attr("visibility", (this.chartOptions.focusHidden) ? "hidden" : "visible")
@@ -1593,7 +1603,7 @@ class LineChart extends TemporalXAxisComponent {
                     this.colorMap = {};
                     this.svgSelection.selectAll(".yAxis").remove();
                     let aggregateGroups = this.svgSelection.select('.svgGroup').selectAll('.tsi-aggGroup')
-                        .data(this.data.filter((agg) => this.chartComponentData.displayState[agg.aggKey]["visible"]), 
+                        .data(this.chartComponentData.data.filter((agg) => this.chartComponentData.displayState[agg.aggKey]["visible"]), 
                             (agg) => agg.aggKey);
                     var self = this;
                     aggregateGroups.enter()
@@ -1621,7 +1631,7 @@ class LineChart extends TemporalXAxisComponent {
                             return (d.bucketSize != undefined ? self.x(new Date(d.dateTime.valueOf() + (d.bucketSize / 2))) : self.x(d.dateTime))})
                         .y(function(d: any) { 
                             if (d.measures) {
-                                return self.yMap[d.aggregateKey](self.getValueOfVisible(d));
+                                return self.yMap[d.aggregateKey] ? self.yMap[d.aggregateKey](self.getValueOfVisible(d)) : null;
                             }
                             return null;
                         })
@@ -1740,10 +1750,9 @@ class LineChart extends TemporalXAxisComponent {
                 this.voronoiDiagram = this.voronoi(this.getFilteredAndSticky(this.chartComponentData.allValues));
             }
 
-            this.legendObject = new Legend(draw, this.renderTarget, this.CONTROLSWIDTH);
-            this.contextMenu = new ContextMenu(draw, this.renderTarget);
-            this.brushContextMenu = new ContextMenu(draw, this.renderTarget);
-            this.draw = draw;
+            this.legendObject = new Legend(this.draw, this.renderTarget, this.CONTROLSWIDTH);
+            this.contextMenu = new ContextMenu(this.draw, this.renderTarget);
+            this.brushContextMenu = new ContextMenu(this.draw, this.renderTarget);
             window.addEventListener("resize", () => {
                 var self = this;
                 if (!this.chartOptions.suppressResizeListener) {
@@ -1784,7 +1793,7 @@ class LineChart extends TemporalXAxisComponent {
                 stateSeriesComponents = [];
             }
         }    
-        
+
         this.chartComponentData.mergeDataToDisplayStateAndTimeArrays(this.data, this.aggregateExpressionOptions, this.events, this.states);
         this.draw();
         this.chartOptions.noAnimate = false;  // ensure internal renders are always animated, overriding the users noAnimate option

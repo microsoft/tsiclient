@@ -156,7 +156,8 @@ class Heatmap extends TemporalXAxisComponent {
                         var renderHeatmapCanvas = () => {
 
                             function onCellFocus (focusStartTime, focusEndTime, focusX1, focusX2, focusY, splitBy) {
-                                self.renderTimeLabels(focusStartTime, focusEndTime, focusX1, focusX2, focusY, (aggI * canvasWrapperHeightTotal / visibleAggs.length));
+                                let shiftMillis = self.chartComponentData.getTemporalShiftMillis(aggKey);
+                                self.renderTimeLabels(focusStartTime, focusEndTime, focusX1, focusX2, focusY, (aggI * canvasWrapperHeightTotal / visibleAggs.length), shiftMillis);
                                 self.legend.triggerSplitByFocus(aggKey, splitBy);
                             }
 
@@ -199,7 +200,7 @@ class Heatmap extends TemporalXAxisComponent {
         });
     }
 
-    public renderTimeLabels = (focusStartTime, focusEndTime, focusX1, focusX2, focusY, yOffset) => {
+    public renderTimeLabels = (focusStartTime, focusEndTime, focusX1, focusX2, focusY, yOffset, shiftMillis) => {
         this.timeLabels.selectAll(".tsi-heatmapTimeLabels").remove();
         this.timeLabels.node().parentNode.appendChild(this.timeLabels.node());
 
@@ -220,10 +221,10 @@ class Heatmap extends TemporalXAxisComponent {
 
         var text = textBoxG.append("text");
         
-        text.append("tspan").text(Utils.timeFormat(this.chartComponentData.usesSeconds, this.chartComponentData.usesMillis, this.chartOptions.offset, this.chartOptions.is24HourTime)(focusStartTime))
+        text.append("tspan").text(Utils.timeFormat(this.chartComponentData.usesSeconds, this.chartComponentData.usesMillis, this.chartOptions.offset, this.chartOptions.is24HourTime, shiftMillis)(focusStartTime))
             .attr("x", 0)
             .attr("y", 16);
-        text.append("tspan").text(Utils.timeFormat(this.chartComponentData.usesSeconds, this.chartComponentData.usesMillis, this.chartOptions.offset, this.chartOptions.is24HourTime)(focusEndTime))
+        text.append("tspan").text(Utils.timeFormat(this.chartComponentData.usesSeconds, this.chartComponentData.usesMillis, this.chartOptions.offset, this.chartOptions.is24HourTime, shiftMillis)(focusEndTime))
             .attr("x", 0)
             .attr("y", 30);
 
