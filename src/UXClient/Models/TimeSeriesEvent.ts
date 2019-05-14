@@ -8,8 +8,7 @@ class TimeSeriesEvent {
 
         if (offset !== null) {
             let type = 'DateTime';
-            let utcOffsetDate = Utils.offsetUTC(new Date(Date.parse(rawEvent['timestamp ($ts)'])));
-
+            let utcOffsetDate = Utils.offsetUTC(new Date(Date.parse(rawEvent['timestamp ($ts)'].split("Z").join(""))));
             rawEvent[offsetName + "_" + type] = {
                 name: offsetName,
                 value: Utils.timeFormat(true, true, offset, true)(utcOffsetDate),

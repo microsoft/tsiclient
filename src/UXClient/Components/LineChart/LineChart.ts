@@ -29,6 +29,7 @@ class LineChart extends ChartComponent {
     private states: any;
     private minBrushWidth = 1;
     private strokeOpacity = 1;
+    private nonFocusStrokeOpactiy = .3;
     chartComponentData = new LineChartData();
     private surpressBrushTimeSet: boolean = false;
     private hasStackedButton: boolean = false;
@@ -63,6 +64,11 @@ class LineChart extends ChartComponent {
     private isClearingBrush: boolean = false;
     private previousAggregateData: any = d3.local();
     private previousIncludeDots: any = d3.local();
+    private voronoiDiagram;
+    private mx = null;
+    private my = null;
+    private focusedAggKey: string = null;
+    private focusedSplitby: string = null;
 
     private isFirstMarkerDrop = true;
     
@@ -153,6 +159,8 @@ class LineChart extends ChartComponent {
                 .classed("standardYAxisText", false)
                 .style("font-weight", "normal");
         }
+        this.focusedAggKey = null;
+        this.focusedSplitby = null;
     }
 
     private createMarkerInstructions () {
@@ -178,9 +186,18 @@ class LineChart extends ChartComponent {
                 .attr("class", "value")
                 .text(d.splitBy);
         }
-                                
-        Object.keys(d.measures).forEach((measureType, i) => {
+
+        let shiftMillis = this.chartComponentData.getTemporalShiftMillis(d.aggregateKey);
+
+        if (shiftMillis !== 0) {
             text.append("div")
+                .attr("class", "temporalShiftText")
+                .text('(shifted ' + this.chartComponentData.getTemporalShiftString(d.aggregateKey) + ')');
+        }
+
+        let valueGroup = text.append('div').classed('valueGroup', true);
+        Object.keys(d.measures).forEach((measureType, i) => {
+            valueGroup.append("div")
                 .attr("class",  () => {
                     return "value" + (measureType == this.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy) ? 
                                     " visibleValue" : "");
@@ -190,10 +207,11 @@ class LineChart extends ChartComponent {
     }
 
     private voronoiMouseover = (d: any) => {
-            //supress if the context menu is visible
+        //supress if the context menu is visible
         if (this.contextMenu && this.contextMenu.contextMenuVisible)
             return;
-            
+
+        let shiftMillis = this.chartComponentData.getTemporalShiftMillis(d.aggregateKey);
         var yScale = this.yMap[d.aggregateKey];
         var xValue = d.dateTime;
         var xPos = this.getXPosition(d, this.x);
@@ -212,11 +230,11 @@ class LineChart extends ChartComponent {
         var bucketSize = this.chartComponentData.displayState[d.aggregateKey].bucketSize;
         var endValue = bucketSize ? (new Date(xValue.valueOf() + bucketSize)) : null;
         
-        text.append("tspan").text(Utils.timeFormat(false, false, this.chartOptions.offset, this.chartOptions.is24HourTime)(xValue))
+        text.append("tspan").text(Utils.timeFormat(false, false, this.chartOptions.offset, this.chartOptions.is24HourTime, shiftMillis)(xValue))
             .attr("x", 0)
             .attr("y", 4);
         if (endValue) {
-            text.append("tspan").text(Utils.timeFormat(false, false, this.chartOptions.offset, this.chartOptions.is24HourTime)(endValue))
+            text.append("tspan").text(Utils.timeFormat(false, false, this.chartOptions.offset, this.chartOptions.is24HourTime, shiftMillis)(endValue))
                 .attr("x", 0)
                 .attr("y", 27);
             var barWidth = this.x(endValue) - this.x(xValue);
@@ -353,6 +371,8 @@ class LineChart extends ChartComponent {
         var filteredValues = this.getFilteredAndSticky(this.chartComponentData.allValues);
         if (filteredValues == null || filteredValues.length == 0)
             return;
+        this.focusedAggKey = null;
+        this.focusedSplitby = null;
 
         this.chartComponentData.stickiedKey = {
             aggregateKey: aggregateKey,
@@ -362,7 +382,8 @@ class LineChart extends ChartComponent {
         (<any>this.legendObject.legendElement.selectAll('.tsi-splitByLabel').filter(function (filteredSplitBy: any)  {
             return (d3.select(this.parentNode).datum() == aggregateKey) && (filteredSplitBy == splitBy);
         })).classed("stickied", true);
-        
+
+        this.voronoiDiagram = this.voronoi(this.getFilteredAndSticky(this.chartComponentData.allValues));
     }
 
     private getHandleHeight (): number {
@@ -455,6 +476,9 @@ class LineChart extends ChartComponent {
     }
 
     private setScooterPosition (scooter, rawMillis: number = null) {
+        if (!scooter) {
+            return;
+        }
         var closestTime;
         if (rawMillis != null) {
             closestTime = this.findClosestValidTime(rawMillis);
@@ -476,6 +500,28 @@ class LineChart extends ChartComponent {
         d3.select(this.renderTarget).selectAll(".tsi-scooterContainer").sort((a: string, b: string) =>  { 
             return (this.scooterGuidMap[a] < this.scooterGuidMap[b]) ? 1 : -1;            
         });
+    }
+
+    public exportMarkers () {
+        return Object.keys(this.scooterGuidMap)
+        .map((guid) => this.scooterGuidMap[guid]);
+    }
+
+    private importMarkers () {
+        if (this.chartOptions.markers && this.chartOptions.markers.length > 0) {
+            this.scooterGuidMap = {};
+            d3.select(this.renderTarget).selectAll(".tsi-scooterContainer").remove();
+            
+            this.chartOptions.markers.forEach((markerMillis) => {
+                let scooterUID = Utils.guid();
+                this.scooterGuidMap[scooterUID] = markerMillis;
+                let millis = (markerMillis < this.chartComponentData.fromMillis || markerMillis > this.chartComponentData.toMillis) ? null : markerMillis;
+                let scooter = this.createScooter(scooterUID);
+                this.setScooterPosition(scooter, millis);
+                this.setScooterLabels(scooter);
+                this.setScooterTimeLabel(scooter);
+            });
+        }
     }
 
     private focusOnEllipsis () {
@@ -503,9 +549,12 @@ class LineChart extends ChartComponent {
             .attr("aria-label", "Delete marker at " + text) 
             .classed("tsi-closeButton", true)
             .on("click", function () {
+                let markerGuid: string = String(d3.select(d3.select(this).node().parentNode.parentNode).datum());
+                delete self.scooterGuidMap[markerGuid];
                 d3.select(d3.select(this).node().parentNode.parentNode).remove();
                 self.setIsDroppingScooter(false);
                 self.focusOnEllipsis();
+                self.chartOptions.onMarkersChange(self.exportMarkers());
             });
 
         var scooterLeft: number = Number(scooter.style("left").replace("px", ""));
@@ -576,6 +625,59 @@ class LineChart extends ChartComponent {
         return !(filteredValues == null || filteredValues.length == 0)
     }
 
+    private createScooter = (scooterUID) => {
+        let scooter: any = d3.select(this.renderTarget).append("div")
+            .datum(scooterUID)
+            .attr("class", "tsi-scooterContainer")
+            .style("top", this.chartMargins.top + this.chartOptions.aggTopMargin + "px")
+            .style("height", this.height - (this.chartMargins.top + this.chartMargins.bottom + this.chartOptions.aggTopMargin) + "px")
+            .style("display", "none");
+        
+        scooter.append("div")
+            .attr("class", "tsi-scooterLine");
+
+        var self = this;
+        scooter.append("div")
+            .attr("class", "tsi-scooterDragger")
+            .on("mouseover", function () {
+                d3.select(this).classed("tsi-isHover", true);
+            })
+            .on("mouseout", function () {
+                d3.select(this).classed("tsi-isHover", false);
+            })
+            .on("contextmenu", function () {
+                d3.select(d3.select(this).node().parentNode).remove();
+                d3.event.preventDefault();
+            });
+        var timeLabel = scooter.append("div")
+            .attr("class", "tsi-scooterTimeLabel");
+        
+        scooter.selectAll(".tsi-scooterDragger,.tsi-scooterTimeLabel,.tsi-scooterLine")
+            .call(d3.drag()
+                .on("drag", function (d) {
+                    if (d3.select(d3.event.sourceEvent.target).classed("tsi-closeButton")) {
+                        return;
+                    }
+                    var scooter = d3.select(<any>d3.select(this).node().parentNode);
+                    var currMillis: number = Number(self.scooterGuidMap[String(scooter.datum())]);
+                    var startPosition = self.x(new Date(currMillis));
+                    var newPosition = startPosition + d3.event.x;
+                    self.setScooterPosition(scooter, self.x.invert(newPosition).valueOf());
+                    self.setScooterLabels(scooter);
+                    self.setScooterTimeLabel(scooter);
+                    self.chartOptions.onMarkersChange(self.exportMarkers());
+                })
+                .on("end", function (d) {
+                    if (!d3.select(d3.event.sourceEvent.target).classed("tsi-closeButton")) {
+                        self.chartOptions.onMarkersChange(self.exportMarkers());
+                    }
+                })
+            );
+            
+        scooter.style("pointer-events", "none");
+        return scooter;
+    }
+
     private scooterButtonClick = () => {
         if (this.isFirstMarkerDrop) {
             this.isFirstMarkerDrop = false;
@@ -591,60 +693,36 @@ class LineChart extends ChartComponent {
         var scooterUID = Utils.guid();
         this.scooterGuidMap[scooterUID] = 0;
 
-        this.activeScooter = d3.select(this.renderTarget).append("div")
-            .datum(scooterUID)
-            .attr("class", "tsi-scooterContainer")
-            .style("top", this.chartMargins.top + this.chartOptions.aggTopMargin + "px")
-            .style("height", this.height - (this.chartMargins.top + this.chartMargins.bottom + this.chartOptions.aggTopMargin) + "px")
-            .style("display", "none");
-        
-        this.activeScooter.append("div")
-            .attr("class", "tsi-scooterLine");
-
-        var self = this;
-        this.activeScooter.append("div")
-            .attr("class", "tsi-scooterDragger")
-            .on("mouseover", function () {
-                d3.select(this).classed("tsi-isHover", true);
-            })
-            .on("mouseout", function () {
-                d3.select(this).classed("tsi-isHover", false);
-            })
-            .on("contextmenu", function () {
-                d3.select(d3.select(this).node().parentNode).remove();
-                d3.event.preventDefault();
-            });
-        var timeLabel = this.activeScooter.append("div")
-            .attr("class", "tsi-scooterTimeLabel");
-        
-        this.activeScooter.selectAll(".tsi-scooterDragger,.tsi-scooterTimeLabel,.tsi-scooterLine")
-            .call(d3.drag()
-                .on("drag", function (d) {
-                    if (d3.select(d3.event.sourceEvent.target).classed("tsi-closeButton")) {
-                        return;
-                    }
-                    var scooter = d3.select(<any>d3.select(this).node().parentNode);
-                    var currMillis: number = Number(self.scooterGuidMap[String(scooter.datum())]);
-                    var startPosition = self.x(new Date(currMillis));
-                    var newPosition = startPosition + d3.event.x;
-                    self.setScooterPosition(scooter, self.x.invert(newPosition).valueOf());
-                    self.setScooterLabels(scooter);
-                    self.setScooterTimeLabel(scooter);
-                })
-            );
-            
-        this.activeScooter.style("pointer-events", "none");
+        this.activeScooter = this.createScooter(scooterUID);
         Utils.focusOnEllipsisButton(this.renderTarget);
     }
 
-    private voronoiMousemove (mouseEvent)  { 
+    private createValueFilter (aggregateKey, splitBy) {
+        return (d: any, j: number ) => {
+            var currAggKey: string;
+            var currSplitBy: string;
+            if (d.aggregateKey) {
+                currAggKey = d.aggregateKey;
+                currSplitBy = d.splitBy;
+            } else  if (d && d.length){
+                currAggKey = d[0].aggregateKey;
+                currSplitBy = d[0].splitBy
+            } else 
+                return true;
+            return (currAggKey == aggregateKey && (splitBy == null || splitBy == currSplitBy));
+        }     
+    } 
+
+    private voronoiMousemove (mouseEvent) {
         if (!this.filteredValueExist()) return;
-        const [mx, my] = d3.mouse(mouseEvent);
+        this.mx = mouseEvent[0];
+        this.my = mouseEvent[1];
+        const [mx, my] = mouseEvent;
+      
         var filteredValues = this.getFilteredAndSticky(this.chartComponentData.allValues);
         if (filteredValues == null || filteredValues.length == 0)
             return;
-        const site: any = this.voronoi(filteredValues).find(mx, my);
-        this.voronoiMouseout(site.data); 
+        var site: any = this.voronoiDiagram.find(this.mx, this.my);
         if (!this.isDroppingScooter) {
             this.voronoiMouseover(site.data);  
         } else {
@@ -652,13 +730,39 @@ class LineChart extends ChartComponent {
             this.setScooterPosition(this.activeScooter, rawTime.valueOf());
             this.setScooterLabels(this.activeScooter);
             this.setScooterTimeLabel(this.activeScooter);
+            return;
         }
-    }
+
+        if (site.data.aggregateKey !== this.focusedAggKey || site.data.splitBy !== this.focusedSplitby) {
+            let selectedFilter = this.createValueFilter(site.data.aggregateKey, site.data.splitBy);
+            let oldFilter = this.createValueFilter(this.focusedAggKey, this.focusedSplitby);
+            
+            this.svgSelection.selectAll(".valueElement")
+                .filter(selectedFilter)
+                .attr("stroke-opacity", this.strokeOpacity)
+                .attr("fill-opacity", 1);
+            this.svgSelection.selectAll(".valueEnvelope")
+                .filter(selectedFilter)
+                .attr("fill-opacity", .3);
+
+            this.svgSelection.selectAll(".valueElement")
+                .filter(oldFilter)
+                .attr("stroke-opacity", this.nonFocusStrokeOpactiy)
+                .attr("fill-opacity", .3);
+            this.svgSelection.selectAll(".valueEnvelope")
+                .filter(oldFilter)
+                .attr("fill-opacity", .1);
+
+
+            this.focusedAggKey = site.data.aggregateKey;
+            this.focusedSplitby = site.data.splitBy;
+        }
+    } 
 
     private voronoiContextMenu (mouseEvent) {
         if (!this.filteredValueExist()) return;
         const [mx, my] = d3.mouse(mouseEvent);
-        const site: any = this.voronoi(this.getFilteredAndSticky(this.chartComponentData.allValues)).find(mx, my);
+        const site: any = this.voronoiDiagram.find(mx, my);
         if (this.chartComponentData.displayState[site.data.aggregateKey].contextMenuActions && 
             this.chartComponentData.displayState[site.data.aggregateKey].contextMenuActions.length) {
             var mousePosition = d3.mouse(<any>this.targetElement.node());
@@ -677,15 +781,15 @@ class LineChart extends ChartComponent {
         if (!this.filteredValueExist()) return;
         if (this.brushElem && !this.isDroppingScooter) return;
         const [mx, my] = d3.mouse(mouseEvent);
-        var site: any = this.voronoi(this.getFilteredAndSticky(this.chartComponentData.allValues)).find(mx, my);
+        var site: any = this.voronoiDiagram.find(mx, my);
         if (!this.isDroppingScooter) {
             if (this.chartComponentData.stickiedKey != null) {
                 this.chartComponentData.stickiedKey = null;
                 (<any>this.legendObject.legendElement.selectAll('.tsi-splitByLabel')).classed("stickied", false);
                 // recompute voronoi with no sticky
-                site = this.voronoi(this.getFilteredAndSticky(this.chartComponentData.allValues)).find(mx, my);
-                this.voronoiMouseout(site.data);
-                this.voronoiMouseover(site.data);
+                this.voronoiDiagram = this.voronoi(this.getFilteredAndSticky(this.chartComponentData.allValues));
+                site = this.voronoiDiagram.find(mx, my);
+                this.voronoiMousemove(site.data);
                 this.chartOptions.onUnsticky(site.data.aggregateKey, site.data.splitBy)
                 return;
             }
@@ -700,6 +804,7 @@ class LineChart extends ChartComponent {
         if (this.activeScooter != null) {
             this.activeScooter.style("pointer-events", "all");
             this.activeScooter = null;
+            this.chartOptions.onMarkersChange(this.exportMarkers());
         }
     }
 
@@ -768,15 +873,15 @@ class LineChart extends ChartComponent {
                 this.brushContextMenu.hide();
             }
             const [mx, my] = d3.mouse(mouseEvent);
-            var site: any = this.voronoi(this.getFilteredAndSticky(this.chartComponentData.allValues)).find(mx, my);
+            var site: any = this.voronoiDiagram.find(mx, my);
             let isClearingBrush = (this.brushStartPosition !== null) && (this.brushEndPosition !== null);
             if (this.chartComponentData.stickiedKey != null && !this.isDroppingScooter && !isClearingBrush) {
                 this.chartComponentData.stickiedKey = null;
                 (<any>this.legendObject.legendElement.selectAll('.tsi-splitByLabel')).classed("stickied", false);
                 // recompute voronoi with no sticky
-                site = this.voronoi(this.getFilteredAndSticky(this.chartComponentData.allValues)).find(mx, my);
-                this.voronoiMouseout(site.data);
-                this.voronoiMouseover(site.data);
+                this.voronoiDiagram = this.voronoi(this.getFilteredAndSticky(this.chartComponentData.allValues));
+                site = this.voronoiDiagram.find(mx, my);
+                this.voronoiMousemove(site.data);
                 this.chartOptions.onUnsticky(site.data.aggregateKey, site.data.splitBy)
                 return;
             }
@@ -901,15 +1006,6 @@ class LineChart extends ChartComponent {
                 return true;
             return !(currAggKey == aggregateKey && (splitBy == null || splitBy == currSplitBy));
         }
-
-        this.svgSelection.selectAll(".valueElement")
-            .filter(selectedFilter)
-            .attr("stroke-opacity", .3)
-            .attr("fill-opacity", .3);
-        this.svgSelection.selectAll(".valueEnvelope")
-            .attr("fill-opacity", .3)
-            .filter(selectedFilter)
-            .attr("fill-opacity", .1);
 
         d3.select(this.renderTarget).selectAll(".tsi-scooterValue").style("opacity", 1);
 
@@ -1094,6 +1190,7 @@ class LineChart extends ChartComponent {
                     .duration(durationFunction)
                     .ease(d3.easeExp)                                         
                     .attr("stroke-dasharray","5,5")      
+                    .attr("stroke", splitByColors[j])
                     .attrTween('d', function (d) {
                         var previous = d3.select(this).attr('d');
                         var current = aggLine(d);
@@ -1124,7 +1221,7 @@ class LineChart extends ChartComponent {
                 if (self.chartOptions.includeDots || self.chartComponentData.displayState[aggKey].includeDots) {
                     let dots = d3.select(this).selectAll(".valueDot")
                         .data(self.chartComponentData.timeArrays[aggKey][splitBy].filter((d) => {
-                            return d && d.measures[self.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy)] !== null;
+                            return d && d.measures && d.measures[self.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy)] !== null;
                         }), (d: any, i) => {
                             return d.dateTime.toString();
                         });
@@ -1194,7 +1291,7 @@ class LineChart extends ChartComponent {
 
                     area.enter()
                         .append("path")
-                        .attr("class", "valueElement valueArea")
+                        .attr("class", "valueArea")
                         .merge(area)
                         .style("fill", 'url(#' + (svgId) + ')')
                         .style("visibility", (d: any) => { 
@@ -1245,6 +1342,7 @@ class LineChart extends ChartComponent {
         this.events = (this.chartOptions.events != undefined) ? this.chartOptions.events : null;
         this.states = (this.chartOptions.states != undefined) ? this.chartOptions.states : null;
         this.strokeOpacity = this.chartOptions.isArea ? .55 : 1;
+        this.nonFocusStrokeOpactiy = this.chartOptions.isArea ? .55 : .3;
 
         this.chartComponentData.mergeDataToDisplayStateAndTimeArrays(data, aggregateExpressionOptions, this.events, this.states);
         if (this.chartOptions.xAxisHidden && this.chartOptions.focusHidden) {
@@ -1292,7 +1390,6 @@ class LineChart extends ChartComponent {
             this.chartControlsPanel.style("top", Math.max((this.chartMargins.top - 24), 0) + 'px');
         }
         
-
         if(this.svgSelection == null){
             
             /******************** Static Elements *********************************/
@@ -1383,7 +1480,7 @@ class LineChart extends ChartComponent {
     
             this.tooltip = new Tooltip(d3.select(this.renderTarget));                        
 
-            var draw = () => {  
+            this.draw = () => {  
 
                 this.minBrushWidth = (this.chartOptions.minBrushWidth) ? this.chartOptions.minBrushWidth : this.minBrushWidth;
                 this.focus.attr("visibility", (this.chartOptions.focusHidden) ? "hidden" : "visible")
@@ -1538,7 +1635,7 @@ class LineChart extends ChartComponent {
                     this.colorMap = {};
                     this.svgSelection.selectAll(".yAxis").remove();
                     let aggregateGroups = this.svgSelection.select('.svgGroup').selectAll('.tsi-aggGroup')
-                        .data(this.data.filter((agg) => this.chartComponentData.displayState[agg.aggKey]["visible"]), 
+                        .data(this.chartComponentData.data.filter((agg) => this.chartComponentData.displayState[agg.aggKey]["visible"]), 
                             (agg) => agg.aggKey);
                     var self = this;
                     aggregateGroups.enter()
@@ -1566,8 +1663,7 @@ class LineChart extends ChartComponent {
                             return (d.bucketSize != undefined ? self.x(new Date(d.dateTime.valueOf() + (d.bucketSize / 2))) : self.x(d.dateTime))})
                         .y(function(d: any) { 
                             if (d.measures) {
-                                var value = self.getValueOfVisible(d)
-                                return self.yMap[d.aggregateKey](self.getValueOfVisible(d))
+                                return self.yMap[d.aggregateKey] ? self.yMap[d.aggregateKey](self.getValueOfVisible(d)) : null;
                             }
                             return null;
                         })
@@ -1577,12 +1673,22 @@ class LineChart extends ChartComponent {
                     var voronoiSelection = (this.brushElem ? this.brushElem.select(".overlay") : voronoiRegion);
                     
                     voronoiSelection.on("mousemove", function () {
-                        self.voronoiMousemove(this);
+                        let mouseEvent = d3.mouse(this);
+                        self.voronoiMousemove(mouseEvent);
+                    })
+                    .on("mouseover", function () {
+                        if (!self.isDroppingScooter) {
+                            self.svgSelection.selectAll(".valueElement")
+                                .attr("stroke-opacity", self.nonFocusStrokeOpactiy)
+                                .attr("fill-opacity", .3);
+                            self.svgSelection.selectAll(".valueEnvelope")
+                                .attr("fill-opacity", .1);
+                        }
                     })
                     .on("mouseout", function (d)  {
                         if (!self.filteredValueExist()) return;
                         const [mx, my] = d3.mouse(this);
-                        const site = self.voronoi(self.getFilteredAndSticky(self.chartComponentData.allValues)).find(mx, my);
+                        const site = self.voronoiDiagram.find(mx, my);
                         self.voronoiMouseout(site.data); 
                         self.chartOptions.onMouseout();
                         if (self.tooltip)
@@ -1673,12 +1779,12 @@ class LineChart extends ChartComponent {
                     d3.select(this.renderTarget).selectAll(".tsi-scooterContainer").style("display", "block");
                 }
                 this.updateScooterPresentation();
+                this.voronoiDiagram = this.voronoi(this.getFilteredAndSticky(this.chartComponentData.allValues));
             }
 
-            this.legendObject = new Legend(draw, this.renderTarget, this.CONTROLSWIDTH);
-            this.contextMenu = new ContextMenu(draw, this.renderTarget);
-            this.brushContextMenu = new ContextMenu(draw, this.renderTarget);
-            this.draw = draw;
+            this.legendObject = new Legend(this.draw, this.renderTarget, this.CONTROLSWIDTH);
+            this.contextMenu = new ContextMenu(this.draw, this.renderTarget);
+            this.brushContextMenu = new ContextMenu(this.draw, this.renderTarget);
             window.addEventListener("resize", () => {
                 var self = this;
                 if (!this.chartOptions.suppressResizeListener) {
@@ -1719,10 +1825,14 @@ class LineChart extends ChartComponent {
                 stateSeriesComponents = [];
             }
         }    
-        
+
         this.chartComponentData.mergeDataToDisplayStateAndTimeArrays(this.data, this.aggregateExpressionOptions, this.events, this.states);
         this.draw();
         this.chartOptions.noAnimate = false;  // ensure internal renders are always animated, overriding the users noAnimate option
+
+        if (this.chartOptions.markers && this.chartOptions.markers.length > 0) {
+            this.importMarkers();
+        }
 
         d3.select("html").on("click." + Utils.guid(), () => {
             if (this.ellipsisContainer && d3.event.target != this.ellipsisContainer.select(".tsi-ellipsisButton").node()) {

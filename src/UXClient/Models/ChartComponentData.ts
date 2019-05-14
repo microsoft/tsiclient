@@ -1,4 +1,5 @@
 import {Utils} from "./../Utils";
+import { ChartDataOptions } from "./ChartDataOptions";
 
 class ChartComponentData {
     public data: any = {};
@@ -74,11 +75,12 @@ class ChartComponentData {
         this.usesSeconds = false;
         this.usesMillis = false;
         aggregateExpressionOptions = this.fillColors(aggregateExpressionOptions);
-        this.data.forEach((aggregate: any, i: number) => {
+        this.data = this.data.map((aggregate: any, i: number) => {
             var aggName: string = Object.keys(aggregate)[0];
+            let aggregateCopy = {...aggregate};
             
             //construct the aggregate key based on the aggregate index and name
-            var aggKey;
+            let aggKey;
             if (aggregateCounterMap[aggName]) {
                 aggKey = Utils.createEntityKey(aggName, aggregateCounterMap[aggName]);
                 aggregateCounterMap[aggName] += 1;
@@ -87,7 +89,8 @@ class ChartComponentData {
                 aggregateCounterMap[aggName] = 1;
             }
 
-            aggregate.aggKey = aggKey;
+            this.data[i].aggKey = aggKey;
+            aggregateCopy.aggKey = aggKey;
 
             if (this.displayState[aggKey]) {
                 newDisplayState[aggKey] = {
@@ -150,7 +153,7 @@ class ChartComponentData {
                 this.timeArrays[aggKey][splitBy] = 
                     this.convertAggregateToArray(data[i][aggName][splitBy], aggKey, aggName, splitBy, 
                                                  newDisplayState[aggKey].from, newDisplayState[aggKey].to, 
-                                                 newDisplayState[aggKey].bucketSize);
+                                                 newDisplayState[aggKey].bucketSize, aggregateExpressionOptions[i].timeShift);
                 if (this.displayState[aggKey] && this.displayState[aggKey].splitBys[splitBy]) {
                     newDisplayState[aggKey].splitBys[splitBy] = this.displayState[aggKey].splitBys[splitBy];
                 } else {
@@ -183,6 +186,7 @@ class ChartComponentData {
                     this.visibleTSCount += 1;
                 }
             });
+            return aggregateCopy;
         });
 
         //ensure that the stickied Key exists in the new data, otherwise revert to null
@@ -209,6 +213,20 @@ class ChartComponentData {
             return measureTypes;
         }, {});
         return Object.keys(measureTypes);
+    }
+
+    public getTemporalShiftString (aggKey) {
+        if (this.displayState[aggKey].aggregateExpression && this.displayState[aggKey].aggregateExpression.timeShift) {
+            return this.displayState[aggKey].aggregateExpression.timeShift;
+        }
+        return '';
+    } 
+
+    public getTemporalShiftMillis (aggKey) {
+        if (this.displayState[aggKey].aggregateExpression && this.displayState[aggKey].aggregateExpression.timeShift) {
+            return Utils.parseShift(this.displayState[aggKey].aggregateExpression.timeShift);
+        } 
+        return 0;
     }
 
     public doesTimeArrayUseSeconds (timeArray) {
@@ -287,13 +305,21 @@ class ChartComponentData {
         return firstMillis;
     }
 
+    private getNumberOfPaddedBuckets (from, to, bucketSize) {
+        return Math.ceil((to - from) / bucketSize);
+    }
+
     //aggregates object => array of objects containing timestamp and values. Pad with 
     public convertAggregateToArray (agg: any, aggKey: string, aggName: string, splitBy: string, 
-                                    from: Date = null, to: Date = null, bucketSize: number = null): Array<any> {
-        var aggArray: Array<any> = [];
+                                    from: Date = null, to: Date = null, bucketSize: number = null, 
+                                    timeShift: string): Array<any> {
+        
+        let aggArray: Array<any> = [];
         let isoStringAgg = {};
+        let shiftValue = Utils.parseShift(timeShift);
         Object.keys(agg).forEach((dateString: string) => {
-            let jsISOString = (new Date(dateString)).toISOString();
+            let shiftedDate = new Date((new Date(dateString)).valueOf() - shiftValue);
+            let jsISOString = shiftedDate.toISOString();
             isoStringAgg[jsISOString] = agg[dateString]; 
         });
         agg = isoStringAgg;
@@ -308,28 +334,42 @@ class ChartComponentData {
         }
 
         if (from)
-            this.fromMillis = Math.min(from.valueOf(), this.fromMillis);
+            this.fromMillis = Math.min(from.valueOf(), this.fromMillis) - shiftValue;
         if (to)
-            this.toMillis = Math.max(to.valueOf(), this.toMillis);
+            this.toMillis = Math.max(to.valueOf(), this.toMillis) - shiftValue;
         if (from && to && bucketSize) {
             let firstBucket = this.findFirstBucket(agg, from.valueOf(), bucketSize);
             if (firstBucket !== null) {
                 let firstBucketMillis = firstBucket.valueOf();
-                for (var currTime = new Date(firstBucketMillis); (currTime.valueOf() < to.valueOf()); currTime = new Date(currTime.valueOf() + bucketSize)) {
-                    var timeValueObject: any = createTimeValueObject();
-                    timeValueObject["dateTime"] = currTime;
-                    var currTimeString = currTime.toISOString();
-                    if (agg[currTimeString]) {
+                let isExcessiveBucketCount = (this.getNumberOfPaddedBuckets(firstBucketMillis, to.valueOf(), bucketSize) > 10000);
+                // pad if not an excessive number of buckets
+                if (!isExcessiveBucketCount) {
+                    for (var currTime = new Date(firstBucketMillis); (currTime.valueOf() < to.valueOf()); currTime = new Date(currTime.valueOf() + bucketSize)) {
+                        var timeValueObject: any = createTimeValueObject();
+                        timeValueObject["dateTime"] = currTime;
+                        var currTimeString = currTime.toISOString();
+                        if (agg[currTimeString]) {
+                            var currMeasures = agg[currTimeString];
+                            Object.keys(currMeasures).forEach((measure: string) => {
+                                timeValueObject["measures"][measure] = currMeasures[measure];
+                            });
+                        } else {
+                            timeValueObject["measures"] = null;
+                        }
+                        aggArray.push(timeValueObject);
+                        this.fromMillis = Math.min(from.valueOf(), currTime.valueOf());
+                        this.toMillis = Math.max(to.valueOf(), currTime.valueOf() + bucketSize);
+                    }    
+                } else {
+                    Object.keys(agg).forEach((currTimeString) => {
+                        var timeValueObject: any = createTimeValueObject();
+                        timeValueObject["dateTime"] = new Date(currTimeString);    
                         var currMeasures = agg[currTimeString];
                         Object.keys(currMeasures).forEach((measure: string) => {
                             timeValueObject["measures"][measure] = currMeasures[measure];
                         });
-                    } else {
-                        timeValueObject["measures"] = null;
-                    }
-                    aggArray.push(timeValueObject);
-                    this.fromMillis = Math.min(from.valueOf(), currTime.valueOf());
-                    this.toMillis = Math.max(to.valueOf(), currTime.valueOf() + bucketSize);
+                        aggArray.push(timeValueObject);                        
+                    });
                 }
             }
         } else {

@@ -249,7 +249,6 @@
         }
 
         path {
-            transition: stroke-opacity .2s ease;
             stroke-width: 2px;
             fill: none;
             stroke-linecap: round;
@@ -270,10 +269,12 @@
 
         .valueLine {
             stroke-width: 2px;
+            will-change: stroke-opacity;
         }
 
         .valueArea {
             stroke: none;
+            will-change: fill-opacity;
         }
 
         .valueDot {
@@ -282,7 +283,6 @@
         }
 
         .gapLine {
-            stroke: grey !important;
             stroke-width: 1px !important;
         }
     }

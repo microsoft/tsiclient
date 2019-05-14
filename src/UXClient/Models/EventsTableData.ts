@@ -10,6 +10,7 @@ class EventsTableData {
     public events: Array<TimeSeriesEvent> = [];
     private timestampColumnKey= "timestamp ($ts)_DateTime"
     private offsetName = null;
+    private maxVisibleToStart = 50;
 
 	constructor(){
         
@@ -117,6 +118,9 @@ class EventsTableData {
                     newColumns[cell.key] = this.columns[cell.key];
                 }
             })
+        });
+        Object.keys(newColumns).forEach((columnKey, i) => {
+            newColumns[columnKey].visible = (i < this.maxVisibleToStart);
         });
         this.columns = newColumns;
     }

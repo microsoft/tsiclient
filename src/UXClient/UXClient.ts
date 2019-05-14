@@ -158,6 +158,19 @@ class UXClient {
                 }
                 event[columnNameAndType] = eventObject;
             }
+            if (events[eventIdx].hasOwnProperty('$op')) {
+                let defaultType = 'String';
+                let otherProps = JSON.parse(events[eventIdx]['$op']);
+                Object.keys(otherProps).forEach((propNameRaw) => {
+                    let strippedNameOP = Utils.stripForConcat(propNameRaw);
+                    let columnNameAndTypeOP = strippedNameOP + '_String';
+                    event[columnNameAndTypeOP] = {
+                        value: otherProps[propNameRaw],
+                        name: strippedNameOP,
+                        type: defaultType
+                    }
+                });
+            }
             rows.push(event);
         }
         return rows;
@@ -287,7 +300,7 @@ class UXClient {
                 flattenedResults.push(event); 
             });
         });
-        return flattenedResults.sort((a,b) => (new Date(a['timestamp ($ts)'])).valueOf() < (new Date(b['timestamp ($ts)_DateTime'])).valueOf() ? -1 : 1);
+        return flattenedResults.sort((a,b) => (new Date(a['timestamp ($ts)'])).valueOf() < (new Date(b['timestamp ($ts)'])).valueOf() ? -1 : 1);
     }
 }
 

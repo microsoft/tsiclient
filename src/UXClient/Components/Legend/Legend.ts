@@ -36,6 +36,21 @@ class Legend extends Component {
         }
     }
 
+    private toggleSplitByVisible (aggregateKey: string, splitBy: string)  {
+        var newState = !this.chartComponentData.displayState[aggregateKey].splitBys[splitBy].visible;
+        this.chartComponentData.displayState[aggregateKey].splitBys[splitBy].visible = newState;
+        this.chartComponentData.displayState[aggregateKey].visible = Object.keys(this.chartComponentData.displayState[aggregateKey].splitBys)
+                                        .reduce((prev: boolean, curr: string): boolean => {
+                                            return this.chartComponentData.displayState[aggregateKey]["splitBys"][curr]["visible"] || prev;
+                                        }, false);
+    //turn off sticky if making invisible
+        if (newState == false && (this.chartComponentData.stickiedKey != null && 
+            this.chartComponentData.stickiedKey.aggregateKey == aggregateKey && 
+            this.chartComponentData.stickiedKey.splitBy == splitBy)) {
+            this.chartComponentData.stickiedKey = null;
+        }
+    } 
+
     public triggerSplitByFocus (aggKey: string, splitBy: string) {
         if (this.chartOptions.legend == "hidden") {
             return;
@@ -66,21 +81,6 @@ class Legend extends Component {
         var self = this;
         
         super.themify(this.legendElement, this.chartOptions.theme);
-        
-        var toggleSplitByVisible = (aggregateKey: string, splitBy: string) => {
-            var newState = !this.chartComponentData.displayState[aggregateKey].splitBys[splitBy].visible;
-            this.chartComponentData.displayState[aggregateKey].splitBys[splitBy].visible = newState;
-            this.chartComponentData.displayState[aggregateKey].visible = Object.keys(this.chartComponentData.displayState[aggregateKey].splitBys)
-                                            .reduce((prev: boolean, curr: string): boolean => {
-                                                return this.chartComponentData.displayState[aggregateKey]["splitBys"][curr]["visible"] || prev;
-                                            }, false);
-        //turn off sticky if making invisible
-            if (newState == false && (this.chartComponentData.stickiedKey != null && 
-                this.chartComponentData.stickiedKey.aggregateKey == aggregateKey && 
-                this.chartComponentData.stickiedKey.splitBy == splitBy)) {
-                this.chartComponentData.stickiedKey = null;
-            }
-        }
         
         var toggleSticky = (aggregateKey: string, splitBy: string) => {
             //don't do anything if not visible 
@@ -144,28 +144,28 @@ class Legend extends Component {
             var seriesNameLabel = d3.select(this).selectAll(".tsi-seriesNameLabel").data([aggKey]);
             d3.select(this).classed('tsi-nsb', noSplitBys);
             var enteredSeriesNameLabel = seriesNameLabel.enter().append("button")
-            .merge(seriesNameLabel)
-            .attr("class", (agg: string, i) => {
-                return "tsi-seriesNameLabel" + (self.chartComponentData.displayState[agg].visible ? " shown" : "");
-            }) 
-            .attr("aria-label", (agg: string) => "toggle visibility for " + agg)   
-            .on("click", function (d: string, i: number) {
-                var newState = !self.chartComponentData.displayState[d].visible;
-                self.chartComponentData.displayState[d].visible = newState;
+                .merge(seriesNameLabel)
+                .attr("class", (agg: string, i) => {
+                    return "tsi-seriesNameLabel" + (self.chartComponentData.displayState[agg].visible ? " shown" : "");
+                }) 
+                .attr("aria-label", (agg: string) => "toggle visibility for " + agg)   
+                .on("click", function (d: string, i: number) {
+                    var newState = !self.chartComponentData.displayState[d].visible;
+                    self.chartComponentData.displayState[d].visible = newState;
 
-                //turn off sticky if making invisible
-                if (newState == false && (self.chartComponentData.stickiedKey != null && 
-                    self.chartComponentData.stickiedKey.aggregateKey == d)) {
-                    self.chartComponentData.stickiedKey = null;
-                }
-                self.drawChart();
-            })
-            .on("mouseover", (d) => {
-                labelMouseover(d);
-            })
-            .on("mouseout", (d) => {
-                labelMouseout(svgSelection, d);
-            });
+                    //turn off sticky if making invisible
+                    if (newState == false && (self.chartComponentData.stickiedKey != null && 
+                        self.chartComponentData.stickiedKey.aggregateKey == d)) {
+                        self.chartComponentData.stickiedKey = null;
+                    }
+                    self.drawChart();
+                })
+                .on("mouseover", (d) => {
+                    labelMouseover(d);
+                })
+                .on("mouseout", (d) => {
+                    labelMouseout(svgSelection, d);
+                });
 
             var seriesNameLabelText = enteredSeriesNameLabel.selectAll("h4").data([aggKey]);
             var seriesNameLabelTextEntered = seriesNameLabelText.enter()
@@ -209,7 +209,9 @@ class Legend extends Component {
                 }, true);
 
                 var splitByLabels = splitByContainerEntered.selectAll('.tsi-splitByLabel')
-                    .data(splitByLabelData.slice(0, self.chartComponentData.displayState[aggKey].shownSplitBys));
+                    .data(splitByLabelData.slice(0, self.chartComponentData.displayState[aggKey].shownSplitBys), function (d: string): string {
+                        return d;
+                    });
                 
                 var splitByLabelsEntered = splitByLabels                    
                     .enter()
@@ -217,7 +219,7 @@ class Legend extends Component {
                     .merge(splitByLabels)
                     .on("click", function (splitBy: string, i: number) {
                         if (legendState == "compact") {
-                            toggleSplitByVisible(aggKey, splitBy)
+                            self.toggleSplitByVisible(aggKey, splitBy)
                         } else {
                             toggleSticky(aggKey, splitBy);
                         }
@@ -263,7 +265,7 @@ class Legend extends Component {
                             .attr('aria-label', "toggle visibility for " + splitBy)
                             .on("click", function (data: any, i: number) {
                                 d3.event.stopPropagation();
-                                toggleSplitByVisible(aggKey, splitBy);
+                                self.toggleSplitByVisible(aggKey, splitBy);
                                 d3.select(this)
                                     .classed("shown", Utils.getAgVisible(self.chartComponentData.displayState, aggKey, splitBy));
                                 self.drawChart();
