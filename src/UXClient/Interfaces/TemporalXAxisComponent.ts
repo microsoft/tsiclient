@@ -19,7 +19,7 @@ class TemporalXAxisComponent extends ChartComponent {
     protected createXAxis (singleLineXAxisLabel) {
         return d3.axisBottom(this.x)
             .ticks(this.getXTickNumber(singleLineXAxisLabel))
-            .tickFormat(Utils.timeFormat(this.labelFormatUsesSeconds(), this.labelFormatUsesMillis(), this.chartOptions.offset, this.chartOptions.is24HourTime, this.chartOptions.xAxisTimeFormat));
+            .tickFormat(Utils.timeFormat(this.labelFormatUsesSeconds(), this.labelFormatUsesMillis(), this.chartOptions.offset, this.chartOptions.is24HourTime, null, this.chartOptions.xAxisTimeFormat));
     }
 
     public getXTickNumber (singleLineXAxisLabel) {

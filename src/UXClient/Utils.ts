@@ -191,7 +191,7 @@ class Utils {
     }
 
     
-    static timeFormat(usesSeconds = false, usesMillis = false, offset: any = 0, is24HourTime: boolean = true, timeFormat: string = null) {
+    static timeFormat(usesSeconds = false, usesMillis = false, offset: any = 0, is24HourTime: boolean = true, shiftMillis: number = null, timeFormat: string = null) {
         return (d) => {
             let stringFormat;
             if (timeFormat !== null) {
