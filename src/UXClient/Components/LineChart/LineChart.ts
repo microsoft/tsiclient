@@ -4,7 +4,7 @@ import './LineChart.scss';
 import {Utils} from "./../../Utils";
 import {Legend} from "./../Legend/Legend";
 import {EventSeries} from "./../EventSeries/EventSeries";
-import {ChartComponent} from "./../../Interfaces/ChartComponent";
+import {TemporalXAxisComponent} from "./../../Interfaces/TemporalXAxisComponent";
 import {StateSeries} from "../StateSeries/StateSeries";
 import {LineChartData} from "./../../Models/LineChartData";
 import { ContextMenu } from '../ContextMenu/ContextMenu';
@@ -13,7 +13,7 @@ import { ChartOptions } from '../../Models/ChartOptions';
 import { EllipsisMenu } from '../EllipsisMenu/EllipsisMenu';
 import { ChartDataOptions } from '../../Models/ChartDataOptions';
 
-class LineChart extends ChartComponent {
+class LineChart extends TemporalXAxisComponent {
     private svgSelection: any;
     private targetElement: any;
     private legendObject: Legend;
@@ -22,8 +22,6 @@ class LineChart extends ChartComponent {
     private brushContextMenu: ContextMenu;
     private setDisplayStateFromData: any;
     private width: number;
-    private chartWidth: number;
-    private chartHeight: number;
     public draw: any;
     private events: any;
     private states: any;
@@ -39,7 +37,6 @@ class LineChart extends ChartComponent {
 
     private tooltip: Tooltip;
     private height: number;
-    public x: any;
     private xLowerBound: number;
     private xUpperBound: number;
     private y: any;
@@ -88,10 +85,6 @@ class LineChart extends ChartComponent {
     LineChart() { 
     }
 
-    public getXTickNumber (singleLineXAxisLabel) {
-        return Math.max((singleLineXAxisLabel ? Math.floor(this.chartWidth / 300) :  Math.floor(this.chartWidth / 160)), 2);
-    }
-
     private setIsDroppingScooter (isDropping: boolean) {
         this.isDroppingScooter = isDropping;
         if (this.scooterButton) {
@@ -118,13 +111,6 @@ class LineChart extends ChartComponent {
             rightPos: rightPos
         };
     } 
-    
-    //create xAxis is public so that users of linechart can programmatically change the axis labels
-    public createXAxis (singleLineXAxisLabel) {
-        return d3.axisBottom(this.x)
-            .ticks(this.getXTickNumber(singleLineXAxisLabel))
-            .tickFormat(Utils.timeFormat(this.labelFormatUsesSeconds(), this.labelFormatUsesMillis(), this.chartOptions.offset, this.chartOptions.is24HourTime, this.chartOptions.xAxisTimeFormat));
-    }
 
     private voronoiMouseout (d: any)  {
         //supress if the context menu is visible
@@ -378,14 +364,6 @@ class LineChart extends ChartComponent {
 
     private getHandleHeight (): number {
         return Math.min(Math.max(this.chartHeight / 2, 24), this.chartHeight + 8);
-    }
-
-    private labelFormatUsesSeconds () {
-        return !this.chartOptions.minutesForTimeLabels && this.chartComponentData.usesSeconds;
-    }
-
-    private labelFormatUsesMillis () {
-        return !this.chartOptions.minutesForTimeLabels && this.chartComponentData.usesMillis;
     }
 
     private getXPosition (d, x) {
@@ -1586,20 +1564,10 @@ class LineChart extends ChartComponent {
                     }
                     
                     if (!this.chartOptions.xAxisHidden) {
-                        var xAxis: any = g.selectAll(".xAxis").data([this.x]);
+                        this.xAxis = g.selectAll(".xAxis").data([this.x]);
             
-                        var xAxisEntered = xAxis.enter()
-                            .append("g")
-                            .attr("class", "xAxis")
-                            .merge(xAxis)
-                            .attr("transform", "translate(0," + (this.chartHeight + this.timelineHeight) + ")")
-                            .call(this.createXAxis(this.chartOptions.singleLineXAxisLabel));
-
-                        if (!this.chartOptions.singleLineXAxisLabel)                                     
-                            xAxisEntered.selectAll('text').call(Utils.splitTimeLabel);
-
-                        xAxisEntered.select(".domain").style("display", "none");
-                        xAxis.exit().remove();
+                        this.drawXAxis(this.chartHeight + this.timelineHeight);
+                        this.xAxis.exit().remove();
 
                         var xAxisBaseline =  g.selectAll(".xAxisBaseline").data([this.x]);
                         var xAxisBaselineEntered = xAxisBaseline.enter().append("line")

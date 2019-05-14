@@ -7,12 +7,8 @@
     $gray4: nth($grays, 4); // background
     
     color: $gray1;
-    background: $gray3;
     @include chartColors($grays);
 
-    .tsi-heatmapCanvas {
-        background-color: $gray3;
-    }
     .tsi-heatmapColorLegend {
         .highlightedValueLine {
             stroke: $gray1;

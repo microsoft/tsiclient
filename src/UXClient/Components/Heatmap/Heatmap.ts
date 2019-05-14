@@ -2,15 +2,15 @@ import * as d3 from 'd3';
 import './Heatmap.scss';
 import {Utils} from "./../../Utils";
 import {Component} from "./../../Interfaces/Component";
-import { ChartComponent } from '../../Interfaces/ChartComponent';
 import { Legend } from '../Legend/Legend';
 import { HeatmapCanvas} from '../HeatmapCanvas/HeatmapCanvas';
 import { ChartOptions } from '../../Models/ChartOptions';
 import { AggregateExpression } from '../../Models/AggregateExpression';
 import { ChartDataOptions } from '../../Models/ChartDataOptions';
 import { EllipsisMenu } from '../EllipsisMenu/EllipsisMenu';
+import { TemporalXAxisComponent } from '../../Interfaces/TemporalXAxisComponent';
 
-class Heatmap extends ChartComponent {
+class Heatmap extends TemporalXAxisComponent {
     private lineHeight = 12;
     private splitByLabelWidth = 140;
     private heatmapWrapper: any;
@@ -20,13 +20,13 @@ class Heatmap extends ChartComponent {
     private heatmapCanvasMap: any;
     private timeLabels: any = null;
     private height: number;
-    private heatmapWrapperHeight: number;
     private timeLabelsHeight = 52;
+    private svgSelection = null;
 
     public chartMargins: any = {        
         top: 0,
         bottom: 8,
-        left: 20, 
+        left: 40, 
         right: 20
     };
 
@@ -45,6 +45,35 @@ class Heatmap extends ChartComponent {
 
     private chartControlsExist () {
         return (this.ellipsisItemsExist() && !this.chartOptions.hideChartControlPanel);
+    }
+
+    private addTimeLabels () {
+        if (this.timeLabels === null || this.svgSelection === null) {
+            this.svgSelection = this.heatmapWrapper.append('svg')
+                .attr('class', 'tsi-heatmapSVG');
+            this.timeLabels = this.svgSelection.append('g').attr("class", "tsi-heatmapTimeLabels")
+                .attr('transform', 'translate(' + this.chartMargins.left + ',0)');
+        }
+
+        if (!this.chartOptions.xAxisHidden) {
+            this.xAxis = this.timeLabels.selectAll(".xAxis").data([this.x]);
+
+            this.drawXAxis(this.chartHeight - 60);
+            this.xAxis.exit().remove();
+
+            var xAxisBaseline =  this.timeLabels.selectAll(".xAxisBaseline").data([this.x]);
+            var xAxisBaselineEntered = xAxisBaseline.enter().append("line")
+                .attr("class", "xAxisBaseline")
+                .attr("x1", .5)
+                .merge(xAxisBaseline)
+                .attr("y2", this.chartHeight - (this.chartMargins.bottom + this.timeLabelsHeight))
+                .attr("y1", this.chartHeight - (this.chartMargins.bottom + this.timeLabelsHeight))
+                .attr("x2", this.chartWidth - 90);
+            xAxisBaseline.exit().remove();
+        }
+        if (this.timeLabels.selectAll(".xAxis").size() !== 0) {
+            this.timeLabels.selectAll(".xAxis").style("visibility", ((!this.chartOptions.xAxisHidden) ? "visible" : "hidden"));
+        }
     }
 
     public render (data, chartOptions, aggregateExpressionOptions) {
@@ -76,19 +105,24 @@ class Heatmap extends ChartComponent {
         if (this.heatmapWrapper == null) {
             this.heatmapWrapper = targetElement.append('div')
                 .attr("class", "tsi-heatmapWrapper")
-                .style("right", this.chartMargins.right + "px");
+                .style('right', '0px');
 
             this.draw = () => { 
 
-                var width: number = targetElement.node().getBoundingClientRect().width - (this.chartOptions.legend == "shown" ? 250 : 0);
                 this.height = Math.floor(Math.max((<any>d3.select(this.renderTarget).node()).clientHeight, this.MINHEIGHT));        
-                this.heatmapWrapperHeight = this.height - ((12 + (this.chartControlsExist() ? 28 : 0) + (this.chartOptions.legend === 'compact' ? 48 : 0)));
+                this.chartHeight = this.height - ((12 + (this.chartControlsExist() ? 28 : 0) + (this.chartOptions.legend === 'compact' ? 48 : 0)));
 
                 super.themify(targetElement, this.chartOptions.theme);
-                width = Math.floor(targetElement.node().getBoundingClientRect().width) - (this.chartOptions.legend == "shown" ? 250 : 0) - (this.chartMargins.left + this.chartMargins.right);
+                this.chartWidth = Math.floor(targetElement.node().getBoundingClientRect().width) - (this.chartOptions.legend == "shown" ? 200 : 0) - (this.chartMargins.left + this.chartMargins.right);
 
-                this.heatmapWrapper.style("width", (width - 12) + "px")
-                    .style("height", this.heatmapWrapperHeight + "px")
+                this.x = d3.scaleTime()
+                .rangeRound([0, this.chartWidth - 90]); // HARDCODED to be the width of a heatmapCanvas
+
+                var fromAndTo: any = this.chartComponentData.setAllValuesAndVisibleTAs();
+                this.x.domain(fromAndTo);
+
+                this.heatmapWrapper.style("width", this.chartWidth + (this.chartMargins.left + this.chartMargins.right) + "px")
+                    .style("height", this.chartHeight + "px")
                     .style("top", (20 + (this.chartControlsExist() ? 36 : 0) + (this.chartOptions.legend === 'compact' ? 40 : 0)) + "px");
 
                 if (this.chartControlsExist()) {
@@ -96,7 +130,7 @@ class Heatmap extends ChartComponent {
                     this.chartControlsPanel.style("width", controlPanelWidth + "px");
                 }    
 
-                var canvasWrapperHeightTotal = this.heatmapWrapperHeight - this.timeLabelsHeight - this.chartMargins.bottom;
+                var canvasWrapperHeightTotal = this.chartHeight - this.timeLabelsHeight - this.chartMargins.bottom;
                 this.heatmapCanvasMap = {};
                 var visibleAggs = Object.keys(this.chartComponentData.displayState).filter((aggKey) => {
                     return this.chartComponentData.getAggVisible(aggKey);
@@ -109,6 +143,8 @@ class Heatmap extends ChartComponent {
                     .append("div")
                     .merge(canvasWrappers)
                     .attr("class", "tsi-heatmapCanvasWrapper")
+                    .style("width", this.chartWidth + 'px')
+                    .style('left', this.chartMargins.left + 'px')
                     .style("height", (d, i) => {
                         return (canvasWrapperHeightTotal * (1 / visibleAggs.length)) + "px"
                     })
@@ -128,7 +164,7 @@ class Heatmap extends ChartComponent {
                         }
                         renderHeatmapCanvas();         
                     }).on("mouseleave", () => {
-                        self.timeLabels.selectAll("*").remove();
+                        self.timeLabels.selectAll(".tsi-heatmapTimeLabels").remove();
                         self.legend.legendElement.selectAll('.tsi-splitByLabel').classed("inFocus", false);
                     })
                 canvasWrappers.exit().remove();
@@ -154,33 +190,33 @@ class Heatmap extends ChartComponent {
         }
         this.chartComponentData.mergeDataToDisplayStateAndTimeArrays(data, aggregateExpressionOptions);
         this.draw();
-        if (this.timeLabels === null) {
-            this.timeLabels = this.heatmapWrapper.append('svg').attr("class", "tsi-heatmapTimeLabels");
-        }
+        this.addTimeLabels();
         window.addEventListener("resize", () => {
-            if (!this.chartOptions.suppressResizeListener)
+            if (!this.chartOptions.suppressResizeListener) {
                 this.draw();
+                this.addTimeLabels();
+            }
         });
     }
 
     public renderTimeLabels = (focusStartTime, focusEndTime, focusX1, focusX2, focusY, yOffset) => {
-        this.timeLabels.selectAll("*").remove();
+        this.timeLabels.selectAll(".tsi-heatmapTimeLabels").remove();
         this.timeLabels.node().parentNode.appendChild(this.timeLabels.node());
 
-        this.timeLabels.append("line").attr("class", "tsi-heatmapFocusLine")
+        this.timeLabels.append("line").attr("class", "tsi-heatmapFocusLine tsi-heatmapTimeLabels")
             .attr("x1", focusX1)
             .attr("x2", focusX1)
             .attr("y1", focusY + yOffset)
-            .attr("y2", this.heatmapWrapperHeight - this.timeLabelsHeight);
+            .attr("y2", this.chartHeight - this.timeLabelsHeight);
 
-        this.timeLabels.append("line").attr("class", "tsi-heatmapFocusLine")
+        this.timeLabels.append("line").attr("class", "tsi-heatmapFocusLine tsi-heatmapTimeLabels")
             .attr("x1", focusX2)
             .attr("x2", focusX2)
             .attr("y1", focusY + yOffset)
-            .attr("y2", this.heatmapWrapperHeight - this.timeLabelsHeight); 
+            .attr("y2", this.chartHeight - this.timeLabelsHeight); 
         
         var textBoxG = this.timeLabels.append("g")
-            .attr("class", "tsi-heatmapTimeLabelTextBox");
+            .attr("class", "tsi-heatmapTimeLabelTextBox tsi-heatmapTimeLabels");
 
         var text = textBoxG.append("text");
         
@@ -201,7 +237,7 @@ class Heatmap extends ChartComponent {
         text.node().parentNode.appendChild(text.node());
         var rawOffset = (focusX1 + focusX2) / 2;
         var leftOffset = ((rawOffset - ((textDimensions.width / 2) + 6)) > 0) ? rawOffset : ((textDimensions.width / 2) + 6);
-        textBoxG.attr("transform", "translate(" + leftOffset + "," + (this.heatmapWrapperHeight - this.timeLabelsHeight - this.chartMargins.bottom) + ")");
+        textBoxG.attr("transform", "translate(" + leftOffset + "," + (this.chartHeight - this.timeLabelsHeight - this.chartMargins.bottom) + ")");
     }
 }
 
