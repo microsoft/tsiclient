@@ -27,7 +27,7 @@ class ModelAutocomplete extends Component{
             .attr("class", "tsi-modelAutocompleteInput")
             .attr("placeholder", "Search Time Series Instances...");
         let clear = inputWrapper.append('div').attr('class', 'tsi-clear')
-                    .on('click', function(){ (input.node() as any).value = ''; noSuggest = false; self.chartOptions.onInput(''); d3.select(this).classed('tsi-shown', false); });
+                    .on('click', function(){ (input.node() as any).value = ''; self.chartOptions.onInput(''); d3.select(this).classed('tsi-shown', false); });
         
         let Awesomplete = (window as any).Awesomplete;
         this.ap = new Awesomplete(input.node(), {minChars: 1});
@@ -52,11 +52,11 @@ class ModelAutocomplete extends Component{
                 getToken().then(token => {
                     self.server.getTimeseriesInstancesSuggestions(token, environmentFqdn, searchText).then(r => {
                         self.ap.list = r.suggestions.map(s => s.searchString);
-                        self.chartOptions.onInput(searchText);
                     })
                 })
             }
             noSuggest = false;
+            self.chartOptions.onInput(searchText);
             clear.classed('tsi-shown', searchText.length);
         })
     }
