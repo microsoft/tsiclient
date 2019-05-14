@@ -280,9 +280,7 @@ class HeatmapCanvas extends ChartComponent {
     }
 
     private calcCellWidth(i) {
-        console.log(i + ": " + (Math.round(this.rawCellWidth * (i + 1)) - Math.round(this.rawCellWidth * i) - (this.rawCellWidth > 10 ? 1 : 0)));
         return (Math.round(this.rawCellWidth * (i + 1)) - Math.round(this.rawCellWidth * i) - (this.rawCellWidth > 10 ? 1 : 0));
-        // return this.rawCellWidth + (i < this.cellWidthMod ? 1 : 0) - (this.rawCellWidth > 10 ? 1 : 0); 
     }
 
     private calcCellY(i) {

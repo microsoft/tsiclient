@@ -104,8 +104,7 @@ class Heatmap extends TemporalXAxisComponent {
             
         if (this.heatmapWrapper == null) {
             this.heatmapWrapper = targetElement.append('div')
-                .attr("class", "tsi-heatmapWrapper")
-                .style('right', '0px');
+                .attr("class", "tsi-heatmapWrapper");
 
             this.draw = () => { 
 
