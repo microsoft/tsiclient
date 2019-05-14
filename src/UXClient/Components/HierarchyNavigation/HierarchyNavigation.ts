@@ -142,21 +142,15 @@ class HierarchyNavigation extends Component{
             })
         })
 
-        let autocompleteOnInput = (st) => {
+        let autocompleteOnInput = (st, event) => {
             this.searchString = st;
-            self.usedInstanceSearchContinuationTokens = {};
-            self.lastInstanceContinuationToken = null;
-            this.instanceList.html('');
-            this.hierarchy.html('');
 
             if(st.length === 0){
                 if (this.selectedNavTab === NavTabs.Hierarchy) {
                     this.mode = State.Navigate;
                     this.setRequestParamsForNavigate();
-                    this.pathSearch(getToken, environmentFqdn, self.requestPayload(), this.hierarchy);
-                } else {
-                    this.pathSearch(getToken, environmentFqdn, self.requestPayload(), this.instanceList);
                 }
+                this.clearAndGetResults();
             }
             else {
                 if (this.selectedNavTab === NavTabs.Hierarchy) {
@@ -164,17 +158,14 @@ class HierarchyNavigation extends Component{
                         this.mode = State.Filter;
                         this.setRequestParamsForFilter();
                     }
-                    this.pathSearch(getToken, environmentFqdn, self.requestPayload(), this.hierarchy);
-                } else {
-                    this.pathSearch(getToken, environmentFqdn, self.requestPayload(), this.instanceList);
+                } if (event.which === 13 || event.keyCode === 13) {
+                    this.clearAndGetResults();
                 }
             }
         }
 
         let handleKeydown = (event, ap) => {
             if(!ap.isOpened) {
-                ap.input.focus();
-                autocompleteOnInput(ap.input.value);
             }
         }
     }
