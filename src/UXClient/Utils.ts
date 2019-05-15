@@ -222,11 +222,13 @@ class Utils {
                     .attr("y", text.attr("y"))
                     .attr("dy", dy + "em")
                     .text(lines[0]);
-                text.append("tspan")
-                    .attr("x", 0)
-                    .attr("y", text.attr("y"))
-                    .attr("dy", (dy + dy * 1.4) + "em")
-                    .text(lines[1] + (lines.length === 3 ? ' ' + lines[2] : ''));
+                if (lines.length > 1) {
+                    text.append("tspan")
+                        .attr("x", 0)
+                        .attr("y", text.attr("y"))
+                        .attr("dy", (dy + dy * 1.4) + "em")
+                        .text(lines[1] + (lines.length === 3 ? ' ' + lines[2] : ''));    
+                }
             }
         });
     }

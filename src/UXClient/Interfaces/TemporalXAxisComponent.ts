@@ -11,15 +11,17 @@ class TemporalXAxisComponent extends ChartComponent {
     protected x;
     protected chartWidth;
     protected chartHeight;
-    
+
 	constructor(renderTarget: Element){
 		super(renderTarget);
     }
 
     protected createXAxis (singleLineXAxisLabel) {
+        let ticks = this.x.ticks(this.getXTickNumber(singleLineXAxisLabel));
+        ticks = [this.x.domain()[0]].concat(ticks.slice(1, ticks.length - 1)).concat([this.x.domain()[1]]);
         return d3.axisBottom(this.x)
-            .ticks(this.getXTickNumber(singleLineXAxisLabel))
-            .tickFormat(Utils.timeFormat(this.labelFormatUsesSeconds(), this.labelFormatUsesMillis(), this.chartOptions.offset, this.chartOptions.is24HourTime, null, this.chartOptions.xAxisTimeFormat));
+            .tickValues(ticks)
+            .tickFormat(Utils.timeFormat(this.labelFormatUsesSeconds(), this.labelFormatUsesMillis(), this.chartOptions.offset, this.chartOptions.is24HourTime, null, null));
     }
 
     public getXTickNumber (singleLineXAxisLabel) {
@@ -41,6 +43,18 @@ class TemporalXAxisComponent extends ChartComponent {
             .merge(this.xAxis)
             .attr("transform", "translate(0," + yOffset + ")")
             .call(this.createXAxis(this.chartOptions.singleLineXAxisLabel));
+
+        //update text by applying function
+        if (this.chartOptions.xAxisTimeFormat) {
+            let indexOfLast = xAxisEntered.selectAll('.tick').size() - 1;
+            let self = this;
+            xAxisEntered.selectAll('.tick').each(function (d, i) {
+                d3.select(this).select('text').text((d) => {
+                    let momentTimeFormatString: string = String(self.chartOptions.xAxisTimeFormat(d, i, i === 0, i === indexOfLast));
+                    return Utils.timeFormat(self.labelFormatUsesSeconds(), self.labelFormatUsesMillis(), self.chartOptions.offset, self.chartOptions.is24HourTime, null, momentTimeFormatString)(d);
+                });
+            });
+        }
 
         if (!this.chartOptions.singleLineXAxisLabel)                                     
             xAxisEntered.selectAll('text').call(Utils.splitTimeLabel);
