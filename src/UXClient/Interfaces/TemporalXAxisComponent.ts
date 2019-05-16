@@ -32,6 +32,9 @@ class TemporalXAxisComponent extends ChartComponent {
         ticks = ticks.map((d) => {
             return new Date(d.valueOf() - ((d.getTimezoneOffset() + Utils.getOffsetMinutes(this.chartOptions.offset, d.valueOf())) * 60 * 1000))
         })
+        if (ticks.length === 2) {
+            ticks = this.x.domain();
+        }
         return d3.axisBottom(this.x)
             .tickValues(ticks)
             .tickFormat(Utils.timeFormat(this.labelFormatUsesSeconds(), this.labelFormatUsesMillis(), this.chartOptions.offset, this.chartOptions.is24HourTime, null, null));
