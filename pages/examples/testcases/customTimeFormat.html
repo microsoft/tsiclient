@@ -25,7 +25,7 @@
                     for(var j = 0; j < 5; j++){
                         var values = {};
                         lines[`Station${j}`] = values;
-                        for(var k = 0; k < 60; k++){
+                        for(var k = 0; k < 15600; k+=100){
                             if(!(k%2 && k%3)){  // if check is to create some sparseness in the data
                                 var to = new Date(from.valueOf() + 1000*60*k);
                                 var val = Math.random();
@@ -37,21 +37,15 @@
 
                 let xAxisTimeFormat = (d, i, isFirst, isLast) => {
                     if (isFirst || isLast) {
-                        return "HH:mm L";
+                        return "L HH:mm";
                     }
-                    return "HH:mm";
+                    return "L HH:mm";
                 }
 
                 // render the data in a chart
                 var tsiClient = new TsiClient();
                 var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart1'));
                 lineChart.render(data, {theme: 'light', xAxisTimeFormat: xAxisTimeFormat});
-
-                var barChart = new tsiClient.ux.BarChart(document.getElementById('chart2'));
-                barChart.render(data, {theme: 'dark', grid: true, tooltip: true, legend: 'compact'});
-
-                var pieChart = new tsiClient.ux.PieChart(document.getElementById('chart3'));
-                pieChart.render(data, {theme: 'light', grid: true, tooltip: true, legend: 'compact'});
 
                 var heatmap = new tsiClient.ux.Heatmap(document.getElementById('chart4'));
                 heatmap.render(data, {theme: 'dark', xAxisTimeFormat: xAxisTimeFormat}, data.map(d => {return {measureTypes: ['avg'], searchSpan: {from: from.toISOString(), to: to.toISOString(), bucketSize: '1m'}}}));
