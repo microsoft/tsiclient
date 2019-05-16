@@ -4,7 +4,7 @@ import './LineChart.scss';
 import {Utils} from "./../../Utils";
 import {Legend} from "./../Legend/Legend";
 import {EventSeries} from "./../EventSeries/EventSeries";
-import {ChartComponent} from "./../../Interfaces/ChartComponent";
+import {TemporalXAxisComponent} from "./../../Interfaces/TemporalXAxisComponent";
 import {StateSeries} from "../StateSeries/StateSeries";
 import {LineChartData} from "./../../Models/LineChartData";
 import { ContextMenu } from '../ContextMenu/ContextMenu';
@@ -13,7 +13,7 @@ import { ChartOptions } from '../../Models/ChartOptions';
 import { EllipsisMenu } from '../EllipsisMenu/EllipsisMenu';
 import { ChartDataOptions } from '../../Models/ChartDataOptions';
 
-class LineChart extends ChartComponent {
+class LineChart extends TemporalXAxisComponent {
     private svgSelection: any;
     private targetElement: any;
     private legendObject: Legend;
@@ -22,8 +22,6 @@ class LineChart extends ChartComponent {
     private brushContextMenu: ContextMenu;
     private setDisplayStateFromData: any;
     private width: number;
-    private chartWidth: number;
-    private chartHeight: number;
     public draw: any;
     private events: any;
     private states: any;
@@ -39,7 +37,6 @@ class LineChart extends ChartComponent {
 
     private tooltip: Tooltip;
     private height: number;
-    public x: any;
     private xLowerBound: number;
     private xUpperBound: number;
     private y: any;
@@ -88,10 +85,6 @@ class LineChart extends ChartComponent {
     LineChart() { 
     }
 
-    public getXTickNumber (singleLineXAxisLabel) {
-        return (singleLineXAxisLabel ? Math.floor(this.chartWidth / 300) :  Math.floor(this.chartWidth / 160));
-    }
-
     private setIsDroppingScooter (isDropping: boolean) {
         this.isDroppingScooter = isDropping;
         if (this.scooterButton) {
@@ -118,13 +111,6 @@ class LineChart extends ChartComponent {
             rightPos: rightPos
         };
     } 
-    
-    //create xAxis is public so that users of linechart can programmatically change the axis labels
-    public createXAxis (singleLineXAxisLabel) {
-        return d3.axisBottom(this.x)
-            .ticks(this.getXTickNumber(singleLineXAxisLabel))
-            .tickFormat(Utils.timeFormat(this.labelFormatUsesSeconds(), this.labelFormatUsesMillis(), this.chartOptions.offset, this.chartOptions.is24HourTime));
-    }
 
     private voronoiMouseout (d: any)  {
         //supress if the context menu is visible
@@ -205,6 +191,26 @@ class LineChart extends ChartComponent {
                 .text(measureType + ": " + Utils.formatYAxisNumber(d.measures[measureType]));
         });
     }
+    public triggerLineFocus = (aggKey: string, splitBy: string) => {
+        this.svgSelection.selectAll(".valueElement")
+            .attr("stroke-opacity", this.nonFocusStrokeOpactiy)
+            .attr("fill-opacity", .3);
+        this.svgSelection.selectAll(".valueEnvelope")
+            .attr("fill-opacity", .1);
+
+        let selectedFilter = this.createValueFilter(aggKey, splitBy);
+        
+        this.svgSelection.selectAll(".valueElement")
+            .filter(selectedFilter)
+            .attr("stroke-opacity", this.strokeOpacity)
+            .attr("fill-opacity", 1);
+        this.svgSelection.selectAll(".valueEnvelope")
+            .filter(selectedFilter)
+            .attr("fill-opacity", .3);
+
+        this.focusedAggKey = aggKey;
+        this.focusedSplitby = splitBy;
+    }
 
     private voronoiMouseover = (d: any) => {
         //supress if the context menu is visible
@@ -230,11 +236,11 @@ class LineChart extends ChartComponent {
         var bucketSize = this.chartComponentData.displayState[d.aggregateKey].bucketSize;
         var endValue = bucketSize ? (new Date(xValue.valueOf() + bucketSize)) : null;
         
-        text.append("tspan").text(Utils.timeFormat(false, false, this.chartOptions.offset, this.chartOptions.is24HourTime, shiftMillis)(xValue))
+        text.append("tspan").text(Utils.timeFormat(this.chartComponentData.usesSeconds, this.chartComponentData.usesMillis, this.chartOptions.offset, this.chartOptions.is24HourTime, shiftMillis, null)(xValue))
             .attr("x", 0)
             .attr("y", 4);
         if (endValue) {
-            text.append("tspan").text(Utils.timeFormat(false, false, this.chartOptions.offset, this.chartOptions.is24HourTime, shiftMillis)(endValue))
+            text.append("tspan").text(Utils.timeFormat(this.chartComponentData.usesSeconds, this.chartComponentData.usesMillis, this.chartOptions.offset, this.chartOptions.is24HourTime, shiftMillis, null)(endValue))
                 .attr("x", 0)
                 .attr("y", 27);
             var barWidth = this.x(endValue) - this.x(xValue);
@@ -300,7 +306,6 @@ class LineChart extends ChartComponent {
             this.svgSelection.selectAll(".xAxis").style("display", "none");
         }
 
-        this.labelMouseover(d.aggregateKey, d.splitBy);
         this.chartOptions.onMouseover(d.aggregateKey, d.splitBy);
     }
 
@@ -388,14 +393,6 @@ class LineChart extends ChartComponent {
 
     private getHandleHeight (): number {
         return Math.min(Math.max(this.chartHeight / 2, 24), this.chartHeight + 8);
-    }
-
-    private labelFormatUsesSeconds () {
-        return !this.chartOptions.minutesForTimeLabels && this.chartComponentData.usesSeconds;
-    }
-
-    private labelFormatUsesMillis () {
-        return !this.chartOptions.minutesForTimeLabels && this.chartComponentData.usesMillis;
     }
 
     private getXPosition (d, x) {
@@ -539,8 +536,8 @@ class LineChart extends ChartComponent {
         var firstValue = values[0].dateTime;
         var secondValue = new Date(values[0].dateTime.valueOf() + (values[0].bucketSize != null ? values[0].bucketSize : 0));
         var timeFormat = Utils.timeFormat(this.chartComponentData.usesSeconds, this.chartComponentData.usesMillis, 
-            this.chartOptions.offset, this.chartOptions.is24HourTime);
-        var dateToTime = (t) => timeFormat(t).split(" ")[1];
+            this.chartOptions.offset, this.chartOptions.is24HourTime, null, null);
+        var dateToTime = (t) => ((timeFormat(t).split(" ") && timeFormat(t).split(" ").length > 1) ? timeFormat(t).split(" ")[1] : '');
         var text = dateToTime(firstValue) + " - " + dateToTime(secondValue);
         var timeLabel = scooter.select(".tsi-scooterTimeLabel");
         let self = this;
@@ -1018,6 +1015,16 @@ class LineChart extends ChartComponent {
                 return (a.aggregateKey == aggregateKey && (splitBy == null || splitBy == a.splitBy)) ? 1 : -1;            
             });
         });
+
+        this.svgSelection.selectAll(".valueElement")
+            .filter(selectedFilter)
+            .attr("stroke-opacity", this.nonFocusStrokeOpactiy)
+            .attr("fill-opacity", .3);
+
+        this.svgSelection.selectAll(".valueEnvelope")
+            .filter(selectedFilter)
+            .attr("fill-opacity", .1);
+
     }
 
     // returns the next visibleAggI
@@ -1596,20 +1603,10 @@ class LineChart extends ChartComponent {
                     }
                     
                     if (!this.chartOptions.xAxisHidden) {
-                        var xAxis: any = g.selectAll(".xAxis").data([this.x]);
+                        this.xAxis = g.selectAll(".xAxis").data([this.x]);
             
-                        var xAxisEntered = xAxis.enter()
-                            .append("g")
-                            .attr("class", "xAxis")
-                            .merge(xAxis)
-                            .attr("transform", "translate(0," + (this.chartHeight + this.timelineHeight) + ")")
-                            .call(this.createXAxis(this.chartOptions.singleLineXAxisLabel));
-
-                        if (!this.chartOptions.singleLineXAxisLabel)                                     
-                            xAxisEntered.selectAll('text').call(Utils.splitTimeLabel);
-
-                        xAxisEntered.select(".domain").style("display", "none");
-                        xAxis.exit().remove();
+                        this.drawXAxis(this.chartHeight + this.timelineHeight);
+                        this.xAxis.exit().remove();
 
                         var xAxisBaseline =  g.selectAll(".xAxisBaseline").data([this.x]);
                         var xAxisBaselineEntered = xAxisBaseline.enter().append("line")

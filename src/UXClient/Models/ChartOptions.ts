@@ -56,6 +56,7 @@ class ChartOptions {
     public timestamp: any; //For components with a slider, this is the selected timestamp
     public tooltip: boolean; // whether tooltip is visible
     public xAxisHidden: boolean; // whether xAxis is hidden in chart
+    public xAxisTimeFormat: (d, i, isFirst, isLast) => {}; //takes in a date string, tick index, isFirst, and isLast, outputs a moment.js style date format string
     public yAxisHidden: boolean; // whether yAxis is hidden in chart
     public yAxisState: string; // state of the y axis in line chart, either: stacked, shared, overlap
     public yExtent: any; // [min, max] of range of y values in chart
@@ -143,6 +144,7 @@ class ChartOptions {
         this.ellipsisItems = this.mergeValue(chartOptionsObj, 'ellipsisItems', []);
         this.markers = Utils.getValueOrDefault(chartOptionsObj, 'markers', null); // intentionally not mergeValue
         this.onMarkersChange = this.mergeValue(chartOptionsObj, 'onMarkersChange', (markers) => {});
+        this.xAxisTimeFormat = this.mergeValue(chartOptionsObj, 'xAxisTimeFormat', null);
     }
 
     private mergeValue (chartOptionsObj, propertyName, defaultValue) {
@@ -211,7 +213,8 @@ class ChartOptions {
             yExtent: this.yExtent,
             ellipsisItems: this.ellipsisItems,
             markers: this.markers,
-            onMarkersChange: this.onMarkersChange
+            onMarkersChange: this.onMarkersChange,
+            xAxisTimeFormat: this.xAxisTimeFormat
         }
     }
 }
