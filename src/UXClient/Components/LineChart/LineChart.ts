@@ -191,6 +191,26 @@ class LineChart extends TemporalXAxisComponent {
                 .text(measureType + ": " + Utils.formatYAxisNumber(d.measures[measureType]));
         });
     }
+    public triggerLineFocus = (aggKey: string, splitBy: string) => {
+        this.svgSelection.selectAll(".valueElement")
+            .attr("stroke-opacity", this.nonFocusStrokeOpactiy)
+            .attr("fill-opacity", .3);
+        this.svgSelection.selectAll(".valueEnvelope")
+            .attr("fill-opacity", .1);
+
+        let selectedFilter = this.createValueFilter(aggKey, splitBy);
+        
+        this.svgSelection.selectAll(".valueElement")
+            .filter(selectedFilter)
+            .attr("stroke-opacity", this.strokeOpacity)
+            .attr("fill-opacity", 1);
+        this.svgSelection.selectAll(".valueEnvelope")
+            .filter(selectedFilter)
+            .attr("fill-opacity", .3);
+
+        this.focusedAggKey = aggKey;
+        this.focusedSplitby = splitBy;
+    }
 
     private voronoiMouseover = (d: any) => {
         //supress if the context menu is visible
@@ -286,7 +306,6 @@ class LineChart extends TemporalXAxisComponent {
             this.svgSelection.selectAll(".xAxis").style("display", "none");
         }
 
-        this.labelMouseover(d.aggregateKey, d.splitBy);
         this.chartOptions.onMouseover(d.aggregateKey, d.splitBy);
     }
 
@@ -996,6 +1015,16 @@ class LineChart extends TemporalXAxisComponent {
                 return (a.aggregateKey == aggregateKey && (splitBy == null || splitBy == a.splitBy)) ? 1 : -1;            
             });
         });
+
+        this.svgSelection.selectAll(".valueElement")
+            .filter(selectedFilter)
+            .attr("stroke-opacity", this.nonFocusStrokeOpactiy)
+            .attr("fill-opacity", .3);
+
+        this.svgSelection.selectAll(".valueEnvelope")
+            .filter(selectedFilter)
+            .attr("fill-opacity", .1);
+
     }
 
     // returns the next visibleAggI
