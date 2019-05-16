@@ -88,6 +88,9 @@ class ScatterPlot extends ChartComponent {
                     this.extents[measure] = d3.extent(this.chartComponentData.allValues, (v:any) => measure in v.measures ? v.measures[measure] : null );
                 });
 
+                // Pad extents
+                let xOffsetPercentage = 10 / this.chartWidth;
+                let yOffsetPercentage = 10 / this.chartHeight;
                 
                 let xMeasure = this.measures[0], yMeasure = this.measures[1] ;
                 let rMeasure = this.measures[2] !== undefined ? this.measures[2] : null;
@@ -95,11 +98,11 @@ class ScatterPlot extends ChartComponent {
                 //Init Scales
                 this.yScale = d3.scaleLinear()
                     .range([this.chartHeight, 0])
-                    .domain([this.extents[yMeasure][0],this.extents[yMeasure][1]]);
+                    .domain([this.extents[yMeasure][0] - yOffsetPercentage,this.extents[yMeasure][1] + yOffsetPercentage]);
 
                 this.xScale = d3.scaleLinear()
                     .range([0, this.chartWidth])
-                    .domain([this.extents[xMeasure][0],this.extents[xMeasure][1]]);     
+                    .domain([this.extents[xMeasure][0] - xOffsetPercentage,this.extents[xMeasure][1] + xOffsetPercentage]);     
                 
                 if(rMeasure != null){
                     this.rScale = d3.scaleLinear()
@@ -114,8 +117,8 @@ class ScatterPlot extends ChartComponent {
 
                 // Draw data
                 let scatter = this.g.selectAll(".dot")
-                    .data(this.chartComponentData.allValues)
-                
+                    .data(this.cleanData(this.chartComponentData.allValues))
+
                 scatter
                     .enter()
                     .append("circle")
@@ -139,6 +142,22 @@ class ScatterPlot extends ChartComponent {
             
             this.draw();
         }                               
+    }
+
+    private cleanData(data){
+        // Exclude any data which does not contain the specified
+        // chart option measure
+        let filtered = data.filter((value) => {
+            let valOk = true;            
+            this.chartOptions.scatterPlotMeasures
+            .forEach((measure) => {
+                if(!Object.keys(value.measures).includes(measure)){
+                    valOk = false;
+                }
+            });
+            return valOk;
+        })
+        return filtered;
     }
 
     private setWidthAndHeight(){

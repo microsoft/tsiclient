@@ -13,7 +13,6 @@
 
         <script>
             window.onload = function() {
-
                 // create fake data in the shape our charts expect
                 var data = [];
                 var from = new Date(Math.floor((new Date()).valueOf() / (1000*60)) * (1000*60));
@@ -27,7 +26,7 @@
                         for(var k = 0; k < 60; k++){
                             if(!(k%2 && k%3)){  // if check is to create some sparseness in the data
                                 var to = new Date(from.valueOf() + 1000*60*k);
-                                var val = Math.random();
+                                var val = .5
                                 var val2 = Math.random();
                                 var val3 = Math.random();
                                 values[to.toISOString()] = {press: val, temp: val2, vol: val3};
@@ -35,6 +34,9 @@
                         }
                     }
                 }
+
+                let toDel =  Object.keys(data[0].Factory0.Station0)
+                delete data[0].Factory0.Station0[toDel[0]].temp;
 
                 console.log('Scatter Plot Test', data);
 
