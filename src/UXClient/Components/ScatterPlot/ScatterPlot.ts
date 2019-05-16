@@ -14,6 +14,7 @@ import { ChartDataOptions } from '../../Models/ChartDataOptions';
 class ScatterPlot extends ChartComponent {
     private svgSelection: any;
     private legendObject: Legend;
+    private tooltip: Tooltip;
     private measures: any;
     private extents: any = {}
     private width: number;
@@ -26,7 +27,7 @@ class ScatterPlot extends ChartComponent {
     private rScale: any;
     private xAxis: any;
     private yAxis: any;
-    private colorMap: any;
+    private colorMap: any = {};
     public draw: any;
     
     chartComponentData = new ChartComponentData();
@@ -102,8 +103,8 @@ class ScatterPlot extends ChartComponent {
 
                 this.xScale = d3.scaleLinear()
                     .range([0, this.chartWidth])
-                    .domain([this.extents[xMeasure][0] - xOffsetPercentage,this.extents[xMeasure][1] + xOffsetPercentage]);     
-                
+                    .domain([this.extents[xMeasure][0] - xOffsetPercentage,this.extents[xMeasure][1] + xOffsetPercentage]); 
+                    
                 if(rMeasure != null){
                     this.rScale = d3.scaleLinear()
                     .range([1, 10])
@@ -111,6 +112,8 @@ class ScatterPlot extends ChartComponent {
                 } else{
                     this.rScale = () => 3.5;
                 }  
+
+                this.initColorScale();
                 
                 // Draw Axis
                 this.drawAxis();
@@ -127,9 +130,13 @@ class ScatterPlot extends ChartComponent {
                     .merge(scatter)
                     .attr("cx", (d) => this.xScale(d.measures[xMeasure]))
                     .attr("cy", (d) => this.yScale(d.measures[yMeasure]))
-                    .attr("fill", (d) => this.chartComponentData.displayState[d.aggregateKey].color)
-            
-                scatter.exit().remove();       
+                    .attr("fill", (d) => this.colorMap[d.aggregateKey](d.splitBy))
+                    .attr("stroke-width", "1px")
+                    .attr("fill-opacity", .7)
+                    .attr("stroke-opacity", 1)
+                    .attr("stroke", (d) => this.colorMap[d.aggregateKey](d.splitBy))
+
+                scatter.exit().remove();    
             }
 
             // Add Window Resize Listener
@@ -142,6 +149,15 @@ class ScatterPlot extends ChartComponent {
             
             this.draw();
         }                               
+    }
+
+    private initColorScale(){
+        this.chartComponentData.data.forEach((d) => {
+            let colors = Utils.createSplitByColors(this.chartComponentData.displayState, d.aggKey, this.chartOptions.keepSplitByColor);
+            this.colorMap[d.aggKey] = d3.scaleOrdinal()
+                .domain(this.chartComponentData.displayState[d.aggKey].splitBys)
+                .range(colors);
+        });
     }
 
     private cleanData(data){

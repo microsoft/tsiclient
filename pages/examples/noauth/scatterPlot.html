@@ -17,7 +17,7 @@
                 var data = [];
                 var from = new Date(Math.floor((new Date()).valueOf() / (1000*60)) * (1000*60));
                 var to;
-                for(var i = 0; i < 2; i++){
+                for(var i = 0; i < 3; i++){
                     var lines = {};
                     data.push({[`Factory${i}`]: lines});
                     for(var j = 0; j < 5; j++){
@@ -26,7 +26,7 @@
                         for(var k = 0; k < 60; k++){
                             if(!(k%2 && k%3)){  // if check is to create some sparseness in the data
                                 var to = new Date(from.valueOf() + 1000*60*k);
-                                var val = .5
+                                var val = Math.random();
                                 var val2 = Math.random();
                                 var val3 = Math.random();
                                 values[to.toISOString()] = {press: val, temp: val2, vol: val3};
