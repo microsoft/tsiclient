@@ -27,7 +27,7 @@
                         lines[`Station${j}`] = values;
                         for(var k = 0; k < 60; k++){
                             if(!(k%2 && k%3)){  // if check is to create some sparseness in the data
-                                var to = new Date(from.valueOf() + 1000*60*k);
+                                var to = new Date(from.valueOf() + 1000*60*60*12*k);
                                 var val = Math.random();
                                 values[to.toISOString()] = {avg: val};
                             }
@@ -45,7 +45,7 @@
                 // render the data in a chart
                 var tsiClient = new TsiClient();
                 var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart1'));
-                lineChart.render(data, {theme: 'light', xAxisTimeFormat: xAxisTimeFormat});
+                lineChart.render(data, {theme: 'light', xAxisTimeFormat: xAxisTimeFormat, offset: 60});
 
                 var barChart = new tsiClient.ux.BarChart(document.getElementById('chart2'));
                 barChart.render(data, {theme: 'dark', grid: true, tooltip: true, legend: 'compact'});

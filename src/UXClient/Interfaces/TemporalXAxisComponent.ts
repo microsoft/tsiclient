@@ -16,9 +16,22 @@ class TemporalXAxisComponent extends ChartComponent {
 		super(renderTarget);
     }
 
+    private createOffsetXAxis () {
+        let xCopy = this.x.copy();
+        let startMillis = xCopy.domain()[0].valueOf() + (xCopy.domain()[0].getTimezoneOffset() + Utils.getOffsetMinutes(this.chartOptions.offset, xCopy.domain()[0].valueOf())) * 60 * 1000;
+        let endMillis = xCopy.domain()[1].valueOf() + (xCopy.domain()[1].getTimezoneOffset() + Utils.getOffsetMinutes(this.chartOptions.offset, xCopy.domain()[1].valueOf())) * 60 * 1000;
+        xCopy.domain([ 
+            new Date(startMillis), new Date(endMillis)
+        ]);
+        return xCopy;
+    }
+
     protected createXAxis (singleLineXAxisLabel) {
-        let ticks = this.x.ticks(this.getXTickNumber(singleLineXAxisLabel));
-        ticks = [this.x.domain()[0]].concat(ticks.slice(1, ticks.length - 1)).concat([this.x.domain()[1]]);
+        let offsetX: any = this.createOffsetXAxis();
+        let ticks = offsetX.ticks(this.getXTickNumber(singleLineXAxisLabel));
+        ticks = ticks.map((d) => {
+            return new Date(d.valueOf() - ((d.getTimezoneOffset() + Utils.getOffsetMinutes(this.chartOptions.offset, d.valueOf())) * 60 * 1000))
+        })
         return d3.axisBottom(this.x)
             .tickValues(ticks)
             .tickFormat(Utils.timeFormat(this.labelFormatUsesSeconds(), this.labelFormatUsesMillis(), this.chartOptions.offset, this.chartOptions.is24HourTime, null, null));
