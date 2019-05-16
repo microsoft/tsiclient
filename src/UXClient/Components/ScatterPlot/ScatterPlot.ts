@@ -13,18 +13,22 @@ import { ChartDataOptions } from '../../Models/ChartDataOptions';
 
 class ScatterPlot extends ChartComponent {
     private svgSelection: any;
+    private legendObject: Legend;
     private measures: any;
     private extents: any = {}
     private width: number;
     private height: number;
+    private chartWidth: number;
+    private chartHeight: number;
+    private g: any;
     private xScale: any;
     private yScale: any;
+    private rScale: any;
     private xAxis: any;
     private yAxis: any;
+    private colorMap: any;
     public draw: any;
     
-
-
     chartComponentData = new ChartComponentData();
 
     public chartMargins: any = {        
@@ -42,12 +46,14 @@ class ScatterPlot extends ChartComponent {
     public render(data: any, options: any, aggregateExpressionOptions: any) {
         this.chartOptions.setOptions(options);
         this.aggregateExpressionOptions = data.map((d, i) => Object.assign(d, aggregateExpressionOptions && i in aggregateExpressionOptions  ? new ChartDataOptions(aggregateExpressionOptions[i]) : new ChartDataOptions({})));
-        
         this.chartComponentData.mergeDataToDisplayStateAndTimeArrays(data, this.chartOptions.timestamp, aggregateExpressionOptions);
-        let timestamp = (options && options.timestamp != undefined) ? options.timestamp : this.chartComponentData.allTimestampsArray[0];
 
+        // If measure options not set, or less than 2, default measures to all measures
+        if(this.chartOptions["scatterPlotMeasures"] == null || (this.chartOptions["scatterPlotMeasures"] != null && this.chartOptions["scatterPlotMeasures"].length < 2)){
+            console.log("Scatter plot measures not specified or less than 2");
+            return;
+        }  
         
-
         if (this.svgSelection == null) {  
             let targetElement = d3.select(this.renderTarget)
                 .classed("tsi-scatterPlot", true);
@@ -59,55 +65,71 @@ class ScatterPlot extends ChartComponent {
                 .attr("height", this.height)
                 .attr("width", this.width);
 
-            let g = this.svgSelection.append("g")
+            this.g = this.svgSelection.append("g")
                 .classed("svgGroup", true)
                 .attr("transform", "translate(" + this.chartMargins.left + "," + this.chartMargins.top + ")");
-            
+                
             let tooltip = new Tooltip(d3.select(this.renderTarget));
             
-
             this.draw = () => {
                 this.setWidthAndHeight();
-              
-                let chartWidth = this.width - this.chartMargins.left  - this.chartMargins.right;
-                let chartHeight = this.height - this.chartMargins.top - this.chartMargins.bottom;
-                g
-                .attr("width", chartWidth)
-                .attr("height", chartHeight)
-                
-                
-                super.themify(targetElement, this.chartOptions.theme);
+                this.svgSelection
+                    .attr("height", this.height)
+                    .attr("width", this.width);
 
-                this.measures = Object.keys(this.chartComponentData.allValues[0].measures);
+                this.g
+                    .attr("width", this.chartWidth)
+                    .attr("height", this.chartHeight)
+                   
+                super.themify(targetElement, this.chartOptions.theme);
                 
+                this.measures = this.chartOptions.scatterPlotMeasures;
                 this.measures.forEach(measure => {
                     this.extents[measure] = d3.extent(this.chartComponentData.allValues, (v:any) => measure in v.measures ? v.measures[measure] : null );
                 });
 
-                let yMeasure = this.measures[0], xMeasure = this.measures[1];
-
+                
+                let xMeasure = this.measures[0], yMeasure = this.measures[1] ;
+                let rMeasure = this.measures[2] !== undefined ? this.measures[2] : null;
+                
                 //Init Scales
                 this.yScale = d3.scaleLinear()
-                    .range([chartHeight, 0])
+                    .range([this.chartHeight, 0])
                     .domain([this.extents[yMeasure][0],this.extents[yMeasure][1]]);
 
                 this.xScale = d3.scaleLinear()
-                    .range([0, chartWidth])
-                    .domain([this.extents[xMeasure][0],this.extents[xMeasure][1]]);               
-
-                this.xAxis = g.selectAll(".xAxis").data([this.xScale]); 
-                let xAxisEntered = this.xAxis.enter()
-                    .append("g")
-                    .attr("class", "xAxis")
-                    .merge(this.xAxis)
-                    .attr("transform", "translate(0," + (chartHeight) + ")")
-                    .call(d3.axisBottom(this.xScale));
+                    .range([0, this.chartWidth])
+                    .domain([this.extents[xMeasure][0],this.extents[xMeasure][1]]);     
                 
-                this.xAxis.exit().remove();
+                if(rMeasure != null){
+                    this.rScale = d3.scaleLinear()
+                    .range([1, 10])
+                    .domain([this.extents[rMeasure][0],this.extents[rMeasure][1]]);
+                } else{
+                    this.rScale = () => 3.5;
+                }  
+                
+                // Draw Axis
+                this.drawAxis();
 
+                // Draw data
+                let scatter = this.g.selectAll(".dot")
+                    .data(this.chartComponentData.allValues)
+                
+                scatter
+                    .enter()
+                    .append("circle")
+                    .attr("class", "dot")
+                    .attr("r", (d) => this.rScale(d.measures[rMeasure]))
+                    .merge(scatter)
+                    .attr("cx", (d) => this.xScale(d.measures[xMeasure]))
+                    .attr("cy", (d) => this.yScale(d.measures[yMeasure]))
+                    .attr("fill", (d) => this.chartComponentData.displayState[d.aggregateKey].color)
+            
+                scatter.exit().remove();       
             }
 
-            // Add Window Resize Listener -- not working
+            // Add Window Resize Listener
             window.addEventListener("resize", () => {
                 var self = this;
                 if (!this.chartOptions.suppressResizeListener) {
@@ -116,19 +138,38 @@ class ScatterPlot extends ChartComponent {
             });
             
             this.draw();
-
-             // Draw static y Axis
-             this.yAxis = d3.axisLeft(this.yScale);
-
-             g.append("g")
-                 .attr("class", "yAxis")                    
-                 .call(this.yAxis)
         }                               
     }
 
     private setWidthAndHeight(){
         this.width = Math.max((<any>d3.select(this.renderTarget).node()).clientWidth, this.MINWIDTH);
         this.height = Math.max((<any>d3.select(this.renderTarget).node()).clientHeight, this.MINHEIGHT);
+
+        this.chartWidth = this.width - this.chartMargins.left  - this.chartMargins.right;
+        this.chartHeight = this.height - this.chartMargins.top - this.chartMargins.bottom;
+    }
+
+    private drawAxis(){
+        // Draw dynamic x axis and label
+        this.xAxis = this.g.selectAll(".xAxis").data([this.xScale]); 
+        let xAxisEntered = this.xAxis.enter()
+            .append("g")
+            .attr("class", "xAxis")
+            .merge(this.xAxis)
+            .attr("transform", "translate(0," + (this.chartHeight) + ")")
+            .call(d3.axisBottom(this.xScale));
+        
+        this.xAxis.exit().remove();
+
+        // Draw dynamic y axis and label
+        this.yAxis = this.g.selectAll(".yAxis").data([this.yScale]);
+        let yAxisEntered = this.yAxis.enter()
+            .append("g")
+            .attr("class", "yAxis")
+            .merge(this.yAxis)
+            .call(d3.axisLeft(this.yScale));
+            
+        this.yAxis.exit().remove()
     }
 
 }

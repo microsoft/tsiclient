@@ -46,6 +46,7 @@ class ChartOptions {
     public onInput: (searchText: string) => void; // for handling after input actions in ModelAutocomplete
     public preserveAvailabilityState: boolean; // whether state in availability chart is saved or blown away on render
     public scaledToCurrentTime: boolean; //whether slider base component's scale is based on current time's values (or all values)
+    public scatterPlotMeasures: Array<string>; // measures passed into scatter plot to plot on axis
     public singleLineXAxisLabel: boolean; // whether x axis time labels are on a single line (else split into two lines)
     public snapBrush: boolean; // whether to snap linechart brush to closest value
     public stacked: boolean; //whether bars in barchart are stacked
@@ -143,6 +144,7 @@ class ChartOptions {
         this.ellipsisItems = this.mergeValue(chartOptionsObj, 'ellipsisItems', []);
         this.markers = Utils.getValueOrDefault(chartOptionsObj, 'markers', null); // intentionally not mergeValue
         this.onMarkersChange = this.mergeValue(chartOptionsObj, 'onMarkersChange', (markers) => {});
+        this.scatterPlotMeasures = this.mergeValue(chartOptionsObj, 'scatterPlotMeasures', null);
     }
 
     private mergeValue (chartOptionsObj, propertyName, defaultValue) {

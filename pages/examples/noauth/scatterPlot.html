@@ -29,7 +29,8 @@
                                 var to = new Date(from.valueOf() + 1000*60*k);
                                 var val = Math.random();
                                 var val2 = Math.random();
-                                values[to.toISOString()] = {press: val, temp: val2};
+                                var val3 = Math.random();
+                                values[to.toISOString()] = {press: val, temp: val2, vol: val3};
                             }
                         }
                     }
@@ -40,14 +41,14 @@
                 // render the data in a chart
                 var tsiClient = new TsiClient();
 
-                var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart1'));
-                lineChart.render(data, {theme: 'light'});
+                 var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart1'));
+                 lineChart.render(data, {theme: 'light'});
 
                 // var pieChart = new tsiClient.ux.PieChart(document.getElementById('chart1'));
                 // pieChart.render(data, {theme: 'light', grid: true, tooltip: true, legend: 'compact'});
 
                 var scatterPlot =  new tsiClient.ux.ScatterPlot(document.getElementById('chart2'));
-                scatterPlot.render(data, {theme: 'light'});
+                scatterPlot.render(data, {scatterPlotMeasures: ['temp', 'press', 'vol']});
             };
         </script>
     </body>
