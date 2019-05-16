@@ -17,6 +17,10 @@ class ScatterPlot extends ChartComponent {
     private extents: any = {}
     private width: number;
     private height: number;
+    private xScale: any;
+    private yScale: any;
+    private xAxis: any;
+    private yAxis: any;
     public draw: any;
     
 
@@ -42,12 +46,13 @@ class ScatterPlot extends ChartComponent {
         this.chartComponentData.mergeDataToDisplayStateAndTimeArrays(data, this.chartOptions.timestamp, aggregateExpressionOptions);
         let timestamp = (options && options.timestamp != undefined) ? options.timestamp : this.chartComponentData.allTimestampsArray[0];
 
-        this.width = Math.max((<any>d3.select(this.renderTarget).node()).clientWidth, this.MINWIDTH);
-        this.height = Math.max((<any>d3.select(this.renderTarget).node()).clientHeight, this.MINHEIGHT);
+        
 
         if (this.svgSelection == null) {  
             let targetElement = d3.select(this.renderTarget)
                 .classed("tsi-scatterPlot", true);
+
+            this.setWidthAndHeight();
 
             this.svgSelection = targetElement.append("svg")
                 .attr("class", "tsi-scatterPlotSVG tsi-chartSVG")
@@ -59,14 +64,17 @@ class ScatterPlot extends ChartComponent {
                 .attr("transform", "translate(" + this.chartMargins.left + "," + this.chartMargins.top + ")");
             
             let tooltip = new Tooltip(d3.select(this.renderTarget));
+            
 
             this.draw = () => {
-
+                this.setWidthAndHeight();
+              
                 let chartWidth = this.width - this.chartMargins.left  - this.chartMargins.right;
                 let chartHeight = this.height - this.chartMargins.top - this.chartMargins.bottom;
                 g
                 .attr("width", chartWidth)
                 .attr("height", chartHeight)
+                
                 
                 super.themify(targetElement, this.chartOptions.theme);
 
@@ -74,37 +82,28 @@ class ScatterPlot extends ChartComponent {
                 
                 this.measures.forEach(measure => {
                     this.extents[measure] = d3.extent(this.chartComponentData.allValues, (v:any) => measure in v.measures ? v.measures[measure] : null );
-                })
+                });
 
                 let yMeasure = this.measures[0], xMeasure = this.measures[1];
 
-                 // Print data to test
-                 console.log('Chart Data', this.chartComponentData, 
-                    '\nChart Options', this.chartOptions, 
-                    '\nChart aggregateExpressionOptions', this.aggregateExpressionOptions,
-                    '\nExtents', this.extents);
-
                 //Init Scales
-                let yScale = d3.scaleLinear()
+                this.yScale = d3.scaleLinear()
                     .range([chartHeight, 0])
-                    .domain([this.extents[yMeasure][0],this.extents[yMeasure][1]])
+                    .domain([this.extents[yMeasure][0],this.extents[yMeasure][1]]);
 
-                let xScale = d3.scaleLinear()
+                this.xScale = d3.scaleLinear()
                     .range([0, chartWidth])
-                    .domain([this.extents[xMeasure][0],this.extents[xMeasure][1]])
+                    .domain([this.extents[xMeasure][0],this.extents[xMeasure][1]]);               
 
-                //Init Axis
-                let xAxis = d3.axisBottom(xScale);
-                let yAxis = d3.axisLeft(yScale);
-
-                g.append("g")
-                    .attr("class", "x axis")
+                this.xAxis = g.selectAll(".xAxis").data([this.xScale]); 
+                let xAxisEntered = this.xAxis.enter()
+                    .append("g")
+                    .attr("class", "xAxis")
+                    .merge(this.xAxis)
                     .attr("transform", "translate(0," + (chartHeight) + ")")
-                    .call(xAxis)
-
-                g.append("g")
-                    .attr("class", "y axis")                    
-                    .call(yAxis)
+                    .call(d3.axisBottom(this.xScale));
+                
+                this.xAxis.exit().remove();
 
             }
 
@@ -115,12 +114,21 @@ class ScatterPlot extends ChartComponent {
                     this.draw();
                 }
             });
+            
             this.draw();
+
+             // Draw static y Axis
+             this.yAxis = d3.axisLeft(this.yScale);
+
+             g.append("g")
+                 .attr("class", "yAxis")                    
+                 .call(this.yAxis)
         }                               
     }
 
-    private getYExtent(vals){
-        
+    private setWidthAndHeight(){
+        this.width = Math.max((<any>d3.select(this.renderTarget).node()).clientWidth, this.MINWIDTH);
+        this.height = Math.max((<any>d3.select(this.renderTarget).node()).clientHeight, this.MINHEIGHT);
     }
 
 }
