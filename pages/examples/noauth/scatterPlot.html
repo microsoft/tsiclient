@@ -1,0 +1,54 @@
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Scatter Plot</title>
+
+        <!-- boilerplate headers are injected with head.js, grab them from the live example header, or include a link to head.js -->
+        <script src="../boilerplate/head.js"></script>
+    </head>
+    <body style="font-family: 'Segoe UI', sans-serif;">
+        <div id="chart1" style="width: 100%; height: 600px;"></div>
+        <div id="chart2" style="width: 100%; height: 600px;"></div>
+
+        <script>
+            window.onload = function() {
+
+                // create fake data in the shape our charts expect
+                var data = [];
+                var from = new Date(Math.floor((new Date()).valueOf() / (1000*60)) * (1000*60));
+                var to;
+                for(var i = 0; i < 2; i++){
+                    var lines = {};
+                    data.push({[`Factory${i}`]: lines});
+                    for(var j = 0; j < 5; j++){
+                        var values = {};
+                        lines[`Station${j}`] = values;
+                        for(var k = 0; k < 60; k++){
+                            if(!(k%2 && k%3)){  // if check is to create some sparseness in the data
+                                var to = new Date(from.valueOf() + 1000*60*k);
+                                var val = Math.random();
+                                var val2 = Math.random();
+                                values[to.toISOString()] = {press: val, temp: val2};
+                            }
+                        }
+                    }
+                }
+
+                console.log('Scatter Plot Test', data);
+
+                // render the data in a chart
+                var tsiClient = new TsiClient();
+
+                var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart1'));
+                lineChart.render(data, {theme: 'light'});
+
+                // var pieChart = new tsiClient.ux.PieChart(document.getElementById('chart1'));
+                // pieChart.render(data, {theme: 'light', grid: true, tooltip: true, legend: 'compact'});
+
+                var scatterPlot =  new tsiClient.ux.ScatterPlot(document.getElementById('chart2'));
+                scatterPlot.render(data, {theme: 'light'});
+            };
+        </script>
+    </body>
+</html>
