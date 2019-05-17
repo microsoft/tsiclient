@@ -99,14 +99,10 @@ class ScatterPlot extends ChartComponent {
                     .range([0, this.chartWidth])
                     .domain([this.extents[xMeasure][0] - xOffset,this.extents[xMeasure][1] + xOffset]); 
                     
-                if(rMeasure != null){
-                    this.rScale = d3.scaleLinear()
-                    .range(this.chartOptions.scatterPlotRadius.slice(0,2))
-                    .domain([this.extents[rMeasure][0],this.extents[rMeasure][1]]);
-                } else{
-                    this.rScale = () => 4;
-                }  
-
+                this.rScale = d3.scaleLinear()
+                .range(this.chartOptions.scatterPlotRadius.slice(0,2))
+                .domain(rMeasure === null ? [0, 0] : [this.extents[rMeasure][0],this.extents[rMeasure][1]]);
+                
                 // Create color scale for each aggregate key
                 this.initColorScale();
                 
