@@ -24,7 +24,7 @@ class ScatterPlot extends ChartComponent {
     private xAxis: any;
     private yAxis: any;
     private colorMap: any = {};
-    public draw: any;
+    private draw: any;
     
     chartComponentData = new ChartComponentData();
 
@@ -74,10 +74,6 @@ class ScatterPlot extends ChartComponent {
                 this.svgSelection
                     .attr("height", this.height)
                     .attr("width", this.width);
-
-                this.g
-                    .attr("width", this.chartWidth)
-                    .attr("height", this.chartHeight)
                 
                 super.themify(targetElement, this.chartOptions.theme);
                 
@@ -86,22 +82,22 @@ class ScatterPlot extends ChartComponent {
                 this.measures.forEach(measure => {
                     this.extents[measure] = d3.extent(this.chartComponentData.allValues, (v:any) => measure in v.measures ? v.measures[measure] : null );
                 });
-
-                // Pad extents
-                let xOffsetPercentage = 10 / this.chartWidth;
-                let yOffsetPercentage = 10 / this.chartHeight;
                 
                 let xMeasure = this.measures[0], yMeasure = this.measures[1] ;
                 let rMeasure = this.measures[2] !== undefined ? this.measures[2] : null;
+
+                // Pad extents
+                let xOffset = (20 / this.chartWidth) * (this.extents[xMeasure][1] - this.extents[xMeasure][0]);
+                let yOffset = (20 / this.chartHeight) * (this.extents[yMeasure][1] - this.extents[yMeasure][0]);
                 
                 //Init scales
                 this.yScale = d3.scaleLinear()
                     .range([this.chartHeight, 0])
-                    .domain([this.extents[yMeasure][0] - yOffsetPercentage,this.extents[yMeasure][1] + yOffsetPercentage]);
+                    .domain([this.extents[yMeasure][0] - yOffset,this.extents[yMeasure][1] + yOffset]);
 
                 this.xScale = d3.scaleLinear()
                     .range([0, this.chartWidth])
-                    .domain([this.extents[xMeasure][0] - xOffsetPercentage,this.extents[xMeasure][1] + xOffsetPercentage]); 
+                    .domain([this.extents[xMeasure][0] - xOffset,this.extents[xMeasure][1] + xOffset]); 
                     
                 if(rMeasure != null){
                     this.rScale = d3.scaleLinear()
@@ -128,7 +124,7 @@ class ScatterPlot extends ChartComponent {
                     .append("circle")
                     .attr("class", "tsi-dot")
                     .on("mouseover", function(d) {	
-                        self.drawTooltip(d, [d3.event.pageX, d3.event.pageY])
+                        self.drawTooltip(d, d3.mouse(<any>self.g.node()))
                     })					
                     .on("mouseout", function(d) {		
                         self.tooltip.hide();
@@ -220,6 +216,7 @@ class ScatterPlot extends ChartComponent {
         if (this.chartOptions.tooltip){
             let xPos = mousePosition[0];
             let yPos = mousePosition[1];
+
             this.tooltip.render(this.chartOptions.theme);
             this.tooltip.draw(d, this.chartComponentData, xPos, yPos, this.chartMargins, (text) => {
                 text.append("div")

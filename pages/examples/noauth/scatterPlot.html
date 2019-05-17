@@ -50,7 +50,7 @@
                 // pieChart.render(data, {theme: 'light', grid: true, tooltip: true, legend: 'compact'});
 
                 var scatterPlot =  new tsiClient.ux.ScatterPlot(document.getElementById('chart2'));
-                scatterPlot.render(data, {theme: 'dark', scatterPlotMeasures: ['temp', 'press', 'vol']});
+                scatterPlot.render(data, {tooltip: true, theme: 'dark', scatterPlotMeasures: ['temp', 'press', 'vol']});
             };
         </script>
     </body>
