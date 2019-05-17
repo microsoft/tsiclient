@@ -229,17 +229,16 @@ class ScatterPlot extends ChartComponent {
                     .attr("class", "value")
                     .text(d.splitBy);
 
+                text.append("div")
+                .attr("class", "value")
+                .text(Utils.timeFormat(this.labelFormatUsesSeconds(), this.labelFormatUsesMillis(), this.chartOptions.offset, this.chartOptions.is24HourTime)(d.dateTime));  
+
                 let valueGroup = text.append('div').classed('valueGroup', true);
                 Object.keys(d.measures).forEach((measureType, i) => {
                     valueGroup.append("div")
                         .attr("class",  "value")
                         .text(measureType + ": " + Utils.formatYAxisNumber(d.measures[measureType]));
                 });
-                
-                text.append("div")
-                    .attr("class", "value")
-                    .text(Utils.timeFormat(this.labelFormatUsesSeconds(), this.labelFormatUsesMillis(), this.chartOptions.offset, this.chartOptions.is24HourTime)(d.dateTime));  
-
             });
         }
     }
