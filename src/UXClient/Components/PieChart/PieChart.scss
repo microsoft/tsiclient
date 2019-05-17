@@ -1,6 +1,6 @@
 @import "../../styles";
 
-@mixin pcColors($grays){
+@mixin scColors($grays){
     $gray1: nth($grays, 1); // text
     $gray2: nth($grays, 2); // hover
     $gray3: nth($grays, 3); // element
@@ -26,11 +26,11 @@
 
     &.tsi-dark{
         $grays: grays('dark');
-        @include pcColors($grays);
+        @include scColors($grays);
     }
     &.tsi-light{
         $grays: grays('light');
-        @include pcColors($grays);
+        @include scColors($grays);
     }
 
     display: flex;

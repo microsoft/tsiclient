@@ -42,15 +42,15 @@ class ScatterPlot extends ChartComponent {
     ScatterPlot(){}
     public render(data: any, options: any, aggregateExpressionOptions: any) {
         this.chartOptions.setOptions(options);
-        
-        this.aggregateExpressionOptions = data.map((d, i) => Object.assign(d, aggregateExpressionOptions && i in aggregateExpressionOptions  ? new ChartDataOptions(aggregateExpressionOptions[i]) : new ChartDataOptions({})));
-        this.chartComponentData.mergeDataToDisplayStateAndTimeArrays(data, this.chartOptions.timestamp, aggregateExpressionOptions);
 
         // If measure options not set, or less than 2, default measures to all measures
         if(this.chartOptions["scatterPlotMeasures"] == null || (this.chartOptions["scatterPlotMeasures"] != null && this.chartOptions["scatterPlotMeasures"].length < 2)){
             console.log("Scatter plot measures not specified or less than 2");
             return;
-        }  
+        }
+        
+        this.aggregateExpressionOptions = data.map((d, i) => Object.assign(d, aggregateExpressionOptions && i in aggregateExpressionOptions  ? new ChartDataOptions(aggregateExpressionOptions[i]) : new ChartDataOptions({})));
+        this.chartComponentData.mergeDataToDisplayStateAndTimeArrays(data, this.chartOptions.timestamp, aggregateExpressionOptions);  
         
         if (this.svgSelection == null) {  
             let targetElement = d3.select(this.renderTarget)
@@ -64,7 +64,7 @@ class ScatterPlot extends ChartComponent {
                 .attr("width", this.width);
 
             this.g = this.svgSelection.append("g")
-                .classed("svgGroup", true)
+                .classed("tsi-svgGroup", true)
                 .attr("transform", "translate(" + this.chartMargins.left + "," + this.chartMargins.top + ")");
                 
             this.tooltip = new Tooltip(d3.select(this.renderTarget));
@@ -101,7 +101,7 @@ class ScatterPlot extends ChartComponent {
                     
                 if(rMeasure != null){
                     this.rScale = d3.scaleLinear()
-                    .range([1, 10])
+                    .range(this.chartOptions.scatterPlotRadius.slice(0,2))
                     .domain([this.extents[rMeasure][0],this.extents[rMeasure][1]]);
                 } else{
                     this.rScale = () => 4;
@@ -133,12 +133,10 @@ class ScatterPlot extends ChartComponent {
                     .merge(scatter)
                     .transition()
                     .duration(self.TRANSDURATION)
+                    .ease(d3.easeExp)
                     .attr("cx", (d) => this.xScale(d.measures[xMeasure]))
                     .attr("cy", (d) => this.yScale(d.measures[yMeasure]))
                     .attr("fill", (d) => this.colorMap[d.aggregateKey](d.splitBy))
-                    .attr("stroke-width", "1px")
-                    .attr("fill-opacity", .7)
-                    .attr("stroke-opacity", 1)
                     .attr("stroke", (d) => this.colorMap[d.aggregateKey](d.splitBy))
 
                 scatter.exit().remove();
@@ -172,7 +170,7 @@ class ScatterPlot extends ChartComponent {
             let valOk = true;            
             this.chartOptions.scatterPlotMeasures
             .forEach((measure) => {
-                if(!Object.keys(value.measures).includes(measure)){
+                if(!(measure in value.measures)){
                     valOk = false;
                 }
             });
