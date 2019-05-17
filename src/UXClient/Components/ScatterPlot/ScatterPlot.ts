@@ -70,7 +70,7 @@ class ScatterPlot extends ChartComponent {
                 .classed("svgGroup", true)
                 .attr("transform", "translate(" + this.chartMargins.left + "," + this.chartMargins.top + ")");
                 
-            let tooltip = new Tooltip(d3.select(this.renderTarget));
+            this.tooltip = new Tooltip(d3.select(this.renderTarget));
             
             this.draw = () => {
                 this.setWidthAndHeight();
@@ -81,7 +81,7 @@ class ScatterPlot extends ChartComponent {
                 this.g
                     .attr("width", this.chartWidth)
                     .attr("height", this.chartHeight)
-                   
+                
                 super.themify(targetElement, this.chartOptions.theme);
                 
                 this.measures = this.chartOptions.scatterPlotMeasures;
@@ -122,10 +122,17 @@ class ScatterPlot extends ChartComponent {
                 let scatter = this.g.selectAll(".dot")
                     .data(this.cleanData(this.chartComponentData.allValues))
 
+                let self = this;
                 scatter
                     .enter()
                     .append("circle")
-                    .attr("class", "dot")
+                    .attr("class", "tsi-dot")
+                    .on("mouseover", function(d) {	
+                        self.drawTooltip(d, [d3.event.pageX, d3.event.pageY])
+                    })					
+                    .on("mouseout", function(d) {		
+                        self.tooltip.hide();
+                    })
                     .attr("r", (d) => this.rScale(d.measures[rMeasure]))
                     .merge(scatter)
                     .attr("cx", (d) => this.xScale(d.measures[xMeasure]))
@@ -136,7 +143,8 @@ class ScatterPlot extends ChartComponent {
                     .attr("stroke-opacity", 1)
                     .attr("stroke", (d) => this.colorMap[d.aggregateKey](d.splitBy))
 
-                scatter.exit().remove();    
+                scatter.exit().remove();
+                
             }
 
             // Add Window Resize Listener
@@ -205,6 +213,40 @@ class ScatterPlot extends ChartComponent {
             .call(d3.axisLeft(this.yScale));
             
         this.yAxis.exit().remove()
+    }
+
+    private drawTooltip (d: any, mousePosition) {
+        var xPos = mousePosition[0];
+        var yPos = mousePosition[1];
+        this.tooltip.render(this.chartOptions.theme);
+        this.tooltip.draw(d, this.chartComponentData, xPos, yPos, {...this.chartMargins, top: 0, bottom: 0}, (text) => {
+            text.append("div")
+                .attr("class", "title")
+                .text(d.aggregateName);  
+                text.append("div")
+                .attr("class", "value")
+                .text(d.splitBy);
+
+            let valueGroup = text.append('div').classed('valueGroup', true);
+            Object.keys(d.measures).forEach((measureType, i) => {
+                valueGroup.append("div")
+                    .attr("class",  "value")
+                    .text(measureType + ": " + Utils.formatYAxisNumber(d.measures[measureType]));
+            });
+            
+            text.append("div")
+                .attr("class", "value")
+                .text(Utils.timeFormat(this.labelFormatUsesSeconds(), this.labelFormatUsesMillis(), this.chartOptions.offset, this.chartOptions.is24HourTime)(d.dateTime));  
+
+        });
+    }
+
+    private labelFormatUsesSeconds () {
+        return !this.chartOptions.minutesForTimeLabels && this.chartComponentData.usesSeconds;
+    }
+
+    private labelFormatUsesMillis () {
+        return !this.chartOptions.minutesForTimeLabels && this.chartComponentData.usesMillis;
     }
 
 }

@@ -1,0 +1,36 @@
+@import "../../styles";
+
+@mixin pcColors($grays){
+    $gray1: nth($grays, 1); // text
+    $gray2: nth($grays, 2); // hover
+    $gray3: nth($grays, 3); // element
+    $gray4: nth($grays, 4); // background
+    
+    color: $gray1;
+    background: $gray3;
+
+    .tsi-scatterPlotSVG{
+        text{
+            fill: $gray1;
+        }
+
+        path {
+            stroke: $gray1;
+        }
+    }
+    @include chartColors($grays);
+}
+
+
+.tsi-scatterPlot {
+
+    &.tsi-dark{
+        $grays: grays('dark');
+        @include pcColors($grays);
+    }
+    &.tsi-light{
+        $grays: grays('light');
+        @include pcColors($grays);
+    }
+
+}
