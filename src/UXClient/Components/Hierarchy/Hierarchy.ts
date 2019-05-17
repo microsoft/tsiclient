@@ -202,7 +202,7 @@ class Hierarchy extends Component {
                 node.parent.isLeafParent = true;
             }
             else{
-                Object.keys(data).forEach(k => {
+                Object.keys(data).sort().forEach(k => {
                     node.children.push(traverse(data[k], k, level+1, node));
                 })
             }

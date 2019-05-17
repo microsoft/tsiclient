@@ -9,10 +9,11 @@
     </head>
     <body style="font-family: 'Segoe UI', sans-serif;">
         <div id="chart1" style="width: 100%; height: 600px;"></div>
-        <div id="chart2" style="width: 50%; height: 400px; float: left;"></div>
-        <div id="chart3" style="width: 50%; height: 400px; float: right;"></div>
-        <div id="chart4" style="width: 100%; height: 600px; float: left;"></div>
+        <!-- <div id="chart4" style="width: 100%; height: 600px; float: left;"></div> -->
+
+        <button onclick="focusOnLine()">focus on Factory1, Station1</button>
         <script>
+            var lineChart;
             window.onload = function() {
                 
                 // create fake data in the shape our charts expect
@@ -25,9 +26,9 @@
                     for(var j = 0; j < 5; j++){
                         var values = {};
                         lines[`Station${j}`] = values;
-                        for(var k = 0; k < 60; k++){
+                        for(var k = 0; k < 15600; k+=100){
                             if(!(k%2 && k%3)){  // if check is to create some sparseness in the data
-                                var to = new Date(from.valueOf() + 1000*60*k);
+                                var to = new Date(from.valueOf() + 1000*60*60*12*k);
                                 var val = Math.random();
                                 values[to.toISOString()] = {avg: val};
                             }
@@ -35,20 +36,24 @@
                     }
                 }
 
+                let xAxisTimeFormat = (d, i, isFirst, isLast) => {
+                    if (isFirst || isLast) {
+                        return "L HH:mm";
+                    }
+                    return "L HH:mm";
+                }
+
                 // render the data in a chart
                 var tsiClient = new TsiClient();
-                var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart1'));
-                lineChart.render(data, {theme: 'light'});
+                lineChart = new tsiClient.ux.LineChart(document.getElementById('chart1'));
+                lineChart.render(data, {theme: 'light', xAxisTimeFormat: xAxisTimeFormat, offset: 60});
 
-                var barChart = new tsiClient.ux.BarChart(document.getElementById('chart2'));
-                barChart.render(data, {theme: 'dark', grid: true, tooltip: true, legend: 'compact'});
-
-                var pieChart = new tsiClient.ux.PieChart(document.getElementById('chart3'));
-                pieChart.render(data, {theme: 'light', grid: true, tooltip: true, legend: 'compact'});
-
-                var heatmap = new tsiClient.ux.Heatmap(document.getElementById('chart4'));
-                heatmap.render(data, {theme: 'dark'}, data.map(d => {return {measureTypes: ['avg'], searchSpan: {from: from.toISOString(), to: to.toISOString(), bucketSize: '1m'}}}));
+                // var heatmap = new tsiClient.ux.Heatmap(document.getElementById('chart4'));
+                // heatmap.render(data, {theme: 'dark', xAxisTimeFormat: xAxisTimeFormat}, data.map(d => {return {measureTypes: ['avg'], searchSpan: {from: from.toISOString(), to: to.toISOString(), bucketSize: '1m'}}}));
             };
+            function focusOnLine () {
+                    lineChart.triggerLineFocus('Factory1_0', 'Station1');
+                }
         </script>
     </body>
 </html>
