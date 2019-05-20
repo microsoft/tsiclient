@@ -114,6 +114,8 @@ class ScatterPlot extends ChartComponent {
                     .data(this.cleanData(this.chartComponentData.allValues))
 
                 let self = this;
+
+                console.log('data', this.chartComponentData.allValues);
                 
                 scatter
                     .enter()
@@ -121,9 +123,11 @@ class ScatterPlot extends ChartComponent {
                     .attr("class", "tsi-dot")
                     .on("mouseover", function(d) {	
                         self.drawTooltip(d, d3.mouse(<any>self.g.node()))
+                        self.labelMouseOver(d.aggregateKey, d.splitBy, d.dateTime);
                     })					
                     .on("mouseout", function(d) {		
                         self.tooltip.hide();
+                        self.labelMouseOut();
                     })
                     .attr("r", (d) => this.rScale(d.measures[rMeasure]))
                     .merge(scatter)
@@ -148,6 +152,32 @@ class ScatterPlot extends ChartComponent {
             });
         }   
         this.draw();                            
+    }
+
+    private labelMouseOver(aggKey: string, splitBy: string = null, dateTime = Date){
+        // Filter out selected dot
+        let selectedFilter = (d: any) => {
+            let currAggKey = null, currSplitBy = null, currDateTime = null;
+            if(d.aggregateKey) currAggKey = d.aggregateKey
+            if(d.splitBy) currSplitBy = d.splitBy
+            if(d.dateTime) currDateTime = d.dateTime
+
+            if(currAggKey == aggKey && currSplitBy == splitBy && currDateTime == dateTime){
+                return false;
+            }
+            return true;
+        }
+
+        this.g.selectAll(".tsi-dot")
+            .filter(selectedFilter)
+            .attr("stroke-opacity", .3)
+            .attr("fill-opacity", .3)
+    }
+
+    private labelMouseOut(){
+        this.g.selectAll(".tsi-dot")
+            .attr("stroke-opacity", 1)
+            .attr("fill-opacity", 1)
     }
 
     private initColorScale(){
@@ -186,7 +216,7 @@ class ScatterPlot extends ChartComponent {
     private drawAxis(){
         // Draw dynamic x axis and label
         this.xAxis = this.g.selectAll(".xAxis").data([this.xScale]); 
-        let xAxisEntered = this.xAxis.enter()
+        this.xAxis.enter()
             .append("g")
             .attr("class", "xAxis")
             .merge(this.xAxis)
@@ -197,7 +227,7 @@ class ScatterPlot extends ChartComponent {
 
         // Draw dynamic y axis and label
         this.yAxis = this.g.selectAll(".yAxis").data([this.yScale]);
-        let yAxisEntered = this.yAxis.enter()
+        this.yAxis.enter()
             .append("g")
             .attr("class", "yAxis")
             .merge(this.yAxis)

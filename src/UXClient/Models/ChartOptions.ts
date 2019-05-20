@@ -147,7 +147,7 @@ class ChartOptions {
         this.markers = Utils.getValueOrDefault(chartOptionsObj, 'markers', null); // intentionally not mergeValue
         this.onMarkersChange = this.mergeValue(chartOptionsObj, 'onMarkersChange', (markers) => {});
         this.scatterPlotMeasures = this.mergeValue(chartOptionsObj, 'scatterPlotMeasures', null);
-        this.scatterPlotRadius = this.mergeValue(chartOptionsObj, 'scatterPlotRadius', [3,10])
+        this.scatterPlotRadius = this.mergeValue(chartOptionsObj, 'scatterPlotRadius', [4,10])
         this.xAxisTimeFormat = this.mergeValue(chartOptionsObj, 'xAxisTimeFormat', null);
     }
 

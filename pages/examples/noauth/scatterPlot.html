@@ -17,13 +17,13 @@
                 var data = [];
                 var from = new Date(Math.floor((new Date()).valueOf() / (1000*60)) * (1000*60));
                 var to;
-                for(var i = 0; i < 3; i++){
+                for(var i = 0; i < 1; i++){
                     var lines = {};
                     data.push({[`Factory${i}`]: lines});
-                    for(var j = 0; j < 5; j++){
+                    for(var j = 0; j < 1; j++){
                         var values = {};
                         lines[`Station${j}`] = values;
-                        for(var k = 0; k < 60; k++){
+                        for(var k = 0; k < 10; k++){
                             if(!(k%2 && k%3)){  // if check is to create some sparseness in the data
                                 var to = new Date(from.valueOf() + 1000*60*k);
                                 var val = Math.random();
