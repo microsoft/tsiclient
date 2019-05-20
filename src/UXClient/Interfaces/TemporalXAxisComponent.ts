@@ -11,6 +11,7 @@ class TemporalXAxisComponent extends ChartComponent {
     protected x;
     protected chartWidth;
     protected chartHeight;
+    private smartTickFormat;
 
 	constructor(renderTarget: Element){
 		super(renderTarget);
@@ -35,6 +36,8 @@ class TemporalXAxisComponent extends ChartComponent {
         if (ticks.length <= 2) {
             ticks = this.x.domain();
         }
+
+        this.smartTickFormat = this.createSmartTickFormat(ticks, offsetX);
         return d3.axisBottom(this.x)
             .tickValues(ticks)
             .tickFormat(Utils.timeFormat(this.labelFormatUsesSeconds(), this.labelFormatUsesMillis(), this.chartOptions.offset, this.chartOptions.is24HourTime, null, null));
@@ -70,12 +73,37 @@ class TemporalXAxisComponent extends ChartComponent {
                     return Utils.timeFormat(self.labelFormatUsesSeconds(), self.labelFormatUsesMillis(), self.chartOptions.offset, self.chartOptions.is24HourTime, null, momentTimeFormatString)(d);
                 });
             });
+        } else {
+            let indexOfLast = xAxisEntered.selectAll('.tick').size() - 1;
+            let self = this;
+            xAxisEntered.selectAll('.tick').each(function (d, i) {
+                d3.select(this).select('text').text((d) => {
+                    let momentTimeFormatString: string = String(self.smartTickFormat(d, i, i === 0, i === indexOfLast));
+                    return Utils.timeFormat(self.labelFormatUsesSeconds(), self.labelFormatUsesMillis(), self.chartOptions.offset, self.chartOptions.is24HourTime, null, momentTimeFormatString)(d);
+                });
+            });
         }
+
+
 
         if (!this.chartOptions.singleLineXAxisLabel)                                     
             xAxisEntered.selectAll('text').call(Utils.splitTimeLabel);
 
         xAxisEntered.select(".domain").style("display", "none");
+    }
+
+    private isSameDate (d1, d2) {
+        return (d1.getYear() === d2.getYear() && d1.getMonth() === d2.getMonth() && d1.getDate() === d2.getDate());
+    }
+
+    private createSmartTickFormat (ticks, offsetX): any {
+        let spansMultipleDays = !this.isSameDate(offsetX.domain()[0], offsetX.domain()[1]);
+        return (d, i, isFirst, isLast) => {
+            if (isFirst || isLast ||spansMultipleDays) {
+                return "HH:mm L";
+            }
+            return 'HH:mm';
+        }
     }
 
 }
