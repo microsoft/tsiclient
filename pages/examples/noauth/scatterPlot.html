@@ -17,13 +17,13 @@
                 var data = [];
                 var from = new Date(Math.floor((new Date()).valueOf() / (1000*60)) * (1000*60));
                 var to;
-                for(var i = 0; i < 1; i++){
+                for(var i = 0; i < 3; i++){
                     var lines = {};
                     data.push({[`Factory${i}`]: lines});
-                    for(var j = 0; j < 1; j++){
+                    for(var j = 0; j < 5; j++){
                         var values = {};
                         lines[`Station${j}`] = values;
-                        for(var k = 0; k < 10; k++){
+                        for(var k = 0; k < 30; k++){
                             if(!(k%2 && k%3)){  // if check is to create some sparseness in the data
                                 var to = new Date(from.valueOf() + 1000*60*k);
                                 var val = Math.random();
@@ -50,7 +50,7 @@
                 // pieChart.render(data, {theme: 'light', grid: true, tooltip: true, legend: 'compact'});
 
                 var scatterPlot =  new tsiClient.ux.ScatterPlot(document.getElementById('chart2'));
-                scatterPlot.render(data, {tooltip: true, theme: 'dark', scatterPlotMeasures: ['temp', 'press']});
+                scatterPlot.render(data, {tooltip: true, theme: 'light', scatterPlotMeasures: ['temp', 'press', 'vol'], scatterPlot});
             };
         </script>
     </body>

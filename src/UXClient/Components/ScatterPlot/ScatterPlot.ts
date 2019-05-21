@@ -17,6 +17,7 @@ class ScatterPlot extends ChartComponent {
     private height: number;
     private chartWidth: number;
     private chartHeight: number;
+    private controlsOffset: number;
     private g: any;
     private xScale: any;
     private yScale: any;
@@ -25,12 +26,14 @@ class ScatterPlot extends ChartComponent {
     private yAxis: any;
     private colorMap: any = {};
     private draw: any;
+    private voronoi: any;
+    readonly MAXVERONOIDISTANCE = 50;
     
     chartComponentData = new ChartComponentData();
 
     public chartMargins: any = {        
         top: 40,
-        bottom: 50,
+        bottom: 40,
         left: 70, 
         right: 60
     };
@@ -48,16 +51,18 @@ class ScatterPlot extends ChartComponent {
             console.log("Scatter plot measures not specified or less than 2");
             return;
         }
-        
+
+        this.chartMargins.top = (this.chartOptions.legend === 'compact') ? 84 : 52;
         this.aggregateExpressionOptions = data.map((d, i) => Object.assign(d, aggregateExpressionOptions && i in aggregateExpressionOptions  ? new ChartDataOptions(aggregateExpressionOptions[i]) : new ChartDataOptions({})));
         this.chartComponentData.mergeDataToDisplayStateAndTimeArrays(data, this.chartOptions.timestamp, aggregateExpressionOptions);  
         
+        this.controlsOffset = (this.chartOptions.legend == "shown" ? this.CONTROLSWIDTH : 0)
+        this.setWidthAndHeight();
+
         if (this.svgSelection == null) {  
             let targetElement = d3.select(this.renderTarget)
                 .classed("tsi-scatterPlot", true);
-
-            this.setWidthAndHeight();
-
+           
             this.svgSelection = targetElement.append("svg")
                 .attr("class", "tsi-scatterPlotSVG tsi-chartSVG")
                 .attr("height", this.height)
@@ -68,6 +73,43 @@ class ScatterPlot extends ChartComponent {
                 .attr("transform", "translate(" + this.chartMargins.left + "," + this.chartMargins.top + ")");
                 
             this.tooltip = new Tooltip(d3.select(this.renderTarget));
+
+            let svgWrap = this.svgSelection;
+
+            let labelMouseOver = (aggKey: string, splitBy: string = null) => {
+                //Highlight active
+                svgWrap.selectAll(".tsi-dot")
+                    .attr("stroke-opacity", .9)
+                    .attr("fill-opacity", .9)
+
+                // Filter selected
+                let selectedFilter = (d: any) => {
+                    let currAggKey = null, currSplitBy = null;
+                    if(d.aggregateKey) currAggKey = d.aggregateKey
+                    if(d.splitBy) currSplitBy = d.splitBy
+
+                    if(splitBy == null)
+                        return currAggKey == aggKey;
+        
+                    if(currAggKey == aggKey && currSplitBy == splitBy){
+                        return false;
+                    }
+                    return true;
+                }
+        
+                svgWrap.selectAll(".tsi-dot")
+                    .filter(selectedFilter)
+                    .attr("stroke-opacity", .1)
+                    .attr("fill-opacity", .1)
+                    .attr("z-index", -1)
+            }
+
+            let labelMouseOut = () => {
+                this.g.selectAll(".tsi-dot")
+                    .attr("stroke-opacity", .6)
+                    .attr("fill-opacity", .6)
+                    .attr("z-index", 1)
+            }
             
             this.draw = () => {
                 this.setWidthAndHeight();
@@ -114,8 +156,6 @@ class ScatterPlot extends ChartComponent {
                     .data(this.cleanData(this.chartComponentData.allValues))
 
                 let self = this;
-
-                console.log('data', this.chartComponentData.allValues);
                 
                 scatter
                     .enter()
@@ -123,25 +163,33 @@ class ScatterPlot extends ChartComponent {
                     .attr("class", "tsi-dot")
                     .on("mouseover", function(d) {	
                         self.drawTooltip(d, d3.mouse(<any>self.g.node()))
-                        self.labelMouseOver(d.aggregateKey, d.splitBy, d.dateTime);
+                        labelMouseOver(d.aggregateKey, d.splitBy);
                     })					
                     .on("mouseout", function(d) {		
                         self.tooltip.hide();
-                        self.labelMouseOut();
+                        labelMouseOut();
                     })
                     .attr("r", (d) => this.rScale(d.measures[rMeasure]))
                     .merge(scatter)
                     .transition()
                     .duration(self.TRANSDURATION)
                     .ease(d3.easeExp)
+                    .attr("display", (d) => self.getVisibleState(d))
                     .attr("cx", (d) => this.xScale(d.measures[xMeasure]))
                     .attr("cy", (d) => this.yScale(d.measures[yMeasure]))
                     .attr("fill", (d) => this.colorMap[d.aggregateKey](d.splitBy))
                     .attr("stroke", (d) => this.colorMap[d.aggregateKey](d.splitBy))
+                    .attr("stroke-opacity", .6)
+                    .attr("fill-opacity", .6)
 
                 scatter.exit().remove();
                 
+                // Draw Legend
+                this.legendObject.draw(this.chartOptions.legend, this.chartComponentData, labelMouseOver, 
+                    this.svgSelection, this.chartOptions, labelMouseOut);
             }
+
+            this.legendObject = new Legend(this.draw, this.renderTarget, this.CONTROLSWIDTH);
 
             // Add Window Resize Listener
             window.addEventListener("resize", () => {
@@ -154,30 +202,10 @@ class ScatterPlot extends ChartComponent {
         this.draw();                            
     }
 
-    private labelMouseOver(aggKey: string, splitBy: string = null, dateTime = Date){
-        // Filter out selected dot
-        let selectedFilter = (d: any) => {
-            let currAggKey = null, currSplitBy = null, currDateTime = null;
-            if(d.aggregateKey) currAggKey = d.aggregateKey
-            if(d.splitBy) currSplitBy = d.splitBy
-            if(d.dateTime) currDateTime = d.dateTime
-
-            if(currAggKey == aggKey && currSplitBy == splitBy && currDateTime == dateTime){
-                return false;
-            }
-            return true;
-        }
-
-        this.g.selectAll(".tsi-dot")
-            .filter(selectedFilter)
-            .attr("stroke-opacity", .3)
-            .attr("fill-opacity", .3)
-    }
-
-    private labelMouseOut(){
-        this.g.selectAll(".tsi-dot")
-            .attr("stroke-opacity", 1)
-            .attr("fill-opacity", 1)
+    private getVisibleState(d:any){
+        return (this.chartComponentData.displayState[d.aggregateKey].visible && 
+                this.chartComponentData.displayState[d.aggregateKey].splitBys[d.splitBy].visible 
+                ? "inherit" : "none");
     }
 
     private initColorScale(){
@@ -206,7 +234,7 @@ class ScatterPlot extends ChartComponent {
     }
 
     private setWidthAndHeight(){
-        this.width = Math.max((<any>d3.select(this.renderTarget).node()).clientWidth, this.MINWIDTH);
+        this.width = Math.max((<any>d3.select(this.renderTarget).node()).clientWidth, this.MINWIDTH) - this.controlsOffset;
         this.height = Math.max((<any>d3.select(this.renderTarget).node()).clientHeight, this.MINHEIGHT);
 
         this.chartWidth = this.width - this.chartMargins.left  - this.chartMargins.right;

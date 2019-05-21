@@ -20,6 +20,9 @@
         .tsi-dot{
             stroke-width: 1px;
         }
+        .xAxis, .yAxis text{
+            font-size: 13px;
+        }
     }
     @include chartColors($grays);
 }
@@ -34,6 +37,12 @@
     &.tsi-light{
         $grays: grays('light');
         @include pcColors($grays);
+    }
+    // Hide data type dropdown in scatter plot -- selection has no effect
+    .tsi-splitByLabel{
+        .tsi-seriesTypeSelection{
+            display: none;
+        }
     }
 
     display: flex;
