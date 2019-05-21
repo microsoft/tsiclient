@@ -34,7 +34,7 @@ class ScatterPlot extends ChartComponent {
     private labelMouseOut: any;
     private draw: any;
     private voronoi: any;
-    private voronoiCells: any;
+    private activeDot: any;
     private voronoiGroup: any;
     private voronoiDiagram: any;
     
@@ -90,11 +90,13 @@ class ScatterPlot extends ChartComponent {
 
             let svgWrap = this.svgSelection;
 
-            this.labelMouseOver = (aggKey: string, splitBy: string = null) => {
-                //Highlight active
+            this.labelMouseOver = (aggKey: string, splitBy: string = null, dateTime: Date = null) => {
+                //Highlight active group
                 svgWrap.selectAll(".tsi-dot")
                     .attr("stroke-opacity", .9)
                     .attr("fill-opacity", .9)
+                    .attr("stroke", (d) => this.colorMap[d.aggregateKey](d.splitBy))
+                    .attr("stroke-width", "1px");
 
                 // Filter selected
                 let selectedFilter = (d: any) => {
@@ -105,17 +107,28 @@ class ScatterPlot extends ChartComponent {
                     if(splitBy == null)
                         return currAggKey == aggKey;
         
-                    if(currAggKey == aggKey && currSplitBy == splitBy){
+                    if(currAggKey == aggKey && currSplitBy == splitBy)
                         return false;
-                    }
                     return true;
                 }
-        
+                
+                // Decrease opacity
                 svgWrap.selectAll(".tsi-dot")
                     .filter(selectedFilter)
                     .attr("stroke-opacity", .1)
                     .attr("fill-opacity", .1)
                     .attr("z-index", -1)
+
+                if(dateTime != null && splitBy != null){
+                    this.activeDot = svgWrap.selectAll(".tsi-dot")
+                    .filter((d:any) => {
+                        if(d.aggregateKey == aggKey && d.splitBy == splitBy && d.dateTime == dateTime)
+                            return true;
+                        return false;
+                    })
+                    .attr("stroke", "black")
+                    .attr("stroke-width", "3px");
+                }
             }
 
             this.labelMouseOut = () => {
@@ -123,6 +136,8 @@ class ScatterPlot extends ChartComponent {
                     .attr("stroke-opacity", .6)
                     .attr("fill-opacity", .6)
                     .attr("z-index", 1)
+                    .attr("stroke", (d) => this.colorMap[d.aggregateKey](d.splitBy))
+                    .attr("stroke-width", "1px");
             }
             let self = this;
             // Initialize voronoi
@@ -183,14 +198,6 @@ class ScatterPlot extends ChartComponent {
                     .enter()
                     .append("circle")
                     .attr("class", "tsi-dot")
-                    .on("mouseover", function(d) {	
-                        //self.drawTooltip(d, d3.mouse(<any>self.g.node()))
-                        //this.labelMouseOver(d.aggregateKey, d.splitBy);
-                    })					
-                    .on("mouseout", function(d) {		
-                        //self.tooltip.hide();
-                        //this.labelMouseOut();
-                    })
                     .attr("r", (d) => this.rScale(d.measures[this.rMeasure]))
                     .merge(scatter)
                     .transition()
@@ -203,6 +210,7 @@ class ScatterPlot extends ChartComponent {
                     .attr("stroke", (d) => this.colorMap[d.aggregateKey](d.splitBy))
                     .attr("stroke-opacity", .6)
                     .attr("fill-opacity", .6)
+                    .attr("stroke-width", "1px")
 
                 scatter.exit().remove();
                 
@@ -238,13 +246,13 @@ class ScatterPlot extends ChartComponent {
         this.voronoiDiagram = this.voronoi(voronoiData);
 
         this.voronoiGroup
-        .on("mousemove", function(){
-            let mouseEvent = d3.mouse(this);
-            self.voronoiMouseMove(mouseEvent);
-        })
-        .on("mouseout", function(){
-            self.voronoiMouseOut();
-        }) 
+            .on("mousemove", function(){
+                let mouseEvent = d3.mouse(this);
+                self.voronoiMouseMove(mouseEvent);
+            })
+            .on("mouseout", function(){
+                self.voronoiMouseOut();
+            }) 
     }
 
     private voronoiMouseMove(mouseEvent){
@@ -252,7 +260,7 @@ class ScatterPlot extends ChartComponent {
         let mouse_y = mouseEvent[1];
         let site = this.voronoiDiagram.find(mouse_x, mouse_y);
         this.drawTooltip(site.data, [site[0], site[1]]);
-        this.labelMouseOver(site.data.aggregateKey, site.data.splitBy);
+        this.labelMouseOver(site.data.aggregateKey, site.data.splitBy, site.data.dateTime);
     }
 
     private voronoiMouseOut(){
