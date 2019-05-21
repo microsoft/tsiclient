@@ -307,6 +307,10 @@ class Utils {
         return colors;
     }
 
+    static getBrighterColor (color: string) {
+        return <any>d3.hcl(color).brighter();
+    }
+
     static createSplitByColors(displayState: any, aggKey: string, ignoreIsOnlyAgg: boolean = false) {
         if (Object.keys(displayState[aggKey]["splitBys"]).length == 1) 
             return [displayState[aggKey].color];
