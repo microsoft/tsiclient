@@ -37,6 +37,8 @@
     }
     // Hide data type dropdown in scatter plot -- selection has no effect
     .tsi-splitByLabel{
+        height: 28px !important;
+
         .tsi-seriesTypeSelection{
             display: none;
         }

@@ -1,11 +1,11 @@
 import * as d3 from 'd3';
 import './ScatterPlot.scss';
 import {Utils} from "./../../Utils";
-import {Legend} from './../Legend/Legend';
 import {ChartComponent} from "./../../Interfaces/ChartComponent";
 import { ChartComponentData } from '../../Models/ChartComponentData';
-import { Tooltip } from '../Tooltip/Tooltip';
 import { ChartDataOptions } from '../../Models/ChartDataOptions';
+import {Legend} from './../Legend/Legend';
+import { Tooltip } from '../Tooltip/Tooltip';
 
 class ScatterPlot extends ChartComponent {
     private svgSelection: any;
@@ -115,7 +115,7 @@ class ScatterPlot extends ChartComponent {
                 // Decrease opacity of unselected
                 svgWrap.selectAll(".tsi-dot")
                     .filter(selectedFilter)
-                    .attr("stroke-opacity", .15)
+                    .attr("stroke-opacity", .3)
                     .attr("fill-opacity", .15)
                     .attr("z-index", -1)
 
@@ -153,8 +153,6 @@ class ScatterPlot extends ChartComponent {
                     .attr("stroke", (d) => this.colorMap[d.aggregateKey](d.splitBy))
                     .attr("stroke-width", "1px");
             }
-
-            let self = this;
 
             // Initialize voronoi
             this.voronoiGroup = this.g.append("rect")
@@ -228,6 +226,19 @@ class ScatterPlot extends ChartComponent {
                 
                 super.themify(targetElement, this.chartOptions.theme);
 
+                // Draw control panel
+                if (!this.chartOptions.hideChartControlPanel && this.chartControlsPanel === null) {
+                    this.chartControlsPanel = Utils.createControlPanel(this.renderTarget, this.CONTROLSWIDTH, this.chartMargins.top, this.chartOptions);
+                } else  if (this.chartOptions.hideChartControlPanel && this.chartControlsPanel !== null){
+                    this.removeControlPanel();
+                }
+                if (this.chartControlsPanel !== null && this.ellipsisItemsExist()) {
+                    this.drawEllipsisMenu();
+                    this.chartControlsPanel.style("top", Math.max((this.chartMargins.top - 24), 0) + 'px');
+                } else {
+                    this.removeEllipsisMenu();
+                }
+
                 // Size focus line
                 this.focus.select('.tsi-hLine').attr("x2", this.chartWidth);
                 this.focus.select('.tsi-vLine').attr("y2", this.chartHeight);
@@ -285,15 +296,15 @@ class ScatterPlot extends ChartComponent {
                     .attr("cy", (d) => this.yScale(d.measures[this.yMeasure]))
                     .attr("fill", (d) => this.colorMap[d.aggregateKey](d.splitBy))
                     .attr("stroke", (d) => this.colorMap[d.aggregateKey](d.splitBy))
-                    .attr("stroke-opacity", .6)
+                    .attr("stroke-opacity", 1)
                     .attr("fill-opacity", .6)
                     .attr("stroke-width", "1px")
 
                 scatter.exit().remove();
                 
                 // Draw Legend
-                this.legendObject.draw(this.chartOptions.legend, this.chartComponentData, this.labelMouseOver, 
-                    this.svgSelection, this.chartOptions, this.labelMouseOut);
+                this.legendObject.draw(this.chartOptions.legend, this.chartComponentData,  this.labelMouseOver, 
+                    this.svgSelection, this.chartOptions, this.labelMouseOut, this.stickySeries);
                 
                 // Draw voronoi
                 this.drawVoronoi();
@@ -309,7 +320,13 @@ class ScatterPlot extends ChartComponent {
                 }
             });
         }   
-        this.draw();                            
+        this.draw();
+        
+        d3.select("html").on("click." + Utils.guid(), () => {
+            if (this.ellipsisContainer && d3.event.target != this.ellipsisContainer.select(".tsi-ellipsisButton").node()) {
+                this.ellipsisMenu.setMenuVisibility(false);
+            }
+        });
     }
 
     private drawVoronoi(){
@@ -407,7 +424,8 @@ class ScatterPlot extends ChartComponent {
             .attr("y", -(textElemDimensions.height / 2) - 3)
             .attr("width", textElemDimensions.width + 6)
             .attr("height", textElemDimensions.height + 4);
-  
+
+        this.legendObject.triggerSplitByFocus(site.data.aggregateKey, site.data.splitBy);
     }
 
     private voronoiMouseOut(){
