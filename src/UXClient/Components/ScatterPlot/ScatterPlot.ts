@@ -6,6 +6,7 @@ import {ChartComponent} from "./../../Interfaces/ChartComponent";
 import { ChartComponentData } from '../../Models/ChartComponentData';
 import { Tooltip } from '../Tooltip/Tooltip';
 import { ChartDataOptions } from '../../Models/ChartDataOptions';
+import { AsyncResource } from 'async_hooks';
 
 class ScatterPlot extends ChartComponent {
     private svgSelection: any;
@@ -35,6 +36,7 @@ class ScatterPlot extends ChartComponent {
     private voronoi: any;
     private voronoiGroup: any;
     private voronoiDiagram: any;
+    private focus: any;
     
     chartComponentData = new ChartComponentData();
 
@@ -89,8 +91,8 @@ class ScatterPlot extends ChartComponent {
             this.labelMouseOver = (aggKey: string, splitBy: string = null, dateTime: Date = null) => {
                 //Highlight active group
                 svgWrap.selectAll(".tsi-dot")
-                    .attr("stroke-opacity", .9)
-                    .attr("fill-opacity", .9)
+                    .attr("stroke-opacity", 1)
+                    .attr("fill-opacity", 1)
                     .attr("stroke", (d) => this.colorMap[d.aggregateKey](d.splitBy))
                     .attr("stroke-width", "1px");
 
@@ -114,12 +116,14 @@ class ScatterPlot extends ChartComponent {
                 // Decrease opacity of unselected
                 svgWrap.selectAll(".tsi-dot")
                     .filter(selectedFilter)
-                    .attr("stroke-opacity", .1)
-                    .attr("fill-opacity", .1)
+                    .attr("stroke-opacity", .15)
+                    .attr("fill-opacity", .15)
                     .attr("z-index", -1)
 
                 // Add highlight border to single focused dot
                 if(dateTime != null && splitBy != null){
+                    // Raise crosshair to top
+                    this.focus.raise().classed("active", true);
                     let highlightColor = this.chartOptions.theme == "light" ? "black": "white";
                     svgWrap.selectAll(".tsi-dot")
                     .filter((d:any) => {
@@ -128,7 +132,9 @@ class ScatterPlot extends ChartComponent {
                         return false;
                     })
                     .attr("stroke", highlightColor)
-                    .attr("stroke-width", "2px");
+                    .attr("stroke-width", "2px")
+                    // Raise active dot above crosshair
+                    .raise().classed("active", true);
                 }
 
                 // Highlight legend group
@@ -150,20 +156,82 @@ class ScatterPlot extends ChartComponent {
                     .attr("stroke-width", "1px");
             }
             let self = this;
+
             // Initialize voronoi
             this.voronoiGroup = this.g.append("rect")
                 .attr("class", "tsi-voronoiWrap")
                 .attr("width", this.chartWidth)
                 .attr("height", this.chartHeight)
                 .attr("fill", "transparent");
+
+            // Initialize focus crosshair lines
+            this.focus = this.pointWrapper.append("g")
+                .attr("transform", "translate(-100,-100)")
+                .attr("class", "tsi-focus");
             
+            this.focus.append("line")
+                .attr("class", "tsi-focusLine tsi-vLine")
+                .attr("x1", 0)
+                .attr("x2", 0)
+                .attr("y1", this.chartOptions.aggTopMargin)
+                .attr("y2", this.chartHeight);
+
+            this.focus.append("line")
+                .attr("class", "tsi-focusLine tsi-hLine")
+                .attr("x1", 0)
+                .attr("x2", this.chartWidth)
+                .attr("y1", 0)
+                .attr("y2", 0);
+            
+            // Initialize focus hover data boxes
+            let hHoverG: any = this.focus.append("g")
+                .attr("class", 'hHoverG')
+                .style("pointer-events", "none")
+                .attr("transform", "translate(0," + (this.chartHeight + this.chartOptions.aggTopMargin) + ")");
+            
+            let hHoverBox: any = hHoverG.append("rect")
+                .style("pointer-events", "none")
+                .attr("class", 'hHoverBox')
+                .attr("x", 0)
+                .attr("y", 4)
+                .attr("width", 0)
+                .attr("height", 0);
+            
+            let hHoverText: any = hHoverG.append("text")
+                .style("pointer-events", "none")
+                .attr("class", "hHoverText")
+                .attr("dy", ".71em")
+                .attr("transform", "translate(0,9)")
+                .text(d => d);
+
+            let vHoverG: any = this.focus.append("g")
+                .attr("class", 'vHoverG')
+                .attr("transform", "translate(0," + (this.chartHeight + this.chartOptions.aggTopMargin) + ")");
+            let vHoverBox: any = vHoverG.append("rect")
+                .attr("class", 'vHoverBox')
+                .attr("x", -5)
+                .attr("y", 0)
+                .attr("width", 0)
+                .attr("height", 0)
+            let vHoverText: any = vHoverG.append("text")
+                .attr("class", "vHoverText")
+                .attr("dy", ".32em")
+                .attr("x", -10)
+                .text(d => d);
+
+
             this.draw = () => {
+                this.focus.attr("visibility", (this.chartOptions.focusHidden) ? "hidden" : "visible")
                 this.setWidthAndHeight();
                 this.svgSelection
                     .attr("height", this.height)
                     .attr("width", this.width);
                 
                 super.themify(targetElement, this.chartOptions.theme);
+
+                // Size focus line
+                this.focus.select('.tsi-hLine').attr("x2", this.chartWidth);
+                this.focus.select('.tsi-vLine').attr("y2", this.chartHeight);
                 
                 // Set axis extents
                 this.measures = this.chartOptions.scatterPlotMeasures;
@@ -271,9 +339,42 @@ class ScatterPlot extends ChartComponent {
         let site = this.voronoiDiagram.find(mouse_x, mouse_y);
         this.drawTooltip(site.data, [site[0], site[1]]);
         this.labelMouseOver(site.data.aggregateKey, site.data.splitBy, site.data.dateTime);
+
+        // Draw focus cross hair
+        this.focus.style("display", "block");
+        this.focus.attr("transform", "translate(" + site[0] + "," + site[1] + ")");
+        this.focus.select('.tsi-hLine').attr("transform", "translate(" + (-site[0]) + ",0)");
+        this.focus.select('.tsi-vLine').attr("transform", "translate(0," + (-site[1]) + ")");
+
+        // Draw horizontal hover box 
+        this.focus.select('.hHoverG')
+        .attr("transform", "translate(0," + (this.chartHeight - site[1]) + ")")
+        .select("text")
+        .text((Utils.formatYAxisNumber(site.data.measures[this.xMeasure])));
+        let textElemDimensions = (<any>this.focus.select('.hHoverG').select("text")
+            .node()).getBoundingClientRect();
+        this.focus.select(".hHoverG").select("rect")
+            .attr("x", -(textElemDimensions.width / 2) - 3)
+            .attr("width", textElemDimensions.width + 6)
+            .attr("height", textElemDimensions.height + 5);
+
+        // Draw vertical hover box
+        this.focus.select('.vHoverG')
+            .attr("transform", "translate(" + (-site[0]) + ",0)")
+            .select("text")
+            .text(Utils.formatYAxisNumber(site.data.measures[this.yMeasure]))
+        textElemDimensions = (<any>this.focus.select('.vHoverG').select("text")
+            .node()).getBoundingClientRect();
+        this.focus.select(".vHoverG").select("rect")
+            .attr("x", -(textElemDimensions.width) - 13)
+            .attr("y", -(textElemDimensions.height / 2) - 3)
+            .attr("width", textElemDimensions.width + 6)
+            .attr("height", textElemDimensions.height + 4);
+  
     }
 
     private voronoiMouseOut(){
+        this.focus.style("display", "none");
         this.tooltip.hide();
         this.labelMouseOut();
     }
@@ -327,7 +428,7 @@ class ScatterPlot extends ChartComponent {
 
     private drawAxis(){
         // Draw dynamic x axis and label
-        this.xAxis = this.g.selectAll(".xAxis").data([this.xScale]); 
+        this.xAxis = this.pointWrapper.selectAll(".xAxis").data([this.xScale]); 
         this.xAxis.enter()
             .append("g")
             .attr("class", "xAxis")
@@ -338,7 +439,7 @@ class ScatterPlot extends ChartComponent {
         this.xAxis.exit().remove();
 
         // Draw dynamic y axis and label
-        this.yAxis = this.g.selectAll(".yAxis").data([this.yScale]);
+        this.yAxis = this.pointWrapper.selectAll(".yAxis").data([this.yScale]);
         this.yAxis.enter()
             .append("g")
             .attr("class", "yAxis")

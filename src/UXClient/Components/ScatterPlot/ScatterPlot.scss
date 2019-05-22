@@ -20,6 +20,9 @@
         .xAxis, .yAxis text{
             font-size: 13px;
         }
+        .tsi-focusLine {
+            stroke: $gray2;
+        }
     }
     @include chartColors($grays);
 }
@@ -39,6 +42,26 @@
     .tsi-splitByLabel{
         .tsi-seriesTypeSelection{
             display: none;
+        }
+    }
+
+    .tsi-scatterPlotSVG{
+        .tsi-focus{
+            z-index: -10;
+        }
+        .tsi-focusLine {
+            stroke-width: 1px !important;
+            pointer-events: none;
+        }
+        .tsi-voronoiWrap {
+            fill-opacity: 0;
+            cursor: crosshair;
+        }
+
+        .tsi-voronoiWrap path {
+            fill: none;
+            pointer-events: all;
+            cursor: crosshair;
         }
     }
 

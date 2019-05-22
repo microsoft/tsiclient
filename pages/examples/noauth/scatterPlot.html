@@ -23,7 +23,7 @@
                     for(var j = 0; j < 5; j++){
                         var values = {};
                         lines[`Station${j}`] = values;
-                        for(var k = 0; k < 30; k++){
+                        for(var k = 0; k < 20; k++){
                             if(!(k%2 && k%3)){  // if check is to create some sparseness in the data
                                 var to = new Date(from.valueOf() + 1000*60*k);
                                 var val = Math.random();
