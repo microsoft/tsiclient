@@ -6,7 +6,6 @@ import {ChartComponent} from "./../../Interfaces/ChartComponent";
 import { ChartComponentData } from '../../Models/ChartComponentData';
 import { Tooltip } from '../Tooltip/Tooltip';
 import { ChartDataOptions } from '../../Models/ChartDataOptions';
-import { voronoi, mouse } from 'd3';
 
 class ScatterPlot extends ChartComponent {
     private svgSelection: any;
@@ -34,11 +33,8 @@ class ScatterPlot extends ChartComponent {
     private labelMouseOut: any;
     private draw: any;
     private voronoi: any;
-    private activeDot: any;
     private voronoiGroup: any;
     private voronoiDiagram: any;
-    
-    readonly MAX_VORONOI_DIST = 50;
     
     chartComponentData = new ChartComponentData();
 
@@ -98,6 +94,9 @@ class ScatterPlot extends ChartComponent {
                     .attr("stroke", (d) => this.colorMap[d.aggregateKey](d.splitBy))
                     .attr("stroke-width", "1px");
 
+                // Remove highlight on previous legend group
+                <any>this.legendObject.legendElement.selectAll('.tsi-splitByLabel').classed("inFocus", false);
+
                 // Filter selected
                 let selectedFilter = (d: any) => {
                     let currAggKey = null, currSplitBy = null;
@@ -112,26 +111,37 @@ class ScatterPlot extends ChartComponent {
                     return true;
                 }
                 
-                // Decrease opacity
+                // Decrease opacity of unselected
                 svgWrap.selectAll(".tsi-dot")
                     .filter(selectedFilter)
                     .attr("stroke-opacity", .1)
                     .attr("fill-opacity", .1)
                     .attr("z-index", -1)
 
+                // Add highlight border to single focused dot
                 if(dateTime != null && splitBy != null){
-                    this.activeDot = svgWrap.selectAll(".tsi-dot")
+                    let highlightColor = this.chartOptions.theme == "light" ? "black": "white";
+                    svgWrap.selectAll(".tsi-dot")
                     .filter((d:any) => {
                         if(d.aggregateKey == aggKey && d.splitBy == splitBy && d.dateTime == dateTime)
                             return true;
                         return false;
                     })
-                    .attr("stroke", "black")
-                    .attr("stroke-width", "3px");
+                    .attr("stroke", highlightColor)
+                    .attr("stroke-width", "2px");
                 }
+
+                // Highlight legend group
+                (this.legendObject.legendElement.selectAll('.tsi-splitByLabel').filter(function (filteredSplitBy: string) {
+                    return (d3.select(this.parentNode).datum() == aggKey) && (filteredSplitBy == splitBy);
+                })).classed("inFocus", true);
             }
 
             this.labelMouseOut = () => {
+                
+                 // Remove highlight on legend group
+                 <any>this.legendObject.legendElement.selectAll('.tsi-splitByLabel').classed("inFocus", false);
+
                 this.g.selectAll(".tsi-dot")
                     .attr("stroke-opacity", .6)
                     .attr("fill-opacity", .6)
