@@ -144,17 +144,17 @@ class ScatterPlot extends ChartComponent {
             }
 
             this.labelMouseOut = () => {
-                
                  // Remove highlight on legend group
                  <any>this.legendObject.legendElement.selectAll('.tsi-splitByLabel').classed("inFocus", false);
 
                 this.g.selectAll(".tsi-dot")
-                    .attr("stroke-opacity", .6)
+                    .attr("stroke-opacity", 1)
                     .attr("fill-opacity", .6)
                     .attr("z-index", 1)
                     .attr("stroke", (d) => this.colorMap[d.aggregateKey](d.splitBy))
                     .attr("stroke-width", "1px");
             }
+
             let self = this;
 
             // Initialize voronoi
@@ -331,6 +331,44 @@ class ScatterPlot extends ChartComponent {
             .on("mouseout", function(){
                 self.voronoiMouseOut();
             }) 
+            .on("click", function(){
+                let mouseEvent = d3.mouse(this);
+                self.voronoiClick(mouseEvent);
+            });
+    }
+
+    private voronoiClick(mouseEvent){
+        let site = this.voronoiDiagram.find(mouseEvent[0], mouseEvent[1]);      
+        // Unsticky all
+        (<any>this.legendObject.legendElement.selectAll('.tsi-splitByLabel')).classed("stickied", false);
+        if (this.chartComponentData.stickiedKey != null) {
+            this.chartComponentData.stickiedKey = null;
+            // Recompute Voronoi
+            this.voronoiDiagram = this.voronoi(this.getVoronoiData(this.chartComponentData.allValues));
+            site = this.voronoiDiagram.find(mouseEvent[0], mouseEvent[1]);
+            this.voronoiMouseMove(mouseEvent);
+            this.chartOptions.onUnsticky(site.data.aggregateKey, site.data.splitBy)
+            return;
+        }
+        this.stickySeries(site.data.aggregateKey, site.data.splitBy);
+        this.chartOptions.onSticky(site.data.aggregateKey, site.data.splitBy);    
+    }
+
+    public stickySeries  = (aggregateKey: string, splitBy: string = null) => {
+        let filteredValues = this.getVoronoiData(this.chartComponentData.allValues);
+        if (filteredValues == null || filteredValues.length == 0)
+            return;
+
+        this.chartComponentData.stickiedKey = {
+            aggregateKey: aggregateKey,
+            splitBy: (splitBy == null ? null : splitBy)
+        };
+
+        (<any>this.legendObject.legendElement.selectAll('.tsi-splitByLabel').filter(function (filteredSplitBy: any)  {
+            return (d3.select(this.parentNode).datum() == aggregateKey) && (filteredSplitBy == splitBy);
+        })).classed("stickied", true);
+
+        this.voronoiDiagram = this.voronoi(this.getVoronoiData(this.chartComponentData.allValues));
     }
 
     private voronoiMouseMove(mouseEvent){
@@ -381,10 +419,21 @@ class ScatterPlot extends ChartComponent {
 
     private getVoronoiData(rawData: any){
         let cleanData = this.cleanData(rawData);
-        return cleanData.filter((d) => {
+
+        let filteredValues =  cleanData.filter((d) => {
             return (this.chartComponentData.displayState[d.aggregateKey].visible && 
                 this.chartComponentData.displayState[d.aggregateKey].splitBys[d.splitBy].visible)
         });
+
+        if (this.chartComponentData.stickiedKey == null) return filteredValues;
+
+        let stickiedValues = filteredValues.filter((d: any) => {
+            return d.aggregateKey == this.chartComponentData.stickiedKey.aggregateKey &&
+                ((this.chartComponentData.stickiedKey.splitBy == null) ? true : 
+                d.splitBy == this.chartComponentData.stickiedKey.splitBy);
+        });
+
+        return stickiedValues;
     }
 
     private getVisibleState(d:any){
