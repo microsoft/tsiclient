@@ -6,7 +6,6 @@ import {ChartComponent} from "./../../Interfaces/ChartComponent";
 import { ChartComponentData } from '../../Models/ChartComponentData';
 import { Tooltip } from '../Tooltip/Tooltip';
 import { ChartDataOptions } from '../../Models/ChartDataOptions';
-import { AsyncResource } from 'async_hooks';
 
 class ScatterPlot extends ChartComponent {
     private svgSelection: any;
@@ -268,7 +267,7 @@ class ScatterPlot extends ChartComponent {
 
                 // Draw data
                 let scatter = this.pointWrapper.selectAll(".tsi-dot")
-                    .data(this.cleanData(this.chartComponentData.allValues))
+                    .data(this.cleanData(this.chartComponentData.allValues), d => d.aggregateKey + d.splitBy + d.dateTime.toISOString());
 
                 let self = this;
                 

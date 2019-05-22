@@ -1,6 +1,6 @@
 @import "../../styles";
 
-@mixin pcColors($grays){
+@mixin spColors($grays){
     $gray1: nth($grays, 1); // text
     $gray2: nth($grays, 2); // hover
     $gray3: nth($grays, 3); // element
@@ -17,9 +17,6 @@
         path {
             stroke: $gray1;
         }
-        .xAxis, .yAxis text{
-            font-size: 13px;
-        }
         .tsi-focusLine {
             stroke: $gray2;
         }
@@ -32,11 +29,11 @@
 
     &.tsi-dark{
         $grays: grays('dark');
-        @include pcColors($grays);
+        @include spColors($grays);
     }
     &.tsi-light{
         $grays: grays('light');
-        @include pcColors($grays);
+        @include spColors($grays);
     }
     // Hide data type dropdown in scatter plot -- selection has no effect
     .tsi-splitByLabel{
@@ -46,6 +43,9 @@
     }
 
     .tsi-scatterPlotSVG{
+        .xAxis, .yAxis text{
+            font-size: 12px;
+        }
         .tsi-focus{
             z-index: -10;
         }
