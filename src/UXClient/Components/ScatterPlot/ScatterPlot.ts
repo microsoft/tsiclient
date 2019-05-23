@@ -17,8 +17,6 @@ class ScatterPlot extends ChartComponent {
     private focus: any;
     private g: any;
     private height: number;
-    private labelMouseOut: any;
-    private labelMouseOver: any;
     private legendObject: Legend;
     private measures: Array<string>;
     private pointWrapper: any;
@@ -67,7 +65,8 @@ class ScatterPlot extends ChartComponent {
         this.controlsOffset = (this.chartOptions.legend == "shown" ? this.CONTROLSWIDTH : 0)
         this.setWidthAndHeight();
 
-        if (this.svgSelection == null) {  
+        if (this.svgSelection == null) {
+            /******** STATIC INITIALIZATION ********/   
             let targetElement = d3.select(this.renderTarget)
                 .classed("tsi-scatterPlot", true);
            
@@ -84,75 +83,6 @@ class ScatterPlot extends ChartComponent {
                 .classed("tsi-pointWrapper", true);
                 
             this.tooltip = new Tooltip(d3.select(this.renderTarget));
-
-            let svgWrap = this.svgSelection;
-
-            this.labelMouseOver = (aggKey: string, splitBy: string = null, dateTime: Date = null) => {
-                //Highlight active group
-                svgWrap.selectAll(".tsi-dot")
-                    .attr("stroke-opacity", 1)
-                    .attr("fill-opacity", 1)
-                    .attr("stroke", (d) => this.colorMap[d.aggregateKey](d.splitBy))
-                    .attr("stroke-width", "1px");
-
-                // Remove highlight on previous legend group
-                <any>this.legendObject.legendElement.selectAll('.tsi-splitByLabel').classed("inFocus", false);
-
-                // Filter selected
-                let selectedFilter = (d: any) => {
-                    let currAggKey = null, currSplitBy = null;
-                    if(d.aggregateKey) currAggKey = d.aggregateKey
-                    if(d.splitBy) currSplitBy = d.splitBy
-
-                    if(splitBy == null)
-                        return currAggKey == aggKey;
-        
-                    if(currAggKey == aggKey && currSplitBy == splitBy)
-                        return false;
-                    return true;
-                }
-                
-                // Decrease opacity of unselected
-                svgWrap.selectAll(".tsi-dot")
-                    .filter(selectedFilter)
-                    .attr("stroke-opacity", .3)
-                    .attr("fill-opacity", .15)
-                    .attr("z-index", -1)
-
-                // Add highlight border to single focused dot
-                if(dateTime != null && splitBy != null){
-                    // Raise crosshair to top
-                    this.focus.raise().classed("active", true);
-                    let highlightColor = this.chartOptions.theme == "light" ? "black": "white";
-                    svgWrap.selectAll(".tsi-dot")
-                    .filter((d:any) => {
-                        if(d.aggregateKey == aggKey && d.splitBy == splitBy && d.dateTime == dateTime)
-                            return true;
-                        return false;
-                    })
-                    .attr("stroke", highlightColor)
-                    .attr("stroke-width", "2px")
-                    // Raise active dot above crosshair
-                    .raise().classed("active", true);
-                }
-
-                // Highlight legend group
-                (this.legendObject.legendElement.selectAll('.tsi-splitByLabel').filter(function (filteredSplitBy: string) {
-                    return (d3.select(this.parentNode).datum() == aggKey) && (filteredSplitBy == splitBy);
-                })).classed("inFocus", true);
-            }
-
-            this.labelMouseOut = () => {
-                 // Remove highlight on legend group
-                 <any>this.legendObject.legendElement.selectAll('.tsi-splitByLabel').classed("inFocus", false);
-
-                this.g.selectAll(".tsi-dot")
-                    .attr("stroke-opacity", 1)
-                    .attr("fill-opacity", .6)
-                    .attr("z-index", 1)
-                    .attr("stroke", (d) => this.colorMap[d.aggregateKey](d.splitBy))
-                    .attr("stroke-width", "1px");
-            }
 
             // Initialize voronoi
             this.voronoiGroup = this.g.append("rect")
@@ -180,43 +110,41 @@ class ScatterPlot extends ChartComponent {
                 .attr("y1", 0)
                 .attr("y2", 0);
             
-            // Initialize focus hover data boxes
+            // Initialize focus axis data boxes
             let hHoverG: any = this.focus.append("g")
                 .attr("class", 'hHoverG')
                 .style("pointer-events", "none")
                 .attr("transform", "translate(0," + (this.chartHeight + this.chartOptions.aggTopMargin) + ")");
-            
-            let hHoverBox: any = hHoverG.append("rect")
+            hHoverG.append("rect")
                 .style("pointer-events", "none")
                 .attr("class", 'hHoverBox')
                 .attr("x", 0)
                 .attr("y", 4)
                 .attr("width", 0)
                 .attr("height", 0);
-            
-            let hHoverText: any = hHoverG.append("text")
+            hHoverG.append("text")
                 .style("pointer-events", "none")
                 .attr("class", "hHoverText")
                 .attr("dy", ".71em")
                 .attr("transform", "translate(0,9)")
-                .text(d => d);
+                .text((d: string) => d);
 
             let vHoverG: any = this.focus.append("g")
                 .attr("class", 'vHoverG')
                 .attr("transform", "translate(0," + (this.chartHeight + this.chartOptions.aggTopMargin) + ")");
-            let vHoverBox: any = vHoverG.append("rect")
+            vHoverG.append("rect")
                 .attr("class", 'vHoverBox')
                 .attr("x", -5)
                 .attr("y", 0)
                 .attr("width", 0)
                 .attr("height", 0)
-            let vHoverText: any = vHoverG.append("text")
+            vHoverG.append("text")
                 .attr("class", "vHoverText")
                 .attr("dy", ".32em")
                 .attr("x", -10)
-                .text(d => d);
+                .text((d: string) => d);
 
-
+            /******** DRAW UPDATE FUNCTION ********/   
             this.draw = () => {
                 this.focus.attr("visibility", (this.chartOptions.focusHidden) ? "hidden" : "visible")
                 this.setWidthAndHeight();
@@ -303,8 +231,8 @@ class ScatterPlot extends ChartComponent {
                 scatter.exit().remove();
                 
                 // Draw Legend
-                this.legendObject.draw(this.chartOptions.legend, this.chartComponentData,  this.labelMouseOver, 
-                    this.svgSelection, this.chartOptions, this.labelMouseOut, this.stickySeries);
+                this.legendObject.draw(this.chartOptions.legend, this.chartComponentData,  this.labelMouseOver.bind(this), 
+                    this.svgSelection, this.chartOptions, this.labelMouseOut.bind(this), this.stickySeries);
                 
                 // Draw voronoi
                 this.drawVoronoi();
@@ -451,6 +379,73 @@ class ScatterPlot extends ChartComponent {
         });
 
         return stickiedValues;
+    }
+
+    private labelMouseOver(aggKey: string, splitBy: string = null, dateTime: Date = null){
+        //Highlight active group
+        this.svgSelection.selectAll(".tsi-dot")
+            .attr("stroke-opacity", 1)
+            .attr("fill-opacity", 1)
+            .attr("stroke", (d) => this.colorMap[d.aggregateKey](d.splitBy))
+            .attr("stroke-width", "1px");
+
+        // Remove highlight on previous legend group
+        <any>this.legendObject.legendElement.selectAll('.tsi-splitByLabel').classed("inFocus", false);
+
+        // Filter selected
+        let selectedFilter = (d: any) => {
+            let currAggKey = null, currSplitBy = null;
+            if(d.aggregateKey) currAggKey = d.aggregateKey
+            if(d.splitBy) currSplitBy = d.splitBy
+
+            if(splitBy == null)
+                return currAggKey == aggKey;
+
+            if(currAggKey == aggKey && currSplitBy == splitBy)
+                return false;
+            return true;
+        }
+        
+        // Decrease opacity of unselected
+        this.svgSelection.selectAll(".tsi-dot")
+            .filter(selectedFilter)
+            .attr("stroke-opacity", .3)
+            .attr("fill-opacity", .15)
+            .attr("z-index", -1)
+
+        // Add highlight border to single focused dot
+        if(dateTime != null && splitBy != null){
+            // Raise crosshair to top
+            this.focus.raise().classed("active", true);
+            let highlightColor = this.chartOptions.theme == "light" ? "black": "white";
+            this.svgSelection.selectAll(".tsi-dot")
+            .filter((d:any) => {
+                if(d.aggregateKey == aggKey && d.splitBy == splitBy && d.dateTime == dateTime)
+                    return true;
+                return false;
+            })
+            .attr("stroke", highlightColor)
+            .attr("stroke-width", "2px")
+            // Raise active dot above crosshair
+            .raise().classed("active", true);
+        }
+
+        // Highlight legend group
+        (this.legendObject.legendElement.selectAll('.tsi-splitByLabel').filter(function (filteredSplitBy: string) {
+            return (d3.select(this.parentNode).datum() == aggKey) && (filteredSplitBy == splitBy);
+        })).classed("inFocus", true);
+    }
+
+    private labelMouseOut(){
+         // Remove highlight on legend group
+         <any>this.legendObject.legendElement.selectAll('.tsi-splitByLabel').classed("inFocus", false);
+
+        this.g.selectAll(".tsi-dot")
+            .attr("stroke-opacity", 1)
+            .attr("fill-opacity", .6)
+            .attr("z-index", 1)
+            .attr("stroke", (d) => this.colorMap[d.aggregateKey](d.splitBy))
+            .attr("stroke-width", "1px");
     }
 
     private getVisibleState(d:any){
