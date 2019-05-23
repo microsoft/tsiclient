@@ -43,14 +43,11 @@
                 // render the data in a chart
                 var tsiClient = new TsiClient();
 
-                 var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart1'));
-                 lineChart.render(data, {theme: 'light', tooltip: true});
+                var scatterPlot1 =  new tsiClient.ux.ScatterPlot(document.getElementById('chart1'));
+                scatterPlot1.render(data, {grid: true, legend: "compact", tooltip: true, theme: 'dark', scatterPlotMeasures: ['temp', 'press', 'vol'], scatterPlot1});
 
-                // var pieChart = new tsiClient.ux.PieChart(document.getElementById('chart1'));
-                // pieChart.render(data, {theme: 'light', grid: true, tooltip: true, legend: 'compact'});
-
-                var scatterPlot =  new tsiClient.ux.ScatterPlot(document.getElementById('chart2'));
-                scatterPlot.render(data, {tooltip: true, theme: 'light', scatterPlotMeasures: ['temp', 'press', 'vol'], scatterPlot});
+                var scatterPlot2 =  new tsiClient.ux.ScatterPlot(document.getElementById('chart2'));
+                scatterPlot2.render(data, {tooltip: true, theme: 'light', scatterPlotMeasures: ['temp', 'press', 'vol'], scatterPlot2});
             };
         </script>
     </body>

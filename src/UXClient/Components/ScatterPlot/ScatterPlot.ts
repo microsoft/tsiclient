@@ -1,41 +1,41 @@
 import * as d3 from 'd3';
 import './ScatterPlot.scss';
-import {Utils} from "./../../Utils";
-import {ChartComponent} from "./../../Interfaces/ChartComponent";
+import { ChartComponent } from './../../Interfaces/ChartComponent';
 import { ChartComponentData } from '../../Models/ChartComponentData';
 import { ChartDataOptions } from '../../Models/ChartDataOptions';
-import {Legend} from './../Legend/Legend';
+import { Legend } from './../Legend/Legend';
 import { Tooltip } from '../Tooltip/Tooltip';
+import { Utils } from './../../Utils';
 
 class ScatterPlot extends ChartComponent {
-    private svgSelection: any;
-    private legendObject: Legend;
-    private tooltip: Tooltip;
-    private measures: Array<string>;
-    private extents: any = {}
-    private width: number;
-    private height: number;
-    private chartWidth: number;
     private chartHeight: number;
-    private controlsOffset: number;
-    private g: any;
-    private pointWrapper: any;
-    private xScale: any;
-    private yScale: any;
-    private rScale: any;
-    private xMeasure: string;
-    private yMeasure: string;
-    private rMeasure: string;
-    private xAxis: any;
-    private yAxis: any;
+    private chartWidth: number;
     private colorMap: any = {};
-    private labelMouseOver: any;
-    private labelMouseOut: any;
+    private controlsOffset: number;
     private draw: any;
-    private voronoi: any;
-    private voronoiGroup: any;
-    private voronoiDiagram: any;
+    private extents: any = {}
     private focus: any;
+    private g: any;
+    private height: number;
+    private labelMouseOut: any;
+    private labelMouseOver: any;
+    private legendObject: Legend;
+    private measures: Array<string>;
+    private pointWrapper: any;
+    private rMeasure: string;
+    private rScale: any;
+    private svgSelection: any;
+    private tooltip: Tooltip;
+    private voronoi: any;
+    private voronoiDiagram: any;
+    private voronoiGroup: any;
+    private width: number;
+    private xAxis: any;
+    private xMeasure: string;
+    private xScale: any;
+    private yAxis: any;
+    private yMeasure: string;
+    private yScale: any;
     
     chartComponentData = new ChartComponentData();
 
