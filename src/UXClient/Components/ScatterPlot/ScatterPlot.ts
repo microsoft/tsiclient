@@ -12,7 +12,6 @@ class ScatterPlot extends ChartComponent {
     private chartWidth: number;
     private colorMap: any = {};
     private controlsOffset: number;
-    private draw: any;
     private extents: any = {}
     private focus: any;
     private g: any;
@@ -23,6 +22,7 @@ class ScatterPlot extends ChartComponent {
     private rMeasure: string;
     private rScale: any;
     private svgSelection: any;
+    private targetElement: any;
     private tooltip: Tooltip;
     private voronoi: any;
     private voronoiDiagram: any;
@@ -65,12 +65,12 @@ class ScatterPlot extends ChartComponent {
         this.controlsOffset = (this.chartOptions.legend == "shown" ? this.CONTROLSWIDTH : 0)
         this.setWidthAndHeight();
 
+        /******** STATIC INITIALIZATION ********/   
         if (this.svgSelection == null) {
-            /******** STATIC INITIALIZATION ********/   
-            let targetElement = d3.select(this.renderTarget)
+            this.targetElement = d3.select(this.renderTarget)
                 .classed("tsi-scatterPlot", true);
            
-            this.svgSelection = targetElement.append("svg")
+            this.svgSelection = this.targetElement.append("svg")
                 .attr("class", "tsi-scatterPlotSVG tsi-chartSVG")
                 .attr("height", this.height)
                 .attr("width", this.width);
@@ -144,101 +144,7 @@ class ScatterPlot extends ChartComponent {
                 .attr("x", -10)
                 .text((d: string) => d);
 
-            /******** DRAW UPDATE FUNCTION ********/   
-            this.draw = () => {
-                this.focus.attr("visibility", (this.chartOptions.focusHidden) ? "hidden" : "visible")
-                this.setWidthAndHeight();
-                this.svgSelection
-                    .attr("height", this.height)
-                    .attr("width", this.width);
-                
-                super.themify(targetElement, this.chartOptions.theme);
-
-                // Draw control panel
-                if (!this.chartOptions.hideChartControlPanel && this.chartControlsPanel === null) {
-                    this.chartControlsPanel = Utils.createControlPanel(this.renderTarget, this.CONTROLSWIDTH, this.chartMargins.top, this.chartOptions);
-                } else  if (this.chartOptions.hideChartControlPanel && this.chartControlsPanel !== null){
-                    this.removeControlPanel();
-                }
-                if (this.chartControlsPanel !== null && this.ellipsisItemsExist()) {
-                    this.drawEllipsisMenu();
-                    this.chartControlsPanel.style("top", Math.max((this.chartMargins.top - 24), 0) + 'px');
-                } else {
-                    this.removeEllipsisMenu();
-                }
-
-                // Size focus line
-                this.focus.select('.tsi-hLine').attr("x2", this.chartWidth);
-                this.focus.select('.tsi-vLine').attr("y2", this.chartHeight);
-                
-                // Set axis extents
-                this.measures = this.chartOptions.scatterPlotMeasures;
-                this.measures.forEach(measure => {
-                    this.extents[measure] = d3.extent(this.chartComponentData.allValues, (v:any) => measure in v.measures ? v.measures[measure] : null );
-                });
-                
-                this.xMeasure = this.measures[0];
-                this.yMeasure = this.measures[1];
-                this.rMeasure = this.measures[2] !== undefined ? this.measures[2] : null;
-
-                // Pad extents
-                let xOffset = (20 / this.chartWidth) * (this.extents[this.xMeasure][1] - this.extents[this.xMeasure][0]);
-                let yOffset = (20 / this.chartHeight) * (this.extents[this.yMeasure][1] - this.extents[this.yMeasure][0]);
-                
-                //Init scales
-                this.yScale = d3.scaleLinear()
-                    .range([this.chartHeight, 0])
-                    .domain([this.extents[this.yMeasure][0] - yOffset,this.extents[this.yMeasure][1] + yOffset]);
-
-                this.xScale = d3.scaleLinear()
-                    .range([0, this.chartWidth])
-                    .domain([this.extents[this.xMeasure][0] - xOffset,this.extents[this.xMeasure][1] + xOffset]); 
-                    
-                this.rScale = d3.scaleLinear()
-                .range(this.chartOptions.scatterPlotRadius.slice(0,2))
-                .domain(this.rMeasure === null ? [0, 0] : [this.extents[this.rMeasure][0],this.extents[this.rMeasure][1]]);
-                
-                // Create color scale for each aggregate key
-                this.initColorScale();
-                
-                // Draw axis
-                this.drawAxis();
-
-                // Draw data
-                let scatter = this.pointWrapper.selectAll(".tsi-dot")
-                    .data(this.cleanData(this.chartComponentData.allValues), d => d.aggregateKey + d.splitBy + d.dateTime.toISOString());
-
-                let self = this;
-                
-                scatter
-                    .enter()
-                    .append("circle")
-                    .attr("class", "tsi-dot")
-                    .attr("r", (d) => this.rScale(d.measures[this.rMeasure]))
-                    .merge(scatter)
-                    .transition()
-                    .duration(self.TRANSDURATION)
-                    .ease(d3.easeExp)
-                    .attr("display", (d) => self.getVisibleState(d))
-                    .attr("cx", (d) => this.xScale(d.measures[this.xMeasure]))
-                    .attr("cy", (d) => this.yScale(d.measures[this.yMeasure]))
-                    .attr("fill", (d) => this.colorMap[d.aggregateKey](d.splitBy))
-                    .attr("stroke", (d) => this.colorMap[d.aggregateKey](d.splitBy))
-                    .attr("stroke-opacity", 1)
-                    .attr("fill-opacity", .6)
-                    .attr("stroke-width", "1px")
-
-                scatter.exit().remove();
-                
-                // Draw Legend
-                this.legendObject.draw(this.chartOptions.legend, this.chartComponentData,  this.labelMouseOver.bind(this), 
-                    this.svgSelection, this.chartOptions, this.labelMouseOut.bind(this), this.stickySeries);
-                
-                // Draw voronoi
-                this.drawVoronoi();
-            }
-
-            this.legendObject = new Legend(this.draw, this.renderTarget, this.CONTROLSWIDTH);
+            this.legendObject = new Legend(this.draw.bind(this), this.renderTarget, this.CONTROLSWIDTH);
 
             // Add Window Resize Listener
             window.addEventListener("resize", () => {
@@ -247,7 +153,9 @@ class ScatterPlot extends ChartComponent {
                     this.draw();
                 }
             });
-        }   
+        }
+
+        // Draw scatter plot
         this.draw();
         
         d3.select("html").on("click." + Utils.guid(), () => {
@@ -257,9 +165,103 @@ class ScatterPlot extends ChartComponent {
         });
     }
 
+    /******** DRAW UPDATE FUNCTION ********/   
+    private draw(){
+        this.focus.attr("visibility", (this.chartOptions.focusHidden) ? "hidden" : "visible")
+        this.setWidthAndHeight();
+        this.svgSelection
+            .attr("height", this.height)
+            .attr("width", this.width);
+        
+        super.themify(this.targetElement, this.chartOptions.theme);
+
+        // Draw control panel
+        if (!this.chartOptions.hideChartControlPanel && this.chartControlsPanel === null) {
+            this.chartControlsPanel = Utils.createControlPanel(this.renderTarget, this.CONTROLSWIDTH, this.chartMargins.top, this.chartOptions);
+        } else  if (this.chartOptions.hideChartControlPanel && this.chartControlsPanel !== null){
+            this.removeControlPanel();
+        }
+        if (this.chartControlsPanel !== null && this.ellipsisItemsExist()) {
+            this.drawEllipsisMenu();
+            this.chartControlsPanel.style("top", Math.max((this.chartMargins.top - 24), 0) + 'px');
+        } else {
+            this.removeEllipsisMenu();
+        }
+
+        // Resize focus line
+        this.focus.select('.tsi-hLine').attr("x2", this.chartWidth);
+        this.focus.select('.tsi-vLine').attr("y2", this.chartHeight);
+        
+        // Set axis extents
+        this.measures = this.chartOptions.scatterPlotMeasures;
+        this.measures.forEach(measure => {
+            this.extents[measure] = d3.extent(this.chartComponentData.allValues, (v:any) => measure in v.measures ? v.measures[measure] : null );
+        });
+        
+        this.xMeasure = this.measures[0];
+        this.yMeasure = this.measures[1];
+        this.rMeasure = this.measures[2] !== undefined ? this.measures[2] : null;
+
+        // Pad extents
+        let xOffset = (20 / this.chartWidth) * (this.extents[this.xMeasure][1] - this.extents[this.xMeasure][0]);
+        let yOffset = (20 / this.chartHeight) * (this.extents[this.yMeasure][1] - this.extents[this.yMeasure][0]);
+        
+        // Init scales
+        this.yScale = d3.scaleLinear()
+            .range([this.chartHeight, 0])
+            .domain([this.extents[this.yMeasure][0] - yOffset,this.extents[this.yMeasure][1] + yOffset]);
+
+        this.xScale = d3.scaleLinear()
+            .range([0, this.chartWidth])
+            .domain([this.extents[this.xMeasure][0] - xOffset,this.extents[this.xMeasure][1] + xOffset]); 
+            
+        this.rScale = d3.scaleLinear()
+            .range(this.chartOptions.scatterPlotRadius.slice(0,2))
+            .domain(this.rMeasure === null ? [0, 0] : [this.extents[this.rMeasure][0],this.extents[this.rMeasure][1]]);
+        
+        // Create color scale for each aggregate key
+        this.initColorScale();
+        
+        // Draw axis
+        this.drawAxis();
+
+        // Draw data
+        let scatter = this.pointWrapper.selectAll(".tsi-dot")
+            .data(this.cleanData(this.chartComponentData.allValues), d => d.aggregateKey + d.splitBy + d.dateTime.toISOString());
+        
+        scatter
+            .enter()
+            .append("circle")
+            .attr("class", "tsi-dot")
+            .attr("r", (d) => this.rScale(d.measures[this.rMeasure]))
+            .merge(scatter)
+            .transition()
+            .duration(this.TRANSDURATION)
+            .ease(d3.easeExp)
+            .attr("display", ((d) => this.getVisibleState(d)).bind(this))
+            .attr("cx", (d) => this.xScale(d.measures[this.xMeasure]))
+            .attr("cy", (d) => this.yScale(d.measures[this.yMeasure]))
+            .attr("fill", (d) => this.colorMap[d.aggregateKey](d.splitBy))
+            .attr("stroke", (d) => this.colorMap[d.aggregateKey](d.splitBy))
+            .attr("stroke-opacity", 1)
+            .attr("fill-opacity", .6)
+            .attr("stroke-width", "1px")
+
+        scatter.exit().remove();
+        
+        // Draw Legend
+        this.legendObject.draw(this.chartOptions.legend, this.chartComponentData,  this.labelMouseOver.bind(this), 
+            this.svgSelection, this.chartOptions, this.labelMouseOut.bind(this), this.stickySeries);
+        
+        // Draw voronoi
+        this.drawVoronoi();
+    }
+
+    /******** CREATE VORONOI DIAGRAM FOR MOUSE EVENTS ********/
     private drawVoronoi(){
         let voronoiData = this.getVoronoiData(this.chartComponentData.allValues);
         let self = this;
+        
         this.voronoi = d3.voronoi()
             .x((d:any) => this.xScale(d.measures[this.xMeasure]))
             .y((d:any) => this.yScale(d.measures[this.yMeasure]))
@@ -281,10 +283,12 @@ class ScatterPlot extends ChartComponent {
             });
     }
 
-    private voronoiClick(mouseEvent){
+    /******** STICKY/UNSTICKY DATA GROUPS ON VORONOI DIAGRAM CLICK ********/
+    private voronoiClick(mouseEvent: any){
         let site = this.voronoiDiagram.find(mouseEvent[0], mouseEvent[1]);      
         // Unsticky all
         (<any>this.legendObject.legendElement.selectAll('.tsi-splitByLabel')).classed("stickied", false);
+        
         if (this.chartComponentData.stickiedKey != null) {
             this.chartComponentData.stickiedKey = null;
             // Recompute Voronoi
@@ -294,10 +298,12 @@ class ScatterPlot extends ChartComponent {
             this.chartOptions.onUnsticky(site.data.aggregateKey, site.data.splitBy)
             return;
         }
+
         this.stickySeries(site.data.aggregateKey, site.data.splitBy);
         this.chartOptions.onSticky(site.data.aggregateKey, site.data.splitBy);    
     }
 
+    /******** UPDATE STICKY SPLITBY  ********/
     public stickySeries  = (aggregateKey: string, splitBy: string = null) => {
         let filteredValues = this.getVoronoiData(this.chartComponentData.allValues);
         if (filteredValues == null || filteredValues.length == 0)
@@ -315,7 +321,8 @@ class ScatterPlot extends ChartComponent {
         this.voronoiDiagram = this.voronoi(this.getVoronoiData(this.chartComponentData.allValues));
     }
 
-    private voronoiMouseMove(mouseEvent){
+    /******** DRAW CROSSHAIRS, TOOLTIP, AND LEGEND FOCUS  ********/
+    private voronoiMouseMove(mouseEvent: any){
         let mouse_x = mouseEvent[0];
         let mouse_y = mouseEvent[1];
         let site = this.voronoiDiagram.find(mouse_x, mouse_y);
@@ -356,13 +363,15 @@ class ScatterPlot extends ChartComponent {
         this.legendObject.triggerSplitByFocus(site.data.aggregateKey, site.data.splitBy);
     }
 
+    /******** HIDE TOOLTIP AND CROSSHAIRS ********/
     private voronoiMouseOut(){
         this.focus.style("display", "none");
         this.tooltip.hide();
         this.labelMouseOut();
     }
 
-    private getVoronoiData(rawData: any){
+    /******** FILTER DATA BY VISIBLE AND STICKIED ********/
+    private getVoronoiData(rawData: Array<any>){
         let cleanData = this.cleanData(rawData);
 
         let filteredValues =  cleanData.filter((d) => {
@@ -381,6 +390,7 @@ class ScatterPlot extends ChartComponent {
         return stickiedValues;
     }
 
+    /******** HIGHLIGHT FOCUSED GROUP ********/
     private labelMouseOver(aggKey: string, splitBy: string = null, dateTime: Date = null){
         //Highlight active group
         this.svgSelection.selectAll(".tsi-dot")
@@ -436,6 +446,7 @@ class ScatterPlot extends ChartComponent {
         })).classed("inFocus", true);
     }
 
+    /******** UNHIGHLIGHT FOCUSED GROUP ********/
     private labelMouseOut(){
          // Remove highlight on legend group
          <any>this.legendObject.legendElement.selectAll('.tsi-splitByLabel').classed("inFocus", false);
@@ -448,12 +459,14 @@ class ScatterPlot extends ChartComponent {
             .attr("stroke-width", "1px");
     }
 
+    /******** GET DISPLAY STATE OF GROUP ********/
     private getVisibleState(d:any){
         return (this.chartComponentData.displayState[d.aggregateKey].visible && 
                 this.chartComponentData.displayState[d.aggregateKey].splitBys[d.splitBy].visible 
                 ? "inherit" : "none");
     }
 
+    /******** CREATE COLOR SCALE FOR EACH AGGREGATE, SPLITBY ********/
     private initColorScale(){
         this.chartComponentData.data.forEach((d) => {
             let colors = Utils.createSplitByColors(this.chartComponentData.displayState, d.aggKey, this.chartOptions.keepSplitByColor);
@@ -463,7 +476,8 @@ class ScatterPlot extends ChartComponent {
         });
     }
 
-    private cleanData(data){
+    /******** FILTER DATA, ONLY KEEPING POINTS WITH ALL REQUIRED MEASURES ********/
+    private cleanData(data: Array<any>){
         // Exclude any data which does not contain the specified
         // chart option measure
         let filtered = data.filter((value) => {
@@ -479,6 +493,7 @@ class ScatterPlot extends ChartComponent {
         return filtered;
     }
 
+    /******** UPDATE CHART DIMENSIONS ********/
     private setWidthAndHeight(){
         this.width = Math.max((<any>d3.select(this.renderTarget).node()).clientWidth, this.MINWIDTH) - this.controlsOffset;
         this.height = Math.max((<any>d3.select(this.renderTarget).node()).clientHeight, this.MINHEIGHT);
@@ -487,6 +502,7 @@ class ScatterPlot extends ChartComponent {
         this.chartHeight = this.height - this.chartMargins.top - this.chartMargins.bottom;
     }
 
+    /******** SCALE AND DRAW AXIS ********/
     private drawAxis(){
         // Draw dynamic x axis and label
         this.xAxis = this.pointWrapper.selectAll(".xAxis").data([this.xScale]); 
@@ -510,6 +526,7 @@ class ScatterPlot extends ChartComponent {
         this.yAxis.exit().remove()
     }
 
+    /******** DRAW TOOLTIP IF ENABLED ********/
     private drawTooltip (d: any, mousePosition) {
         if (this.chartOptions.tooltip){
             let xPos = mousePosition[0];
