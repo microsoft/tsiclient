@@ -52,9 +52,12 @@ class ScatterPlot extends ChartComponent {
     public render(data: any, options: any, aggregateExpressionOptions: any) {
         this.chartOptions.setOptions(options);
 
-        // If measure options not set, or less than 2, default measures to all measures
-        if(this.chartOptions["scatterPlotMeasures"] == null || (this.chartOptions["scatterPlotMeasures"] != null && this.chartOptions["scatterPlotMeasures"].length < 2)){
-            console.log("Scatter plot measures not specified or less than 2");
+        // If measure options not set, or less than 2, return
+        if(this.chartOptions["spmeasure"] == null || (this.chartOptions["spmeasure"] != null && this.chartOptions["spmeasure"].length < 2)){
+            let invalidMessage = "spmeasure not correctly specified or has length < 2: " + this.chartOptions["spmeasure"] + 
+            "\n\nPlease add the following chartOption: {spmeasure: ['example_x_axis_measure', 'example_y_axis_measure', 'example_radius_measure']} " +
+            "where the measures correspond to the data key names."
+            console.log(invalidMessage);
             return;
         }
 
@@ -62,6 +65,21 @@ class ScatterPlot extends ChartComponent {
         this.aggregateExpressionOptions = data.map((d, i) => Object.assign(d, aggregateExpressionOptions && i in aggregateExpressionOptions  ? new ChartDataOptions(aggregateExpressionOptions[i]) : new ChartDataOptions({})));
         this.chartComponentData.mergeDataToDisplayStateAndTimeArrays(data, this.chartOptions.timestamp, aggregateExpressionOptions);  
         
+        /******** CHECK MEASURE VALIDITY ********/
+        let testExtent = {};
+        this.chartOptions.spmeasure.forEach(measure => {
+            testExtent[measure] = d3.extent(this.chartComponentData.allValues, (v:any) => measure in v.measures ? v.measures[measure] : null );
+        });
+        Object.keys(testExtent).forEach(extent => {
+            testExtent[extent].forEach(el => {
+                if(el == undefined){
+                    console.log(`Invalid spmeasure: '${extent}'.  Measure not found in data.`);
+                    return;
+                }
+            });
+        });
+
+
         this.controlsOffset = (this.chartOptions.legend == "shown" ? this.CONTROLSWIDTH : 0)
         this.setWidthAndHeight();
 
@@ -193,7 +211,7 @@ class ScatterPlot extends ChartComponent {
         this.focus.select('.tsi-vLine').attr("y2", this.chartHeight);
         
         // Set axis extents
-        this.measures = this.chartOptions.scatterPlotMeasures;
+        this.measures = this.chartOptions.spmeasure;
         this.measures.forEach(measure => {
             this.extents[measure] = d3.extent(this.chartComponentData.allValues, (v:any) => measure in v.measures ? v.measures[measure] : null );
         });
@@ -482,7 +500,7 @@ class ScatterPlot extends ChartComponent {
         // chart option measure
         let filtered = data.filter((value) => {
             let valOk = true;            
-            this.chartOptions.scatterPlotMeasures
+            this.chartOptions.spmeasure
             .forEach((measure) => {
                 if(!(measure in value.measures)){
                     valOk = false;
