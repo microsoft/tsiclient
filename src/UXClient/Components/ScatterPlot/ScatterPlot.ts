@@ -20,6 +20,7 @@ class ScatterPlot extends ChartComponent {
     private focusedSplitBy: string;
     private g: any;
     private height: number;
+    private hoverTransition: any = d3.transition().duration(50);
     private legendObject: Legend;
     private measures: Array<string>;
     private pointWrapper: any;
@@ -390,11 +391,15 @@ class ScatterPlot extends ChartComponent {
 
             this.svgSelection.selectAll(".tsi-dot")
                 .filter(selectedFilter)
+                .interrupt()
+                .transition(this.hoverTransition)
                 .attr("stroke-opacity", 1)
                 .attr("fill-opacity", 1)
             
             this.svgSelection.selectAll(".tsi-dot")
                 .filter(oldFilter)
+                .interrupt()
+                .transition(this.hoverTransition)
                 .attr("stroke-opacity", .3)
                 .attr("fill-opacity", .15)
 
@@ -518,6 +523,7 @@ class ScatterPlot extends ChartComponent {
 
         //Highlight active group
         this.svgSelection.selectAll(".tsi-dot")
+            .filter((d: any) => !selectedFilter(d))
             .attr("stroke-opacity", 1)
             .attr("fill-opacity", 1)
         
@@ -534,6 +540,8 @@ class ScatterPlot extends ChartComponent {
          <any>this.legendObject.legendElement.selectAll('.tsi-splitByLabel').classed("inFocus", false);
 
         this.g.selectAll(".tsi-dot")
+            .interrupt()
+            .transition(this.hoverTransition)
             .attr("stroke-opacity", 1)
             .attr("fill-opacity", .6)
             .attr("z-index", 1)
