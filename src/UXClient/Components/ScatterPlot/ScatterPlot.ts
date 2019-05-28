@@ -391,15 +391,11 @@ class ScatterPlot extends ChartComponent {
 
             this.svgSelection.selectAll(".tsi-dot")
                 .filter(selectedFilter)
-                .interrupt()
-                .transition(this.hoverTransition)
                 .attr("stroke-opacity", 1)
                 .attr("fill-opacity", 1)
             
             this.svgSelection.selectAll(".tsi-dot")
                 .filter(oldFilter)
-                .interrupt()
-                .transition(this.hoverTransition)
                 .attr("stroke-opacity", .3)
                 .attr("fill-opacity", .15)
 
@@ -541,7 +537,6 @@ class ScatterPlot extends ChartComponent {
 
         this.g.selectAll(".tsi-dot")
             .interrupt()
-            .transition(this.hoverTransition)
             .attr("stroke-opacity", 1)
             .attr("fill-opacity", .6)
             .attr("z-index", 1)
