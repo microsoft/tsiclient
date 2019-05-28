@@ -197,6 +197,9 @@ class ScatterPlot extends ChartComponent {
 
     /******** DRAW UPDATE FUNCTION ********/   
     private draw(){
+        this.updateTimestampData();
+        console.log(this.chartComponentData);
+        
         this.focus.attr("visibility", (this.chartOptions.focusHidden) ? "hidden" : "visible")
 
         // Determine the number of timestamps present, add margin for slider
@@ -279,13 +282,13 @@ class ScatterPlot extends ChartComponent {
             .enter()
             .append("circle")
             .attr("class", "tsi-dot ")
-            .attr("id", (d) => this.getClassHash(d.aggregateKey, d.splitBy, d.dateTime))
-            .attr("r", (d) => this.rScale(d.measures[this.rMeasure]))
             .merge(scatter)
+            .attr("id", (d) => this.getClassHash(d.aggregateKey, d.splitBy, d.dateTime))
             .transition()
             .duration(this.TRANSDURATION)
             .ease(d3.easeExp)
-            .attr("display", ((d) => this.getVisibleState(d)).bind(this))
+            //.attr("display", ((d) => this.getVisibleState(d)).bind(this))
+            .attr("r", (d) => this.rScale(d.measures[this.rMeasure]))
             .attr("cx", (d) => this.xScale(d.measures[this.xMeasure]))
             .attr("cy", (d) => this.yScale(d.measures[this.yMeasure]))
             .attr("fill", (d) => this.colorMap[d.aggregateKey](d.splitBy))
@@ -297,7 +300,7 @@ class ScatterPlot extends ChartComponent {
         scatter.exit().remove();
         
         // Draw Legend
-        this.legendObject.draw(this.chartOptions.legend, this.chartComponentData,  this.labelMouseOver.bind(this), 
+        this.legendObject.draw(this.chartOptions.legend, this.chartComponentData, this.labelMouseOver.bind(this), 
             this.svgSelection, this.chartOptions, this.labelMouseOut.bind(this), this.stickySeries);
         
         // Draw voronoi
@@ -398,6 +401,7 @@ class ScatterPlot extends ChartComponent {
 
     /******** HIGHLIGHT DOT TARGETED BY CROSSHAIRS WITH BLACK / WHITE STROKE BORDER ********/
     private highlightDot(site){
+        
         //If dot is active, unhighlight
         this.unhighlightDot();
         // Add highlight border to newly focused dot
@@ -405,12 +409,13 @@ class ScatterPlot extends ChartComponent {
         let idSelector = "#" + this.getClassHash(site.data.aggregateKey, site.data.splitBy, site.data.dateTime);
 
         this.activeDot = this.svgSelection.select(idSelector);
+       
         this.activeDot
             .attr("stroke", highlightColor)
             .attr("stroke-width", "2px")
             // Raise active dot above crosshair
             .raise().classed("active", true);
-        console.log('raising dot');
+          
     }
 
     /******** GET UNIQUE STRING HASH ID FOR EACH DOT USING DATA ATTRIBUTES ********/   
@@ -449,6 +454,9 @@ class ScatterPlot extends ChartComponent {
         }
         // Raise crosshair to top
         this.focus.raise().classed("active", true);
+        // Raise highlighted dot above crosshairs
+        if(this.activeDot != null)
+            this.activeDot.raise().classed("active", true);
 
         // Highlight legend group
         (this.legendObject.legendElement.selectAll('.tsi-splitByLabel').filter(function (filteredSplitBy: string) {
@@ -479,9 +487,9 @@ class ScatterPlot extends ChartComponent {
         let mouse_y = mouseEvent[1];
         let site = this.voronoiDiagram.find(mouse_x, mouse_y);
         this.drawTooltip(site.data, [site[0], site[1]]);
-        this.highlightDot(site);
+        
         this.labelMouseMove(site.data.aggregateKey, site.data.splitBy);
-
+        this.highlightDot(site);
         // Draw focus cross hair
         this.focus.style("display", "block");
         this.focus.attr("transform", "translate(" + site[0] + "," + site[1] + ")");
@@ -588,12 +596,7 @@ class ScatterPlot extends ChartComponent {
             .attr("stroke-width", "1px");
     }
 
-    /******** GET DISPLAY STATE OF GROUP ********/
-    private getVisibleState(d:any){
-        return (this.chartComponentData.displayState[d.aggregateKey].visible && 
-                this.chartComponentData.displayState[d.aggregateKey].splitBys[d.splitBy].visible 
-                ? "inherit" : "none");
-    }
+
 
     /******** CREATE COLOR SCALE FOR EACH AGGREGATE, SPLITBY ********/
     private initColorScale(){
