@@ -308,7 +308,12 @@ class Utils {
     }
 
     static getBrighterColor (color: string) {
-        return <any>d3.hcl(color).brighter();
+        let hclColor = <any>d3.hcl(color);
+        if (hclColor.l < 80) {
+            return hclColor.brighter().toString();
+        } 
+        return hclColor.toString();
+
     }
 
     static createSplitByColors(displayState: any, aggKey: string, ignoreIsOnlyAgg: boolean = false) {

@@ -56,7 +56,7 @@ class HeatmapData {
 
         this.visibleSBs.forEach((splitBy, rowI) => {
             this.chartComponentData.timeArrays[this.aggKey][splitBy].forEach((valueObject, colI) => {
-                var timestamp = valueObject.dateTime.toISOString();
+                var timestamp = new Date(valueObject.dateTime.valueOf()).toISOString();
                 var visibleMeasure = this.chartComponentData.getVisibleMeasure(this.aggKey, splitBy);
                 if (this.timeValues[timestamp]) {                    
                     this.timeValues[timestamp][splitBy].value = valueObject.measures ? valueObject.measures[visibleMeasure] : null;

@@ -334,9 +334,9 @@ class ChartComponentData {
         }
 
         if (from)
-            this.fromMillis = Math.min(from.valueOf(), this.fromMillis) - shiftValue;
+            this.fromMillis = Math.min(from.valueOf(), this.fromMillis);
         if (to)
-            this.toMillis = Math.max(to.valueOf(), this.toMillis) - shiftValue;
+            this.toMillis = Math.max(to.valueOf(), this.toMillis);
         if (from && to && bucketSize) {
             let firstBucket = this.findFirstBucket(agg, from.valueOf(), bucketSize);
             if (firstBucket !== null) {
