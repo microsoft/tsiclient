@@ -171,7 +171,7 @@ class ScatterPlot extends ChartComponent {
                 .attr("x", -10)
                 .text((d: string) => d);
 
-            this.legendObject = new Legend(this.draw.bind(this), this.renderTarget, this.CONTROLSWIDTH);
+            this.legendObject = new Legend(() => this.render(this.chartComponentData.data, this.chartOptions, this.aggregateExpressionOptions), this.renderTarget, this.CONTROLSWIDTH);
 
             // Add Window Resize Listener
             window.addEventListener("resize", () => {
