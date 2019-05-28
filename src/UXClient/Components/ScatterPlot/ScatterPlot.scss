@@ -44,6 +44,14 @@
         }
     }
 
+    .tsi-sliderWrapper{
+        position: absolute;
+        height: 55px;
+        bottom: 8px;
+        right: 0px;
+        width: 100%;
+    }
+
     .tsi-scatterPlotSVG{
         .xAxis, .yAxis text{
             font-size: 12px;

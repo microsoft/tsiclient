@@ -1,12 +1,12 @@
 import * as d3 from 'd3';
 import './ScatterPlot.scss';
 import { ChartComponent } from './../../Interfaces/ChartComponent';
-import { ChartComponentData } from '../../Models/ChartComponentData';
 import { ChartDataOptions } from '../../Models/ChartDataOptions';
 import { Legend } from './../Legend/Legend';
+import { ScatterPlotData } from '../../Models/ScatterPlotData';
+import {Slider} from './../Slider/Slider';
 import { Tooltip } from '../Tooltip/Tooltip';
 import { Utils } from './../../Utils';
-import { stringify } from 'querystring';
 
 class ScatterPlot extends ChartComponent {
     private activeDot: any = null;
@@ -20,12 +20,12 @@ class ScatterPlot extends ChartComponent {
     private focusedSplitBy: string;
     private g: any;
     private height: number;
-    private hoverTransition: any = d3.transition().duration(50);
     private legendObject: Legend;
     private measures: Array<string>;
     private pointWrapper: any;
     private rMeasure: string;
     private rScale: any;
+    private slider: any;
     private svgSelection: any;
     private targetElement: any;
     private tooltip: Tooltip;
@@ -40,16 +40,15 @@ class ScatterPlot extends ChartComponent {
     private yMeasure: string;
     private yScale: any;
     
-    chartComponentData = new ChartComponentData();
+    chartComponentData = new ScatterPlotData();
 
     public chartMargins: any = {        
         top: 40,
-        bottom: 40,
+        bottom: 48,
         left: 70, 
         right: 60
     };
   
-    
     constructor(renderTarget: Element){
         super(renderTarget);
     }
@@ -69,12 +68,18 @@ class ScatterPlot extends ChartComponent {
 
         this.chartMargins.top = (this.chartOptions.legend === 'compact') ? 84 : 52;
         this.aggregateExpressionOptions = data.map((d, i) => Object.assign(d, aggregateExpressionOptions && i in aggregateExpressionOptions  ? new ChartDataOptions(aggregateExpressionOptions[i]) : new ChartDataOptions({})));
-        this.chartComponentData.mergeDataToDisplayStateAndTimeArrays(data, this.chartOptions.timestamp, aggregateExpressionOptions);  
+        this.chartComponentData.mergeDataToDisplayStateAndTimeArrays(data, this.chartOptions.timestamp, aggregateExpressionOptions);
+        
+        this.updateTimestampData();
         
         // Check measure validity
         let testExtent = {};
         this.chartOptions.spmeasure.forEach(measure => {
-            testExtent[measure] = d3.extent(this.chartComponentData.allValues, (v:any) => measure in v.measures ? v.measures[measure] : null );
+            testExtent[measure] = d3.extent(this.chartComponentData.allValues, (v:any) => {
+                if(!v.measures)
+                    return null
+                return measure in v.measures ? v.measures[measure] : null
+            });
         });
         Object.keys(testExtent).forEach(extent => {
             testExtent[extent].forEach(el => {
@@ -84,7 +89,6 @@ class ScatterPlot extends ChartComponent {
                 }
             });
         });
-
 
         this.controlsOffset = (this.chartOptions.legend == "shown" ? this.CONTROLSWIDTH : 0)
         this.setWidthAndHeight();
@@ -97,22 +101,21 @@ class ScatterPlot extends ChartComponent {
             this.svgSelection = this.targetElement.append("svg")
                 .attr("class", "tsi-scatterPlotSVG tsi-chartSVG")
                 .attr("height", this.height)
-                .attr("width", this.width);
 
             this.g = this.svgSelection.append("g")
                 .classed("tsi-svgGroup", true)
-                .attr("transform", "translate(" + this.chartMargins.left + "," + this.chartMargins.top + ")");
 
             this.pointWrapper = this.g.append("g")
                 .classed("tsi-pointWrapper", true);
+
+            // Create temporal slider div
+            d3.select(this.renderTarget).append('div').classed('tsi-sliderWrapper', true);
                 
             this.tooltip = new Tooltip(d3.select(this.renderTarget));
 
             // Initialize voronoi
             this.voronoiGroup = this.g.append("rect")
                 .attr("class", "tsi-voronoiWrap")
-                .attr("width", this.chartWidth)
-                .attr("height", this.chartHeight)
                 .attr("fill", "transparent");
 
             // Initialize focus crosshair lines
@@ -177,6 +180,9 @@ class ScatterPlot extends ChartComponent {
                     this.draw();
                 }
             });
+
+            // Temporal slider
+            this.slider = new Slider(<any>d3.select(this.renderTarget).select('.tsi-sliderWrapper').node());
         }
 
         // Draw scatter plot
@@ -192,11 +198,23 @@ class ScatterPlot extends ChartComponent {
     /******** DRAW UPDATE FUNCTION ********/   
     private draw(){
         this.focus.attr("visibility", (this.chartOptions.focusHidden) ? "hidden" : "visible")
+
+        // Determine the number of timestamps present, add margin for slider
+        if(this.chartComponentData.allTimestampsArray.length > 1)
+            this.chartMargins.bottom = 88;
+
         this.setWidthAndHeight();
         this.svgSelection
             .attr("height", this.height)
             .attr("width", this.width);
+
+        this.g
+            .attr("transform", "translate(" + this.chartMargins.left + "," + this.chartMargins.top + ")");
         
+        this.voronoiGroup
+            .attr("width", this.chartWidth)
+            .attr("height", this.chartHeight)
+
         super.themify(this.targetElement, this.chartOptions.theme);
 
         // Draw control panel
@@ -219,7 +237,11 @@ class ScatterPlot extends ChartComponent {
         // Set axis extents
         this.measures = this.chartOptions.spmeasure;
         this.measures.forEach(measure => {
-            this.extents[measure] = d3.extent(this.chartComponentData.allValues, (v:any) => measure in v.measures ? v.measures[measure] : null );
+            this.extents[measure] = d3.extent(this.chartComponentData.allValues, (v:any) => {
+                if(!v.measures)
+                    return null
+                return measure in v.measures ? v.measures[measure] : null}
+            );
         });
         
         this.xMeasure = this.measures[0];
@@ -251,7 +273,7 @@ class ScatterPlot extends ChartComponent {
 
         // Draw data
         let scatter = this.pointWrapper.selectAll(".tsi-dot")
-            .data(this.cleanData(this.chartComponentData.allValues), d => d.aggregateKey + d.splitBy + d.dateTime.toISOString());
+            .data(this.cleanData(this.chartComponentData.temporalDataArray), d => d.aggregateKey + d.splitBy);
         
         scatter
             .enter()
@@ -280,11 +302,33 @@ class ScatterPlot extends ChartComponent {
         
         // Draw voronoi
         this.drawVoronoi();
+
+        // Draw slider
+        if(this.chartComponentData.allTimestampsArray.length > 1){
+            d3.select(this.renderTarget).select('.tsi-sliderWrapper').classed('tsi-hidden', false);
+            this.slider.render(this.chartComponentData.allTimestampsArray.map(ts => {
+                var action = () => {
+                    this.chartOptions.timestamp = ts;
+                    this.render(this.chartComponentData.data, this.chartOptions, this.aggregateExpressionOptions);
+                }
+                return {label: Utils.timeFormat(this.chartComponentData.usesSeconds, this.chartComponentData.usesMillis, this.chartOptions.offset, this.chartOptions.is24HourTime)(new Date(ts)), action: action};
+            }), this.chartOptions, this.width - 10,  Utils.timeFormat(this.chartComponentData.usesSeconds, this.chartComponentData.usesMillis, this.chartOptions.offset, this.chartOptions.is24HourTime)(new Date(this.chartComponentData.timestamp)));
+        }
+        else{
+            this.slider.remove();
+            d3.select(this.renderTarget).select('.tsi-sliderWrapper').classed('tsi-hidden', true);
+        }
+    }
+
+    /******** UPDATE TEMPORAL DATA TO DISPLAY BASED ON TIMESTAMP ********/
+    private updateTimestampData(){
+        let timestamp = (this.chartOptions.timestamp != undefined) ? this.chartOptions.timestamp : this.chartComponentData.allTimestampsArray[0];
+        this.chartComponentData.updateTemporalDataArray(timestamp);
     }
 
     /******** CREATE VORONOI DIAGRAM FOR MOUSE EVENTS ********/
     private drawVoronoi(){
-        let voronoiData = this.getVoronoiData(this.chartComponentData.allValues);
+        let voronoiData = this.getVoronoiData(this.chartComponentData.temporalDataArray);
         let self = this;
         
         this.voronoi = d3.voronoi()
@@ -323,7 +367,7 @@ class ScatterPlot extends ChartComponent {
         if (this.chartComponentData.stickiedKey != null) {
             this.chartComponentData.stickiedKey = null;
             // Recompute Voronoi
-            this.voronoiDiagram = this.voronoi(this.getVoronoiData(this.chartComponentData.allValues));
+            this.voronoiDiagram = this.voronoi(this.getVoronoiData(this.chartComponentData.temporalDataArray));
             site = this.voronoiDiagram.find(mouseEvent[0], mouseEvent[1]);
             this.voronoiMouseMove(mouseEvent);
             this.chartOptions.onUnsticky(site.data.aggregateKey, site.data.splitBy)
@@ -336,7 +380,7 @@ class ScatterPlot extends ChartComponent {
 
     /******** UPDATE STICKY SPLITBY  ********/
     public stickySeries  = (aggregateKey: string, splitBy: string = null) => {
-        let filteredValues = this.getVoronoiData(this.chartComponentData.allValues);
+        let filteredValues = this.getVoronoiData(this.chartComponentData.temporalDataArray);
         if (filteredValues == null || filteredValues.length == 0)
             return;
 
@@ -349,7 +393,7 @@ class ScatterPlot extends ChartComponent {
             return (d3.select(this.parentNode).datum() == aggregateKey) && (filteredSplitBy == splitBy);
         })).classed("stickied", true);
 
-        this.voronoiDiagram = this.voronoi(this.getVoronoiData(this.chartComponentData.allValues));
+        this.voronoiDiagram = this.voronoi(this.getVoronoiData(this.chartComponentData.temporalDataArray));
     }
 
     /******** HIGHLIGHT DOT TARGETED BY CROSSHAIRS WITH BLACK / WHITE STROKE BORDER ********/
@@ -366,6 +410,7 @@ class ScatterPlot extends ChartComponent {
             .attr("stroke-width", "2px")
             // Raise active dot above crosshair
             .raise().classed("active", true);
+        console.log('raising dot');
     }
 
     /******** GET UNIQUE STRING HASH ID FOR EACH DOT USING DATA ATTRIBUTES ********/   
@@ -428,7 +473,7 @@ class ScatterPlot extends ChartComponent {
         }     
     }
 
-    /******** DRAW CROSSHAIRS, TOOLTIP, AND LEGEND FOCUS  ********/
+    /******** DRAW CROSSHAIRS, TOOLTIP, AND LEGEND FOCUS ********/
     private voronoiMouseMove(mouseEvent: any){
         let mouse_x = mouseEvent[0];
         let mouse_y = mouseEvent[1];
@@ -539,7 +584,6 @@ class ScatterPlot extends ChartComponent {
             .interrupt()
             .attr("stroke-opacity", 1)
             .attr("fill-opacity", .6)
-            .attr("z-index", 1)
             .attr("stroke", (d) => this.colorMap[d.aggregateKey](d.splitBy))
             .attr("stroke-width", "1px");
     }
@@ -569,7 +613,8 @@ class ScatterPlot extends ChartComponent {
             let valOk = true;            
             this.chartOptions.spmeasure
             .forEach((measure) => {
-                if(!(measure in value.measures)){
+                if(value.measures == null) valOk = false
+                else if(!(measure in value.measures)){
                     valOk = false;
                 }
             });
@@ -622,13 +667,13 @@ class ScatterPlot extends ChartComponent {
                 text.append("div")
                     .attr("class", "title")
                     .text(d.aggregateName);  
-                    text.append("div")
+                text.append("div")
                     .attr("class", "value")
                     .text(d.splitBy);
-
+                
                 text.append("div")
-                .attr("class", "value")
-                .text(Utils.timeFormat(this.labelFormatUsesSeconds(), this.labelFormatUsesMillis(), this.chartOptions.offset, this.chartOptions.is24HourTime)(d.dateTime));  
+                    .attr("class", "value")
+                    .text(Utils.timeFormat(this.labelFormatUsesSeconds(), this.labelFormatUsesMillis(), this.chartOptions.offset, this.chartOptions.is24HourTime)(d.dateTime));  
 
                 let valueGroup = text.append('div').classed('valueGroup', true);
                 Object.keys(d.measures).forEach((measureType, i) => {
