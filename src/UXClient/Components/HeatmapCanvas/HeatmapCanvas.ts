@@ -202,7 +202,7 @@ class HeatmapCanvas extends ChartComponent {
                 var startDate = new Date(sortedDates[self.focusedXIndex]);
                 this.highlightedTime = startDate;
                 self.onCellFocus(startDate, new Date(startDate.valueOf() + self.heatmapData.bucketSize), 
-                                 Math.max(1, cellX), cellX + self.calcCellWidth(self.focusedXIndex) + 1, 
+                                 Math.max(0, cellX), cellX + self.calcCellWidth(self.focusedXIndex), 
                                  self.calcCellY(self.focusedYIndex), highlightedSplitBy);
             }
             self.render(self.data, self.chartOptions, self.aggKey, highlightedSplitBy, this.highlightedTime, self.onCellFocus, null, self.isOnlyAgg);
