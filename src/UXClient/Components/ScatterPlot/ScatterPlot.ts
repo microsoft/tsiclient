@@ -198,7 +198,6 @@ class ScatterPlot extends ChartComponent {
     /******** DRAW UPDATE FUNCTION ********/   
     private draw(){
         this.updateTimestampData();
-        console.log(this.chartComponentData);
         
         this.focus.attr("visibility", (this.chartOptions.focusHidden) ? "hidden" : "visible")
 
