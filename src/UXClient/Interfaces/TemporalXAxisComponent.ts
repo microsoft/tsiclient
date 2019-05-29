@@ -96,13 +96,24 @@ class TemporalXAxisComponent extends ChartComponent {
         return (d1.getYear() === d2.getYear() && d1.getMonth() === d2.getMonth() && d1.getDate() === d2.getDate());
     }
 
+    private daySpan (d1, d2) {
+        return Math.ceil((d2.valueOf() - d1.valueOf()) / (24 * 60 * 60 * 1000));
+    }
+
     private createSmartTickFormat (ticks, offsetX): any {
         let spansMultipleDays = !this.isSameDate(offsetX.domain()[0], offsetX.domain()[1]);
+        let lessTicksThanDays = ticks.length < this.daySpan(offsetX.domain()[0], offsetX.domain()[1]); 
         return (d, i, isFirst, isLast) => {
-            if (isFirst || isLast ||spansMultipleDays) {
-                return "HH:mm L";
+            if (isFirst || isLast) {
+                return 'HH:mm L';
             }
-            return 'HH:mm';
+            if (!spansMultipleDays) {
+                return 'HH:mm';
+            }
+            if (lessTicksThanDays) {
+                return 'L';
+            }
+            return 'HH:mm L';
         }
     }
 
