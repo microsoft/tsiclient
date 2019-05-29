@@ -8,7 +8,7 @@
         <script src="../boilerplate/head.js"></script>
     </head>
     <body style="font-family: 'Segoe UI', sans-serif;">
-        <div id="chart1" style="width: 100%; height: 1000px;"></div>
+        <div id="chart1" style="width: 100%; height: 600px;"></div>
         <div id="chart2" style="width: 100%; height: 600px;"></div>
 
         <script>
@@ -50,10 +50,10 @@
 
                 var scatterPlot1 =  new tsiClient.ux.ScatterPlot(document.getElementById('chart1'));
                 scatterPlot1.render(getData(), {grid: true, tooltip: true, theme: 'light', spmeasure: ['temp', 'press', 'vol'], scatterPlot1});
-                setInterval(() => {
+                setTimeout(() => {
                     scatterPlot1.render(getData(Math.random() * 10), {grid: true, tooltip: true, theme: 'light', spmeasure: ['temp', 'press', 'vol'], scatterPlot1});
                     console.log('rendering scatter');
-                }, 1000)
+                }, 5000)
 
                 // var barChart =  new tsiClient.ux.BarChart(document.getElementById('chart2'));
                 // barChart.render(data, barChart);
