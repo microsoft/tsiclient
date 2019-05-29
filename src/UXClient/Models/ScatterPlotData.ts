@@ -1,13 +1,30 @@
 import {Utils} from "./../Utils";
 import {ChartComponentData} from "./ChartComponentData";
 import { GroupedBarChartData } from "./GroupedBarChartData";
+import * as d3 from "d3";
 
 class ScatterPlotData extends GroupedBarChartData {
     public timestamp: any;
     public temporalDataArray: any;
+    public extents: any = {};
+    private extentsSet: boolean = false
 
 	constructor(){
         super();
+    }
+
+    public setExtents(measures: any, forceReset: boolean = false){
+        if(!this.extentsSet || forceReset){
+            // Set axis extents
+            measures.forEach(measure => {
+                this.extents[measure] = d3.extent(this.allValues, (v:any) => {
+                    if(!v.measures)
+                        return null
+                    return measure in v.measures ? v.measures[measure] : null}
+                );
+            });
+            this.extentsSet = true;
+        } 
     }
 
     public mergeDataToDisplayStateAndTimeArrays (data, timestamp, aggregateExpressionOptions = null, events = null, states = null ) {

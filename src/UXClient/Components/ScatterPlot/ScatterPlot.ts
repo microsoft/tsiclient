@@ -28,6 +28,7 @@ class ScatterPlot extends ChartComponent {
     private slider: any;
     private svgSelection: any;
     private targetElement: any;
+    private timestamp: any;
     private tooltip: Tooltip;
     private voronoi: any;
     private voronoiDiagram: any;
@@ -54,7 +55,7 @@ class ScatterPlot extends ChartComponent {
     }
 
     ScatterPlot(){}
-    public render(data: any, options: any, aggregateExpressionOptions: any) {
+    public render(data: any, options: any, aggregateExpressionOptions: any, fromSlider: boolean = false) {
         this.chartOptions.setOptions(options);
 
         // If measure options not set, or less than 2, return
@@ -69,6 +70,7 @@ class ScatterPlot extends ChartComponent {
         this.chartMargins.top = (this.chartOptions.legend === 'compact') ? 84 : 52;
         this.aggregateExpressionOptions = data.map((d, i) => Object.assign(d, aggregateExpressionOptions && i in aggregateExpressionOptions  ? new ChartDataOptions(aggregateExpressionOptions[i]) : new ChartDataOptions({})));
         this.chartComponentData.mergeDataToDisplayStateAndTimeArrays(data, this.chartOptions.timestamp, aggregateExpressionOptions);
+        this.chartComponentData.setExtents(this.chartOptions.spmeasure, !fromSlider);
         
         // Check measure validity
         if(!this.checkExtentValidity()) return;
@@ -78,6 +80,8 @@ class ScatterPlot extends ChartComponent {
 
         /******** STATIC INITIALIZATION ********/   
         if (this.svgSelection == null) {
+            // Initialize extents
+            //this.chartComponentData.setExtents(this.chartOptions.spmeasure);
             this.targetElement = d3.select(this.renderTarget)
                 .classed("tsi-scatterPlot", true);
            
@@ -219,48 +223,32 @@ class ScatterPlot extends ChartComponent {
         this.focus.select('.tsi-vLine').attr("y2", this.chartHeight);
         this.measures = this.chartOptions.spmeasure;
         
-        if(this.chartComponentData.allValues.length > 0){
-            // Set axis extents
-            this.measures.forEach(measure => {
-                this.extents[measure] = d3.extent(this.chartComponentData.allValues, (v:any) => {
-                    if(!v.measures)
-                        return null
-                    return measure in v.measures ? v.measures[measure] : null}
-                );
-            });
-        } else {
-            this.measures.forEach(measure => {
-                this.extents[measure] = [0,10];
-            });
-        }
-        
         this.xMeasure = this.measures[0];
         this.yMeasure = this.measures[1];
         this.rMeasure = this.measures[2] !== undefined ? this.measures[2] : null;
 
         // Pad extents
-        let xOffset = (20 / this.chartWidth) * (this.extents[this.xMeasure][1] - this.extents[this.xMeasure][0]);
-        let yOffset = (20 / this.chartHeight) * (this.extents[this.yMeasure][1] - this.extents[this.yMeasure][0]);
+        let xOffset = (20 / this.chartWidth) * (this.chartComponentData.extents[this.xMeasure][1] - this.chartComponentData.extents[this.xMeasure][0]);
+        let yOffset = (20 / this.chartHeight) * (this.chartComponentData.extents[this.yMeasure][1] - this.chartComponentData.extents[this.yMeasure][0]);
         
+        // Create color scale for each aggregate key
+        this.initColorScale();
+
         // Check measure validity
         if(!this.checkExtentValidity()) return;
         
-        console.log(this.chartOptions);
         // Init scales
         this.yScale = d3.scaleLinear()
             .range([this.chartHeight, 0])
-            .domain([this.extents[this.yMeasure][0] - yOffset,this.extents[this.yMeasure][1] + yOffset]);
+            .domain([this.chartComponentData.extents[this.yMeasure][0] - yOffset,this.chartComponentData.extents[this.yMeasure][1] + yOffset]);
 
         this.xScale = d3.scaleLinear()
             .range([0, this.chartWidth])
-            .domain([this.extents[this.xMeasure][0] - xOffset,this.extents[this.xMeasure][1] + xOffset]); 
+            .domain([this.chartComponentData.extents[this.xMeasure][0] - xOffset,this.chartComponentData.extents[this.xMeasure][1] + xOffset]); 
 
         this.rScale = d3.scaleLinear()
             .range(this.chartOptions.scatterPlotRadius.slice(0,2))
-            .domain(this.rMeasure === null ? [0, 0] : [this.extents[this.rMeasure][0],this.extents[this.rMeasure][1]]);
-
-        // Create color scale for each aggregate key
-        this.initColorScale();
+            .domain(this.rMeasure === null ? [0, 0] : [this.chartComponentData.extents[this.rMeasure][0],this.chartComponentData.extents[this.rMeasure][1]]);
         
         // Draw axis
         this.drawAxis();
@@ -271,7 +259,6 @@ class ScatterPlot extends ChartComponent {
         
         scatter
             .enter()
-            //.filter((d) => d.measures != null)
             .append("circle")
             .attr("class", "tsi-dot")
             .attr("r", (d) => this.rScale(d.measures[this.rMeasure]))
@@ -283,7 +270,6 @@ class ScatterPlot extends ChartComponent {
             .transition()
             .duration(this.TRANSDURATION)
             .ease(d3.easeExp)
-            //.attr("display", ((d) => this.getVisibleState(d)).bind(this))
             .attr("r", (d) => this.rScale(d.measures[this.rMeasure]))
             .attr("cx", (d) => this.xScale(d.measures[this.xMeasure]))
             .attr("cy", (d) => this.yScale(d.measures[this.yMeasure]))
@@ -308,7 +294,7 @@ class ScatterPlot extends ChartComponent {
             this.slider.render(this.chartComponentData.allTimestampsArray.map(ts => {
                 var action = () => {
                     this.chartOptions.timestamp = ts;
-                    this.render(this.chartComponentData.data, this.chartOptions, this.aggregateExpressionOptions);
+                    this.render(this.chartComponentData.data, this.chartOptions, this.aggregateExpressionOptions, true);
                 }
                 return {label: Utils.timeFormat(this.chartComponentData.usesSeconds, this.chartComponentData.usesMillis, this.chartOptions.offset, this.chartOptions.is24HourTime)(new Date(ts)), action: action};
             }), this.chartOptions, this.width - 10,  Utils.timeFormat(this.chartComponentData.usesSeconds, this.chartComponentData.usesMillis, this.chartOptions.offset, this.chartOptions.is24HourTime)(new Date(this.chartComponentData.timestamp)));
@@ -319,15 +305,11 @@ class ScatterPlot extends ChartComponent {
         }
     }
 
-    /******** GET DISPLAY STATE OF GROUP ********/
-    private getVisibleState(d:any){
-        return (this.chartComponentData.displayState[d.aggregateKey].visible && 
-                this.chartComponentData.displayState[d.aggregateKey].splitBys[d.splitBy].visible 
-                ? 'inherit' : 'none');
-    }
-
     /******** CHECK VALIDITY OF EXTENTS ********/
     private checkExtentValidity(){
+        if(this.chartComponentData.allValues == 0){
+            return true;
+        }
         let testExtent = {};
         this.chartOptions.spmeasure.forEach(measure => {
             testExtent[measure] = d3.extent(this.chartComponentData.allValues, (v:any) => {
@@ -339,6 +321,7 @@ class ScatterPlot extends ChartComponent {
         Object.keys(testExtent).forEach(extent => {
             testExtent[extent].forEach(el => {
                 if(el == undefined){
+                    console.log("Undefined Measure: ", extent)
                     return false;
                 }
             });
@@ -348,8 +331,8 @@ class ScatterPlot extends ChartComponent {
 
     /******** UPDATE TEMPORAL DATA TO DISPLAY BASED ON TIMESTAMP ********/
     private updateTimestampData(){
-        let timestamp = (this.chartOptions.timestamp != undefined) ? this.chartOptions.timestamp : this.chartComponentData.allTimestampsArray[0];
-        this.chartComponentData.updateTemporalDataArray(timestamp);
+        this.timestamp = (this.chartOptions.timestamp != undefined && this.chartComponentData.allTimestampsArray.indexOf(this.chartOptions.timestamp) !== -1) ? this.chartOptions.timestamp : this.chartComponentData.allTimestampsArray[0];
+        this.chartComponentData.updateTemporalDataArray(this.timestamp);
     }
 
     /******** CREATE VORONOI DIAGRAM FOR MOUSE EVENTS ********/
