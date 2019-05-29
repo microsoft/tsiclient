@@ -197,8 +197,6 @@ class ScatterPlot extends ChartComponent {
 
     /******** DRAW UPDATE FUNCTION ********/   
     private draw(){
-        this.updateTimestampData();
-        
         this.focus.attr("visibility", (this.chartOptions.focusHidden) ? "hidden" : "visible")
 
         // Determine the number of timestamps present, add margin for slider
@@ -281,12 +279,15 @@ class ScatterPlot extends ChartComponent {
             .enter()
             .append("circle")
             .attr("class", "tsi-dot ")
+            .attr("r", (d) => this.rScale(d.measures[this.rMeasure]))
+            .attr("cx", (d) => this.xScale(d.measures[this.xMeasure]))
+            .attr("cy", (d) => this.yScale(d.measures[this.yMeasure]))
             .merge(scatter)
             .attr("id", (d) => this.getClassHash(d.aggregateKey, d.splitBy, d.dateTime))
             .transition()
             .duration(this.TRANSDURATION)
             .ease(d3.easeExp)
-            //.attr("display", ((d) => this.getVisibleState(d)).bind(this))
+            .attr("display", ((d) => this.getVisibleState(d)).bind(this))
             .attr("r", (d) => this.rScale(d.measures[this.rMeasure]))
             .attr("cx", (d) => this.xScale(d.measures[this.xMeasure]))
             .attr("cy", (d) => this.yScale(d.measures[this.yMeasure]))
@@ -320,6 +321,13 @@ class ScatterPlot extends ChartComponent {
             this.slider.remove();
             d3.select(this.renderTarget).select('.tsi-sliderWrapper').classed('tsi-hidden', true);
         }
+    }
+
+    /******** GET DISPLAY STATE OF GROUP ********/
+    private getVisibleState(d:any){
+        return (this.chartComponentData.displayState[d.aggregateKey].visible && 
+                this.chartComponentData.displayState[d.aggregateKey].splitBys[d.splitBy].visible 
+                ? true : false);
     }
 
     /******** UPDATE TEMPORAL DATA TO DISPLAY BASED ON TIMESTAMP ********/
