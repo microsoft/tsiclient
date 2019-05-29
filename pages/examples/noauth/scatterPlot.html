@@ -44,10 +44,10 @@
                 var tsiClient = new TsiClient();
 
                 var scatterPlot1 =  new tsiClient.ux.ScatterPlot(document.getElementById('chart1'));
-                scatterPlot1.render(data, {grid: true, legend: "compact", tooltip: true, theme: 'dark', spmeasure: ['temp', 'press', 'vol'], scatterPlot1});
+                scatterPlot1.render(data, {grid: true, tooltip: true, theme: 'dark', spmeasure: ['temp', 'press', 'vol'], scatterPlot1});
 
-                var scatterPlot2 =  new tsiClient.ux.ScatterPlot(document.getElementById('chart2'));
-                scatterPlot2.render(data, {tooltip: true, theme: 'light', spmeasure: ['temp', 'press', 'vol'], scatterPlot2});
+                var barChart =  new tsiClient.ux.BarChart(document.getElementById('chart2'));
+                barChart.render(data, barChart);
             };
         </script>
     </body>

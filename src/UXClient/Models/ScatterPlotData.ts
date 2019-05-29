@@ -19,13 +19,19 @@ class ScatterPlotData extends GroupedBarChartData {
 
     public updateTemporalDataArray (timestamp: any) {
         let dataArray = []
-        this.allValues.forEach(element => {
-            let d1 = new Date(element.dateTime)
-            let d2 = new Date(timestamp);
-            if(d1.getTime() === d2.getTime())
-                dataArray.push(element);
+        Object.keys(this.valuesAtTimestamp).forEach((aggKey) => {
+            Object.keys(this.valuesAtTimestamp[aggKey].splitBys).forEach((splitBy, splitByI) => {
+                let measures = null;
+                if (this.getSplitByVisible(aggKey, splitBy) && this.valuesAtTimestamp[aggKey].splitBys[splitBy].measurements != undefined)
+                    measures = this.valuesAtTimestamp[aggKey].splitBys[splitBy].measurements;
+                dataArray.push({
+                    aggregateKey: aggKey,
+                    splitBy: splitBy,
+                    measures,
+                    splitByI: splitByI
+                });
+            });
         });
-
         this.temporalDataArray = dataArray;
     }
 }
