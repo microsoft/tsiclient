@@ -52,6 +52,7 @@ class PieChart extends ChartComponent {
             d3.select(this.renderTarget).append('div').classed('tsi-sliderWrapper', true);
 
             this.draw = () => {
+
                 // Determine the number of timestamps present, add margin for slider
                 if(this.chartComponentData.allTimestampsArray.length > 1)
                     this.chartMargins.bottom = 68;
