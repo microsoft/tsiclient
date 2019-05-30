@@ -1,6 +1,7 @@
 import {LineChart} from "./Components/LineChart/LineChart";
 import {AvailabilityChart} from "./Components/AvailabilityChart/AvailabilityChart";
 import {PieChart} from "./Components/PieChart/PieChart";
+import {ScatterPlot} from "./Components/ScatterPlot/ScatterPlot";
 import {GroupedBarChart} from "./Components/GroupedBarChart/GroupedBarChart";
 import {Grid} from "./Components/Grid/Grid";
 import {Slider} from "./Components/Slider/Slider";
@@ -30,6 +31,10 @@ class UXClient {
 
     public PieChart(renderTarget) {
         return new PieChart(renderTarget);
+    }
+
+    public ScatterPlot(renderTarget) {
+        return new ScatterPlot(renderTarget);
     }
     
     public BarChart(renderTarget){

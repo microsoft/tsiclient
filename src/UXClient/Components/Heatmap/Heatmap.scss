@@ -19,7 +19,7 @@
                 text {
                     fill: $gray1 !important;
                     stroke: none;
-                    font-size: 11px;
+                    font-size: 12px;
                 }
                 rect {
                     fill: $gray4 !important;
@@ -27,6 +27,17 @@
             }
             .tsi-heatmapFocusLine {
                 stroke: $gray2 !important;
+            }
+            .xAxis {
+                fill: $gray1 !important;
+                text {
+                    stroke: none;
+                }
+        
+                .xAxisBaseline {
+                    stroke: $gray1 !important;
+                    pointer-events: none;
+                }
             }
         }
     }
@@ -50,14 +61,24 @@
     .tsi-heatmapWrapper {
         position: absolute;
         overflow: visible;
+        right: 0px;
     
-        .tsi-heatmapTimeLabels {
-            width: calc(100% - 2px);
+        .tsi-heatmapSVG {
+            width: 100%;
             height: 100%;
             pointer-events: none;
             position: absolute;
             bottom: 0px;
-            left: 02px;
+            left: 0px;
+
+            .tick {
+                line {
+                    width: 4px;
+                }
+                text {
+                    font-size: 12px !important;
+                }
+            }
     
             .tsi-heatmapFocusLine {
                 stroke-width: 1px;
@@ -65,12 +86,13 @@
 
             .tsi-heatmapTimeLabelTextBox {
                 text-anchor: middle;
+                text {
+                    transform: translateY(1px);
+                }
             }
         }
     
         .tsi-heatmapCanvasWrapper {
-            left: 2px;
-            width: calc(100% - 2px);
             position: absolute;
         }
     }

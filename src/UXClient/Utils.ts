@@ -191,13 +191,18 @@ class Utils {
     }
 
     
-    static timeFormat(usesSeconds = false, usesMillis = false, offset: any = 0, is24HourTime: boolean = true, shiftMillis: number = 0) {
+    static timeFormat(usesSeconds = false, usesMillis = false, offset: any = 0, is24HourTime: boolean = true, shiftMillis: number = null, timeFormat: string = null) {
         return (d) => {
             if (shiftMillis !== 0) {
                 d = new Date(d.valueOf() + shiftMillis);
             }
-            var stringFormat = "L " + (is24HourTime ? "HH" : "hh") + ":mm" + 
-                (usesSeconds ? (":ss" + (usesMillis ? ".SSS" : "")) : "") + (is24HourTime ? "" : " A");
+            let stringFormat;
+            if (timeFormat !== null) {
+                stringFormat = timeFormat;
+            } else {
+                stringFormat = "L " + (is24HourTime ? "HH" : "hh") + ":mm" + 
+                    (usesSeconds ? (":ss" + (usesMillis ? ".SSS" : "")) : "") + (is24HourTime ? "" : " A");
+            }
             if (typeof offset == 'string' && isNaN(offset as any)) {
                 return momentTZ.tz(d, 'UTC').tz(offset === 'Local' ? momentTZ.tz.guess() : offset).format(stringFormat);
             } else {
@@ -217,11 +222,13 @@ class Utils {
                     .attr("y", text.attr("y"))
                     .attr("dy", dy + "em")
                     .text(lines[0]);
-                text.append("tspan")
-                    .attr("x", 0)
-                    .attr("y", text.attr("y"))
-                    .attr("dy", (dy + dy * 1.4) + "em")
-                    .text(lines[1] + (lines.length === 3 ? ' ' + lines[2] : ''));
+                if (lines.length > 1) {
+                    text.append("tspan")
+                        .attr("x", 0)
+                        .attr("y", text.attr("y"))
+                        .attr("dy", (dy + dy * 1.4) + "em")
+                        .text(lines[1] + (lines.length === 3 ? ' ' + lines[2] : ''));    
+                }
             }
         });
     }
@@ -300,6 +307,10 @@ class Utils {
         return colors;
     }
 
+    static getBrighterColor (color: string) {
+        return <any>d3.hcl(color).brighter();
+    }
+
     static createSplitByColors(displayState: any, aggKey: string, ignoreIsOnlyAgg: boolean = false) {
         if (Object.keys(displayState[aggKey]["splitBys"]).length == 1) 
             return [displayState[aggKey].color];
@@ -367,6 +378,21 @@ class Utils {
         var regExp = new RegExp(filter, 'i');
         return text.replace(regExp, function(m){ return '<mark>'+m+'</mark>';});
     }
+
+    static hash(str) {
+        var hash = 5381,
+            i    = str.length;
+      
+        while(i) {
+          hash = (hash * 33) ^ str.charCodeAt(--i);
+        }
+      
+        /* JavaScript does bitwise operations (like XOR, above) on 32-bit signed
+         * integers. Since we want the results to be always positive, convert the
+         * signed int to an unsigned by doing an unsigned bitshift. */
+        return hash >>> 0;
+      }
+      
 
     static guid () {
         var  s4 = () => {
