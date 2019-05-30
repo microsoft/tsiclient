@@ -53,7 +53,7 @@
                 heatmap.render(data, {theme: 'dark'}, data.map(d => {return {measureTypes: ['avg'], searchSpan: {from: from.toISOString(), to: to.toISOString(), bucketSize: '1m'}}}));
 
                 var scatterplot = new tsiClient.ux.ScatterPlot(document.getElementById('chart5'));
-                scatterplot.render(data, {theme: 'light', legend: 'compact', tooltip: true, spmeasure: ['avg', 'other']})
+                scatterplot.render(data, {theme: 'light', legend: 'compact', tooltip: true, spMeasures: ['avg', 'other']})
             };
         </script>
     </body>

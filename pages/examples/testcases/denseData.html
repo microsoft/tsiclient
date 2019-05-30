@@ -37,7 +37,7 @@
                 lineChart.render(data, {includeDots: false, brushContextMenuActions: [{name: 'zoom', action: () => {}}]}, 
                 [{contextMenu: [{name: 'zoom', action: () => {}}]}]);
                 var scatterPlot = new tsiClient.ux.ScatterPlot(document.getElementById('chart2'));
-                scatterPlot.render(data, {spmeasure:['avg', 'other']});
+                scatterPlot.render(data, {spMeasures:['avg', 'other']});
             };
         </script>
     </body>

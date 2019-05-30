@@ -48,9 +48,9 @@
                 var tsiClient = new TsiClient();
 
                 var scatterPlot1 =  new tsiClient.ux.ScatterPlot(document.getElementById('chart1'));
-                scatterPlot1.render(getData(), {grid: true, tooltip: true, theme: 'light', spmeasure: ['temp', 'press', 'vol'], scatterPlot1});
+                scatterPlot1.render(getData(), {grid: true, tooltip: true, theme: 'light', spMeasures: ['temp', 'press', 'vol'], scatterPlot1});
                 setTimeout(() => {
-                    scatterPlot1.render(getData(Math.random() * 10), {grid: true, tooltip: true, theme: 'light', spmeasure: ['temp', 'press', 'vol'], scatterPlot1});
+                    scatterPlot1.render(getData(Math.random() * 10), {grid: true, tooltip: true, theme: 'light', spMeasures: ['temp', 'press', 'vol'], scatterPlot1});
                 }, 5000)
             };
         </script>

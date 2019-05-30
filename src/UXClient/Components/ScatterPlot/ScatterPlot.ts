@@ -58,9 +58,9 @@ class ScatterPlot extends ChartComponent {
         
         this.chartOptions.setOptions(options);
         // If measure options not set, or less than 2, return
-        if(this.chartOptions["spmeasure"] == null || (this.chartOptions["spmeasure"] != null && this.chartOptions["spmeasure"].length < 2)){
-            let invalidMessage = "spmeasure not correctly specified or has length < 2: " + this.chartOptions["spmeasure"] + 
-            "\n\nPlease add the following chartOption: {spmeasure: ['example_x_axis_measure', 'example_y_axis_measure', 'example_radius_measure']} " +
+        if(this.chartOptions["spMeasures"] == null || (this.chartOptions["spMeasures"] != null && this.chartOptions["spMeasures"].length < 2)){
+            let invalidMessage = "spMeasures not correctly specified or has length < 2: " + this.chartOptions["spMeasures"] + 
+            "\n\nPlease add the following chartOption: {spMeasures: ['example_x_axis_measure', 'example_y_axis_measure', 'example_radius_measure']} " +
             "where the measures correspond to the data key names."
             console.log(invalidMessage);
             return;
@@ -70,7 +70,7 @@ class ScatterPlot extends ChartComponent {
         this.aggregateExpressionOptions = data.map((d, i) => Object.assign(d, aggregateExpressionOptions && i in aggregateExpressionOptions  ? new ChartDataOptions(aggregateExpressionOptions[i]) : new ChartDataOptions({})));
 
         this.chartComponentData.mergeDataToDisplayStateAndTimeArrays(data, this.chartOptions.timestamp, aggregateExpressionOptions);
-        this.chartComponentData.setExtents(this.chartOptions.spmeasure, !fromSlider);
+        this.chartComponentData.setExtents(this.chartOptions.spMeasures, !fromSlider);
         
         // Check measure validity
         if(!this.checkExtentValidity()) return;
@@ -81,7 +81,7 @@ class ScatterPlot extends ChartComponent {
         /******** STATIC INITIALIZATION ********/   
         if (this.svgSelection == null) {
             // Initialize extents
-            //this.chartComponentData.setExtents(this.chartOptions.spmeasure);
+            //this.chartComponentData.setExtents(this.chartOptions.spMeasures);
             this.targetElement = d3.select(this.renderTarget)
                 .classed("tsi-scatterPlot", true);
            
@@ -222,7 +222,7 @@ class ScatterPlot extends ChartComponent {
         // Resize focus line
         this.focus.select('.tsi-hLine').attr("x2", this.chartWidth);
         this.focus.select('.tsi-vLine').attr("y2", this.chartHeight);
-        this.measures = this.chartOptions.spmeasure;
+        this.measures = this.chartOptions.spMeasures;
         
         this.xMeasure = this.measures[0];
         this.yMeasure = this.measures[1];
@@ -312,7 +312,7 @@ class ScatterPlot extends ChartComponent {
             return true;
         }
         let testExtent = {};
-        this.chartOptions.spmeasure.forEach(measure => {
+        this.chartOptions.spMeasures.forEach(measure => {
             testExtent[measure] = d3.extent(this.chartComponentData.allValues, (v:any) => {
                 if(!v.measures)
                     return null
@@ -619,7 +619,7 @@ class ScatterPlot extends ChartComponent {
         // chart option measure
         let filtered = data.filter((value) => {
             let valOk = true;            
-            this.chartOptions.spmeasure
+            this.chartOptions.spMeasures
             .forEach((measure) => {
                 if(value.measures == null) valOk = false
                 else if(!(measure in value.measures)){
