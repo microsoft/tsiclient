@@ -1,4 +1,3 @@
-import {Utils} from "./../Utils";
 import {ChartComponentData} from "./ChartComponentData";
 import { GroupedBarChartData } from "./GroupedBarChartData";
 import * as d3 from "d3";

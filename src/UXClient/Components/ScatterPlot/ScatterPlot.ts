@@ -158,11 +158,10 @@ class ScatterPlot extends ChartComponent {
                 .attr("x", -10)
                 .text((d: string) => d);
 
-            this.legendObject = new Legend(this.draw.bind(this)/*() => this.render(this.chartComponentData.data, this.chartOptions, this.aggregateExpressionOptions)*/, this.renderTarget, this.CONTROLSWIDTH);
+            this.legendObject = new Legend(this.draw.bind(this), this.renderTarget, this.CONTROLSWIDTH);
 
             // Add Window Resize Listener
             window.addEventListener("resize", () => {
-                let self = this;
                 if (!this.chartOptions.suppressResizeListener) {
                     this.draw();
                 }
@@ -433,7 +432,7 @@ class ScatterPlot extends ChartComponent {
                 .attr("stroke", (d) => this.colorMap[d.aggregateKey](d.splitBy))
                 .attr("stroke-width", "1px")
         }
-        this.activeDot == null;
+        this.activeDot = null;
     }
 
     /******** EFFICIENTLY SWAP NEW FOCUSED GROUP WITH OLD FOCUSED GROUP ********/   
