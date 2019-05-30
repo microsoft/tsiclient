@@ -48,6 +48,25 @@ var heatmap = new tsiClient.ux.Heatmap(document.getElementById('chart'));
 heatmap.render(data, chartOptions, chartDataOptionsArray);
 ```
 
+### Scatter Plot
+
+Scatter plots are created in the same way as the line chart, and they take the same options and data shapes.  For Scatter plots however, [spmeasure](#chart-options) must be specified as an array of strings in the chartOptions object.  
+
+```js
+var tsiClient = new TsiClient();
+var scatterPlot = new tsiClient.ux.ScatterPlot(document.getElementById('chart'))
+scatterPlot.render(data, chartOptions, chartDataOptionsArray);
+```
+
+The following code snippet shows an example of the [spmeasure](#chart-options) chartOption.  The first string in the spmeasure array is the X axis measure.  The second string is the Y axis measure, and the third (optional) string is the data point radius measure.   
+
+```js
+scatterPlot.render(data, {spmeasure:['temp', 'press', 'vol']});
+/*                                   ^ X     ^ Y      ^ R (optional) */
+```
+
+*Scatter Plot will not render if spmeasure is not specified or **any** of the measures are not found in the [data](#chart-data-shape) as value keys*
+
 ### Events Grid
 
 A grid of events can be used to show a generic array of JSON in a scalable way.  Usage is as follows...
@@ -199,7 +218,7 @@ The most common available parameters for chart options are as follows (bold opti
 |Property Name|Type|Value Options|Description|
 |-|-|-|-|
 |brushContextMenuActions|Array<any>|**null**, Array&lt;[brushContextMenuAction](#brush-context-menu-actions)&gt;|An array of objects defining brush actions
-|events|Array<any>|**null**, Array&lt;[Event](#line-chart-events-and-states-data-shape)glt;|events passed into the linechart, an array of discrete time events|
+|events|Array<any>|**null**, Array&lt;[Event](#line-chart-events-and-states-data-shape)&gt;|events passed into the linechart, an array of discrete time events|
 |grid|boolen|**false**,true|If true, add accessible grid button to the ellipsis menu|
 |includeDots|boolean|**false**|If true, the linechart plots dots for values|
 |includeEnvelope|boolean|**false**|If true, include an area showing min/max boundaries in the line chart|
@@ -207,6 +226,7 @@ The most common available parameters for chart options are as follows (bold opti
 |legend|string|**'shown'**,'compact','hidden'|Legend layout|
 |noAnimate|boolean|**false**,true|If true, uppresses animated chart transitions|
 |offset|any|**0**, -120, 'America/Los_Angeles'|Offset for all timestamps in minutes from UTC, or a timezone supported by moment.js|
+|spmeasure| any| Array&lt;string&gt; | X, Y, and Radius (optional) measures passed into Scatter Plot |
 |stacked|boolean|**false**|If true, stack bars in barchart|
 |states|Array<any>|**null**, Array&lt;[State](#line-chart-events-and-states-data-shape)&gt;|An array of time range bound states passed into the linechart|
 |theme|string|**'dark'**, 'light'|Component color scheme|
