@@ -4,7 +4,6 @@ import { GroupedBarChartData } from "./GroupedBarChartData";
 import * as d3 from "d3";
 
 class ScatterPlotData extends GroupedBarChartData {
-    public timestamp: any;
     public temporalDataArray: any;
     public extents: any = {};
     private extentsSet: boolean = false
@@ -29,12 +28,12 @@ class ScatterPlotData extends GroupedBarChartData {
 
     public mergeDataToDisplayStateAndTimeArrays (data, timestamp, aggregateExpressionOptions = null, events = null, states = null ) {
         ChartComponentData.prototype.mergeDataToDisplayStateAndTimeArrays.call(this, data, aggregateExpressionOptions, events, states);
-        this.timestamp = Utils.getValueOrDefault({'':timestamp}, '', this.allTimestampsArray[0]);
+        this.timestamp = (timestamp != undefined && this.allTimestampsArray.indexOf(timestamp) !== -1) ? timestamp : this.allTimestampsArray[0];
         super.setValuesAtTimestamp();
         this.setAllTimestampsArray();
     }
 
-    public updateTemporalDataArray (timestamp: any) {
+    public updateTemporalDataArray () {
         let dataArray = []
         Object.keys(this.valuesAtTimestamp).forEach((aggKey) => {
             Object.keys(this.valuesAtTimestamp[aggKey].splitBys).forEach((splitBy, splitByI) => {

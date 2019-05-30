@@ -14,7 +14,6 @@ class ScatterPlot extends ChartComponent {
     private chartWidth: number;
     private colorMap: any = {};
     private controlsOffset: number;
-    private extents: any = {}
     private focus: any;
     private focusedAggKey: string;
     private focusedSplitBy: string;
@@ -56,8 +55,8 @@ class ScatterPlot extends ChartComponent {
 
     ScatterPlot(){}
     public render(data: any, options: any, aggregateExpressionOptions: any, fromSlider: boolean = false) {
+        
         this.chartOptions.setOptions(options);
-
         // If measure options not set, or less than 2, return
         if(this.chartOptions["spmeasure"] == null || (this.chartOptions["spmeasure"] != null && this.chartOptions["spmeasure"].length < 2)){
             let invalidMessage = "spmeasure not correctly specified or has length < 2: " + this.chartOptions["spmeasure"] + 
@@ -69,6 +68,7 @@ class ScatterPlot extends ChartComponent {
 
         this.chartMargins.top = (this.chartOptions.legend === 'compact') ? 84 : 52;
         this.aggregateExpressionOptions = data.map((d, i) => Object.assign(d, aggregateExpressionOptions && i in aggregateExpressionOptions  ? new ChartDataOptions(aggregateExpressionOptions[i]) : new ChartDataOptions({})));
+
         this.chartComponentData.mergeDataToDisplayStateAndTimeArrays(data, this.chartOptions.timestamp, aggregateExpressionOptions);
         this.chartComponentData.setExtents(this.chartOptions.spmeasure, !fromSlider);
         
@@ -184,7 +184,8 @@ class ScatterPlot extends ChartComponent {
 
     /******** DRAW UPDATE FUNCTION ********/   
     private draw(){
-        this.updateTimestampData();
+        this.chartComponentData.updateTemporalDataArray();
+
         this.focus.attr("visibility", (this.chartOptions.focusHidden) ? "hidden" : "visible")
 
         // Determine the number of timestamps present, add margin for slider
@@ -327,12 +328,6 @@ class ScatterPlot extends ChartComponent {
             });
         });
         return true;
-    }
-
-    /******** UPDATE TEMPORAL DATA TO DISPLAY BASED ON TIMESTAMP ********/
-    private updateTimestampData(){
-        this.timestamp = (this.chartOptions.timestamp != undefined && this.chartComponentData.allTimestampsArray.indexOf(this.chartOptions.timestamp) !== -1) ? this.chartOptions.timestamp : this.chartComponentData.allTimestampsArray[0];
-        this.chartComponentData.updateTemporalDataArray(this.timestamp);
     }
 
     /******** CREATE VORONOI DIAGRAM FOR MOUSE EVENTS ********/

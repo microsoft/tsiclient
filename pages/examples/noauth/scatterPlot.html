@@ -38,7 +38,6 @@
                         }
                         iteration++;       
                     }             
-                    console.log('Scatter Plot Test', data);
                     let toDel =  Object.keys(data[0].Factory0.Station0)
                     delete data[0].Factory0.Station0[toDel[0]].temp;
                     return data;
@@ -52,11 +51,7 @@
                 scatterPlot1.render(getData(), {grid: true, tooltip: true, theme: 'light', spmeasure: ['temp', 'press', 'vol'], scatterPlot1});
                 setTimeout(() => {
                     scatterPlot1.render(getData(Math.random() * 10), {grid: true, tooltip: true, theme: 'light', spmeasure: ['temp', 'press', 'vol'], scatterPlot1});
-                    console.log('rendering scatter');
                 }, 5000)
-
-                // var barChart =  new tsiClient.ux.BarChart(document.getElementById('chart2'));
-                // barChart.render(data, barChart);
             };
         </script>
     </body>
