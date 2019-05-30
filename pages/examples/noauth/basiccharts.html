@@ -11,7 +11,9 @@
         <div id="chart1" style="width: 100%; height: 600px;"></div>
         <div id="chart2" style="width: 50%; height: 400px; float: left;"></div>
         <div id="chart3" style="width: 50%; height: 400px; float: right;"></div>
-        <div id="chart4" style="width: 100%; height: 600px; float: left;"></div>
+        <div id="chart4" style="width: 50%; height: 400px; float: left;"></div>
+        <div id="chart5" style="width: 50%; height: 400px; float: reft;"></div>
+        
         <script>
             window.onload = function() {
                 
@@ -29,7 +31,8 @@
                             if(!(k%2 && k%3)){  // if check is to create some sparseness in the data
                                 var to = new Date(from.valueOf() + 1000*60*k);
                                 var val = Math.random();
-                                values[to.toISOString()] = {avg: val};
+                                var val2 = Math.random();
+                                values[to.toISOString()] = {avg: val, other: val2};
                             }
                         } 
                     }
@@ -48,6 +51,9 @@
 
                 var heatmap = new tsiClient.ux.Heatmap(document.getElementById('chart4'));
                 heatmap.render(data, {theme: 'dark'}, data.map(d => {return {measureTypes: ['avg'], searchSpan: {from: from.toISOString(), to: to.toISOString(), bucketSize: '1m'}}}));
+
+                var scatterplot = new tsiClient.ux.ScatterPlot(document.getElementById('chart5'));
+                scatterplot.render(data, {theme: 'light', legend: 'compact', tooltip: true, spmeasure: ['avg', 'other']})
             };
         </script>
     </body>
