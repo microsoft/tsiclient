@@ -148,19 +148,20 @@ class Slider extends Component{
     }
 
     private onDragEnd (h) {
-        let newSelectedLabel = this.setSelectedLabelAndGetLabelAction(h);        
         if(this.chartOptions.throttleSlider){
+            let newSelectedLabel = this.setSelectedLabelAndGetLabelAction(h, true);        
             newSelectedLabel.action(newSelectedLabel.label);
         }
     }
 
-    private setSelectedLabelAndGetLabelAction = (h) => {
+    private setSelectedLabelAndGetLabelAction = (h, useFirstValue = false) => {
         //find the closest time and set position to that
+        let reduceFirstValue = useFirstValue ? this.data[0] : {label: this.selectedLabel, action: () => {}};
         var newSelectedLabel = this.data.reduce((prev, curr) => {
             var currDiff = Math.abs(this.getXPositionOfLabel(curr.label) - h);
             var prevDiff = Math.abs(this.getXPositionOfLabel(prev.label) - h);
-            return (currDiff <= prevDiff) ? curr : prev;
-        }, {label: this.selectedLabel, action: () => {}});
+            return (currDiff < prevDiff) ? curr : prev;
+        }, reduceFirstValue);
         this.selectedLabel = (newSelectedLabel != null) ? newSelectedLabel.label : this.selectedLabel;
         return newSelectedLabel;
     }
