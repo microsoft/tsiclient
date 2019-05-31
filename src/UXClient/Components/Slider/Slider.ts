@@ -13,7 +13,7 @@ class Slider extends Component{
     private sliderWidth: number;
     private selectedLabel: string;
     private isAscendingTimePeriods: boolean;
-	public chartOptions: ChartOptions = new ChartOptions();
+    private chartOptions: ChartOptions = new ChartOptions();
 
     private margins = {
         left: 60,
