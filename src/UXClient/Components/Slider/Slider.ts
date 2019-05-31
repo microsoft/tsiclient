@@ -2,6 +2,7 @@ import * as d3 from 'd3';
 import './Slider.scss';
 import {Utils} from "./../../Utils";
 import {Component} from "./../../Interfaces/Component";
+import { ChartOptions } from '../../Models/ChartOptions';
 
 class Slider extends Component{
     private sliderSVG: any = null;
@@ -12,6 +13,7 @@ class Slider extends Component{
     private sliderWidth: number;
     private selectedLabel: string;
     private isAscendingTimePeriods: boolean;
+	public chartOptions: ChartOptions = new ChartOptions();
 
     private margins = {
         left: 60,
@@ -53,6 +55,7 @@ class Slider extends Component{
     }
 	
 	public render(data: Array<any>, options: any, width: number, selectedLabel: string = null){
+        this.chartOptions.setOptions(options);
         this.data = data;
         this.isAscendingTimePeriods = this.determineIfAscendingTimePeriods();
         this.width = width;
@@ -85,6 +88,9 @@ class Slider extends Component{
                     .on("start drag", (d) => { 
                         self.onDrag(d3.event.x); 
                     })
+                    .on("end", (d) => {
+                        self.onDragEnd(d3.event.x);
+                    })
                 );
 
             slider.insert("circle", ".track-overlay")
@@ -104,7 +110,7 @@ class Slider extends Component{
                     }
                 });
         }
-        this.themify(this.sliderSVG, options.theme);
+        this.themify(this.sliderSVG, this.chartOptions.theme);
 
         this.sliderSVG.attr("width", width + "px");
 
@@ -132,17 +138,31 @@ class Slider extends Component{
     }
 
     private onDrag (h) {
+        // find the closest time and set position to that
+        let newSelectedLabel = this.setSelectedLabelAndGetLabelAction(h);        
+        if(!this.chartOptions.throttleSlider){
+            newSelectedLabel.action(newSelectedLabel.label);
+        }
+
+        this.setStateFromLabel(); 
+    }
+
+    private onDragEnd (h) {
+        let newSelectedLabel = this.setSelectedLabelAndGetLabelAction(h);        
+        if(this.chartOptions.throttleSlider){
+            newSelectedLabel.action(newSelectedLabel.label);
+        }
+    }
+
+    private setSelectedLabelAndGetLabelAction = (h) => {
         //find the closest time and set position to that
         var newSelectedLabel = this.data.reduce((prev, curr) => {
             var currDiff = Math.abs(this.getXPositionOfLabel(curr.label) - h);
             var prevDiff = Math.abs(this.getXPositionOfLabel(prev.label) - h);
-            return (currDiff < prevDiff) ? curr : prev;
+            return (currDiff <= prevDiff) ? curr : prev;
         }, {label: this.selectedLabel, action: () => {}});
         this.selectedLabel = (newSelectedLabel != null) ? newSelectedLabel.label : this.selectedLabel;
-        if(this.chartOptions.throttleSlider)
-        newSelectedLabel.action(newSelectedLabel.label);
-
-        this.setStateFromLabel(); 
+        return newSelectedLabel;
     }
     
     private setSliderTextDivLabel = () => {
