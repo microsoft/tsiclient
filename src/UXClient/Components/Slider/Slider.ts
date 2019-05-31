@@ -76,8 +76,6 @@ class Slider extends Component{
                 .attr("class", "tsi-sliderComponent");
             var slider = this.sliderSVG.append("g")
                 .attr("class", "slider tsi-sliderG")
-            var sliderTestDiv = targetElement.append("div")
-                .attr("class", "tsi-sliderLabel");
             slider.append("line")
                 .attr("class", "slider-track tsi-sliderTrack")
                 .select(function() { return this.parentNode.appendChild(this.cloneNode(true)); })
@@ -141,6 +139,7 @@ class Slider extends Component{
             return (currDiff < prevDiff) ? curr : prev;
         }, {label: this.selectedLabel, action: () => {}});
         this.selectedLabel = (newSelectedLabel != null) ? newSelectedLabel.label : this.selectedLabel;
+        if(this.chartOptions.throttleSlider)
         newSelectedLabel.action(newSelectedLabel.label);
 
         this.setStateFromLabel(); 
