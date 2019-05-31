@@ -236,7 +236,7 @@ class Heatmap extends TemporalXAxisComponent {
 
         text.node().parentNode.appendChild(text.node());
         var rawOffset = (focusX1 + focusX2) / 2;
-        var leftOffset = ((rawOffset - ((textDimensions.width / 2) + 6)) > 0) ? rawOffset : ((textDimensions.width / 2) + 6);
+        var leftOffset = Math.floor(((rawOffset - ((textDimensions.width / 2) + 6)) > 0) ? rawOffset : ((textDimensions.width / 2) + 6));
         textBoxG.attr("transform", "translate(" + leftOffset + "," + (this.chartHeight - this.timeLabelsHeight - this.chartMargins.bottom) + ")");
     }
 }

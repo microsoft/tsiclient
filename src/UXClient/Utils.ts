@@ -307,6 +307,15 @@ class Utils {
         return colors;
     }
 
+    static getBrighterColor (color: string) {
+        let hclColor = <any>d3.hcl(color);
+        if (hclColor.l < 80) {
+            return hclColor.brighter().toString();
+        } 
+        return hclColor.toString();
+
+    }
+
     static createSplitByColors(displayState: any, aggKey: string, ignoreIsOnlyAgg: boolean = false) {
         if (Object.keys(displayState[aggKey]["splitBys"]).length == 1) 
             return [displayState[aggKey].color];
@@ -374,6 +383,21 @@ class Utils {
         var regExp = new RegExp(filter, 'i');
         return text.replace(regExp, function(m){ return '<mark>'+m+'</mark>';});
     }
+
+    static hash(str) {
+        var hash = 5381,
+            i    = str.length;
+      
+        while(i) {
+          hash = (hash * 33) ^ str.charCodeAt(--i);
+        }
+      
+        /* JavaScript does bitwise operations (like XOR, above) on 32-bit signed
+         * integers. Since we want the results to be always positive, convert the
+         * signed int to an unsigned by doing an unsigned bitshift. */
+        return hash >>> 0;
+      }
+      
 
     static guid () {
         var  s4 = () => {

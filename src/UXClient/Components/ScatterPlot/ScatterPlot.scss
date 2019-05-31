@@ -1,0 +1,80 @@
+@import "../../styles";
+
+@mixin spColors($grays){
+    $gray1: nth($grays, 1); // text
+    $gray2: nth($grays, 2); // hover
+    $gray3: nth($grays, 3); // element
+    $gray4: nth($grays, 4); // background
+    
+    color: $gray1;
+    background: $gray3;
+
+    .tsi-scatterPlotSVG{
+        text{
+            fill: $gray1;
+        }
+
+        path {
+            stroke: $gray1;
+        }
+        .tsi-focusLine {
+            stroke: $gray2;
+        }
+    }
+    @include chartColors($grays);
+}
+
+
+.tsi-scatterPlot {
+
+    &.tsi-dark{
+        $grays: grays('dark');
+        @include spColors($grays);
+    }
+    &.tsi-light{
+        $grays: grays('light');
+        @include spColors($grays);
+    }
+    // Hide data type dropdown in scatter plot -- selection has no effect
+    .tsi-splitByLabel{
+        height: 28px !important;
+
+        .tsi-seriesTypeSelection{
+            display: none;
+        }
+    }
+
+    .tsi-sliderWrapper{
+        position: absolute;
+        height: 55px;
+        bottom: 8px;
+        right: 0px;
+        width: 100%;
+    }
+
+    .tsi-scatterPlotSVG{
+        .xAxis, .yAxis text{
+            font-size: 12px;
+        }
+        .tsi-focus{
+            z-index: -10;
+        }
+        .tsi-focusLine {
+            stroke-width: 1px !important;
+            pointer-events: none;
+        }
+        .tsi-voronoiWrap {
+            fill-opacity: 0;
+            cursor: crosshair;
+        }
+
+        .tsi-voronoiWrap path {
+            fill: none;
+            pointer-events: all;
+            cursor: crosshair;
+        }
+    }
+
+    display: flex;
+    position: relative;
+}
