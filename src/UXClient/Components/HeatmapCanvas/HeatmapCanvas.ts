@@ -18,8 +18,8 @@ class HeatmapCanvas extends ChartComponent {
     private cellHeightMod: number; 
     private colorLegend: any;
     private colorScale: any;
-    private legendWidth = 75;
-    private gradientWidth = 10;
+    private legendWidth = 80;
+    private gradientWidth = 8;
     private aggKey: string;
     private focusedXIndex: number = -1;
     private focusedYIndex: number = -1;
@@ -202,7 +202,7 @@ class HeatmapCanvas extends ChartComponent {
                 var startDate = new Date(sortedDates[self.focusedXIndex]);
                 this.highlightedTime = startDate;
                 self.onCellFocus(startDate, new Date(startDate.valueOf() + self.heatmapData.bucketSize), 
-                                 Math.max(1, cellX), cellX + self.calcCellWidth(self.focusedXIndex) + 1, 
+                                 Math.max(0, cellX), cellX + self.calcCellWidth(self.focusedXIndex), 
                                  self.calcCellY(self.focusedYIndex), highlightedSplitBy);
             }
             self.render(self.data, self.chartOptions, self.aggKey, highlightedSplitBy, this.highlightedTime, self.onCellFocus, null, self.isOnlyAgg);
@@ -215,7 +215,7 @@ class HeatmapCanvas extends ChartComponent {
 
         this.rawCellHeight = Math.floor(this.height / this.heatmapData.numRows);
         this.cellHeightMod = this.height % this.heatmapData.numRows;
-        this.rawCellWidth = Math.floor(this.width / this.heatmapData.numCols);
+        this.rawCellWidth = this.width / this.heatmapData.numCols;
         this.cellWidthMod = this.width % this.heatmapData.numCols;
 
         
@@ -256,10 +256,11 @@ class HeatmapCanvas extends ChartComponent {
     }
 
     private calcCellXIndex (x: number) {
-        if (x < (this.cellWidthMod * (this.rawCellWidth + 1)))
-            return Math.floor(x / (this.rawCellWidth + 1));
-        var modOffset = this.cellWidthMod * (this.rawCellWidth + 1);
-        return Math.floor((x - modOffset) / this.rawCellWidth) + this.cellWidthMod; 
+        let xI = 0;
+        while(Math.round(xI * this.rawCellWidth) < x) {
+            xI++;
+        }
+        return Math.max(xI - 1, 0);
     }
 
     private calcCellYIndex (y) {
@@ -274,11 +275,12 @@ class HeatmapCanvas extends ChartComponent {
     }
 
     private calcCellX(i) {
+        return Math.round(this.rawCellWidth * i);
         return Math.min(i, this.cellWidthMod) + (this.rawCellWidth * i);
     }
 
     private calcCellWidth(i) {
-        return this.rawCellWidth + (i < this.cellWidthMod ? 1 : 0) - (this.rawCellWidth > 10 ? 1 : 0); 
+        return (Math.round(this.rawCellWidth * (i + 1)) - Math.round(this.rawCellWidth * i) - (this.rawCellWidth > 10 ? 1 : 0));
     }
 
     private calcCellY(i) {

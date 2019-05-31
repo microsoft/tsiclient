@@ -46,6 +46,8 @@ class ChartOptions {
     public onInput: (searchText: string) => void; // for handling after input actions in ModelAutocomplete
     public preserveAvailabilityState: boolean; // whether state in availability chart is saved or blown away on render
     public scaledToCurrentTime: boolean; //whether slider base component's scale is based on current time's values (or all values)
+    public spMeasures: Array<string>; // measures passed into scatter plot to plot on axis
+    public scatterPlotRadius: Array<number>; // Range of values to use for radius measure range
     public singleLineXAxisLabel: boolean; // whether x axis time labels are on a single line (else split into two lines)
     public snapBrush: boolean; // whether to snap linechart brush to closest value
     public stacked: boolean; //whether bars in barchart are stacked
@@ -55,7 +57,9 @@ class ChartOptions {
     public timeFrame: any; // from and to to specify range of an event or state series
     public timestamp: any; //For components with a slider, this is the selected timestamp
     public tooltip: boolean; // whether tooltip is visible
+    public throttleSlider: boolean; // whether slider is throttled to only fire on mouseup vs slider move
     public xAxisHidden: boolean; // whether xAxis is hidden in chart
+    public xAxisTimeFormat: (d, i, isFirst, isLast) => {}; //takes in a date string, tick index, isFirst, and isLast, outputs a moment.js style date format string
     public yAxisHidden: boolean; // whether yAxis is hidden in chart
     public yAxisState: string; // state of the y axis in line chart, either: stacked, shared, overlap
     public yExtent: any; // [min, max] of range of y values in chart
@@ -102,6 +106,7 @@ class ChartOptions {
         this.states = this.mergeValue(chartOptionsObj, 'states', null);
         this.events = this.mergeValue(chartOptionsObj, 'events', null);
         this.tooltip = this.mergeValue(chartOptionsObj, 'tooltip', false);
+        this.throttleSlider = this.mergeValue(chartOptionsObj, 'throttleSlider', false);
         this.snapBrush = this.mergeValue(chartOptionsObj, 'snapBrush', false);
         this.minBrushWidth = this.mergeValue(chartOptionsObj, 'minBrushWidth', 0);
         this.theme = this.mergeValue(chartOptionsObj, 'theme', 'dark');
@@ -143,6 +148,9 @@ class ChartOptions {
         this.ellipsisItems = this.mergeValue(chartOptionsObj, 'ellipsisItems', []);
         this.markers = Utils.getValueOrDefault(chartOptionsObj, 'markers', null); // intentionally not mergeValue
         this.onMarkersChange = this.mergeValue(chartOptionsObj, 'onMarkersChange', (markers) => {});
+        this.spMeasures = this.mergeValue(chartOptionsObj, 'spMeasures', null);
+        this.scatterPlotRadius = this.mergeValue(chartOptionsObj, 'scatterPlotRadius', [4,10])
+        this.xAxisTimeFormat = this.mergeValue(chartOptionsObj, 'xAxisTimeFormat', null);
     }
 
     private mergeValue (chartOptionsObj, propertyName, defaultValue) {
@@ -171,6 +179,7 @@ class ChartOptions {
             states: this.states,
             events: this.events,
             tooltip: this.tooltip,
+            throttleSlider: this.throttleSlider,
             snapBrush: this.snapBrush,
             minBrushWidth: this.minBrushWidth,
             theme: this.theme,
@@ -211,7 +220,8 @@ class ChartOptions {
             yExtent: this.yExtent,
             ellipsisItems: this.ellipsisItems,
             markers: this.markers,
-            onMarkersChange: this.onMarkersChange
+            onMarkersChange: this.onMarkersChange,
+            xAxisTimeFormat: this.xAxisTimeFormat
         }
     }
 }
