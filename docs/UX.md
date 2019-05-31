@@ -14,7 +14,7 @@ lineChart.render(data, chartOptions, chartDataOptionsArray);
 
 where the parameter ``data`` follows the shape definied in [Chart Data Shape](#chart-data-shape), ``chartOptions`` contain some subset of the properties defined in [Chart Options](#chart-options), and ``chartDataOptionsArray`` is an array of objects that contain a subset of properties definied in [Chart Data Options](#chart-data-options).
 
-By specifying [``events`` and ``states``](#line-chart-events-and-states-data-shape) in ``chartOptions``, you can create charts with multiple series types like in [this example](https://tsiclientsample.azurewebsites.net/examples/noauth/multipleseriestypes.html)
+By specifying [``events`` and ``states``](#line-chart-events-and-states-data-shape) in ``chartOptions``, you can create charts with multiple series types like in [this example](https://tsiclientsample.azurewebsites.net/noauth/multipleseriestypes.html)
 
 ### Bar Chart
 
@@ -48,6 +48,25 @@ var heatmap = new tsiClient.ux.Heatmap(document.getElementById('chart'));
 heatmap.render(data, chartOptions, chartDataOptionsArray);
 ```
 
+### Scatter Plot
+
+Scatter plots are created in the same way as the line chart, and they take the same options and data shapes.  For Scatter plots however, [spMeasures](#chart-options) must be specified as an array of strings in the chartOptions object.  
+
+```js
+var tsiClient = new TsiClient();
+var scatterPlot = new tsiClient.ux.ScatterPlot(document.getElementById('chart'))
+scatterPlot.render(data, chartOptions, chartDataOptionsArray);
+```
+
+The following code snippet shows an example of the [spMeasures](#chart-options) chartOption.  The first string in the spMeasures array is the X axis measure.  The second string is the Y axis measure, and the third (optional) string is the data point radius measure.   
+
+```js
+scatterPlot.render(data, {spMeasures:['temp', 'press', 'vol']});
+/*                                   ^ X     ^ Y      ^ R (optional) */
+```
+
+*Scatter Plot will not render if spMeasures is not specified or **any** of the measures are not found in the [data](#chart-data-shape) as value keys*
+
 ### Events Grid
 
 A grid of events can be used to show a generic array of JSON in a scalable way.  Usage is as follows...
@@ -78,7 +97,7 @@ where ``events`` is an array of flat JSON objects, with an example shape like th
 
 ### AggregateExpression
 
-AggregateExpressions are used to represent API queries against a Time Series Insights S SKU.  They include a method for transforming the object to query the API called ``toTsx()``, when transformed after an API call they become a data group as described in [Chart Data Shape](#chart-data-shape), and they can be used as [Chart Data Options](#chart-data-options).  Additional Chart Data Options can be specified as the final parameters, with supported properties defined [here](#chart-data-options).  Their usage is shown in [the basic charts example that uses the TSI platform](https://tsiclientsample.azurewebsites.net/examples/withplatform/basiccharts.html), or as follows...
+AggregateExpressions are used to represent API queries against a Time Series Insights S SKU.  They include a method for transforming the object to query the API called ``toTsx()``, when transformed after an API call they become a data group as described in [Chart Data Shape](#chart-data-shape), and they can be used as [Chart Data Options](#chart-data-options).  Additional Chart Data Options can be specified as the final parameters, with supported properties defined [here](#chart-data-options).  Their usage is shown in [the basic charts example that uses the TSI platform](https://tsiclientsample.azurewebsites.net/withplatform/basiccharts.html), or as follows...
 
 ```js
 var aggregateExpression = new tsiClient.ux.AggregateExpression(
@@ -100,7 +119,7 @@ tsiClient.server.getAggregates(token, '10000000-0000-0000-0000-100000000108.env.
 
 ### TsqExpression
 
-TsqExpressions are used to represent API queries against a Time Series Insights PAYG SKU.  They include a method for transforming the object to query the API called ``toTsq()``, when transformed after an API call they become a data group as described in [Chart Data Shape](#chart-data-shape), and they can be used as [Chart Data Options](#chart-data-options). An example of TsqExpressions in use can be found [here](https://tsiclientsample.azurewebsites.net/examples/withplatform/PAYG.html). They are used as follows...
+TsqExpressions are used to represent API queries against a Time Series Insights PAYG SKU.  They include a method for transforming the object to query the API called ``toTsq()``, when transformed after an API call they become a data group as described in [Chart Data Shape](#chart-data-shape), and they can be used as [Chart Data Options](#chart-data-options). An example of TsqExpressions in use can be found [here](https://tsiclientsample.azurewebsites.net/withplatform/PAYG.html). They are used as follows...
 
 ```js
 var tsqExpression = new tsiClient.ux.TsqExpression(
@@ -183,11 +202,11 @@ Chart data is generally represented as a set of **groups** that each contain **t
 ]
 ```
 
-The above structure is shown in the [Basic Charts Example](https://tsiclientsample.azurewebsites.net/examples/noauth/basiccharts.html), and the associated [Code](../pages/examples/noauth/basiccharts.html).
+The above structure is shown in the [Basic Charts Example](https://tsiclientsample.azurewebsites.net/noauth/basiccharts.html), and the associated [Code](../pages/examples/noauth/basiccharts.html).
 
 ### Chart Options
 
-Chart options are generally the second parameter to a component ``render`` method.  They allow users to change view properties for the chart, like theme, legend layout, etc, and can be explored in the [Chart Options Example](https://tsiclientsample.azurewebsites.net/examples/noauth/chartOptions.html). 
+Chart options are generally the second parameter to a component ``render`` method.  They allow users to change view properties for the chart, like theme, legend layout, etc, and can be explored in the [Chart Options Example](https://tsiclientsample.azurewebsites.net/noauth/chartOptions.html). 
 
 ```js
 lineChart.render(data, {theme: 'light', tooltip: true});
@@ -199,7 +218,7 @@ The most common available parameters for chart options are as follows (bold opti
 |Property Name|Type|Value Options|Description|
 |-|-|-|-|
 |brushContextMenuActions|Array<any>|**null**, Array&lt;[brushContextMenuAction](#brush-context-menu-actions)&gt;|An array of objects defining brush actions
-|events|Array<any>|**null**, Array&lt;[Event](#line-chart-events-and-states-data-shape)glt;|events passed into the linechart, an array of discrete time events|
+|events|Array<any>|**null**, Array&lt;[Event](#line-chart-events-and-states-data-shape)&gt;|events passed into the linechart, an array of discrete time events|
 |grid|boolen|**false**,true|If true, add accessible grid button to the ellipsis menu|
 |includeDots|boolean|**false**|If true, the linechart plots dots for values|
 |includeEnvelope|boolean|**false**|If true, include an area showing min/max boundaries in the line chart|
@@ -207,6 +226,7 @@ The most common available parameters for chart options are as follows (bold opti
 |legend|string|**'shown'**,'compact','hidden'|Legend layout|
 |noAnimate|boolean|**false**,true|If true, uppresses animated chart transitions|
 |offset|any|**0**, -120, 'America/Los_Angeles'|Offset for all timestamps in minutes from UTC, or a timezone supported by moment.js|
+|spMeasures| any| Array&lt;string&gt; | X, Y, and Radius (optional) measures passed into Scatter Plot |
 |stacked|boolean|**false**|If true, stack bars in barchart|
 |states|Array<any>|**null**, Array&lt;[State](#line-chart-events-and-states-data-shape)&gt;|An array of time range bound states passed into the linechart|
 |theme|string|**'dark'**, 'light'|Component color scheme|
@@ -244,7 +264,7 @@ The available parameters for chart data options are as follows...
 
 ### Brush Context Menu Actions
 
-To take action on a line chart brush action (like in the [Explore events example]('https://tsiclientsample.azurewebsites.net/examples/withplatform/exploreevents.html')), brushContextMenuActions are added in chartOptions, with the following shape...
+To take action on a line chart brush action (like in the [Explore events example]('https://tsiclientsample.azurewebsites.net/withplatform/exploreevents.html')), brushContextMenuActions are added in chartOptions, with the following shape...
 
 ```js
 var brushContextMenuActions = [
@@ -268,7 +288,7 @@ lineChart.render(data, {brushContextMenuActions: brushContextMenuActions});
 
 ### Group Context Menu Actions
 
-To take action on a context menu click of a data group (like in the [Line chart generating bar and pie charts example]('https://tsiclientsample.azurewebsites.net/examples/withplatform/exploreevents.html')), groupContextMenuActions are added to chart data options, with the following shape...
+To take action on a context menu click of a data group (like in the [Line chart generating bar and pie charts example]('https://tsiclientsample.azurewebsites.net/withplatform/exploreevents.html')), groupContextMenuActions are added to chart data options, with the following shape...
 
 ```js
 var groupContextMenuActions = [{
@@ -290,7 +310,7 @@ var groupContextMenuActions = [{
 
 ### Search Span Object
 
-Search span objects define the range and bucket size of the time series of a data group.  Search span objects are useful for showing sparse data in a line chart, like [this example]('https://tsiclientsample.azurewebsites.net/examples/withplatform/basicCharts.html')They have the following shape...
+Search span objects define the range and bucket size of the time series of a data group.  Search span objects are useful for showing sparse data in a line chart, like [this example]('https://tsiclientsample.azurewebsites.net/withplatform/basicCharts.html')They have the following shape...
 
 ```js
 var searchSpanObject = {
@@ -302,7 +322,7 @@ var searchSpanObject = {
 
 ### Line Chart Events and States Data Shape
 
-Events and states are used to show diamonds and blocks of color for specifying categorical data overlayed with a line chart, like in the example [here](https://tsiclientsample.azurewebsites.net/examples/noauth/multipleseriestypes.html).  Good examples of such events are "an important incident occured" for a diamond, or "a compressor was on" for a block of color.  They are specified as an array of JSON objects--each element of the array will get its own vertical space on the chart.  The general shape for both events and states is as follows...
+Events and states are used to show diamonds and blocks of color for specifying categorical data overlayed with a line chart, like in the example [here](https://tsiclientsample.azurewebsites.net/noauth/multipleseriestypes.html).  Good examples of such events are "an important incident occured" for a diamond, or "a compressor was on" for a block of color.  They are specified as an array of JSON objects--each element of the array will get its own vertical space on the chart.  The general shape for both events and states is as follows...
 
 ```js
 var statesOrEvents = [
