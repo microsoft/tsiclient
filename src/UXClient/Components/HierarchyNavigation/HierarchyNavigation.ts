@@ -146,19 +146,22 @@ class HierarchyNavigation extends Component{
             this.searchString = st;
 
             if(st.length === 0){
-                if (this.selectedNavTab === NavTabs.Hierarchy) {
-                    this.mode = State.Navigate;
-                    this.setRequestParamsForNavigate();
-                }
-                this.clearAndGetResults();
+                // if (this.selectedNavTab === NavTabs.Hierarchy) {
+                    this.switchToNavTab(NavTabs.Hierarchy);
+                    // this.mode = State.Navigate;
+                    // this.setRequestParamsForNavigate();
+                // }
+                // this.clearAndGetResults();
             }
             else {
-                if (this.selectedNavTab === NavTabs.Hierarchy) {
-                    if (st.length === 1) {
-                        this.mode = State.Filter;
-                        this.setRequestParamsForFilter();
-                    }
-                } if (event.which === 13 || event.keyCode === 13) {
+                // if (this.selectedNavTab === NavTabs.Hierarchy) {
+                //     if (st.length === 1) {
+                //         this.mode = State.Filter;
+                //         this.setRequestParamsForFilter();
+                //     }
+                // } 
+                if (event.which === 13 || event.keyCode === 13) {
+                    this.switchToNavTab(NavTabs.Instances);
                     this.clearAndGetResults();
                 }
             }
@@ -424,7 +427,7 @@ class HierarchyNavigation extends Component{
                 hierarchy.node.classed('tsi-expanded', true);
             };
             hierarchy.collapse = () => {hierarchy.isExpanded = false; hierarchy.node.classed('tsi-expanded', false); hierarchy.node.selectAll('ul').remove();};
-            data[(h.name === "" ? "(Empty)" : h.name) + " (" + h.cumulativeInstanceCount + ")"] = hierarchy;
+            data[(h.name === "" ? "(Empty)" : h.name) + " <span class=\"tsi-childCount\">(" + h.cumulativeInstanceCount + ")</span>"] = hierarchy;
             if (h.hierarchyNodes && h.hierarchyNodes.hits.length) {
                 hierarchy.children = this.fillDataRecursively(h.hierarchyNodes, getToken, envFqdn, this.requestPayload(hierarchy.path));
             }

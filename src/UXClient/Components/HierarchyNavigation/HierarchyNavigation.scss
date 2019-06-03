@@ -110,6 +110,7 @@
         animation: fadeIn 0.367s cubic-bezier(0.1, 0.9, 0.2, 1) forwards;
         background: #eeeeee;
         padding: 4px;
+        display: none !important;
 
         .tsi-filter-path {
             margin-left: 20px;
@@ -159,7 +160,7 @@
             height: 40px;
             padding: 8px;
             align-items: center;
-            display: flex;
+            display: none;
 
             .tsi-nav-tab {
                 border-bottom: 2px solid transparent;
@@ -258,6 +259,7 @@
         background-repeat: no-repeat;
         top: 11px;
         background-position: 50%;
+        display: none;
     }
 
     select{
@@ -330,6 +332,9 @@
             text-overflow: ellipsis;
             overflow: hidden;
             white-space: nowrap;
+            .tsi-childCount{
+                display: none;
+            }
 
             .tsi-highlights-detail {
                 font-weight: 400;
