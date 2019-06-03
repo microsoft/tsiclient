@@ -1,0 +1,117 @@
+body{ 
+	font-family: "Segoe UI", sans-serif; 
+	background: #3d4147; 
+	height: 100%; 
+	padding: 0; 
+	margin: 0;
+} 
+
+#loginModal{
+	position: fixed;
+	z-index: 3;
+	background: rgba(0,0,0,.3);
+	height: 100%;
+	width: 100%;
+	top: 0;
+}
+
+#loginModal > div{
+	padding: 20px;
+	margin: auto;
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: -20%;
+	bottom: 0;
+	width: 400px;
+    height: 200px;
+    background: #111;
+    text-align: center;
+	box-shadow: 0px 0px 2px 2px rgba(255,255,255,.1);
+	color: white;
+}
+
+#loginModal > div > span{
+	display: block;
+	margin: 40px;
+	margin-bottom: 60px;
+	font-size: 20px;
+}
+
+#loginModal > div > a{
+	font-size: 18px;
+	text-decoration: none;
+	padding: 8px 12px;
+	border: 1px solid white;
+}
+.rowOfCards{
+	width: 100%; 
+	flex-grow: 1; 
+	display: flex; 
+	justify-content: space-around; 
+	height: 500px; 
+	padding-bottom: 40px;
+	margin-bottom: 4px;
+	border-bottom: 1px solid silver;
+} 
+.rowOfCardsTitle{
+	width: 100%;
+	color: white;
+	padding: 16px 0 20px;
+	text-align: center;
+}
+.card{
+	border: 1px solid silver; 
+} 
+.cardTitle{
+	height: 24px; 
+	border-bottom: 1px solid silver; 
+	padding: 4px; 
+	color: white;
+	text-align: center;
+} 
+.cardChart{
+	height: calc(100% - 33px); 
+	width: 100%;
+}
+.header{ 
+	z-index: 2; 
+	background: black; 
+	position: fixed; 
+	top: 0; 
+	left: 0; 
+	height: 24px; 
+	padding: 8px; 
+	border-bottom: 1px solid #888; 
+	width: 100%; 
+	color: white; 
+} 
+#api_response2{ 
+	position: absolute; 
+	left: 250px; 
+	top: -8px; 
+	border-left: 1px solid #888; 
+	padding: 8px 16px; 
+	white-space: normal; 
+	height: 12px; 
+} 
+.rightSide{ 
+	position: absolute; 
+	top: 0; 
+	right: 0; 
+	margin-right: 40px; 
+} 
+.loginLogout{ 
+	position: absolute; 
+	top: 6px; 
+	font-size: 13px; 
+	right: 0; 
+} 
+a{ 
+	color: white; 
+}
+.chartsWrapper{
+	height: calc(100% - 40px); 
+	margin-top: 40px;
+	width: 100%;
+}
