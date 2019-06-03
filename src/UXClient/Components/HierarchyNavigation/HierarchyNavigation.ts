@@ -19,7 +19,7 @@ class HierarchyNavigation extends Component{
     private usedInstanceSearchContinuationTokens = {};
     private envHierarchies = {};
     private envTypes = {};
-    private selectedHierarchyId = HierarchySelectionValues.All;
+    private selectedHierarchyId = HierarchySelectionValues.Unparented;
     private selectedNavTab = NavTabs.Hierarchy;
     private mode = State.Navigate;
     private searchString = "";
@@ -78,9 +78,12 @@ class HierarchyNavigation extends Component{
                     }
                     self.clearAndGetResults();
                 });
-                hierarchySelect.append('option').attr("value", HierarchySelectionValues.All).text('All');
-                Object.keys(this.envHierarchies).forEach((hId) => {
+                // hierarchySelect.append('option').attr("value", HierarchySelectionValues.All).text('All');
+                Object.keys(this.envHierarchies).forEach((hId, i) => {
                     hierarchySelect.append('option').attr("value", hId).text(this.envHierarchies[hId].name);
+                    if(i === 0){
+                        this.path = [this.envHierarchies[hId].name]
+                    }
                 });
                 hierarchySelect.append('option').attr("value", HierarchySelectionValues.Unparented).text('Unassigned Time Series Instances');
                 
