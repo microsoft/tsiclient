@@ -675,10 +675,12 @@ class ScatterPlot extends ChartComponent {
                     .text(d.splitBy);
 
                 let valueGroup = text.append('div').classed('valueGroup', true);
-                Object.keys(d.measures).forEach((measureType, i) => {
-                    valueGroup.append("div")
+                Object.keys(d.measures).forEach((measureType) => {
+                    if(measureType in this.chartComponentData.extents){
+                        valueGroup.append("div")
                         .attr("class",  "value")
                         .text(measureType + ": " + Utils.formatYAxisNumber(d.measures[measureType]));
+                    }
                 });
             });
         }
