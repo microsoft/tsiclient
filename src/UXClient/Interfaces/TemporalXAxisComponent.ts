@@ -49,12 +49,12 @@ class TemporalXAxisComponent extends ChartComponent {
 
     private labelFormatUsesSeconds (ticks = null) {
         let tickSpanSubMinute = ticks ? !this.isTickSpanGreaterThan(ticks, 59 * 1000) : false;
-        return !this.chartOptions.minutesForTimeLabels && (this.chartComponentData.usesSeconds || tickSpanSubMinute);
+        return !this.chartOptions.minutesForTimeLabels && tickSpanSubMinute;
     }
 
     private labelFormatUsesMillis (ticks = null) {
         let tickSpanSubSecond = ticks ? !this.isTickSpanGreaterThan(ticks, 999) : false;
-        return !this.chartOptions.minutesForTimeLabels && (this.chartComponentData.usesMillis || tickSpanSubSecond);
+        return !this.chartOptions.minutesForTimeLabels && tickSpanSubSecond;
     }
 
     protected drawXAxis (yOffset) {
