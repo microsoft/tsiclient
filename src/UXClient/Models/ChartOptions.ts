@@ -57,6 +57,7 @@ class ChartOptions {
     public timeFrame: any; // from and to to specify range of an event or state series
     public timestamp: any; //For components with a slider, this is the selected timestamp
     public tooltip: boolean; // whether tooltip is visible
+    public throttleSlider: boolean; // whether slider is throttled to only fire on mouseup vs slider move
     public xAxisHidden: boolean; // whether xAxis is hidden in chart
     public xAxisTimeFormat: (d, i, isFirst, isLast) => {}; //takes in a date string, tick index, isFirst, and isLast, outputs a moment.js style date format string
     public yAxisHidden: boolean; // whether yAxis is hidden in chart
@@ -105,6 +106,7 @@ class ChartOptions {
         this.states = this.mergeValue(chartOptionsObj, 'states', null);
         this.events = this.mergeValue(chartOptionsObj, 'events', null);
         this.tooltip = this.mergeValue(chartOptionsObj, 'tooltip', false);
+        this.throttleSlider = this.mergeValue(chartOptionsObj, 'throttleSlider', false);
         this.snapBrush = this.mergeValue(chartOptionsObj, 'snapBrush', false);
         this.minBrushWidth = this.mergeValue(chartOptionsObj, 'minBrushWidth', 0);
         this.theme = this.mergeValue(chartOptionsObj, 'theme', 'dark');
@@ -177,6 +179,7 @@ class ChartOptions {
             states: this.states,
             events: this.events,
             tooltip: this.tooltip,
+            throttleSlider: this.throttleSlider,
             snapBrush: this.snapBrush,
             minBrushWidth: this.minBrushWidth,
             theme: this.theme,

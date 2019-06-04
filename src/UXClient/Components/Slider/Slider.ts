@@ -2,6 +2,7 @@ import * as d3 from 'd3';
 import './Slider.scss';
 import {Utils} from "./../../Utils";
 import {Component} from "./../../Interfaces/Component";
+import { ChartOptions } from '../../Models/ChartOptions';
 
 class Slider extends Component{
     private sliderSVG: any = null;
@@ -12,6 +13,7 @@ class Slider extends Component{
     private sliderWidth: number;
     private selectedLabel: string;
     private isAscendingTimePeriods: boolean;
+    private chartOptions: ChartOptions = new ChartOptions();
 
     private margins = {
         left: 60,
@@ -53,6 +55,7 @@ class Slider extends Component{
     }
 	
 	public render(data: Array<any>, options: any, width: number, selectedLabel: string = null){
+        this.chartOptions.setOptions(options);
         this.data = data;
         this.isAscendingTimePeriods = this.determineIfAscendingTimePeriods();
         this.width = width;
@@ -76,8 +79,6 @@ class Slider extends Component{
                 .attr("class", "tsi-sliderComponent");
             var slider = this.sliderSVG.append("g")
                 .attr("class", "slider tsi-sliderG")
-            var sliderTestDiv = targetElement.append("div")
-                .attr("class", "tsi-sliderLabel");
             slider.append("line")
                 .attr("class", "slider-track tsi-sliderTrack")
                 .select(function() { return this.parentNode.appendChild(this.cloneNode(true)); })
@@ -86,6 +87,9 @@ class Slider extends Component{
                     .on("start.interrupt", function() { slider.interrupt(); })
                     .on("start drag", (d) => { 
                         self.onDrag(d3.event.x); 
+                    })
+                    .on("end", (d) => {
+                        self.onDragEnd(d3.event.x);
                     })
                 );
 
@@ -106,7 +110,7 @@ class Slider extends Component{
                     }
                 });
         }
-        this.themify(this.sliderSVG, options.theme);
+        this.themify(this.sliderSVG, this.chartOptions.theme);
 
         this.sliderSVG.attr("width", width + "px");
 
@@ -134,16 +138,32 @@ class Slider extends Component{
     }
 
     private onDrag (h) {
+        // find the closest time and set position to that
+        let newSelectedLabel = this.setSelectedLabelAndGetLabelAction(h);        
+        if(!this.chartOptions.throttleSlider){
+            newSelectedLabel.action(newSelectedLabel.label);
+        }
+
+        this.setStateFromLabel(); 
+    }
+
+    private onDragEnd (h) {
+        if(this.chartOptions.throttleSlider){
+            let newSelectedLabel = this.setSelectedLabelAndGetLabelAction(h, true);        
+            newSelectedLabel.action(newSelectedLabel.label);
+        }
+    }
+
+    private setSelectedLabelAndGetLabelAction = (h, useFirstValue = false) => {
         //find the closest time and set position to that
+        let reduceFirstValue = useFirstValue ? this.data[0] : {label: this.selectedLabel, action: () => {}};
         var newSelectedLabel = this.data.reduce((prev, curr) => {
             var currDiff = Math.abs(this.getXPositionOfLabel(curr.label) - h);
             var prevDiff = Math.abs(this.getXPositionOfLabel(prev.label) - h);
             return (currDiff < prevDiff) ? curr : prev;
-        }, {label: this.selectedLabel, action: () => {}});
+        }, reduceFirstValue);
         this.selectedLabel = (newSelectedLabel != null) ? newSelectedLabel.label : this.selectedLabel;
-        newSelectedLabel.action(newSelectedLabel.label);
-
-        this.setStateFromLabel(); 
+        return newSelectedLabel;
     }
     
     private setSliderTextDivLabel = () => {
