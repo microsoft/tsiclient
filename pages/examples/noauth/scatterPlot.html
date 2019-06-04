@@ -9,29 +9,32 @@
     </head>
     <body style="font-family: 'Segoe UI', sans-serif;">
         <div id="chart1" style="width: 100%; height: 600px;"></div>
-        <div id="chart2" style="width: 100%; height: 600px;"></div>
+        <div id="temporalToggle" class = "buttonWrapper" style= "display: none;align-items: center; justify-content: center;"><button onclick="toggleTemporal()">Toggle Temporal</button></div>
 
         <script>
+            let temporal = false;
+            let toggleTemporal = null;
             window.onload = function() {
+                // Show toggle
+                document.getElementById("temporalToggle").style.display = "flex";
                 // create fake data in the shape our charts expect
-
-                var iteration = 0;
-                var getData = (scaleFactor = 1) => {
-                    var data = [];
-                    var from = new Date(Math.floor((new Date()).valueOf() / (1000*60)) * (1000*60) + iteration*1000*60);
-                    var to;
-                    for(var i = 0; i < 3; i++){
-                        var lines = {};
+                let iteration = 0;
+                let getData = (scaleFactor = 1) => {
+                    let data = [];
+                    let from = new Date(Math.floor((new Date()).valueOf() / (1000*60)) * (1000*60) + iteration*1000*60);
+                    let to;
+                    for(let i = 0; i < 3; i++){
+                        let lines = {};
                         data.push({[`Factory${i}`]: lines});
-                        for(var j = 0; j < 5; j++){
-                            var values = {};
+                        for(let j = 0; j < 5; j++){
+                            let values = {};
                             lines[`Station${j}`] = values;
-                            for(var k = 0; k < 500; k++){
+                            for(let k = 0; k < 100; k++){
                                 if(!(k%2 && k%3)){  // if check is to create some sparseness in the data
-                                    var to = new Date(from.valueOf() + 1000*k);
-                                    var val = Math.random() * scaleFactor;
-                                    var val2 = Math.random() * scaleFactor;
-                                    var val3 = Math.random() * scaleFactor;
+                                    let to = new Date(from.valueOf() + 1000*k);
+                                    let val = Math.random() * scaleFactor;
+                                    let val2 = Math.random() * scaleFactor;
+                                    let val3 = Math.random() * scaleFactor;
                                     values[to.toISOString()] = {press: val, temp: val2, vol: val3};
                                 }
                             }
@@ -43,16 +46,24 @@
                     return data;
                 }
 
+                let getRandomBoolean = () => Math.random() > 0.5 ? true : false;
 
                 // render the data in a chart
-                var tsiClient = new TsiClient();
+                let tsiClient = new TsiClient();
+                let data = getData();
 
-                var scatterPlot1 =  new tsiClient.ux.ScatterPlot(document.getElementById('chart1'));
-                scatterPlot1.render(getData(), {grid: true, tooltip: true, theme: 'light', spMeasures: ['temp', 'press', 'vol'], scatterPlot1});
-                setTimeout(() => {
-                    scatterPlot1.render(getData(Math.random() * 10), {grid: true, tooltip: true, theme: 'light', spMeasures: ['temp', 'press', 'vol'], scatterPlot1});
-                }, 5000)
+                let scatterPlot =  new tsiClient.ux.ScatterPlot(document.getElementById('chart1'));
+
+                let renderScatterPlot = () => scatterPlot.render(data, {isTemporal: temporal, grid: true, tooltip: true, theme: 'light', spMeasures: ['temp', 'press', 'vol'], scatterPlot});
+
+                renderScatterPlot();
+
+                toggleTemporal = () => {
+                    temporal = !temporal;
+                    renderScatterPlot();
+                }
             };
+            
         </script>
     </body>
 </html>

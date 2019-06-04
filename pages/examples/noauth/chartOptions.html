@@ -179,6 +179,15 @@
                         <option>.1</option> 
                     </select>
                 </div>
+
+                <h3>Chart options - SP specific</h3>
+                <div>
+                    <label>isTemporal </label>
+                    <select onchange='(function(){ toggleChartOption("isTemporal", (event.target.value === "true")) })(event)'>
+                            <option value='true' selected>true</option>
+                            <option value='false'>false</option>
+                    </select>
+                </div>
             </div>
             <div style="width: calc(100% - 320px);">
                 <div id="linechart" style="width: 100%; height: 400px; margin-bottom:20px;"></div>
@@ -219,7 +228,8 @@
                 stacked: false, 
                 zeroYAxis: true,
                 arcWidthRatio: 1,
-                spMeasures: ['avg', 'min', 'max']
+                spMeasures: ['avg', 'min', 'max'],
+                isTemporal: true
             }
             var scatterPlot;
             var lineChart;
