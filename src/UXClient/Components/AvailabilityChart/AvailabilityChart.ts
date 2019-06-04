@@ -561,7 +561,7 @@ class AvailabilityChart extends ChartComponent{
     private setTicks () {
         this.timePickerLineChart.updateXAxis();
         let forceFirst = (this.timePickerLineChart.zoomedFromMillis == this.timePickerLineChart.fromMillis) && (this.zoomedFromMillis == this.fromMillis);
-        let forceLast = this.timePickerLineChart.zoomedToMillis == this.timePickerLineChart.toMillis;
+        let forceLast = (this.timePickerLineChart.zoomedToMillis == this.timePickerLineChart.toMillis) && (this.zoomedToMillis == this.toMillis);
         this.timePickerLineChart.updateXAxis(forceFirst, forceLast);
 
         let ticks = this.timePickerContainer.select('.tsi-timePickerChart')
