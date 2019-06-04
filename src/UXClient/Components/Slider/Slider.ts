@@ -135,7 +135,8 @@ class Slider extends Component{
         if(this.sliderSVG)
             this.sliderSVG.remove();
         this.sliderSVG = null;
-        this.sliderTextDiv.remove();
+        if(this.sliderTextDiv)
+            this.sliderTextDiv.remove();
     }
 
     private onDrag (h) {

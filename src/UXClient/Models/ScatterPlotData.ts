@@ -6,12 +6,13 @@ import { Utils } from "../Utils";
 class ScatterPlotData extends GroupedBarChartData {
     public temporalDataArray: any;
     public extents: any = {};
-    private extentsSet: boolean = false
+    private extentsSet: boolean = false 
 
 	constructor(){
         super();
     }
 
+    /******** SETS EXTENT OF EACH DATA MEASURE -- MEASURES UPDATED WHEN RENDER CALLED OUTSIDE OF TEMPORAL ********/
     public setExtents(measures: any, forceReset: boolean = false){
         if(!this.extentsSet || forceReset){
             // Set axis extents
@@ -26,6 +27,7 @@ class ScatterPlotData extends GroupedBarChartData {
         } 
     }
 
+    /******** UPDATES CHART DATA, ALL TIMESTAMPS, AND VALUES AT THE CURRENT TIMESTAMP ********/
     public mergeDataToDisplayStateAndTimeArrays (data, timestamp, aggregateExpressionOptions = null, events = null, states = null ) {
         ChartComponentData.prototype.mergeDataToDisplayStateAndTimeArrays.call(this, data, aggregateExpressionOptions, events, states);
         this.timestamp = (timestamp != undefined && this.allTimestampsArray.indexOf(timestamp) !== -1) ? timestamp : this.allTimestampsArray[0];
@@ -33,55 +35,44 @@ class ScatterPlotData extends GroupedBarChartData {
         this.setAllTimestampsArray();
     }
 
+    /******** UPDATES DATA TO BE DRAWN -- IF SCATTER IS TEMPORAL, FLATTENS ALL TIMESTAMP DATA ********/
     public updateTemporalDataArray (isTemporal: boolean) {
+        this.temporalDataArray = []
+
         if(!isTemporal){
-            let dataArray = []
             this.allTimestampsArray.forEach((ts) => {
                 this.timestamp = ts;
                 this.setValuesAtTimestamp();
-                Object.keys(this.valuesAtTimestamp).forEach((aggKey) => {
-                    Object.keys(this.valuesAtTimestamp[aggKey].splitBys).forEach((splitBy, splitByI) => {
-                        let measures = null, timestamp = null;
-                        if (this.getSplitByVisible(aggKey, splitBy) && this.valuesAtTimestamp[aggKey].splitBys[splitBy].measurements != undefined){
-                            measures = this.valuesAtTimestamp[aggKey].splitBys[splitBy].measurements; 
-                            timestamp = this.valuesAtTimestamp[aggKey].splitBys[splitBy].timestamp; 
-                        }   
-                            
-                        dataArray.push({
-                            aggregateKey: aggKey,
-                            splitBy: splitBy,
-                            measures,
-                            timestamp,
-                            splitByI: splitByI
-                        });
-                    });
-                });
+                this.updateTemporal();
             });
             
-            this.temporalDataArray = dataArray;
         } else{
-            let dataArray = []
-            Object.keys(this.valuesAtTimestamp).forEach((aggKey) => {
-                Object.keys(this.valuesAtTimestamp[aggKey].splitBys).forEach((splitBy, splitByI) => {
-                    let measures = null, timestamp = null;
-                    if (this.getSplitByVisible(aggKey, splitBy) && this.valuesAtTimestamp[aggKey].splitBys[splitBy].measurements != undefined){
-                        measures = this.valuesAtTimestamp[aggKey].splitBys[splitBy].measurements; 
-                        timestamp = this.valuesAtTimestamp[aggKey].splitBys[splitBy].timestamp; 
-                    }   
-                        
-                    dataArray.push({
-                        aggregateKey: aggKey,
-                        splitBy: splitBy,
-                        measures,
-                        timestamp,
-                        splitByI: splitByI
-                    });
-                });
-            });
-            this.temporalDataArray = dataArray;
+            this.updateTemporal();
         }
     }
 
+    /******** HELPER TO FETCH DATA AT THE CURRENT TIMESTAMP AND BUILD AN OBJECT FOR THAT TIMESTAMP ********/
+    private updateTemporal(){
+        Object.keys(this.valuesAtTimestamp).forEach((aggKey) => {
+            Object.keys(this.valuesAtTimestamp[aggKey].splitBys).forEach((splitBy, splitByI) => {
+                let measures = null, timestamp = null;
+                if (this.getSplitByVisible(aggKey, splitBy) && this.valuesAtTimestamp[aggKey].splitBys[splitBy].measurements != undefined){
+                    measures = this.valuesAtTimestamp[aggKey].splitBys[splitBy].measurements; 
+                    timestamp = this.valuesAtTimestamp[aggKey].splitBys[splitBy].timestamp; 
+                }   
+                    
+                this.temporalDataArray.push({
+                    aggregateKey: aggKey,
+                    splitBy: splitBy,
+                    measures,
+                    timestamp,
+                    splitByI: splitByI
+                });
+            });
+        });
+    }
+
+    /******** OVERRIDES GROUPEDBARCHARTDATA -- UPDATES VALUES AT TIMESTAMP WITH MEASURES & TIMESTAMP********/
     public setValuesAtTimestamp () {
         var aggregateCounterMap = {};
         this.valuesAtTimestamp = {};

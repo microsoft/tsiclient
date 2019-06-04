@@ -165,8 +165,7 @@ class ScatterPlot extends ChartComponent {
             });
 
             // Temporal slider
-            if(this.chartOptions.isTemporal)
-                this.slider = new Slider(<any>d3.select(this.renderTarget).select('.tsi-sliderWrapper').node());
+            this.slider = new Slider(<any>d3.select(this.renderTarget).select('.tsi-sliderWrapper').node());
 
             // Legend
             this.legendObject = new Legend(this.draw.bind(this), this.renderTarget, this.CONTROLSWIDTH);
@@ -196,7 +195,6 @@ class ScatterPlot extends ChartComponent {
             this.chartMargins.bottom = 48;
         }
            
-
         this.setWidthAndHeight();
         this.svgSelection
             .attr("height", this.height)
@@ -293,7 +291,6 @@ class ScatterPlot extends ChartComponent {
             this.chartControlsPanel.style("width", controlPanelWidth + "px");
         }
 
-
         /******************** Temporal Slider ************************/
         if(this.chartComponentData.allTimestampsArray.length > 1 && this.chartOptions.isTemporal){
             d3.select(this.renderTarget).select('.tsi-sliderWrapper').classed('tsi-hidden', false);
@@ -306,7 +303,8 @@ class ScatterPlot extends ChartComponent {
             }), this.chartOptions, this.width - 10,  Utils.timeFormat(this.chartComponentData.usesSeconds, this.chartComponentData.usesMillis, this.chartOptions.offset, this.chartOptions.is24HourTime)(new Date(this.chartComponentData.timestamp)));
         }
         else{
-            this.slider.remove();
+            if(this.slider)
+                this.slider.remove();
             d3.select(this.renderTarget).select('.tsi-sliderWrapper').classed('tsi-hidden', true);
         }
 
@@ -699,6 +697,7 @@ class ScatterPlot extends ChartComponent {
         }
     }
 
+    /******** HELPERS TO FORMAT TIME DISPLAY ********/
     private labelFormatUsesSeconds () {
         return !this.chartOptions.minutesForTimeLabels && this.chartComponentData.usesSeconds;
     }
