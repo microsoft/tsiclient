@@ -40,19 +40,21 @@ class TemporalXAxisComponent extends ChartComponent {
         this.smartTickFormat = this.createSmartTickFormat(ticks, offsetX);
         return d3.axisBottom(this.x)
             .tickValues(ticks)
-            .tickFormat(Utils.timeFormat(this.labelFormatUsesSeconds(), this.labelFormatUsesMillis(), this.chartOptions.offset, this.chartOptions.is24HourTime, null, null));
+            .tickFormat(Utils.timeFormat(this.labelFormatUsesSeconds(ticks), this.labelFormatUsesMillis(ticks), this.chartOptions.offset, this.chartOptions.is24HourTime, null, null));
     }
 
     public getXTickNumber (singleLineXAxisLabel) {
         return Math.max((singleLineXAxisLabel ? Math.floor(this.chartWidth / 300) :  Math.floor(this.chartWidth / 160)), 1);
     }
 
-    private labelFormatUsesSeconds () {
-        return !this.chartOptions.minutesForTimeLabels && this.chartComponentData.usesSeconds;
+    private labelFormatUsesSeconds (ticks = null) {
+        let tickSpanSubMinute = ticks ? !this.isTickSpanGreaterThan(ticks, 59 * 1000) : false;
+        return !this.chartOptions.minutesForTimeLabels && (this.chartComponentData.usesSeconds || tickSpanSubMinute);
     }
 
-    private labelFormatUsesMillis () {
-        return !this.chartOptions.minutesForTimeLabels && this.chartComponentData.usesMillis;
+    private labelFormatUsesMillis (ticks = null) {
+        let tickSpanSubSecond = ticks ? !this.isTickSpanGreaterThan(ticks, 999) : false;
+        return !this.chartOptions.minutesForTimeLabels && (this.chartComponentData.usesMillis || tickSpanSubSecond);
     }
 
     protected drawXAxis (yOffset) {
@@ -96,24 +98,27 @@ class TemporalXAxisComponent extends ChartComponent {
         return (d1.getYear() === d2.getYear() && d1.getMonth() === d2.getMonth() && d1.getDate() === d2.getDate());
     }
 
-    private daySpan (d1, d2) {
-        return Math.ceil((d2.valueOf() - d1.valueOf()) / (24 * 60 * 60 * 1000));
+    private isTickSpanGreaterThan (ticks, minValue) {
+        return (ticks[1].valueOf() - ticks[0].valueOf() >= minValue);
     }
 
     private createSmartTickFormat (ticks, offsetX): any {
         let spansMultipleDays = !this.isSameDate(offsetX.domain()[0], offsetX.domain()[1]);
-        let lessTicksThanDays = ticks.length < this.daySpan(offsetX.domain()[0], offsetX.domain()[1]); 
+        let lessTicksThanDays = this.isTickSpanGreaterThan(ticks, 23 * 60 * 60 * 1000);
+
+        let timeFormat = Utils.subDateTimeFormat(this.chartOptions.is24HourTime, this.labelFormatUsesSeconds(ticks), this.labelFormatUsesMillis(ticks)); 
+
         return (d, i, isFirst, isLast) => {
-            if (isFirst || isLast) {
-                return 'HH:mm L';
-            }
-            if (!spansMultipleDays) {
-                return 'HH:mm';
-            }
             if (lessTicksThanDays) {
                 return 'L';
             }
-            return 'HH:mm L';
+            if (isFirst || isLast) {
+                return timeFormat + ' L';
+            }
+            if (!spansMultipleDays) {
+                return timeFormat;
+            }
+            return timeFormat + ' L';
         }
     }
 

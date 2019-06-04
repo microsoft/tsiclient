@@ -190,6 +190,9 @@ class Utils {
         return millis + "ms";
     }
 
+    static subDateTimeFormat (is24HourTime, usesSeconds ,usesMillis) {
+        return (is24HourTime ? "HH" : "hh") + ":mm" + (usesSeconds ? (":ss" + (usesMillis ? ".SSS" : "")) : "") + (is24HourTime ? "" : " A");
+    };
     
     static timeFormat(usesSeconds = false, usesMillis = false, offset: any = 0, is24HourTime: boolean = true, shiftMillis: number = null, timeFormat: string = null) {
         return (d) => {
@@ -200,8 +203,7 @@ class Utils {
             if (timeFormat !== null) {
                 stringFormat = timeFormat;
             } else {
-                stringFormat = "L " + (is24HourTime ? "HH" : "hh") + ":mm" + 
-                    (usesSeconds ? (":ss" + (usesMillis ? ".SSS" : "")) : "") + (is24HourTime ? "" : " A");
+                stringFormat = "L " + this.subDateTimeFormat(is24HourTime, usesSeconds, usesMillis);
             }
             if (typeof offset == 'string' && isNaN(offset as any)) {
                 return momentTZ.tz(d, 'UTC').tz(offset === 'Local' ? momentTZ.tz.guess() : offset).format(stringFormat);

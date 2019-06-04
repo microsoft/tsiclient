@@ -2,58 +2,63 @@
 <!DOCTYPE html> 
 <html>
     <head>
-        <title>Basic Charts</title>
-
+        <title>Availability and Line Chart</title>
+        
         <!-- boilerplate headers are injected with head.js, grab them from the live example header, or include a link to head.js -->
         <script src="../boilerplate/head.js"></script>
     </head>
     <body style="font-family: 'Segoe UI', sans-serif;">
-        <div id="chart1" style="width: 100%; height: 600px;"></div>
-        <!-- <div id="chart4" style="width: 100%; height: 600px; float: left;"></div> -->
-
-        <button onclick="focusOnLine()">focus on Factory1, Station1</button>
+        <div id="availability" style="width: 100%; height: 160px; z-index:1;"></div>
+        <div id="linechart" style="width: 100%; height: 600px; float: left;"></div>
         <script>
-            var lineChart;
             window.onload = function() {
                 
                 // create fake data in the shape our charts expect
                 var data = [];
-                var from = new Date(Math.floor((new Date()).valueOf() / (1000*60 * 60)) * (1000*60 * 60));
+                var from = new Date();
+                from.setDate(8);
+                from.setMonth(2);
+                from.setHours(0);
+                from.setMinutes(0);
+                from.setSeconds(0);
+                from.setMilliseconds(0);
                 var to;
-                for(var i = 0; i < 3; i++){
+                for(var i = 0; i < 2; i++){
                     var lines = {};
                     data.push({[`Factory${i}`]: lines});
-                    for(var j = 0; j < 5; j++){
+                    for(var j = 1; j < 4; j++){
                         var values = {};
                         lines[`Station${j}`] = values;
-                        for(var k = 0; k < 15600; k+=100){
-                            if(!(k%2 && k%3)){  // if check is to create some sparseness in the data
-                                var to = new Date(from.valueOf() + 1000*60*60*12*k);
-                                var val = Math.random();
-                                values[to.toISOString()] = {avg: val};
-                            }
+                        for(var k = 0; k < 300; k++){
+                            var to = new Date(from.valueOf() + 1000*6*1*k);
+                            var val = Math.random();
+                            values[to.toISOString()] = {avg: val};
                         } 
                     }
                 }
 
-                let xAxisTimeFormat = (d, i, isFirst, isLast) => {
-                    if (isFirst || isLast) {
-                        return "L HH:mm";
-                    }
-                    return "L HH:mm";
-                }
-
                 // render the data in a chart
                 var tsiClient = new TsiClient();
-                lineChart = new tsiClient.ux.LineChart(document.getElementById('chart1'));
-                lineChart.render(data, {theme: 'light', xAxisTimeFormat: xAxisTimeFormat, offset: 60});
 
-                // var heatmap = new tsiClient.ux.Heatmap(document.getElementById('chart4'));
-                // heatmap.render(data, {theme: 'dark', xAxisTimeFormat: xAxisTimeFormat}, data.map(d => {return {measureTypes: ['avg'], searchSpan: {from: from.toISOString(), to: to.toISOString(), bucketSize: '1m'}}}));
-            };
-            function focusOnLine () {
-                    lineChart.triggerLineFocus('Factory1_0', 'Station1');
+                var lineChart = new tsiClient.ux.LineChart(document.getElementById('linechart'));
+                var availability = new tsiClient.ux.AvailabilityChart(document.getElementById('availability'));
+
+                var brushMoveEndAction = (from, to, timezone) => {
+                    lineChart.render(data, {noAnimate: true, includeDots: false, offset: timezone}, data.map(d => {return {measureTypes: ['avg'], searchSpan: {from: from.toISOString(), to: to.toISOString(), bucketSize: '1s'}}}));
                 }
+
+                availability.render([{availabilityCount: {"": {}}}], 
+                                    {legend: 'hidden', theme: 'light', color: 'purple', brushMoveEndAction: brushMoveEndAction, offset: 'Local', isCompact: false}, 
+                                    {range: 
+                                        {
+                                            from: from.toISOString(), 
+                                            to: to.toISOString()
+                                        }, 
+                                    intervalSize: '1s'
+                                    }
+                                    );
+                lineChart.render(data, {offset: 'Local'}, [{includeDots: false}]);
+            };
         </script>
     </body>
 </html>
