@@ -6,7 +6,7 @@ import { Utils } from "../Utils";
 class ScatterPlotData extends GroupedBarChartData {
     public temporalDataArray: any;
     public extents: any = {};
-    private extentsSet: boolean = false 
+    private extentsSet: boolean = false; 
 
 	constructor(){
         super();
