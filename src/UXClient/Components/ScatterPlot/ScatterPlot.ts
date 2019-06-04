@@ -189,8 +189,13 @@ class ScatterPlot extends ChartComponent {
         this.focus.attr("visibility", (this.chartOptions.focusHidden) ? "hidden" : "visible")
 
         // Determine the number of timestamps present, add margin for slider
-        if(this.chartComponentData.allTimestampsArray.length > 1 && this.chartOptions.isTemporal)
+        if(this.chartComponentData.allTimestampsArray.length > 1 && this.chartOptions.isTemporal){
             this.chartMargins.bottom = 88;
+        }
+        else{
+            this.chartMargins.bottom = 48;
+        }
+           
 
         this.setWidthAndHeight();
         this.svgSelection
