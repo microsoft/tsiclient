@@ -18,9 +18,9 @@
                 var from = new Date();
                 from.setDate(8);
                 from.setMonth(2);
-                from.setHours(0);
-                from.setMinutes(0);
-                from.setSeconds(0);
+                from.setHours(1);
+                from.setMinutes(30);
+                from.setSeconds(24);
                 from.setMilliseconds(0);
                 var to;
                 for(var i = 0; i < 2; i++){
@@ -30,7 +30,7 @@
                         var values = {};
                         lines[`Station${j}`] = values;
                         for(var k = 0; k < 300; k++){
-                            var to = new Date(from.valueOf() + 1000*6*1*k);
+                            var to = new Date(from.valueOf() + 1000*60*60*1*k);
                             var val = Math.random();
                             values[to.toISOString()] = {avg: val};
                         } 
@@ -44,7 +44,7 @@
                 var availability = new tsiClient.ux.AvailabilityChart(document.getElementById('availability'));
 
                 var brushMoveEndAction = (from, to, timezone) => {
-                    lineChart.render(data, {noAnimate: true, includeDots: false, offset: timezone}, data.map(d => {return {measureTypes: ['avg'], searchSpan: {from: from.toISOString(), to: to.toISOString(), bucketSize: '1s'}}}));
+                    lineChart.render(data, {noAnimate: true, includeDots: false, offset: timezone}, data.map(d => {return {measureTypes: ['avg'], searchSpan: {from: from.toISOString(), to: to.toISOString(), bucketSize: '1h'}}}));
                 }
 
                 availability.render([{availabilityCount: {"": {}}}], 
@@ -54,7 +54,7 @@
                                             from: from.toISOString(), 
                                             to: to.toISOString()
                                         }, 
-                                    intervalSize: '1s'
+                                    intervalSize: '1h'
                                     }
                                     );
                 lineChart.render(data, {offset: 'Local'}, [{includeDots: false}]);
