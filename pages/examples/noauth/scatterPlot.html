@@ -26,7 +26,7 @@
                         for(var j = 0; j < 5; j++){
                             var values = {};
                             lines[`Station${j}`] = values;
-                            for(var k = 0; k < 500; k++){
+                            for(var k = 0; k < 100; k++){
                                 if(!(k%2 && k%3)){  // if check is to create some sparseness in the data
                                     var to = new Date(from.valueOf() + 1000*k);
                                     var val = Math.random() * scaleFactor;
@@ -48,10 +48,10 @@
                 var tsiClient = new TsiClient();
 
                 var scatterPlot1 =  new tsiClient.ux.ScatterPlot(document.getElementById('chart1'));
-                scatterPlot1.render(getData(), {grid: true, tooltip: true, theme: 'light', spMeasures: ['temp', 'press', 'vol'], scatterPlot1});
-                setTimeout(() => {
-                    scatterPlot1.render(getData(Math.random() * 10), {grid: true, tooltip: true, theme: 'light', spMeasures: ['temp', 'press', 'vol'], scatterPlot1});
-                }, 5000)
+                scatterPlot1.render(getData(), {isTemporal: true, grid: true, tooltip: true, theme: 'light', spMeasures: ['temp', 'press', 'vol'], scatterPlot1});
+                // setTimeout(() => {
+                //     scatterPlot1.render(getData(Math.random() * 10), {grid: true, tooltip: true, theme: 'light', spMeasures: ['temp', 'press', 'vol'], scatterPlot1});
+                // }, 5000)
             };
         </script>
     </body>

@@ -165,7 +165,8 @@ class ScatterPlot extends ChartComponent {
             });
 
             // Temporal slider
-            this.slider = new Slider(<any>d3.select(this.renderTarget).select('.tsi-sliderWrapper').node());
+            if(this.chartOptions.isTemporal)
+                this.slider = new Slider(<any>d3.select(this.renderTarget).select('.tsi-sliderWrapper').node());
 
             // Legend
             this.legendObject = new Legend(this.draw.bind(this), this.renderTarget, this.CONTROLSWIDTH);
@@ -183,12 +184,12 @@ class ScatterPlot extends ChartComponent {
 
     /******** DRAW UPDATE FUNCTION ********/   
     private draw(){
-        this.chartComponentData.updateTemporalDataArray();
+        this.chartComponentData.updateTemporalDataArray(this.chartOptions.isTemporal);
 
         this.focus.attr("visibility", (this.chartOptions.focusHidden) ? "hidden" : "visible")
 
         // Determine the number of timestamps present, add margin for slider
-        if(this.chartComponentData.allTimestampsArray.length > 1)
+        if(this.chartComponentData.allTimestampsArray.length > 1 && this.chartOptions.isTemporal)
             this.chartMargins.bottom = 88;
 
         this.setWidthAndHeight();
@@ -262,7 +263,7 @@ class ScatterPlot extends ChartComponent {
             .attr("cx", (d) => this.xScale(d.measures[this.xMeasure]))
             .attr("cy", (d) => this.yScale(d.measures[this.yMeasure]))
             .merge(scatter)
-            .attr("id", (d) => this.getClassHash(d.aggregateKey, d.splitBy, d.splitByI))
+            .attr("id", (d) => this.getClassHash(d.aggregateKey, d.splitBy, d.splitByI, d.timestamp))
             .interrupt()
             .transition()
             .duration(this.TRANSDURATION)
@@ -289,7 +290,7 @@ class ScatterPlot extends ChartComponent {
 
 
         /******************** Temporal Slider ************************/
-        if(this.chartComponentData.allTimestampsArray.length > 1){
+        if(this.chartComponentData.allTimestampsArray.length > 1 && this.chartOptions.isTemporal){
             d3.select(this.renderTarget).select('.tsi-sliderWrapper').classed('tsi-hidden', false);
             this.slider.render(this.chartComponentData.allTimestampsArray.map(ts => {
                 var action = () => {
@@ -415,7 +416,7 @@ class ScatterPlot extends ChartComponent {
         this.unhighlightDot();
         // Add highlight border to newly focused dot
         let highlightColor = this.chartOptions.theme == "light" ? "black": "white";
-        let idSelector = "#" + this.getClassHash(site.data.aggregateKey, site.data.splitBy, site.data.splitByI);
+        let idSelector = "#" + this.getClassHash(site.data.aggregateKey, site.data.splitBy, site.data.splitByI, site.data.timestamp);
 
         this.activeDot = this.svgSelection.select(idSelector);
        
@@ -428,8 +429,8 @@ class ScatterPlot extends ChartComponent {
     }
 
     /******** GET UNIQUE STRING HASH ID FOR EACH DOT USING DATA ATTRIBUTES ********/   
-    private getClassHash(aggKey: string, splitBy: string, splitByI: number){
-        return String("dot"+Utils.hash(aggKey + splitBy + splitByI.toString()));
+    private getClassHash(aggKey: string, splitBy: string, splitByI: number, timestamp: string){
+        return String("dot"+Utils.hash(aggKey + splitBy + splitByI.toString() + timestamp));
     }
 
     /******** UNHIGHLIGHT ACTIVE DOT ********/
@@ -674,6 +675,13 @@ class ScatterPlot extends ChartComponent {
                     .attr("class", "value")
                     .text(d.splitBy);
 
+                // Display datetime if scatter plot is not temporal
+                if(!this.chartOptions.isTemporal){
+                    text.append("div")
+                        .attr("class", "value")
+                        .text(Utils.timeFormat(this.labelFormatUsesSeconds(), this.labelFormatUsesMillis(), this.chartOptions.offset, this.chartOptions.is24HourTime)(new Date(d.timestamp)));
+                }
+
                 let valueGroup = text.append('div').classed('valueGroup', true);
                 Object.keys(d.measures).forEach((measureType) => {
                     if(measureType in this.chartComponentData.extents){
@@ -685,6 +693,15 @@ class ScatterPlot extends ChartComponent {
             });
         }
     }
+
+    private labelFormatUsesSeconds () {
+        return !this.chartOptions.minutesForTimeLabels && this.chartComponentData.usesSeconds;
+    }
+
+    private labelFormatUsesMillis () {
+        return !this.chartOptions.minutesForTimeLabels && this.chartComponentData.usesMillis;
+    }
+
 }
 
 export {ScatterPlot}

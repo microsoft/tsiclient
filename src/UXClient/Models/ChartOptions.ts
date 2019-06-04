@@ -26,6 +26,7 @@ class ChartOptions {
     public interpolationFunction: any; //which interpolation function used for line chart lines
     public isArea: boolean; // whether lines in LineChart are also areas
     public isCompact: boolean; // whether availability chart is in compact or expanded mode
+    public isTemporal: boolean; // whether scatter plot has temporal slider
     public is24HourTime: boolean; // whether time is displayed in 24, or 12 hour time with am/pm
     public keepBrush: boolean; // whether to keep the brush selected region upon re render
     public keepSplitByColor: boolean; //whether to keep the split By colors when state is updated
@@ -149,7 +150,8 @@ class ChartOptions {
         this.markers = Utils.getValueOrDefault(chartOptionsObj, 'markers', null); // intentionally not mergeValue
         this.onMarkersChange = this.mergeValue(chartOptionsObj, 'onMarkersChange', (markers) => {});
         this.spMeasures = this.mergeValue(chartOptionsObj, 'spMeasures', null);
-        this.scatterPlotRadius = this.mergeValue(chartOptionsObj, 'scatterPlotRadius', [4,10])
+        this.scatterPlotRadius = this.mergeValue(chartOptionsObj, 'scatterPlotRadius', [4,10]);
+        this.isTemporal = this.mergeValue(chartOptionsObj, "isTemporal", true);
         this.xAxisTimeFormat = this.mergeValue(chartOptionsObj, 'xAxisTimeFormat', null);
     }
 
