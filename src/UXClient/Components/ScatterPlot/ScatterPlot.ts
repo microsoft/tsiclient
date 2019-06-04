@@ -24,7 +24,7 @@ class ScatterPlot extends ChartComponent {
     private rMeasure: string;
     private rScale: any;
     private slider: any;
-    private slideWrapper: any;
+    private sliderWrapper: any;
     private svgSelection: any;
     private targetElement: any;
     private tooltip: Tooltip;
@@ -95,7 +95,7 @@ class ScatterPlot extends ChartComponent {
                 .classed("tsi-pointWrapper", true);
 
             // Create temporal slider div
-            this.slideWrapper = d3.select(this.renderTarget).append('div').classed('tsi-sliderWrapper', true);
+            this.sliderWrapper = d3.select(this.renderTarget).append('div').classed('tsi-sliderWrapper', true);
                 
             this.tooltip = new Tooltip(d3.select(this.renderTarget));
 
@@ -312,7 +312,7 @@ class ScatterPlot extends ChartComponent {
         this.legendObject.draw(this.chartOptions.legend, this.chartComponentData, this.labelMouseOver.bind(this), 
             this.svgSelection, this.chartOptions, this.labelMouseOut.bind(this), this.stickySeries);
 
-        this.slideWrapper
+        this.sliderWrapper
             .style("width", `${this.svgSelection.node().getBoundingClientRect().width + 10}px`);
     }
 

@@ -151,7 +151,7 @@ class ChartOptions {
         this.onMarkersChange = this.mergeValue(chartOptionsObj, 'onMarkersChange', (markers) => {});
         this.spMeasures = this.mergeValue(chartOptionsObj, 'spMeasures', null);
         this.scatterPlotRadius = this.mergeValue(chartOptionsObj, 'scatterPlotRadius', [4,10]);
-        this.isTemporal = this.mergeValue(chartOptionsObj, "isTemporal", true);
+        this.isTemporal = this.mergeValue(chartOptionsObj, "isTemporal", false);
         this.xAxisTimeFormat = this.mergeValue(chartOptionsObj, 'xAxisTimeFormat', null);
     }
 

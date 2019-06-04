@@ -58,11 +58,11 @@ var scatterPlot = new tsiClient.ux.ScatterPlot(document.getElementById('chart'))
 scatterPlot.render(data, chartOptions, chartDataOptionsArray);
 ```
 
-The following code snippet shows an example of the scatter plot specific chart options: [spMeasures](#chart-options) & [isTemporal](#chart-options).  The first string in the spMeasures array is the X axis measure.  The second string is the Y axis measure, and the third (optional) string is the data point radius measure.  The isTemporal chartOption defaults to **true** if not set, but can be set to **false** as shown below.   
+The following code snippet shows an example of the scatter plot specific chart options: [spMeasures](#chart-options) & [isTemporal](#chart-options).  The first string in the spMeasures array is the X axis measure.  The second string is the Y axis measure, and the third (optional) string is the data point radius measure.  The isTemporal chartOption defaults to **false** if not set, but can be set to **true** as shown below.   
 
 ```js
-scatterPlot.render(data, {spMeasures:['temp', 'press', 'vol'], isTemporal: false});
-/*                                   ^ X     ^ Y      ^ R (optional)       ^ Turn off temporal slider */
+scatterPlot.render(data, {spMeasures:['temp', 'press', 'vol'], isTemporal: true});
+/*                                   ^ X     ^ Y      ^ R (optional)       ^ Turn on temporal slider */
 ```
 
 *Scatter Plot will not render if spMeasures is not specified or **any** of the measures are not found in the [data](#chart-data-shape) as value keys*
@@ -227,7 +227,7 @@ The most common available parameters for chart options are as follows (bold opti
 |noAnimate|boolean|**false**,true|If true, uppresses animated chart transitions|
 |offset|any|**0**, -120, 'America/Los_Angeles'|Offset for all timestamps in minutes from UTC, or a timezone supported by moment.js|
 |spMeasures| any| Array&lt;string&gt; | X, Y, and Radius (optional) measures passed into Scatter Plot |
-|isTemporal| boolean| **true** | **true**: scatter plot has temporal slider to slide through time slices **false**: scatter plot renders all timestamps.
+|isTemporal| boolean| **false** | **true**: scatter plot has temporal slider to slide through time slices **false**: scatter plot renders all timestamps.
 |stacked|boolean|**false**|If true, stack bars in barchart|
 |states|Array<any>|**null**, Array&lt;[State](#line-chart-events-and-states-data-shape)&gt;|An array of time range bound states passed into the linechart|
 |theme|string|**'dark'**, 'light'|Component color scheme|
