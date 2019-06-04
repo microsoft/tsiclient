@@ -12,7 +12,6 @@ class ScatterPlot extends ChartComponent {
     private activeDot: any = null;
     private chartHeight: number;
     private chartWidth: number;
-    private colorMap: any = {};
     private controlsOffset: number;
     private focus: any;
     private focusedAggKey: string;
@@ -231,9 +230,6 @@ class ScatterPlot extends ChartComponent {
         // Pad extents
         let xOffset = (20 / this.chartWidth) * (this.chartComponentData.extents[this.xMeasure][1] - this.chartComponentData.extents[this.xMeasure][0]);
         let yOffset = (20 / this.chartHeight) * (this.chartComponentData.extents[this.yMeasure][1] - this.chartComponentData.extents[this.yMeasure][0]);
-        
-        // Create color scale for each aggregate key
-        this.initColorScale();
 
         // Check measure validity
         if(!this.checkExtentValidity()) return;
@@ -274,8 +270,8 @@ class ScatterPlot extends ChartComponent {
             .attr("r", (d) => this.rScale(d.measures[this.rMeasure]))
             .attr("cx", (d) => this.xScale(d.measures[this.xMeasure]))
             .attr("cy", (d) => this.yScale(d.measures[this.yMeasure]))
-            .attr("fill", (d) => this.colorMap[d.aggregateKey](d.splitBy))
-            .attr("stroke", (d) => this.colorMap[d.aggregateKey](d.splitBy))
+            .attr("fill", (d) => Utils.colorSplitBy(this.chartComponentData.displayState, d.splitByI, d.aggregateKey, this.chartOptions.keepSplitByColor))
+            .attr("stroke", (d) => Utils.colorSplitBy(this.chartComponentData.displayState, d.splitByI, d.aggregateKey, this.chartOptions.keepSplitByColor))
             .attr("stroke-opacity", 1)
             .attr("fill-opacity", .6)
             .attr("stroke-width", "1px")
@@ -440,7 +436,7 @@ class ScatterPlot extends ChartComponent {
     private unhighlightDot(){
         if(this.activeDot != null){
         this.activeDot
-                .attr("stroke", (d) => this.colorMap[d.aggregateKey](d.splitBy))
+                .attr("stroke", (d) => Utils.colorSplitBy(this.chartComponentData.displayState, d.splitByI, d.aggregateKey, this.chartOptions.keepSplitByColor))
                 .attr("stroke-width", "1px")
         }
         this.activeDot = null;
@@ -606,21 +602,9 @@ class ScatterPlot extends ChartComponent {
             .interrupt()
             .attr("stroke-opacity", 1)
             .attr("fill-opacity", .6)
-            .attr("stroke", (d) => this.colorMap[d.aggregateKey](d.splitBy))
-            .attr("fill", (d) => this.colorMap[d.aggregateKey](d.splitBy))
+            .attr("stroke", (d) => Utils.colorSplitBy(this.chartComponentData.displayState, d.splitByI, d.aggregateKey, this.chartOptions.keepSplitByColor))
+            .attr("fill", (d) => Utils.colorSplitBy(this.chartComponentData.displayState, d.splitByI, d.aggregateKey, this.chartOptions.keepSplitByColor))
             .attr("stroke-width", "1px");
-    }
-
-
-
-    /******** CREATE COLOR SCALE FOR EACH AGGREGATE, SPLITBY ********/
-    private initColorScale(){
-        this.chartComponentData.data.forEach((d) => {
-            let colors = Utils.createSplitByColors(this.chartComponentData.displayState, d.aggKey, this.chartOptions.keepSplitByColor);
-            this.colorMap[d.aggKey] = d3.scaleOrdinal()
-                .domain(this.chartComponentData.displayState[d.aggKey].splitBys)
-                .range(colors);
-        });
     }
 
     /******** FILTER DATA, ONLY KEEPING POINTS WITH ALL REQUIRED MEASURES ********/
