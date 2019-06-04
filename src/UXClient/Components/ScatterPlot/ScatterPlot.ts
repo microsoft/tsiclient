@@ -25,9 +25,9 @@ class ScatterPlot extends ChartComponent {
     private rMeasure: string;
     private rScale: any;
     private slider: any;
+    private slideWrapper: any;
     private svgSelection: any;
     private targetElement: any;
-    private timestamp: any;
     private tooltip: Tooltip;
     private voronoi: any;
     private voronoiDiagram: any;
@@ -96,7 +96,7 @@ class ScatterPlot extends ChartComponent {
                 .classed("tsi-pointWrapper", true);
 
             // Create temporal slider div
-            d3.select(this.renderTarget).append('div').classed('tsi-sliderWrapper', true);
+            this.slideWrapper = d3.select(this.renderTarget).append('div').classed('tsi-sliderWrapper', true);
                 
             this.tooltip = new Tooltip(d3.select(this.renderTarget));
 
@@ -158,8 +158,6 @@ class ScatterPlot extends ChartComponent {
                 .attr("x", -10)
                 .text((d: string) => d);
 
-            this.legendObject = new Legend(this.draw.bind(this), this.renderTarget, this.CONTROLSWIDTH);
-
             // Add Window Resize Listener
             window.addEventListener("resize", () => {
                 if (!this.chartOptions.suppressResizeListener) {
@@ -169,6 +167,9 @@ class ScatterPlot extends ChartComponent {
 
             // Temporal slider
             this.slider = new Slider(<any>d3.select(this.renderTarget).select('.tsi-sliderWrapper').node());
+
+            // Legend
+            this.legendObject = new Legend(this.draw.bind(this), this.renderTarget, this.CONTROLSWIDTH);
         }
 
         // Draw scatter plot
@@ -281,12 +282,15 @@ class ScatterPlot extends ChartComponent {
 
         scatter.exit().remove();
         
-        // Draw Legend
-        this.legendObject.draw(this.chartOptions.legend, this.chartComponentData, this.labelMouseOver.bind(this), 
-            this.svgSelection, this.chartOptions, this.labelMouseOut.bind(this), this.stickySeries);
-        
         // Draw voronoi
         this.drawVoronoi();
+
+        // Resize controls
+        if (!this.chartOptions.hideChartControlPanel && this.chartControlsPanel !== null) {
+            let controlPanelWidth = Utils.getControlPanelWidth(this.renderTarget, this.CONTROLSWIDTH, this.chartOptions.legend === 'shown');
+            this.chartControlsPanel.style("width", controlPanelWidth + "px");
+        }
+
 
         /******************** Temporal Slider ************************/
         if(this.chartComponentData.allTimestampsArray.length > 1){
@@ -303,6 +307,13 @@ class ScatterPlot extends ChartComponent {
             this.slider.remove();
             d3.select(this.renderTarget).select('.tsi-sliderWrapper').classed('tsi-hidden', true);
         }
+
+        // Draw Legend
+        this.legendObject.draw(this.chartOptions.legend, this.chartComponentData, this.labelMouseOver.bind(this), 
+            this.svgSelection, this.chartOptions, this.labelMouseOut.bind(this), this.stickySeries);
+
+        this.slideWrapper
+            .style("width", `${this.svgSelection.node().getBoundingClientRect().width + 10}px`);
     }
 
     /******** CHECK VALIDITY OF EXTENTS ********/
