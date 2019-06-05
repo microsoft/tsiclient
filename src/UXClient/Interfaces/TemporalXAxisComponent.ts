@@ -89,7 +89,7 @@ class TemporalXAxisComponent extends ChartComponent {
                     let momentTimeFormatString: string = String(self.smartTickFormat(d, i, i === 0, i === indexOfLast));
                     //harcode format of first and last to include hours/minutes if force first/last
                     if ((i === 0 && forceFirst) || (i === indexOfLast && forceLast)) { 
-                        momentTimeFormatString = Utils.subDateTimeFormat(self.chartOptions.is24HourTime, false, false) + ' L'; 
+                        momentTimeFormatString = 'L ' + Utils.subDateTimeFormat(self.chartOptions.is24HourTime, false, false); 
                     }
                     return Utils.timeFormat(self.labelFormatUsesSeconds(), self.labelFormatUsesMillis(), self.chartOptions.offset, self.chartOptions.is24HourTime, null, momentTimeFormatString)(d);
                 });
@@ -127,16 +127,17 @@ class TemporalXAxisComponent extends ChartComponent {
         let timeFormat = Utils.subDateTimeFormat(this.chartOptions.is24HourTime, this.labelFormatUsesSeconds(ticks), this.labelFormatUsesMillis(ticks)); 
 
         return (d, i, isFirst, isLast) => {
+            let timeAndDate = this.chartOptions.singleLineXAxisLabel ? ('L ' + timeFormat) : (timeFormat + ' L');
             if (lessTicksThanDays) {
                 return 'L';
             }
             if (isFirst || isLast) {
-                return timeFormat + ' L';
+                return timeAndDate;
             }
             if (!spansMultipleDays) {
                 return timeFormat;
             }
-            return timeFormat + ' L';
+            return timeAndDate;
         }
     }
 
