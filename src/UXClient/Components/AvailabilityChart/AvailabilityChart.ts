@@ -131,7 +131,7 @@ class AvailabilityChart extends ChartComponent{
             aggTopMargin: 0,
             yAxisHidden: true,
             focusHidden: true,
-            singleLineXAxisLabel: true
+            singleLineXAxisLabel: false
         }});
     }
     private dateTimePickerAction (fromMillis, toMillis) {
@@ -559,32 +559,18 @@ class AvailabilityChart extends ChartComponent{
     }
 
     private setTicks () {
-        if (this.timePickerLineChart.zoomedToMillis == this.timePickerLineChart.toMillis || 
-            this.timePickerLineChart.zoomedFromMillis == this.timePickerLineChart.fromMillis) {
-            let xAxis = this.timePickerLineChart.createXAxis(true);
-            let ticks = xAxis.scale().ticks(Math.max(2, this.timePickerLineChart.getXTickNumber(true)));
-            let hasFrom = false, hasTo = false;
-            if (this.zoomedToMillis == this.toMillis) {
-                if (ticks.length > 1)
-                    ticks[ticks.length - 1] = new Date(this.toMillis);
-                else {
-                    ticks.push(new Date(this.toMillis));
-                }
-                hasTo = true;
-            }
-            if (this.zoomedFromMillis == this.fromMillis){
-                ticks[0] = new Date(this.fromMillis);
-                hasFrom = true;
-            }
-            let xAxisElem = this.timePickerContainer.select('.tsi-timePickerChart')
-                .select('.xAxis')
-                .call(xAxis.tickValues(ticks))
-                .selectAll('.tick')
-                .each(function(d, i){
-                    var elt = d3.select(this);
-                    elt.classed((i === 0 && hasFrom ? 'tsi-fromTick' : (i === ticks.length - 1 && hasTo ? 'tsi-toTick' : '')), true);
-                })
-        }
+        this.timePickerLineChart.updateXAxis();
+        let forceFirst = (this.timePickerLineChart.zoomedFromMillis == this.timePickerLineChart.fromMillis) && (this.zoomedFromMillis == this.fromMillis);
+        let forceLast = (this.timePickerLineChart.zoomedToMillis == this.timePickerLineChart.toMillis) && (this.zoomedToMillis == this.toMillis);
+        this.timePickerLineChart.updateXAxis(forceFirst, forceLast);
+
+        let ticks = this.timePickerContainer.select('.tsi-timePickerChart')
+            .select('.xAxis')
+            .selectAll('.tick');
+        ticks.each(function(d, i){
+            var elt = d3.select(this);
+            elt.classed((i === 0 && forceFirst ? 'tsi-fromTick' : (i === ticks.size() - 1 && forceLast ? 'tsi-toTick' : '')), true);
+        })
     }
 
     private setAvailabilityRange (fromMillis, toMillis) {
