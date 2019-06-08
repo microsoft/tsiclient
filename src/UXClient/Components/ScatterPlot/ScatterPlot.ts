@@ -279,7 +279,7 @@ class ScatterPlot extends ChartComponent {
             .attr("id", (d) => this.getClassHash(d.aggregateKey, d.splitBy, d.splitByI, d.timestamp))
             .interrupt()
             .transition()
-            .duration(this.TRANSDURATION)
+            .duration(this.chartOptions.noAnimate ? 0 : this.TRANSDURATION)
             .ease(d3.easeExp)
             .attr("r", (d) => this.rScale(d.measures[this.rMeasure]))
             .attr("cx", (d) => this.xScale(d.measures[this.xMeasure]))
