@@ -27,6 +27,25 @@ class ScatterPlotData extends GroupedBarChartData {
         } 
     }
 
+    /******** UPDATE EXTENTS BASED ON VISIBLE DATA ********/
+    public updateExtents(measures: any){
+        //Filter through data for only visible points
+        let visibleData = this.temporalDataArray.filter((dot) => {
+            if(this.displayState[dot.aggregateKey].visible == true &&
+                this.displayState[dot.aggregateKey].splitBys[dot.splitBy].visible == true)
+                return true;
+            return false;
+        });
+
+        measures.forEach(measure => {
+            this.extents[measure] = d3.extent(visibleData, (v:any) => {
+                if(!v.measures)
+                    return null
+                return measure in v.measures ? v.measures[measure] : null}
+            );
+        });
+    }
+
     /******** UPDATES CHART DATA, ALL TIMESTAMPS, AND VALUES AT THE CURRENT TIMESTAMP ********/
     public mergeDataToDisplayStateAndTimeArrays (data, timestamp, aggregateExpressionOptions = null, events = null, states = null ) {
         ChartComponentData.prototype.mergeDataToDisplayStateAndTimeArrays.call(this, data, aggregateExpressionOptions, events, states);

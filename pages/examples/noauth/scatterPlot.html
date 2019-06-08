@@ -35,6 +35,8 @@
                                     let val = Math.random() * scaleFactor;
                                     let val2 = Math.random() * scaleFactor;
                                     let val3 = Math.random() * scaleFactor;
+
+                                    if(j == 1) val2 /= 10;
                                     values[to.toISOString()] = {press: val, temp: val2, vol: val3};
                                 }
                             }
