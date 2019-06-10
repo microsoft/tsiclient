@@ -259,7 +259,13 @@ class ScatterPlot extends ChartComponent {
 
         // Draw data
         let scatter = this.pointWrapper.selectAll(".tsi-dot")
-            .data(this.cleanData(this.chartComponentData.temporalDataArray), (d) => d.aggregateKey + d.splitBy + d.timestamp);
+            .data(this.cleanData(this.chartComponentData.temporalDataArray),  (d) => {
+                if(this.chartOptions.isTemporal){
+                    return d.aggregateKey + d.splitBy + d.splitByI;
+                } else{
+                    return d.aggregateKey + d.splitBy + d.timestamp;
+                }
+            });
         
         scatter
             .enter()
