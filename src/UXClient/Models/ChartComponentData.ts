@@ -103,6 +103,7 @@ class ChartComponentData {
                     includeEnvelope: aggregateExpressionOptions[i].includeEnvelope,
                     includeDots: aggregateExpressionOptions[i].includeDots,
                     splitBys: [],
+                    visibleSplitByCap: this.displayState[aggKey].visibleSplitByCap,
                     shownSplitBys: 20
                 }
             } else {
