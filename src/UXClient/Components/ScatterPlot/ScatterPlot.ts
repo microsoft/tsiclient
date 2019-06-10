@@ -185,9 +185,9 @@ class ScatterPlot extends ChartComponent {
     private draw(){
         this.chartComponentData.updateTemporalDataArray(this.chartOptions.isTemporal);
         
-            // Update extents to fit data if not temporal
-        if(!this.chartOptions.isTemporal)
-            this.chartComponentData.updateExtents(this.chartOptions.spMeasures);
+        // Update extents to fit data if not temporal
+        this.chartComponentData.updateExtents(this.chartOptions.spMeasures);
+        
 
         this.focus.attr("visibility", (this.chartOptions.focusHidden) ? "hidden" : "visible")
 
