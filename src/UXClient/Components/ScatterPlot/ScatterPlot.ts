@@ -184,6 +184,9 @@ class ScatterPlot extends ChartComponent {
     /******** DRAW UPDATE FUNCTION ********/   
     private draw(){
         this.chartComponentData.updateTemporalDataArray(this.chartOptions.isTemporal);
+        
+        // Update extents to fit data if not temporal
+        this.chartComponentData.updateExtents(this.chartOptions.spMeasures);
 
         this.focus.attr("visibility", (this.chartOptions.focusHidden) ? "hidden" : "visible")
 
@@ -256,7 +259,13 @@ class ScatterPlot extends ChartComponent {
 
         // Draw data
         let scatter = this.pointWrapper.selectAll(".tsi-dot")
-            .data(this.cleanData(this.chartComponentData.temporalDataArray), d => d.aggregateKey + d.splitBy + d.splitByI.toString());
+            .data(this.cleanData(this.chartComponentData.temporalDataArray),  (d) => {
+                if(this.chartOptions.isTemporal){
+                    return d.aggregateKey + d.splitBy + d.splitByI;
+                } else{
+                    return d.aggregateKey + d.splitBy + d.timestamp;
+                }
+            });
         
         scatter
             .enter()
@@ -269,7 +278,7 @@ class ScatterPlot extends ChartComponent {
             .attr("id", (d) => this.getClassHash(d.aggregateKey, d.splitBy, d.splitByI, d.timestamp))
             .interrupt()
             .transition()
-            .duration(this.TRANSDURATION)
+            .duration(this.chartOptions.noAnimate ? 0 : this.TRANSDURATION)
             .ease(d3.easeExp)
             .attr("r", (d) => this.rScale(d.measures[this.rMeasure]))
             .attr("cx", (d) => this.xScale(d.measures[this.xMeasure]))
@@ -500,10 +509,14 @@ class ScatterPlot extends ChartComponent {
         let mouse_y = mouseEvent[1];
         let site = this.voronoiDiagram.find(mouse_x, mouse_y);
         if(site == null) return;
+
+        // Return if focused data point has not changed
+        if(site.data.aggregateKey == this.focusedAggKey && site.data.splitBy == this.focusedSplitBy) return;
+           
         this.drawTooltip(site.data, [site[0], site[1]]);
-        
         this.labelMouseMove(site.data.aggregateKey, site.data.splitBy);
         this.highlightDot(site);
+        
         // Draw focus cross hair
         this.focus.style("display", "block");
         this.focus.attr("transform", "translate(" + site[0] + "," + site[1] + ")");
