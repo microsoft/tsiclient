@@ -509,10 +509,14 @@ class ScatterPlot extends ChartComponent {
         let mouse_y = mouseEvent[1];
         let site = this.voronoiDiagram.find(mouse_x, mouse_y);
         if(site == null) return;
+
+        // Return if focused data point has not changed
+        if(site.data.aggregateKey == this.focusedAggKey && site.data.splitBy == this.focusedSplitBy) return;
+           
         this.drawTooltip(site.data, [site[0], site[1]]);
-        
         this.labelMouseMove(site.data.aggregateKey, site.data.splitBy);
         this.highlightDot(site);
+        
         // Draw focus cross hair
         this.focus.style("display", "block");
         this.focus.attr("transform", "translate(" + site[0] + "," + site[1] + ")");
