@@ -241,9 +241,19 @@ class ScatterPlot extends ChartComponent {
         this.yMeasure = this.measures[1];
         this.rMeasure = this.measures[2] !== undefined ? this.measures[2] : null;
 
+        let xExtentRange = this.chartComponentData.extents[this.xMeasure][1] - this.chartComponentData.extents[this.xMeasure][0];
+        let yExtentRange = this.chartComponentData.extents[this.yMeasure][1] - this.chartComponentData.extents[this.yMeasure][0];
+
         // Pad extents
-        let xOffset = (20 / this.chartWidth) * (this.chartComponentData.extents[this.xMeasure][1] - this.chartComponentData.extents[this.xMeasure][0]);
-        let yOffset = (20 / this.chartHeight) * (this.chartComponentData.extents[this.yMeasure][1] - this.chartComponentData.extents[this.yMeasure][0]);
+        let xOffset = (20 / this.chartWidth) * (xExtentRange < 1 ? 1 : xExtentRange);
+        let yOffset = (20 / this.chartHeight) * (yExtentRange < 1 ? 1 : yExtentRange);
+
+        let rOffset = null;
+
+        if(this.rMeasure){
+            let rExtentRange = this.chartComponentData.extents[this.rMeasure][1] - this.chartComponentData.extents[this.rMeasure][0];
+            rOffset = (20 / this.chartHeight) * (rExtentRange < 1 ? 1 : rExtentRange);
+        }
 
         // Check measure validity
         if(!this.checkExtentValidity()) return;
@@ -259,7 +269,7 @@ class ScatterPlot extends ChartComponent {
 
         this.rScale = d3.scaleLinear()
             .range(this.chartOptions.scatterPlotRadius.slice(0,2))
-            .domain(this.rMeasure === null ? [0, 0] : [this.chartComponentData.extents[this.rMeasure][0],this.chartComponentData.extents[this.rMeasure][1]]);
+            .domain(this.rMeasure === null ? [0, 0] : [this.chartComponentData.extents[this.rMeasure][0] - rOffset,this.chartComponentData.extents[this.rMeasure][1] + rOffset]);
         
         // Draw axis
         this.drawAxis();
@@ -563,6 +573,7 @@ class ScatterPlot extends ChartComponent {
 
     /******** HIDE TOOLTIP AND CROSSHAIRS ********/
     private voronoiMouseOut(){
+        this.focusedSite = null;
         this.focus.style("display", "none");
         this.tooltip.hide();
         this.labelMouseOut();
