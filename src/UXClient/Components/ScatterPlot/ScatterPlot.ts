@@ -12,11 +12,11 @@ class ScatterPlot extends ChartComponent {
     private activeDot: any = null;
     private chartHeight: number;
     private chartWidth: number;
-    private colorMap: any = {};
     private controlsOffset: number;
     private focus: any;
     private focusedAggKey: string;
     private focusedSplitBy: string;
+    private focusedSite: any = null;
     private g: any;
     private height: number;
     private legendObject: Legend;
@@ -25,9 +25,9 @@ class ScatterPlot extends ChartComponent {
     private rMeasure: string;
     private rScale: any;
     private slider: any;
+    private sliderWrapper: any;
     private svgSelection: any;
     private targetElement: any;
-    private timestamp: any;
     private tooltip: Tooltip;
     private voronoi: any;
     private voronoiDiagram: any;
@@ -39,6 +39,12 @@ class ScatterPlot extends ChartComponent {
     private yAxis: any;
     private yMeasure: string;
     private yScale: any;
+
+    readonly lowOpacity = 0.15; 
+    readonly standardOpacity = 0.6; 
+    readonly focusOpacity = 0.8;
+    readonly standardStroke = 1;
+    readonly lowStroke = 0.3;
     
     chartComponentData = new ScatterPlotData();
 
@@ -96,7 +102,7 @@ class ScatterPlot extends ChartComponent {
                 .classed("tsi-pointWrapper", true);
 
             // Create temporal slider div
-            d3.select(this.renderTarget).append('div').classed('tsi-sliderWrapper', true);
+            this.sliderWrapper = d3.select(this.renderTarget).append('div').classed('tsi-sliderWrapper', true);
                 
             this.tooltip = new Tooltip(d3.select(this.renderTarget));
 
@@ -158,8 +164,6 @@ class ScatterPlot extends ChartComponent {
                 .attr("x", -10)
                 .text((d: string) => d);
 
-            this.legendObject = new Legend(this.draw.bind(this), this.renderTarget, this.CONTROLSWIDTH);
-
             // Add Window Resize Listener
             window.addEventListener("resize", () => {
                 if (!this.chartOptions.suppressResizeListener) {
@@ -169,6 +173,9 @@ class ScatterPlot extends ChartComponent {
 
             // Temporal slider
             this.slider = new Slider(<any>d3.select(this.renderTarget).select('.tsi-sliderWrapper').node());
+
+            // Legend
+            this.legendObject = new Legend(this.draw.bind(this), this.renderTarget, this.CONTROLSWIDTH);
         }
 
         // Draw scatter plot
@@ -183,14 +190,21 @@ class ScatterPlot extends ChartComponent {
 
     /******** DRAW UPDATE FUNCTION ********/   
     private draw(){
-        this.chartComponentData.updateTemporalDataArray();
+        this.chartComponentData.updateTemporalDataArray(this.chartOptions.isTemporal);
+        
+        // Update extents to fit data if not temporal
+        this.chartComponentData.updateExtents(this.chartOptions.spMeasures);
 
         this.focus.attr("visibility", (this.chartOptions.focusHidden) ? "hidden" : "visible")
 
         // Determine the number of timestamps present, add margin for slider
-        if(this.chartComponentData.allTimestampsArray.length > 1)
+        if(this.chartComponentData.allTimestampsArray.length > 1 && this.chartOptions.isTemporal){
             this.chartMargins.bottom = 88;
-
+        }
+        else{
+            this.chartMargins.bottom = 48;
+        }
+           
         this.setWidthAndHeight();
         this.svgSelection
             .attr("height", this.height)
@@ -230,9 +244,6 @@ class ScatterPlot extends ChartComponent {
         // Pad extents
         let xOffset = (20 / this.chartWidth) * (this.chartComponentData.extents[this.xMeasure][1] - this.chartComponentData.extents[this.xMeasure][0]);
         let yOffset = (20 / this.chartHeight) * (this.chartComponentData.extents[this.yMeasure][1] - this.chartComponentData.extents[this.yMeasure][0]);
-        
-        // Create color scale for each aggregate key
-        this.initColorScale();
 
         // Check measure validity
         if(!this.checkExtentValidity()) return;
@@ -255,7 +266,13 @@ class ScatterPlot extends ChartComponent {
 
         // Draw data
         let scatter = this.pointWrapper.selectAll(".tsi-dot")
-            .data(this.cleanData(this.chartComponentData.temporalDataArray), d => d.aggregateKey + d.splitBy + d.splitByI.toString());
+            .data(this.cleanData(this.chartComponentData.temporalDataArray),  (d) => {
+                if(this.chartOptions.isTemporal){
+                    return d.aggregateKey + d.splitBy + d.splitByI;
+                } else{
+                    return d.aggregateKey + d.splitBy + d.timestamp;
+                }
+            });
         
         scatter
             .enter()
@@ -265,31 +282,32 @@ class ScatterPlot extends ChartComponent {
             .attr("cx", (d) => this.xScale(d.measures[this.xMeasure]))
             .attr("cy", (d) => this.yScale(d.measures[this.yMeasure]))
             .merge(scatter)
-            .attr("id", (d) => this.getClassHash(d.aggregateKey, d.splitBy, d.splitByI))
-            .interrupt()
+            .attr("id", (d) => this.getClassHash(d.aggregateKey, d.splitBy, d.splitByI, d.timestamp))
             .transition()
-            .duration(this.TRANSDURATION)
+            .duration(this.chartOptions.noAnimate ? 0 : this.TRANSDURATION)
             .ease(d3.easeExp)
             .attr("r", (d) => this.rScale(d.measures[this.rMeasure]))
             .attr("cx", (d) => this.xScale(d.measures[this.xMeasure]))
             .attr("cy", (d) => this.yScale(d.measures[this.yMeasure]))
-            .attr("fill", (d) => this.colorMap[d.aggregateKey](d.splitBy))
-            .attr("stroke", (d) => this.colorMap[d.aggregateKey](d.splitBy))
-            .attr("stroke-opacity", 1)
-            .attr("fill-opacity", .6)
+            .attr("fill", (d) => Utils.colorSplitBy(this.chartComponentData.displayState, d.splitByI, d.aggregateKey, this.chartOptions.keepSplitByColor))
+            .attr("stroke", (d) => Utils.colorSplitBy(this.chartComponentData.displayState, d.splitByI, d.aggregateKey, this.chartOptions.keepSplitByColor))
+            .attr("stroke-opacity", this.standardStroke)
+            .attr("fill-opacity", this.standardOpacity)
             .attr("stroke-width", "1px")
 
         scatter.exit().remove();
         
-        // Draw Legend
-        this.legendObject.draw(this.chartOptions.legend, this.chartComponentData, this.labelMouseOver.bind(this), 
-            this.svgSelection, this.chartOptions, this.labelMouseOut.bind(this), this.stickySeries);
-        
         // Draw voronoi
         this.drawVoronoi();
 
+        // Resize controls
+        if (!this.chartOptions.hideChartControlPanel && this.chartControlsPanel !== null) {
+            let controlPanelWidth = Utils.getControlPanelWidth(this.renderTarget, this.CONTROLSWIDTH, this.chartOptions.legend === 'shown');
+            this.chartControlsPanel.style("width", controlPanelWidth + "px");
+        }
+
         /******************** Temporal Slider ************************/
-        if(this.chartComponentData.allTimestampsArray.length > 1){
+        if(this.chartComponentData.allTimestampsArray.length > 1 && this.chartOptions.isTemporal){
             d3.select(this.renderTarget).select('.tsi-sliderWrapper').classed('tsi-hidden', false);
             this.slider.render(this.chartComponentData.allTimestampsArray.map(ts => {
                 var action = () => {
@@ -300,9 +318,17 @@ class ScatterPlot extends ChartComponent {
             }), this.chartOptions, this.width - 10,  Utils.timeFormat(this.chartComponentData.usesSeconds, this.chartComponentData.usesMillis, this.chartOptions.offset, this.chartOptions.is24HourTime)(new Date(this.chartComponentData.timestamp)));
         }
         else{
-            this.slider.remove();
+            if(this.slider)
+                this.slider.remove();
             d3.select(this.renderTarget).select('.tsi-sliderWrapper').classed('tsi-hidden', true);
         }
+
+        // Draw Legend
+        this.legendObject.draw(this.chartOptions.legend, this.chartComponentData, this.labelMouseOver.bind(this), 
+            this.svgSelection, this.chartOptions, this.labelMouseOut.bind(this), this.stickySeries);
+
+        this.sliderWrapper
+            .style("width", `${this.svgSelection.node().getBoundingClientRect().width + 10}px`);
     }
 
     /******** CHECK VALIDITY OF EXTENTS ********/
@@ -408,7 +434,7 @@ class ScatterPlot extends ChartComponent {
         this.unhighlightDot();
         // Add highlight border to newly focused dot
         let highlightColor = this.chartOptions.theme == "light" ? "black": "white";
-        let idSelector = "#" + this.getClassHash(site.data.aggregateKey, site.data.splitBy, site.data.splitByI);
+        let idSelector = "#" + this.getClassHash(site.data.aggregateKey, site.data.splitBy, site.data.splitByI, site.data.timestamp);
 
         this.activeDot = this.svgSelection.select(idSelector);
        
@@ -421,15 +447,15 @@ class ScatterPlot extends ChartComponent {
     }
 
     /******** GET UNIQUE STRING HASH ID FOR EACH DOT USING DATA ATTRIBUTES ********/   
-    private getClassHash(aggKey: string, splitBy: string, splitByI: number){
-        return String("dot"+Utils.hash(aggKey + splitBy + splitByI.toString()));
+    private getClassHash(aggKey: string, splitBy: string, splitByI: number, timestamp: string){
+        return String("dot"+Utils.hash(aggKey + splitBy + splitByI.toString() + timestamp));
     }
 
     /******** UNHIGHLIGHT ACTIVE DOT ********/
     private unhighlightDot(){
         if(this.activeDot != null){
         this.activeDot
-                .attr("stroke", (d) => this.colorMap[d.aggregateKey](d.splitBy))
+                .attr("stroke", (d) => Utils.colorSplitBy(this.chartComponentData.displayState, d.splitByI, d.aggregateKey, this.chartOptions.keepSplitByColor))
                 .attr("stroke-width", "1px")
         }
         this.activeDot = null;
@@ -443,13 +469,13 @@ class ScatterPlot extends ChartComponent {
 
             this.svgSelection.selectAll(".tsi-dot")
                 .filter(selectedFilter)
-                .attr("stroke-opacity", 1)
-                .attr("fill-opacity", 1)
+                .attr("stroke-opacity", this.standardStroke)
+                .attr("fill-opacity", this.focusOpacity)
             
             this.svgSelection.selectAll(".tsi-dot")
                 .filter(oldFilter)
-                .attr("stroke-opacity", .3)
-                .attr("fill-opacity", .15)
+                .attr("stroke-opacity", this.lowStroke)
+                .attr("fill-opacity", this.lowOpacity)
 
             this.focusedAggKey = aggKey;
             this.focusedSplitBy = splitBy;
@@ -468,7 +494,7 @@ class ScatterPlot extends ChartComponent {
 
     /******** HELPER TO CREATE SELECTION FILTER BASED ON AGGKEY AND SPLITBY ********/
     private createValueFilter (aggregateKey, splitBy) {
-        return (d: any, j: number ) => {
+        return (d: any) => {
             var currAggKey: string;
             var currSplitBy: string;
             if (d.aggregateKey) {
@@ -489,10 +515,18 @@ class ScatterPlot extends ChartComponent {
         let mouse_y = mouseEvent[1];
         let site = this.voronoiDiagram.find(mouse_x, mouse_y);
         if(site == null) return;
+
+        // Short circuit mouse move if focused site has not changed
+        if(this.focusedSite == null)
+            this.focusedSite = site;
+        else if(this.focusedSite == site) return;
+
+        this.focusedSite = site;
+
         this.drawTooltip(site.data, [site[0], site[1]]);
-        
         this.labelMouseMove(site.data.aggregateKey, site.data.splitBy);
         this.highlightDot(site);
+        
         // Draw focus cross hair
         this.focus.style("display", "block");
         this.focus.attr("transform", "translate(" + site[0] + "," + site[1] + ")");
@@ -562,8 +596,8 @@ class ScatterPlot extends ChartComponent {
         // Filter selected
         let selectedFilter = (d: any) => {
             let currAggKey = null, currSplitBy = null;
-            if(d.aggregateKey) currAggKey = d.aggregateKey
-            if(d.splitBy) currSplitBy = d.splitBy
+            if(d.aggregateKey != null) currAggKey = d.aggregateKey
+            if(d.splitBy != null) currSplitBy = d.splitBy
 
             if(splitBy == null)
                 return currAggKey == aggKey;
@@ -576,14 +610,14 @@ class ScatterPlot extends ChartComponent {
         //Highlight active group
         this.svgSelection.selectAll(".tsi-dot")
             .filter((d: any) => !selectedFilter(d))
-            .attr("stroke-opacity", 1)
-            .attr("fill-opacity", 1)
+            .attr("stroke-opacity", this.standardStroke)
+            .attr("fill-opacity", this.focusOpacity)
         
         // Decrease opacity of unselected
         this.svgSelection.selectAll(".tsi-dot")
             .filter(selectedFilter)
-            .attr("stroke-opacity", .3)
-            .attr("fill-opacity", .15)
+            .attr("stroke-opacity", this.lowStroke)
+            .attr("fill-opacity", this.lowOpacity)
     }
 
     /******** UNHIGHLIGHT FOCUSED GROUP ********/
@@ -592,24 +626,11 @@ class ScatterPlot extends ChartComponent {
          <any>this.legendObject.legendElement.selectAll('.tsi-splitByLabel').classed("inFocus", false);
 
         this.g.selectAll(".tsi-dot")
-            .interrupt()
-            .attr("stroke-opacity", 1)
-            .attr("fill-opacity", .6)
-            .attr("stroke", (d) => this.colorMap[d.aggregateKey](d.splitBy))
-            .attr("fill", (d) => this.colorMap[d.aggregateKey](d.splitBy))
+            .attr("stroke-opacity", this.standardStroke)
+            .attr("fill-opacity", this.standardOpacity)
+            .attr("stroke", (d) => Utils.colorSplitBy(this.chartComponentData.displayState, d.splitByI, d.aggregateKey, this.chartOptions.keepSplitByColor))
+            .attr("fill", (d) => Utils.colorSplitBy(this.chartComponentData.displayState, d.splitByI, d.aggregateKey, this.chartOptions.keepSplitByColor))
             .attr("stroke-width", "1px");
-    }
-
-
-
-    /******** CREATE COLOR SCALE FOR EACH AGGREGATE, SPLITBY ********/
-    private initColorScale(){
-        this.chartComponentData.data.forEach((d) => {
-            let colors = Utils.createSplitByColors(this.chartComponentData.displayState, d.aggKey, this.chartOptions.keepSplitByColor);
-            this.colorMap[d.aggKey] = d3.scaleOrdinal()
-                .domain(this.chartComponentData.displayState[d.aggKey].splitBys)
-                .range(colors);
-        });
     }
 
     /******** FILTER DATA, ONLY KEEPING POINTS WITH ALL REQUIRED MEASURES ********/
@@ -679,15 +700,34 @@ class ScatterPlot extends ChartComponent {
                     .attr("class", "value")
                     .text(d.splitBy);
 
+                // Display datetime if scatter plot is not temporal
+                if(!this.chartOptions.isTemporal){
+                    text.append("div")
+                        .attr("class", "value")
+                        .text(Utils.timeFormat(this.labelFormatUsesSeconds(), this.labelFormatUsesMillis(), this.chartOptions.offset, this.chartOptions.is24HourTime)(new Date(d.timestamp)));
+                }
+
                 let valueGroup = text.append('div').classed('valueGroup', true);
-                Object.keys(d.measures).forEach((measureType, i) => {
-                    valueGroup.append("div")
+                Object.keys(d.measures).forEach((measureType) => {
+                    if(measureType in this.chartComponentData.extents){
+                        valueGroup.append("div")
                         .attr("class",  "value")
                         .text(measureType + ": " + Utils.formatYAxisNumber(d.measures[measureType]));
+                    }
                 });
             });
         }
     }
+
+    /******** HELPERS TO FORMAT TIME DISPLAY ********/
+    private labelFormatUsesSeconds () {
+        return !this.chartOptions.minutesForTimeLabels && this.chartComponentData.usesSeconds;
+    }
+
+    private labelFormatUsesMillis () {
+        return !this.chartOptions.minutesForTimeLabels && this.chartComponentData.usesMillis;
+    }
+
 }
 
 export {ScatterPlot}
