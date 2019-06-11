@@ -39,6 +39,12 @@ class ScatterPlot extends ChartComponent {
     private yAxis: any;
     private yMeasure: string;
     private yScale: any;
+
+    readonly lowOpacity = 0.15; 
+    readonly standardOpacity = 0.6; 
+    readonly focusOpacity = 0.8;
+    readonly standardStroke = 1;
+    readonly lowStroke = 0.3;
     
     chartComponentData = new ScatterPlotData();
 
@@ -277,7 +283,6 @@ class ScatterPlot extends ChartComponent {
             .attr("cy", (d) => this.yScale(d.measures[this.yMeasure]))
             .merge(scatter)
             .attr("id", (d) => this.getClassHash(d.aggregateKey, d.splitBy, d.splitByI, d.timestamp))
-            .interrupt()
             .transition()
             .duration(this.chartOptions.noAnimate ? 0 : this.TRANSDURATION)
             .ease(d3.easeExp)
@@ -286,8 +291,8 @@ class ScatterPlot extends ChartComponent {
             .attr("cy", (d) => this.yScale(d.measures[this.yMeasure]))
             .attr("fill", (d) => Utils.colorSplitBy(this.chartComponentData.displayState, d.splitByI, d.aggregateKey, this.chartOptions.keepSplitByColor))
             .attr("stroke", (d) => Utils.colorSplitBy(this.chartComponentData.displayState, d.splitByI, d.aggregateKey, this.chartOptions.keepSplitByColor))
-            .attr("stroke-opacity", 1)
-            .attr("fill-opacity", .6)
+            .attr("stroke-opacity", this.standardStroke)
+            .attr("fill-opacity", this.standardOpacity)
             .attr("stroke-width", "1px")
 
         scatter.exit().remove();
@@ -464,13 +469,13 @@ class ScatterPlot extends ChartComponent {
 
             this.svgSelection.selectAll(".tsi-dot")
                 .filter(selectedFilter)
-                .attr("stroke-opacity", 1)
-                .attr("fill-opacity", 1)
+                .attr("stroke-opacity", this.standardStroke)
+                .attr("fill-opacity", this.focusOpacity)
             
             this.svgSelection.selectAll(".tsi-dot")
                 .filter(oldFilter)
-                .attr("stroke-opacity", .3)
-                .attr("fill-opacity", .15)
+                .attr("stroke-opacity", this.lowStroke)
+                .attr("fill-opacity", this.lowOpacity)
 
             this.focusedAggKey = aggKey;
             this.focusedSplitBy = splitBy;
@@ -605,14 +610,14 @@ class ScatterPlot extends ChartComponent {
         //Highlight active group
         this.svgSelection.selectAll(".tsi-dot")
             .filter((d: any) => !selectedFilter(d))
-            .attr("stroke-opacity", 1)
-            .attr("fill-opacity", 1)
+            .attr("stroke-opacity", this.standardStroke)
+            .attr("fill-opacity", this.focusOpacity)
         
         // Decrease opacity of unselected
         this.svgSelection.selectAll(".tsi-dot")
             .filter(selectedFilter)
-            .attr("stroke-opacity", .3)
-            .attr("fill-opacity", .15)
+            .attr("stroke-opacity", this.lowStroke)
+            .attr("fill-opacity", this.lowOpacity)
     }
 
     /******** UNHIGHLIGHT FOCUSED GROUP ********/
@@ -621,9 +626,8 @@ class ScatterPlot extends ChartComponent {
          <any>this.legendObject.legendElement.selectAll('.tsi-splitByLabel').classed("inFocus", false);
 
         this.g.selectAll(".tsi-dot")
-            .interrupt()
-            .attr("stroke-opacity", 1)
-            .attr("fill-opacity", .6)
+            .attr("stroke-opacity", this.standardStroke)
+            .attr("fill-opacity", this.standardOpacity)
             .attr("stroke", (d) => Utils.colorSplitBy(this.chartComponentData.displayState, d.splitByI, d.aggregateKey, this.chartOptions.keepSplitByColor))
             .attr("fill", (d) => Utils.colorSplitBy(this.chartComponentData.displayState, d.splitByI, d.aggregateKey, this.chartOptions.keepSplitByColor))
             .attr("stroke-width", "1px");
