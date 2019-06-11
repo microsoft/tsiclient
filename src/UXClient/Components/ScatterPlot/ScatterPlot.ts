@@ -16,6 +16,7 @@ class ScatterPlot extends ChartComponent {
     private focus: any;
     private focusedAggKey: string;
     private focusedSplitBy: string;
+    private focusedSite: any = null;
     private g: any;
     private height: number;
     private legendObject: Legend;
@@ -510,9 +511,13 @@ class ScatterPlot extends ChartComponent {
         let site = this.voronoiDiagram.find(mouse_x, mouse_y);
         if(site == null) return;
 
-        // Return if focused data point has not changed
-        if(site.data.aggregateKey == this.focusedAggKey && site.data.splitBy == this.focusedSplitBy) return;
-           
+        // Short circuit mouse move if focused site has not changed
+        if(this.focusedSite == null)
+            this.focusedSite = site;
+        else if(this.focusedSite == site) return;
+
+        this.focusedSite = site;
+
         this.drawTooltip(site.data, [site[0], site[1]]);
         this.labelMouseMove(site.data.aggregateKey, site.data.splitBy);
         this.highlightDot(site);
