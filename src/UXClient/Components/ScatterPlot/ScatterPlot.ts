@@ -489,7 +489,7 @@ class ScatterPlot extends ChartComponent {
 
     /******** HELPER TO CREATE SELECTION FILTER BASED ON AGGKEY AND SPLITBY ********/
     private createValueFilter (aggregateKey, splitBy) {
-        return (d: any, j: number ) => {
+        return (d: any) => {
             var currAggKey: string;
             var currSplitBy: string;
             if (d.aggregateKey) {
@@ -591,8 +591,8 @@ class ScatterPlot extends ChartComponent {
         // Filter selected
         let selectedFilter = (d: any) => {
             let currAggKey = null, currSplitBy = null;
-            if(d.aggregateKey) currAggKey = d.aggregateKey
-            if(d.splitBy) currSplitBy = d.splitBy
+            if(d.aggregateKey != null) currAggKey = d.aggregateKey
+            if(d.splitBy != null) currSplitBy = d.splitBy
 
             if(splitBy == null)
                 return currAggKey == aggKey;
