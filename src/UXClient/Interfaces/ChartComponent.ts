@@ -10,7 +10,6 @@ class ChartComponent extends Component {
 	readonly CONTROLSWIDTH = 200;
 	readonly TRANSDURATION = (window.navigator.userAgent.indexOf("Edge") > -1) ? 0 : 400;
     public data: any;
-	public chartOptions: ChartOptions = new ChartOptions();
 	public aggregateExpressionOptions: any;
 	protected chartControlsPanel = null;
 	protected ellipsisContainer = null;
@@ -35,10 +34,10 @@ class ChartComponent extends Component {
 
 			var ellipsisItems = [];
 			if (this.chartOptions.grid) {
-				ellipsisItems.push(Utils.createGridEllipsisOption(this.renderTarget, this.chartOptions, this.aggregateExpressionOptions, this.chartComponentData));
+				ellipsisItems.push(Utils.createGridEllipsisOption(this.renderTarget, this.chartOptions, this.aggregateExpressionOptions, this.chartComponentData, this.getString("Display Grid")));
 			}
 			if (this.chartOptions.canDownload) {
-				ellipsisItems.push(Utils.createDownloadEllipsisOption(() => this.chartComponentData.generateCSVString(), () => Utils.focusOnEllipsisButton(this.renderTarget)));
+				ellipsisItems.push(Utils.createDownloadEllipsisOption(() => this.chartComponentData.generateCSVString(), () => Utils.focusOnEllipsisButton(this.renderTarget) ,this.getString("Download as CSV")));
 			}
 
 			if (this.chartOptions.ellipsisItems) {

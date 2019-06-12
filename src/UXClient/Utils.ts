@@ -149,12 +149,12 @@ class Utils {
         return timezoneRaw !== null ? timezoneRaw.split(' ').join('_'): '';
     }
 
-    static convertTimezoneToLabel (timezone) {
+    static convertTimezoneToLabel (timezone , locdLocal = 'Local') {
         let timezoneName = this.parseTimezoneName(timezone);
         let localPrefix = '';
         let offsetPrefix = '';
         if (timezone == 'Local') {
-            localPrefix = 'Local - ';
+            localPrefix = locdLocal + ' - ';
         } 
         if (timezone !== 'UTC') {
             offsetPrefix = ' (' + this.addOffsetGuess(timezoneName) + ')';
@@ -434,10 +434,10 @@ class Utils {
     }
 
     static createGridEllipsisOption (renderTarget: any, chartOptions: ChartOptions, aggregateExpressionOptions: any, 
-                                     chartComponentData: ChartComponentData) {
+                                     chartComponentData: ChartComponentData, labelText = 'Display Grid') {
         return {
             iconClass: "grid",
-            label: "Display Grid",
+            label: labelText,
             action: () => { 
                 this.showGrid(renderTarget, chartOptions, 
                               aggregateExpressionOptions, chartComponentData);
@@ -453,10 +453,10 @@ class Utils {
         }
     }
 
-    static createDownloadEllipsisOption (csvStringGenerator, action = () => {}) {
+    static createDownloadEllipsisOption (csvStringGenerator, action = () => {}, downloadLabel = "Download as CSV") {
         return {
             iconClass: "download",
-            label: "Download as CSV",
+            label: downloadLabel,
             action:() => {
                 Utils.downloadCSV(csvStringGenerator());
                 action();  

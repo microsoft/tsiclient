@@ -14,7 +14,6 @@ class ModelSearch extends Component{
     private clickedInstance;
     private wrapper;
     private types;
-    public chartOptions: ChartOptions = new ChartOptions();
     private instanceResults;
     private usedContinuationTokens = {};
     private contextMenu; 
@@ -79,10 +78,10 @@ class ModelSearch extends Component{
                     searchInstances(searchText, continuationToken);
                 }
             })
-        let noResults = results.append('div').html('No results').classed('tsi-noResults', true).style('display', 'none');
+        let noResults = results.append('div').html(this.getString('No results')).classed('tsi-noResults', true).style('display', 'none');
         let instanceResultsWrapper = results.append('div').attr('class', 'tsi-modelSearchInstancesWrapper')
         this.instanceResults = instanceResultsWrapper.append('div').attr('class', 'tsi-modelSearchInstances');
-        let showMore = instanceResultsWrapper.append('div').attr('class', 'tsi-showMore').html('Show more...').on('click', () => searchInstances(searchText, continuationToken)).style('display', 'none');
+        let showMore = instanceResultsWrapper.append('div').attr('class', 'tsi-showMore').html(this.getString('Show more') + '...').on('click', () => searchInstances(searchText, continuationToken)).style('display', 'none');
 
         let hierarchyElement = this.wrapper.append('div')
             .attr("class", "tsi-hierarchyWrapper");
@@ -245,9 +244,9 @@ class ModelSearch extends Component{
                         ${i.highlights.name ? this.stripHits(i.highlights.name) : this.stripHits(i.highlights.timeSeriesIds ? i.highlights.timeSeriesIds.join(' ') : i.highlights.timeSeriesId.join(' '))}
                     </div>
                     <div class="tsi-modelHighlights">
-                        ${this.stripHits(i.highlights.description && i.highlights.description.length ? i.highlights.description : 'No description')}
+                        ${this.stripHits(i.highlights.description && i.highlights.description.length ? i.highlights.description : this.getString('No description'))}
                         <br/><table>
-                        ${i.highlights.name ? ('<tr><td>Time Series ID</td><td>' + this.stripHits(i.highlights.timeSeriesIds ? i.highlights.timeSeriesIds.join(' ') : i.highlights.timeSeriesId.join(' ')) + '</td></tr>') : ''}                        
+                        ${i.highlights.name ? ('<tr><td>' + this.getString("Time Series ID") + '</td><td>' + this.stripHits(i.highlights.timeSeriesIds ? i.highlights.timeSeriesIds.join(' ') : i.highlights.timeSeriesId.join(' ')) + '</td></tr>') : ''}                        
                         ${i.highlights.instanceFieldNames.map((ifn, idx) => {
                             var val = i.highlights.instanceFieldValues[idx];
                             if (ifn.indexOf('<hit>') !== -1 || val.indexOf('<hit>') !== -1) {
