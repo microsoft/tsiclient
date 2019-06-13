@@ -733,7 +733,9 @@ class LineChart extends TemporalXAxisComponent {
         if (site.data.aggregateKey !== this.focusedAggKey || site.data.splitBy !== this.focusedSplitby) {
             let selectedFilter = this.createValueFilter(site.data.aggregateKey, site.data.splitBy);
             let oldFilter = this.createValueFilter(this.focusedAggKey, this.focusedSplitby);
-            
+
+            this.focusScooterLabel(selectedFilter, site.data.aggregateKey, site.data.splitBy);
+
             this.svgSelection.selectAll(".valueElement")
                 .filter(selectedFilter)
                 .attr("stroke-opacity", this.strokeOpacity)
@@ -988,6 +990,20 @@ class LineChart extends TemporalXAxisComponent {
         });
     } 
 
+    private focusScooterLabel (filterFunction, aggKey, splitBy) {
+        d3.select(this.renderTarget).selectAll(".tsi-scooterValue").style("opacity", .2);
+
+        d3.select(this.renderTarget).selectAll(".tsi-scooterValue")
+            .filter(filterFunction)
+            .style("opacity", 1);
+        
+        d3.select(this.renderTarget).selectAll(".tsi-scooterContainer").each(function () {
+            d3.select(this).selectAll(".tsi-scooterValue").sort(function (a: any, b: any) { 
+                return (a.aggregateKey == aggKey && (splitBy == null || splitBy == a.splitBy)) ? 1 : -1;            
+            });
+        });
+    }  
+
     private labelMouseover (aggregateKey: string, splitBy: string = null) {
         //filter out the selected timeseries/splitby
         var selectedFilter = (d: any, j: number ) => {
@@ -1004,18 +1020,6 @@ class LineChart extends TemporalXAxisComponent {
             return !(currAggKey == aggregateKey && (splitBy == null || splitBy == currSplitBy));
         }
 
-        d3.select(this.renderTarget).selectAll(".tsi-scooterValue").style("opacity", 1);
-
-        d3.select(this.renderTarget).selectAll(".tsi-scooterValue")
-            .filter(selectedFilter)
-            .style("opacity", .2);
-        
-        d3.select(this.renderTarget).selectAll(".tsi-scooterContainer").each(function () {
-            d3.select(this).selectAll(".tsi-scooterValue").sort(function (a: any, b: any) { 
-                return (a.aggregateKey == aggregateKey && (splitBy == null || splitBy == a.splitBy)) ? 1 : -1;            
-            });
-        });
-
         this.svgSelection.selectAll(".valueElement")
             .filter(selectedFilter)
             .attr("stroke-opacity", this.nonFocusStrokeOpactiy)
@@ -1024,7 +1028,8 @@ class LineChart extends TemporalXAxisComponent {
         this.svgSelection.selectAll(".valueEnvelope")
             .filter(selectedFilter)
             .attr("fill-opacity", .1);
-
+            
+        this.focusScooterLabel(this.createValueFilter(aggregateKey, splitBy), aggregateKey, splitBy);
     }
 
     // returns the next visibleAggI

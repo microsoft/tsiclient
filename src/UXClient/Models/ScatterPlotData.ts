@@ -6,7 +6,7 @@ import { Utils } from "../Utils";
 class ScatterPlotData extends GroupedBarChartData {
     public temporalDataArray: any;
     public extents: any = {};
-    private extentsSet: boolean = false; 
+    private extentsSet: boolean = false;
 
 	constructor(){
         super();
@@ -27,6 +27,32 @@ class ScatterPlotData extends GroupedBarChartData {
         } 
     }
 
+    /******** UPDATE EXTENTS BASED ON VISIBLE DATA ********/
+    public updateExtents(measures: any){
+        let visibleData: Array<any> = []
+
+        this.data.forEach((aggregate) => {
+            let aggName: string = Object.keys(aggregate)[0];
+            let aggKey = aggregate.aggKey;
+
+            if(this.displayState[aggKey].visible == true){
+                Object.keys(aggregate[aggName]).forEach((splitBy) => {
+                    if(this.displayState[aggKey].splitBys[splitBy].visible == true){
+                        visibleData.push(Object.values(aggregate[aggName][splitBy]));
+                    }
+                })
+            }
+        })
+
+        visibleData = [].concat.apply([], visibleData);
+
+        measures.forEach(measure => {
+            this.extents[measure] = d3.extent(visibleData, (v:any) => {
+                return measure in v ? v[measure] : null}
+            );
+        });
+    }
+
     /******** UPDATES CHART DATA, ALL TIMESTAMPS, AND VALUES AT THE CURRENT TIMESTAMP ********/
     public mergeDataToDisplayStateAndTimeArrays (data, timestamp, aggregateExpressionOptions = null, events = null, states = null ) {
         ChartComponentData.prototype.mergeDataToDisplayStateAndTimeArrays.call(this, data, aggregateExpressionOptions, events, states);
@@ -45,7 +71,6 @@ class ScatterPlotData extends GroupedBarChartData {
                 this.setValuesAtTimestamp();
                 this.updateTemporal();
             });
-            
         } else{
             this.updateTemporal();
         }
@@ -74,11 +99,11 @@ class ScatterPlotData extends GroupedBarChartData {
 
     /******** OVERRIDES GROUPEDBARCHARTDATA -- UPDATES VALUES AT TIMESTAMP WITH MEASURES & TIMESTAMP********/
     public setValuesAtTimestamp () {
-        var aggregateCounterMap = {};
+        let aggregateCounterMap = {};
         this.valuesAtTimestamp = {};
         this.data.forEach((aggregate, aggI) => {
-            var aggName: string = Object.keys(aggregate)[0];
-            var aggKey;
+            let aggName: string = Object.keys(aggregate)[0];
+            let aggKey;
             if (aggregateCounterMap[aggName]) {
                 aggKey = Utils.createEntityKey(aggName, aggregateCounterMap[aggName]);
                 aggregateCounterMap[aggName] += 1;
