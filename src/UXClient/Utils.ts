@@ -518,6 +518,75 @@ class Utils {
             return false;
         }
     }
+
+    static mergeSeriesForScatterPlot(chartData: any, scatterMeasures: any){
+        let xMeasure = chartData[scatterMeasures.X_MEASURE], yMeasure = chartData[scatterMeasures.Y_MEASURE], rMeasure = chartData[scatterMeasures.R_MEASURE];
+
+        // Create data label
+        let xLabel = xMeasure.additionalFields.Variable.substring(0, 15) + (xMeasure.additionalFields.Variable.length > 15 ? "... " : " vs");
+        let yLabel = " " + yMeasure.additionalFields.Variable.substring(0, 15) + (yMeasure.additionalFields.Variable.length > 15 ? "... " : "");
+        let rLabel = (rMeasure != null ? " vs " + rMeasure.additionalFields.Variable.substring(0, 15) + (rMeasure.additionalFields.Variable.length > 15 ? "... " : "") : "");
+        let dataTitle =  xLabel + yLabel + rLabel;
+        
+        // Initialize scatter plot data object
+        let scatterData = {
+            [dataTitle] : {
+                "": {}
+            }
+        };
+
+        // Takes query and returns normalized time data
+        let normalizeTimestampKeys = (query) => {
+            let newTS = {}
+            Object.keys(query.data[query.alias][""]).forEach((key) => {
+                let oldTime = new Date(key).valueOf();
+                let timeShift = query.timeShift != "" ? this.parseShift(query.timeShift): 0;
+                // Calculate real timeshift based on bucket snapping
+                let bucketShiftInMillis =  this.adjustStartMillisToAbsoluteZero(timeShift, this.parseShift(query.searchSpan.bucketSize));
+
+                let normalizedTime = oldTime - bucketShiftInMillis;
+
+                let timestamp = new Date(normalizedTime).toISOString();
+
+                newTS[timestamp] = query.data[query.alias][""][key];
+            })
+            return newTS;
+        }
+
+        // // Normalize timestamp data
+        xMeasure.data[xMeasure.alias][""] = normalizeTimestampKeys(xMeasure);
+        yMeasure.data[yMeasure.alias][""] = normalizeTimestampKeys(yMeasure);
+        if(rMeasure)
+            rMeasure.data[rMeasure.alias][""] = normalizeTimestampKeys(rMeasure);
+
+        // For each timestamp in X data mix measures of other series
+        Object.keys(xMeasure.data[xMeasure.alias][""]).forEach((key) => {
+            if(key in yMeasure.data[yMeasure.alias][""]){
+                // Grab X and Y measures at that timestamp 
+                let measures = {
+                    [xMeasure.alias + " " + xMeasure.additionalFields.Variable + " " + xMeasure.timeShift]: xMeasure.data[xMeasure.alias][""][key].avg,
+                    [yMeasure.alias + " " + yMeasure.additionalFields.Variable + " " + yMeasure.timeShift]: yMeasure.data[yMeasure.alias][""][key].avg
+                };
+
+                // Add optional R measure
+                if(rMeasure != null && key in rMeasure.data[rMeasure.alias][""])
+                    measures[rMeasure.alias + " " + rMeasure.additionalFields.Variable + " " + rMeasure.timeShift] = rMeasure.data[rMeasure.alias][""][key].avg;
+
+                // Discard timestamps with null valued measures
+                if(xMeasure.data[xMeasure.alias][""][key].avg != null && yMeasure.data[yMeasure.alias][""][key].avg != null)
+                {
+                    if(rMeasure != null){
+                        if(key in rMeasure.data[rMeasure.alias][""] && rMeasure.data[rMeasure.alias][""][key].avg != null)
+                            scatterData[dataTitle][""][key] = measures;
+                    }
+                    else{
+                        scatterData[dataTitle][""][key] = measures;
+                    } 
+                } 
+            }
+        });
+        return scatterData;
+    }
 }
 
 export {Utils};
