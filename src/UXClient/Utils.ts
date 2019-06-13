@@ -214,22 +214,30 @@ class Utils {
     }
 
     static splitTimeLabel (text: any) {
+
+        let shouldSplit = (str) => {
+            let splitLines = str.split(' ');
+            return !((splitLines.length === 1) || (splitLines.length === 2 && (splitLines[1] === 'AM' || splitLines[1] === 'PM')));
+        }
+
         text.each(function () {
             if(this.children == undefined || this.children.length == 0){  // don't split already split labels
                 var text = d3.select(this);
                 var lines = text.text().split(" ");
                 var dy = parseFloat(text.attr("dy"));
-                text.text(null).append("tspan")
-                    .attr("x", 0)
-                    .attr("y", text.attr("y"))
-                    .attr("dy", dy + "em")
-                    .text(lines[0]);
-                if (lines.length > 1) {
+                if (shouldSplit(text.text())) {
+                    let newFirstLine = lines[0] + (lines.length === 3 ? (' ' + lines[1]) : '');
+                    let newSecondLine = lines[lines.length - 1];
+                    text.text(null).append("tspan")
+                        .attr("x", 0)
+                        .attr("y", text.attr("y"))
+                        .attr("dy", dy + "em")
+                        .text(newFirstLine);
                     text.append("tspan")
                         .attr("x", 0)
                         .attr("y", text.attr("y"))
                         .attr("dy", (dy + dy * 1.4) + "em")
-                        .text(lines[1] + (lines.length === 3 ? ' ' + lines[2] : ''));    
+                        .text(newSecondLine);    
                 }
             }
         });
