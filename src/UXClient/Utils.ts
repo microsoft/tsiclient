@@ -590,20 +590,26 @@ class Utils {
 
     static getScatterPlotMeasureNames(chartData: any, scatterMeasures: any){
         let uniqueNameMap = {}
-
-        let xMeasureName = chartData[scatterMeasures.X_MEASURE].alias + " " + chartData[scatterMeasures.X_MEASURE].additionalFields.Variable + " " + chartData[scatterMeasures.X_MEASURE].timeShift;
+        
+        let xMeasureName = chartData[scatterMeasures.X_MEASURE].alias + " " + chartData[scatterMeasures.X_MEASURE].additionalFields.Variable + 
+            (chartData[scatterMeasures.X_MEASURE].timeShift == "" ? "" : " " + chartData[scatterMeasures.X_MEASURE].timeShift);
         uniqueNameMap[xMeasureName] = 1;
         
-        let yMeasureName = chartData[scatterMeasures.Y_MEASURE].alias + " " + chartData[scatterMeasures.Y_MEASURE].additionalFields.Variable + " " + chartData[scatterMeasures.Y_MEASURE].timeShift;
-        if(yMeasureName in  uniqueNameMap){
+        let yMeasureName = chartData[scatterMeasures.Y_MEASURE].alias + " " + chartData[scatterMeasures.Y_MEASURE].additionalFields.Variable + 
+            (chartData[scatterMeasures.Y_MEASURE].timeShift == "" ? "" : " " + chartData[scatterMeasures.Y_MEASURE].timeShift);
+
+        if(yMeasureName in uniqueNameMap){
+            let tempName = yMeasureName;
             yMeasureName += " (" + uniqueNameMap[yMeasureName].toString() + ")";
-            uniqueNameMap[yMeasureName] ++;
+            uniqueNameMap[tempName] = uniqueNameMap[tempName] + 1;
         } else{
             uniqueNameMap[yMeasureName] = 1;
         }
 
-        let rMeasureName = chartData[scatterMeasures.R_MEASURE] ? chartData[scatterMeasures.R_MEASURE].alias + " " + chartData[scatterMeasures.R_MEASURE].additionalFields.Variable + " " + chartData[scatterMeasures.R_MEASURE].timeShift : null;
-        if(rMeasureName){
+        let rMeasureName = chartData[scatterMeasures.R_MEASURE] ? chartData[scatterMeasures.R_MEASURE].alias + " " + chartData[scatterMeasures.R_MEASURE].additionalFields.Variable +
+            (chartData[scatterMeasures.Y_MEASURE].timeShift == "" ? "" : " " + chartData[scatterMeasures.Y_MEASURE].timeShift) : null;
+
+        if(rMeasureName != null){
             if(rMeasureName in uniqueNameMap){
                 rMeasureName += " (" + uniqueNameMap[rMeasureName].toString() + ")";
             }
@@ -614,7 +620,6 @@ class Utils {
             Y_MEASURE: yMeasureName,
             R_MEASURE: rMeasureName ? rMeasureName : null
         }
-
     }
 }
 
