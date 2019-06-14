@@ -13,7 +13,6 @@ class Slider extends Component{
     private sliderWidth: number;
     private selectedLabel: string;
     private isAscendingTimePeriods: boolean;
-    private chartOptions: ChartOptions = new ChartOptions();
 
     private margins = {
         left: 60,
@@ -170,7 +169,8 @@ class Slider extends Component{
     
     private setSliderTextDivLabel = () => {
         this.sliderTextDiv.attr("aria-label", () => {
-            return "Currently displayed time is " + this.selectedLabel + ". Left arrow to go back in time, right arrow to go forward"; 
+            return this.getString("Currently displayed time is") +  ' ' + this.selectedLabel + ". " + 
+                this.getString("Left arrow to go back in time") + ", " + this.getString("right arrow to go forward"); 
         });
     }
 

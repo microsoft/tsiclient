@@ -153,7 +153,7 @@ class LineChart extends TemporalXAxisComponent {
         this.targetElement.selectAll(".tsi-markerInstructions").remove();
         this.targetElement.append("div")
             .classed("tsi-markerInstructions", true)
-            .html("Click to drop marker, drag to reposition."); 
+            .html(this.getString("Click to drop marker") + "," + this.getString("drag to reposition") + "."); 
     }
 
     private destroyMarkerInstructions () {
@@ -178,7 +178,7 @@ class LineChart extends TemporalXAxisComponent {
         if (shiftMillis !== 0) {
             text.append("div")
                 .attr("class", "temporalShiftText")
-                .text('(shifted ' + this.chartComponentData.getTemporalShiftString(d.aggregateKey) + ')');
+                .text('(' + this.getString("shifted") + ' ' + this.chartComponentData.getTemporalShiftString(d.aggregateKey) + ')');
         }
 
         let valueGroup = text.append('div').classed('valueGroup', true);
@@ -543,7 +543,7 @@ class LineChart extends TemporalXAxisComponent {
         let self = this;
         timeLabel.html(text)
             .append("button")
-            .attr("aria-label", "Delete marker at " + text) 
+            .attr("aria-label", this.getString("Delete marker at") + ' ' + text) 
             .classed("tsi-closeButton", true)
             .on("click", function () {
                 let markerGuid: string = String(d3.select(d3.select(this).node().parentNode.parentNode).datum());
@@ -1429,9 +1429,9 @@ class LineChart extends TemporalXAxisComponent {
             this.stackedButton = this.chartControlsPanel.append("button")
                 .style("left", "60px")
                 .attr("class", "tsi-stackedButton")
-                .attr("aria-label", () => "set axis state to " + this.nextStackedState())
+                .attr("aria-label", () => this.getString("set axis state to") + ' ' + this.nextStackedState())
                 .on("click", function () {
-                    d3.select(this).attr("aria-label", () => "set axis state to " + self.nextStackedState());
+                    d3.select(this).attr("aria-label", () => self.getString("set axis state to") + ' ' + self.nextStackedState());
                     self.chartOptions.yAxisState = self.nextStackedState();
                     self.draw();
                     setTimeout (() => (d3.select(this).node() as any).focus(), 200);
@@ -1444,7 +1444,7 @@ class LineChart extends TemporalXAxisComponent {
         if (this.chartControlsPanel !== null) {
             this.drawEllipsisMenu([{
                 iconClass: "flag",
-                label: "Drop a Marker",
+                label: this.getString("Drop a Marker"),
                 action: this.scooterButtonClick,
                 description: ""
             }]);

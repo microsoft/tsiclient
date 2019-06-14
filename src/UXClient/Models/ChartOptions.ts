@@ -1,6 +1,7 @@
 import * as d3 from 'd3';
 import { quadtree } from 'd3';
 import { Utils } from '../Utils';
+import { Strings } from './Strings';
 
 class ChartOptions {
     public aggTopMargin: number; // margin on top of each aggregate line(s)
@@ -45,7 +46,7 @@ class ChartOptions {
     public onSticky: (aggKey: string, splitBy: string) => void;
     public onUnsticky: (aggKey: string, splitBy: string) => void;
     public onKeydown: (d3Event: any, awesompleteObject: any) => void;  // for handling keydown actions in ModelAutocomplete
-    public onInput: (searchText: string) => void; // for handling after input actions in ModelAutocomplete
+    public onInput: (searchText: string, event) => void; // for handling after input actions in ModelAutocomplete
     public preserveAvailabilityState: boolean; // whether state in availability chart is saved or blown away on render
     public scaledToCurrentTime: boolean; //whether slider base component's scale is based on current time's values (or all values)
     public spMeasures: Array<string>; // measures passed into scatter plot to plot on axis
@@ -67,6 +68,8 @@ class ChartOptions {
     public yExtent: any; // [min, max] of range of y values in chart
     public zeroYAxis: boolean; // whether bar chart's bar's bottom (or top if negative) is zero
     public withContextMenu: boolean; // whether the hierarchy uses a context menu when you click on a parent of leaf nodes
+
+    public strings: Strings = new Strings(); // passed in key value pairs of strings -> strings
 
     private getInterpolationFunction (interpolationName: string) {
         if (interpolationName == "curveLinear")
@@ -155,6 +158,7 @@ class ChartOptions {
         this.isTemporal = this.mergeValue(chartOptionsObj, "isTemporal", false);
         this.xAxisTimeFormat = this.mergeValue(chartOptionsObj, 'xAxisTimeFormat', null);
         this.brushRangeVisible = this.mergeValue(chartOptionsObj, 'brushRangeVisible', true);
+        this.strings.mergeStrings(Utils.getValueOrDefault(chartOptionsObj, 'strings', {}));
     }
 
     private mergeValue (chartOptionsObj, propertyName, defaultValue) {
@@ -226,7 +230,8 @@ class ChartOptions {
             markers: this.markers,
             onMarkersChange: this.onMarkersChange,
             xAxisTimeFormat: this.xAxisTimeFormat,
-            brushRangeVisible: this.brushRangeVisible
+            brushRangeVisible: this.brushRangeVisible,
+            strings: this.strings.toObject()
         }
     }
 }

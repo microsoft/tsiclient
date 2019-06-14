@@ -479,7 +479,7 @@ class AvailabilityChart extends ChartComponent{
     private buildFromAndToContainer () {
         let self = this;
         let dateTimeContainer = this.timePickerTextContainer.append('div').classed('tsi-dateTimeContainer', true);
-        dateTimeContainer.append("span").node().innerHTML = "Timeframe";
+        dateTimeContainer.append("span").node().innerHTML = this.getString("Timeframe");
         this.timeContainer = dateTimeContainer.append("button")
             .classed('tsi-dateTimeButton', true)
             .on("click", function () {
@@ -488,7 +488,7 @@ class AvailabilityChart extends ChartComponent{
                 var maxMillis = self.toMillis + (Utils.getOffsetMinutes(self.chartOptions.offset, self.toMillis) * 60 * 1000);
                 var startMillis = self.selectedFromMillis + (Utils.getOffsetMinutes(self.chartOptions.offset, self.selectedFromMillis) * 60 * 1000);
                 var endMillis = self.selectedToMillis + (Utils.getOffsetMinutes(self.chartOptions.offset, self.selectedFromMillis) * 60 * 1000);
-                self.dateTimePicker.render({'theme': self.chartOptions.theme, offset: self.chartOptions.offset, is24HourTime: self.chartOptions.is24HourTime}, 
+                self.dateTimePicker.render({'theme': self.chartOptions.theme, offset: self.chartOptions.offset, is24HourTime: self.chartOptions.is24HourTime, strings: self.chartOptions.strings.toObject()}, 
                                             minMillis, maxMillis, startMillis, endMillis, (fromMillis, toMillis, offset) => {
                                                 self.chartOptions.offset = offset;
                                                 self.timePickerLineChart.chartOptions.offset = offset;
@@ -510,10 +510,11 @@ class AvailabilityChart extends ChartComponent{
             .append("select")
             .attr('class', 'tsi-select tsi-timePicker');
 
+        let self = this;
         var options = select.selectAll('option')
             .data(this.quickTimeArray).enter()
             .append('option')
-            .text(function (d) { return d[0]; })
+            .text(function (d) { return self.getString(d[0]); })
             .property("value", function (d) { return d[1]; });
 
         options.filter((d) => d[0] == "Last 24 Hours")
@@ -523,7 +524,6 @@ class AvailabilityChart extends ChartComponent{
             .attr("disabled", true)
             .style("display", "none");
 
-        var self = this;
         select.on('change', function (d) {
             var selectValue = Number(d3.select(this).property('value'));
             if (!isNaN(selectValue)) {
@@ -573,7 +573,7 @@ class AvailabilityChart extends ChartComponent{
         
         if (this.isCustomTime(this.selectedFromMillis, this.selectedToMillis))
                 this.timePickerTextContainer.select('.tsi-timePicker')
-                    .node().value = "Custom";
+                    .node().value = this.getString("Custom");
         this.setQuickTimeValue(this.selectedFromMillis, this.selectedToMillis);
         if(this.chartOptions.isCompact)
             this.buildCompactFromAndTo();
