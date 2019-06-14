@@ -42,7 +42,7 @@ class ScatterPlot extends ChartComponent {
 
     readonly lowOpacity = 0.15; 
     readonly standardOpacity = 0.6; 
-    readonly focusOpacity = 0.8;
+    private focusOpacity = 0.8;
     readonly standardStroke = 1;
     readonly lowStroke = 0.3;
     
@@ -197,6 +197,17 @@ class ScatterPlot extends ChartComponent {
 
         this.focus.attr("visibility", (this.chartOptions.focusHidden) ? "hidden" : "visible")
 
+        // If only one data series visible, do not highlight on hover
+        let visibleSplitBys = 0;
+        Object.keys(this.chartComponentData.displayState).forEach(aggKey => {
+            if(this.chartComponentData.displayState[aggKey].visible)
+                Object.keys(this.chartComponentData.displayState[aggKey].splitBys).forEach(splitBy => {
+                    if(this.chartComponentData.displayState[aggKey].splitBys[splitBy].visible)
+                        visibleSplitBys++
+                });
+        })
+
+        if(visibleSplitBys == 1) this.focusOpacity = this.standardOpacity;
         // Determine the number of timestamps present, add margin for slider
         if(this.chartComponentData.allTimestampsArray.length > 1 && this.chartOptions.isTemporal){
             this.chartMargins.bottom = 88;
