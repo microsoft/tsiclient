@@ -11,6 +11,12 @@
 
     color: $gray1;
     background: $gray3;
+
+    .tsi-rangeTextContainer {
+        color: $gray4;
+        background-color: $gray1;
+    }
+
     .tsi-lineChartSVG{
         text{
             fill: $gray1;
@@ -64,6 +70,19 @@
 }
 
 .tsi-lineChart {
+
+    .tsi-rangeTextContainer {
+        pointer-events: none;
+        height: 17px;
+        left: 100px;
+        top: 4px;
+        position: absolute;
+        padding-left: 4px;
+        padding-right: 4px;
+        font-size: 11px;
+        border-radius: 4px;
+        transform: translate(-50%,-50%);
+    }
 
     .tsi-chartControlsPanel {
         z-index: 2;

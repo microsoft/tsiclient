@@ -1032,6 +1032,51 @@ class LineChart extends TemporalXAxisComponent {
         this.focusScooterLabel(this.createValueFilter(aggregateKey, splitBy), aggregateKey, splitBy);
     }
 
+    private drawBrushRange () {
+        if (this.chartOptions.brushRangeVisible) {
+            if (!(this.brushStartTime|| this.brushEndTime)) {
+                this.deleteBrushRange();
+            }
+    
+            if (this.targetElement.select('.tsi-rangeTextContainer').empty()) {
+                var rangeTextContainer = this.targetElement.append("div")
+                    .attr("class", "tsi-rangeTextContainer");
+            }
+            this.updateBrushRange();
+        }
+    }
+
+    public updateBrushRange () {
+        if (!(this.brushStartTime|| this.brushEndTime)) {
+            this.deleteBrushRange();
+            return;
+        }
+
+        var rangeText = Utils.rangeTimeFormat(this.brushEndTime.valueOf() - this.brushStartTime.valueOf());
+        var rangeTextContainer = this.targetElement.select('.tsi-rangeTextContainer');
+
+        var leftPos = this.chartMargins.left + 
+            Math.min(Math.max(0, this.x(this.brushStartTime)), this.x.range()[1]) + (this.chartOptions.legend === 'shown' ? 200 : 0);
+
+        var rightPos = this.chartMargins.left + 
+            Math.min(Math.max(0, this.x(this.brushEndTime)), this.x.range()[1]) + (this.chartOptions.legend === 'shown' ? 200 : 0);
+ 
+        rangeTextContainer
+            .html(rangeText)
+            .style("left", Math.max(8, Math.round((leftPos + rightPos) / 2)) + "px")
+            .style("top", (this.chartMargins.top + this.chartOptions.aggTopMargin) + 'px')
+        
+        if (this.chartOptions.color) {
+            rangeTextContainer
+                .style('background-color', this.chartOptions.color);
+        }
+        
+    }
+
+    public deleteBrushRange () {
+        this.targetElement.select('.tsi-rangeTextContainer').remove();
+    }
+
     // returns the next visibleAggI
     private generateLine = (visibleAggI, agg, aggVisible: boolean, aggregateGroup) => {
         var defs = this.svgSelection.select("defs");
@@ -1351,6 +1396,10 @@ class LineChart extends TemporalXAxisComponent {
             this.chartMargins.top += -28;
         }
 
+        if (!this.chartOptions.brushRangeVisible && this.targetElement) {
+            this.deleteBrushRange();
+        }
+
         this.events = (this.chartOptions.events != undefined) ? this.chartOptions.events : null;
         this.states = (this.chartOptions.states != undefined) ? this.chartOptions.states : null;
         this.strokeOpacity = this.chartOptions.isArea ? .55 : 1;
@@ -1580,8 +1629,14 @@ class LineChart extends TemporalXAxisComponent {
                             .attr('rx', '4px')
                             .attr('ry', '4px');
                     })
-                    .on("brush", function () { self.brushBrush(); })
-                    .on("end", function () { self.brushEnd(this); });
+                    .on("brush", function () { 
+                        self.brushBrush(); 
+                        self.drawBrushRange();
+                    })
+                    .on("end", function () { 
+                        self.brushEnd(this);
+                        self.drawBrushRange();
+                    });
                     this.brushElem.call(this.brush);
                     this.setBrush();
                 }
