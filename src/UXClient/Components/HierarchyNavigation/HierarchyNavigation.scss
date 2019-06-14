@@ -24,7 +24,7 @@
         li{
             .tsi-markedName{
                 &:hover{
-                    cursor: pointer;
+                    cursor: default;
                     background: $gray4;
                 }
             }
@@ -43,7 +43,7 @@
 
     .tsi-modelResultWrapper{
         border-bottom: 1px solid rgba($gray1, .05);
-        &:hover, &:focus, &.selected{
+        &:hover, &:focus, &.tsi-selected{
             background-color: $gray2;
             &::after{
                 content: "";
@@ -54,6 +54,24 @@
                 left: calc(100% - 20px);
                 background: url(../../Icons/chevron.svg) no-repeat;
                 transform: rotate(-90deg);
+            }
+        }
+    }
+    .tsi-hierarchyNavigationContextMenu{
+        li:hover{
+            background: $gray4;
+        }
+    }
+    .tsi-leaf {
+        .tsi-markedName{
+            cursor: pointer !important;
+        }
+        &.tsi-selected {
+            background: $gray2 !important;
+            .tsi-markedName{
+                &:hover{
+                    background: $gray2 !important;
+                }
             }
         }
     }
@@ -95,7 +113,7 @@
             min-width: 100%;
             font-size: 16px;
             font-weight: 600;
-            background-position-y: 12px;
+            background-position-y: 10px;
             position: relative;
             z-index: 1;
             border: 1px solid transparent;
@@ -368,9 +386,6 @@
         }
         &.tsi-leaf {
             font-weight: 600;
-            &.selected {
-                background: #b3d6f2;
-            }
         }
     }
 
@@ -388,10 +403,6 @@
         ul {
             padding: 0;
             margin: 0;
-
-            li:hover{
-                background: #b3d6f2;
-            }
         }
 
         li {

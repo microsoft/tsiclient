@@ -19,10 +19,10 @@ class HierarchyNavigation extends Component{
     private usedInstanceSearchContinuationTokens = {};
     private envHierarchies = {};
     private envTypes = {};
-    private selectedHierarchyId = HierarchySelectionValues.Unparented;
+    private selectedHierarchyId = HierarchySelectionValues.All;
     private selectedNavTab = NavTabs.Hierarchy;
     private mode = State.Navigate;
-    private searchString = "";
+    private searchString = "";  
     private path: Array<string> = [];
     public hierarchyNavOptions = new HiararchyNavigationOptions();
 
@@ -146,25 +146,14 @@ class HierarchyNavigation extends Component{
         })
 
         let autocompleteOnInput = (st, event) => {
-            this.searchString = st;
-
             if(st.length === 0){
-                // if (this.selectedNavTab === NavTabs.Hierarchy) {
-                    this.switchToNavTab(NavTabs.Hierarchy);
-                    // this.mode = State.Navigate;
-                    // this.setRequestParamsForNavigate();
-                // }
-                // this.clearAndGetResults();
+                this.searchString = st;
+                this.switchToNavTab(NavTabs.Hierarchy);
             }
             else {
-                // if (this.selectedNavTab === NavTabs.Hierarchy) {
-                //     if (st.length === 1) {
-                //         this.mode = State.Filter;
-                //         this.setRequestParamsForFilter();
-                //     }
-                // } 
                 if (event.which === 13 || event.keyCode === 13) {
-                    this.switchToNavTab(NavTabs.Instances);
+                    this.searchString = st;
+                    this.switchToNavTab(NavTabs.Instances, true);
                     this.clearAndGetResults();
                 }
             }
@@ -187,7 +176,7 @@ class HierarchyNavigation extends Component{
     private setRequestParamsForNavigate () {
         this.mode = State.Navigate;
         this.hierarchyNavOptions.isInstancesRecursive = false;
-        this.hierarchyNavOptions.isInstancesHighlighted = false;
+        this.hierarchyNavOptions.isInstancesHighlighted = true;
         this.hierarchyNavOptions.instancesSort = InstancesSort.DisplayName;
         this.hierarchyNavOptions.hierarchiesExpand = HierarchiesExpand.OneLevel;
         this.hierarchyNavOptions.hierarchiesSort = HierarchiesSort.Name;
@@ -201,7 +190,7 @@ class HierarchyNavigation extends Component{
         this.hierarchyNavOptions.hierarchiesSort = HierarchiesSort.CumulativeInstanceCount;
     }
 
-    private switchToNavTab = (tab: NavTabs) => {
+    private switchToNavTab = (tab: NavTabs, suppressSearch: boolean = false) => {
         this.closeContextMenu();
         if (tab === NavTabs.Hierarchy) {
             this.selectedNavTab = NavTabs.Hierarchy;
@@ -228,7 +217,7 @@ class HierarchyNavigation extends Component{
             if (this.selectedHierarchyId === HierarchySelectionValues.Unparented) {
                 this.hierarchyNavOptions.isInstancesRecursive = false;
             }
-            if (d3.selectAll('.tsi-modelResultWrapper').size() === 0) {
+            if (d3.selectAll('.tsi-modelResultWrapper').size() === 0 && !suppressSearch) {
                 this.instanceList.html('');
                 this.lastInstanceContinuationToken = null;
                 this.usedInstanceSearchContinuationTokens = {};
@@ -244,7 +233,7 @@ class HierarchyNavigation extends Component{
     private requestPayload (path = null) {
         let payload = {};
         payload["searchString"] = this.searchString;
-        payload["path"] = path ? path : this.path;
+        payload["path"] = this.selectedNavTab === NavTabs.Instances ? [] : (path ? path : this.path);
         payload["instances"] = {recursive: this.hierarchyNavOptions.isInstancesRecursive, sort: {by: this.hierarchyNavOptions.instancesSort}, highlights: this.hierarchyNavOptions.isInstancesHighlighted, pageSize: this.hierarchyNavOptions.instancesPageSize};
         payload["hierarchies"] = {expand: {kind: this.hierarchyNavOptions.hierarchiesExpand}, sort: {by: this.hierarchyNavOptions.hierarchiesSort}, pageSize: this.hierarchyNavOptions.hierarchiesPageSize};
 
@@ -455,9 +444,9 @@ class HierarchyNavigation extends Component{
     private closeContextMenu() {
         if(this.clickedInstance && this.clickedInstance.contextMenu) {
             this.clickedInstance.contextMenu.remove();
-            d3.selectAll('li.selected').classed('selected', false);
+            d3.selectAll('li.tsi-selected').classed('tsi-selected', false);
         }
-        d3.selectAll('.tsi-modelResultWrapper').classed('selected', false);
+        d3.selectAll('.tsi-modelResultWrapper').classed('tsi-selected', false);
     }
 
     private stripHits = (str) => {
@@ -528,8 +517,9 @@ function InstanceNode (tsId, name = null, type, hierarchyIds, highlights, contex
     this.type = type;
     this.hierarchyIds = hierarchyIds;
     this.highlights = highlights;
+    this.suppressDrawContextMenu = false;
     this.onClick = (target, wrapperMousePos, eltMousePos, isPathActive) => {
-        this.node.classed('selected', true);
+        this.node.classed('tsi-selected', true);
         this.prepareForContextMenu(target, wrapperMousePos, eltMousePos, isPathActive)
         contextMenuFunc(this);
     };
@@ -547,7 +537,6 @@ function InstanceNode (tsId, name = null, type, hierarchyIds, highlights, contex
             var option = Object.keys(a)[0];
             contextMenuList.append('li').html(option).on('click', a[option]);
         });
-        // this.contextMenuProps['hierarchy'].attr('style', `padding-bottom: ${this.contextMenu.node().getBoundingClientRect().height}px`);  margin-top = -*height of context menu
     }
     this.isLeaf = true;
     this.level = level;

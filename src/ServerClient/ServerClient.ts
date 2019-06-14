@@ -89,7 +89,7 @@ class ServerClient {
             });        
         }
         else {
-            return this.createPromiseFromXhr('https://' + environmentFqdn + '/timeseries/instances/$batch' + this.apiVersionUrlParam, "POST", JSON.stringify({get: timeSeriesIds}), token, (responseText) => {return JSON.parse(responseText);});
+            return this.createPromiseFromXhr('https://' + environmentFqdn + '/timeseries/instances/$batch' + this.tsmTsqApiVersion, "POST", JSON.stringify({get: timeSeriesIds}), token, (responseText) => {return JSON.parse(responseText);});
         }
     }
     
