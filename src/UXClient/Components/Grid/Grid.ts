@@ -12,7 +12,6 @@ class Grid extends Component {
 	private targetElement;
 	public usesSeconds: boolean = false;
 	public usesMillis:boolean = false;
-	public chartOptions: ChartOptions = new ChartOptions
 
 	constructor(renderTarget: Element){
 		super(renderTarget);
@@ -87,7 +86,7 @@ class Grid extends Component {
 			headers.forEach((h, i) => {
 				headersRow.append('th').attr("tabindex", 0).attr("class", this.cellClass(0, i+1)).on("keydown", () => {arrowNavigate(d3.event, 0, i+1)}).text(() => {
 					var hAsDate = <any>(new Date(h));
-					if(hAsDate != 'Invalid Date')
+					if(hAsDate != this.getString('Invalid Date'))
 						return Utils.timeFormat(this.usesSeconds, this.usesMillis, this.chartOptions.offset)(hAsDate);
 					return h;
 				})

@@ -1,4 +1,5 @@
 import {Utils} from "./../Utils";
+import { ChartOptions } from "../Models/ChartOptions";
 
 class Component {
 	public renderTarget;
@@ -6,6 +7,12 @@ class Component {
 
 	public usesSeconds: boolean = false;
 	public usesMillis: boolean = false;
+
+	protected chartOptions: ChartOptions = new ChartOptions();
+
+	protected getString (str: string) {
+        return this.chartOptions.strings.getString(str);
+    }
 	
 	constructor(renderTarget: Element){
 		this.renderTarget = renderTarget;

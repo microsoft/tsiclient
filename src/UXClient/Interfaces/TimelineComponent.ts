@@ -14,7 +14,6 @@ class TimelineComponent extends Component {
 
 	protected width: number;
 	protected margins: any;
-	protected chartOptions: ChartOptions = new ChartOptions();
 	
 	constructor(renderTarget: Element){
 		super(renderTarget);
