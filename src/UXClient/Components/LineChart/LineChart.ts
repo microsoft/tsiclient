@@ -1068,7 +1068,8 @@ class LineChart extends TemporalXAxisComponent {
         
         if (this.chartOptions.color) {
             rangeTextContainer
-                .style('background-color', this.chartOptions.color);
+                .style('background-color', this.chartOptions.color)
+                .style('color', 'white');
         }
         
     }
@@ -1380,6 +1381,14 @@ class LineChart extends TemporalXAxisComponent {
             return "stacked";
     };
 
+    private clearBrush () {
+        this.svgSelection.select('.svgGroup').select(".brushElem").call(this.brush.move, null);
+        this.deleteBrushRange();
+        if (this.brushContextMenu) {
+            this.brushContextMenu.hide();
+        }
+    }
+
     public render(data: any, options: any, aggregateExpressionOptions: any) {
         this.data = data;
         this.hasBrush = options && (options.brushMoveAction || options.brushMoveEndAction || options.brushContextMenuActions);
@@ -1415,9 +1424,9 @@ class LineChart extends TemporalXAxisComponent {
         this.chartWidth = this.getChartWidth();
 
         if (this.brush && this.svgSelection.select('.svgGroup').select(".brushElem") && !this.chartOptions.keepBrush) {
-            this.svgSelection.select('.svgGroup').select(".brushElem").call(this.brush.move, null);
             this.brushStartTime = null;
             this.brushEndTime = null;
+            this.clearBrush();
         }
         
         d3.select(this.renderTarget).select(".tsi-tooltip").remove();
