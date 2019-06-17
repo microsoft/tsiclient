@@ -1071,7 +1071,13 @@ class LineChart extends TemporalXAxisComponent {
                 .style('background-color', this.chartOptions.color)
                 .style('color', 'white');
         }
-        
+
+        let calcedWidth = rangeTextContainer.node().getBoundingClientRect().width;	
+        if (this.chartOptions.isCompact && (rightPos - leftPos) < calcedWidth) {	
+            rangeTextContainer.style('visibility', 'hidden');	
+        } else {
+            rangeTextContainer.style('visibility', 'visible');
+        }
     }
 
     public deleteBrushRange () {
