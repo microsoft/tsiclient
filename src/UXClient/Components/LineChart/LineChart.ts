@@ -1052,13 +1052,13 @@ class LineChart extends TemporalXAxisComponent {
             return;
         }
 
-        var rangeText = Utils.rangeTimeFormat(this.brushEndTime.valueOf() - this.brushStartTime.valueOf());
-        var rangeTextContainer = this.targetElement.select('.tsi-rangeTextContainer');
+        let rangeText = Utils.rangeTimeFormat(this.brushEndTime.valueOf() - this.brushStartTime.valueOf());
+        let rangeTextContainer = this.targetElement.select('.tsi-rangeTextContainer');
 
-        var leftPos = this.chartMargins.left + 
+        let leftPos = this.chartMargins.left + 
             Math.min(Math.max(0, this.x(this.brushStartTime)), this.x.range()[1]) + (this.chartOptions.legend === 'shown' ? 200 : 0);
 
-        var rightPos = this.chartMargins.left + 
+        let rightPos = this.chartMargins.left + 
             Math.min(Math.max(0, this.x(this.brushEndTime)), this.x.range()[1]) + (this.chartOptions.legend === 'shown' ? 200 : 0);
  
         rangeTextContainer
