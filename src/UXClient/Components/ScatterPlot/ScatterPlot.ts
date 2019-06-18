@@ -284,6 +284,10 @@ class ScatterPlot extends ChartComponent {
         // Draw axis
         this.drawAxis();
 
+        // Draw axis labels
+        if(this.chartOptions.spAxisLabels != null && this.chartOptions.spAxisLabels.length >= 1)
+            this.drawAxisLabels();
+
         // Draw data
         let scatter = this.pointWrapper.selectAll(".tsi-dot")
             .data(this.cleanData(this.chartComponentData.temporalDataArray),  (d) => {
@@ -703,6 +707,33 @@ class ScatterPlot extends ChartComponent {
             .call(d3.axisLeft(this.yScale));
             
         this.yAxis.exit().remove()
+    }
+
+    /******** DRAW X AND Y AXIS LABELS ********/
+    private drawAxisLabels(){
+        let xAxisLabel = this.pointWrapper.selectAll('.tsi-xAxisLabel').data([this.chartOptions.spAxisLabels[0]]);
+        xAxisLabel
+            .enter()
+            .append("text")
+            .attr("class", "tsi-xAxisLabel")
+            .merge(xAxisLabel)
+            .style("text-anchor", "middle")
+            .attr("transform", "translate(" + (this.chartWidth / 2) + " ," + (this.chartHeight + 40) + ")")
+            .text((d) => d);
+        xAxisLabel.exit().remove();
+
+        if(this.chartOptions.spAxisLabels.length >= 2){
+            let yAxisLabel = this.pointWrapper.selectAll('.tsi-yAxisLabel').data([this.chartOptions.spAxisLabels[1]]);
+            yAxisLabel
+                .enter()
+                .append("text")
+                .attr("class", "tsi-yAxisLabel")
+                .merge(yAxisLabel)
+                .style("text-anchor", "middle")
+                .attr("transform", "translate(" + ( -40 ) + " ," + (this.chartHeight / 2) + ") rotate(-90)")
+                .text((d) => d);
+            yAxisLabel.exit().remove();
+        }
     }
 
     /******** DRAW TOOLTIP IF ENABLED ********/
