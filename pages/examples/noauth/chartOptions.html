@@ -188,6 +188,13 @@
                             <option value='false'>false</option>
                     </select>
                 </div>
+                <div>
+                    <label>spAxisLabels</label>
+                    <select onchange='(function(){ toggleChartOption("spAxisLabels", event.target.value != "null" ? JSON.parse(event.target.value) : null) })(event)'>
+                            <option value='null' selected>Hidden</option>
+                            <option value='["Average Value", "Minimum Value"]'>Shown</option>
+                    </select>
+                </div>
             </div>
             <div style="width: calc(100% - 320px);">
                 <div id="linechart" style="width: 100%; height: 400px; margin-bottom:20px;"></div>
@@ -229,7 +236,8 @@
                 zeroYAxis: true,
                 arcWidthRatio: 1,
                 spMeasures: ['avg', 'min', 'max'],
-                isTemporal: true
+                isTemporal: true,
+                spAxisLabels: null
             }
             var scatterPlot;
             var lineChart;

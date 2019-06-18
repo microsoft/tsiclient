@@ -39,6 +39,8 @@ class ScatterPlot extends ChartComponent {
     private yAxis: any;
     private yMeasure: string;
     private yScale: any;
+    private xAxisLabel: any;
+    private yAxisLabel: any;
 
     readonly lowOpacity = 0.15; 
     readonly standardOpacity = 0.6; 
@@ -285,8 +287,7 @@ class ScatterPlot extends ChartComponent {
         this.drawAxis();
 
         // Draw axis labels
-        if(this.chartOptions.spAxisLabels != null && this.chartOptions.spAxisLabels.length >= 1)
-            this.drawAxisLabels();
+        this.drawAxisLabels();
 
         // Draw data
         let scatter = this.pointWrapper.selectAll(".tsi-dot")
@@ -711,29 +712,35 @@ class ScatterPlot extends ChartComponent {
 
     /******** DRAW X AND Y AXIS LABELS ********/
     private drawAxisLabels(){
-        let xAxisLabel = this.pointWrapper.selectAll('.tsi-xAxisLabel').data([this.chartOptions.spAxisLabels[0]]);
-        xAxisLabel
+        let xLabelData, yLabelData;
+        
+        (this.chartOptions.spAxisLabels != null && this.chartOptions.spAxisLabels.length >= 1) ?
+          xLabelData = [this.chartOptions.spAxisLabels[0]] : xLabelData = [];
+
+        (this.chartOptions.spAxisLabels != null && this.chartOptions.spAxisLabels.length >= 2) ?
+        yLabelData = [this.chartOptions.spAxisLabels[1]] : yLabelData = [];
+
+        this.xAxisLabel = this.pointWrapper.selectAll('.tsi-xAxisLabel').data(xLabelData);
+        this.xAxisLabel
             .enter()
             .append("text")
             .attr("class", "tsi-xAxisLabel")
-            .merge(xAxisLabel)
+            .merge(this.xAxisLabel)
             .style("text-anchor", "middle")
             .attr("transform", "translate(" + (this.chartWidth / 2) + " ," + (this.chartHeight + 40) + ")")
             .text((d) => d);
-        xAxisLabel.exit().remove();
+        this.xAxisLabel.exit().remove();
 
-        if(this.chartOptions.spAxisLabels.length >= 2){
-            let yAxisLabel = this.pointWrapper.selectAll('.tsi-yAxisLabel').data([this.chartOptions.spAxisLabels[1]]);
-            yAxisLabel
-                .enter()
-                .append("text")
-                .attr("class", "tsi-yAxisLabel")
-                .merge(yAxisLabel)
-                .style("text-anchor", "middle")
-                .attr("transform", "translate(" + ( -40 ) + " ," + (this.chartHeight / 2) + ") rotate(-90)")
-                .text((d) => d);
-            yAxisLabel.exit().remove();
-        }
+        this.yAxisLabel = this.pointWrapper.selectAll('.tsi-yAxisLabel').data(yLabelData);
+        this.yAxisLabel
+            .enter()
+            .append("text")
+            .attr("class", "tsi-yAxisLabel")
+            .merge(this.yAxisLabel)
+            .style("text-anchor", "middle")
+            .attr("transform", "translate(" + ( -40 ) + " ," + (this.chartHeight / 2) + ") rotate(-90)")
+            .text((d) => d);
+        this.yAxisLabel.exit().remove();
     }
 
     /******** DRAW TOOLTIP IF ENABLED ********/
