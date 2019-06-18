@@ -525,7 +525,7 @@ class Utils {
         let measureNames = Utils.getScatterPlotMeasureNames(chartData, scatterMeasures);
 
         // Create data label
-        let xLabel = xMeasure.additionalFields.Variable.substring(0, 15) + (xMeasure.additionalFields.Variable.length > 15 ? "... " : " vs");
+        let xLabel = xMeasure.additionalFields.Variable.substring(0, 15) + (xMeasure.additionalFields.Variable.length > 15 ? "... vs" : " vs");
         let yLabel = " " + yMeasure.additionalFields.Variable.substring(0, 15) + (yMeasure.additionalFields.Variable.length > 15 ? "... " : "");
         let rLabel = (rMeasure != null ? " vs " + rMeasure.additionalFields.Variable.substring(0, 15) + (rMeasure.additionalFields.Variable.length > 15 ? "... " : "") : "");
         let dataTitle =  xLabel + yLabel + rLabel;
@@ -553,7 +553,7 @@ class Utils {
             return newTS;
         }
 
-        // // Normalize timestamp data
+        // Normalize timestamp data
         xMeasure.data[xMeasure.alias][""] = normalizeTimestampKeys(xMeasure);
         yMeasure.data[yMeasure.alias][""] = normalizeTimestampKeys(yMeasure);
         if(rMeasure)
