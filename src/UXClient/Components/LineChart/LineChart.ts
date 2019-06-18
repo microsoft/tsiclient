@@ -1034,11 +1034,7 @@ class LineChart extends TemporalXAxisComponent {
 
     private drawBrushRange () {
         if (this.chartOptions.brushRangeVisible) {
-            if (!(this.brushStartTime|| this.brushEndTime)) {
-                this.deleteBrushRange();
-            }
-    
-            if (this.targetElement.select('.tsi-rangeTextContainer').empty()) {
+            if (this.targetElement.select('.tsi-rangeTextContainer').empty() && (this.brushStartTime || this.brushEndTime)) {
                 var rangeTextContainer = this.targetElement.append("div")
                     .attr("class", "tsi-rangeTextContainer");
             }
@@ -1047,7 +1043,7 @@ class LineChart extends TemporalXAxisComponent {
     }
 
     public updateBrushRange () {
-        if (!(this.brushStartTime|| this.brushEndTime)) {
+        if (!(this.brushStartTime || this.brushEndTime)) {
             this.deleteBrushRange();
             return;
         }
@@ -1056,10 +1052,10 @@ class LineChart extends TemporalXAxisComponent {
         let rangeTextContainer = this.targetElement.select('.tsi-rangeTextContainer');
 
         let leftPos = this.chartMargins.left + 
-            Math.min(Math.max(0, this.x(this.brushStartTime)), this.x.range()[1]) + (this.chartOptions.legend === 'shown' ? 200 : 0);
+            Math.min(Math.max(0, this.x(this.brushStartTime)), this.x.range()[1]) + (this.chartOptions.legend === 'shown' ? this.CONTROLSWIDTH : 0);
 
         let rightPos = this.chartMargins.left + 
-            Math.min(Math.max(0, this.x(this.brushEndTime)), this.x.range()[1]) + (this.chartOptions.legend === 'shown' ? 200 : 0);
+            Math.min(Math.max(0, this.x(this.brushEndTime)), this.x.range()[1]) + (this.chartOptions.legend === 'shown' ? this.CONTROLSWIDTH : 0);
  
         rangeTextContainer
             .html(rangeText)
