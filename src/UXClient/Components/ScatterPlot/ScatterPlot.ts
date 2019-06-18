@@ -61,7 +61,6 @@ class ScatterPlot extends ChartComponent {
 
     ScatterPlot(){}
     public render(data: any, options: any, aggregateExpressionOptions: any, fromSlider: boolean = false) {
-        
         this.chartOptions.setOptions(options);
         // If measure options not set, or less than 2, return
         if(this.chartOptions["spMeasures"] == null || (this.chartOptions["spMeasures"] != null && this.chartOptions["spMeasures"].length < 2)){
