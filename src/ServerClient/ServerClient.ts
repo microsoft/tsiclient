@@ -32,17 +32,61 @@ class ServerClient {
         });
     }
     
-    private getQueryApiResult = (token, results, contentObject, index, uri, resolve, messageProperty) => {
+    private mergeTsqEventsResults = (tsqEvents) => {
+        let events = {properties: [], timestamps: []};
+        tsqEvents.forEach(tsqe => {
+            let currentPropertiesValueLength = events.timestamps.length;
+            tsqe.properties.forEach(prop => {
+                let foundProperty = events.properties.filter(p => p.name===prop.name && p.type===prop.type);
+                let existingProperty;
+                if(foundProperty.length === 1){
+                    let indexOfExistingProperty = events.properties.indexOf(foundProperty[0]);
+                    existingProperty = events.properties[indexOfExistingProperty];
+                }
+                else{
+                    existingProperty = {name: prop.name, type: prop.type, values: []};
+                    events.properties.push(existingProperty);
+                }
+                while(existingProperty.values.length < currentPropertiesValueLength){
+                    existingProperty.values.push(null);
+                }
+                existingProperty.values = existingProperty.values.concat(prop.values);
+            });
+            events.timestamps = events.timestamps.concat(tsqe.timestamps);
+        });
+        return events;
+    }
+
+    private getQueryApiResult = (token, results, contentObject, index, uri, resolve, messageProperty, mergeAccumulatedResults = false) => {
         var xhr = new XMLHttpRequest();
-            
-        xhr.onreadystatechange = () => {
+        var onreadystatechange;
+        var accumulator = [];
+        onreadystatechange = () => {
             if(xhr.readyState != 4) return;
             
             if(xhr.status == 200){
                 var message = JSON.parse(xhr.responseText);
-                results[index] = messageProperty(message);
-                if(results.map(ar => ar!=false).reduce((p,c) => { p = c && p; return p}, true))
-                    resolve(results);
+                if(!message.continuationToken){
+                    if(mergeAccumulatedResults && accumulator.length){
+                        accumulator.push(message);
+                        results[index] = this.mergeTsqEventsResults(accumulator);
+                    }
+                    else{
+                        results[index] = messageProperty(message);
+                    }
+                    if(results.map(ar => ar!=false).reduce((p,c) => { p = c && p; return p}, true))
+                        resolve(results);
+                }
+                else{
+                    accumulator.push(message);
+                    xhr = new XMLHttpRequest();
+                    xhr.onreadystatechange = onreadystatechange;
+                    xhr.open('POST', uri);
+                    xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+                    xhr.setRequestHeader('x-ms-continuation', message.continuationToken);
+                    xhr.send(JSON.stringify(contentObject));
+                    console.log('Index: ' + index + ' Progress: ' + message.progress);
+                }
             }
             else{
                 results[index] = {__tsiError__: JSON.parse(xhr.responseText)};
@@ -51,12 +95,13 @@ class ServerClient {
             }
         }
 
+        xhr.onreadystatechange = onreadystatechange;
         xhr.open('POST', uri);
         xhr.setRequestHeader('Authorization', 'Bearer ' + token);
         xhr.send(JSON.stringify(contentObject));
     }
 
-    public getTsqResults(token: string, uri: string, tsqArray: Array<any>, options: any) {
+    public getTsqResults(token: string, uri: string, tsqArray: Array<any>, mergeAccumulatedResults = false) {
         var tsqResults = [];
         tsqArray.forEach(tsq => {
             tsqResults.push(false);
@@ -64,7 +109,7 @@ class ServerClient {
         
         return new Promise((resolve: any, reject: any) => {
             tsqArray.forEach((tsq, i) => { 
-                this.getQueryApiResult(token, tsqResults, tsq, i, `https://${uri}/timeseries/query${this.tsmTsqApiVersion}`, resolve, message => message);
+                this.getQueryApiResult(token, tsqResults, tsq, i, `https://${uri}/timeseries/query${this.tsmTsqApiVersion}`, resolve, message => message, mergeAccumulatedResults);
             })
         });
     }

@@ -1,0 +1,119 @@
+
+<!DOCTYPE html> 
+<html>
+    <head>
+        <title>Basic Charts</title>
+
+        <!-- styles are only used for styling header and auth elements, where possible -->
+        <link rel="stylesheet" type="text/css" href="../styles.css" />
+
+        <!-- boilerplate headers are injected with head.js, grab them from the live example header, or include a link to head.js -->
+        <script src="../boilerplate/head.js"></script>
+
+        <!-- boilerplate auth code is injected with auth.js, check it out for auth setup -->
+        <script src="../boilerplate/auth.js"></script>
+    </head>
+    <body style="font-family: 'Segoe UI', sans-serif;">
+
+        <script>
+
+            window.onload = function() {
+                initAuth('Continuation Token');  // initiate auth objects, header, and login modal
+                var tsiClient = new TsiClient();
+
+                var getEvents = () => {
+                 var predicateObject = [
+                    {
+                        "getEvents": {
+                        "searchSpan": {
+                            "from": "2019-03-18T04:43:10Z",
+                            "to": "2019-06-18T07:44:20Z"
+                        },
+                        "timeSeriesId": [
+                            "Bucket_0"
+                        ],
+                        'take': 230000
+                        } 
+                    },
+                    {
+                        "getEvents": {
+                        "searchSpan": {
+                            "from": "2019-03-18T04:43:10Z",
+                            "to": "2019-06-18T07:44:20Z"
+                        },
+                        "timeSeriesId": [
+                            "Bucket_2"
+                        ],
+                        'take': 230000
+                        }
+                    }
+                    ];   
+                    authContext.getTsiToken().then(function(token){
+                        tsiClient.server.getTsqResults(token, '18074f2c-f7c9-46ff-9ece-289b2a808a89.env.crystal-dev.windows-int.net', predicateObject, true).then(r => {
+                            debugger;
+                        })
+                    });
+                }
+
+                var getAggregates = () => {
+                    var tsqArray = [
+                    {
+                        "aggregateSeries": {
+                        "searchSpan": {
+                            "from": "2019-04-23T12:00:00.000Z",
+                            "to": "2019-06-18T21:00:00.000Z"
+                        },
+                        "timeSeriesId": [
+                            "Bucket_0"
+                        ],
+                        "interval": "PT3H",
+                        "inlineVariables": {
+                            "Avg": {
+                            "kind": "aggregate",
+                            "aggregation": {
+                                "tsx": "avg($event.Value)+100000000000"
+                            }
+                            }
+                        },
+                        "projectedVariables": [
+                            "Avg"
+                        ]
+                        }
+                    },
+                    {
+                        "aggregateSeries": {
+                        "searchSpan": {
+                            "from": "2019-04-23T12:00:00.000Z",
+                            "to": "2019-06-18T21:00:00.000Z"
+                        },
+                        "timeSeriesId": [
+                            "Bucket_2"
+                        ],
+                        "interval": "PT3H",
+                        "inlineVariables": {
+                            "Avg": {
+                            "kind": "aggregate",
+                            "aggregation": {
+                                "tsx": "avg($event.Value)+100000000000"
+                            }
+                            }
+                        },
+                        "projectedVariables": [
+                            "Avg"
+                        ]
+                        }
+                    }
+                    ];
+                    authContext.getTsiToken().then(function(token){
+                        tsiClient.server.getTsqResults(token, '18074f2c-f7c9-46ff-9ece-289b2a808a89.env.crystal-dev.windows-int.net', tsqArray).then(result => {
+                            debugger;
+                        })
+                    })
+                }
+
+                getEvents();
+                // getAggregates();
+        }
+        </script>
+    </body>
+</html>
