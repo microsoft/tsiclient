@@ -82,7 +82,8 @@
         font-size: 11px;
         border-radius: 4px;
         transform: translate(-50%,-50%);
-        align-items: center;
+        display: flex;
+        align-content: center;
     }
 
     .tsi-chartControlsPanel {
