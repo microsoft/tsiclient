@@ -713,7 +713,34 @@ class ScatterPlot extends ChartComponent {
     /******** DRAW X AND Y AXIS LABELS ********/
     private drawAxisLabels(){
         let xLabelData, yLabelData;
+
+        const truncateTextLength = (labelText: string, maxTextLengthPx: number) => {
+            let lengthFound = false, resultText = labelText;
+            let currTextLengthPx;
+
+            while(!lengthFound){
+                let testText = this.pointWrapper.selectAll(".tsi-testAxisText")
+                    .data([resultText]);
+                testText
+                    .enter()
+                    .append("text")
+                    .attr("class", "tsi-testAxisText")
+                    .merge(testText)
+                    .text(d => d)
+                    .each(function(d){
+                        currTextLengthPx = this.getComputedTextLength();
+                        this.remove();
+                    })
+
+                if(currTextLengthPx > maxTextLengthPx - 100) resultText = resultText.substring(0, resultText.length - 2);
+                else lengthFound = true;
+                // Short circuit to prevent infinite loop
+                if(resultText.length < 10) lengthFound = true;
+            }
+            return resultText != labelText ? resultText += "..." : resultText ;
+        }
         
+        // Associate axis label data
         (this.chartOptions.spAxisLabels != null && this.chartOptions.spAxisLabels.length >= 1) ?
           xLabelData = [this.chartOptions.spAxisLabels[0]] : xLabelData = [];
 
@@ -727,8 +754,8 @@ class ScatterPlot extends ChartComponent {
             .attr("class", "tsi-xAxisLabel tsi-AxisLabel")
             .merge(this.xAxisLabel)
             .style("text-anchor", "middle")
-            .attr("transform", "translate(" + (this.chartWidth / 2) + " ," + (this.chartHeight + 40) + ")")
-            .text((d) => d);
+            .attr("transform", "translate(" + (this.chartWidth / 2) + " ," + (this.chartHeight + 42) + ")")
+            .text((d) => truncateTextLength(d, this.chartWidth));
         this.xAxisLabel.exit().remove();
 
         this.yAxisLabel = this.pointWrapper.selectAll('.tsi-yAxisLabel').data(yLabelData);
@@ -739,7 +766,7 @@ class ScatterPlot extends ChartComponent {
             .merge(this.yAxisLabel)
             .style("text-anchor", "middle")
             .attr("transform", "translate(" + ( -40 ) + " ," + (this.chartHeight / 2) + ") rotate(-90)")
-            .text((d) => d);
+            .text((d) => truncateTextLength(d, this.chartHeight));
         this.yAxisLabel.exit().remove();
     }
 

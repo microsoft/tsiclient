@@ -56,7 +56,7 @@
 
                 let scatterPlot =  new tsiClient.ux.ScatterPlot(document.getElementById('chart1'));
 
-                let renderScatterPlot = () => scatterPlot.render(data, {legend: 'compact', spAxisLabels: ['Temperature', 'Pressure'], noAnimate: false, isTemporal: temporal, grid: true, tooltip: true, theme: 'light', spMeasures: ['temp', 'press', 'vol']});
+                let renderScatterPlot = () => scatterPlot.render(data, {legend: 'shown', spAxisLabels: ['Temperature', 'Pressure'], noAnimate: false, isTemporal: temporal, grid: true, tooltip: true, theme: 'light', spMeasures: ['temp', 'press', 'vol']});
 
                 renderScatterPlot();
 

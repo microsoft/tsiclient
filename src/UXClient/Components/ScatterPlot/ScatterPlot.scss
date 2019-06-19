@@ -57,6 +57,10 @@
         }
         .tsi-AxisLabel{
             font-weight: 600;
+            font-size:13px;
+        }
+        .tsi-testAxisText{
+            visibility: hidden;
         }
         .tsi-focus{
             z-index: -10;
