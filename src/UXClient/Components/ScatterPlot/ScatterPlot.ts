@@ -724,7 +724,7 @@ class ScatterPlot extends ChartComponent {
         this.xAxisLabel
             .enter()
             .append("text")
-            .attr("class", "tsi-xAxisLabel")
+            .attr("class", "tsi-xAxisLabel tsi-AxisLabel")
             .merge(this.xAxisLabel)
             .style("text-anchor", "middle")
             .attr("transform", "translate(" + (this.chartWidth / 2) + " ," + (this.chartHeight + 40) + ")")
@@ -735,7 +735,7 @@ class ScatterPlot extends ChartComponent {
         this.yAxisLabel
             .enter()
             .append("text")
-            .attr("class", "tsi-yAxisLabel")
+            .attr("class", "tsi-yAxisLabel tsi-AxisLabel")
             .merge(this.yAxisLabel)
             .style("text-anchor", "middle")
             .attr("transform", "translate(" + ( -40 ) + " ," + (this.chartHeight / 2) + ") rotate(-90)")
