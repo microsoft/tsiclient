@@ -1032,6 +1032,54 @@ class LineChart extends TemporalXAxisComponent {
         this.focusScooterLabel(this.createValueFilter(aggregateKey, splitBy), aggregateKey, splitBy);
     }
 
+    private drawBrushRange () {
+        if (this.chartOptions.brushRangeVisible) {
+            if (this.targetElement.select('.tsi-rangeTextContainer').empty() && (this.brushStartTime || this.brushEndTime)) {
+                var rangeTextContainer = this.targetElement.append("div")
+                    .attr("class", "tsi-rangeTextContainer");
+            }
+            this.updateBrushRange();
+        }
+    }
+
+    public updateBrushRange () {
+        if (!(this.brushStartTime || this.brushEndTime)) {
+            this.deleteBrushRange();
+            return;
+        }
+
+        let rangeText = Utils.rangeTimeFormat(this.brushEndTime.valueOf() - this.brushStartTime.valueOf());
+        let rangeTextContainer = this.targetElement.select('.tsi-rangeTextContainer');
+
+        let leftPos = this.chartMargins.left + 
+            Math.min(Math.max(0, this.x(this.brushStartTime)), this.x.range()[1]) + (this.chartOptions.legend === 'shown' ? this.CONTROLSWIDTH : 0);
+
+        let rightPos = this.chartMargins.left + 
+            Math.min(Math.max(0, this.x(this.brushEndTime)), this.x.range()[1]) + (this.chartOptions.legend === 'shown' ? this.CONTROLSWIDTH : 0);
+ 
+        rangeTextContainer
+            .html(rangeText)
+            .style("left", Math.max(8, Math.round((leftPos + rightPos) / 2)) + "px")
+            .style("top", (this.chartMargins.top + this.chartOptions.aggTopMargin) + 'px')
+        
+        if (this.chartOptions.color) {
+            rangeTextContainer
+                .style('background-color', this.chartOptions.color)
+                .style('color', 'white');
+        }
+
+        let calcedWidth = rangeTextContainer.node().getBoundingClientRect().width;	
+        if (this.chartOptions.isCompact && (rightPos - leftPos) < calcedWidth) {	
+            rangeTextContainer.style('visibility', 'hidden');	
+        } else {
+            rangeTextContainer.style('visibility', 'visible');
+        }
+    }
+
+    public deleteBrushRange () {
+        this.targetElement.select('.tsi-rangeTextContainer').remove();
+    }
+
     // returns the next visibleAggI
     private generateLine = (visibleAggI, agg, aggVisible: boolean, aggregateGroup) => {
         var defs = this.svgSelection.select("defs");
@@ -1335,6 +1383,14 @@ class LineChart extends TemporalXAxisComponent {
             return "stacked";
     };
 
+    private clearBrush () {
+        this.svgSelection.select('.svgGroup').select(".brushElem").call(this.brush.move, null);
+        this.deleteBrushRange();
+        if (this.brushContextMenu) {
+            this.brushContextMenu.hide();
+        }
+    }
+
     public render(data: any, options: any, aggregateExpressionOptions: any) {
         this.data = data;
         this.hasBrush = options && (options.brushMoveAction || options.brushMoveEndAction || options.brushContextMenuActions);
@@ -1349,6 +1405,10 @@ class LineChart extends TemporalXAxisComponent {
         
         if (this.chartOptions.hideChartControlPanel) {
             this.chartMargins.top += -28;
+        }
+
+        if (!this.chartOptions.brushRangeVisible && this.targetElement) {
+            this.deleteBrushRange();
         }
 
         this.events = (this.chartOptions.events != undefined) ? this.chartOptions.events : null;
@@ -1366,9 +1426,9 @@ class LineChart extends TemporalXAxisComponent {
         this.chartWidth = this.getChartWidth();
 
         if (this.brush && this.svgSelection.select('.svgGroup').select(".brushElem") && !this.chartOptions.keepBrush) {
-            this.svgSelection.select('.svgGroup').select(".brushElem").call(this.brush.move, null);
             this.brushStartTime = null;
             this.brushEndTime = null;
+            this.clearBrush();
         }
         
         d3.select(this.renderTarget).select(".tsi-tooltip").remove();
@@ -1580,8 +1640,14 @@ class LineChart extends TemporalXAxisComponent {
                             .attr('rx', '4px')
                             .attr('ry', '4px');
                     })
-                    .on("brush", function () { self.brushBrush(); })
-                    .on("end", function () { self.brushEnd(this); });
+                    .on("brush", function () { 
+                        self.brushBrush(); 
+                        self.drawBrushRange();
+                    })
+                    .on("end", function () { 
+                        self.brushEnd(this);
+                        self.drawBrushRange();
+                    });
                     this.brushElem.call(this.brush);
                     this.setBrush();
                 }
