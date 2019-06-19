@@ -57,7 +57,7 @@ class ServerClient {
         return events;
     }
 
-    private getQueryApiResult = (token, results, contentObject, index, uri, resolve, messageProperty, mergeAccumulatedResults = false) => {
+    private getQueryApiResult = (token, results, contentObject, index, uri, resolve, messageProperty, onProgressChange = (percentComplete) => {}, mergeAccumulatedResults = false) => {
         var xhr = new XMLHttpRequest();
         var onreadystatechange;
         var accumulator = [];
@@ -73,26 +73,29 @@ class ServerClient {
                     }
                     else{
                         results[index] = messageProperty(message);
+                        delete results[index].progress;
                     }
-                    if(results.map(ar => ar!=false).reduce((p,c) => { p = c && p; return p}, true))
+                    if(results.map(ar => !('progress' in ar)).reduce((p,c) => { p = c && p; return p}, true))
                         resolve(results);
                 }
                 else{
                     accumulator.push(message);
+                    results[index].progress = message && message.progress ? message.progress : 0;
                     xhr = new XMLHttpRequest();
                     xhr.onreadystatechange = onreadystatechange;
                     xhr.open('POST', uri);
                     xhr.setRequestHeader('Authorization', 'Bearer ' + token);
                     xhr.setRequestHeader('x-ms-continuation', message.continuationToken);
                     xhr.send(JSON.stringify(contentObject));
-                    console.log('Index: ' + index + ' Progress: ' + message.progress);
                 }
             }
             else{
                 results[index] = {__tsiError__: JSON.parse(xhr.responseText)};
-                if(results.map(ar => ar!=false).reduce((p,c) => { p = c && p; return p}, true))
+                if(results.map(ar => !('progress' in ar)).reduce((p,c) => { p = c && p; return p}, true))
                     resolve(results);
             }
+            let percentComplete = Math.max(results.map(r => 'progress' in r ? r.progress : 100).reduce((p,c) => p+c, 0) / results.length, 1);
+            onProgressChange(percentComplete);
         }
 
         xhr.onreadystatechange = onreadystatechange;
@@ -101,15 +104,15 @@ class ServerClient {
         xhr.send(JSON.stringify(contentObject));
     }
 
-    public getTsqResults(token: string, uri: string, tsqArray: Array<any>, mergeAccumulatedResults = false) {
+    public getTsqResults(token: string, uri: string, tsqArray: Array<any>, onProgressChange = () => {}, mergeAccumulatedResults = false) {
         var tsqResults = [];
         tsqArray.forEach(tsq => {
-            tsqResults.push(false);
+            tsqResults.push({progress: 0});
         });
         
         return new Promise((resolve: any, reject: any) => {
             tsqArray.forEach((tsq, i) => { 
-                this.getQueryApiResult(token, tsqResults, tsq, i, `https://${uri}/timeseries/query${this.tsmTsqApiVersion}`, resolve, message => message, mergeAccumulatedResults);
+                this.getQueryApiResult(token, tsqResults, tsq, i, `https://${uri}/timeseries/query${this.tsmTsqApiVersion}`, resolve, message => message, onProgressChange, mergeAccumulatedResults);
             })
         });
     }
@@ -117,7 +120,7 @@ class ServerClient {
     public getAggregates(token: string, uri: string, tsxArray: Array<any>, options: any) {
         var aggregateResults = [];
         tsxArray.forEach(ae => {
-            aggregateResults.push(false);
+            aggregateResults.push({progress: 0});
         });
         
         return new Promise((resolve: any, reject: any) => {
