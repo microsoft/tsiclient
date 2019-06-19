@@ -36,22 +36,24 @@ class ServerClient {
         let events = {properties: [], timestamps: []};
         tsqEvents.forEach(tsqe => {
             let currentPropertiesValueLength = events.timestamps.length;
-            tsqe.properties.forEach(prop => {
-                let foundProperty = events.properties.filter(p => p.name===prop.name && p.type===prop.type);
-                let existingProperty;
-                if(foundProperty.length === 1){
-                    let indexOfExistingProperty = events.properties.indexOf(foundProperty[0]);
-                    existingProperty = events.properties[indexOfExistingProperty];
-                }
-                else{
-                    existingProperty = {name: prop.name, type: prop.type, values: []};
-                    events.properties.push(existingProperty);
-                }
-                while(existingProperty.values.length < currentPropertiesValueLength){
-                    existingProperty.values.push(null);
-                }
-                existingProperty.values = existingProperty.values.concat(prop.values);
-            });
+            if(tsqe.propereties && tsqe.properties.length){
+                tsqe.properties.forEach(prop => {
+                    let foundProperty = events.properties.filter(p => p.name===prop.name && p.type===prop.type);
+                    let existingProperty;
+                    if(foundProperty.length === 1){
+                        let indexOfExistingProperty = events.properties.indexOf(foundProperty[0]);
+                        existingProperty = events.properties[indexOfExistingProperty];
+                    }
+                    else{
+                        existingProperty = {name: prop.name, type: prop.type, values: []};
+                        events.properties.push(existingProperty);
+                    }
+                    while(existingProperty.values.length < currentPropertiesValueLength){
+                        existingProperty.values.push(null);
+                    }
+                    existingProperty.values = existingProperty.values.concat(prop.values);
+                });
+            }
             events.timestamps = events.timestamps.concat(tsqe.timestamps);
         });
         return events;
