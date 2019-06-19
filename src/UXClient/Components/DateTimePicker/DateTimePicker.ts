@@ -76,7 +76,6 @@ class DateTimePicker extends ChartComponent{
             fromMillis = Math.max(toMillis - (24 * 60 * 60 * 1000), minMillis);
         }
         this.chartOptions.setOptions(chartOptions);
-
         this.fromMillis = fromMillis;
         this.toMillis = toMillis;
         this.onSet = onSet;
@@ -88,7 +87,7 @@ class DateTimePicker extends ChartComponent{
         this.timeControls = this.targetElement.append("div").classed("tsi-timeControlsContainer", true);
         var saveButtonContainer = this.targetElement.append("div").classed("tsi-saveButtonContainer", true);
         var self = this;
-        var saveButton = saveButtonContainer.append("button").classed("tsi-saveButton", true).html("Save")
+        var saveButton = saveButtonContainer.append("button").classed("tsi-saveButton", true).html(this.getString("Save"))
             .on("click", function () {
                 self.onSet(self.fromMillis, self.toMillis, self.chartOptions.offset);
             });
@@ -117,7 +116,7 @@ class DateTimePicker extends ChartComponent{
         const offset = this.chartOptions.offset;
         if (this.chartOptions.includeTimezones && (typeof offset == "string" || offset == 0)) {
             var timezoneContainer = this.timeControls.append("div").attr("class", "tsi-timezoneContainer");
-            timezoneContainer.append("h4").classed("tsi-timeLabel", true).html("Time Zone");
+            timezoneContainer.append("h4").classed("tsi-timeLabel", true).html(this.getString("Time Zone"));
             var timezonePickerContainer = timezoneContainer.append("div").classed("tsi-timezonePickerContainer", true);
             var timezonePicker = new TimezonePicker(timezonePickerContainer.node());
             timezonePicker.render((newOffset) => {
@@ -372,11 +371,11 @@ class DateTimePicker extends ChartComponent{
             }
             var amPm = ["AM", "PM"];
             var fromOrToContainer = timeInputContainer.append("div").classed("tsi-" + startOrEnd + "Container", true);
-            let timeLabel = fromOrToContainer.append("h4").classed("tsi-timeLabel", true).html(startOrEnd + " Time");
+            let timeLabel = fromOrToContainer.append("h4").classed("tsi-timeLabel", true).html(this.getString(startOrEnd + " time"));
             if (startOrEnd == 'end') {
                 timeLabel.append("button")
                     .attr("class", "tsi-snapToEndRangeButton")
-                    .html("Latest")
+                    .html(this.getString("Latest"))
                     .on("click", () => {
                         this.setFromDate(this.startRange);
                         this.setToMillis(this.maxMillis);

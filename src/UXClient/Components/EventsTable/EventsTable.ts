@@ -68,10 +68,10 @@ class EventsTable extends ChartComponent{
         tableLeftPanel.selectAll(".tsi-eventsDownload").remove();
         var downloadButton = tableLeftPanel.append("button")
             .attr("class", "tsi-eventsDownload tsi-primaryButton")
-            .attr("aria-label", "download as CSV")
+            .attr("aria-label", this.getString("Download as CSV"))
             .on("click", () => Utils.downloadCSV(this.eventsTableData.generateCSVString(true, 0), "Events"));
         downloadButton.append("div").attr("class", "tsi-downloadEventsIcon");
-        downloadButton.append("div").attr("class", "tsi-downloadEventsText").html("Download as CSV");
+        downloadButton.append("div").attr("class", "tsi-downloadEventsText").html(this.getString("Download as CSV"));
 
 
          //listen for table scroll and adjust the headers accordingly
@@ -107,7 +107,7 @@ class EventsTable extends ChartComponent{
             selectAllColumns.append("button").attr("class", "tsi-columnToggleButton")
                 .attr("aria-label", () => {
                     var selectAllState = this.getSelectAllState();
-                    return selectAllState !== "all" ? "Toggle all columns" : "Toggle all columns";
+                    return selectAllState !== "all" ? this.getString("Toggle all columns") : this.getString("Toggle all columns");
                 })
                 .on("click", () => {
                     var setAllVisible: boolean = false;
@@ -130,7 +130,7 @@ class EventsTable extends ChartComponent{
             selectAllColumns.append("span").attr("class", "tsi-columnToggleCheckbox");
             selectAllColumns.append("span").attr("class", "tsi-selectAllSomeState");
             selectAllColumns.append("span").attr("class", "tsi-columnToggleName")
-                .html("All Columns");
+                .html(this.getString("All Columns"));
         }
         var toggleableColumnLis = this.eventsLegend.select("ul").selectAll(".tsi-columnToggle")
             .data(columns);
@@ -151,7 +151,7 @@ class EventsTable extends ChartComponent{
             d3.select(this).append("div").attr("class", "tsi-columnToggleCheckbox");
             d3.select(this).append("div").attr("class", "tsi-columnTypeIcon")
                 .classed(d.type, true);
-            d3.select(this).select("button").append("span").attr("class", "tsi-onlyLabel").html("only")
+            d3.select(this).select("button").append("span").attr("class", "tsi-onlyLabel").html(self.getString("only"))
                 .on("click", (d: any) => {
                     d3.event.stopPropagation();
                     columns.forEach((column: any) => {
@@ -201,7 +201,7 @@ class EventsTable extends ChartComponent{
         selectAllColumns.select(".tsi-columnToggleCheckbox")
             .classed("tsi-notSelected", () => selectAllState !== "all");
         selectAllColumns.select(".tsi-columnToggleButton")
-            .attr("aria-label", (selectAllState !== "all" ? "Toggle all columns on" : "Toggle all columns off"));
+            .attr("aria-label", (selectAllState !== "all" ? this.getString("Toggle all columns on") : this.getString("Toggle all columns off")));
         this.eventsLegend.select("ul").select(".tsi-selectAllColumns").select(".tsi-selectAllSomeState")
             .style("visibility", () => (selectAllState == "some") ? "visible" : "hidden");
     }

@@ -12,7 +12,6 @@ class Hierarchy extends Component {
     private contextMenu: any;
     private clickedNode: any;
     private hierarchyList: any;
-    private chartOptions: ChartOptions = new ChartOptions();
 
     constructor(renderTarget: Element){
         super(renderTarget);
@@ -64,7 +63,7 @@ class Hierarchy extends Component {
                 list.classed('tsi-expanded', false);
                 self.root.childrenInFilter = self.root.childrenInFilter || self.filterText.length == 0;
                 if(self.root.childrenInFilter == false)
-                    list.append('ul').append('div').text('No filter results')
+                    list.append('ul').append('div').text(self.getString('No filter results'))
                 else
                     self.expandCollapseList(self.root, list, false);
                 list.select('ul').classed('tsi-noPad', true);
@@ -72,8 +71,8 @@ class Hierarchy extends Component {
         });
 
         var navTabs = targetElement.append('div').classed('tsi-navTabWrapper', true);
-        var allTab = navTabs.append('div').classed('tsi-navTab tsi-selected', true).text('All');
-        var selectedTab = navTabs.append('div').classed('tsi-navTab', true).text('Selected');
+        var allTab = navTabs.append('div').classed('tsi-navTab tsi-selected', true).text(this.getString('All'));
+        var selectedTab = navTabs.append('div').classed('tsi-navTab', true).text(this.getString('Selected'));
         
         var list = targetElement.append('div').classed('tsi-hierarchyList', true);
         this.hierarchyList = list;
