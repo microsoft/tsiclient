@@ -372,7 +372,24 @@ class LineChart extends TemporalXAxisComponent {
         return stickiedValues;
     }
 
-    public stickySeries  = (aggregateKey: string, splitBy: string = null) => {
+    private stickyOrUnstickySeries = (aggKey, splitBy) => {
+        if (this.chartComponentData.stickiedKey && this.chartComponentData.stickiedKey.aggregateKey === aggKey && 
+            this.chartComponentData.stickiedKey.splitBy === splitBy) {
+            this.unstickySeries(aggKey, splitBy);
+        } else {
+            this.stickySeries(aggKey, splitBy);
+        }
+    }
+
+    public unstickySeries = (aggKey, splitby = null) => {
+        this.chartComponentData.stickiedKey = null;
+        (<any>this.legendObject.legendElement.selectAll('.tsi-splitByLabel')).classed("stickied", false);
+        // recompute voronoi with no sticky
+        this.voronoiDiagram = this.voronoi(this.getFilteredAndSticky(this.chartComponentData.allValues));
+        this.chartOptions.onUnsticky(aggKey, splitby);
+    }
+
+    private stickySeries = (aggregateKey: string, splitBy: string = null) => {
         var filteredValues = this.getFilteredAndSticky(this.chartComponentData.allValues);
         if (filteredValues == null || filteredValues.length == 0)
             return;
@@ -389,6 +406,7 @@ class LineChart extends TemporalXAxisComponent {
         })).classed("stickied", true);
 
         this.voronoiDiagram = this.voronoi(this.getFilteredAndSticky(this.chartComponentData.allValues));
+        this.chartOptions.onSticky(aggregateKey, splitBy);    
     }
 
     private getHandleHeight (): number {
@@ -783,17 +801,12 @@ class LineChart extends TemporalXAxisComponent {
         var site: any = this.voronoiDiagram.find(mx, my);
         if (!this.isDroppingScooter) {
             if (this.chartComponentData.stickiedKey != null) {
-                this.chartComponentData.stickiedKey = null;
-                (<any>this.legendObject.legendElement.selectAll('.tsi-splitByLabel')).classed("stickied", false);
-                // recompute voronoi with no sticky
-                this.voronoiDiagram = this.voronoi(this.getFilteredAndSticky(this.chartComponentData.allValues));
                 site = this.voronoiDiagram.find(mx, my);
                 this.voronoiMousemove(site.data);
-                this.chartOptions.onUnsticky(site.data.aggregateKey, site.data.splitBy)
+                this.unstickySeries(site.data.aggregateKey, site.data.splitBy);
                 return;
             }
             this.stickySeries(site.data.aggregateKey, site.data.splitBy);
-            this.chartOptions.onSticky(site.data.aggregateKey, site.data.splitBy);    
         } 
 
         this.destroyMarkerInstructions();
@@ -892,7 +905,6 @@ class LineChart extends TemporalXAxisComponent {
 
             if (!this.isDroppingScooter && !isClearingBrush) {
                 this.stickySeries(site.data.aggregateKey, site.data.splitBy);
-                this.chartOptions.onSticky(site.data.aggregateKey, site.data.splitBy);
             } else {
                 this.setIsDroppingScooter(false);
             }
@@ -1004,7 +1016,19 @@ class LineChart extends TemporalXAxisComponent {
         });
     }  
 
-    private labelMouseover (aggregateKey: string, splitBy: string = null) {
+    public labelMouseout = () =>{
+        d3.select(this.renderTarget).selectAll(".tsi-scooterValue")
+            .style("opacity", 1);
+    
+        d3.select(this.renderTarget).selectAll(".valueElement")
+            .filter(function () { return !d3.select(this).classed("valueEnvelope"); })
+            .attr("stroke-opacity", 1)
+            .attr("fill-opacity", 1);
+        d3.select(this.renderTarget).selectAll(".valueEnvelope")
+            .attr("fill-opacity", .3);
+    }
+
+    public labelMouseover = (aggregateKey: string, splitBy: string = null) => {
         //filter out the selected timeseries/splitby
         var selectedFilter = (d: any, j: number ) => {
             var currAggKey: string;
