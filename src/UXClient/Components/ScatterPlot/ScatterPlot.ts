@@ -53,7 +53,7 @@ class ScatterPlot extends ChartComponent {
     public chartMargins: any = {        
         top: 40,
         bottom: 48,
-        left: 70, 
+        left: 100, 
         right: 60
     };
   
@@ -115,7 +115,8 @@ class ScatterPlot extends ChartComponent {
             // Initialize focus crosshair lines
             this.focus = this.pointWrapper.append("g")
                 .attr("transform", "translate(-100,-100)")
-                .attr("class", "tsi-focus");
+                .attr("class", "tsi-focus")
+                .style("display", "none");
             
             this.focus.append("line")
                 .attr("class", "tsi-focusLine tsi-vLine")
@@ -695,7 +696,7 @@ class ScatterPlot extends ChartComponent {
             .attr("class", "xAxis")
             .merge(this.xAxis)
             .attr("transform", "translate(0," + (this.chartHeight) + ")")
-            .call(d3.axisBottom(this.xScale));
+            .call(d3.axisBottom(this.xScale).ticks(Math.max(2,Math.floor(this.chartWidth / 150))));
         
         this.xAxis.exit().remove();
 
@@ -705,7 +706,7 @@ class ScatterPlot extends ChartComponent {
             .append("g")
             .attr("class", "yAxis")
             .merge(this.yAxis)
-            .call(d3.axisLeft(this.yScale));
+            .call(d3.axisLeft(this.yScale).ticks(Math.max(2, Math.floor(this.chartHeight / 90))));
             
         this.yAxis.exit().remove()
     }
@@ -765,7 +766,7 @@ class ScatterPlot extends ChartComponent {
             .attr("class", "tsi-yAxisLabel tsi-AxisLabel")
             .merge(this.yAxisLabel)
             .style("text-anchor", "middle")
-            .attr("transform", "translate(" + ( -40 ) + " ," + (this.chartHeight / 2) + ") rotate(-90)")
+            .attr("transform", "translate(" + ( -70 ) + " ," + (this.chartHeight / 2) + ") rotate(-90)")
             .text((d) => truncateTextLength(d, this.chartHeight));
         this.yAxisLabel.exit().remove();
     }
