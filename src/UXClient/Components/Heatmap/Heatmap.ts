@@ -22,6 +22,7 @@ class Heatmap extends TemporalXAxisComponent {
     private height: number;
     private timeLabelsHeight = 52;
     private svgSelection = null;
+    private visibleAggs = null;
 
     public chartMargins: any = {        
         top: 0,
@@ -74,6 +75,17 @@ class Heatmap extends TemporalXAxisComponent {
         if (this.timeLabels.selectAll(".xAxis").size() !== 0) {
             this.timeLabels.selectAll(".xAxis").style("visibility", ((!this.chartOptions.xAxisHidden) ? "visible" : "hidden"));
         }
+    }
+
+    public mouseover = (hoveredAggKey, hoveredSplitBy) => {
+        var heatmapCanvas = this.heatmapCanvasMap[hoveredAggKey];
+        if (heatmapCanvas)
+            heatmapCanvas.render(this.chartComponentData, this.chartOptions, hoveredAggKey, hoveredSplitBy, null, null, null, this.visibleAggs.length === 1);
+    }
+    public mouseout = (selection, hoveredAggKey) => {
+        var heatmapCanvas: HeatmapCanvas = this.heatmapCanvasMap[hoveredAggKey];
+        if (heatmapCanvas)
+            heatmapCanvas.render(this.chartComponentData, this.chartOptions, hoveredAggKey, null, null, null, null, this.visibleAggs.length === 1);
     }
 
     public render (data, chartOptions, aggregateExpressionOptions) {
@@ -131,13 +143,13 @@ class Heatmap extends TemporalXAxisComponent {
 
                 var canvasWrapperHeightTotal = this.chartHeight - this.timeLabelsHeight - this.chartMargins.bottom;
                 this.heatmapCanvasMap = {};
-                var visibleAggs = Object.keys(this.chartComponentData.displayState).filter((aggKey) => {
+                this.visibleAggs = Object.keys(this.chartComponentData.displayState).filter((aggKey) => {
                     return this.chartComponentData.getAggVisible(aggKey);
                 });
 
                 var self = this;
                 var canvasWrappers = this.heatmapWrapper.selectAll(".tsi-heatmapCanvasWrapper")
-                    .data(visibleAggs);
+                    .data(this.visibleAggs);
                 var canvasesEntered = canvasWrappers.enter()
                     .append("div")
                     .merge(canvasWrappers)
@@ -145,10 +157,10 @@ class Heatmap extends TemporalXAxisComponent {
                     .style("width", this.chartWidth + 'px')
                     .style('left', this.chartMargins.left + 'px')
                     .style("height", (d, i) => {
-                        return (canvasWrapperHeightTotal * (1 / visibleAggs.length)) + "px"
+                        return (canvasWrapperHeightTotal * (1 / this.visibleAggs.length)) + "px"
                     })
                     .style("top", (d, i) => {
-                        return ((canvasWrapperHeightTotal * (1 / visibleAggs.length)) * i) + "px";
+                        return ((canvasWrapperHeightTotal * (1 / this.visibleAggs.length)) * i) + "px";
                     }).each(function (aggKey, aggI) {
                         var heatmapCanvas = new HeatmapCanvas(this);
                         self.heatmapCanvasMap[aggKey] = heatmapCanvas;
@@ -156,32 +168,23 @@ class Heatmap extends TemporalXAxisComponent {
 
                             function onCellFocus (focusStartTime, focusEndTime, focusX1, focusX2, focusY, splitBy) {
                                 let shiftMillis = self.chartComponentData.getTemporalShiftMillis(aggKey);
-                                self.renderTimeLabels(focusStartTime, focusEndTime, focusX1, focusX2, focusY, (aggI * canvasWrapperHeightTotal / visibleAggs.length), shiftMillis);
+                                self.renderTimeLabels(focusStartTime, focusEndTime, focusX1, focusX2, focusY, (aggI * canvasWrapperHeightTotal / self.visibleAggs.length), shiftMillis);
                                 self.legend.triggerSplitByFocus(aggKey, splitBy);
+                                self.chartOptions.onMouseover(aggKey, splitBy);
                             }
 
-                            heatmapCanvas.render(self.chartComponentData, self.chartOptions, aggKey, null, null, onCellFocus, aggI, visibleAggs.length === 1);
+                            heatmapCanvas.render(self.chartComponentData, self.chartOptions, aggKey, null, null, onCellFocus, aggI, self.visibleAggs.length === 1);
                         }
                         renderHeatmapCanvas();         
                     }).on("mouseleave", () => {
                         self.timeLabels.selectAll(".tsi-heatmapTimeLabels").remove();
                         self.legend.legendElement.selectAll('.tsi-splitByLabel').classed("inFocus", false);
+                        self.chartOptions.onMouseout();
                     })
                 canvasWrappers.exit().remove();
 
-                var mouseover = (hoveredAggKey, hoveredSplitBy) => {
-                    var heatmapCanvas = self.heatmapCanvasMap[hoveredAggKey];
-                    if (heatmapCanvas)
-                        heatmapCanvas.render(self.chartComponentData, self.chartOptions, hoveredAggKey, hoveredSplitBy, null, null, null, visibleAggs.length === 1);
-                }
-                var mouseout = (selection, hoveredAggKey) => {
-                    var heatmapCanvas: HeatmapCanvas = self.heatmapCanvasMap[hoveredAggKey];
-                    if (heatmapCanvas)
-                        heatmapCanvas.render(self.chartComponentData, self.chartOptions, hoveredAggKey, null, null, null, null, visibleAggs.length === 1);
-                }
-
-                this.legend.draw(this.chartOptions.legend, this.chartComponentData, mouseover, 
-                    this.heatmapWrapper, this.chartOptions, mouseout);
+                this.legend.draw(this.chartOptions.legend, this.chartComponentData, this.mouseover, 
+                    this.heatmapWrapper, this.chartOptions, this.mouseout);
 
                 //remove all the colorKeys
                 this.legend.legendElement.selectAll(".seriesLabel").selectAll(".tsi-splitByLabel").selectAll(".colorKey").style("display", "none");
