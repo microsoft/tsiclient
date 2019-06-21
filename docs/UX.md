@@ -50,7 +50,7 @@ heatmap.render(data, chartOptions, chartDataOptionsArray);
 
 ### Scatter Plot
 
-Scatter plots are created in the same way as the line chart, and they take the same options and data shapes.  For Scatter plots however, [spMeasures](#chart-options) **must** be specified as an array of strings in the chartOptions object, [isTemporal](#chart-options) is an additional chartOption which toggles the temporal slider.  
+Scatter plots are created in the same way as the line chart, and they take the same options and data shapes.  For Scatter plots however, [spMeasures](#chart-options) **must** be specified as an array of strings in the chartOptions object.  Scatter plots also have the following optional chartOptions:  [isTemporal](#chart-options) toggles the temporal slider on or off; [spAxisLabels](#chart-options) creates axis labels for X and Y axis.
 
 ```js
 var tsiClient = new TsiClient();
@@ -58,11 +58,17 @@ var scatterPlot = new tsiClient.ux.ScatterPlot(document.getElementById('chart'))
 scatterPlot.render(data, chartOptions, chartDataOptionsArray);
 ```
 
-The following code snippet shows an example of the scatter plot specific chart options: [spMeasures](#chart-options) & [isTemporal](#chart-options).  The first string in the spMeasures array is the X axis measure.  The second string is the Y axis measure, and the third (optional) string is the data point radius measure.  The isTemporal chartOption defaults to **false** if not set, but can be set to **true** as shown below.   
+The following code snippet shows an example of the scatter plot specific chart options: [spMeasures](#chart-options), [isTemporal](#chart-options), and [spAxisLabels](#chart-options).  The first string in the spMeasures array is the X axis measure.  The second string is the Y axis measure, and the third (optional) string is the data point radius measure.  The isTemporal chartOption defaults to **false** if not set, but can be set to **true** as shown below.  The spAxisLabels chartOption takes an array where the first element is used as the X axis label and the second element is used as the Y axis label.   
 
 ```js
-scatterPlot.render(data, {spMeasures:['temp', 'press', 'vol'], isTemporal: true});
-/*                                   ^ X     ^ Y      ^ R (optional)       ^ Turn on temporal slider */
+scatterPlot.render(data, {
+    spMeasures:['temp', 'press', 'vol'], 
+    //          ^ X     ^ Y      ^ R (optional)
+    isTemporal: true,
+    //          ^ Turn on temporal slider
+    spAxisLabels:['Termperature', 'Pressure']
+    //            ^ X axis label  ^ Y axis label
+    });
 ```
 
 *Scatter Plot will not render if spMeasures is not specified or **any** of the measures are not found in the [data](#chart-data-shape) as value keys*
@@ -219,17 +225,18 @@ The most common available parameters for chart options are as follows (bold opti
 |-|-|-|-|
 |brushContextMenuActions|Array<any>|**null**, Array&lt;[brushContextMenuAction](#brush-context-menu-actions)&gt;|An array of objects defining brush actions
 |events|Array<any>|**null**, Array&lt;[Event](#line-chart-events-and-states-data-shape)&gt;|events passed into the linechart, an array of discrete time events|
-|grid|boolen|**false**,true|If true, add accessible grid button to the ellipsis menu|
-|includeDots|boolean|**false**|If true, the linechart plots dots for values|
-|includeEnvelope|boolean|**false**|If true, include an area showing min/max boundaries in the line chart|
+|grid|boolean|**false**, true|If true, add accessible grid button to the ellipsis menu|
+|includeDots|boolean|**false**, true|If true, the linechart plots dots for values|
+|includeEnvelope|boolean|**false**, true|If true, include an area showing min/max boundaries in the line chart|
 |interpolationFunction|string|**''**, 'curveLinear'|Name for interpolation function used for line chart lines|
 |legend|string|**'shown'**,'compact','hidden'|Legend layout|
-|noAnimate|boolean|**false**,true|If true, uppresses animated chart transitions|
+|noAnimate|boolean|**false**, true|If true, uppresses animated chart transitions|
 |offset|any|**0**, -120, 'America/Los_Angeles'|Offset for all timestamps in minutes from UTC, or a timezone supported by moment.js|
-|spMeasures| any| Array&lt;string&gt; | X, Y, and Radius (optional) measures passed into Scatter Plot |
-|isTemporal| boolean| **false** | **true**: scatter plot has temporal slider to slide through time slices **false**: scatter plot renders all timestamps.
+|spMeasures| Array&lt;string&gt; | Array&lt;string&gt; | X, Y, and Radius (optional) measures passed into Scatter Plot |
+|isTemporal| boolean| **false**, true | **true**: scatter plot has temporal slider to slide through time slices **false**: scatter plot renders all timestamps.|
+|spAxisLabels| Array&lt;string&gt; | **null**, Array&lt;string&gt; | If given array, first element of array is used as X axis label.  Second element of array is used as Y axis label.
 |stacked|boolean|**false**|If true, stack bars in barchart|
-|states|Array<any>|**null**, Array&lt;[State](#line-chart-events-and-states-data-shape)&gt;|An array of time range bound states passed into the linechart|
+|states|Array&lt;any&gt;|**null**, Array&lt;[State](#line-chart-events-and-states-data-shape)&gt;|An array of time range bound states passed into the linechart|
 |theme|string|**'dark'**, 'light'|Component color scheme|
 |timestamp|string|**null**,'2017-04-19T13:00:00Z'|If an ISO string, sets the slider in the bar or pie chart to the specified timestamp|
 |tooltip|boolean|**false**,true|If true, display tooltip on hover over a value element|
