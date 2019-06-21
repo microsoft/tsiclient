@@ -74,7 +74,11 @@ class ScatterPlot extends ChartComponent {
         }
 
         this.chartMargins.top = (this.chartOptions.legend === 'compact') ? 84 : 52;
+<<<<<<< HEAD
         this.chartMargins.left = (this.chartOptions.spAxisLabels != null && this.chartOptions.spAxisLabels.length >= 2) ? this.chartMargins.left + 30 : 70;
+=======
+        this.chartMargins.left = (this.chartOptions.spAxisLabels != null && this.chartOptions.spAxisLabels.length >= 2) ? this.chartMargins.left + 30 : this.chartMargins.left;
+>>>>>>> 1554f3bc1326c533b8fe870314ef624f3d5cfee6
         this.aggregateExpressionOptions = data.map((d, i) => Object.assign(d, aggregateExpressionOptions && i in aggregateExpressionOptions  ? new ChartDataOptions(aggregateExpressionOptions[i]) : new ChartDataOptions({})));
 
         this.chartComponentData.mergeDataToDisplayStateAndTimeArrays(data, this.chartOptions.timestamp, aggregateExpressionOptions);
