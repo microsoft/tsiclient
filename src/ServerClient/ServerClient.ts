@@ -36,7 +36,7 @@ class ServerClient {
         let events = {properties: [], timestamps: []};
         tsqEvents.forEach(tsqe => {
             let currentPropertiesValueLength = events.timestamps.length;
-            if(tsqe.propereties && tsqe.properties.length){
+            if(tsqe.properties && tsqe.properties.length){
                 tsqe.properties.forEach(prop => {
                     let foundProperty = events.properties.filter(p => p.name===prop.name && p.type===prop.type);
                     let existingProperty;
@@ -82,7 +82,8 @@ class ServerClient {
                 }
                 else{
                     accumulator.push(message);
-                    results[index].progress = message && message.progress ? message.progress : 0;
+                    let progressFromMessage = message && message.progress ? message.progress : 0;
+                    results[index].progress = mergeAccumulatedResults ? Math.max(progressFromMessage, accumulator.reduce((p,c) => p + (c.timestamps && c.timestamps.length ? c.timestamps.length : 0),0) / contentObject.getEvents.take * 100) : progressFromMessage;
                     xhr = new XMLHttpRequest();
                     xhr.onreadystatechange = onreadystatechange;
                     xhr.open('POST', uri);
@@ -119,7 +120,7 @@ class ServerClient {
         });
     }
 
-    public getAggregates(token: string, uri: string, tsxArray: Array<any>, options: any) {
+    public getAggregates(token: string, uri: string, tsxArray: Array<any>, onProgressChange = () => {}) {
         var aggregateResults = [];
         tsxArray.forEach(ae => {
             aggregateResults.push({progress: 0});
@@ -127,7 +128,7 @@ class ServerClient {
         
         return new Promise((resolve: any, reject: any) => {
             tsxArray.forEach((tsx, i) => {
-                this.getQueryApiResult(token, aggregateResults, tsx, i, `https://${uri}/aggregates${this.apiVersionUrlParam}`, resolve, message => message.aggregates[0]);
+                this.getQueryApiResult(token, aggregateResults, tsx, i, `https://${uri}/aggregates${this.apiVersionUrlParam}`, resolve, message => message.aggregates[0], onProgressChange);
             })
         })
     }
