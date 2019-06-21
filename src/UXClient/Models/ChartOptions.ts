@@ -13,6 +13,7 @@ class ChartOptions {
     public brushHandlesVisible: boolean; // whether handles on the brush are visible
     public brushMoveAction: any; // action fired when the brush moved
     public brushMoveEndAction: any; // action fired at the end of a mouse movement
+    public brushRangeVisible: boolean; // whether the brush duration label is visible
     public canDownload: boolean; // whether chart's ellipsis menu contains download button
     public color: string; // color of the time selection ghost in availability chart
     public ellipsisItems: Array<any>; //objects reprenting options in the ellipsis menu 
@@ -158,6 +159,7 @@ class ChartOptions {
         this.spAxisLabels = this.mergeValue(chartOptionsObj, 'spAxisLabels', null);
         this.isTemporal = this.mergeValue(chartOptionsObj, "isTemporal", false);
         this.xAxisTimeFormat = this.mergeValue(chartOptionsObj, 'xAxisTimeFormat', null);
+        this.brushRangeVisible = this.mergeValue(chartOptionsObj, 'brushRangeVisible', true);
         this.strings.mergeStrings(Utils.getValueOrDefault(chartOptionsObj, 'strings', {}));
     }
 
@@ -233,6 +235,7 @@ class ChartOptions {
             spMeasures: this.spMeasures,
             scatterPlotRadius: this.scatterPlotRadius,
             spAxisLabels: this.spAxisLabels,
+            brushRangeVisible: this.brushRangeVisible,
             strings: this.strings.toObject()
         }
     }
