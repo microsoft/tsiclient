@@ -73,7 +73,7 @@ class ScatterPlot extends ChartComponent {
             return;
         }
 
-        this.chartMargins.top = (this.chartOptions.legend === 'compact') ? 84 : 52;
+        this.chartMargins.top = (this.chartOptions.legend === 'compact') ? 84 : 40;
         this.chartMargins.left = (this.chartOptions.spAxisLabels != null && this.chartOptions.spAxisLabels.length >= 2) ? 100 : 70;
         this.aggregateExpressionOptions = data.map((d, i) => Object.assign(d, aggregateExpressionOptions && i in aggregateExpressionOptions  ? new ChartDataOptions(aggregateExpressionOptions[i]) : new ChartDataOptions({})));
 
