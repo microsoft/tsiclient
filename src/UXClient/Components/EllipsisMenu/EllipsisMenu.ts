@@ -27,12 +27,12 @@ class EllipsisMenu extends Component {
 
     public render (menuItems, options: any = {}) {
         this.menuIsVisible = false;
+        this.chartOptions.setOptions(options);
 
         this.containerElement = d3.select(this.renderTarget).classed("tsi-ellipsisMenuContainer", true);
         this.setMenuItems(menuItems);
         d3.select(this.renderTarget).selectAll("*").remove();
-        options.theme = options.theme ? options.theme : "dark";
-        super.themify(this.containerElement, options.theme);
+        super.themify(this.containerElement, this.chartOptions.theme);
 
         let self = this;
         this.buttonElement = d3.select(this.renderTarget).insert("button")
@@ -57,7 +57,7 @@ class EllipsisMenu extends Component {
             .each(function () {
                 d3.select(this)
                     .append("div")
-                    .attr("class", (d: any) => "tsi-ellipsisMenuIcon " + self.createIconPath(d.iconClass, options.theme));
+                    .attr("class", (d: any) => "tsi-ellipsisMenuIcon " + self.createIconPath(d.iconClass, self.chartOptions.theme));
 
                 d3.select(this)
                     .append("div")

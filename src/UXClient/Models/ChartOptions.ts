@@ -1,6 +1,7 @@
 import * as d3 from 'd3';
 import { quadtree } from 'd3';
 import { Utils } from '../Utils';
+import { Strings } from './Strings';
 
 class ChartOptions {
     public aggTopMargin: number; // margin on top of each aggregate line(s)
@@ -12,6 +13,7 @@ class ChartOptions {
     public brushHandlesVisible: boolean; // whether handles on the brush are visible
     public brushMoveAction: any; // action fired when the brush moved
     public brushMoveEndAction: any; // action fired at the end of a mouse movement
+    public brushRangeVisible: boolean; // whether the brush duration label is visible
     public canDownload: boolean; // whether chart's ellipsis menu contains download button
     public color: string; // color of the time selection ghost in availability chart
     public ellipsisItems: Array<any>; //objects reprenting options in the ellipsis menu 
@@ -44,11 +46,12 @@ class ChartOptions {
     public onSticky: (aggKey: string, splitBy: string) => void;
     public onUnsticky: (aggKey: string, splitBy: string) => void;
     public onKeydown: (d3Event: any, awesompleteObject: any) => void;  // for handling keydown actions in ModelAutocomplete
-    public onInput: (searchText: string) => void; // for handling after input actions in ModelAutocomplete
+    public onInput: (searchText: string, event) => void; // for handling after input actions in ModelAutocomplete
     public preserveAvailabilityState: boolean; // whether state in availability chart is saved or blown away on render
     public scaledToCurrentTime: boolean; //whether slider base component's scale is based on current time's values (or all values)
     public spMeasures: Array<string>; // measures passed into scatter plot to plot on axis
     public scatterPlotRadius: Array<number>; // Range of values to use for radius measure range
+    public spAxisLabels: Array<string>; // X and Y axis labels for scatter plot
     public singleLineXAxisLabel: boolean; // whether x axis time labels are on a single line (else split into two lines)
     public snapBrush: boolean; // whether to snap linechart brush to closest value
     public stacked: boolean; //whether bars in barchart are stacked
@@ -66,6 +69,8 @@ class ChartOptions {
     public yExtent: any; // [min, max] of range of y values in chart
     public zeroYAxis: boolean; // whether bar chart's bar's bottom (or top if negative) is zero
     public withContextMenu: boolean; // whether the hierarchy uses a context menu when you click on a parent of leaf nodes
+
+    public strings: Strings = new Strings(); // passed in key value pairs of strings -> strings
 
     private getInterpolationFunction (interpolationName: string) {
         if (interpolationName == "curveLinear")
@@ -151,8 +156,11 @@ class ChartOptions {
         this.onMarkersChange = this.mergeValue(chartOptionsObj, 'onMarkersChange', (markers) => {});
         this.spMeasures = this.mergeValue(chartOptionsObj, 'spMeasures', null);
         this.scatterPlotRadius = this.mergeValue(chartOptionsObj, 'scatterPlotRadius', [4,10]);
+        this.spAxisLabels = this.mergeValue(chartOptionsObj, 'spAxisLabels', null);
         this.isTemporal = this.mergeValue(chartOptionsObj, "isTemporal", false);
         this.xAxisTimeFormat = this.mergeValue(chartOptionsObj, 'xAxisTimeFormat', null);
+        this.brushRangeVisible = this.mergeValue(chartOptionsObj, 'brushRangeVisible', true);
+        this.strings.mergeStrings(Utils.getValueOrDefault(chartOptionsObj, 'strings', {}));
     }
 
     private mergeValue (chartOptionsObj, propertyName, defaultValue) {
@@ -223,7 +231,12 @@ class ChartOptions {
             ellipsisItems: this.ellipsisItems,
             markers: this.markers,
             onMarkersChange: this.onMarkersChange,
-            xAxisTimeFormat: this.xAxisTimeFormat
+            xAxisTimeFormat: this.xAxisTimeFormat,
+            spMeasures: this.spMeasures,
+            scatterPlotRadius: this.scatterPlotRadius,
+            spAxisLabels: this.spAxisLabels,
+            brushRangeVisible: this.brushRangeVisible,
+            strings: this.strings.toObject()
         }
     }
 }

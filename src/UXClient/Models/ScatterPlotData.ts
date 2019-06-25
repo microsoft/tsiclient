@@ -15,6 +15,8 @@ class ScatterPlotData extends GroupedBarChartData {
     /******** SETS EXTENT OF EACH DATA MEASURE -- MEASURES UPDATED WHEN RENDER CALLED OUTSIDE OF TEMPORAL ********/
     public setExtents(measures: any, forceReset: boolean = false){
         if(!this.extentsSet || forceReset){
+            // Reset extents
+            this.extents = {};
             // Set axis extents
             measures.forEach(measure => {
                 this.extents[measure] = d3.extent(this.allValues, (v:any) => {

@@ -149,12 +149,12 @@ class Utils {
         return timezoneRaw !== null ? timezoneRaw.split(' ').join('_'): '';
     }
 
-    static convertTimezoneToLabel (timezone) {
+    static convertTimezoneToLabel (timezone , locdLocal = 'Local') {
         let timezoneName = this.parseTimezoneName(timezone);
         let localPrefix = '';
         let offsetPrefix = '';
         if (timezone == 'Local') {
-            localPrefix = 'Local - ';
+            localPrefix = locdLocal + ' - ';
         } 
         if (timezone !== 'UTC') {
             offsetPrefix = ' (' + this.addOffsetGuess(timezoneName) + ')';
@@ -214,22 +214,30 @@ class Utils {
     }
 
     static splitTimeLabel (text: any) {
+
+        let shouldSplit = (str) => {
+            let splitLines = str.split(' ');
+            return !((splitLines.length === 1) || (splitLines.length === 2 && (splitLines[1] === 'AM' || splitLines[1] === 'PM')));
+        }
+
         text.each(function () {
             if(this.children == undefined || this.children.length == 0){  // don't split already split labels
                 var text = d3.select(this);
                 var lines = text.text().split(" ");
                 var dy = parseFloat(text.attr("dy"));
-                text.text(null).append("tspan")
-                    .attr("x", 0)
-                    .attr("y", text.attr("y"))
-                    .attr("dy", dy + "em")
-                    .text(lines[0]);
-                if (lines.length > 1) {
+                if (shouldSplit(text.text())) {
+                    let newFirstLine = lines[0] + (lines.length === 3 ? (' ' + lines[1]) : '');
+                    let newSecondLine = lines[lines.length - 1];
+                    text.text(null).append("tspan")
+                        .attr("x", 0)
+                        .attr("y", text.attr("y"))
+                        .attr("dy", dy + "em")
+                        .text(newFirstLine);
                     text.append("tspan")
                         .attr("x", 0)
                         .attr("y", text.attr("y"))
                         .attr("dy", (dy + dy * 1.4) + "em")
-                        .text(lines[1] + (lines.length === 3 ? ' ' + lines[2] : ''));    
+                        .text(newSecondLine);    
                 }
             }
         });
@@ -434,10 +442,10 @@ class Utils {
     }
 
     static createGridEllipsisOption (renderTarget: any, chartOptions: ChartOptions, aggregateExpressionOptions: any, 
-                                     chartComponentData: ChartComponentData) {
+                                     chartComponentData: ChartComponentData, labelText = 'Display Grid') {
         return {
             iconClass: "grid",
-            label: "Display Grid",
+            label: labelText,
             action: () => { 
                 this.showGrid(renderTarget, chartOptions, 
                               aggregateExpressionOptions, chartComponentData);
@@ -453,10 +461,10 @@ class Utils {
         }
     }
 
-    static createDownloadEllipsisOption (csvStringGenerator, action = () => {}) {
+    static createDownloadEllipsisOption (csvStringGenerator, action = () => {}, downloadLabel = "Download as CSV") {
         return {
             iconClass: "download",
-            label: "Download as CSV",
+            label: downloadLabel,
             action:() => {
                 Utils.downloadCSV(csvStringGenerator());
                 action();  
@@ -516,6 +524,109 @@ class Utils {
         }
         catch (err){
             return false;
+        }
+    }
+
+    static mergeSeriesForScatterPlot(chartData: any, scatterMeasures: any){
+        let xMeasure = chartData[scatterMeasures.X_MEASURE], yMeasure = chartData[scatterMeasures.Y_MEASURE], rMeasure = chartData[scatterMeasures.R_MEASURE];
+
+        let measureNames = Utils.getScatterPlotMeasureNames(chartData, scatterMeasures);
+
+        // Create data label
+        let xLabel = xMeasure.additionalFields.Variable.substring(0, 15) + (xMeasure.additionalFields.Variable.length > 15 ? "... vs" : " vs");
+        let yLabel = " " + yMeasure.additionalFields.Variable.substring(0, 15) + (yMeasure.additionalFields.Variable.length > 15 ? "... " : "");
+        let rLabel = (rMeasure != null ? " vs " + rMeasure.additionalFields.Variable.substring(0, 15) + (rMeasure.additionalFields.Variable.length > 15 ? "... " : "") : "");
+        let dataTitle =  xLabel + yLabel + rLabel;
+        
+        // Initialize scatter plot data object
+        let scatterData = {
+            [dataTitle] : {
+                "": {}
+            }
+        };
+
+        // Takes query and returns normalized time data
+        let normalizeTimestampKeys = (query) => {
+            let newTS = {}
+            Object.keys(query.data[query.alias][""]).forEach((key) => {
+                let oldTime = new Date(key).valueOf();
+                let timeShift = query.timeShift != "" ? this.parseShift(query.timeShift): 0;
+                // Calculate real timeshift based on bucket snapping
+                let bucketShiftInMillis =  this.adjustStartMillisToAbsoluteZero(timeShift, this.parseShift(query.searchSpan.bucketSize));
+                let normalizedTime = oldTime - bucketShiftInMillis;
+                let timestamp = new Date(normalizedTime).toISOString();
+
+                newTS[timestamp] = query.data[query.alias][""][key];
+            })
+            return newTS;
+        }
+
+        // Normalize timestamp data
+        xMeasure.data[xMeasure.alias][""] = normalizeTimestampKeys(xMeasure);
+        yMeasure.data[yMeasure.alias][""] = normalizeTimestampKeys(yMeasure);
+        if(rMeasure)
+            rMeasure.data[rMeasure.alias][""] = normalizeTimestampKeys(rMeasure);
+
+        // For each timestamp in X data mix measures of other series
+        Object.keys(xMeasure.data[xMeasure.alias][""]).forEach((key) => {
+            if(key in yMeasure.data[yMeasure.alias][""]){
+                let measures = {}
+                
+                measures[measureNames.X_MEASURE] = xMeasure.data[xMeasure.alias][""][key].avg;
+                measures[measureNames.Y_MEASURE] = yMeasure.data[yMeasure.alias][""][key].avg;
+
+                // Add optional R measure
+                if(rMeasure != null && key in rMeasure.data[rMeasure.alias][""]){
+                    measures[measureNames.R_MEASURE] = rMeasure.data[rMeasure.alias][""][key].avg;
+                }
+
+                // Discard timestamps with null valued measures
+                if(xMeasure.data[xMeasure.alias][""][key].avg != null && yMeasure.data[yMeasure.alias][""][key].avg != null)
+                {
+                    if(rMeasure != null){
+                        if(key in rMeasure.data[rMeasure.alias][""] && rMeasure.data[rMeasure.alias][""][key].avg != null)
+                            scatterData[dataTitle][""][key] = measures;
+                    }
+                    else{
+                        scatterData[dataTitle][""][key] = measures;
+                    } 
+                } 
+            }
+        });
+        return scatterData;
+    }
+
+    static getScatterPlotMeasureNames(chartData: any, scatterMeasures: any){
+        let uniqueNameMap = {}
+        
+        let xMeasureName = chartData[scatterMeasures.X_MEASURE].alias + " " + chartData[scatterMeasures.X_MEASURE].additionalFields.Variable + 
+            (chartData[scatterMeasures.X_MEASURE].timeShift == "" ? "" : " " + chartData[scatterMeasures.X_MEASURE].timeShift);
+        uniqueNameMap[xMeasureName] = 1;
+        
+        let yMeasureName = chartData[scatterMeasures.Y_MEASURE].alias + " " + chartData[scatterMeasures.Y_MEASURE].additionalFields.Variable + 
+            (chartData[scatterMeasures.Y_MEASURE].timeShift == "" ? "" : " " + chartData[scatterMeasures.Y_MEASURE].timeShift);
+
+        if(yMeasureName in uniqueNameMap){
+            let tempName = yMeasureName;
+            yMeasureName += " (" + uniqueNameMap[yMeasureName].toString() + ")";
+            uniqueNameMap[tempName] = uniqueNameMap[tempName] + 1;
+        } else{
+            uniqueNameMap[yMeasureName] = 1;
+        }
+
+        let rMeasureName = chartData[scatterMeasures.R_MEASURE] ? chartData[scatterMeasures.R_MEASURE].alias + " " + chartData[scatterMeasures.R_MEASURE].additionalFields.Variable +
+            (chartData[scatterMeasures.R_MEASURE].timeShift == "" ? "" : " " + chartData[scatterMeasures.R_MEASURE].timeShift) : null;
+
+        if(rMeasureName != null){
+            if(rMeasureName in uniqueNameMap){
+                rMeasureName += " (" + uniqueNameMap[rMeasureName].toString() + ")";
+            }
+        }
+
+        return {
+            X_MEASURE: xMeasureName,
+            Y_MEASURE: yMeasureName,
+            R_MEASURE: rMeasureName ? rMeasureName : null
         }
     }
 }

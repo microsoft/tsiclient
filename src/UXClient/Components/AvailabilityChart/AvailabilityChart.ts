@@ -119,7 +119,7 @@ class AvailabilityChart extends ChartComponent{
         this.sparkLineChart.setBrushEndTime(new Date(this.zoomedToMillis));
         this.sparkLineChart.setBrushStartTime(new Date(this.zoomedFromMillis));
         this.sparkLineChart.setBrush();
-        this.drawAvailabilityRange();
+        this.timePickerLineChart.drawBrushRange();
         d3.event.preventDefault && d3.event.preventDefault();
     }
     private setChartOptions (chartOptions) {
@@ -188,28 +188,6 @@ class AvailabilityChart extends ChartComponent{
             
         return [{"availabilityCount" : {"" : buckets}}];
     }
-
-    private drawAvailabilityRange () {
-        this.targetElement.selectAll(".tsi-rangeTextContainer").remove();
-        var rangeText = Utils.rangeTimeFormat(this.selectedToMillis - this.selectedFromMillis);
-
-        var rangeTextContainer = this.targetElement.append("div")
-            .attr("class", "tsi-rangeTextContainer")
-            .style("Background-color", this.chartOptions.color)
-            .html(rangeText);
-        var calcedWidth = rangeTextContainer.node().getBoundingClientRect().width;
-        var leftPos = this.timePickerLineChart.chartMargins.left + 
-            Math.min(Math.max(0, this.timePickerLineChart.x(this.selectedFromMillis)), this.timePickerLineChart.x.range()[1]);
-
-        var rightPos = this.timePickerLineChart.chartMargins.left + 
-            Math.min(Math.max(0, this.timePickerLineChart.x(this.selectedToMillis)), this.timePickerLineChart.x.range()[1]);
-        
-        rangeTextContainer.style("left", Math.max(8, Math.round((leftPos + rightPos) / 2 - (calcedWidth / 2))) + "px");
-        if (this.chartOptions.isCompact && (rightPos - leftPos) < calcedWidth) {
-            rangeTextContainer.remove();
-        } 
-    }
-
     private setRangeVariables (rawAvailability) {
         if (Utils.safeNotNullOrUndefined(() => rawAvailability.range.from || rawAvailability.range.to || rawAvailability.intervalSize)) {
             this.fromMillis = (new Date(rawAvailability.range.from)).valueOf();
@@ -298,7 +276,6 @@ class AvailabilityChart extends ChartComponent{
                 setTimeout(() => {
                     this.drawGhost();
                 }, 100);
-                this.drawAvailabilityRange();
             });
             var pickerContainerAndContent = this.targetElement.selectAll(".tsi-dateTimePickerContainer, .tsi-dateTimePickerContainer *");
 
@@ -379,7 +356,7 @@ class AvailabilityChart extends ChartComponent{
         if (this.chartOptions.isCompact) {
             this.buildCompactFromAndTo();
         }
-        this.drawAvailabilityRange();
+        this.timePickerLineChart.drawBrushRange();
     }
 
     private buildZoomButtons() {
@@ -402,7 +379,7 @@ class AvailabilityChart extends ChartComponent{
     private setSelectedMillis (fromMillis, toMillis) {
         this.selectedFromMillis = fromMillis;
         this.selectedToMillis = toMillis;
-        this.drawAvailabilityRange();
+        this.timePickerLineChart.drawBrushRange();
     }
 
     private isCustomTime (fromMillis, toMillis) {
@@ -502,7 +479,7 @@ class AvailabilityChart extends ChartComponent{
     private buildFromAndToContainer () {
         let self = this;
         let dateTimeContainer = this.timePickerTextContainer.append('div').classed('tsi-dateTimeContainer', true);
-        dateTimeContainer.append("span").node().innerHTML = "Timeframe";
+        dateTimeContainer.append("span").node().innerHTML = this.getString("Timeframe");
         this.timeContainer = dateTimeContainer.append("button")
             .classed('tsi-dateTimeButton', true)
             .on("click", function () {
@@ -511,7 +488,7 @@ class AvailabilityChart extends ChartComponent{
                 var maxMillis = self.toMillis + (Utils.getOffsetMinutes(self.chartOptions.offset, self.toMillis) * 60 * 1000);
                 var startMillis = self.selectedFromMillis + (Utils.getOffsetMinutes(self.chartOptions.offset, self.selectedFromMillis) * 60 * 1000);
                 var endMillis = self.selectedToMillis + (Utils.getOffsetMinutes(self.chartOptions.offset, self.selectedFromMillis) * 60 * 1000);
-                self.dateTimePicker.render({'theme': self.chartOptions.theme, offset: self.chartOptions.offset, is24HourTime: self.chartOptions.is24HourTime}, 
+                self.dateTimePicker.render({'theme': self.chartOptions.theme, offset: self.chartOptions.offset, is24HourTime: self.chartOptions.is24HourTime, strings: self.chartOptions.strings.toObject()}, 
                                             minMillis, maxMillis, startMillis, endMillis, (fromMillis, toMillis, offset) => {
                                                 self.chartOptions.offset = offset;
                                                 self.timePickerLineChart.chartOptions.offset = offset;
@@ -533,10 +510,11 @@ class AvailabilityChart extends ChartComponent{
             .append("select")
             .attr('class', 'tsi-select tsi-timePicker');
 
+        let self = this;
         var options = select.selectAll('option')
             .data(this.quickTimeArray).enter()
             .append('option')
-            .text(function (d) { return d[0]; })
+            .text(function (d) { return self.getString(d[0]); })
             .property("value", function (d) { return d[1]; });
 
         options.filter((d) => d[0] == "Last 24 Hours")
@@ -546,7 +524,6 @@ class AvailabilityChart extends ChartComponent{
             .attr("disabled", true)
             .style("display", "none");
 
-        var self = this;
         select.on('change', function (d) {
             var selectValue = Number(d3.select(this).property('value'));
             if (!isNaN(selectValue)) {
@@ -596,7 +573,7 @@ class AvailabilityChart extends ChartComponent{
         
         if (this.isCustomTime(this.selectedFromMillis, this.selectedToMillis))
                 this.timePickerTextContainer.select('.tsi-timePicker')
-                    .node().value = "Custom";
+                    .node().value = this.getString("Custom");
         this.setQuickTimeValue(this.selectedFromMillis, this.selectedToMillis);
         if(this.chartOptions.isCompact)
             this.buildCompactFromAndTo();
@@ -620,10 +597,10 @@ class AvailabilityChart extends ChartComponent{
             brushHandlesVisible: true,
             brushMoveAction: (from, to) => {
                 this.setAvailabilityRange(from.valueOf(), to.valueOf());
-                this.drawAvailabilityRange();
             },
             brushClearable: false,
-            hideChartControlPanel: true
+            hideChartControlPanel: true,
+            brushRangeVisible: false
         };
     }
 }

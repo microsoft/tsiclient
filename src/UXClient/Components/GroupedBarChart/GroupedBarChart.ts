@@ -226,7 +226,7 @@ class GroupedBarChart extends ChartComponent {
                     this.chartControlsPanel = Utils.createControlPanel(this.renderTarget, this.CONTROLSWIDTH, this.chartMargins.top, this.chartOptions);
 
                     let labelStackedButton = () => {
-                        return this.chartOptions.stacked ? "Unstack bars" : "Stack bars";
+                        return this.chartOptions.stacked ? this.getString("Unstack bars") : this.getString("Stack bars");
                     } 
                     this.stackedButton = this.chartControlsPanel.append("button")
                         .style("left", "60px")
@@ -236,7 +236,7 @@ class GroupedBarChart extends ChartComponent {
                             d3.select(this).attr("aria-label", labelStackedButton);
                             self.draw();
                         })
-                        .attr('title', 'Stack/Unstack Bars');
+                        .attr('title', this.getString('Stack/Unstack Bars'));
                 } else  if (this.chartOptions.hideChartControlPanel && this.chartControlsPanel !== null){
                     this.removeControlPanel();
                 }

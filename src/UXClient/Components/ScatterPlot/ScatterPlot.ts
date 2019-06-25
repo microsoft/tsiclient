@@ -39,10 +39,12 @@ class ScatterPlot extends ChartComponent {
     private yAxis: any;
     private yMeasure: string;
     private yScale: any;
+    private xAxisLabel: any;
+    private yAxisLabel: any;
 
     readonly lowOpacity = 0.15; 
     readonly standardOpacity = 0.6; 
-    readonly focusOpacity = 0.8;
+    private focusOpacity = 0.8;
     readonly standardStroke = 1;
     readonly lowStroke = 0.3;
     
@@ -61,7 +63,6 @@ class ScatterPlot extends ChartComponent {
 
     ScatterPlot(){}
     public render(data: any, options: any, aggregateExpressionOptions: any, fromSlider: boolean = false) {
-        
         this.chartOptions.setOptions(options);
         // If measure options not set, or less than 2, return
         if(this.chartOptions["spMeasures"] == null || (this.chartOptions["spMeasures"] != null && this.chartOptions["spMeasures"].length < 2)){
@@ -72,7 +73,8 @@ class ScatterPlot extends ChartComponent {
             return;
         }
 
-        this.chartMargins.top = (this.chartOptions.legend === 'compact') ? 84 : 52;
+        this.chartMargins.top = (this.chartOptions.legend === 'compact') ? 84 : 40;
+        this.chartMargins.left = (this.chartOptions.spAxisLabels != null && this.chartOptions.spAxisLabels.length >= 2) ? 100 : 70;
         this.aggregateExpressionOptions = data.map((d, i) => Object.assign(d, aggregateExpressionOptions && i in aggregateExpressionOptions  ? new ChartDataOptions(aggregateExpressionOptions[i]) : new ChartDataOptions({})));
 
         this.chartComponentData.mergeDataToDisplayStateAndTimeArrays(data, this.chartOptions.timestamp, aggregateExpressionOptions);
@@ -114,7 +116,8 @@ class ScatterPlot extends ChartComponent {
             // Initialize focus crosshair lines
             this.focus = this.pointWrapper.append("g")
                 .attr("transform", "translate(-100,-100)")
-                .attr("class", "tsi-focus");
+                .attr("class", "tsi-focus")
+                .style("display", "none");
             
             this.focus.append("line")
                 .attr("class", "tsi-focusLine tsi-vLine")
@@ -197,6 +200,17 @@ class ScatterPlot extends ChartComponent {
 
         this.focus.attr("visibility", (this.chartOptions.focusHidden) ? "hidden" : "visible")
 
+        // If only one data series visible, do not highlight on hover
+        let visibleSplitBys = 0;
+        Object.keys(this.chartComponentData.displayState).forEach(aggKey => {
+            if(this.chartComponentData.displayState[aggKey].visible)
+                Object.keys(this.chartComponentData.displayState[aggKey].splitBys).forEach(splitBy => {
+                    if(this.chartComponentData.displayState[aggKey].splitBys[splitBy].visible)
+                        visibleSplitBys++
+                });
+        })
+
+        if(visibleSplitBys == 1) this.focusOpacity = this.standardOpacity;
         // Determine the number of timestamps present, add margin for slider
         if(this.chartComponentData.allTimestampsArray.length > 1 && this.chartOptions.isTemporal){
             this.chartMargins.bottom = 88;
@@ -241,9 +255,19 @@ class ScatterPlot extends ChartComponent {
         this.yMeasure = this.measures[1];
         this.rMeasure = this.measures[2] !== undefined ? this.measures[2] : null;
 
+        let xExtentRange = this.chartComponentData.extents[this.xMeasure][1] - this.chartComponentData.extents[this.xMeasure][0];
+        let yExtentRange = this.chartComponentData.extents[this.yMeasure][1] - this.chartComponentData.extents[this.yMeasure][0];
+
         // Pad extents
-        let xOffset = (20 / this.chartWidth) * (this.chartComponentData.extents[this.xMeasure][1] - this.chartComponentData.extents[this.xMeasure][0]);
-        let yOffset = (20 / this.chartHeight) * (this.chartComponentData.extents[this.yMeasure][1] - this.chartComponentData.extents[this.yMeasure][0]);
+        let xOffset = (20 / this.chartWidth) * (xExtentRange < 1 ? 1 : xExtentRange);
+        let yOffset = (20 / this.chartHeight) * (yExtentRange < 1 ? 1 : yExtentRange);
+
+        let rOffset = null;
+
+        if(this.rMeasure){
+            let rExtentRange = this.chartComponentData.extents[this.rMeasure][1] - this.chartComponentData.extents[this.rMeasure][0];
+            rOffset = (20 / this.chartHeight) * (rExtentRange < 1 ? 1 : rExtentRange);
+        }
 
         // Check measure validity
         if(!this.checkExtentValidity()) return;
@@ -259,10 +283,13 @@ class ScatterPlot extends ChartComponent {
 
         this.rScale = d3.scaleLinear()
             .range(this.chartOptions.scatterPlotRadius.slice(0,2))
-            .domain(this.rMeasure === null ? [0, 0] : [this.chartComponentData.extents[this.rMeasure][0],this.chartComponentData.extents[this.rMeasure][1]]);
+            .domain(this.rMeasure === null ? [0, 0] : [this.chartComponentData.extents[this.rMeasure][0] - rOffset,this.chartComponentData.extents[this.rMeasure][1] + rOffset]);
         
         // Draw axis
         this.drawAxis();
+
+        // Draw axis labels
+        this.drawAxisLabels();
 
         // Draw data
         let scatter = this.pointWrapper.selectAll(".tsi-dot")
@@ -563,6 +590,7 @@ class ScatterPlot extends ChartComponent {
 
     /******** HIDE TOOLTIP AND CROSSHAIRS ********/
     private voronoiMouseOut(){
+        this.focusedSite = null;
         this.focus.style("display", "none");
         this.tooltip.hide();
         this.labelMouseOut();
@@ -669,7 +697,7 @@ class ScatterPlot extends ChartComponent {
             .attr("class", "xAxis")
             .merge(this.xAxis)
             .attr("transform", "translate(0," + (this.chartHeight) + ")")
-            .call(d3.axisBottom(this.xScale));
+            .call(d3.axisBottom(this.xScale).ticks(Math.max(2,Math.floor(this.chartWidth / 150))));
         
         this.xAxis.exit().remove();
 
@@ -679,9 +707,69 @@ class ScatterPlot extends ChartComponent {
             .append("g")
             .attr("class", "yAxis")
             .merge(this.yAxis)
-            .call(d3.axisLeft(this.yScale));
+            .call(d3.axisLeft(this.yScale).ticks(Math.max(2, Math.floor(this.chartHeight / 90))));
             
         this.yAxis.exit().remove()
+    }
+
+    /******** DRAW X AND Y AXIS LABELS ********/
+    private drawAxisLabels(){
+        let xLabelData, yLabelData;
+
+        const truncateTextLength = (labelText: string, maxTextLengthPx: number) => {
+            let lengthFound = false, resultText = labelText;
+            let currTextLengthPx;
+
+            while(!lengthFound){
+                let testText = this.pointWrapper.selectAll(".tsi-testAxisText")
+                    .data([resultText]);
+                testText
+                    .enter()
+                    .append("text")
+                    .attr("class", "tsi-testAxisText")
+                    .merge(testText)
+                    .text(d => d)
+                    .each(function(d){
+                        currTextLengthPx = this.getComputedTextLength();
+                        this.remove();
+                    })
+
+                if(currTextLengthPx > maxTextLengthPx - 100) resultText = resultText.substring(0, resultText.length - 2);
+                else lengthFound = true;
+                // Short circuit to prevent infinite loop
+                if(resultText.length < 10) lengthFound = true;
+            }
+            return resultText != labelText ? resultText += "..." : resultText ;
+        }
+        
+        // Associate axis label data
+        (this.chartOptions.spAxisLabels != null && this.chartOptions.spAxisLabels.length >= 1) ?
+          xLabelData = [this.chartOptions.spAxisLabels[0]] : xLabelData = [];
+
+        (this.chartOptions.spAxisLabels != null && this.chartOptions.spAxisLabels.length >= 2) ?
+        yLabelData = [this.chartOptions.spAxisLabels[1]] : yLabelData = [];
+
+        this.xAxisLabel = this.pointWrapper.selectAll('.tsi-xAxisLabel').data(xLabelData);
+        this.xAxisLabel
+            .enter()
+            .append("text")
+            .attr("class", "tsi-xAxisLabel tsi-AxisLabel")
+            .merge(this.xAxisLabel)
+            .style("text-anchor", "middle")
+            .attr("transform", "translate(" + (this.chartWidth / 2) + " ," + (this.chartHeight + 42) + ")")
+            .text((d) => truncateTextLength(d, this.chartWidth));
+        this.xAxisLabel.exit().remove();
+
+        this.yAxisLabel = this.pointWrapper.selectAll('.tsi-yAxisLabel').data(yLabelData);
+        this.yAxisLabel
+            .enter()
+            .append("text")
+            .attr("class", "tsi-yAxisLabel tsi-AxisLabel")
+            .merge(this.yAxisLabel)
+            .style("text-anchor", "middle")
+            .attr("transform", "translate(" + ( -70 ) + " ," + (this.chartHeight / 2) + ") rotate(-90)")
+            .text((d) => truncateTextLength(d, this.chartHeight));
+        this.yAxisLabel.exit().remove();
     }
 
     /******** DRAW TOOLTIP IF ENABLED ********/
