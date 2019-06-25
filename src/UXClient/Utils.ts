@@ -545,6 +545,13 @@ class Utils {
             }
         };
 
+        // Create measure types
+        let measureTypes = {
+            X_MEASURE_TYPE: 'avg' in xMeasure.measureTypes ? xMeasure.measureTypes['avg'] : xMeasure.measureTypes[0],
+            Y_MEASURE_TYPE: 'avg' in yMeasure.measureTypes ? yMeasure.measureTypes['avg'] : yMeasure.measureTypes[0],
+            R_MEASURE_TYPE: null
+        }
+
         // Takes query and returns normalized time data
         let normalizeTimestampKeys = (query) => {
             let newTS = {}
@@ -564,25 +571,21 @@ class Utils {
         // Normalize timestamp data
         xMeasure.data[xMeasure.alias][""] = normalizeTimestampKeys(xMeasure);
         yMeasure.data[yMeasure.alias][""] = normalizeTimestampKeys(yMeasure);
-        if(rMeasure)
+        if(rMeasure){
             rMeasure.data[rMeasure.alias][""] = normalizeTimestampKeys(rMeasure);
+            measureTypes.R_MEASURE_TYPE = 'avg' in rMeasure.measureTypes ? rMeasure.measureTypes['avg'] : rMeasure.measureTypes[0]
+        }
 
         // For each timestamp in X data mix measures of other series
         Object.keys(xMeasure.data[xMeasure.alias][""]).forEach((key) => {
             if(key in yMeasure.data[yMeasure.alias][""]){
                 let measures = {}
-                let measureTypes = {
-                    X_MEASURE_TYPE: 'avg' in xMeasure.measureTypes ? xMeasure.measureTypes['avg'] : xMeasure.measureTypes[0],
-                    Y_MEASURE_TYPE: 'avg' in yMeasure.measureTypes ? yMeasure.measureTypes['avg'] : yMeasure.measureTypes[0],
-                    R_MEASURE_TYPE: null
-                }
                 
                 measures[measureNames.X_MEASURE] = xMeasure.data[xMeasure.alias][""][key][measureTypes.X_MEASURE_TYPE];
                 measures[measureNames.Y_MEASURE] = yMeasure.data[yMeasure.alias][""][key][measureTypes.Y_MEASURE_TYPE];
 
                 // Add optional R measure
                 if(rMeasure != null && key in rMeasure.data[rMeasure.alias][""]){
-                    measureTypes.R_MEASURE_TYPE = 'avg' in rMeasure.measureTypes ? rMeasure.measureTypes['avg'] : rMeasure.measureTypes[0]
                     measures[measureNames.R_MEASURE] = rMeasure.data[rMeasure.alias][""][key][measureTypes.R_MEASURE_TYPE];
                 }
 
