@@ -10,7 +10,7 @@ class EventsTableData {
     public events: Array<TimeSeriesEvent> = [];
     private timestampColumnKey= "timestamp ($ts)_DateTime"
     private offsetName = null;
-    private maxVisibleToStart = 50;
+    private maxVisibleToStart = 10;
 
 	constructor(){
         

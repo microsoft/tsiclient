@@ -51,6 +51,7 @@ class ChartOptions {
     public scaledToCurrentTime: boolean; //whether slider base component's scale is based on current time's values (or all values)
     public spMeasures: Array<string>; // measures passed into scatter plot to plot on axis
     public scatterPlotRadius: Array<number>; // Range of values to use for radius measure range
+    public spAxisLabels: Array<string>; // X and Y axis labels for scatter plot
     public singleLineXAxisLabel: boolean; // whether x axis time labels are on a single line (else split into two lines)
     public snapBrush: boolean; // whether to snap linechart brush to closest value
     public stacked: boolean; //whether bars in barchart are stacked
@@ -155,6 +156,7 @@ class ChartOptions {
         this.onMarkersChange = this.mergeValue(chartOptionsObj, 'onMarkersChange', (markers) => {});
         this.spMeasures = this.mergeValue(chartOptionsObj, 'spMeasures', null);
         this.scatterPlotRadius = this.mergeValue(chartOptionsObj, 'scatterPlotRadius', [4,10]);
+        this.spAxisLabels = this.mergeValue(chartOptionsObj, 'spAxisLabels', null);
         this.isTemporal = this.mergeValue(chartOptionsObj, "isTemporal", false);
         this.xAxisTimeFormat = this.mergeValue(chartOptionsObj, 'xAxisTimeFormat', null);
         this.brushRangeVisible = this.mergeValue(chartOptionsObj, 'brushRangeVisible', true);
@@ -230,6 +232,9 @@ class ChartOptions {
             markers: this.markers,
             onMarkersChange: this.onMarkersChange,
             xAxisTimeFormat: this.xAxisTimeFormat,
+            spMeasures: this.spMeasures,
+            scatterPlotRadius: this.scatterPlotRadius,
+            spAxisLabels: this.spAxisLabels,
             brushRangeVisible: this.brushRangeVisible,
             strings: this.strings.toObject()
         }
