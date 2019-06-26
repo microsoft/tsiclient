@@ -74,6 +74,8 @@ class ScatterPlot extends ChartComponent {
         }
 
         this.chartMargins.top = (this.chartOptions.legend === 'compact') ? 84 : 40;
+        if(!this.chartOptions.hideChartControlPanel)
+            this.chartMargins.top += 20;
         this.chartMargins.left = (this.chartOptions.spAxisLabels != null && this.chartOptions.spAxisLabels.length >= 2) ? 120 : 70;
         this.aggregateExpressionOptions = data.map((d, i) => Object.assign(d, aggregateExpressionOptions && i in aggregateExpressionOptions  ? new ChartDataOptions(aggregateExpressionOptions[i]) : new ChartDataOptions({})));
 
@@ -241,7 +243,7 @@ class ScatterPlot extends ChartComponent {
         }
         if (this.chartControlsPanel !== null && this.ellipsisItemsExist()) {
             this.drawEllipsisMenu();
-            this.chartControlsPanel.style("top", Math.max((this.chartMargins.top - 24), 0) + 'px');
+            this.chartControlsPanel.style("top", Math.max((this.chartMargins.top - 44), 0) + 'px');
         } else {
             this.removeEllipsisMenu();
         }
