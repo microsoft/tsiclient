@@ -526,6 +526,22 @@ class Utils {
             return false;
         }
     }
+
+    static getAggKeys (data) {
+        let aggregateCounterMap = {};
+        return data.map((aggregate) => {
+            var aggName: string = Object.keys(aggregate)[0];            
+            let aggKey;
+            if (aggregateCounterMap[aggName]) {
+                aggKey = Utils.createEntityKey(aggName, aggregateCounterMap[aggName]);
+                aggregateCounterMap[aggName] += 1;
+            } else {
+                aggKey = Utils.createEntityKey(aggName, 0);
+                aggregateCounterMap[aggName] = 1;
+            }
+            return aggKey;
+        });
+    }
 }
 
 export {Utils};

@@ -1017,15 +1017,17 @@ class LineChart extends TemporalXAxisComponent {
     }  
 
     public labelMouseout = () =>{
-        d3.select(this.renderTarget).selectAll(".tsi-scooterValue")
-            .style("opacity", 1);
-    
-        d3.select(this.renderTarget).selectAll(".valueElement")
-            .filter(function () { return !d3.select(this).classed("valueEnvelope"); })
-            .attr("stroke-opacity", 1)
-            .attr("fill-opacity", 1);
-        d3.select(this.renderTarget).selectAll(".valueEnvelope")
-            .attr("fill-opacity", .3);
+        if (this.svgSelection) {
+            this.svgSelection.selectAll(".tsi-scooterValue")
+                .style("opacity", 1);
+        
+            this.svgSelection.selectAll(".valueElement")
+                .filter(function () { return !d3.select(this).classed("valueEnvelope"); })
+                .attr("stroke-opacity", 1)
+                .attr("fill-opacity", 1);
+            this.svgSelection.selectAll(".valueEnvelope")
+                .attr("fill-opacity", .3);
+        }
     }
 
     public labelMouseover = (aggregateKey: string, splitBy: string = null) => {
@@ -1043,17 +1045,18 @@ class LineChart extends TemporalXAxisComponent {
                 return true;
             return !(currAggKey == aggregateKey && (splitBy == null || splitBy == currSplitBy));
         }
+        if (this.svgSelection) {
+            this.svgSelection.selectAll(".valueElement")
+                .filter(selectedFilter)
+                .attr("stroke-opacity", this.nonFocusStrokeOpactiy)
+                .attr("fill-opacity", .3);
 
-        this.svgSelection.selectAll(".valueElement")
-            .filter(selectedFilter)
-            .attr("stroke-opacity", this.nonFocusStrokeOpactiy)
-            .attr("fill-opacity", .3);
-
-        this.svgSelection.selectAll(".valueEnvelope")
-            .filter(selectedFilter)
-            .attr("fill-opacity", .1);
-            
-        this.focusScooterLabel(this.createValueFilter(aggregateKey, splitBy), aggregateKey, splitBy);
+            this.svgSelection.selectAll(".valueEnvelope")
+                .filter(selectedFilter)
+                .attr("fill-opacity", .1);
+                
+            this.focusScooterLabel(this.createValueFilter(aggregateKey, splitBy), aggregateKey, splitBy);
+        }
     }
 
     private drawBrushRange () {
