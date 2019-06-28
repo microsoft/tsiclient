@@ -527,6 +527,22 @@ class Utils {
         }
     }
 
+    static getAggKeys (data) {
+        let aggregateCounterMap = {};
+        return data.map((aggregate) => {
+            var aggName: string = Object.keys(aggregate)[0];            
+            let aggKey;
+            if (aggregateCounterMap[aggName]) {
+                aggKey = Utils.createEntityKey(aggName, aggregateCounterMap[aggName]);
+                aggregateCounterMap[aggName] += 1;
+            } else {
+                aggKey = Utils.createEntityKey(aggName, 0);
+                aggregateCounterMap[aggName] = 1;
+            }
+            return aggKey;
+        });
+    }
+    
     static mergeSeriesForScatterPlot(chartData: any, scatterMeasures: any){
         let xMeasure = chartData[scatterMeasures.X_MEASURE], yMeasure = chartData[scatterMeasures.Y_MEASURE], rMeasure = chartData[scatterMeasures.R_MEASURE];
 
@@ -544,6 +560,13 @@ class Utils {
                 "": {}
             }
         };
+
+        // Create measure types
+        let measureTypes = {
+            X_MEASURE_TYPE: 'avg' in xMeasure.measureTypes ? xMeasure.measureTypes['avg'] : xMeasure.measureTypes[0],
+            Y_MEASURE_TYPE: 'avg' in yMeasure.measureTypes ? yMeasure.measureTypes['avg'] : yMeasure.measureTypes[0],
+            R_MEASURE_TYPE: null
+        }
 
         // Takes query and returns normalized time data
         let normalizeTimestampKeys = (query) => {
@@ -564,27 +587,29 @@ class Utils {
         // Normalize timestamp data
         xMeasure.data[xMeasure.alias][""] = normalizeTimestampKeys(xMeasure);
         yMeasure.data[yMeasure.alias][""] = normalizeTimestampKeys(yMeasure);
-        if(rMeasure)
+        if(rMeasure){
             rMeasure.data[rMeasure.alias][""] = normalizeTimestampKeys(rMeasure);
+            measureTypes.R_MEASURE_TYPE = 'avg' in rMeasure.measureTypes ? rMeasure.measureTypes['avg'] : rMeasure.measureTypes[0]
+        }
 
         // For each timestamp in X data mix measures of other series
         Object.keys(xMeasure.data[xMeasure.alias][""]).forEach((key) => {
             if(key in yMeasure.data[yMeasure.alias][""]){
                 let measures = {}
                 
-                measures[measureNames.X_MEASURE] = xMeasure.data[xMeasure.alias][""][key].avg;
-                measures[measureNames.Y_MEASURE] = yMeasure.data[yMeasure.alias][""][key].avg;
+                measures[measureNames.X_MEASURE] = xMeasure.data[xMeasure.alias][""][key][measureTypes.X_MEASURE_TYPE];
+                measures[measureNames.Y_MEASURE] = yMeasure.data[yMeasure.alias][""][key][measureTypes.Y_MEASURE_TYPE];
 
                 // Add optional R measure
                 if(rMeasure != null && key in rMeasure.data[rMeasure.alias][""]){
-                    measures[measureNames.R_MEASURE] = rMeasure.data[rMeasure.alias][""][key].avg;
+                    measures[measureNames.R_MEASURE] = rMeasure.data[rMeasure.alias][""][key][measureTypes.R_MEASURE_TYPE];
                 }
 
                 // Discard timestamps with null valued measures
-                if(xMeasure.data[xMeasure.alias][""][key].avg != null && yMeasure.data[yMeasure.alias][""][key].avg != null)
+                if(xMeasure.data[xMeasure.alias][""][key][measureTypes.X_MEASURE_TYPE] && yMeasure.data[yMeasure.alias][""][key][measureTypes.Y_MEASURE_TYPE])
                 {
                     if(rMeasure != null){
-                        if(key in rMeasure.data[rMeasure.alias][""] && rMeasure.data[rMeasure.alias][""][key].avg != null)
+                        if(key in rMeasure.data[rMeasure.alias][""] && rMeasure.data[rMeasure.alias][""][key][measureTypes.R_MEASURE_TYPE])
                             scatterData[dataTitle][""][key] = measures;
                     }
                     else{

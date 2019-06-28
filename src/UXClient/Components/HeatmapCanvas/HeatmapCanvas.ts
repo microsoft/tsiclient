@@ -36,9 +36,10 @@ class HeatmapCanvas extends ChartComponent {
         if (this.colorScale.domain() === null || isNaN(this.colorScale.domain()[0]) || isNaN(this.colorScale.domain()[1])) {
             return;
         }
+        let gradientGuid = Utils.guid();
         var gradient = this.colorLegend.append("defs")
             .append("linearGradient")
-              .attr("id", "gradient" + this.aggI)
+              .attr("id", "gradient" + this.aggI + gradientGuid)
               .attr("x1", "0%")
               .attr("y1", "100%")
               .attr("x2", "0%")
@@ -60,7 +61,7 @@ class HeatmapCanvas extends ChartComponent {
             .attr("y", 6)
             .attr("width", this.gradientWidth)
             .attr("height", this.height - 12)
-            .style("fill", "url(#gradient" + String(this.aggI) + ")");
+            .style("fill", "url(#gradient" + String(this.aggI) + gradientGuid + ")");
 
         var highlightedValueY = null;
         var range: number = this.colorScale.domain()[1] - this.colorScale.domain()[0];
