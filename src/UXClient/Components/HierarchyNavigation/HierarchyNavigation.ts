@@ -52,10 +52,12 @@ class HierarchyNavigation extends Component{
 
 
         getToken().then(token => {
-            this.server.getTimeseriesHierarchies(token, environmentFqdn).then(r => {
-                r.hierarchies.forEach(h => {
-                    this.envHierarchies[h.id] = h;
-                });
+            self.server.getTimeseriesInstancesPathSearch(token, environmentFqdn, {searchString: '', path: [], hierarchies: {sort: {by: HierarchiesSort.CumulativeInstanceCount}, expand: {kind: HierarchiesExpand.OneLevel}, pageSize: 100}}).then(r => {
+                if(r.hierarchyNodes && r.hierarchyNodes.hits){
+                    r.hierarchyNodes.hits.forEach(hn => {
+                        this.envHierarchies[hn.name] = hn;
+                    })
+                }
 
                 //hierarchy selection
                 let hierarchySelectionWrapper = hierarchyNavWrapper.append('div').classed('tsi-hierarchy-selection-wrapper', true);
