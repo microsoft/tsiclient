@@ -527,6 +527,22 @@ class Utils {
         }
     }
 
+    static getAggKeys (data) {
+        let aggregateCounterMap = {};
+        return data.map((aggregate) => {
+            var aggName: string = Object.keys(aggregate)[0];            
+            let aggKey;
+            if (aggregateCounterMap[aggName]) {
+                aggKey = Utils.createEntityKey(aggName, aggregateCounterMap[aggName]);
+                aggregateCounterMap[aggName] += 1;
+            } else {
+                aggKey = Utils.createEntityKey(aggName, 0);
+                aggregateCounterMap[aggName] = 1;
+            }
+            return aggKey;
+        });
+    }
+    
     static mergeSeriesForScatterPlot(chartData: any, scatterMeasures: any){
         let xMeasure = chartData[scatterMeasures.X_MEASURE], yMeasure = chartData[scatterMeasures.Y_MEASURE], rMeasure = chartData[scatterMeasures.R_MEASURE];
 

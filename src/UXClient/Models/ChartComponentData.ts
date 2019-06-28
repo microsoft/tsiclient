@@ -75,26 +75,19 @@ class ChartComponentData {
         this.usesSeconds = false;
         this.usesMillis = false;
         aggregateExpressionOptions = this.fillColors(aggregateExpressionOptions);
+        let aggKeys = Utils.getAggKeys(this.data);
         this.data = this.data.map((aggregate: any, i: number) => {
             var aggName: string = Object.keys(aggregate)[0];
             let aggregateCopy = {...aggregate};
-            
-            //construct the aggregate key based on the aggregate index and name
-            let aggKey;
-            if (aggregateCounterMap[aggName]) {
-                aggKey = Utils.createEntityKey(aggName, aggregateCounterMap[aggName]);
-                aggregateCounterMap[aggName] += 1;
-            } else {
-                aggKey = Utils.createEntityKey(aggName, 0);
-                aggregateCounterMap[aggName] = 1;
-            }
+            let aggKey = aggKeys[i];
 
             this.data[i].aggKey = aggKey;
             aggregateCopy.aggKey = aggKey;
 
             if (this.displayState[aggKey]) {
                 newDisplayState[aggKey] = {
-                    visible: this.displayState[aggKey].visible,
+                    visible: (aggregateExpressionOptions[i] && aggregateExpressionOptions[i].visibilityState) ? 
+                    aggregateExpressionOptions[i].visibilityState[0] : this.displayState[aggKey].visible,
                     name: this.displayState[aggKey].name,
                     color: ((aggregateExpressionOptions[i] && aggregateExpressionOptions[i].color) ? 
                              aggregateExpressionOptions[i].color : this.displayState[aggKey].color),
