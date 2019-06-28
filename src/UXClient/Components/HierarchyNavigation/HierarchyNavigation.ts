@@ -49,7 +49,7 @@ class HierarchyNavigation extends Component{
         targetElement.html(''); 
         let hierarchyNavWrapper = targetElement.append('div').attr('class', 'tsi-hierarchy-nav-wrapper');
         super.themify(hierarchyNavWrapper, this.hierarchyNavOptions.theme);
-
+        this.envHierarchies = {};
 
         getToken().then(token => {
             self.server.getTimeseriesInstancesPathSearch(token, environmentFqdn, {searchString: '', path: [], hierarchies: {sort: {by: HierarchiesSort.CumulativeInstanceCount}, expand: {kind: HierarchiesExpand.OneLevel}, pageSize: 100}}).then(r => {
