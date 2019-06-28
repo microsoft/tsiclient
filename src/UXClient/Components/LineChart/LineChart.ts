@@ -372,7 +372,7 @@ class LineChart extends TemporalXAxisComponent {
         return stickiedValues;
     }
 
-    private stickyOrUnstickySeries = (aggKey, splitBy) => {
+    public stickyOrUnstickySeries = (aggKey, splitBy) => {
         if (this.chartComponentData.stickiedKey && this.chartComponentData.stickiedKey.aggregateKey === aggKey && 
             this.chartComponentData.stickiedKey.splitBy === splitBy) {
             this.unstickySeries(aggKey, splitBy);
