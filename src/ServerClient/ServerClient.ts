@@ -140,13 +140,17 @@ class ServerClient {
             });        
         }
         else {
-            return this.createPromiseFromXhr('https://' + environmentFqdn + '/timeseries/instances/$batch' + this.apiVersionUrlParam, "POST", JSON.stringify({get: timeSeriesIds}), token, (responseText) => {return JSON.parse(responseText);});
+            return this.createPromiseFromXhr('https://' + environmentFqdn + '/timeseries/instances/$batch' + this.tsmTsqApiVersion, "POST", JSON.stringify({get: timeSeriesIds}), token, (responseText) => {return JSON.parse(responseText);});
         }
     }
     
-    public getTimeseriesTypes(token: string, environmentFqdn: string) {
-        let uri = 'https://' + environmentFqdn + '/timeseries/types/' + this.tsmTsqApiVersion;
-        return this.createPromiseFromXhr(uri, "GET", {}, token, (responseText) => {return JSON.parse(responseText);});
+    public getTimeseriesTypes(token: string, environmentFqdn: string, typeIds: Array<any> = null) {
+        if(!typeIds || typeIds.length === 0) {
+            let uri = 'https://' + environmentFqdn + '/timeseries/types/' + this.tsmTsqApiVersion;
+            return this.createPromiseFromXhr(uri, "GET", {}, token, (responseText) => {return JSON.parse(responseText);});
+        } else {
+            return this.createPromiseFromXhr('https://' + environmentFqdn + '/timeseries/types/$batch' + this.tsmTsqApiVersion, "POST", JSON.stringify({get: {typeIds: typeIds, names: null}}), token, (responseText) => {return JSON.parse(responseText);});
+        }
     }
 
     public getTimeseriesHierarchies(token: string, environmentFqdn: string) {
@@ -157,6 +161,15 @@ class ServerClient {
     public getTimeseriesModel(token: string, environmentFqdn: string) {
         let uri = 'https://' + environmentFqdn + '/timeseries/modelSettings/' + this.tsmTsqApiVersion;
         return this.createPromiseFromXhr(uri, "GET", {}, token, (responseText) => {return JSON.parse(responseText);});
+    }
+
+    public getTimeseriesInstancesPathSearch(token: string, environmentFqdn: string, payload, instancesContinuationToken = null, hierarchiesContinuationToken = null) {
+        let uri = 'https://' + environmentFqdn + '/timeseries/instances/search' + this.tsmTsqApiVersion;
+        let requestPayload = {...payload};
+        if (requestPayload.path.length == 0) {
+            requestPayload.path = null;
+        }
+        return this.createPromiseFromXhr(uri, "POST", JSON.stringify(requestPayload), token, (responseText) => {return JSON.parse(responseText);}, instancesContinuationToken || hierarchiesContinuationToken);
     }
 
     public getTimeseriesInstancesSuggestions(token: string, environmentFqdn: string, searchString: string, take: number = 10) {

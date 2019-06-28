@@ -14,12 +14,12 @@ import {EventsTable} from "./Components/EventsTable/EventsTable";
 import {ModelSearch} from "./Components/ModelSearch/ModelSearch"; 
 import {DateTimePicker} from "./Components/DateTimePicker/DateTimePicker";
 import {TimezonePicker} from "./Components/TimezonePicker/TimezonePicker";
-
 import {Utils} from "./Utils";
 import './styles.scss'
 import { EllipsisMenu } from "./Components/EllipsisMenu/EllipsisMenu";
 import { TsqExpression } from "./Models/TsqExpression";
 import { ModelAutocomplete } from "./Components/ModelAutocomplete/ModelAutocomplete";
+import { HierarchyNavigation } from "./Components/HierarchyNavigation/HierarchyNavigation";
 
 class UXClient {
     UXClient () {
@@ -95,6 +95,10 @@ class UXClient {
 
     public ModelAutocomplete(renderTarget) {
         return new ModelAutocomplete(renderTarget);
+    }
+
+    public HierarchyNavigation(renderTarget) {
+        return new HierarchyNavigation(renderTarget);
     }
 
     public TimezonePicker(renderTarget) {

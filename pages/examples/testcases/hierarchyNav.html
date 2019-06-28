@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <!-- styles are only used for styling header and auth elements, where possible -->
+        <link rel="stylesheet" type="text/css" href="../styles.css" />
+        <title>Hierarchy Navigation (Path Search)</title>
+    </head>
+    <body style="font-family: 'Segoe UI', sans-serif;">
+
+        <div style="width:350px; overflow-y: auto; padding: 20px; background: grey;">
+            <h3>Options</h3>
+            <p>Note: Options are customizable for navigate only, refresh after search.</p>
+            <div>
+                <label>Theme</label>
+                <select onchange="toggleHierarchyNavigationOption('theme', event.target.value)">
+                    <option selected>light</option>
+                    <option>dark</option>
+                </select>
+            </div>
+            <div>
+                <label>Instances Page Size</label>
+                <input style="width:50px;" type="number" value=10 onchange="toggleHierarchyNavigationOption('instancesPageSize', event.target.value)"></input>
+            </div>
+            <div>
+                <label>Instances Recursive</label>
+                <select onchange="toggleHierarchyNavigationOption('isInstancesRecursive', event.target.value)">
+                    <option selected>false</option>
+                    <option>true</option>
+                </select>
+            </div>
+            <div>
+                <label>Instances Highlighted</label>
+                <select onchange="toggleHierarchyNavigationOption('isInstancesHighlighted', event.target.value)">
+                    <option selected>false</option>
+                    <option>true</option>
+                </select>
+            </div>
+            <div>
+                <label>Instances Sort</label>
+                <select onchange="toggleHierarchyNavigationOption('instancesSort', event.target.value)">
+                    <option selected>DisplayName</option>
+                    <option>Rank</option>
+                </select>
+            </div>
+            <div>
+                <label>Hierarchies Page Size</label>
+                <input style="width:50px;" type="number" value=10 onchange="toggleHierarchyNavigationOption('hierarchiesPageSize', event.target.value)"></input>
+            </div>
+            <div>
+                <label>Hierarchies Expand</label>
+                <select onchange="toggleHierarchyNavigationOption('hierarchiesExpand', event.target.value)">
+                    <option selected>OneLevel</option>
+                    <option>UntilChildren</option>
+                </select>
+            </div>
+            <div>
+                <label>Hierarchies Sort</label>
+                <select onchange="toggleHierarchyNavigationOption('hierarchiesSort', event.target.value)">
+                    <option selected>Name</option>
+                    <option>CumulativeInstanceCount</option>
+                </select>
+            </div>
+        </div>
+        <div id="hierarchyNav" style="
+                width: 308px;
+                height: calc(100% - 338px);
+                position: fixed;">
+        </div>
+        <script>
+            var hierarchy;
+            var environmentFqdn = 'dcbba382-10bd-40ea-ba06-454094aee00a.env.timeseries.azure.com';
+            var tsiClient;
+            onInstanceClick = function(instance) {
+                let contextMenuActions = [];
+                authContext.getTsiToken().then(token => { //TODO: change this to Observable with Observable.from with .takeUntil(Observable.of(true).delay(2000)) to return default type variables, or maybe move this onclick into HierarchyNavigation component using rxjs lib
+                    tsiClient.server.getTimeseriesTypes(token, environmentFqdn, [instance.type.id]).then(r => {
+                        if (r.get && Array.isArray(r.get)) {
+                            r.get.forEach((t) => {
+                                let type = t.timeSeriesType;
+                                Object.keys(type.variables).forEach((vName) => {
+                                    let option = {};
+                                    if (type.variables[vName].aggregation.tsx === 'avg($value)') {
+                                        let newType = this.getTsmTypeFromVariable(type.variables[vName]);
+                                        option['Show ' + vName] = () => alert(JSON.stringify(newType.variables));
+                                    } else {
+                                        option['Show ' + vName] = () => alert(JSON.stringify(type.variables));//addInstanceAction(type, vName);
+                                    }
+                                    contextMenuActions.push(option);
+                                });
+                            });
+                            instance.drawContextMenu(contextMenuActions);
+                        }
+                    }).catch(function (err) {
+                        let typeVariables = instance.type.variables;
+                        
+                        Object.keys(typeVariables).forEach((vName) => {
+                            let option = {};
+                            if (typeVariables[vName].aggregation.tsx === 'avg($value)') {
+                                let newType = this.getTsmTypeFromVariable(typeVariables[vName]);
+                                option['Show ' + vName] = () => alert(JSON.stringify(newType.variables));
+                            } else {
+                                option['Show ' + vName] = () => alert(JSON.stringify(instance.type.variables));//addInstanceAction(type, vName);
+                            }
+                            contextMenuActions.push(option);
+                        });
+                        instance.drawContextMenu(contextMenuActions);
+                    });
+                });
+                
+            }
+            getTsmTypeFromVariable = (v) => {
+                let type = {variables: {
+                    avg: 
+                        {kind: 'numeric', 
+                        value: v.value, 
+                        filter: v.filter ? v.filter : null, 
+                        aggregation: {
+                            tsx: 'avg($value)'
+                            }
+                        }
+                    ,
+                    min: 
+                        {kind: 'numeric', 
+                        value: v.value, 
+                        filter: v.filter ? v.filter : null, 
+                        aggregation: {
+                            tsx: 'min($value)'
+                            }
+                        }
+                    ,
+                    max: 
+                        {kind: 'numeric', 
+                        value: v.value, 
+                        filter: v.filter ? v.filter : null,
+                        aggregation: {
+                            tsx: 'max($value)'
+                            }
+                        }
+                }};
+                return type;
+            }
+
+            var hierarchyNavOptions = {
+                theme: 'light',
+                instancesPageSize: 10,
+                hierarchiesPageSize: 10,
+                isInstancesRecursive: false,
+                isInstancesHighlighted: true,
+                instancesSort: "DisplayName",
+                hierarchiesExpand: "OneLevel",
+                hierarchiesSort: "Name"
+            }
+
+            toggleHierarchyNavigationOption = function(property, value = null) {
+                hierarchyNavOptions[property] = (value === null) ? !hierarchyNavOptions[property] : value; 
+                hierarchy.render(environmentFqdn, authContext.getTsiToken, {...hierarchyNavOptions, onInstanceClick: instance => this.onInstanceClick(instance)});
+            }
+
+            window.onload = function() {
+                initAuth('Hierarchy Navigation Test');  // initiate auth objects, header, and login modal
+                tsiClient = new TsiClient();
+                
+                hierarchy = new tsiClient.ux.HierarchyNavigation(document.getElementById('hierarchyNav'));
+                hierarchy.render(environmentFqdn, authContext.getTsiToken, {...hierarchyNavOptions, onInstanceClick: instance => this.onInstanceClick(instance)});
+
+            }
+        </script>
+    </body>
+    <!-- boilerplate headers are injected with head.js, grab them from the live example header, or include a link to head.js -->
+    <script src="../boilerplate/head.js"></script>
+
+    <!-- boilerplate auth code is injected with auth.js, check it out for auth setup -->
+    <script src="../boilerplate/auth.js"></script>
+</html>

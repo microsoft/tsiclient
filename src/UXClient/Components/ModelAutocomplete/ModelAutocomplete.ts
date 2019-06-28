@@ -27,26 +27,35 @@ class ModelAutocomplete extends Component{
             .attr("class", "tsi-modelAutocompleteInput")
             .attr("placeholder", this.getString("Search Time Series Instances") + '...');
         let clear = inputWrapper.append('div').attr('class', 'tsi-clear')
-                    .on('click', function(){ (input.node() as any).value = ''; self.chartOptions.onInput(''); d3.select(this).classed('tsi-shown', false); });
+                    .on('click', function(){ (input.node() as any).value = ''; noSuggest = true; input.dispatch('input'); self.ap.close(); d3.select(this).classed('tsi-shown', false); });
         
         let Awesomplete = (window as any).Awesomplete;
         this.ap = new Awesomplete(input.node(), {minChars: 1});
         let noSuggest = false;
-        (input.node() as any).addEventListener('awesomplete-selectcomplete', () => {noSuggest = true; input.dispatch('input'); this.ap.close();});
+        let justAwesompleted = false;
+        (input.node() as any).addEventListener('awesomplete-selectcomplete', (event) => {noSuggest = true; input.dispatch('input'); this.ap.close(); justAwesompleted = true;});
         input.on('keydown', () => {
             this.chartOptions.onKeydown(d3.event, this.ap);
-        })
+        });
 
-        input.on('keyup', function(){
-            if(d3.event.which === 13 || d3.event.keyCode === 13){
+        (input.node() as any).addEventListener('keyup', function(event){
+            if(justAwesompleted){
+                justAwesompleted = false;
+                return;
+            }
+            let key = event.which || event.keyCode;
+            if(key=== 13){
                 noSuggest = true;
-                self.ap.close();
-                self.chartOptions.onInput(searchText, d3.event);
+                input.dispatch('input');
+            }
+            if(key === 8 || key === 46){
+                input.dispatch('input');
             }
         });
 
         var searchText;
         var self = this;
+        
         input.on('input', function() { 
             searchText = (<any>this).value;
             if(!noSuggest){
@@ -56,11 +65,15 @@ class ModelAutocomplete extends Component{
                     })
                 })
             }
+            else{
+                self.ap.close();
+            }
+            self.chartOptions.onInput(searchText, noSuggest ? {which: 13} : d3.event);
             noSuggest = false;
-            self.chartOptions.onInput(searchText, d3.event);
             clear.classed('tsi-shown', searchText.length);
         })
     }
+
 }
 
 export {ModelAutocomplete}
