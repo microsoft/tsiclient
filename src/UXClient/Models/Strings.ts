@@ -46,7 +46,9 @@ class Strings {
         "Left arrow to go back in time": "Left arrow to go back in time",
         "right arrow to go forward": "right arrow to go forward",
         "Local": "Local",
-        "Display Grid": "Display Grid"        
+        "Display Grid": "Display Grid",
+        "Previous Month": "Previous Month",
+        "Next Month": "Next Month" 
     };
   
     private stringValues: any = {};

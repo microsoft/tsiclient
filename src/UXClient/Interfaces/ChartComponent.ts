@@ -37,7 +37,7 @@ class ChartComponent extends Component {
 				ellipsisItems.push(Utils.createGridEllipsisOption(this.renderTarget, this.chartOptions, this.aggregateExpressionOptions, this.chartComponentData, this.getString("Display Grid")));
 			}
 			if (this.chartOptions.canDownload) {
-				ellipsisItems.push(Utils.createDownloadEllipsisOption(() => this.chartComponentData.generateCSVString(), () => Utils.focusOnEllipsisButton(this.renderTarget) ,this.getString("Download as CSV")));
+				ellipsisItems.push(Utils.createDownloadEllipsisOption(() => this.chartComponentData.generateCSVString(this.chartOptions.offset, this.chartOptions.dateLocale), () => Utils.focusOnEllipsisButton(this.renderTarget) ,this.getString("Download as CSV")));
 			}
 
 			if (this.chartOptions.ellipsisItems) {

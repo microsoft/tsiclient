@@ -432,7 +432,7 @@ class ChartComponentData {
     }
     
 
-    public generateCSVString (offset: number = 0): string {
+    public generateCSVString (offset: number = 0, dateLocale: string = 'en'): string {
         //replace comma at end of line with end line character
         var endLine = (s: string): string => {
             return s.slice(0, s.length - 1) + "\n";
@@ -477,7 +477,7 @@ class ChartComponentData {
 
         this.allTimestampsArray.forEach((timeString: string) => {
             var millis = (new Date(timeString)).valueOf();
-            csvString += Utils.timeFormat(this.usesSeconds, this.usesMillis, offset)(new Date(millis)) + ",";
+            csvString += Utils.timeFormat(this.usesSeconds, this.usesMillis, offset, null, null, null, dateLocale)(new Date(millis)) + ",";
             rowOrder.forEach((rowKey) => {
                 csvString += (rowMap[rowKey][millis] != undefined ? rowMap[rowKey][millis] : "")  + ",";
             });

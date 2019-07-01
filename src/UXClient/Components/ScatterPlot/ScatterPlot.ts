@@ -343,8 +343,10 @@ class ScatterPlot extends ChartComponent {
                     this.chartOptions.timestamp = ts;
                     this.render(this.chartComponentData.data, this.chartOptions, this.aggregateExpressionOptions, true);
                 }
-                return {label: Utils.timeFormat(this.chartComponentData.usesSeconds, this.chartComponentData.usesMillis, this.chartOptions.offset, this.chartOptions.is24HourTime)(new Date(ts)), action: action};
-            }), this.chartOptions, this.width - 10,  Utils.timeFormat(this.chartComponentData.usesSeconds, this.chartComponentData.usesMillis, this.chartOptions.offset, this.chartOptions.is24HourTime)(new Date(this.chartComponentData.timestamp)));
+                return {label: Utils.timeFormat(this.chartComponentData.usesSeconds, this.chartComponentData.usesMillis, this.chartOptions.offset, 
+                    this.chartOptions.is24HourTime, null, null, this.chartOptions.dateLocale)(new Date(ts)), action: action};
+            }), this.chartOptions, this.width - 10,  Utils.timeFormat(this.chartComponentData.usesSeconds, this.chartComponentData.usesMillis, 
+                this.chartOptions.offset, this.chartOptions.is24HourTime, null, null, this.chartOptions.dateLocale)(new Date(this.chartComponentData.timestamp)));
         }
         else{
             if(this.slider)
@@ -794,7 +796,8 @@ class ScatterPlot extends ChartComponent {
                 if(!this.chartOptions.isTemporal){
                     text.append("div")
                         .attr("class", "value")
-                        .text(Utils.timeFormat(this.labelFormatUsesSeconds(), this.labelFormatUsesMillis(), this.chartOptions.offset, this.chartOptions.is24HourTime)(new Date(d.timestamp)));
+                        .text(Utils.timeFormat(this.labelFormatUsesSeconds(), this.labelFormatUsesMillis(), this.chartOptions.offset, 
+                            this.chartOptions.is24HourTime, null, null, this.chartOptions.dateLocale)(new Date(d.timestamp)));
                 }
 
                 let valueGroup = text.append('div').classed('valueGroup', true);

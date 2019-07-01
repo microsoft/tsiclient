@@ -16,6 +16,7 @@ class ChartOptions {
     public brushRangeVisible: boolean; // whether the brush duration label is visible
     public canDownload: boolean; // whether chart's ellipsis menu contains download button
     public color: string; // color of the time selection ghost in availability chart
+    public dateLocale: string; //moment locale specifying the location specific format for dates, along with translations for month and day names
     public ellipsisItems: Array<any>; //objects reprenting options in the ellipsis menu 
     public events: Array<any>; // events passed into the linchart, an array of discrete time events
     public focusHidden: boolean; // whether focus element is hidden in chart
@@ -161,6 +162,7 @@ class ChartOptions {
         this.xAxisTimeFormat = this.mergeValue(chartOptionsObj, 'xAxisTimeFormat', null);
         this.brushRangeVisible = this.mergeValue(chartOptionsObj, 'brushRangeVisible', true);
         this.strings.mergeStrings(Utils.getValueOrDefault(chartOptionsObj, 'strings', {}));
+        this.dateLocale = this.mergeValue(chartOptionsObj, 'dateLocale', 'en');
     }
 
     private mergeValue (chartOptionsObj, propertyName, defaultValue) {
@@ -236,7 +238,8 @@ class ChartOptions {
             scatterPlotRadius: this.scatterPlotRadius,
             spAxisLabels: this.spAxisLabels,
             brushRangeVisible: this.brushRangeVisible,
-            strings: this.strings.toObject()
+            strings: this.strings.toObject(),
+            dateLocale: this.dateLocale
         }
     }
 }

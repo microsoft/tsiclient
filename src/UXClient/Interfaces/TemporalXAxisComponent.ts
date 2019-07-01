@@ -48,7 +48,7 @@ class TemporalXAxisComponent extends ChartComponent {
         this.smartTickFormat = this.createSmartTickFormat(ticks, offsetX);
         return d3.axisBottom(this.x)
             .tickValues(ticks)
-            .tickFormat(Utils.timeFormat(this.labelFormatUsesSeconds(ticks), this.labelFormatUsesMillis(ticks), this.chartOptions.offset, this.chartOptions.is24HourTime, null, null));
+            .tickFormat(Utils.timeFormat(this.labelFormatUsesSeconds(ticks), this.labelFormatUsesMillis(ticks), this.chartOptions.offset, this.chartOptions.is24HourTime, null, null, this.chartOptions.dateLocale));
     }
 
     private getXTickNumber (singleLineXAxisLabel) {
@@ -78,7 +78,7 @@ class TemporalXAxisComponent extends ChartComponent {
             this.xAxisEntered.selectAll('.tick').each(function (d, i) {
                 d3.select(this).select('text').text((d) => {
                     let momentTimeFormatString: string = String(self.chartOptions.xAxisTimeFormat(d, i, i === 0, i === indexOfLast));
-                    return Utils.timeFormat(self.labelFormatUsesSeconds(), self.labelFormatUsesMillis(), self.chartOptions.offset, self.chartOptions.is24HourTime, null, momentTimeFormatString)(d);
+                    return Utils.timeFormat(self.labelFormatUsesSeconds(), self.labelFormatUsesMillis(), self.chartOptions.offset, self.chartOptions.is24HourTime, null, momentTimeFormatString, self.chartOptions.dateLocale)(d);
                 });
             });
         } else {
@@ -91,7 +91,7 @@ class TemporalXAxisComponent extends ChartComponent {
                     if ((i === 0 && forceFirst) || (i === indexOfLast && forceLast)) { 
                         momentTimeFormatString = 'L ' + Utils.subDateTimeFormat(self.chartOptions.is24HourTime, false, false); 
                     }
-                    return Utils.timeFormat(self.labelFormatUsesSeconds(), self.labelFormatUsesMillis(), self.chartOptions.offset, self.chartOptions.is24HourTime, null, momentTimeFormatString)(d);
+                    return Utils.timeFormat(self.labelFormatUsesSeconds(), self.labelFormatUsesMillis(), self.chartOptions.offset, self.chartOptions.is24HourTime, null, momentTimeFormatString, self.chartOptions.dateLocale)(d);
                 });
             });
         }

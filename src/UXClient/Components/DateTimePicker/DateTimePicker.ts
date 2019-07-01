@@ -1,5 +1,6 @@
 import * as d3 from 'd3';
 import * as Pikaday from '../../../packages/pikaday/pikaday';
+import * as moment from 'moment';
 import './DateTimePicker.scss';
 import '../../../packages/pikaday/css/pikaday.css';
 import { ChartComponent } from '../../Interfaces/ChartComponent';
@@ -76,6 +77,7 @@ class DateTimePicker extends ChartComponent{
             fromMillis = Math.max(toMillis - (24 * 60 * 60 * 1000), minMillis);
         }
         this.chartOptions.setOptions(chartOptions);
+        moment.locale(this.chartOptions.dateLocale);
         this.fromMillis = fromMillis;
         this.toMillis = toMillis;
         this.onSet = onSet;
@@ -165,11 +167,11 @@ class DateTimePicker extends ChartComponent{
 
     private createCalendar () {
         var i18nOptions = {
-            previousMonth : 'Previous Month',
-            nextMonth     : 'Next Month',
-            months        : ['January','February','March','April','May','June','July','August','September','October','November','December'],
-            weekdays      : ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],
-            weekdaysShort : ['S','M','T','W','T','F','S']
+            previousMonth : this.getString('Previous Month'),
+            nextMonth     : this.getString('Next Month'),
+            months        : moment.localeData()._months,
+            weekdays      : moment.localeData()._weekdays,
+            weekdaysShort : moment.localeData()._weekdaysMin
         };
 
         this.calendarPicker = new Pikaday({ 

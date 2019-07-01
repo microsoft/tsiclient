@@ -65,14 +65,14 @@ class StateSeries extends TimelineComponent {
 		var timeFormat = (d, i) => { 
 			var startTime = new Date(d.time);
 			var endTime = (i + 1 < data.length) ? (new Date(data[i+1].time)) : (new Date(toTime));
-			return Utils.timeFormat(this.usesSeconds, this.usesMillis, this.chartOptions.offset)(startTime) + " - " + 
-				   Utils.timeFormat(this.usesSeconds, this.usesMillis, this.chartOptions.offset)(endTime);
+			return Utils.timeFormat(this.usesSeconds, this.usesMillis, this.chartOptions.offset, null, null, null, this.chartOptions.dateLocale)(startTime) + " - " + 
+				   Utils.timeFormat(this.usesSeconds, this.usesMillis, this.chartOptions.offset, null, null, null, this.chartOptions.dateLocale)(endTime);
 		}
 
 		var self = this;
 		enteredRects.on("mousemove", function (dRect, iRect) { 
 			self.elementMouseover(dRect, iRect, (d, i) => { 
-				return Utils.timeFormat(this.usesSeconds, this.usesMillis, this.chartOptions.offset)(new Date(d.time));
+				return Utils.timeFormat(this.usesSeconds, this.usesMillis, this.chartOptions.offset, null, null, null, this.chartOptions.dateLocale)(new Date(d.time));
 			});
 			var mousePos = d3.mouse(<any>self.g.node());
 			tooltip.render(self.chartOptions.theme);
@@ -95,7 +95,7 @@ class StateSeries extends TimelineComponent {
 			this.xAxis.style('display', 'block')
 			this.xAxis.transition()
 				.duration(this.TRANSDURATION)
-				.call(d3.axisBottom(this.xScale).tickFormat(Utils.timeFormat(this.usesSeconds, this.usesMillis, this.chartOptions.offset)))
+				.call(d3.axisBottom(this.xScale).tickFormat(Utils.timeFormat(this.usesSeconds, this.usesMillis, this.chartOptions.offset, null, null, null, this.chartOptions.dateLocale)))
 				.tween("", () => {
 					return () => {
 						this.g.selectAll('.xAxis').selectAll('text').call(Utils.splitTimeLabel);
