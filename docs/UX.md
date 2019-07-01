@@ -381,7 +381,7 @@ Some less common chart options that can be used for very specific user interacti
 |brushMoveEndAction|(from:DateTime, to:DateTime) => any|**() => {}**|Action fired at the end of a mouse movement involving the brush|
 |canDownload|boolean|**true**|If true, chart's ellipsis menu contains a download button to download the chart's data|
 |color|string|**null**, 'purple', '#404040'|Color of the time selection ghost in availability chart|
-|dateLocale|string|**en**, 'de'|Date locale name for the formatting of dates as well as the language of days and months in the calendar picker|
+|dateLocale|string|**'en'**, 'de'|Date locale name for the formatting of dates as well as the language of days and months in the calendar picker|
 |focusHidden|boolean|**false**|If true, hide focus element|
 |fromChart|boolean|**false**|If true, a component is a subcomponent of another component|
 |hideChartControlPanel|boolean|**false**|If true, hide panel with chart control buttons|
