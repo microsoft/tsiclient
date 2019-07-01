@@ -151,10 +151,16 @@ class ChartComponentData {
                 if (this.displayState[aggKey] && this.displayState[aggKey].splitBys[splitBy]) {
                     newDisplayState[aggKey].splitBys[splitBy] = this.displayState[aggKey].splitBys[splitBy];
                 } else {
-                    let visibilityFromAEO = (aggregateExpressionOptions[i] && aggregateExpressionOptions[i].visibilityState) ? 
-                                                aggregateExpressionOptions[i].visibilityState[1].indexOf(splitBy) != -1 : true;
+                    let isVisible = (splitByI < newDisplayState[aggKey].visibleSplitByCap);
+                    if (aggregateExpressionOptions[i] && aggregateExpressionOptions[i].visibilityState) {
+                        if (aggregateExpressionOptions[i].visibilityState.length === 2) {
+                            isVisible = aggregateExpressionOptions[i].visibilityState[1].indexOf(splitBy) != -1;
+                        } else  if (Object.keys(data[i][aggName]).length === 1 && splitBy === ''){
+                            isVisible = aggregateExpressionOptions[i].visibilityState[0];
+                        }
+                    }
                     newDisplayState[aggKey].splitBys[splitBy] = {
-                        visible: ((splitByI < newDisplayState[aggKey].visibleSplitByCap) && visibilityFromAEO),
+                        visible: isVisible,
                         visibleType : null,
                         types : []
                     }
