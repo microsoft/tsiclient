@@ -488,7 +488,7 @@ class AvailabilityChart extends ChartComponent{
                 var maxMillis = self.toMillis + (Utils.getOffsetMinutes(self.chartOptions.offset, self.toMillis) * 60 * 1000);
                 var startMillis = self.selectedFromMillis + (Utils.getOffsetMinutes(self.chartOptions.offset, self.selectedFromMillis) * 60 * 1000);
                 var endMillis = self.selectedToMillis + (Utils.getOffsetMinutes(self.chartOptions.offset, self.selectedFromMillis) * 60 * 1000);
-                self.dateTimePicker.render({'theme': self.chartOptions.theme, offset: self.chartOptions.offset, is24HourTime: self.chartOptions.is24HourTime, strings: self.chartOptions.strings.toObject()}, 
+                self.dateTimePicker.render({'theme': self.chartOptions.theme, offset: self.chartOptions.offset, is24HourTime: self.chartOptions.is24HourTime, strings: self.chartOptions.strings.toObject(), dateLocale: self.chartOptions.dateLocale}, 
                                             minMillis, maxMillis, startMillis, endMillis, (fromMillis, toMillis, offset) => {
                                                 self.chartOptions.offset = offset;
                                                 self.timePickerLineChart.chartOptions.offset = offset;
