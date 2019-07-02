@@ -223,10 +223,12 @@ class Heatmap extends TemporalXAxisComponent {
 
         var text = textBoxG.append("text");
         
-        text.append("tspan").text(Utils.timeFormat(this.chartComponentData.usesSeconds, this.chartComponentData.usesMillis, this.chartOptions.offset, this.chartOptions.is24HourTime, shiftMillis)(focusStartTime))
+        text.append("tspan").text(Utils.timeFormat(this.chartComponentData.usesSeconds, this.chartComponentData.usesMillis, 
+                 this.chartOptions.offset, this.chartOptions.is24HourTime, shiftMillis, null, this.chartOptions.dateLocale)(focusStartTime))
             .attr("x", 0)
             .attr("y", 16);
-        text.append("tspan").text(Utils.timeFormat(this.chartComponentData.usesSeconds, this.chartComponentData.usesMillis, this.chartOptions.offset, this.chartOptions.is24HourTime, shiftMillis)(focusEndTime))
+        text.append("tspan").text(Utils.timeFormat(this.chartComponentData.usesSeconds, this.chartComponentData.usesMillis, 
+                 this.chartOptions.offset, this.chartOptions.is24HourTime, shiftMillis, null, this.chartOptions.dateLocale)(focusEndTime))
             .attr("x", 0)
             .attr("y", 30);
 

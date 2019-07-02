@@ -1,0 +1,58 @@
+
+<!DOCTYPE html> 
+<html>
+    <head>
+        <title>Availability and Line Chart</title>
+        
+        <!-- boilerplate headers are injected with head.js, grab them from the live example header, or include a link to head.js -->
+        <script src="../boilerplate/head.js"></script>
+    </head>
+    <body style="font-family: 'Segoe UI', sans-serif;">
+        <div id="availability" style="width: 100%; height: 160px; z-index:1;"></div>
+        <div id="linechart" style="width: 100%; height: 600px; float: left;"></div>
+        <script>
+            window.onload = function() {
+                
+                // create fake data in the shape our charts expect
+                var data = [];
+                var from = new Date();
+                var to;
+                for(var i = 0; i < 2; i++){
+                    var lines = {};
+                    data.push({[`Factory${i}`]: lines});
+                    for(var j = 1; j < 4; j++){
+                        var values = {};
+                        lines[`Station${j}`] = values;
+                        for(var k = 0; k < 60; k++){
+                            var to = new Date(from.valueOf() + 1000*60*60*k);
+                            var val = Math.random();
+                            values[to.toISOString()] = {avg: val};
+                        } 
+                    }
+                }
+
+                // render the data in a chart
+                var tsiClient = new TsiClient();
+
+                var lineChart = new tsiClient.ux.LineChart(document.getElementById('linechart'));
+                var availability = new tsiClient.ux.AvailabilityChart(document.getElementById('availability'));
+
+                var brushMoveEndAction = (from, to, timezone) => {
+                    lineChart.render(data, {noAnimate: true, includeDots: true, offset: timezone}, data.map(d => {return {measureTypes: ['avg'], searchSpan: {from: from.toISOString(), to: to.toISOString(), bucketSize: '1h'}}}));
+                }
+
+                availability.render([{availabilityCount: {"": {}}}], 
+                                    {legend: 'hidden', theme: 'light', color: 'purple', brushMoveEndAction: brushMoveEndAction, offset: 'Local', isCompact: false, dateLocale: 'ar'}, 
+                                    {range: 
+                                        {
+                                            from: from.toISOString(), 
+                                            to: (new Date(from.valueOf() + 1000*60*60*60)).toISOString()
+                                        }, 
+                                    intervalSize: '1h'
+                                    }, 
+                                    );
+                lineChart.render(data, {offset: 'Local', dateLocale: 'de'}, [{includeDots: true}]);
+            };
+        </script>
+    </body>
+</html>

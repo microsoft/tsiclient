@@ -403,8 +403,8 @@ class AvailabilityChart extends ChartComponent{
         let timezoneAbbreviation = Utils.timezoneAbbreviation(timezone);
         let timezoneSuffix = ' (' + this.createTimezoneAbbreviation() + ')'
         let timeRangeText = 
-            Utils.timeFormat(false, false, this.chartOptions.offset, this.chartOptions.is24HourTime)(new Date(fromMillis).valueOf()) + " - " +
-            Utils.timeFormat(false, false, this.chartOptions.offset, this.chartOptions.is24HourTime)(new Date(toMillis).valueOf()) + timezoneSuffix;
+            Utils.timeFormat(false, false, this.chartOptions.offset, this.chartOptions.is24HourTime, null, null, this.chartOptions.dateLocale)(new Date(fromMillis).valueOf()) + " - " +
+            Utils.timeFormat(false, false, this.chartOptions.offset, this.chartOptions.is24HourTime, null, null, this.chartOptions.dateLocale)(new Date(toMillis).valueOf()) + timezoneSuffix;
         this.timeContainer.node().innerHTML = timeRangeText; 
         this.setSelectedMillis(fromMillis, toMillis);
     }
@@ -435,13 +435,13 @@ class AvailabilityChart extends ChartComponent{
             leftTimeText = this.timePickerContainer.append('div')
                 .classed('tsi-compactFromTo', true)
                 .style('left', (brushPositions.leftPos != null ? Math.max(brushPositions.leftPos, 5) : 5) + 'px')
-                .html(Utils.timeFormat(false, false, this.chartOptions.offset, this.chartOptions.is24HourTime)(new Date(this.selectedFromMillis)));
+                .html(Utils.timeFormat(false, false, this.chartOptions.offset, this.chartOptions.is24HourTime, null, null, this.chartOptions.dateLocale)(new Date(this.selectedFromMillis)));
             let timezoneAbbreviation = ' (' + this.createTimezoneAbbreviation() + ')';
             rightTimeText = this.timePickerContainer.append('div')
                 .attr('class', 'tsi-compactFromTo')
                 .style('right', brushPositions.rightPos != null ? 'calc(100% - ' + brushPositions.rightPos + 'px)' : '5px')
                 .style('left', 'auto')
-                .html(Utils.timeFormat(false, false, this.chartOptions.offset, this.chartOptions.is24HourTime)
+                .html(Utils.timeFormat(false, false, this.chartOptions.offset, this.chartOptions.is24HourTime, null, null, this.chartOptions.dateLocale)
                             (new Date(this.selectedToMillis)) + timezoneAbbreviation);
         }
 
@@ -488,7 +488,7 @@ class AvailabilityChart extends ChartComponent{
                 var maxMillis = self.toMillis + (Utils.getOffsetMinutes(self.chartOptions.offset, self.toMillis) * 60 * 1000);
                 var startMillis = self.selectedFromMillis + (Utils.getOffsetMinutes(self.chartOptions.offset, self.selectedFromMillis) * 60 * 1000);
                 var endMillis = self.selectedToMillis + (Utils.getOffsetMinutes(self.chartOptions.offset, self.selectedFromMillis) * 60 * 1000);
-                self.dateTimePicker.render({'theme': self.chartOptions.theme, offset: self.chartOptions.offset, is24HourTime: self.chartOptions.is24HourTime, strings: self.chartOptions.strings.toObject()}, 
+                self.dateTimePicker.render({'theme': self.chartOptions.theme, offset: self.chartOptions.offset, is24HourTime: self.chartOptions.is24HourTime, strings: self.chartOptions.strings.toObject(), dateLocale: self.chartOptions.dateLocale}, 
                                             minMillis, maxMillis, startMillis, endMillis, (fromMillis, toMillis, offset) => {
                                                 self.chartOptions.offset = offset;
                                                 self.timePickerLineChart.chartOptions.offset = offset;

@@ -1,5 +1,6 @@
 import * as d3 from 'd3';
 import * as momentTZ from 'moment-timezone';
+import * as moment from 'moment';
 import {Grid} from "./Components/Grid/Grid";
 import { ChartComponent } from './Interfaces/ChartComponent';
 import { ChartOptions } from './Models/ChartOptions';
@@ -194,7 +195,7 @@ class Utils {
         return (is24HourTime ? "HH" : "hh") + ":mm" + (usesSeconds ? (":ss" + (usesMillis ? ".SSS" : "")) : "") + (is24HourTime ? "" : " A");
     };
     
-    static timeFormat(usesSeconds = false, usesMillis = false, offset: any = 0, is24HourTime: boolean = true, shiftMillis: number = null, timeFormat: string = null) {
+    static timeFormat(usesSeconds = false, usesMillis = false, offset: any = 0, is24HourTime: boolean = true, shiftMillis: number = null, timeFormat: string = null, locale='en') {
         return (d) => {
             if (shiftMillis !== 0) {
                 d = new Date(d.valueOf() + shiftMillis);
@@ -206,9 +207,9 @@ class Utils {
                 stringFormat = "L " + this.subDateTimeFormat(is24HourTime, usesSeconds, usesMillis);
             }
             if (typeof offset == 'string' && isNaN(offset as any)) {
-                return momentTZ.tz(d, 'UTC').tz(offset === 'Local' ? momentTZ.tz.guess() : offset).format(stringFormat);
+                return momentTZ.tz(d, 'UTC').tz(offset === 'Local' ? momentTZ.tz.guess() : offset).locale(locale).format(stringFormat);
             } else {
-                return momentTZ.tz(d, "UTC").utcOffset(offset).format(stringFormat);
+                return momentTZ.tz(d, "UTC").utcOffset(offset).locale(locale).format(stringFormat);
             }
         }
     }

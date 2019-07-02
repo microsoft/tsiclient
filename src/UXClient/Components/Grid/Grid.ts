@@ -87,7 +87,7 @@ class Grid extends Component {
 				headersRow.append('th').attr("tabindex", 0).attr("class", this.cellClass(0, i+1)).on("keydown", () => {arrowNavigate(d3.event, 0, i+1)}).text(() => {
 					var hAsDate = <any>(new Date(h));
 					if(hAsDate != this.getString('Invalid Date'))
-						return Utils.timeFormat(this.usesSeconds, this.usesMillis, this.chartOptions.offset)(hAsDate);
+						return Utils.timeFormat(this.usesSeconds, this.usesMillis, this.chartOptions.offset, null, null, null, this.chartOptions.dateLocale)(hAsDate);
 					return h;
 				})
 			});

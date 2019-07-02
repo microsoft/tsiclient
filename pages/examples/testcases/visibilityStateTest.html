@@ -14,12 +14,13 @@
                 var to;
                 function createData(numSplitBys) {
                     var data = [];
-                    for(var i = 0; i < 2; i++){
+                    for(var i = 0; i < 4; i++){
+                        numSplitBys = (i < 3) ? numSplitBys : 5; 
                         var lines = {};
                         data.push({[`Factory${i}`]: lines});
                         for(var j = 0; j < numSplitBys; j++){
                             var values = {};
-                            lines[``] = values;
+                            lines[i < 2 ? '' : `Station${j}`] = values;
                             for(var k = 0; k < 60; k++){
                                 if(!(k%2 && k%3)){  // if check is to create some sparseness in the data
                                     to = new Date(from.valueOf() + 1000*60*k);
@@ -39,16 +40,18 @@
                 var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart1'));
                 var data = createData(1);
                 lineChart.render(data, {theme: 'light'}, [
-                    {visibilityState: [true, ['']], seachSpan: {from: from.toISOString(), to: to.toISOString()}}, 
-                    {visibilityState: [false, ['']], seachSpan: {from: from.toISOString(), to: to.toISOString()}}
+                    {visibilityState: [true], seachSpan: {from: from.toISOString(), to: to.toISOString()}}, 
+                    {visibilityState: [false], seachSpan: {from: from.toISOString(), to: to.toISOString()}},
+                    {visibilityState: [true], seachSpan: {from: from.toISOString(), to: to.toISOString()}}, 
+                    {visibilityState: [false, ['Station2']], seachSpan: {from: from.toISOString(), to: to.toISOString()}},
                 ]);
 
-                setTimeout(function () {
-                    lineChart.render(data, {theme: 'light'}, [
-                        {visibilityState: [true, ['']], seachSpan: {from: from.toISOString(), to: to.toISOString()}}, 
-                        {visibilityState: [true, ['']], seachSpan: {from: from.toISOString(), to: to.toISOString()}}
-                    ]);
-                }, 2000);
+                // setTimeout(function () {
+                //     lineChart.render(data, {theme: 'light'}, [
+                //         {visibilityState: [true, ['']], seachSpan: {from: from.toISOString(), to: to.toISOString()}}, 
+                //         {visibilityState: [true, ['']], seachSpan: {from: from.toISOString(), to: to.toISOString()}}
+                //     ]);
+                // }, 2000);
             };
         </script>
     </body>
