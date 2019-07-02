@@ -267,7 +267,7 @@ The available parameters for chart data options are as follows...
 |includeEnvelope|boolean|true|If true, and a data group has measure types ['min', 'avg', max'], a shadow will be drawn to show the range of values|
 |includeDots|boolean|true|If true, draw circles for each value in the group|
 |yExtent|[number, number]|[0,400]|A minimum and maximum for the extent of the yAxis for this group|
-|visibilityState|[boolean, [string]?]|[true,['sb1', 'sb7']]|The first element specifies whether the data group is visible, the second is an optoinal array of visible time series names. If ommitted, the data group reverts to default visibility state for each time series|
+|visibilityState|[boolean, [string]?]|[true,['sb1', 'sb7']]|The first element specifies whether the data group is visible, the second is an optional array of visible time series names. If omitted, the data group reverts to default visibility state for each time series|
 
 ***Note**: Some parameters are present in both chart options and chart data options. For boolean values, the property will evaluate to true if either value is true. For other types of values, the chart data option value will take precendence over the chart option value.* 
 
@@ -409,6 +409,6 @@ Some less common chart options that can be used for very specific user interacti
 |timeFrame|any|**null**|From and to to specify range of an event or state series
 |withContextMenu|boolean|**false**|If true, the hierarchy uses a context menu when you click on a parent of leaf nodes
 |xAxisHidden|boolean|**false**|If true, hide xAxis in chart
-|xAxisTimeFormat|(dateString: string, i: number, isFirst: boolean, isLast: boolean) => void|**null**|A function called on each x axis tick which takes the tick's timestamp, index, and if it's the first or last string, and returns a moment date format string
+|xAxisTimeFormat|(dateString: string, i: number, isFirst: boolean, isLast: boolean) => string|**null**|A function called on each x axis tick which takes the tick's timestamp, index, and if it's the first or last string, and returns a [moment date format string](https://devhints.io/moment#formatting-1)
 |yAxisHidden|boolean|**false**|If true, hide yAxis in chart
 |zeroYAxis|boolean|**true**|If true, set bar chart's bar's bottom (or top if negative) to zero
