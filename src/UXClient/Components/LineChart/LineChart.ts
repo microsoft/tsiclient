@@ -785,10 +785,11 @@ class LineChart extends TemporalXAxisComponent {
         if (this.chartComponentData.displayState[site.data.aggregateKey].contextMenuActions && 
             this.chartComponentData.displayState[site.data.aggregateKey].contextMenuActions.length) {
             var mousePosition = d3.mouse(<any>this.targetElement.node());
+
             d3.event.preventDefault();
             this.contextMenu.draw(this.chartComponentData, this.renderTarget, this.chartOptions, 
                                 mousePosition, site.data.aggregateKey, site.data.splitBy, null,
-                                site.data.dateTime);
+                                site.data.dateTime, null, d3.event);
             if (this.brushContextMenu) {
                 this.brushContextMenu.hide();
             }
