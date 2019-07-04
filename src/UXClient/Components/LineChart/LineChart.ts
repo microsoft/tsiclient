@@ -794,7 +794,7 @@ class LineChart extends TemporalXAxisComponent {
                 sitePageCoords = this.voronoiRegion.node().getBoundingClientRect();
             }
             
-            let eventSite = {pageX: sitePageCoords.left + site[0], pageY: sitePageCoords.top + site[1] - 14}
+            let eventSite = {pageX: sitePageCoords.left + site[0], pageY: sitePageCoords.top + site[1] - 12}
 
             d3.event.preventDefault();
             this.contextMenu.draw(this.chartComponentData, this.renderTarget, this.chartOptions, 
