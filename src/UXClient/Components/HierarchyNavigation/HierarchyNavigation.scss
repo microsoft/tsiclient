@@ -90,8 +90,14 @@
         .tsi-caret{
             background-image: url(../../Icons/CaretClosed_Dark_Theme.svg);
         }
-        .tsi-flag {
-            background-image: url(../../Icons/flag_dark_theme.svg);
+        .tsi-pin {
+            background-image: url(../../Icons/Pin_Icon_Dark_Theme.svg);
+        }
+        .tsi-down-caret {
+            background-image: url(../../Icons/Down_Icon_Dark_Theme.svg);
+        }
+        .tsi-close {
+            background-image: url(../../Icons/Close_Icon_Dark_Theme.svg);
         }
     }
     &.tsi-light{
@@ -100,60 +106,115 @@
         .tsi-caret{
             background-image: url(../../Icons/CaretClosed_Light_Theme.svg);
         }
-        .tsi-flag {
-            background-image: url(../../Icons/flag_light_theme.svg);
+        .tsi-pin {
+            background-image: url(../../Icons/Pin_Icon_Light_Theme.svg);
+        }
+
+        .tsi-down-caret {
+            background-image: url(../../Icons/Down_Icon_Light_Theme.svg);
+        }
+
+        .tsi-close {
+            background-image: url(../../Icons/Close_Icon_Light_Theme.svg);
         }
     }
 
-    .tsi-hierarchy-selection-wrapper {
-        text-align: left;
-        padding: 8px 16px 4px;
-
-        .tsi-hierarchy-select {
-            min-width: 100%;
-            font-size: 16px;
-            font-weight: 600;
-            background-position-y: 10px;
-            position: relative;
-            z-index: 1;
-            border: 1px solid transparent;
-            max-width: 277px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-    }
+    
 
     .tsi-filter-path-wrapper {
-        display: none;
-        animation: fadeIn 0.367s cubic-bezier(0.1, 0.9, 0.2, 1) forwards;
-        background: #eeeeee;
         padding: 4px;
-        display: none !important;
+
+        .tsi-hierarchy-selection-wrapper {
+            text-align: left;
+            padding: 8px 16px 4px;
+            max-width: 50%;
+            display: inline-flex;
+    
+            .tsi-hierarchy-select {
+                display: flex;
+                align-items: center;
+                width: 100%;
+                border: none;
+                padding: 8px;
+                outline: none;
+                background: #f3f3f3;
+                border-right: 1px solid #cdcdcd;
+    
+                span {
+                    font-size: 16px;
+                    font-weight: 600;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                    width: calc(100% - 10px);
+                    padding-right: 8px;
+                }
+                select {
+                    outline: none;
+                    width: calc(50%);
+                    height: 38px;
+                    position: absolute;
+                    opacity: 0;
+                    margin-left: -8px;
+    
+                    option {
+                        font-size: 16px;
+                        font-weight: 600;
+                        font-family: "Segoe UI", sans-serif;
+                    }
+                }
+    
+                &:hover{
+                    background: #DADADA;
+                    cursor: pointer;
+                }
+    
+                &.selected {
+                    background: #DADADA;
+                }
+            }
+    
+            .tsi-hierarchy-list-wrapper {
+                display: none;
+                background: white;
+                z-index: 3;
+                position: absolute;
+                box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+    
+                li {
+                    padding: 8px;
+                    &:hover {
+                        background: #F2F2F2;
+                        cursor: pointer;
+                    }
+                }
+            }
+        }
 
         .tsi-filter-path {
-            margin-left: 20px;
-            width: calc(100% - 88px);
-            font-style: italic;
-            color: grey;
-            border: none;
-            background: transparent;
-            padding-right: 20px;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            overflow: hidden;
-        }
+            width: 50%;
+            display: flex;
+            align-items: center;
+            padding: 8px 16px 4px 0;
+            height: 100%;
+            visibility: hidden;
+            display: inline-flex;
 
-        .tsi-filter-clear {
-            margin-left: 4px;
-        }
-
-        @keyframes fadeIn {
-            from {
-              opacity: 0;
+            input {
+                width: calc(100% - 16px);
+                color: grey;
+                border: none;
+                background: transparent;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                overflow: hidden;
             }
-            to {
-              opacity: 1
-            } 
+            
+            .tsi-filter-clear {
+                margin-left: 4px;
+                display: inline-block;
+                cursor: pointer;
+            }
         }
     }
 
@@ -202,13 +263,13 @@
         .tsi-hierarchy-filtered {
             width: 100%;
             overflow-y: auto;
-            min-height: calc(100% - 52px);
+            min-height: 100%;
             flex-grow: 1;
         }
 
         .tsi-hierarchy-instances {
             flex-grow: 1;
-            height: calc(100% - 52px);
+            height: 100%;
             float: left;
             overflow-y: auto;
             width: 100%;
@@ -219,10 +280,6 @@
                 max-height: 206px;
                 overflow: hidden;
                 animation: fade-in .2s ease-in-out;
-                @keyframes fade-in {
-                    0% { opacity: 0; }
-                    100% { opacity: 1; }
-                }
 
                 .tsi-modelResult{
                     pointer-events: none;
@@ -265,11 +322,11 @@
         }
     }
 
-    .tsi-flag {
+    .tsi-pin {
         z-index: 10 !important;
         right: 20px;
         position: absolute;
-        display: block;
+        visibility: hidden;
         height: 10px;
         width: 10px;
         cursor: pointer;
@@ -277,30 +334,20 @@
         background-repeat: no-repeat;
         top: 11px;
         background-position: 50%;
-        display: none;
     }
 
-    select{
-        background: url(data:image/svg+xml;base64,DQo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHZpZXdCb3g9IjAgMCAxMyA3Ij4NCiAgPGRlZnM+DQogICAgPHN0eWxlPg0KICAgICAgLmNscy0xIHsNCiAgICAgICAgY2xpcC1wYXRoOiB1cmwoI2NsaXAtQ2hldnJvbl9saWdodF90aGVtZV8xKTsNCiAgICAgIH0NCg0KICAgICAgLmNscy0yLCAuY2xzLTMgew0KICAgICAgICBmaWxsOiBub25lOw0KICAgICAgICBzdHJva2UtbGluZWNhcDogc3F1YXJlOw0KICAgICAgICBzdHJva2UtbWl0ZXJsaW1pdDogMTsNCiAgICAgIH0NCg0KICAgICAgLmNscy0yIHsNCiAgICAgICAgc3Ryb2tlOiByZ2JhKDAsMCwwLDAuMSk7DQogICAgICB9DQoNCiAgICAgIC5jbHMtMyB7DQogICAgICAgIHN0cm9rZTogIzY2NjsNCiAgICAgIH0NCg0KICAgICAgLmNscy00IHsNCiAgICAgICAgZmlsbDogI2ZmZjsNCiAgICAgIH0NCiAgICA8L3N0eWxlPg0KICAgIDxjbGlwUGF0aCBpZD0iY2xpcC1DaGV2cm9uX2xpZ2h0X3RoZW1lXzEiPg0KICAgICAgPHJlY3Qgd2lkdGg9IjEzIiBoZWlnaHQ9IjciLz4NCiAgICA8L2NsaXBQYXRoPg0KICA8L2RlZnM+DQogIDxnIGlkPSJDaGV2cm9uX2xpZ2h0X3RoZW1lXzEiIGRhdGEtbmFtZT0iQ2hldnJvbiBsaWdodCB0aGVtZSDigJMgMSIgY2xhc3M9ImNscy0xIj4NCiAgICA8ZyBpZD0iR3JvdXBfMjIzNjkiIGRhdGEtbmFtZT0iR3JvdXAgMjIzNjkiIHRyYW5zZm9ybT0idHJhbnNsYXRlKC0xOTkuNiAtNjQ2LjI3MykiPg0KICAgICAgPHBhdGggaWQ9IlBhdGhfNDQ3MzciIGRhdGEtbmFtZT0iUGF0aCA0NDczNyIgY2xhc3M9ImNscy0yIiBkPSJNOC41LDMzLjhsLTUsNSw1LDUiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDE2Ny44IDY1NS44KSByb3RhdGUoLTkwKSIvPg0KICAgICAgPHBhdGggaWQ9IlBhdGhfNDQ3MzgiIGRhdGEtbmFtZT0iUGF0aCA0NDczOCIgY2xhc3M9ImNscy0zIiBkPSJNOC41LDMyLjhsLTUsNSw1LDUiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDE2Ny44IDY1NS44KSByb3RhdGUoLTkwKSIvPg0KICAgIDwvZz4NCiAgPC9nPg0KPC9zdmc+DQo=) 16px/16px no-repeat;
-        background-position-y: 10px;
-        background-position-x: calc(100% - 4px);
-        padding: 4px;
-        padding-right: 32px;
-        -webkit-appearance: none;
-        -moz-appearance: none;
-        border-width: 1px;
-        border-radius: 2px;
-        border-style: solid;
-        white-space: nowrap;
-        overflow: hidden;
-        &:hover {
-            border: 1px solid #eaeaea !important;
-        }
+    .tsi-down-caret {
+        height: 10px;
+        width: 10px;
+        background-repeat: no-repeat;
+        background-size: cover;
+    }
 
-        &:focus {
-            border: 1px solid #136bfb !important;
-            outline: none;
-        }
+    .tsi-close {
+        height: 16px;
+        width: 16px;
+        background-repeat: no-repeat;
+        background-size: cover;
     }
 
     ul{
@@ -320,10 +367,6 @@
     li {
         position: relative;
         animation: fade-in .2s ease-in-out;
-        @keyframes fade-in {
-            0% { opacity: 0; }
-            100% { opacity: 1; }
-        }
 
         .tsi-caret{
             position: absolute;
@@ -414,5 +457,10 @@
             align-items: center;
             overflow: hidden;
         }
+    }
+
+    @keyframes fade-in {
+        0% { opacity: 0; }
+        100% { opacity: 1; }
     }
 }
