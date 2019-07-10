@@ -20,7 +20,7 @@
         color: $gray6;
     }
 
-    .tsi-hierarchy-or-instances-wrapper {
+    .tsi-hierarchy-or-list-wrapper {
         li{
             .tsi-markedName{
                 &:hover{
@@ -75,6 +75,12 @@
             }
         }
     }
+
+    .tsi-filter-clear {
+        &:hover{
+            background-color: $gray4;
+        }
+    }
     @include baseContextMenuColors($grays);
 }   
 
@@ -87,35 +93,51 @@
     &.tsi-dark{
         $grays: grays('dark');
         @include hierarchyColors($grays);
-        .tsi-caret{
+        .tsi-caret-icon {
             background-image: url(../../Icons/CaretClosed_Dark_Theme.svg);
         }
-        .tsi-pin {
+        .tsi-pin-icon {
             background-image: url(../../Icons/Pin_Icon_Dark_Theme.svg);
         }
-        .tsi-down-caret {
+        .tsi-down-caret-icon {
             background-image: url(../../Icons/Down_Icon_Dark_Theme.svg);
         }
         .tsi-close {
             background-image: url(../../Icons/Close_Icon_Dark_Theme.svg);
         }
+
+        .tsi-tree-icon {
+            background-image: url(../../Icons/Queued_Icon_Dark_Theme.svg);
+        }
+
+        .tsi-list-icon {
+            background-image: url(../../Icons/List_Icon_Dark_Theme.svg);
+        }
     }
     &.tsi-light{
         $grays: grays('light');
         @include hierarchyColors($grays);
-        .tsi-caret{
+        .tsi-caret-icon{
             background-image: url(../../Icons/CaretClosed_Light_Theme.svg);
         }
-        .tsi-pin {
+        .tsi-pin-icon {
             background-image: url(../../Icons/Pin_Icon_Light_Theme.svg);
         }
 
-        .tsi-down-caret {
+        .tsi-down-caret-icon {
             background-image: url(../../Icons/Down_Icon_Light_Theme.svg);
         }
 
         .tsi-close {
             background-image: url(../../Icons/Close_Icon_Light_Theme.svg);
+        }
+
+        .tsi-tree-icon {
+            background-image: url(../../Icons/Queued_Icon_Light_Theme.svg);
+        }
+
+        .tsi-list-icon {
+            background-image: url(../../Icons/List_Icon_Light_Theme.svg);
         }
     }
 
@@ -219,16 +241,37 @@
     }
 
     .tsi-hierarchy-search {
+        display: flex;
+        align-items: center;
+
         ul {
             z-index: 2 !important;
+            width: calc(100% - 20px) !important;
         }
 
         input {
+            width: calc(100% - 20px) !important;
+            margin: 8px 32px 8px 20px !important;
             padding: 6px 32px 6px 6px !important;
+        }
+
+        .tsi-view-type {
+            border: 1px solid #c1bdbd;
+            width: 32px;
+            height: 32px;
+            display: none;
+            padding: 4px;
+            align-items: center;
+            animation: fade-in .2s ease-in-out; 
+        }
+
+        .tsi-clear {
+            left: calc(100% - 76px) !important;
+            margin-top: 0px !important;
         }
     }
 
-    .tsi-hierarchy-or-instances-wrapper {
+    .tsi-hierarchy-or-list-wrapper {
         width: 100%;
         flex-grow: 1;
         display: flex;
@@ -260,14 +303,14 @@
             font-size: 14px;
         }
 
-        .tsi-hierarchy-filtered {
+        .tsi-hierarchy {
             width: 100%;
             overflow-y: auto;
             min-height: 100%;
             flex-grow: 1;
         }
 
-        .tsi-hierarchy-instances {
+        .tsi-list {
             flex-grow: 1;
             height: 100%;
             float: left;
@@ -322,7 +365,7 @@
         }
     }
 
-    .tsi-pin {
+    .tsi-pin-icon {
         z-index: 10 !important;
         right: 20px;
         position: absolute;
@@ -336,14 +379,15 @@
         background-position: 50%;
     }
 
-    .tsi-down-caret {
+    .tsi-down-caret-icon {
         height: 10px;
         width: 10px;
         background-repeat: no-repeat;
         background-size: cover;
     }
 
-    .tsi-close {
+    .tsi-close, .tsi-list-icon, .tsi-tree-icon {
+        cursor: pointer;
         height: 16px;
         width: 16px;
         background-repeat: no-repeat;
@@ -368,7 +412,7 @@
         position: relative;
         animation: fade-in .2s ease-in-out;
 
-        .tsi-caret{
+        .tsi-caret-icon{
             position: absolute;
             display: block;
             height: 10px;
@@ -393,8 +437,10 @@
             text-overflow: ellipsis;
             overflow: hidden;
             white-space: nowrap;
-            .tsi-childCount{
-                display: none;
+
+            .tsi-childCount {
+                opacity: 0.5;
+                padding-left: 8px;
             }
 
             .tsi-highlights-detail {
@@ -421,7 +467,7 @@
             }
         }
         &.tsi-expanded{
-            > .tsi-caret{
+            > .tsi-caret-icon{
                 content: '';
                 cursor: pointer;
                 transform: rotate(90deg);
@@ -432,7 +478,7 @@
         }
     }
 
-    .tsi-noBefore .tsi-caret{
+    .tsi-noBefore .tsi-caret-icon{
         content: '' !important;
     }
 
@@ -442,6 +488,7 @@
         left: calc(100% - 32px);
         top: 0px;
         z-index: 10;
+        transition: top .2 ease-in-out; 
 
         ul {
             padding: 0;
