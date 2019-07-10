@@ -368,7 +368,7 @@ class Legend extends Component {
         seriesLabels.exit().remove();
 
         /** Events ************************************************************************************************/
-
+        legend.selectAll(".tsi-eventSeriesLabel").remove();
         var eventSeriesLabels: any = legend.selectAll(".tsi-eventSeriesLabel")
             .data(Object.keys(events));
         var eventSeriesLabelsEntered = eventSeriesLabels
@@ -411,7 +411,7 @@ class Legend extends Component {
         eventSeriesLabels.exit().remove();
 
         /** States ************************************************************************************************/
-        
+        legend.selectAll(".tsi-stateSeriesLabel").remove();
         var stateSeriesLabels: any = legend.selectAll(".tsi-stateSeriesLabel")
             .data(Object.keys(states));
         var stateSeriesLabelsEntered = stateSeriesLabels

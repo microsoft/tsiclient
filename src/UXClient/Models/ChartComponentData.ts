@@ -63,7 +63,7 @@ class ChartComponentData {
 
     public mergeDataToDisplayStateAndTimeArrays(data, aggregateExpressionOptions = null, events = null, states = null ) {
         this.data = data;
-        var newDisplayState = {};
+        var newDisplayState: any = {};
         this.timeArrays = {};
         this.visibleTAs = {};
         this.allValues = [];
@@ -76,6 +76,15 @@ class ChartComponentData {
         this.usesMillis = false;
         aggregateExpressionOptions = this.fillColors(aggregateExpressionOptions);
         let aggKeys = Utils.getAggKeys(this.data);
+
+        if (this.displayState.events) {
+            newDisplayState.events = this.displayState.events;
+        }
+
+        if (this.displayState.states) {
+            newDisplayState.states = this.displayState.events;
+        }
+
         this.data = this.data.map((aggregate: any, i: number) => {
             var aggName: string = Object.keys(aggregate)[0];
             let aggregateCopy = {...aggregate};
