@@ -155,12 +155,11 @@
     
 
     .tsi-filter-path-wrapper {
-        padding: 4px;
+        padding: 20px 20px 8px;
 
         .tsi-hierarchy-selection-wrapper {
             text-align: left;
-            padding: 8px 16px 4px;
-            width: 45%;
+            max-width: 45%;
             display: inline-flex;
     
             .tsi-hierarchy-select {
@@ -224,10 +223,8 @@
         }
 
         .tsi-filter-path {
-            width: 55%;
-            display: flex;
             align-items: center;
-            padding: 8px 16px 4px 0;
+            padding-left: 6px;
             height: 100%;
             visibility: hidden;
             display: inline-flex;

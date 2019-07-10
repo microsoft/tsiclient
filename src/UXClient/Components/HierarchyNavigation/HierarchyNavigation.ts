@@ -11,7 +11,6 @@ class HierarchyNavigation extends Component{
     private environmentFqdn;
     private clickedInstance;
     private isHierarchySelectionActive;
-    private hierarchyListWrapper;
     private hierarchySelector;
     private noResults;
     private hierarchy;
@@ -562,7 +561,7 @@ function InstanceNode (tsId, name = null, type, hierarchyIds, highlights, contex
         this.contextMenuProps['eltMousePos'] = eltMousePos;
     }
     this.drawContextMenu = (contextMenuActions) => {
-        let contextMenuDefaultRelativeY = 105; // this is because position absolute property of the context menu
+        let contextMenuDefaultRelativeY = 112; // this is because position absolute property of the context menu
         this.contextMenu = this.contextMenuProps['resultsWrapper'].append('div').classed('tsi-hierarchyNavigationContextMenu', true).attr('style', () => `top: ${this.contextMenuProps['wrapperMousePos'] - this.contextMenuProps['eltMousePos'] + contextMenuDefaultRelativeY}px`);
         var contextMenuList = this.contextMenu.append('ul');
         contextMenuActions.forEach((a) => {
