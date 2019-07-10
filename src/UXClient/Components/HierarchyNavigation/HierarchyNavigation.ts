@@ -284,11 +284,11 @@ class HierarchyNavigation extends Component{
             list = target.append('ul');
         } else {
             if (locInTarget === '.tsi-show-more.hierarchy')
-                currentShowMore = target.selectAll('ul > .tsi-show-more.hierarchy').filter(function(d, i,list) {
+                currentShowMore = target.selectAll('.tsi-show-more.hierarchy').filter(function(d, i,list) {
                     return i === list.length - 1;
                 });
             else
-                currentShowMore = target.selectAll('ul > .tsi-show-more.instance').filter(function(d, i,list) {
+                currentShowMore = target.selectAll('.tsi-show-more.instance').filter(function(d, i,list) {
                     return i === list.length - 1;
                 });
             currentShowMore.node().style.display = 'none';
@@ -296,7 +296,7 @@ class HierarchyNavigation extends Component{
         Object.keys(data).forEach((el) => {
             let li;
             if (locInTarget) {
-                li = target.select('ul').insert('li', locInTarget + ':first-child').classed('tsi-leaf', data[el].isLeaf);
+                li = target.insert('li', locInTarget).classed('tsi-leaf', data[el].isLeaf);
             } else {
                 li = list.append('li').classed('tsi-leaf', data[el].isLeaf);
             }       
@@ -416,7 +416,7 @@ class HierarchyNavigation extends Component{
                 }
                 if (r.instances && r.instances.continuationToken && r.instances.continuationToken !== 'END') {
                     let showMoreInstances = new InstanceNode(null, "Show More Instances", null, null, null, self.hierarchyNavOptions.onInstanceClick, payload.path.length - self.path.length);
-                    showMoreInstances.onClick = () => self.pathSearch(getToken, envFqdn, payload, target, '.show-more.instance', null, r.instances['continuationToken']);
+                    showMoreInstances.onClick = () => self.pathSearch(getToken, envFqdn, payload, showMoreInstances.node.select(function() { return this.parentNode; }), '.tsi-show-more.instance', null, r.instances['continuationToken']);
                     instancesData[showMoreInstances.name] = showMoreInstances;
 
                     if (!self.usedInstanceSearchContinuationTokens[r.instances.continuationToken]){
@@ -465,11 +465,7 @@ class HierarchyNavigation extends Component{
             let showMorehierarchy = new HierarchyNode("Show More Hierarchies", payload.path, payload.path.length - this.path.length);
             showMorehierarchy.onClick = () => {
                 let self = this;
-                if (this.mode === State.Search) {
-                    this.pathSearch(getToken, envFqdn, payload, self.instanceList, '.tsi-show-more.hierarchy', null, hierarchyNodes.continuationToken);
-                } else {
-                    this.pathSearch(getToken, envFqdn, payload, showMorehierarchy.node.select(function() { return this.parentNode.parentNode; }), '.tsi-show-more.hierarchy', null, hierarchyNodes.continuationToken);
-                }
+                this.pathSearch(getToken, envFqdn, payload, showMorehierarchy.node.select(function() { return this.parentNode; }), '.tsi-show-more.hierarchy', null, hierarchyNodes.continuationToken);
             }
             data[showMorehierarchy.name] = showMorehierarchy;
         }
