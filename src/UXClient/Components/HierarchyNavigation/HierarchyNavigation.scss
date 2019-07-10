@@ -156,6 +156,8 @@
 
     .tsi-filter-path-wrapper {
         padding: 20px 20px 8px;
+        flex-direction: row;
+        display: flex;
 
         .tsi-hierarchy-selection-wrapper {
             text-align: left;
@@ -182,11 +184,12 @@
                 }
                 select {
                     outline: none;
-                    width: calc(50%);
+                    max-width: calc(45% - 16px);
                     height: 38px;
                     position: absolute;
                     opacity: 0;
                     margin-left: -8px;
+                    margin-top: 0px;
     
                     option {
                         font-size: 16px;
@@ -225,7 +228,6 @@
         .tsi-filter-path {
             align-items: center;
             padding-left: 6px;
-            height: 100%;
             visibility: hidden;
             display: inline-flex;
 
@@ -384,7 +386,7 @@
         cursor: pointer;
         background-size: 10px;
         background-repeat: no-repeat;
-        top: 11px;
+        top: 8px;
         background-position: 50%;
     }
 
@@ -440,7 +442,7 @@
             display: flex;
             position: relative;
             margin: 0;
-            min-height: 32px;
+            min-height: 28px;
             font-size: 14px;
             align-items: center;
             text-overflow: ellipsis;

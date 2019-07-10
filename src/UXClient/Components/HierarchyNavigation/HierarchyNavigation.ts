@@ -70,7 +70,11 @@ class HierarchyNavigation extends Component{
                 let filterPathWrapper = hierarchyNavWrapper.append('div').classed('tsi-filter-path-wrapper', true);
                 // hierarchy selection button
                 let hierarchySelectionWrapper = filterPathWrapper.append('div').classed('tsi-hierarchy-selection-wrapper', true);
-                this.path = [this.envHierarchies[Object.keys(this.envHierarchies)[0]].name];
+                if (Object.keys(this.envHierarchies).length) {
+                    this.path = [this.envHierarchies[Object.keys(this.envHierarchies)[0]].name];
+                } else {
+                    this.selectedHierarchyName = HierarchySelectionValues.Unparented;
+                }
                 this.hierarchySelector = hierarchySelectionWrapper.append('button').classed('tsi-hierarchy-select', true).on('click', function () {
                     if (self.isHierarchySelectionActive) {
                         self.hierarchySelector.classed('selected', false);
@@ -81,7 +85,7 @@ class HierarchyNavigation extends Component{
                         self.isHierarchySelectionActive = true;
                     }
                 });
-                this.hierarchySelector.append('span').text(this.envHierarchies[Object.keys(this.envHierarchies)[0]].name);
+                this.hierarchySelector.append('span').text(Object.keys(this.envHierarchies).length ? this.envHierarchies[Object.keys(this.envHierarchies)[0]].name : "Unassigned Time Series Instances");
                 this.hierarchySelector.append('i').classed('tsi-down-caret-icon', true);
                 let hierarchyList = this.hierarchySelector.append('select').classed('tsi-hierarchy-list', true).on('change', function() {
                     var selectValue = d3.select(this).property('value');
