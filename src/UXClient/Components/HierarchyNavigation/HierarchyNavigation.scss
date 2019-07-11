@@ -43,8 +43,8 @@
 
     .tsi-modelResultWrapper{
         border-bottom: 1px solid rgba($gray1, .05);
-        &:hover, &:focus, &.tsi-selected{
-            background-color: $gray2;
+        &:hover, &:focus {
+            background-color: $gray4;
             &::after{
                 content: "";
                 position: absolute;
@@ -55,6 +55,9 @@
                 background: url(../../Icons/chevron.svg) no-repeat;
                 transform: rotate(-90deg);
             }
+        }
+        &.tsi-selected {
+            background-color: $gray2;
         }
     }
     .tsi-hierarchyNavigationContextMenu{
@@ -264,7 +267,7 @@
         }
 
         input {
-            width: calc(100% - 20px) !important;
+            width: calc(100% - 19px) !important;
             margin: 8px 32px 8px 20px !important;
             padding: 6px 32px 6px 6px !important;
         }
@@ -272,7 +275,7 @@
         .tsi-view-type {
             border: 1px solid #c1bdbd;
             width: 32px;
-            height: 32px;
+            height: 33px;
             display: none;
             padding: 4px;
             align-items: center;
