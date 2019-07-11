@@ -494,15 +494,17 @@ class HierarchyNavigation extends Component{
                 return `<span>
                             ${hORi.highlights.name ? this.stripHits(hORi.highlights.name) : this.stripHits(hORi.highlights.timeSeriesIds ? hORi.highlights.timeSeriesIds.join(' ') : hORi.highlights.timeSeriesId.join(' '))}
                             <br>
-                            <span class="tsi-highlights-detail">
-                                ${hORi.highlights.description && hORi.highlights.description.indexOf("<hit>") !== -1 ? this.stripHits(hORi.highlights.description) : ''}
-                                <table>
-                                    ${hORi.highlights.instanceFieldNames.map((ifn, idx) => {
-                                        var val = hORi.highlights.instanceFieldValues[idx];
-                                        return this.hasHits(ifn) || this.hasHits(val) ? '<tr><td>' + this.stripHits(ifn) + '</td><td>' + this.stripHits(hORi.highlights.instanceFieldValues[idx]) + '</tr>' : '';
-                                    }).join('')}
-                                </table>
-                            </span>
+                            ${this.hasHits(hORi.highlights.description) || hORi.highlights.instanceFieldNames.filter(this.hasHits).length > 0 ? 
+                                (`<span class="tsi-highlights-detail">
+                                    ${hORi.highlights.description && hORi.highlights.description.indexOf("<hit>") !== -1 ? this.stripHits(hORi.highlights.description) : ''}
+                                    <table>
+                                        ${hORi.highlights.instanceFieldNames.map((ifn, idx) => {
+                                            var val = hORi.highlights.instanceFieldValues[idx];
+                                            return this.hasHits(ifn) || this.hasHits(val) ? '<tr><td>' + this.stripHits(ifn) + '</td><td>' + this.stripHits(hORi.highlights.instanceFieldValues[idx]) + '</tr>' : '';
+                                        }).join('')}
+                                    </table>
+                                </span>`)
+                            : ''}
                         </span>`; 
             }
             else return key;
@@ -565,7 +567,7 @@ function InstanceNode (tsId, name = null, type, hierarchyIds, highlights, contex
         this.contextMenuProps['eltMousePos'] = eltMousePos;
     }
     this.drawContextMenu = (contextMenuActions) => {
-        let contextMenuDefaultRelativeY = 112; // this is because position absolute property of the context menu
+        let contextMenuDefaultRelativeY = 116; // this is because position absolute property of the context menu
         this.contextMenu = this.contextMenuProps['resultsWrapper'].append('div').classed('tsi-hierarchyNavigationContextMenu', true).attr('style', () => `top: ${this.contextMenuProps['wrapperMousePos'] - this.contextMenuProps['eltMousePos'] + contextMenuDefaultRelativeY}px`);
         var contextMenuList = this.contextMenu.append('ul');
         contextMenuActions.forEach((a) => {

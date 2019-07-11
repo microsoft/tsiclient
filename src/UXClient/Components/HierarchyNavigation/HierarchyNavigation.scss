@@ -158,6 +158,7 @@
         padding: 20px 20px 8px;
         flex-direction: row;
         display: flex;
+        height: 68px;
 
         .tsi-hierarchy-selection-wrapper {
             text-align: left;
@@ -230,6 +231,7 @@
             padding-left: 6px;
             visibility: hidden;
             display: inline-flex;
+            flex-grow: 1;
 
             input {
                 width: calc(100% - 16px);
@@ -253,6 +255,8 @@
     .tsi-hierarchy-search {
         display: flex;
         align-items: center;
+        height: 48px;
+        padding-right: 20px;
 
         ul {
             z-index: 2 !important;
@@ -276,9 +280,16 @@
             cursor: pointer;
         }
 
-        .tsi-clear {
-            left: calc(100% - 76px) !important;
-            margin-top: 0px !important;
+        .tsi-modelAutocompleteWrapper {
+            position: relative;
+            display: inline-flex;
+            flex-grow: 1;
+
+            .tsi-clear {
+                right: 4px !important;
+                left: unset !important;
+                margin-top: 0px !important;
+            }
         }
     }
 
@@ -287,6 +298,7 @@
         flex-grow: 1;
         display: flex;
         flex-direction: column;
+        height: calc(100% - 116px);
 
         .tsi-nav-tab-wrapper {
             width: 100%;
