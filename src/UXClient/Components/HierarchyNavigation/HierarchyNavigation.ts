@@ -325,13 +325,7 @@ class HierarchyNavigation extends Component{
                         self.closeContextMenu();
                         self.clickedInstance = data[el]; 
                         let mouseElt = d3.mouse(this as any);
-                        let target;
-                        if (self.viewType === ViewType.Hierarchy) {
-                            target = self.hierarchy;
-                        } else {
-                            target = self.instanceList.parentNode;
-                        }
-                        
+                        let target = self.hierarchy;
                         let mouseWrapper = d3.mouse(target.select(function() { return this.parentNode}).node());
                         data[el].onClick(target, mouseWrapper[1], mouseElt[1]);
                     } else {
@@ -396,9 +390,10 @@ class HierarchyNavigation extends Component{
                     d3.event.stopPropagation();
                     self.closeContextMenu();
                     self.clickedInstance = data[i];
-                    let mouseWrapper = d3.mouse(self.instanceList.select(function() { return this.parentNode.parentNode}).node());
+                    let target = self.instanceList.select(function() { return this.parentNode});
+                    let mouseWrapper = d3.mouse(target.node());
                     let mouseElt = d3.mouse(this as any);
-                    data[i].onClick(self.instanceList, mouseWrapper[1], mouseElt[1]);
+                    data[i].onClick(target, mouseWrapper[1], mouseElt[1]);
                 });
             }
             data[i].node = div;
