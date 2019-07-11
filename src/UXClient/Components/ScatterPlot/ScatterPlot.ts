@@ -390,10 +390,16 @@ class ScatterPlot extends ChartComponent {
     private drawVoronoi(){
         let voronoiData = this.getVoronoiData(this.chartComponentData.temporalDataArray);
         let self = this;
+
+        // Create random offset to solve colinear data issue
+        const getRandomInRange = (min, max) => {
+            return Math.random() * (max - min) + min;
+        }
+        const getOffset = () => (Math.random() < 0.5 ? -1 : 1) * getRandomInRange(0, .01);
         
         this.voronoi = d3.voronoi()
-            .x((d:any) => this.xScale(d.measures[this.xMeasure]))
-            .y((d:any) => this.yScale(d.measures[this.yMeasure]))
+            .x((d:any) => this.xScale(d.measures[this.xMeasure]) + getOffset())
+            .y((d:any) => this.yScale(d.measures[this.yMeasure]) + getOffset())
             .extent([[0, 0], [this.chartWidth, this.chartHeight]]);
 
         this.voronoiDiagram = this.voronoi(voronoiData);
