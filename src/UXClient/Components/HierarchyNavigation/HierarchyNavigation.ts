@@ -141,13 +141,15 @@ class HierarchyNavigation extends Component{
                 });
                 // flat list
                 let instanceListWrapper = results.append('div').classed('tsi-list', true).on('scroll', function(){
-                    if (self.viewType === ViewType.List && self.lastInstanceContinuationToken !== "END") {
+                    if (self.viewType === ViewType.List) {
                         self.closeContextMenu();
-                        let that = this as any;
-                        if(that.scrollTop + that.clientHeight + 50 > (self.instanceList.node() as any).clientHeight){
-                            if (self.lastInstanceContinuationToken === null || !self.usedInstanceSearchContinuationTokens[self.lastInstanceContinuationToken]) {
-                                self.usedInstanceSearchContinuationTokens[self.lastInstanceContinuationToken] = true;
-                                self.pathSearch(getToken, environmentFqdn, self.requestPayload(), self.instanceList, null, self.lastInstanceContinuationToken, null);
+                        if (self.lastInstanceContinuationToken !== "END") {
+                            let that = this as any;
+                            if(that.scrollTop + that.clientHeight + 50 > (self.instanceList.node() as any).clientHeight){
+                                if (self.lastInstanceContinuationToken === null || !self.usedInstanceSearchContinuationTokens[self.lastInstanceContinuationToken]) {
+                                    self.usedInstanceSearchContinuationTokens[self.lastInstanceContinuationToken] = true;
+                                    self.pathSearch(getToken, environmentFqdn, self.requestPayload(), self.instanceList, null, self.lastInstanceContinuationToken, null);
+                                }
                             }
                         }
                     }
