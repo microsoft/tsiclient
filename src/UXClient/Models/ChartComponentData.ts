@@ -95,7 +95,7 @@ class ChartComponentData {
                     yExtent: aggregateExpressionOptions[i].yExtent,
                     includeEnvelope: aggregateExpressionOptions[i].includeEnvelope,
                     includeDots: aggregateExpressionOptions[i].includeDots,
-                    splitBys: [],
+                    splitBys: {},
                     visibleSplitByCap: this.displayState[aggKey].visibleSplitByCap,
                     shownSplitBys: 20
                 }
@@ -103,7 +103,7 @@ class ChartComponentData {
                 newDisplayState[aggKey] = {
                     visible: (aggregateExpressionOptions[i] && aggregateExpressionOptions[i].visibilityState) ? 
                         aggregateExpressionOptions[i].visibilityState[0] : true,
-                    splitBys: [],
+                    splitBys: {},
                     name: aggName,
                     color: ((aggregateExpressionOptions[i] && aggregateExpressionOptions[i].color) ? 
                              aggregateExpressionOptions[i].color : "teal"),
@@ -147,23 +147,31 @@ class ChartComponentData {
                 this.timeArrays[aggKey][splitBy] = 
                     this.convertAggregateToArray(data[i][aggName][splitBy], aggKey, aggName, splitBy, 
                                                  newDisplayState[aggKey].from, newDisplayState[aggKey].to, 
-                                                 newDisplayState[aggKey].bucketSize, aggregateExpressionOptions[i].timeShift);
-                if (this.displayState[aggKey] && this.displayState[aggKey].splitBys[splitBy]) {
-                    newDisplayState[aggKey].splitBys[splitBy] = this.displayState[aggKey].splitBys[splitBy];
-                } else {
-                    let isVisible = (splitByI < newDisplayState[aggKey].visibleSplitByCap);
-                    if (aggregateExpressionOptions[i] && aggregateExpressionOptions[i].visibilityState) {
-                        if (aggregateExpressionOptions[i].visibilityState.length === 2) {
-                            isVisible = aggregateExpressionOptions[i].visibilityState[1].indexOf(splitBy) != -1;
-                        } else  if (Object.keys(data[i][aggName]).length === 1 && splitBy === ''){
-                            isVisible = aggregateExpressionOptions[i].visibilityState[0];
-                        }
-                    }
-                    newDisplayState[aggKey].splitBys[splitBy] = {
-                        visible: isVisible,
-                        visibleType : null,
-                        types : []
-                    }
+                                                 newDisplayState[aggKey].bucketSize, aggregateExpressionOptions[i].timeShift);               
+
+                let isVisible;
+
+                // first priority: set from passed in visibility state
+                if (aggregateExpressionOptions[i] && aggregateExpressionOptions[i].visibilityState && aggregateExpressionOptions[i].visibilityState.length === 2) {
+                    isVisible = aggregateExpressionOptions[i].visibilityState[1].indexOf(splitBy) != -1;
+                }
+                //second priority: special case where solo split by and is ''
+                else if (aggregateExpressionOptions[i] && aggregateExpressionOptions[i].visibilityState && Object.keys(data[i][aggName]).length === 1 && splitBy === '') {
+                    isVisible = aggregateExpressionOptions[i].visibilityState[0];
+                }
+                // third priority: already set value
+                else if (this.displayState[aggKey] && this.displayState[aggKey].splitBys[splitBy]) {
+                    isVisible = this.displayState[aggKey].splitBys[splitBy].visible;
+                }
+                // last priority: set isVisible based on visibleSplitByCap 
+                else {
+                    isVisible = (splitByI < newDisplayState[aggKey].visibleSplitByCap);
+                }
+                
+                newDisplayState[aggKey].splitBys[splitBy] = {
+                    visible: isVisible,
+                    visibleType: newDisplayState[aggKey].splitBys[splitBy] ? newDisplayState[aggKey].splitBys[splitBy].visibleType : null,
+                    types: newDisplayState[aggKey].splitBys[splitBy] ? newDisplayState[aggKey].splitBys[splitBy].types : [],
                 }
                 if (this.timeArrays[aggKey][splitBy] && this.timeArrays[aggKey][splitBy].length && 
                     newDisplayState[aggKey].aggregateExpression && newDisplayState[aggKey].aggregateExpression.measureTypes) {
