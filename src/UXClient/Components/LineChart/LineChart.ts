@@ -67,6 +67,11 @@ class LineChart extends TemporalXAxisComponent {
     private focusedAggKey: string = null;
     private focusedSplitby: string = null;
 
+    private eventSeriesWrappers;
+    private eventSeriesComponents;
+    private stateSeriesWrappers;
+    private stateSeriesComponents;
+
     private isFirstMarkerDrop = true;
     
     public chartMargins: any = {        
@@ -1440,6 +1445,7 @@ class LineChart extends TemporalXAxisComponent {
             this.deleteBrushRange();
         }
 
+        let eventsOrStatesChanged = (this.chartOptions.events !== this.events) || (this.chartOptions.states !== this.states);
         this.events = (this.chartOptions.events != undefined) ? this.chartOptions.events : null;
         this.states = (this.chartOptions.states != undefined) ? this.chartOptions.states : null;
         this.strokeOpacity = this.chartOptions.isArea ? .55 : 1;
@@ -1837,12 +1843,12 @@ class LineChart extends TemporalXAxisComponent {
                         var eventSeries = namedEventSeries[name];
                         var isVisible = this.chartComponentData.displayState.events[namedEventSeries.key].visible;
                         visibleEventsCount += (isVisible) ? 1 : 0;
-                        eventSeriesWrappers[i].style("width", this.chartWidth  + 'px')
+                        this.eventSeriesWrappers[i].style("width", this.chartWidth  + 'px')
                             .style("height", d => isVisible ? '10px' : '0px')
                             .style("visibility", d => isVisible ? "visible" : "hidden")
                             .style("right", this.chartMargins.right  + 'px')
                             .style("bottom", this.chartMargins.bottom + this.timelineHeight - (visibleEventsCount * 10)  + 'px');
-                        eventSeriesComponents[i].render(namedEventSeries, {timeFrame: {from : xExtent[0], to: xExtent[1]}, 
+                        this.eventSeriesComponents[i].render(namedEventSeries, {timeFrame: {from : xExtent[0], to: xExtent[1]}, 
                                                         xAxisHidden: true, theme: this.chartOptions.theme, 
                                                         offset: this.chartOptions.offset});
                     });
@@ -1854,12 +1860,12 @@ class LineChart extends TemporalXAxisComponent {
                         var stateSeries = namedStateSeries[name];
                         var isVisible = this.chartComponentData.displayState.states[namedStateSeries.key].visible;
                         visibleStatesCount += (isVisible) ? 1 : 0;
-                        stateSeriesWrappers[i].style("width", this.chartWidth + 'px')
+                        this.stateSeriesWrappers[i].style("width", this.chartWidth + 'px')
                             .style("height", d => this.chartComponentData.displayState.states[namedStateSeries.key].visible ? '10px' : '0px')
                             .style("visibility", d => this.chartComponentData.displayState.states[namedStateSeries.key].visible ? "visible" : "hidden")
                             .style("right", this.chartMargins.right + 'px')
                             .style("bottom", this.chartMargins.bottom + this.timelineHeight - ((visibleEventsCount * 10) + (visibleStatesCount * 10))  + 'px');
-                        stateSeriesComponents[i].render(namedStateSeries, {timeFrame: {from : xExtent[0], to: xExtent[1]}, 
+                        this.stateSeriesComponents[i].render(namedStateSeries, {timeFrame: {from : xExtent[0], to: xExtent[1]}, 
                                                                            offset: this.chartOptions.offset,
                                                                            xAxisHidden: true, theme: this.chartOptions.theme});
                     });
@@ -1891,37 +1897,11 @@ class LineChart extends TemporalXAxisComponent {
                     });
                 }
             });
+        }
 
-            var eventSeriesWrappers;
-            var eventSeriesComponents;
-            if (this.events && this.events.length > 0) {
-                eventSeriesWrappers = this.events.map((events, i) => {
-                    return this.targetElement.append("div").attr("class", "tsi-lineChartEventsWrapper");
-                });
-                eventSeriesComponents = this.events.map((eSC, i) => {
-                    return (new EventSeries(<any>eventSeriesWrappers[i].node()));
-                });
-            }
-            else {
-                eventSeriesWrappers = [];
-                eventSeriesComponents = [];
-            }
-
-            var stateSeriesWrappers;
-            var stateSeriesComponents;
-            if (this.states && this.states.length > 0) {
-                stateSeriesWrappers = this.states.map((state, i) => {
-                    return this.targetElement.append("div").attr("class", "tsi-lineChartStatesWrapper");
-                });
-                stateSeriesComponents = this.states.map((tSC, i) => {
-                    return (new StateSeries(<any>stateSeriesWrappers[i].node()));
-                });
-            } 
-            else {
-                stateSeriesWrappers = [];
-                stateSeriesComponents = [];
-            }
-        }    
+        if (eventsOrStatesChanged) {
+            this.drawEventsAndSeries();
+        }
 
         this.chartComponentData.mergeDataToDisplayStateAndTimeArrays(this.data, this.aggregateExpressionOptions, this.events, this.states);
         this.draw();
@@ -1936,6 +1916,37 @@ class LineChart extends TemporalXAxisComponent {
                 this.ellipsisMenu.setMenuVisibility(false);
             }
         });
+    }
+
+    private drawEventsAndSeries () {
+        this.targetElement.selectAll('.tsi-lineChartEventsWrapper').remove();
+        this.targetElement.selectAll('.tsi-lineChartStatesWrapper').remove();
+        if (this.events && this.events.length > 0) {
+            
+            this.eventSeriesWrappers = this.events.map((events, i) => {
+                return this.targetElement.append("div").attr("class", "tsi-lineChartEventsWrapper");
+            });
+            this.eventSeriesComponents = this.events.map((eSC, i) => {
+                return (new EventSeries(<any>this.eventSeriesWrappers[i].node()));
+            });
+        }
+        else {
+            this.eventSeriesWrappers = [];
+            this.eventSeriesComponents = [];
+        }
+
+        if (this.states && this.states.length > 0) {
+            this.stateSeriesWrappers = this.states.map((state, i) => {
+                return this.targetElement.append("div").attr("class", "tsi-lineChartStatesWrapper");
+            });
+            this.stateSeriesComponents = this.states.map((tSC, i) => {
+                return (new StateSeries(<any>this.stateSeriesWrappers[i].node()));
+            });
+        } 
+        else {
+            this.stateSeriesWrappers = [];
+            this.stateSeriesComponents = [];
+        }
     }
 }
 export {LineChart}

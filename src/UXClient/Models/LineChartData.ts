@@ -48,14 +48,10 @@ class LineChartData extends ChartComponentData {
     public mergeDataToDisplayStateAndTimeArrays (data, aggregateExpressionOptions = null, events = null, states = null ) {
         super.mergeDataToDisplayStateAndTimeArrays(data, aggregateExpressionOptions, events, states);
         this.visibleEventsAndStatesCount = 0;
-        if (events) {
-            this.events = events;
-            this.addEntitiesToDisplayState(events, "events");
-        }
-        if (states) {
-            this.states = states;
-            this.addEntitiesToDisplayState(states, "states");
-        }
+        this.events = (events !== undefined && events !== null) ? events : [];
+        this.addEntitiesToDisplayState(this.events, "events");
+        this.states = (states !== undefined && states !== null) ? states : [];
+        this.addEntitiesToDisplayState(this.states, "states");
     }
 
     private addEntitiesToDisplayState(entities, typeOfEntity): void {
@@ -77,7 +73,7 @@ class LineChartData extends ChartComponentData {
 
             entity.key = entityKey;
 
-            if (this.displayState[entityKey]) {
+            if (this.displayState[typeOfEntity] && this.displayState[typeOfEntity][entityKey]) {
                 newEntityDisplayState[entityKey] = this.displayState[typeOfEntity][entityKey];
             } else {
                 newEntityDisplayState[entityKey] = {
