@@ -261,8 +261,8 @@ class ScatterPlot extends ChartComponent {
         let yExtentRange = this.chartComponentData.extents[this.yMeasure][1] - this.chartComponentData.extents[this.yMeasure][0];
 
         // Pad extents
-        let xOffset = (20 / this.chartWidth) * (xExtentRange < 1 ? 1 : xExtentRange);
-        let yOffset = (20 / this.chartHeight) * (yExtentRange < 1 ? 1 : yExtentRange);
+        let xOffset = (20 / this.chartWidth) * (xExtentRange);
+        let yOffset = (20 / this.chartHeight) * (yExtentRange);
 
         let rOffset = null;
 
