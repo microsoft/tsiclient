@@ -268,7 +268,7 @@ class ScatterPlot extends ChartComponent {
 
         if(this.rMeasure){
             let rExtentRange = this.chartComponentData.extents[this.rMeasure][1] - this.chartComponentData.extents[this.rMeasure][0];
-            rOffset = (20 / this.chartHeight) * (rExtentRange < 1 ? 1 : rExtentRange);
+            rOffset = (20 / this.chartHeight) * (rExtentRange == 0 ? 1 : rExtentRange);
         }
 
         // Check measure validity
