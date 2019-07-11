@@ -62,6 +62,7 @@ class LineChart extends TemporalXAxisComponent {
     private previousAggregateData: any = d3.local();
     private previousIncludeDots: any = d3.local();
     private voronoiDiagram;
+    private voronoiRegion;
     private mx = null;
     private my = null;
     private focusedAggKey: string = null;
@@ -790,10 +791,20 @@ class LineChart extends TemporalXAxisComponent {
         if (this.chartComponentData.displayState[site.data.aggregateKey].contextMenuActions && 
             this.chartComponentData.displayState[site.data.aggregateKey].contextMenuActions.length) {
             var mousePosition = d3.mouse(<any>this.targetElement.node());
+
+            let sitePageCoords;
+            if (this.hasBrush) {
+                sitePageCoords = this.brushElem.node().getBoundingClientRect();
+            } else {
+                sitePageCoords = this.voronoiRegion.node().getBoundingClientRect();
+            }
+            
+            let eventSite = {pageX: sitePageCoords.left + site[0], pageY: sitePageCoords.top + site[1] - 12}
+
             d3.event.preventDefault();
             this.contextMenu.draw(this.chartComponentData, this.renderTarget, this.chartOptions, 
                                 mousePosition, site.data.aggregateKey, site.data.splitBy, null,
-                                site.data.dateTime);
+                                site.data.dateTime, null, eventSite);
             if (this.brushContextMenu) {
                 this.brushContextMenu.hide();
             }
@@ -1513,14 +1524,13 @@ class LineChart extends TemporalXAxisComponent {
             var defs = this.svgSelection.append('defs');
             
             this.brushElem = null; 
-            var voronoiRegion;
             if (this.hasBrush) {
                 this.brushElem = g.append("g")
                     .attr("class", "brushElem");
                 this.brushElem.classed("hideBrushHandles", !this.chartOptions.brushHandlesVisible);
             } else {
                 //if there is no brushElem, the voronoi lives here
-                voronoiRegion = g.append("rect").classed("voronoiRect", true);
+                this.voronoiRegion = g.append("rect").classed("voronoiRect", true);
             }
     
             this.focus = g.append("g")
@@ -1652,8 +1662,8 @@ class LineChart extends TemporalXAxisComponent {
                     return new Date(ts);
                 });
 
-                if (voronoiRegion) {
-                    voronoiRegion.attr("x", xOffsetPercentage * this.chartWidth)
+                if (this.voronoiRegion) {
+                    this.voronoiRegion.attr("x", xOffsetPercentage * this.chartWidth)
                         .attr("y", this.chartOptions.aggTopMargin)
                         .attr("width", this.chartWidth - (xOffsetPercentage * this.chartWidth * 2))
                         .attr("height", this.chartHeight);
@@ -1773,7 +1783,7 @@ class LineChart extends TemporalXAxisComponent {
                         .extent([[0, 0], [this.chartWidth, this.chartHeight]]);
 
                     //if brushElem present then use the overlay, otherwise create a rect to put the voronoi on
-                    var voronoiSelection = (this.brushElem ? this.brushElem.select(".overlay") : voronoiRegion);
+                    var voronoiSelection = (this.brushElem ? this.brushElem.select(".overlay") : this.voronoiRegion);
                     
                     voronoiSelection.on("mousemove", function () {
                         let mouseEvent = d3.mouse(this);

@@ -20,7 +20,7 @@ class ContextMenu extends Component {
                                 .style("top", "0px");
     }
 
-	public draw(chartComponentData, renderTarget, options, mousePosition, aggKey, splitBy, onClick = null, startTime = null, endTime = null) {
+	public draw(chartComponentData, renderTarget, options, mousePosition, aggKey, splitBy, onClick = null, startTime = null, endTime = null, event = null) {
         this.contextMenuVisible = true;
 
         if (!endTime) {
@@ -54,7 +54,7 @@ class ContextMenu extends Component {
                     d.action(startTime, endTime);
                 } else {
                     var timestamp = this.startTime ?  this.startTime.toISOString().slice(0,-5)+"Z" : null;
-                    d.action(ae, splitBy, timestamp);
+                    d.action(ae, splitBy, timestamp, event);
                 }
             });
 
