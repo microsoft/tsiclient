@@ -271,6 +271,7 @@ class AvailabilityChart extends ChartComponent{
             window.addEventListener('resize', () => {
                 this.timePickerLineChart.draw();
                 this.setTicks();
+                this.drawWarmRange();
                 if (this.chartOptions.isCompact)
                     this.buildCompactFromAndTo();
                 setTimeout(() => {
@@ -321,6 +322,7 @@ class AvailabilityChart extends ChartComponent{
 
         this.timePickerLineChart.render(visibileAvailability, this.chartOptions, this.ae);
         this.setTicks();
+        this.drawWarmRange();
 
         if (!this.chartOptions.preserveAvailabilityState) {
             this.sparkLineChart.setBrushStartTime(new Date(this.fromMillis)); 
@@ -423,6 +425,41 @@ class AvailabilityChart extends ChartComponent{
             .attr("fill", this.chartOptions.color ? this.chartOptions.color : 'dark-grey')
             .attr("fill-opacity", .3)
             .attr("pointer-events", "none");
+    }
+
+    private drawWarmRange () {
+
+        var svgGroup = this.targetElement.select('.tsi-timePickerContainer').select(".tsi-lineChartSVG").select(".svgGroup");
+        if (svgGroup.select('.tsi-warmRect').empty()) {
+            svgGroup.append("rect")
+                .classed("tsi-warmRect", true);
+            svgGroup.select('.brushElem').raise();
+        }
+        let warmRect = svgGroup.select(".tsi-warmRect");
+ 
+        let outOfRange = true;
+        if (this.chartOptions.warmRange) {
+            let warmStart = new Date(this.chartOptions.warmRange[0]);
+            let boundedWarmStart = new Date(Math.max(warmStart.valueOf(), this.zoomedFromMillis));
+            let warmEnd = new Date(this.chartOptions.warmRange.length === 2 ? this.chartOptions.warmRange[1] : this.toMillis);
+            let boundedWarmEnd = new Date(Math.min(warmEnd.valueOf(), this.zoomedToMillis));
+
+            if (boundedWarmStart < boundedWarmEnd) {
+                outOfRange = false;
+                warmRect.attr("x", Math.max(this.timePickerLineChart.x(boundedWarmStart)))
+                    .attr("y", this.chartOptions.isCompact ? 12 : -8)
+                    .attr("width", this.timePickerLineChart.x(boundedWarmEnd) - this.timePickerLineChart.x(boundedWarmStart))
+                    .attr("height", this.chartOptions.isCompact ? 4 : (this.targetElement.select('.tsi-timePickerContainer').select(".tsi-lineChartSVG").attr("height") - 44))
+                    .attr("fill-opacity", this.chartOptions.isCompact ? 1 : .08)
+                    .attr('stroke-opacity', this.chartOptions.isCompact ? 0 : .5)
+                    .attr("pointer-events", "none");
+            } 
+        }
+        if (outOfRange || this.chartOptions.warmRange === null) {
+            warmRect.style('display', 'none');
+        } else {
+            warmRect.style('display', 'block');
+        }
     }
 
     private buildCompactFromAndTo () { 
@@ -561,6 +598,7 @@ class AvailabilityChart extends ChartComponent{
         }}};
         this.timePickerLineChart.render(visibileAvailability, this.chartOptions, [aeWithNewTimeSpan]);
         this.setTicks();
+        this.drawWarmRange();
         this.timePickerLineChart.setBrush();   
     }
 
