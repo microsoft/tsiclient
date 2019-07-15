@@ -1,0 +1,67 @@
+
+<!DOCTYPE html> 
+<html>
+    <head>
+        <title>Availability and Line Chart</title>
+        
+        <!-- boilerplate headers are injected with head.js, grab them from the live example header, or include a link to head.js -->
+        <script src="../boilerplate/head.js"></script>
+    </head>
+    <body style="font-family: 'Segoe UI', sans-serif;">
+        <div id="availability" style="width: 100%; height: 160px; z-index:1;"></div>
+        <button onclick="toggleCompact()">Toggle Compact</button>
+        <script>
+            var toggleCompact;
+            window.onload = function() {
+                
+                // create fake data in the shape our charts expect
+                var data = [];
+                var from = new Date();
+                var to;
+                for(var i = 0; i < 2; i++){
+                    var lines = {};
+                    data.push({[`Factory${i}`]: lines});
+                    for(var j = 1; j < 4; j++){
+                        var values = {};
+                        lines[`Station${j}`] = values;
+                        for(var k = 0; k < 60; k++){
+                            var to = new Date(from.valueOf() + 1000*60*60*k);
+                            var val = Math.random();
+                            values[to.toISOString()] = {avg: val};
+                        } 
+                    }
+                }
+
+                // render the data in a chart
+                var tsiClient = new TsiClient();
+
+                var availability = new tsiClient.ux.AvailabilityChart(document.getElementById('availability'));
+                var warmRange = [
+                    (new Date(from.valueOf() + 1000*60*60*12)).toISOString(), to.toISOString()
+                ];
+
+                var isCompact = false;
+
+                function renderAvailability (isCompact) {
+                    availability.render([{availabilityCount: {"": {}}}], 
+                                    {legend: 'hidden', theme: 'light', color: 'purple', offset: 'Local', isCompact: isCompact, warmRange: warmRange, preserveAvailabilityState: true}, 
+                                    {range: 
+                                        {
+                                            from: from.toISOString(), 
+                                            to: (new Date(from.valueOf() + 1000*60*60*24)).toISOString()
+                                        }, 
+                                    intervalSize: '1h'
+                                    }
+                                    );
+                }
+
+                toggleCompact = function () {
+                    isCompact = !isCompact;
+                    renderAvailability(isCompact);
+                }
+
+                renderAvailability(isCompact);
+            };
+        </script>
+    </body>
+</html>
