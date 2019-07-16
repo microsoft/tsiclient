@@ -270,14 +270,15 @@
             width: calc(100% - 19px) !important;
             margin: 8px 32px 8px 20px !important;
             padding: 6px 32px 6px 6px !important;
+            height: 34px;
         }
 
         .tsi-view-type {
             border: 1px solid #c1bdbd;
-            width: 32px;
-            height: 33px;
+            width: 34px;
+            height: 34px;
             display: none;
-            padding: 4px;
+            padding: 8px;
             align-items: center;
             animation: fade-in .2s ease-in-out;
             cursor: pointer;
