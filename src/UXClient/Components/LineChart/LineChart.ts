@@ -112,7 +112,7 @@ class LineChart extends TemporalXAxisComponent {
         };
     }
     
-    public nextStackState (){
+    public nextStackState = () => {
         this.chartOptions.yAxisState = this.nextStackedState();
         this.draw();
 
@@ -1445,7 +1445,7 @@ class LineChart extends TemporalXAxisComponent {
             this.chartMargins.top = 40;
         
         if (this.chartOptions.hideChartControlPanel) {
-            this.chartMargins.top += -28;
+            this.chartMargins.top += -24;
         }
 
         if (!this.chartOptions.brushRangeVisible && this.targetElement) {

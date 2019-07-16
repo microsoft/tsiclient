@@ -48,8 +48,8 @@ class ChartComponent extends Component {
 		}
 	}
 
-	public downloadAsCSV = () => {
-		Utils.downloadCSV(this.chartComponentData.generateCSVString(this.chartOptions.offset, this.chartOptions.dateLocale));
+	public downloadAsCSV = (isScatterPlot = false) => {
+		Utils.downloadCSV(this.chartComponentData.generateCSVString(this.chartOptions.offset, this.chartOptions.dateLocale, isScatterPlot ? this.chartOptions.spMeasures : null));
 	}
 
 	protected removeControlPanel () {
