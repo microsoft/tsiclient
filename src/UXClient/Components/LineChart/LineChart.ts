@@ -62,10 +62,16 @@ class LineChart extends TemporalXAxisComponent {
     private previousAggregateData: any = d3.local();
     private previousIncludeDots: any = d3.local();
     private voronoiDiagram;
+    private voronoiRegion;
     private mx = null;
     private my = null;
     private focusedAggKey: string = null;
     private focusedSplitby: string = null;
+
+    private eventSeriesWrappers;
+    private eventSeriesComponents;
+    private stateSeriesWrappers;
+    private stateSeriesComponents;
 
     private isFirstMarkerDrop = true;
     
@@ -797,10 +803,20 @@ class LineChart extends TemporalXAxisComponent {
         if (this.chartComponentData.displayState[site.data.aggregateKey].contextMenuActions && 
             this.chartComponentData.displayState[site.data.aggregateKey].contextMenuActions.length) {
             var mousePosition = d3.mouse(<any>this.targetElement.node());
+
+            let sitePageCoords;
+            if (this.hasBrush) {
+                sitePageCoords = this.brushElem.node().getBoundingClientRect();
+            } else {
+                sitePageCoords = this.voronoiRegion.node().getBoundingClientRect();
+            }
+            
+            let eventSite = {pageX: sitePageCoords.left + site[0], pageY: sitePageCoords.top + site[1] - 12}
+
             d3.event.preventDefault();
             this.contextMenu.draw(this.chartComponentData, this.renderTarget, this.chartOptions, 
                                 mousePosition, site.data.aggregateKey, site.data.splitBy, null,
-                                site.data.dateTime);
+                                site.data.dateTime, null, eventSite);
             if (this.brushContextMenu) {
                 this.brushContextMenu.hide();
             }
@@ -1452,6 +1468,7 @@ class LineChart extends TemporalXAxisComponent {
             this.deleteBrushRange();
         }
 
+        let eventsOrStatesChanged = (this.chartOptions.events !== this.events) || (this.chartOptions.states !== this.states);
         this.events = (this.chartOptions.events != undefined) ? this.chartOptions.events : null;
         this.states = (this.chartOptions.states != undefined) ? this.chartOptions.states : null;
         this.strokeOpacity = this.chartOptions.isArea ? .55 : 1;
@@ -1519,14 +1536,13 @@ class LineChart extends TemporalXAxisComponent {
             var defs = this.svgSelection.append('defs');
             
             this.brushElem = null; 
-            var voronoiRegion;
             if (this.hasBrush) {
                 this.brushElem = g.append("g")
                     .attr("class", "brushElem");
                 this.brushElem.classed("hideBrushHandles", !this.chartOptions.brushHandlesVisible);
             } else {
                 //if there is no brushElem, the voronoi lives here
-                voronoiRegion = g.append("rect").classed("voronoiRect", true);
+                this.voronoiRegion = g.append("rect").classed("voronoiRect", true);
             }
     
             this.focus = g.append("g")
@@ -1658,8 +1674,8 @@ class LineChart extends TemporalXAxisComponent {
                     return new Date(ts);
                 });
 
-                if (voronoiRegion) {
-                    voronoiRegion.attr("x", xOffsetPercentage * this.chartWidth)
+                if (this.voronoiRegion) {
+                    this.voronoiRegion.attr("x", xOffsetPercentage * this.chartWidth)
                         .attr("y", this.chartOptions.aggTopMargin)
                         .attr("width", this.chartWidth - (xOffsetPercentage * this.chartWidth * 2))
                         .attr("height", this.chartHeight);
@@ -1779,7 +1795,7 @@ class LineChart extends TemporalXAxisComponent {
                         .extent([[0, 0], [this.chartWidth, this.chartHeight]]);
 
                     //if brushElem present then use the overlay, otherwise create a rect to put the voronoi on
-                    var voronoiSelection = (this.brushElem ? this.brushElem.select(".overlay") : voronoiRegion);
+                    var voronoiSelection = (this.brushElem ? this.brushElem.select(".overlay") : this.voronoiRegion);
                     
                     voronoiSelection.on("mousemove", function () {
                         let mouseEvent = d3.mouse(this);
@@ -1849,12 +1865,12 @@ class LineChart extends TemporalXAxisComponent {
                         var eventSeries = namedEventSeries[name];
                         var isVisible = this.chartComponentData.displayState.events[namedEventSeries.key].visible;
                         visibleEventsCount += (isVisible) ? 1 : 0;
-                        eventSeriesWrappers[i].style("width", this.chartWidth  + 'px')
+                        this.eventSeriesWrappers[i].style("width", this.chartWidth  + 'px')
                             .style("height", d => isVisible ? '10px' : '0px')
                             .style("visibility", d => isVisible ? "visible" : "hidden")
                             .style("right", this.chartMargins.right  + 'px')
                             .style("bottom", this.chartMargins.bottom + this.timelineHeight - (visibleEventsCount * 10)  + 'px');
-                        eventSeriesComponents[i].render(namedEventSeries, {timeFrame: {from : xExtent[0], to: xExtent[1]}, 
+                        this.eventSeriesComponents[i].render(namedEventSeries, {timeFrame: {from : xExtent[0], to: xExtent[1]}, 
                                                         xAxisHidden: true, theme: this.chartOptions.theme, 
                                                         offset: this.chartOptions.offset});
                     });
@@ -1866,12 +1882,12 @@ class LineChart extends TemporalXAxisComponent {
                         var stateSeries = namedStateSeries[name];
                         var isVisible = this.chartComponentData.displayState.states[namedStateSeries.key].visible;
                         visibleStatesCount += (isVisible) ? 1 : 0;
-                        stateSeriesWrappers[i].style("width", this.chartWidth + 'px')
+                        this.stateSeriesWrappers[i].style("width", this.chartWidth + 'px')
                             .style("height", d => this.chartComponentData.displayState.states[namedStateSeries.key].visible ? '10px' : '0px')
                             .style("visibility", d => this.chartComponentData.displayState.states[namedStateSeries.key].visible ? "visible" : "hidden")
                             .style("right", this.chartMargins.right + 'px')
                             .style("bottom", this.chartMargins.bottom + this.timelineHeight - ((visibleEventsCount * 10) + (visibleStatesCount * 10))  + 'px');
-                        stateSeriesComponents[i].render(namedStateSeries, {timeFrame: {from : xExtent[0], to: xExtent[1]}, 
+                        this.stateSeriesComponents[i].render(namedStateSeries, {timeFrame: {from : xExtent[0], to: xExtent[1]}, 
                                                                            offset: this.chartOptions.offset,
                                                                            xAxisHidden: true, theme: this.chartOptions.theme});
                     });
@@ -1903,37 +1919,11 @@ class LineChart extends TemporalXAxisComponent {
                     });
                 }
             });
+        }
 
-            var eventSeriesWrappers;
-            var eventSeriesComponents;
-            if (this.events && this.events.length > 0) {
-                eventSeriesWrappers = this.events.map((events, i) => {
-                    return this.targetElement.append("div").attr("class", "tsi-lineChartEventsWrapper");
-                });
-                eventSeriesComponents = this.events.map((eSC, i) => {
-                    return (new EventSeries(<any>eventSeriesWrappers[i].node()));
-                });
-            }
-            else {
-                eventSeriesWrappers = [];
-                eventSeriesComponents = [];
-            }
-
-            var stateSeriesWrappers;
-            var stateSeriesComponents;
-            if (this.states && this.states.length > 0) {
-                stateSeriesWrappers = this.states.map((state, i) => {
-                    return this.targetElement.append("div").attr("class", "tsi-lineChartStatesWrapper");
-                });
-                stateSeriesComponents = this.states.map((tSC, i) => {
-                    return (new StateSeries(<any>stateSeriesWrappers[i].node()));
-                });
-            } 
-            else {
-                stateSeriesWrappers = [];
-                stateSeriesComponents = [];
-            }
-        }    
+        if (eventsOrStatesChanged) {
+            this.drawEventsAndSeries();
+        }
 
         this.chartComponentData.mergeDataToDisplayStateAndTimeArrays(this.data, this.aggregateExpressionOptions, this.events, this.states);
         this.draw();
@@ -1948,6 +1938,37 @@ class LineChart extends TemporalXAxisComponent {
                 this.ellipsisMenu.setMenuVisibility(false);
             }
         });
+    }
+
+    private drawEventsAndSeries () {
+        this.targetElement.selectAll('.tsi-lineChartEventsWrapper').remove();
+        this.targetElement.selectAll('.tsi-lineChartStatesWrapper').remove();
+        if (this.events && this.events.length > 0) {
+            
+            this.eventSeriesWrappers = this.events.map((events, i) => {
+                return this.targetElement.append("div").attr("class", "tsi-lineChartEventsWrapper");
+            });
+            this.eventSeriesComponents = this.events.map((eSC, i) => {
+                return (new EventSeries(<any>this.eventSeriesWrappers[i].node()));
+            });
+        }
+        else {
+            this.eventSeriesWrappers = [];
+            this.eventSeriesComponents = [];
+        }
+
+        if (this.states && this.states.length > 0) {
+            this.stateSeriesWrappers = this.states.map((state, i) => {
+                return this.targetElement.append("div").attr("class", "tsi-lineChartStatesWrapper");
+            });
+            this.stateSeriesComponents = this.states.map((tSC, i) => {
+                return (new StateSeries(<any>this.stateSeriesWrappers[i].node()));
+            });
+        } 
+        else {
+            this.stateSeriesWrappers = [];
+            this.stateSeriesComponents = [];
+        }
     }
 }
 export {LineChart}

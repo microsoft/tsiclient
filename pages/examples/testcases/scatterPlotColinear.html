@@ -1,0 +1,383 @@
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Scatter Plot</title>
+
+        <!-- boilerplate headers are injected with head.js, grab them from the live example header, or include a link to head.js -->
+        <script src="../boilerplate/head.js"></script>
+    </head>
+    <body style="font-family: 'Segoe UI', sans-serif;">
+        <div id="chart1" style="width: 100%; height: 600px;"></div>
+        <div id="temporalToggle" class = "buttonWrapper" style= "margin-top: 50px; display: none;align-items: center; justify-content: center;"><button onclick="toggleTemporal()">Toggle Temporal</button></div>
+
+        <script>
+            let temporal = false;
+            let toggleTemporal = null;
+            window.onload = function() {
+
+              let testData = JSON.parse(`{
+                "Value vs Value vs Value": {
+                  "": {
+                    "2019-03-12T23:08:00.000Z": {
+                      "Sensor_57 Value": 29.984149720068615,
+                      "Sensor_57 Value (1)": 29.984149720068615,
+                      "Sensor_58 Value": 6.75822530571174
+                    },
+                    "2019-03-12T23:12:00.000Z": {
+                      "Sensor_57 Value": 29.93444399150067,
+                      "Sensor_57 Value (1)": 29.93444399150067,
+                      "Sensor_58 Value": 4.695023834179498
+                    },
+                    "2019-03-12T23:16:00.000Z": {
+                      "Sensor_57 Value": 29.920451570388806,
+                      "Sensor_57 Value (1)": 29.920451570388806,
+                      "Sensor_58 Value": 3.5130225565362885
+                    },
+                    "2019-03-12T23:20:00.000Z": {
+                      "Sensor_57 Value": 29.878094791186125,
+                      "Sensor_57 Value (1)": 29.878094791186125,
+                      "Sensor_58 Value": 1.7138553663792913
+                    },
+                    "2019-03-12T23:24:00.000Z": {
+                      "Sensor_57 Value": 29.719393772467313,
+                      "Sensor_57 Value (1)": 29.719393772467313,
+                      "Sensor_58 Value": 1.694668491081256
+                    },
+                    "2019-03-12T23:28:00.000Z": {
+                      "Sensor_57 Value": 29.80115006851301,
+                      "Sensor_57 Value (1)": 29.80115006851301,
+                      "Sensor_58 Value": 0.4438137536472618
+                    },
+                    "2019-03-12T23:32:00.000Z": {
+                      "Sensor_57 Value": 29.706709887294295,
+                      "Sensor_57 Value (1)": 29.706709887294295,
+                      "Sensor_58 Value": 1.2879423926958646
+                    },
+                    "2019-03-12T23:36:00.000Z": {
+                      "Sensor_57 Value": 29.71807040310676,
+                      "Sensor_57 Value (1)": 29.71807040310676,
+                      "Sensor_58 Value": 0.5248651343930136
+                    },
+                    "2019-03-12T23:40:00.000Z": {
+                      "Sensor_57 Value": 29.6079713452888,
+                      "Sensor_57 Value (1)": 29.6079713452888,
+                      "Sensor_58 Value": 3.515767288191935
+                    },
+                    "2019-03-12T23:44:00.000Z": {
+                      "Sensor_57 Value": 29.51938421568646,
+                      "Sensor_57 Value (1)": 29.51938421568646,
+                      "Sensor_58 Value": 3.2472326771774185
+                    },
+                    "2019-03-12T23:48:00.000Z": {
+                      "Sensor_57 Value": 29.579641085984957,
+                      "Sensor_57 Value (1)": 29.579641085984957,
+                      "Sensor_58 Value": 1.7448956705708218
+                    },
+                    "2019-03-12T23:52:00.000Z": {
+                      "Sensor_57 Value": 29.594495999799282,
+                      "Sensor_57 Value (1)": 29.594495999799282,
+                      "Sensor_58 Value": 3.9252486846030004
+                    },
+                    "2019-03-12T23:56:00.000Z": {
+                      "Sensor_57 Value": 29.61525586216651,
+                      "Sensor_57 Value (1)": 29.61525586216651,
+                      "Sensor_58 Value": 1.8533116278130153
+                    },
+                    "2019-03-13T00:00:00.000Z": {
+                      "Sensor_57 Value": 29.688967446258165,
+                      "Sensor_57 Value (1)": 29.688967446258165,
+                      "Sensor_58 Value": 2.4782218006098886
+                    },
+                    "2019-03-13T00:04:00.000Z": {
+                      "Sensor_57 Value": 29.623953760517125,
+                      "Sensor_57 Value (1)": 29.623953760517125,
+                      "Sensor_58 Value": 5.621445043575257
+                    },
+                    "2019-03-13T00:08:00.000Z": {
+                      "Sensor_57 Value": 29.466861800002686,
+                      "Sensor_57 Value (1)": 29.466861800002686,
+                      "Sensor_58 Value": 8.445431627991459
+                    },
+                    "2019-03-13T00:12:00.000Z": {
+                      "Sensor_57 Value": 29.344704499453226,
+                      "Sensor_57 Value (1)": 29.344704499453226,
+                      "Sensor_58 Value": 12.068903339708944
+                    },
+                    "2019-03-13T00:16:00.000Z": {
+                      "Sensor_57 Value": 29.225017703918343,
+                      "Sensor_57 Value (1)": 29.225017703918343,
+                      "Sensor_58 Value": 10.263264552969778
+                    },
+                    "2019-03-13T00:20:00.000Z": {
+                      "Sensor_57 Value": 29.317632327692717,
+                      "Sensor_57 Value (1)": 29.317632327692717,
+                      "Sensor_58 Value": 10.721384782740122
+                    },
+                    "2019-03-13T00:24:00.000Z": {
+                      "Sensor_57 Value": 29.409549839999546,
+                      "Sensor_57 Value (1)": 29.409549839999546,
+                      "Sensor_58 Value": 14.812445687083331
+                    },
+                    "2019-03-13T00:28:00.000Z": {
+                      "Sensor_57 Value": 29.31536938799505,
+                      "Sensor_57 Value (1)": 29.31536938799505,
+                      "Sensor_58 Value": 16.348123029246747
+                    },
+                    "2019-03-13T00:32:00.000Z": {
+                      "Sensor_57 Value": 29.303962427846542,
+                      "Sensor_57 Value (1)": 29.303962427846542,
+                      "Sensor_58 Value": 23.134534166070335
+                    },
+                    "2019-03-13T00:36:00.000Z": {
+                      "Sensor_57 Value": 29.259050912359545,
+                      "Sensor_57 Value (1)": 29.259050912359545,
+                      "Sensor_58 Value": 22.9428168266689
+                    },
+                    "2019-03-13T00:40:00.000Z": {
+                      "Sensor_57 Value": 29.16450447161759,
+                      "Sensor_57 Value (1)": 29.16450447161759,
+                      "Sensor_58 Value": 16.873645355159503
+                    },
+                    "2019-03-13T00:44:00.000Z": {
+                      "Sensor_57 Value": 29.172222802031342,
+                      "Sensor_57 Value (1)": 29.172222802031342,
+                      "Sensor_58 Value": 18.76852520589891
+                    },
+                    "2019-03-13T00:48:00.000Z": {
+                      "Sensor_57 Value": 29.185844057052794,
+                      "Sensor_57 Value (1)": 29.185844057052794,
+                      "Sensor_58 Value": 13.161911333955208
+                    },
+                    "2019-03-13T00:52:00.000Z": {
+                      "Sensor_57 Value": 29.276654118834035,
+                      "Sensor_57 Value (1)": 29.276654118834035,
+                      "Sensor_58 Value": 10.15655794453754
+                    },
+                    "2019-03-13T00:56:00.000Z": {
+                      "Sensor_57 Value": 29.4046587179524,
+                      "Sensor_57 Value (1)": 29.4046587179524,
+                      "Sensor_58 Value": 15.483734344849912
+                    },
+                    "2019-03-13T01:00:00.000Z": {
+                      "Sensor_57 Value": 29.30019148198835,
+                      "Sensor_57 Value (1)": 29.30019148198835,
+                      "Sensor_58 Value": 11.586943827548945
+                    },
+                    "2019-03-13T01:04:00.000Z": {
+                      "Sensor_57 Value": 29.288639005682313,
+                      "Sensor_57 Value (1)": 29.288639005682313,
+                      "Sensor_58 Value": 9.58659998515951
+                    },
+                    "2019-03-13T01:08:00.000Z": {
+                      "Sensor_57 Value": 29.258250502443342,
+                      "Sensor_57 Value (1)": 29.258250502443342,
+                      "Sensor_58 Value": 5.844103059126046
+                    },
+                    "2019-03-13T01:12:00.000Z": {
+                      "Sensor_57 Value": 29.237984208662542,
+                      "Sensor_57 Value (1)": 29.237984208662542,
+                      "Sensor_58 Value": 2.7849698099060753
+                    },
+                    "2019-03-13T01:16:00.000Z": {
+                      "Sensor_57 Value": 29.04936793147694,
+                      "Sensor_57 Value (1)": 29.04936793147694,
+                      "Sensor_58 Value": 1.4033041785389067
+                    },
+                    "2019-03-13T01:20:00.000Z": {
+                      "Sensor_57 Value": 29.04310921032672,
+                      "Sensor_57 Value (1)": 29.04310921032672,
+                      "Sensor_58 Value": 1.2417747812153255
+                    },
+                    "2019-03-13T01:24:00.000Z": {
+                      "Sensor_57 Value": 29.125096884857395,
+                      "Sensor_57 Value (1)": 29.125096884857395,
+                      "Sensor_58 Value": 2.9098144200276947
+                    },
+                    "2019-03-13T01:28:00.000Z": {
+                      "Sensor_57 Value": 29.11051422354683,
+                      "Sensor_57 Value (1)": 29.11051422354683,
+                      "Sensor_58 Value": 5.237197421214539
+                    },
+                    "2019-03-13T01:32:00.000Z": {
+                      "Sensor_57 Value": 29.110578296226652,
+                      "Sensor_57 Value (1)": 29.110578296226652,
+                      "Sensor_58 Value": 8.415075218547907
+                    },
+                    "2019-03-13T01:36:00.000Z": {
+                      "Sensor_57 Value": 29.138526119683956,
+                      "Sensor_57 Value (1)": 29.138526119683956,
+                      "Sensor_58 Value": 8.875790802343003
+                    },
+                    "2019-03-13T01:40:00.000Z": {
+                      "Sensor_57 Value": 29.118877188171542,
+                      "Sensor_57 Value (1)": 29.118877188171542,
+                      "Sensor_58 Value": 4.6225583327191115
+                    },
+                    "2019-03-13T01:44:00.000Z": {
+                      "Sensor_57 Value": 29.135670606252955,
+                      "Sensor_57 Value (1)": 29.135670606252955,
+                      "Sensor_58 Value": 6.827718659449954
+                    },
+                    "2019-03-13T01:48:00.000Z": {
+                      "Sensor_57 Value": 29.082710525288757,
+                      "Sensor_57 Value (1)": 29.082710525288757,
+                      "Sensor_58 Value": 11.351940365633405
+                    },
+                    "2019-03-13T01:52:00.000Z": {
+                      "Sensor_57 Value": 29.03044588755021,
+                      "Sensor_57 Value (1)": 29.03044588755021,
+                      "Sensor_58 Value": 12.482359785939146
+                    },
+                    "2019-03-13T01:56:00.000Z": {
+                      "Sensor_57 Value": 29.15601670085121,
+                      "Sensor_57 Value (1)": 29.15601670085121,
+                      "Sensor_58 Value": 10.200328587653614
+                    },
+                    "2019-03-13T02:00:00.000Z": {
+                      "Sensor_57 Value": 29.291808844768564,
+                      "Sensor_57 Value (1)": 29.291808844768564,
+                      "Sensor_58 Value": 6.181647306393271
+                    },
+                    "2019-03-13T02:04:00.000Z": {
+                      "Sensor_57 Value": 29.44746946914238,
+                      "Sensor_57 Value (1)": 29.44746946914238,
+                      "Sensor_58 Value": 5.55941618785524
+                    },
+                    "2019-03-13T02:08:00.000Z": {
+                      "Sensor_57 Value": 29.426448876788623,
+                      "Sensor_57 Value (1)": 29.426448876788623,
+                      "Sensor_58 Value": 3.4463341052138596
+                    },
+                    "2019-03-13T02:12:00.000Z": {
+                      "Sensor_57 Value": 29.460490596968146,
+                      "Sensor_57 Value (1)": 29.460490596968146,
+                      "Sensor_58 Value": 5.176837372845106
+                    },
+                    "2019-03-13T02:16:00.000Z": {
+                      "Sensor_57 Value": 29.354835350212216,
+                      "Sensor_57 Value (1)": 29.354835350212216,
+                      "Sensor_58 Value": 9.468103553853563
+                    },
+                    "2019-03-13T02:20:00.000Z": {
+                      "Sensor_57 Value": 29.26888916908955,
+                      "Sensor_57 Value (1)": 29.26888916908955,
+                      "Sensor_58 Value": 10.275830886346307
+                    },
+                    "2019-03-13T02:24:00.000Z": {
+                      "Sensor_57 Value": 29.197190927563685,
+                      "Sensor_57 Value (1)": 29.197190927563685,
+                      "Sensor_58 Value": 16.054426722922596
+                    },
+                    "2019-03-13T02:28:00.000Z": {
+                      "Sensor_57 Value": 29.187559275755955,
+                      "Sensor_57 Value (1)": 29.187559275755955,
+                      "Sensor_58 Value": 16.588804951750443
+                    },
+                    "2019-03-13T02:32:00.000Z": {
+                      "Sensor_57 Value": 29.168068461791677,
+                      "Sensor_57 Value (1)": 29.168068461791677,
+                      "Sensor_58 Value": 19.786324754638375
+                    },
+                    "2019-03-13T02:36:00.000Z": {
+                      "Sensor_57 Value": 29.23277357452689,
+                      "Sensor_57 Value (1)": 29.23277357452689,
+                      "Sensor_58 Value": 26.457168702711
+                    },
+                    "2019-03-13T02:40:00.000Z": {
+                      "Sensor_57 Value": 29.13259474293611,
+                      "Sensor_57 Value (1)": 29.13259474293611,
+                      "Sensor_58 Value": 26.370268995156835
+                    },
+                    "2019-03-13T02:44:00.000Z": {
+                      "Sensor_57 Value": 29.070939279436846,
+                      "Sensor_57 Value (1)": 29.070939279436846,
+                      "Sensor_58 Value": 25.04944984297789
+                    },
+                    "2019-03-13T02:48:00.000Z": {
+                      "Sensor_57 Value": 29.169747563224096,
+                      "Sensor_57 Value (1)": 29.169747563224096,
+                      "Sensor_58 Value": 28.954987768031614
+                    },
+                    "2019-03-13T02:52:00.000Z": {
+                      "Sensor_57 Value": 29.382104184880166,
+                      "Sensor_57 Value (1)": 29.382104184880166,
+                      "Sensor_58 Value": 29.594729781416422
+                    },
+                    "2019-03-13T02:56:00.000Z": {
+                      "Sensor_57 Value": 29.394450831954668,
+                      "Sensor_57 Value (1)": 29.394450831954668,
+                      "Sensor_58 Value": 33.66383848640868
+                    },
+                    "2019-03-13T03:00:00.000Z": {
+                      "Sensor_57 Value": 29.227006976487285,
+                      "Sensor_57 Value (1)": 29.227006976487285,
+                      "Sensor_58 Value": 34.55634762736122
+                    },
+                    "2019-03-13T03:04:00.000Z": {
+                      "Sensor_57 Value": 29.22171500142014,
+                      "Sensor_57 Value (1)": 29.22171500142014,
+                      "Sensor_58 Value": 39.820520768197895
+                    },
+                    "2019-03-13T03:08:00.000Z": {
+                      "Sensor_57 Value": 29.188468393575278,
+                      "Sensor_57 Value (1)": 29.188468393575278,
+                      "Sensor_58 Value": 43.85736600910794
+                    },
+                    "2019-03-13T03:12:00.000Z": {
+                      "Sensor_57 Value": 29.151050257633624,
+                      "Sensor_57 Value (1)": 29.151050257633624,
+                      "Sensor_58 Value": 46.255481368663744
+                    },
+                    "2019-03-13T03:16:00.000Z": {
+                      "Sensor_57 Value": 29.27293083703948,
+                      "Sensor_57 Value (1)": 29.27293083703948,
+                      "Sensor_58 Value": 47.53005258768269
+                    },
+                    "2019-03-13T03:20:00.000Z": {
+                      "Sensor_57 Value": 29.3486143337162,
+                      "Sensor_57 Value (1)": 29.3486143337162,
+                      "Sensor_58 Value": 47.107773014132796
+                    },
+                    "2019-03-13T03:24:00.000Z": {
+                      "Sensor_57 Value": 29.356982335999515,
+                      "Sensor_57 Value (1)": 29.356982335999515,
+                      "Sensor_58 Value": 49.74140896037818
+                    },
+                    "2019-03-13T03:28:00.000Z": {
+                      "Sensor_57 Value": 29.44582597415618,
+                      "Sensor_57 Value (1)": 29.44582597415618,
+                      "Sensor_58 Value": 50.75213086829823
+                    },
+                    "2019-03-13T03:32:00.000Z": {
+                      "Sensor_57 Value": 29.482133094919597,
+                      "Sensor_57 Value (1)": 29.482133094919597,
+                      "Sensor_58 Value": 56.835647896357614
+                    }
+                  }
+                }
+              }`);
+                // Show toggle
+                document.getElementById("temporalToggle").style.display = "flex";
+                // create fake data in the shape our charts expect
+                let iteration = 0;
+
+                let getRandomBoolean = () => Math.random() > 0.5 ? true : false;
+
+                // render the data in a chart
+                let tsiClient = new TsiClient();
+
+                let scatterPlot =  new tsiClient.ux.ScatterPlot(document.getElementById('chart1'));
+
+                let renderScatterPlot = () => scatterPlot.render([testData], {legend: 'shown', spAxisLabels: ['Sensor_57 Value', 'Sensor_57 Value (1)'], noAnimate: false, isTemporal: temporal, grid: true, tooltip: true, theme: 'light', spMeasures: ['Sensor_57 Value', 'Sensor_57 Value (1)', 'Sensor_58 Value']});
+
+                renderScatterPlot();
+
+                toggleTemporal = () => {
+                    temporal = !temporal;
+                    renderScatterPlot();
+                }
+            };
+        </script>
+    </body>
+</html>

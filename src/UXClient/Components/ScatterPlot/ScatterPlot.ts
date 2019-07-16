@@ -261,14 +261,14 @@ class ScatterPlot extends ChartComponent {
         let yExtentRange = this.chartComponentData.extents[this.yMeasure][1] - this.chartComponentData.extents[this.yMeasure][0];
 
         // Pad extents
-        let xOffset = (20 / this.chartWidth) * (xExtentRange < 1 ? 1 : xExtentRange);
-        let yOffset = (20 / this.chartHeight) * (yExtentRange < 1 ? 1 : yExtentRange);
+        let xOffset = (20 / this.chartWidth) * (xExtentRange == 0 ? 1 : xExtentRange);
+        let yOffset = (20 / this.chartHeight) * (yExtentRange == 0 ? 1: yExtentRange);
 
         let rOffset = null;
 
         if(this.rMeasure){
             let rExtentRange = this.chartComponentData.extents[this.rMeasure][1] - this.chartComponentData.extents[this.rMeasure][0];
-            rOffset = (20 / this.chartHeight) * (rExtentRange < 1 ? 1 : rExtentRange);
+            rOffset = (20 / this.chartHeight) * (rExtentRange == 0 ? 1 : rExtentRange);
         }
 
         // Check measure validity
@@ -390,10 +390,16 @@ class ScatterPlot extends ChartComponent {
     private drawVoronoi(){
         let voronoiData = this.getVoronoiData(this.chartComponentData.temporalDataArray);
         let self = this;
+
+        // Create random offset to solve colinear data issue
+        const getRandomInRange = (min, max) => {
+            return Math.random() * (max - min) + min;
+        }
+        const getOffset = () => (Math.random() < 0.5 ? -1 : 1) * getRandomInRange(0, .01);
         
         this.voronoi = d3.voronoi()
-            .x((d:any) => this.xScale(d.measures[this.xMeasure]))
-            .y((d:any) => this.yScale(d.measures[this.yMeasure]))
+            .x((d:any) => this.xScale(d.measures[this.xMeasure]) + getOffset())
+            .y((d:any) => this.yScale(d.measures[this.yMeasure]) + getOffset())
             .extent([[0, 0], [this.chartWidth, this.chartHeight]]);
 
         this.voronoiDiagram = this.voronoi(voronoiData);
