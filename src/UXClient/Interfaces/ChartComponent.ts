@@ -48,6 +48,10 @@ class ChartComponent extends Component {
 		}
 	}
 
+	public downloadAsCSV = () => {
+		Utils.downloadCSV(this.chartComponentData.generateCSVString(this.chartOptions.offset, this.chartOptions.dateLocale));
+	}
+
 	protected removeControlPanel () {
 		if (this.chartControlsPanel) {
 			this.chartControlsPanel.remove();

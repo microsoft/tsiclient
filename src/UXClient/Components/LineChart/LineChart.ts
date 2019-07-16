@@ -110,7 +110,19 @@ class LineChart extends TemporalXAxisComponent {
             leftPos: leftPos,
             rightPos: rightPos
         };
-    } 
+    }
+    
+    public nextStackState (){
+        this.chartOptions.yAxisState = this.nextStackedState();
+        this.draw();
+
+        if (this.chartOptions.yAxisState == "stacked") 
+            return "shared";
+        else if (this.chartOptions.yAxisState == "shared")
+            return "overlap";
+        else  
+            return "stacked";
+    }
 
     private voronoiMouseout (d: any)  {
         //supress if the context menu is visible
@@ -695,7 +707,7 @@ class LineChart extends TemporalXAxisComponent {
         return scooter;
     }
 
-    private scooterButtonClick = () => {
+    public scooterButtonClick = () => {
         if (this.isFirstMarkerDrop) {
             this.isFirstMarkerDrop = false;
             this.createMarkerInstructions();
