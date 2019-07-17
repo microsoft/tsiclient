@@ -107,14 +107,11 @@
     &.tsi-dark{
         $grays: grays('dark');
         @include hierarchyColors($grays);
-        .tsi-caret-icon {
+        .tsi-caret-icon, .tsi-down-caret-icon {
             background-image: url(../../Icons/CaretClosed_Dark_Theme.svg);
         }
         .tsi-pin-icon {
             background-image: url(../../Icons/Pin_Icon_Dark_Theme.svg);
-        }
-        .tsi-down-caret-icon {
-            background-image: url(../../Icons/Down_Icon_Dark_Theme.svg);
         }
         .tsi-close {
             background-image: url(../../Icons/Close_Icon_Dark_Theme.svg);
@@ -131,15 +128,11 @@
     &.tsi-light{
         $grays: grays('light');
         @include hierarchyColors($grays);
-        .tsi-caret-icon{
+        .tsi-caret-icon, .tsi-down-caret-icon{
             background-image: url(../../Icons/CaretClosed_Light_Theme.svg);
         }
         .tsi-pin-icon {
             background-image: url(../../Icons/Pin_Icon_Light_Theme.svg);
-        }
-
-        .tsi-down-caret-icon {
-            background-image: url(../../Icons/Down_Icon_Light_Theme.svg);
         }
 
         .tsi-close {
@@ -407,10 +400,11 @@
     }
 
     .tsi-down-caret-icon {
-        height: 10px;
-        width: 10px;
+        height: 14px;
+        width: 14px;
         background-repeat: no-repeat;
         background-size: cover;
+        transform: rotate(90deg);
     }
 
     .tsi-close, .tsi-list-icon, .tsi-tree-icon {
