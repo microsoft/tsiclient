@@ -1,0 +1,55 @@
+
+<!DOCTYPE html> 
+<html>
+    <head>
+        <!-- boilerplate headers are injected with head.js, grab them from the live example header, or include a link to head.js -->
+        <script src="../boilerplate/head.js"></script>
+
+        <script src="../boilerplate/auth.js"></script>
+
+    </head>
+    <body style="font-family: 'Segoe UI', sans-serif;">
+        Charts without chartoptions and chartdataoptions should always render
+        <div id="chart1" style="width: 100%; height: 200px; margin-top: 100px;"></div>
+        <div id="chart2" style="width: 100%; height: 200px;"></div>
+        <div id="chart3" style="width: 100%; height: 200px;"></div>
+
+        <script>      
+            function renderAvailability (tsiClient, serverResponse, chart) {
+                var result = {};
+                if ('availability' in serverResponse) {
+                    var range = serverResponse.availability.range;
+                    result = serverResponse.availability;
+                }
+                var transformedAvailability = tsiClient.ux.transformAvailabilityForVisualization(result, 500);
+                chart.render(transformedAvailability,  {legend: 'hidden', theme: 'light', color: 'purple', offset: 'Local', isCompact: false}, serverResponse.availability);                
+            }
+
+
+            window.onload = function() {
+                initAuth('Availability chart test');  // initiate auth objects, header, and login modal
+                
+                var tsiClient = new TsiClient();
+                var warmEndpoint = "?api-version=2018-11-01-preview&storeType=WarmStore";
+                var coldEndpoint = "?api-version=2018-11-01-preview&storeType=ColdStore";
+                var environmentFqdn = '44be7d4d-96ab-43db-9435-2333335e56e5.env.crystal-dev.windows-int.net';
+                
+                var coldAvailability = new tsiClient.ux.AvailabilityChart(document.getElementById('chart1'));
+                var warmAvailability = new tsiClient.ux.AvailabilityChart(document.getElementById('chart2'));
+                var mergedAvailability = new tsiClient.ux.AvailabilityChart(document.getElementById('chart3'));
+
+                authContext.getTsiToken().then(function(token){                
+                    tsiClient.server.getAvailability(token, environmentFqdn, warmEndpoint).then(function (warmResponse) {
+                        renderAvailability(tsiClient, warmResponse, warmAvailability);
+                        tsiClient.server.getAvailability(token, environmentFqdn, coldEndpoint).then(function (coldResponse) {
+                            renderAvailability(tsiClient, coldResponse, coldAvailability);
+
+                            let mergedResponse = tsiClient.utils.mergeAvailabilities(warmResponse.availability, coldResponse.availability);
+                            renderAvailability(tsiClient, {availability: mergedResponse}, mergedAvailability);
+                        });
+                    });
+                });
+            };
+        </script>
+    </body>
+</html>
