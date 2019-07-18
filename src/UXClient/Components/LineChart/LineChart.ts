@@ -119,7 +119,7 @@ class LineChart extends TemporalXAxisComponent {
     }
 
     public changeStackState = (newState) => {
-        if(newState in ["stacked", "shared", "overlap"]){
+        if(["stacked", "shared", "overlap"].indexOf(newState) != -1){
             this.chartOptions.yAxisState = newState;
             this.draw();
         }
