@@ -117,17 +117,12 @@ class LineChart extends TemporalXAxisComponent {
             rightPos: rightPos
         };
     }
-    
-    public nextStackState = () => {
-        this.chartOptions.yAxisState = this.nextStackedState();
-        this.draw();
 
-        if (this.chartOptions.yAxisState == "stacked") 
-            return "shared";
-        else if (this.chartOptions.yAxisState == "shared")
-            return "overlap";
-        else  
-            return "stacked";
+    public changeStackState = (newState) => {
+        if(newState in ["stacked", "shared", "overlap"]){
+            this.chartOptions.yAxisState = newState;
+            this.draw();
+        }
     }
 
     private voronoiMouseout (d: any)  {
