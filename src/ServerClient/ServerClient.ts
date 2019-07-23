@@ -1,4 +1,5 @@
 import * as Promise from 'promise-polyfill';
+import { Utils } from '../UXClient/Utils';
 
 class ServerClient {
     private apiVersionUrlParam = "?api-version=2016-12-12";
@@ -214,9 +215,29 @@ class ServerClient {
         return this.createPromiseFromXhr(uri, "POST", payload, token, (responseText) => {return JSON.parse(responseText).properties;});
     }
 
-    public getAvailability(token: string, environmentFqdn: string, apiVersion: string = this.apiVersionUrlParam) {
-        var uri = 'https://' + environmentFqdn + '/availability' + apiVersion;
-        return this.createPromiseFromXhr(uri, "GET", {}, token, (responseText) => {return JSON.parse(responseText);});
+    public getAvailability(token: string, environmentFqdn: string, apiVersion: string = this.apiVersionUrlParam, hasWarm: boolean = true) {
+        let uriBase = 'https://' + environmentFqdn + '/availability';
+        let coldUri = uriBase + apiVersion + (hasWarm ? '&storeType=ColdStore' : '');
+
+        return new Promise((resolve: any, reject: any) => {
+            this.createPromiseFromXhr(coldUri, "GET", {}, token, (responseText) => {return JSON.parse(responseText);}).then((coldResponse) => {
+                if (hasWarm) {
+                    let warmUri = uriBase + apiVersion + '&storeType=WarmStore';
+                    this.createPromiseFromXhr(warmUri, "GET", {}, token, (responseText) => {return JSON.parse(responseText);}).then(function (warmResponse) {
+                        let availability = warmResponse ? warmResponse.availability : null ;
+                        if (coldResponse.availability) {
+                            availability = Utils.mergeAvailabilities(warmResponse.availability, coldResponse.availability);
+                            if (warmResponse.availability.range) {
+                                availability['warmRange'] = [warmResponse.availability.range.from, warmResponse.availability.range.to]; 
+                            }
+                        } 
+                        resolve({availability: availability});
+                    });    
+                } else {
+                    resolve(coldResponse);
+                }
+            });
+        });
     }
 
     public getEvents(token: string, environmentFqdn: string, predicateObject,  options: any, minMillis, maxMillis) {

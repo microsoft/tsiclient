@@ -22,7 +22,7 @@
                     result = serverResponse.availability;
                 }
                 var transformedAvailability = tsiClient.ux.transformAvailabilityForVisualization(result, 500);
-                chart.render(transformedAvailability,  {legend: 'hidden', theme: 'light', color: 'purple', offset: 'Local', isCompact: false}, serverResponse.availability);                
+                chart.render(transformedAvailability,  {legend: 'hidden', theme: 'light', color: 'purple', offset: 'Local', isCompact: false, warmRange: result.warmRange}, serverResponse.availability);                
             }
 
 
@@ -30,7 +30,7 @@
                 initAuth('Availability chart test');  // initiate auth objects, header, and login modal
                 
                 var tsiClient = new TsiClient();
-                var warmEndpoint = "?api-version=2018-11-01-preview&storeType=WarmStore";
+                var warmEndpoint = "?api-version=2018-11-01-preview";
                 var coldEndpoint = "?api-version=2018-11-01-preview&storeType=ColdStore";
                 var environmentFqdn = '44be7d4d-96ab-43db-9435-2333335e56e5.env.crystal-dev.windows-int.net';
                 
@@ -39,14 +39,14 @@
                 var mergedAvailability = new tsiClient.ux.AvailabilityChart(document.getElementById('chart3'));
 
                 authContext.getTsiToken().then(function(token){                
-                    tsiClient.server.getAvailability(token, environmentFqdn, warmEndpoint).then(function (warmResponse) {
+                    tsiClient.server.getAvailability(token, environmentFqdn, warmEndpoint, true).then(function (warmResponse) {
                         renderAvailability(tsiClient, warmResponse, warmAvailability);
-                        tsiClient.server.getAvailability(token, environmentFqdn, coldEndpoint).then(function (coldResponse) {
-                            renderAvailability(tsiClient, coldResponse, coldAvailability);
+                        // tsiClient.server.getAvailability(token, environmentFqdn, coldEndpoint).then(function (coldResponse) {
+                        //     renderAvailability(tsiClient, coldResponse, coldAvailability);
 
-                            let mergedResponse = tsiClient.utils.mergeAvailabilities(warmResponse.availability, coldResponse.availability);
-                            renderAvailability(tsiClient, {availability: mergedResponse}, mergedAvailability);
-                        });
+                        //     let mergedResponse = tsiClient.utils.mergeAvailabilities(warmResponse.availability, coldResponse.availability);
+                        //     renderAvailability(tsiClient, {availability: mergedResponse}, mergedAvailability);
+                        // });
                     });
                 });
             };
