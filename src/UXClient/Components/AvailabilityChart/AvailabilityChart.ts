@@ -438,10 +438,10 @@ class AvailabilityChart extends ChartComponent{
         let warmRect = svgGroup.select(".tsi-warmRect");
  
         let outOfRange = true;
-        if (this.chartOptions.warmRange) {
-            let warmStart = new Date(this.chartOptions.warmRange[0]);
+        if (this.chartOptions.warmStoreRange) {
+            let warmStart = new Date(this.chartOptions.warmStoreRange[0]);
             let boundedWarmStart = new Date(Math.max(warmStart.valueOf(), this.zoomedFromMillis));
-            let warmEnd = new Date(this.chartOptions.warmRange.length === 2 ? this.chartOptions.warmRange[1] : this.toMillis);
+            let warmEnd = new Date(this.chartOptions.warmStoreRange.length === 2 ? this.chartOptions.warmStoreRange[1] : this.toMillis);
             let boundedWarmEnd = new Date(Math.min(warmEnd.valueOf(), this.zoomedToMillis));
 
             if (boundedWarmStart < boundedWarmEnd) {
@@ -455,7 +455,7 @@ class AvailabilityChart extends ChartComponent{
                     .attr("pointer-events", "none");
             } 
         }
-        if (outOfRange || this.chartOptions.warmRange === null) {
+        if (outOfRange || this.chartOptions.warmStoreRange === null) {
             warmRect.style('display', 'none');
         } else {
             warmRect.style('display', 'block');
