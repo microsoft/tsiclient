@@ -657,11 +657,11 @@ class Utils {
     }
 
     static mergeAvailabilities (warmAvailability, coldAvailability) {
-        let warmRange = warmAvailability.range;
+        let warmStoreRange = warmAvailability.range;
         let filteredColdDistribution = {};
         Object.keys(coldAvailability.distribution).forEach((ts) => {
             let tsDate = new Date(ts);
-            if (tsDate < (new Date(warmRange.from)) || tsDate > (new Date(warmRange.to))) {
+            if (tsDate < (new Date(warmStoreRange.from)) || tsDate > (new Date(warmStoreRange.to))) {
                 filteredColdDistribution[ts] = coldAvailability.distribution[ts];
             }
         });

@@ -22,7 +22,7 @@
                     result = serverResponse.availability;
                 }
                 var transformedAvailability = tsiClient.ux.transformAvailabilityForVisualization(result, 500);
-                chart.render(transformedAvailability,  {legend: 'hidden', theme: 'light', color: 'purple', offset: 'Local', isCompact: false, warmRange: result.warmRange}, serverResponse.availability);                
+                chart.render(transformedAvailability,  {legend: 'hidden', theme: 'light', color: 'purple', offset: 'Local', isCompact: false, warmStoreRange: result.warmStoreRange}, serverResponse.availability);                
             }
 
 

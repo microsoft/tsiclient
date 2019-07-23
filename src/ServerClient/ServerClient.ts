@@ -228,7 +228,7 @@ class ServerClient {
                         if (coldResponse.availability) {
                             availability = Utils.mergeAvailabilities(warmResponse.availability, coldResponse.availability);
                             if (warmResponse.availability.range) {
-                                availability['warmRange'] = [warmResponse.availability.range.from, warmResponse.availability.range.to]; 
+                                availability['warmStoreRange'] = [warmResponse.availability.range.from, warmResponse.availability.range.to]; 
                             }
                         } 
                         resolve({availability: availability});
