@@ -1,67 +1,69 @@
 
+
 <!DOCTYPE html> 
 <html>
     <head>
-        <title>Availability and Line Chart</title>
-        
+        <title>PAYG Charts</title>
+
+        <!-- styles are only used for styling header and auth elements, where possible -->
+        <link rel="stylesheet" type="text/css" href="../styles.css" />
+
         <!-- boilerplate headers are injected with head.js, grab them from the live example header, or include a link to head.js -->
         <script src="../boilerplate/head.js"></script>
+
+        <!-- boilerplate auth code is injected with auth.js, check it out for auth setup -->
+        <script src="../boilerplate/auth.js"></script>
     </head>
     <body style="font-family: 'Segoe UI', sans-serif;">
-        <div id="availability" style="width: 100%; height: 160px; z-index:1;"></div>
-        <button onclick="toggleCompact()">Toggle Compact</button>
-        <script>
-            var toggleCompact;
-            window.onload = function() {
-                
-                // create fake data in the shape our charts expect
-                var data = [];
-                var from = new Date();
-                var to;
-                for(var i = 0; i < 2; i++){
-                    var lines = {};
-                    data.push({[`Factory${i}`]: lines});
-                    for(var j = 1; j < 4; j++){
-                        var values = {};
-                        lines[`Station${j}`] = values;
-                        for(var k = 0; k < 60; k++){
-                            var to = new Date(from.valueOf() + 1000*60*60*k);
-                            var val = Math.random();
-                            values[to.toISOString()] = {avg: val};
-                        } 
-                    }
-                }
 
-                // render the data in a chart
+        <div id="chart1" style="width: 100%; height: 600px; margin-top: 40px; float: left;"></div>
+        <script>
+            window.onload = function() {
+                initAuth('Line chart using the PAYG SKU');  // initiate auth objects, header, and login modal
                 var tsiClient = new TsiClient();
 
-                var availability = new tsiClient.ux.AvailabilityChart(document.getElementById('availability'));
-                var warmRange = [
-                    (new Date(from.valueOf() + 1000*60*60*12)).toISOString(), to.toISOString()
-                ];
+                var linechartTsqExpressions = [];
+                var startDate = new Date('2017-04-20T20:00:00Z');
+                var endDate = new Date(startDate.valueOf() + 1000*60*60*24*30);
+    
+                linechartTsqExpressions.push(new tsiClient.ux.TsqExpression(
+                    {timeSeriesId: ['df4412c4-dba2-4a52-87af-780e78ff156b']}, // instance json
+                    {Max: {
+                        kind: 'numeric',
+                        value: {tsx: '$event.value.Double'},
+                        filter: null,
+                        aggregation: {tsx: 'max($value)'}
+                    }}, // variable json
+                    { from: startDate, to: endDate, bucketSize: '6h' }, // search span
+                    '#60B9AE', // color
+                    'MaxValue')); // alias
 
-                var isCompact = false;
+                linechartTsqExpressions.push(new tsiClient.ux.TsqExpression(
+                    {timeSeriesId: ['df4412c4-dba2-4a52-87af-780e78ff156b']}, // instance json
+                    {Avg: {
+                        kind: 'numeric',
+                        value: {tsx: '$event.value.Double'},
+                        filter: null,
+                        aggregation: {tsx: 'avg($value)'}
+                    }}, // variable json
+                    { from: startDate, to: endDate, bucketSize: '6h' }, // search span
+                    '#D869CB', // color
+                    'AvgValue')); // 
+                
+            
 
-                function renderAvailability (isCompact) {
-                    availability.render([{availabilityCount: {"": {}}}], 
-                                    {legend: 'hidden', theme: 'light', color: 'purple', offset: 'Local', isCompact: isCompact, warmRange: warmRange, preserveAvailabilityState: true}, 
-                                    {range: 
-                                        {
-                                            from: from.toISOString(), 
-                                            to: (new Date(from.valueOf() + 1000*60*60*24)).toISOString()
-                                        }, 
-                                    intervalSize: '1h'
-                                    }
-                                    );
-                }
+                authContext.getTsiToken().then(function(token){
+                    tsiClient.server.getTsqResults(token, '10000000-0000-0000-0000-100000000109.env.timeseries.azure.com', linechartTsqExpressions.map(function(ae){return ae.toTsq()})).then(function(result){
+                        var transformedResult = tsiClient.ux.transformTsqResultsForVisualization(result, linechartTsqExpressions);
+                        var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart1'));
+                        lineChart.render(transformedResult, {theme: 'dark', grid: true, tooltip: true, legend: 'compact'}, linechartTsqExpressions);
+                    });
+                    let endpoint = "?api-version=2018-11-01-preview&storeType=WarmStore&endpoint=svcdev1xtl.api.crystal-dev.windows-int.net";
 
-                toggleCompact = function () {
-                    isCompact = !isCompact;
-                    renderAvailability(isCompact);
-                }
+                    tsiClient.server.getAvailability(token, '10000000-0000-0000-0000-100000000109.env.timeseries.azure.com', endpoint);
 
-                renderAvailability(isCompact);
-            };
+                });
+            }
         </script>
     </body>
 </html>
