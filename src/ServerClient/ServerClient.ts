@@ -8,7 +8,7 @@ class ServerClient {
     }
 
     private createPromiseFromXhr (uri, httpMethod, payload, token, responseTextFormat, continuationToken = null) {
-        return new Promise((resolve: any, reject: any) => {
+        let promise = new Promise((resolve: any, reject: any) => {
             var xhr = new XMLHttpRequest();
             xhr.onreadystatechange = () => {
                 if(xhr.readyState != 4) return;
@@ -30,6 +30,7 @@ class ServerClient {
                 xhr.setRequestHeader('x-ms-continuation', continuationToken);
             xhr.send(payload);
         });
+        return promise;
     }
     
     private mergeTsqEventsResults = (tsqEvents) => {
@@ -59,8 +60,11 @@ class ServerClient {
         return events;
     }
 
-    private getQueryApiResult = (token, results, contentObject, index, uri, resolve, messageProperty, onProgressChange = (percentComplete) => {}, mergeAccumulatedResults = false) => {
-        var xhr = new XMLHttpRequest();
+    private getQueryApiResult = (token, results, contentObject, index, uri, resolve, messageProperty, onProgressChange = (percentComplete) => {}, mergeAccumulatedResults = false, xhr = null) => {
+        if (xhr === null) {
+            xhr = new XMLHttpRequest();
+        }
+
         var onreadystatechange;
         var accumulator = [];
         onreadystatechange = () => {
@@ -92,7 +96,7 @@ class ServerClient {
                     xhr.send(JSON.stringify(contentObject));
                 }
             }
-            else{
+            else if (xhr.status !== 0) {
                 results[index] = {__tsiError__: JSON.parse(xhr.responseText)};
                 if(results.map(ar => !('progress' in ar)).reduce((p,c) => { p = c && p; return p}, true))
                     resolve(results);
@@ -102,22 +106,43 @@ class ServerClient {
         }
 
         xhr.onreadystatechange = onreadystatechange;
+        xhr.onabort = () => {
+            console.log("CANCELLED");
+            resolve('__CANCELLED__');
+        }
         xhr.open('POST', uri);
         xhr.setRequestHeader('Authorization', 'Bearer ' + token);
         xhr.send(JSON.stringify(contentObject));
     }
 
-    public getTsqResults(token: string, uri: string, tsqArray: Array<any>, onProgressChange = () => {}, mergeAccumulatedResults = false) {
+    public getCancellableTsqResults (token: string, uri: string, tsqArray: Array<any>, onProgressChange = () => {}, mergeAccumulatedResults = false) {
+        return this.getTsqResults(token, uri, tsqArray, onProgressChange, mergeAccumulatedResults, true);
+    }
+
+    public getTsqResults(token: string, uri: string, tsqArray: Array<any>, onProgressChange = () => {}, mergeAccumulatedResults = false, hasCancelTrigger = false) {
         var tsqResults = [];
         tsqArray.forEach(tsq => {
             tsqResults.push({progress: 0});
         });
-        
-        return new Promise((resolve: any, reject: any) => {
-            tsqArray.forEach((tsq, i) => { 
-                this.getQueryApiResult(token, tsqResults, tsq, i, `https://${uri}/timeseries/query${this.tsmTsqApiVersion}`, resolve, message => message, onProgressChange, mergeAccumulatedResults);
-            })
+
+        let xhrs = tsqArray.map((tsq) => {
+            return new XMLHttpRequest();
         });
+        let promise = new Promise((resolve: any, reject: any) => {
+            tsqArray.map((tsq, i) => { 
+                return this.getQueryApiResult(token, tsqResults, tsq, i, `https://${uri}/timeseries/query${this.tsmTsqApiVersion}`, resolve, message => message, onProgressChange, mergeAccumulatedResults, xhrs[i]);
+            });
+        });
+        let cancelTrigger = () => {
+            xhrs.forEach((xhr) => {
+                xhr.abort();
+            });
+        } 
+        
+        if (hasCancelTrigger) {
+            return [promise, cancelTrigger];
+        }
+        return promise;
     }
 
     public getAggregates(token: string, uri: string, tsxArray: Array<any>, onProgressChange = () => {}) {
