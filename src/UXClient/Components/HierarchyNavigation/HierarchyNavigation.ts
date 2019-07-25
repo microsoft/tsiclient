@@ -12,6 +12,8 @@ class HierarchyNavigation extends Component{
     private clickedInstance;
     private isHierarchySelectionActive;
     private hierarchySelectorElem;
+    private hierarchyListWrapperElem;
+    private hierarchyListElem;
     private noResultsElem;
     private hierarchyElem;
     private instanceListElem;
@@ -40,7 +42,7 @@ class HierarchyNavigation extends Component{
             }
             if (this.isHierarchySelectionActive && this.hierarchySelectorElem.filter(amIClicked).empty()) {
                 this.isHierarchySelectionActive = false;
-                this.hierarchySelectorElem.classed('selected', false);
+                this.hierarchyListWrapperElem.style('display', 'none');
             }
         })
     }
@@ -64,7 +66,9 @@ class HierarchyNavigation extends Component{
                 if(r.hierarchyNodes && r.hierarchyNodes.hits){
                     r.hierarchyNodes.hits.forEach(hn => {
                         this.envHierarchies[hn.name] = hn;
-                    })
+                    });
+                    this.selectedHierarchyName = r.hierarchyNodes.hits[0].name;
+                    this.path = [this.selectedHierarchyName];
                 }
 
                 // path filtering
@@ -78,57 +82,77 @@ class HierarchyNavigation extends Component{
                 }
                 this.hierarchySelectorElem = hierarchySelectionWrapper.append('button').classed('tsi-hierarchy-select', true).on('click', function () {
                     if (self.isHierarchySelectionActive) {
-                        self.hierarchySelectorElem.classed('selected', false);
+                        self.hierarchyListWrapperElem.style('display', 'none');
                         self.isHierarchySelectionActive = false;
                     }
                     else {
-                        self.hierarchySelectorElem.classed('selected', true);
+                        self.hierarchyListElem.html('');
+                        self.path.forEach((pathElem, i) => {
+                            let li = self.hierarchyListElem.append('li').attr("hName", pathElem).attr('style', `padding-left: ${(i+1) * 8}px; ${i > 0 ? 'font-weight: 400;' : ''}`).text(pathElem ? pathElem : "(Empty)").on('click', function () {
+                                self.path = self.path.slice(0, i+1);
+                                let pathStr = self.path.map((a) => a ? a : "(Empty)").join(" / ");
+                                d3.select('.tsi-filter-path').text(pathStr).attr('title', pathStr);
+                                self.clearAndGetResults();
+                            });
+                        });
+                        Object.keys(self.envHierarchies).forEach((hName) => {
+                            if(hName !== self.selectedHierarchyName){
+                                self.hierarchyListElem.append('li').attr("hName", hName).text(hName).on('click', function () {
+                                    self.path = [hName];
+                                    self.selectedHierarchyName = hName;
+                                    d3.select('.tsi-filter-path').text(hName).attr('title', hName);
+                                    self.clearAndGetResults();
+                                });
+                            }
+                        });
+                        self.hierarchyListElem.append('li').attr("hName", HierarchySelectionValues.Unparented).text('Unassigned Time Series Instances').on('click', function () {
+                            self.path = [];
+                            self.selectedHierarchyName = HierarchySelectionValues.Unparented;
+                            d3.select('.tsi-filter-path').text('Unassigned Time Series Instances').attr('title', 'Unassigned Time Series Instances');
+                            self.clearAndGetResults();
+                        });
+
+
+
+                        self.hierarchyListWrapperElem.style('display', 'block');
                         self.isHierarchySelectionActive = true;
                     }
                 });
-                this.hierarchySelectorElem.append('span').text(Object.keys(this.envHierarchies).length ? this.envHierarchies[Object.keys(this.envHierarchies)[0]].name : "Unassigned Time Series Instances");
+                this.hierarchySelectorElem.append('span').classed('tsi-filter-path', true).text(Object.keys(this.envHierarchies).length ? this.envHierarchies[Object.keys(this.envHierarchies)[0]].name : "Unassigned Time Series Instances");
                 this.hierarchySelectorElem.append('i').classed('tsi-down-caret-icon', true);
-                let hierarchyList = this.hierarchySelectorElem.append('select').classed('tsi-hierarchy-list', true).on('change', function() {
-                    var selectValue = d3.select(this).property('value');
-                    self.selectedHierarchyName = selectValue;
-                    d3.select(this).selectAll('option').attr('hidden', null);
-                    d3.select(this).select('option:checked').attr('hidden', true);
-                    self.hierarchySelectorElem.select('span').text(d3.select(this).select('option:checked').text());
-                    d3.select('.tsi-filter-path').style('visibility', 'hidden');
+                // hierarchy flyout list
+                this.hierarchyListWrapperElem = hierarchySelectionWrapper.append('div').classed('tsi-hierarchy-list-wrapper', true);
+                this.hierarchyListElem = this.hierarchyListWrapperElem.append('ul').classed('tsi-hierarchy-list', true);
+                // .on('change', function() {
+                //     var selectValue = d3.select(this).property('value');
+                //     self.selectedHierarchyName = selectValue;
+                //     d3.select(this).selectAll('option').attr('hidden', null);
+                //     d3.select(this).select('option:checked').attr('hidden', true);
+                //     self.hierarchySelectorElem.select('span').text(d3.select(this).select('option:checked').text());
+                //     d3.select('.tsi-filter-path').style('visibility', 'hidden');
 
-                    if (selectValue === HierarchySelectionValues.Unparented) {
-                        self.path = [];
-                        d3.select('.tsi-path').property('value', '').attr('title', '');
-                    } else {
-                        self.path = [self.envHierarchies[selectValue].name];
-                    }
-                    self.clearAndGetResults();
-                });
-                Object.keys(this.envHierarchies).forEach((hName, i) => {
-                    let opt = hierarchyList.append('option').attr("value", hName).text(hName);
-                    if(i === 0){
-                        this.path = [hName];
-                        this.selectedHierarchyName = hName;
-                        opt.attr('hidden', true);
-                    }
-                });
-                hierarchyList.append('option').attr("value", HierarchySelectionValues.Unparented).text('Unassigned Time Series Instances');
-                // filter path
-                let filterPath = filterPathWrapper.append('div').classed('tsi-filter-path', true);
-                filterPath.append('input').classed('tsi-path', true).attr('disabled', true);
-                filterPath.append('i').classed('tsi-close tsi-filter-clear', true).on('click', function () {
-                    self.path = [self.selectedHierarchyName];
-                    d3.select('.tsi-path').property('value', '').attr('title', '');
-                    d3.select('.tsi-filter-path').style('visibility', 'hidden');
-                    self.clearAndGetResults();
-                });
+                //     if (selectValue === HierarchySelectionValues.Unparented) {
+                //         self.path = [];
+                //         d3.select('.tsi-filter-path').text('Unassigned Time Series Instances').attr('title', 'Unassigned Time Series Instances');
+                //     } else {
+                //         self.path = [self.envHierarchies[selectValue].name];
+                //         d3.select('.tsi-filter-path').text(self.envHierarchies[selectValue].name).attr('title', self.envHierarchies[selectValue].name);
+                //     }
+                //     self.clearAndGetResults();
+                // });
+                
+                // this.hierarchySelectorElem.append('i').classed('tsi-close tsi-filter-clear', true).on('click', function () {
+                //     self.path = [self.selectedHierarchyName];
+                //     d3.select('.tsi-filter-path').text(self.selectedHierarchyName).attr('title', self.selectedHierarchyName);
+                //     self.clearAndGetResults();
+                // });
                 
                 // search
                 let searchWrapper = hierarchyNavWrapper.append('div').classed('tsi-hierarchy-search', true);
                 let modelAutocomplete = new ModelAutocomplete(searchWrapper.node() as Element);
                 modelAutocomplete.render(environmentFqdn, getToken, {onInput: autocompleteOnInput, onKeydown: (event, ap) => {handleKeydown(event, ap)},theme: hierarchyNavOptions.theme});
                 this.viewTypeElem = searchWrapper.append('div').classed('tsi-view-type', true).on('click', function () {
-                    self.switchToView(self.viewType === ViewType.Hierarchy ? ViewType.List : ViewType.Hierarchy);
+                    self.switchToSearchView(self.viewType === ViewType.Hierarchy ? ViewType.List : ViewType.Hierarchy);
                 });
                 this.viewTypeElem.append('i').classed('tsi-list-icon', true).attr('title', 'List View');
 
@@ -174,14 +198,14 @@ class HierarchyNavigation extends Component{
             if(st.length === 0){
                 this.searchString = st;
                 (this.viewTypeElem.node() as any).style.display = 'none';
-                this.switchToView(ViewType.Hierarchy, false);
+                this.switchToSearchView(ViewType.Hierarchy, false);
                 this.clearAndGetResults();
             }
             else {
                 if (event.which === 13 || event.keyCode === 13) {
                     this.searchString = st;
                     if (this.mode === State.Navigate) { // first time switching from navigate to search
-                        this.switchToView(ViewType.Hierarchy, false);
+                        this.switchToSearchView(ViewType.Hierarchy, false);
                     }
                     this.clearAndGetResults();
                 }
@@ -219,7 +243,7 @@ class HierarchyNavigation extends Component{
         this.hierarchyNavOptions.hierarchiesSort = HierarchiesSort.CumulativeInstanceCount;
     }
 
-    private switchToView = (view: ViewType, applySearch: boolean = true) => {
+    private switchToSearchView = (view: ViewType, applySearch: boolean = true) => {
         this.closeContextMenu();
         this.viewType = view;
         if (this.viewType === ViewType.Hierarchy) {
@@ -341,10 +365,8 @@ class HierarchyNavigation extends Component{
                     li.append('div').classed('tsi-pin-icon', true).attr('title', 'Add to Filter Path').on('click', function() { 
                         self.path = data[el].path;
                         let path = [...data[el].path];
-                        path.shift();
                         let pathStr = path.map((a) => a ? a : "(Empty)").join(" / ");
-                        d3.select('.tsi-filter-path').style('visibility', 'visible');
-                        d3.select('.tsi-path').property('value', pathStr).attr('title', pathStr);
+                        d3.select('.tsi-filter-path').text(pathStr).attr('title', pathStr);
                         self.clearAndGetResults();
                     }).on('mouseleave', function() {
                         if (d3.event.relatedTarget != d3.select(this.parentNode).select('.tsi-markedName').node()) {

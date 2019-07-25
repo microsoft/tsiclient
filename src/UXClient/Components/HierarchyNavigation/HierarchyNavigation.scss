@@ -158,8 +158,9 @@
 
         .tsi-hierarchy-selection-wrapper {
             text-align: left;
-            max-width: 45%;
+            width: 100%;
             display: inline-flex;
+            flex-direction: column;
     
             .tsi-hierarchy-select {
                 display: flex;
@@ -168,9 +169,8 @@
                 border: none;
                 padding: 8px;
                 outline: none;
-                border-right: 1px solid #cdcdcd;
     
-                span {
+                .tsi-filter-path {
                     font-size: 16px;
                     font-weight: 600;
                     overflow: hidden;
@@ -178,21 +178,7 @@
                     white-space: nowrap;
                     width: calc(100% - 10px);
                     padding-right: 8px;
-                }
-                select {
-                    outline: none;
-                    max-width: calc(45% - 16px);
-                    height: 38px;
-                    position: absolute;
-                    opacity: 0;
-                    margin-left: -8px;
-                    margin-top: 0px;
-    
-                    option {
-                        font-size: 16px;
-                        font-weight: 600;
-                        font-family: "Segoe UI", sans-serif;
-                    }
+                    text-align: left;
                 }
     
                 &:hover{
@@ -209,37 +195,22 @@
                 display: none;
                 background: white;
                 z-index: 3;
-                position: absolute;
                 box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
     
-                li {
-                    padding: 8px;
-                    &:hover {
-                        background: #F2F2F2;
-                        cursor: pointer;
+                ul {
+                    font-size: 14px;
+                    font-weight: 600;
+
+                    li {
+                        padding: 8px;
+                        &:hover {
+                            background: #F2F2F2;
+                            cursor: pointer;
+                        }
                     }
                 }
             }
-        }
-
-        .tsi-filter-path {
-            align-items: center;
-            padding-left: 6px;
-            visibility: hidden;
-            display: inline-flex;
-            flex-grow: 1;
-
-            input {
-                width: calc(100% - 16px);
-                color: grey;
-                border: none;
-                background: transparent;
-                text-overflow: ellipsis;
-                white-space: nowrap;
-                overflow: hidden;
-                font-family: "Segoe UI", sans-serif;
-            }
-            
+    
             .tsi-filter-clear {
                 margin-left: 4px;
                 display: inline-block;
@@ -292,7 +263,6 @@
 
     .tsi-hierarchy-or-list-wrapper {
         width: 100%;
-        flex-grow: 1;
         display: flex;
         flex-direction: column;
         height: calc(100% - 116px);
