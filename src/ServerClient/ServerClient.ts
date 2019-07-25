@@ -60,8 +60,11 @@ class ServerClient {
         return events;
     }
 
-    private getQueryApiResult = (token, results, contentObject, index, uri, resolve, messageProperty, onProgressChange = (percentComplete) => {}, mergeAccumulatedResults = false) => {
-        var xhr = new XMLHttpRequest();
+    private getQueryApiResult = (token, results, contentObject, index, uri, resolve, messageProperty, onProgressChange = (percentComplete) => {}, mergeAccumulatedResults = false, xhr = null) => {
+        if (xhr === null) {
+            xhr = new XMLHttpRequest();
+        }
+
         var onreadystatechange;
         var accumulator = [];
         onreadystatechange = () => {
@@ -93,34 +96,55 @@ class ServerClient {
                     xhr.send(JSON.stringify(contentObject));
                 }
             }
-            else{
+            else if (xhr.status !== 0) {
                 results[index] = {__tsiError__: JSON.parse(xhr.responseText)};
                 if(results.map(ar => !('progress' in ar)).reduce((p,c) => { p = c && p; return p}, true))
                     resolve(results);
-            }
+            } 
             let percentComplete = Math.max(results.map(r => 'progress' in r ? r.progress : 100).reduce((p,c) => p+c, 0) / results.length, 1);
             onProgressChange(percentComplete);
         }
 
         xhr.onreadystatechange = onreadystatechange;
+        xhr.onabort = () => {
+            resolve('__CANCELLED__');
+        }
         xhr.open('POST', uri);
         xhr.setRequestHeader('Authorization', 'Bearer ' + token);
         xhr.send(JSON.stringify(contentObject));
     }
 
-    public getTsqResults(token: string, uri: string, tsqArray: Array<any>, onProgressChange = () => {}, mergeAccumulatedResults = false, storeType: string = null) {
+    public getCancellableTsqResults (token: string, uri: string, tsqArray: Array<any>, onProgressChange = () => {}, mergeAccumulatedResults = false, storeType: string = null) {
+        return this.getTsqResults(token, uri, tsqArray, onProgressChange, mergeAccumulatedResults, storeType, true);
+    }
+
+    public getTsqResults(token: string, uri: string, tsqArray: Array<any>, onProgressChange = () => {}, mergeAccumulatedResults = false, storeType: string = null, hasCancelTrigger = false) {
         var tsqResults = [];
         tsqArray.forEach(tsq => {
             tsqResults.push({progress: 0});
         });
 
-        let storeTypeString = storeType ? '&storeType=' + storeType : '';
-        
-        return new Promise((resolve: any, reject: any) => {
-            tsqArray.forEach((tsq, i) => { 
-                this.getQueryApiResult(token, tsqResults, tsq, i, `https://${uri}/timeseries/query${this.tsmTsqApiVersion}${storeTypeString}` , resolve, message => message, onProgressChange, mergeAccumulatedResults);
-            })
+        let xhrs = tsqArray.map((tsq) => {
+            return new XMLHttpRequest();
         });
+
+        let storeTypeString = storeType ? '&storeType=' + storeType : '';
+
+        let promise = new Promise((resolve: any, reject: any) => {
+            tsqArray.map((tsq, i) => { 
+                return this.getQueryApiResult(token, tsqResults, tsq, i, `https://${uri}/timeseries/query${this.tsmTsqApiVersion}${storeTypeString}`, resolve, message => message, onProgressChange, mergeAccumulatedResults, xhrs[i]);
+            });
+        });
+        let cancelTrigger = () => {
+            xhrs.forEach((xhr) => {
+                xhr.abort();
+            });
+        } 
+        
+        if (hasCancelTrigger) {
+            return [promise, cancelTrigger];
+        }
+        return promise;
     }
 
     public getAggregates(token: string, uri: string, tsxArray: Array<any>, onProgressChange = () => {}) {
