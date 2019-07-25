@@ -101,14 +101,13 @@ class ServerClient {
                 results[index] = {__tsiError__: JSON.parse(xhr.responseText)};
                 if(results.map(ar => !('progress' in ar)).reduce((p,c) => { p = c && p; return p}, true))
                     resolve(results);
-            }
+            } 
             let percentComplete = Math.max(results.map(r => 'progress' in r ? r.progress : 100).reduce((p,c) => p+c, 0) / results.length, 1);
             onProgressChange(percentComplete);
         }
 
         xhr.onreadystatechange = onreadystatechange;
         xhr.onabort = () => {
-            console.log("CANCELLED");
             resolve('__CANCELLED__');
         }
         xhr.open('POST', uri);
@@ -129,9 +128,12 @@ class ServerClient {
         let xhrs = tsqArray.map((tsq) => {
             return new XMLHttpRequest();
         });
+
+        let storeTypeString = storeType ? '&storeType=' + storeType : '';
+
         let promise = new Promise((resolve: any, reject: any) => {
             tsqArray.map((tsq, i) => { 
-                return this.getQueryApiResult(token, tsqResults, tsq, i, `https://${uri}/timeseries/query${this.tsmTsqApiVersion}`, resolve, message => message, onProgressChange, mergeAccumulatedResults, xhrs[i]);
+                return this.getQueryApiResult(token, tsqResults, tsq, i, `https://${uri}/timeseries/query${this.tsmTsqApiVersion}${storeTypeString}`, resolve, message => message, onProgressChange, mergeAccumulatedResults, xhrs[i]);
             });
         });
         let cancelTrigger = () => {
