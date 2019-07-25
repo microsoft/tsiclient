@@ -9,7 +9,7 @@ class ServerClient {
     }
 
     private createPromiseFromXhr (uri, httpMethod, payload, token, responseTextFormat, continuationToken = null) {
-        let promise = new Promise((resolve: any, reject: any) => {
+        return new Promise((resolve: any, reject: any) => {
             var xhr = new XMLHttpRequest();
             xhr.onreadystatechange = () => {
                 if(xhr.readyState != 4) return;
@@ -31,7 +31,6 @@ class ServerClient {
                 xhr.setRequestHeader('x-ms-continuation', continuationToken);
             xhr.send(payload);
         });
-        return promise;
     }
     
     private mergeTsqEventsResults = (tsqEvents) => {
