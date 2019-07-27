@@ -114,6 +114,12 @@
 
     .tsi-filter-path {
         border: 1px solid $gray5;
+
+        .tsi-path {
+            &:hover {
+                background-color: $gray5;
+            }
+        }
     }
 
     .tsi-hierarchy-search {
@@ -329,15 +335,23 @@
                 width: 12px;
                 height: 10px;
                 cursor: auto;
+                margin-right: 4px;
             }
     
-            .tsi-path {
-                font-size: 12px;
-                max-width: calc(100% - 16px);
-                text-overflow: ellipsis;
-                white-space: nowrap;
-                overflow: hidden;
-                padding-left: 4px;
+            .tsi-path-list {
+                display: flex;
+                align-items: center;
+                max-width: calc(100% - 36px);
+
+                .tsi-path {
+                    font-size: 12px;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    padding: 4px;
+                    border-radius: 4px;
+                    cursor: pointer;
+                }
             }
     
             .tsi-filter-clear {

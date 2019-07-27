@@ -129,10 +129,10 @@ class HierarchyNavigation extends Component{
                 this.filterPathElem = hierarchyNavWrapper.append('div').classed('tsi-filter-path-wrapper', true);
                 let filterPath = this.filterPathElem.append('div').classed('tsi-filter-path', true)
                 filterPath.append('i').classed('tsi-filter-icon', true);
-                filterPath.append('span').classed('tsi-path', true).text('').attr('title', '');
+                filterPath.append('span').classed('tsi-path-list', true);
                 filterPath.append('i').classed('tsi-close-icon tsi-filter-clear', true).on('click', function () {
                     self.path = [self.selectedHierarchyName];
-                    d3.select('.tsi-path').text('').attr('title', '');
+                    d3.select('.tsi-path-list').html('');
                     d3.select('.tsi-filter-clear').style('display', 'none');
                     self.filterPathElem.classed('visible', false);
                     self.clearAndGetResults();
@@ -347,8 +347,20 @@ class HierarchyNavigation extends Component{
                 if (!data[el].isLeaf && (self.viewType === ViewType.Hierarchy)) {
                     li.append('div').classed('tsi-pin-icon', true).attr('title', 'Add to Filter Path').on('click', function() { 
                         self.path = data[el].path;
-                        let pathStr = self.path.slice(1).map((a) => a ? a : "(Empty)").join(" / ");
-                        d3.select('.tsi-path').text(pathStr).attr('title', pathStr);
+                        let pathListElem = d3.select('.tsi-path-list');
+                        pathListElem.html('');
+                        self.path.slice(1).forEach((a, i) => {
+                            if (i > 0) {
+                                pathListElem.append('span').text(' / ');
+                            }
+                            let pathName = a ? a : "(Empty)";
+                            pathListElem.append('span').classed('tsi-path', true).text(pathName).attr('title', pathName).on('click', function () {
+                                self.path = self.path.slice(0, i + 2);
+                                //pathListElem.html(pathListElem.selectAll('span').nodes().splice(0, (i * 2) + 1).map(a => (a as any).outerHTML).join(''));
+                                d3.selectAll(pathListElem.selectAll('span').nodes().splice((i * 2) + 1, pathListElem.selectAll('span').nodes().length)).remove();
+                                self.clearAndGetResults();
+                            });
+                        });
                         d3.select('.tsi-filter-clear').style('display', 'inline-block');
                         self.filterPathElem.classed('visible', true);
                         self.clearAndGetResults();
@@ -578,7 +590,7 @@ function InstanceNode (tsId, name = null, type, hierarchyIds, highlights, contex
         this.contextMenuProps['eltMousePos'] = eltMousePos;
     }
     this.drawContextMenu = (contextMenuActions) => {
-        let contextMenuDefaultRelativeY = 146; // this is because position absolute property of the context menu
+        let contextMenuDefaultRelativeY = (d3.select('.tsi-filter-path-wrapper').node() as any).getBoundingClientRect().height > 0 ? 148 : 123; // this is because position absolute property of the context menu
         this.contextMenu = this.contextMenuProps['resultsWrapper'].append('div').classed('tsi-hierarchyNavigationContextMenu', true).attr('style', () => `top: ${this.contextMenuProps['wrapperMousePos'] - this.contextMenuProps['eltMousePos'] + contextMenuDefaultRelativeY}px`);
         var contextMenuList = this.contextMenu.append('ul');
         contextMenuActions.forEach((a) => {
