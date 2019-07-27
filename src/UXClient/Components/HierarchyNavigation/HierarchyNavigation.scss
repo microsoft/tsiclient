@@ -1,7 +1,7 @@
 @import "../../styles";
 
 @mixin hierarchyColors($grays){
-	$gray1: nth($grays, 1); // text
+    $gray1: nth($grays, 1); // text
     $gray2: nth($grays, 2); // hover
     $gray3: nth($grays, 3); // element
     $gray4: nth($grays, 4); // background
@@ -85,9 +85,43 @@
         }
     }
 
-    .tsi-hierarchy-select {
-        background: $gray4;
-        color: $gray1;
+    .tsi-hierarchy-selection-wrapper {
+        .tsi-hierarchy-select {
+            background: $gray3;
+            border: 1px solid $gray5;
+            color: $gray1;
+            &:hover{
+                background-color: $gray4;
+            }
+
+            &:focus {
+                box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+            }
+        }
+    
+        .tsi-hierarchy-list-wrapper {
+            li {
+                background: $gray3;
+                &:hover{
+                    background-color: $gray4;
+                }
+                &.selected {
+                    background-color: $gray5;
+                }
+            }
+        }
+    }
+
+    .tsi-filter-path {
+        border: 1px solid $gray5;
+    }
+
+    .tsi-hierarchy-search {
+        .tsi-view-type {
+            &.selected {
+                background-color: $gray2;
+            }
+        }
     }
 
     input {
@@ -113,16 +147,20 @@
         .tsi-pin-icon {
             background-image: url(../../Icons/Pin_Icon_Dark_Theme.svg);
         }
-        .tsi-close {
+        .tsi-close-icon {
             background-image: url(../../Icons/Close_Icon_Dark_Theme.svg);
         }
 
         .tsi-tree-icon {
-            background-image: url(../../Icons/Queued_Icon_Dark_Theme.svg);
+            background-image: url(../../Icons/Tree_Icon_Dark_Theme.svg);
         }
 
         .tsi-list-icon {
             background-image: url(../../Icons/List_Icon_Dark_Theme.svg);
+        }
+
+        .tsi-filter-icon {
+            background-image: url(../../Icons/Filter_Icon_Dark_Theme.svg);
         }
     }
     &.tsi-light{
@@ -135,16 +173,20 @@
             background-image: url(../../Icons/Pin_Icon_Light_Theme.svg);
         }
 
-        .tsi-close {
+        .tsi-close-icon {
             background-image: url(../../Icons/Close_Icon_Light_Theme.svg);
         }
 
         .tsi-tree-icon {
-            background-image: url(../../Icons/Queued_Icon_Light_Theme.svg);
+            background-image: url(../../Icons/Tree_Icon_Light_Theme.svg);
         }
 
         .tsi-list-icon {
             background-image: url(../../Icons/List_Icon_Light_Theme.svg);
+        }
+
+        .tsi-filter-icon {
+            background-image: url(../../Icons/Filter_Icon_Light_Theme.svg);
         }
     }
 
@@ -158,9 +200,9 @@
             display: flex;
             align-items: center;
             width: 100%;
-            border: none;
             padding: 8px;
-            outline: none;
+            box-sizing: border-box;
+            border-radius: 2px;
 
             .tsi-hierarchy-name {
                 font-size: 16px;
@@ -174,7 +216,6 @@
             }
 
             &:hover{
-                background: #DADADA;
                 cursor: pointer;
             }
 
@@ -189,7 +230,7 @@
             z-index: 3;
             position: absolute;
             width: calc(100% - 40px);
-            top: 56px;
+            top: 60px;
             box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
 
             ul {
@@ -199,7 +240,6 @@
                 li {
                     padding: 8px;
                     &:hover {
-                        background: #F2F2F2;
                         cursor: pointer;
                     }
                 }
@@ -225,17 +265,31 @@
             height: 34px;
         }
 
-        .tsi-view-type {
-            border: 1px solid #c1bdbd;
-            width: 34px;
-            height: 34px;
+        .tsi-view-types {
             display: none;
-            padding: 8px;
-            align-items: center;
-            animation: fade-in .2s ease-in-out;
-            cursor: pointer;
-        }
+            flex-direction: row;
 
+            .tsi-view-type {
+                border: 1px solid #c1bdbd;
+                width: 34px;
+                height: 34px;
+                padding: 6px;
+                align-items: center;
+                animation: fade-in .2s ease-in-out;
+                cursor: pointer;
+
+                .tsi-tree-icon {
+                    display: inline-block;
+                }
+    
+                .tsi-list-icon {
+                    display: inline-block;
+                    height: 15px;
+                    width: 18px;
+                }
+            }
+        }
+        
         .tsi-modelAutocompleteWrapper {
             position: relative;
             display: inline-flex;
@@ -249,28 +303,53 @@
         }
     }
 
-    .tsi-filter-path {
+    .tsi-filter-path-wrapper {
         display: flex;
-        align-items: center;
         padding: 0px 20px 8px;
-        height: 32px;
+        height: 0px;
+        overflow: hidden;
+        transform: scaleY(0);
+        transform-origin: top;
+        transition: transform 0.2s ease-out;
+        opacity: 0.5;
 
-        .tsi-path {
-            font-size: 12px;
-            color: #c1bdbd;
-            max-width: calc(100% - 16px);
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            overflow: hidden;
+        &.visible {
+            height: 36px;
+            transform: scaleY(1);
         }
 
-        .tsi-filter-clear {
-            width: 12px !important;
-            height: 12px !important;
-            margin-left: 4px;
-            display: none;
-            cursor: pointer;
+        .tsi-filter-path {
+            display: flex;
+            width: 100%;
+            align-items: center;
+            padding: 8px;
+            height: 24px;
+
+            .tsi-filter-icon {
+                width: 12px;
+                height: 10px;
+                cursor: auto;
+            }
+    
+            .tsi-path {
+                font-size: 12px;
+                max-width: calc(100% - 16px);
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                overflow: hidden;
+                padding-left: 4px;
+            }
+    
+            .tsi-filter-clear {
+                width: 12px !important;
+                height: 12px !important;
+                margin-left: auto;
+                display: none;
+                cursor: pointer;
+            }
         }
+
+        
     }
 
     .tsi-hierarchy-or-list-wrapper {
@@ -389,7 +468,7 @@
         transform: rotate(90deg);
     }
 
-    .tsi-close, .tsi-list-icon, .tsi-tree-icon {
+    .tsi-close-icon, .tsi-list-icon, .tsi-tree-icon, .tsi-filter-icon {
         cursor: pointer;
         height: 16px;
         width: 16px;
