@@ -22,6 +22,7 @@ class DateTimePicker extends ChartComponent{
     private toMinutes: number;
     private toHours: number;
     private onSet: any;
+    private onCancel: any;
     private targetElement: any;
     private isValid: boolean = true;
 
@@ -62,7 +63,7 @@ class DateTimePicker extends ChartComponent{
     }
 
     public render (chartOptions: any = {}, minMillis: number, maxMillis: number, 
-                   fromMillis: number = null, toMillis: number = null, onSet = null) {
+                   fromMillis: number = null, toMillis: number = null, onSet = null, onCancel = null) {
         this.isSettingStartTime = true;
         this.minMillis = minMillis;
         this.maxMillis = maxMillis;
@@ -81,6 +82,7 @@ class DateTimePicker extends ChartComponent{
         this.fromMillis = fromMillis;
         this.toMillis = toMillis;
         this.onSet = onSet;
+        this.onCancel = onCancel;
         this.targetElement = d3.select(this.renderTarget)
             .classed("tsi-dateTimePicker", true);
         this.targetElement.node().innerHTML = "";
@@ -89,15 +91,29 @@ class DateTimePicker extends ChartComponent{
         this.timeControls = this.targetElement.append("div").classed("tsi-timeControlsContainer", true);
         var saveButtonContainer = this.targetElement.append("div").classed("tsi-saveButtonContainer", true);
         var self = this;
+
+        var onSaveOrCancel = () => {
+            this.isSettingStartTime = true;
+        }
+
         var saveButton = saveButtonContainer.append("button").classed("tsi-saveButton", true).html(this.getString("Save"))
             .on("click", function () {
                 self.onSet(self.fromMillis, self.toMillis, self.chartOptions.offset);
+                onSaveOrCancel();
             });
+        
+        var cancelButton = saveButtonContainer.append('button')
+            .attr('class', 'tsi-cancelButton')
+            .html(this.getString('Cancel'))
+            .on('click', function () {
+                self.onCancel();
+                onSaveOrCancel();
+            })
 
         //originally set toMillis to last possible time
         this.toMillis = this.maxMillis;
         this.setFromMillis(fromMillis);
-        this.setToMillis(toMillis);
+        this.setToMillis(toMillis); 
         
         this.targetElement.append("div").classed("tsi-errorMessageContainer", true);
         this.createCalendar();
@@ -112,6 +128,19 @@ class DateTimePicker extends ChartComponent{
         this.endRange = new Date(this.toMillis);
         this.calendarPicker.draw();
         return;
+    }
+
+
+    public updateFromAndTo (fromMillis, toMillis) {
+        this.setFromMillis(fromMillis);
+        this.setToMillis(toMillis);
+
+        this.updateDisplayedFromDateTime();
+        this.updateDisplayedToDateTime();
+
+        this.startRange = new Date(this.fromMillis);
+        this.endRange = new Date(this.toMillis);
+        this.calendarPicker.draw();
     }
 
     private createTimezonePicker () {
@@ -234,9 +263,9 @@ class DateTimePicker extends ChartComponent{
         this.isValid = isValid;
 
         // For now, lets allow users to save the time even in the presence of errors
-        // this.targetElement.select(".tsi-saveButtonContainer").select(".tsi-saveButton")
-        //     .attr("disabled", this.isValid ? null : true)
-        //     .classed("tsi-buttonDisabled", !this.isValid);
+        this.targetElement.select(".tsi-saveButtonContainer").select(".tsi-saveButton")
+            .attr("disabled", this.isValid ? null : true)
+            .classed("tsi-buttonDisabled", !this.isValid);
 
     }
 
