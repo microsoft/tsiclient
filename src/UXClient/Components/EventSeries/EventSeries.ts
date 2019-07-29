@@ -51,7 +51,10 @@ class EventSeries extends TimelineComponent{
 			.attr("width", 7)
 			.attr("height", 7)
 			.attr("fill", d => d.color)
-			.attr("transform", "rotate(45)");
+			.attr("transform", "rotate(45)")
+			.on('click', d => {
+				d.onClick();
+			});
 				
 		this.xScale = d3.scaleTime().domain([fromTime, toTime]).range([0, seriesWidth]);
 		enteredRectGs = enteredRectGs.merge(rectGs);

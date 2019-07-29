@@ -34,7 +34,8 @@ class TimelineComponent extends Component {
 			return {
 				"time" : time,
 				"color" : eventData[time].color,
-				"description" : eventData[time].description
+				"description" : eventData[time].description,
+				'onClick': eventData[time].onClick ? eventData[time].onClick : () => {} 
 			};
 		});
 	}

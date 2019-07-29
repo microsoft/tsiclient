@@ -52,7 +52,10 @@ class StateSeries extends TimelineComponent {
             .attr("x", d => this.xScale(new Date(d.time)))
             .attr("y", 0)
 			.attr("height", 10)
-			.attr("fill", d => d.color);
+			.attr("fill", d => d.color)
+			.on('click', d => {
+				d.onClick();
+			});
         this.xScale = d3.scaleTime().domain([fromTime, toTime]).range([0, seriesWidth]);
 		enteredRects = enteredRects.merge(rects);
 		enteredRects
