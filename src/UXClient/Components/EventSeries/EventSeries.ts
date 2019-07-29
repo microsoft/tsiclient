@@ -66,15 +66,12 @@ class EventSeries extends TimelineComponent{
 		var rects = enteredRectGs.select("rect");
 		var self = this;
 		rects.on("mouseover", function (dRect, iRect) { 
-			self.elementMouseover(dRect, iRect, (d, i) => { 
-				return Utils.timeFormat(this.usesSeconds, this.usesMillis, self.chartOptions.offset, null, null, null, this.chartOptions.dateLocale)(new Date(d.time));
-			});
 			var mousePos = d3.mouse(<any>self.g.node());
 			tooltip.render(self.chartOptions.theme);
 			tooltip.draw (dRect, {}, mousePos[0], mousePos[1], {top: 0, bottom: 0, left: 0, right: 0}, (text) => {
 				text.text(null);
 				text.append('div')
-					.text(Utils.timeFormat(self.usesSeconds, self.usesMillis, self.chartOptions.offset, true, null, null, self.chartOptions.dateLocale)(new Date(dRect.time)))
+					.text(Utils.timeFormat(self.usesSeconds, self.usesMillis, self.chartOptions.offset, self.chartOptions.is24HourTime, null, null, self.chartOptions.dateLocale)(new Date(dRect.time)))
 					.classed('title', true);
 				text.append('div')
 					.text(dRect.description)

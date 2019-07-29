@@ -68,15 +68,12 @@ class StateSeries extends TimelineComponent {
 		var timeFormat = (d, i) => { 
 			var startTime = new Date(d.time);
 			var endTime = (i + 1 < data.length) ? (new Date(data[i+1].time)) : (new Date(toTime));
-			return Utils.timeFormat(this.usesSeconds, this.usesMillis, this.chartOptions.offset, null, null, null, this.chartOptions.dateLocale)(startTime) + " - " + 
-				   Utils.timeFormat(this.usesSeconds, this.usesMillis, this.chartOptions.offset, null, null, null, this.chartOptions.dateLocale)(endTime);
+			return Utils.timeFormat(this.usesSeconds, this.usesMillis, this.chartOptions.offset, self.chartOptions.is24HourTime, null, null, this.chartOptions.dateLocale)(startTime) + " - " + 
+				   Utils.timeFormat(this.usesSeconds, this.usesMillis, this.chartOptions.offset, self.chartOptions.is24HourTime, null, null, this.chartOptions.dateLocale)(endTime);
 		}
 
 		var self = this;
 		enteredRects.on("mousemove", function (dRect, iRect) { 
-			self.elementMouseover(dRect, iRect, (d, i) => { 
-				return Utils.timeFormat(this.usesSeconds, this.usesMillis, this.chartOptions.offset, null, null, null, this.chartOptions.dateLocale)(new Date(d.time));
-			});
 			var mousePos = d3.mouse(<any>self.g.node());
 			tooltip.render(self.chartOptions.theme);
 			tooltip.draw (dRect, {}, mousePos[0], mousePos[1], {top: 0, bottom: 0, left: 0, right: 0}, (text) => {

@@ -67,10 +67,5 @@ class TimelineComponent extends Component {
 					.attr("transform", "translate(0,10)")
         }
 	}
-
-	protected elementMouseover = (d, i, timeFormatFunction) => {
-		var selectedTime = new Date(d.time);
-		var xPos = this.xScale(selectedTime);
-	}
 }
 export {TimelineComponent}
