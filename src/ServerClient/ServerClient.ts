@@ -1,4 +1,5 @@
 import * as Promise from 'promise-polyfill';
+import { Utils } from '../UXClient/Utils';
 
 class ServerClient {
     private apiVersionUrlParam = "?api-version=2016-12-12";
@@ -59,8 +60,11 @@ class ServerClient {
         return events;
     }
 
-    private getQueryApiResult = (token, results, contentObject, index, uri, resolve, messageProperty, onProgressChange = (percentComplete) => {}, mergeAccumulatedResults = false) => {
-        var xhr = new XMLHttpRequest();
+    private getQueryApiResult = (token, results, contentObject, index, uri, resolve, messageProperty, onProgressChange = (percentComplete) => {}, mergeAccumulatedResults = false, xhr = null) => {
+        if (xhr === null) {
+            xhr = new XMLHttpRequest();
+        }
+
         var onreadystatechange;
         var accumulator = [];
         onreadystatechange = () => {
@@ -92,32 +96,55 @@ class ServerClient {
                     xhr.send(JSON.stringify(contentObject));
                 }
             }
-            else{
+            else if (xhr.status !== 0) {
                 results[index] = {__tsiError__: JSON.parse(xhr.responseText)};
                 if(results.map(ar => !('progress' in ar)).reduce((p,c) => { p = c && p; return p}, true))
                     resolve(results);
-            }
+            } 
             let percentComplete = Math.max(results.map(r => 'progress' in r ? r.progress : 100).reduce((p,c) => p+c, 0) / results.length, 1);
             onProgressChange(percentComplete);
         }
 
         xhr.onreadystatechange = onreadystatechange;
+        xhr.onabort = () => {
+            resolve('__CANCELLED__');
+        }
         xhr.open('POST', uri);
         xhr.setRequestHeader('Authorization', 'Bearer ' + token);
         xhr.send(JSON.stringify(contentObject));
     }
 
-    public getTsqResults(token: string, uri: string, tsqArray: Array<any>, onProgressChange = () => {}, mergeAccumulatedResults = false) {
+    public getCancellableTsqResults (token: string, uri: string, tsqArray: Array<any>, onProgressChange = () => {}, mergeAccumulatedResults = false, storeType: string = null) {
+        return this.getTsqResults(token, uri, tsqArray, onProgressChange, mergeAccumulatedResults, storeType, true);
+    }
+
+    public getTsqResults(token: string, uri: string, tsqArray: Array<any>, onProgressChange = () => {}, mergeAccumulatedResults = false, storeType: string = null, hasCancelTrigger = false) {
         var tsqResults = [];
         tsqArray.forEach(tsq => {
             tsqResults.push({progress: 0});
         });
-        
-        return new Promise((resolve: any, reject: any) => {
-            tsqArray.forEach((tsq, i) => { 
-                this.getQueryApiResult(token, tsqResults, tsq, i, `https://${uri}/timeseries/query${this.tsmTsqApiVersion}`, resolve, message => message, onProgressChange, mergeAccumulatedResults);
-            })
+
+        let xhrs = tsqArray.map((tsq) => {
+            return new XMLHttpRequest();
         });
+
+        let storeTypeString = storeType ? '&storeType=' + storeType : '';
+
+        let promise = new Promise((resolve: any, reject: any) => {
+            tsqArray.map((tsq, i) => { 
+                return this.getQueryApiResult(token, tsqResults, tsq, i, `https://${uri}/timeseries/query${this.tsmTsqApiVersion}${storeTypeString}`, resolve, message => message, onProgressChange, mergeAccumulatedResults, xhrs[i]);
+            });
+        });
+        let cancelTrigger = () => {
+            xhrs.forEach((xhr) => {
+                xhr.abort();
+            });
+        } 
+        
+        if (hasCancelTrigger) {
+            return [promise, cancelTrigger];
+        }
+        return promise;
     }
 
     public getAggregates(token: string, uri: string, tsxArray: Array<any>, onProgressChange = () => {}) {
@@ -212,9 +239,29 @@ class ServerClient {
         return this.createPromiseFromXhr(uri, "POST", payload, token, (responseText) => {return JSON.parse(responseText).properties;});
     }
 
-    public getAvailability(token: string, environmentFqdn: string, apiVersion: string = this.apiVersionUrlParam) {
-        var uri = 'https://' + environmentFqdn + '/availability' + apiVersion;
-        return this.createPromiseFromXhr(uri, "GET", {}, token, (responseText) => {return JSON.parse(responseText);});
+    public getAvailability(token: string, environmentFqdn: string, apiVersion: string = this.apiVersionUrlParam, hasWarm: boolean = true) {
+        let uriBase = 'https://' + environmentFqdn + '/availability';
+        let coldUri = uriBase + apiVersion + (hasWarm ? '&storeType=ColdStore' : '');
+
+        return new Promise((resolve: any, reject: any) => {
+            this.createPromiseFromXhr(coldUri, "GET", {}, token, (responseText) => {return JSON.parse(responseText);}).then((coldResponse) => {
+                if (hasWarm) {
+                    let warmUri = uriBase + apiVersion + '&storeType=WarmStore';
+                    this.createPromiseFromXhr(warmUri, "GET", {}, token, (responseText) => {return JSON.parse(responseText);}).then(function (warmResponse) {
+                        let availability = warmResponse ? warmResponse.availability : null ;
+                        if (coldResponse.availability) {
+                            availability = Utils.mergeAvailabilities(warmResponse.availability, coldResponse.availability);
+                            if (warmResponse.availability.range) {
+                                availability['warmStoreRange'] = [warmResponse.availability.range.from, warmResponse.availability.range.to]; 
+                            }
+                        } 
+                        resolve({availability: availability});
+                    });    
+                } else {
+                    resolve(coldResponse);
+                }
+            });
+        });
     }
 
     public getEvents(token: string, environmentFqdn: string, predicateObject,  options: any, minMillis, maxMillis) {

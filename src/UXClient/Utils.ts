@@ -662,6 +662,20 @@ class Utils {
             R_MEASURE: rMeasureName ? rMeasureName : null
         }
     }
+
+    static mergeAvailabilities (warmAvailability, coldAvailability) {
+        let warmStoreRange = warmAvailability.range;
+        let filteredColdDistribution = {};
+        Object.keys(coldAvailability.distribution).forEach((ts) => {
+            let tsDate = new Date(ts);
+            if (tsDate < (new Date(warmStoreRange.from)) || tsDate > (new Date(warmStoreRange.to))) {
+                filteredColdDistribution[ts] = coldAvailability.distribution[ts];
+            }
+        });
+        let mergedDistribution = Object.assign(filteredColdDistribution, warmAvailability.distribution) 
+
+        return Object.assign(coldAvailability, {distribution: mergedDistribution});
+    }
 }
 
 export {Utils};

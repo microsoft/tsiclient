@@ -63,7 +63,7 @@ class ChartOptions {
     public timestamp: any; //For components with a slider, this is the selected timestamp
     public tooltip: boolean; // whether tooltip is visible
     public throttleSlider: boolean; // whether slider is throttled to only fire on mouseup vs slider move
-    public warmRange: Array<string>; //start and optional end timestamp representing the availability chart region within warm store. If no second value, endTime is assumed to be end of warm range
+    public warmStoreRange: Array<string>; //start and optional end timestamp representing the availability chart region within warm store. If no second value, endTime is assumed to be end of warm range
     public xAxisHidden: boolean; // whether xAxis is hidden in chart
     public xAxisTimeFormat: (d, i, isFirst, isLast) => {}; //takes in a date string, tick index, isFirst, and isLast, outputs a moment.js style date format string
     public yAxisHidden: boolean; // whether yAxis is hidden in chart
@@ -164,7 +164,7 @@ class ChartOptions {
         this.brushRangeVisible = this.mergeValue(chartOptionsObj, 'brushRangeVisible', true);
         this.strings.mergeStrings(Utils.getValueOrDefault(chartOptionsObj, 'strings', {}));
         this.dateLocale = this.mergeValue(chartOptionsObj, 'dateLocale', 'en');
-        this.warmRange = this.mergeValue(chartOptionsObj, 'warmRange', null)
+        this.warmStoreRange = this.mergeValue(chartOptionsObj, 'warmStoreRange', null)
     }
 
     private mergeValue (chartOptionsObj, propertyName, defaultValue) {
@@ -242,7 +242,7 @@ class ChartOptions {
             brushRangeVisible: this.brushRangeVisible,
             strings: this.strings.toObject(),
             dateLocale: this.dateLocale,
-            warmRange: this.warmRange
+            warmStoreRange: this.warmStoreRange
         }
     }
 }
