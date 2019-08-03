@@ -701,7 +701,7 @@ class LineChart extends TemporalXAxisComponent {
         return scooter;
     }
 
-    public scooterButtonClick = () => {
+    public addMarker = () => {
         if (this.isFirstMarkerDrop) {
             this.isFirstMarkerDrop = false;
             this.createMarkerInstructions();
@@ -1502,7 +1502,7 @@ class LineChart extends TemporalXAxisComponent {
             this.drawEllipsisMenu([{
                 iconClass: "flag",
                 label: this.getString("Drop a Marker"),
-                action: this.scooterButtonClick,
+                action: this.addMarker,
                 description: ""
             }]);
             this.chartControlsPanel.style("top", Math.max((this.chartMargins.top - 24), 0) + 'px');
