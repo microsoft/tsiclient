@@ -27,6 +27,9 @@
                     cursor: default;
                     background: $gray4;
                 }
+                &:focus {
+                    outline: 1px solid $gray4;
+                }
             }
             &.tsi-resultSelected{
                 background-color: transparent;
@@ -127,6 +130,16 @@
             &.selected {
                 background-color: $gray2;
             }
+            &:focus {
+                outline: 1px solid $gray6;
+                z-index: 2;
+            }
+        }
+
+        .tsi-search-global {
+            a {
+                color: $gray6;
+            }
         }
     }
 
@@ -197,10 +210,10 @@
     }
 
     .tsi-hierarchy-selection-wrapper {
-        padding: 20px 20px 8px;
+        padding: 20px 20px 4px;
         flex-direction: column;
         display: flex;
-        height: 68px;
+        height: 64px;
 
         .tsi-hierarchy-select {
             display: flex;
@@ -248,6 +261,9 @@
                     &:hover {
                         cursor: pointer;
                     }
+                    &:focus {
+                        z-index: 2;
+                    }
                 }
             }
         }
@@ -256,41 +272,44 @@
     .tsi-hierarchy-search {
         display: flex;
         align-items: center;
-        height: 48px;
-        padding-right: 20px;
+        padding: 0px 20px;
+        flex-wrap: wrap;
 
         ul {
             z-index: 2 !important;
-            width: calc(100% - 20px) !important;
+            width: 100% !important;
+            margin: -8px 0 !important; 
         }
 
         input {
-            width: calc(100% - 19px) !important;
-            margin: 8px 32px 8px 20px !important;
+            width: 100% !important;
+            margin: 8px 32px 8px 0px !important;
             padding: 6px 32px 6px 6px !important;
-            height: 34px;
+            height: 33px;
         }
 
         .tsi-view-types {
             display: none;
             flex-direction: row;
+            animation: fade-in .2s ease-in-out;
 
             .tsi-view-type {
-                border: 1px solid #c1bdbd;
-                width: 34px;
-                height: 34px;
+                outline: 1px solid #c1bdbd;
+                width: 32px;
+                height: 32px;
                 padding: 6px;
                 align-items: center;
-                animation: fade-in .2s ease-in-out;
                 cursor: pointer;
 
                 .tsi-tree-icon {
                     display: inline-block;
+                    height: 16px;
+                    width: 19px;
                 }
     
                 .tsi-list-icon {
                     display: inline-block;
-                    height: 15px;
+                    height: 16px;
                     width: 18px;
                 }
             }
@@ -300,11 +319,26 @@
             position: relative;
             display: inline-flex;
             flex-grow: 1;
+            width: calc(100% - 66px);
 
             .tsi-clear {
                 right: 4px !important;
                 left: unset !important;
                 margin-top: 0px !important;
+            }
+        }
+
+        .tsi-search-global {
+            display: none;
+            animation: fade-in .2s ease-in-out;
+            padding-bottom: 8px;
+
+            a {
+                text-decoration: none;
+                cursor: pointer;
+                font-size: 12px;
+                white-space: nowrap;
+                padding: 0 !important;
             }
         }
     }
@@ -320,7 +354,7 @@
         opacity: 0.5;
 
         &.visible {
-            height: 36px;
+            height: 32px;
             transform: scaleY(1);
         }
 
@@ -328,8 +362,7 @@
             display: flex;
             width: 100%;
             align-items: center;
-            padding: 8px;
-            height: 24px;
+            padding: 0 8px;
 
             .tsi-filter-icon {
                 width: 12px;
@@ -351,6 +384,10 @@
                     padding: 4px;
                     border-radius: 4px;
                     cursor: pointer;
+
+                    &:first-child, &:last-child {
+                        min-width: 32px;
+                    }
                 }
             }
     

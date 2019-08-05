@@ -655,6 +655,18 @@ class Utils {
             R_MEASURE: rMeasureName ? rMeasureName : null
         }
     }
+
+    static isKeyDownAndNotEnter = (e) => {
+        if (e && e.type && e.type === 'keydown') {
+            let key = e.which || e.keyCode;
+            if (key !== 13) {
+                return true;
+            } else {
+                e.preventDefault();
+            }
+        }
+        return false;
+    }
 }
 
 export {Utils};
