@@ -182,22 +182,6 @@ class HierarchyNavigation extends Component{
                 // hierarchy flyout list
                 this.hierarchyListWrapperElem = hierarchySelectionWrapper.append('div').classed('tsi-hierarchy-list-wrapper', true);
                 this.hierarchyListElem = this.hierarchyListWrapperElem.append('ul').classed('tsi-hierarchy-list', true);
-
-                // filter path
-                this.filterPathElem = hierarchyNavWrapper.append('div').classed('tsi-filter-path-wrapper', true);
-                let filterPath = this.filterPathElem.append('div').classed('tsi-filter-path', true)
-                filterPath.append('i').classed('tsi-filter-icon', true);
-                filterPath.append('span').classed('tsi-path-list', true);
-                filterPath.append('i').classed('tsi-close-icon tsi-filter-clear', true)
-                    .attr('tabindex', 0)
-                    .attr('arialabel', 'Clear Path Filter')
-                    .attr('title', 'Clear Path Filter')
-                    .on('click keydown', function () {
-                        if (Utils.isKeyDownAndNotEnter(d3.event)) {return; }
-                        self.path = (self.selectedHierarchyName === HierarchySelectionValues.All || self.selectedHierarchyName === HierarchySelectionValues.Unparented) ? [] : [self.selectedHierarchyName];
-                        self.clearAndGetResults();
-                        self.clearAndHideFilterPath();
-                    });
                 
                 // search
                 let searchWrapper = hierarchyNavWrapper.append('div').classed('tsi-hierarchy-search', true);
@@ -233,6 +217,21 @@ class HierarchyNavigation extends Component{
                                             self.selectHierarchy(HierarchySelectionValues.All);
                                             this.parentNode.style.display = 'none';
                                         })
+
+                // filter path
+                this.filterPathElem = hierarchyNavWrapper.append('div').classed('tsi-filter-path-wrapper', true);
+                let filterPath = this.filterPathElem.append('div').classed('tsi-filter-path', true)
+                filterPath.append('span').classed('tsi-path-list', true);
+                filterPath.append('i').classed('tsi-close-icon tsi-filter-clear', true)
+                    .attr('tabindex', 0)
+                    .attr('arialabel', 'Clear Path Filter')
+                    .attr('title', 'Clear Path Filter')
+                    .on('click keydown', function () {
+                        if (Utils.isKeyDownAndNotEnter(d3.event)) {return; }
+                        self.path = (self.selectedHierarchyName === HierarchySelectionValues.All || self.selectedHierarchyName === HierarchySelectionValues.Unparented) ? [] : [self.selectedHierarchyName];
+                        self.clearAndGetResults();
+                        self.clearAndHideFilterPath();
+                    });
 
                 // result (hierarchy or flat list)
                 let results = hierarchyNavWrapper.append('div').classed('tsi-hierarchy-or-list-wrapper', true);
@@ -675,8 +674,8 @@ class HierarchyNavigation extends Component{
                             : ''}
                         </span>`; 
             }
-            else return key + (hORi.cumulativeInstanceCount ? ' <span class=\"tsi-childCount\">' + hORi.cumulativeInstanceCount + '</span>' : '');
-        } else return key + (hORi.cumulativeInstanceCount ? ' <span class=\"tsi-childCount\">' + hORi.cumulativeInstanceCount + '</span>' : '');
+            else return '<span class=\"tsi-name\">'+ key + '</span>' + (hORi.cumulativeInstanceCount ? ' <span class=\"tsi-childCount\">' + hORi.cumulativeInstanceCount + '</span>' : '');
+        } else return '<span class=\"tsi-name\">'+ key + '</span>' + (hORi.cumulativeInstanceCount ? ' <span class=\"tsi-childCount\">' + hORi.cumulativeInstanceCount + '</span>' : '');
     }
 
     //returns the html of one instance item for flat list rendering

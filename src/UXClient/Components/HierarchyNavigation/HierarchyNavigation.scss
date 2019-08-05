@@ -73,10 +73,10 @@
             cursor: pointer !important;
         }
         &.tsi-selected {
-            background: $gray2 !important;
+            background: $gray2;
             .tsi-markedName{
                 &:hover{
-                    background: $gray2 !important;
+                    background: $gray2;
                 }
             }
         }
@@ -116,8 +116,6 @@
     }
 
     .tsi-filter-path {
-        border: 1px solid $gray5;
-
         .tsi-path {
             &:hover {
                 background-color: $gray5;
@@ -210,22 +208,21 @@
     }
 
     .tsi-hierarchy-selection-wrapper {
-        padding: 20px 20px 4px;
+        padding: 20px 20px 8px;
         flex-direction: column;
         display: flex;
-        height: 64px;
 
         .tsi-hierarchy-select {
             display: flex;
             align-items: center;
             width: 100%;
-            padding: 8px;
+            padding: 0 8px;;
             box-sizing: border-box;
             border-radius: 2px;
+            height: 32px;
 
             .tsi-hierarchy-name {
-                font-size: 16px;
-                font-weight: 600;
+                font-size: 15px;
                 overflow: hidden;
                 text-overflow: ellipsis;
                 white-space: nowrap;
@@ -249,12 +246,11 @@
             z-index: 3;
             position: absolute;
             width: calc(100% - 40px);
-            top: 61px;
+            top: 53px;
             box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
 
             ul {
                 font-size: 14px;
-                font-weight: 600;
 
                 li {
                     padding: 8px;
@@ -284,8 +280,8 @@
         input {
             width: 100% !important;
             margin: 8px 32px 8px 0px !important;
-            padding: 6px 32px 6px 6px !important;
-            height: 33px;
+            padding: 8px 32px 8px 8px !important;
+            height: 32px;
         }
 
         .tsi-view-types {
@@ -331,7 +327,7 @@
         .tsi-search-global {
             display: none;
             animation: fade-in .2s ease-in-out;
-            padding-bottom: 8px;
+            padding-bottom: 4px;
 
             a {
                 text-decoration: none;
@@ -362,7 +358,7 @@
             display: flex;
             width: 100%;
             align-items: center;
-            padding: 0 8px;
+            padding: 0;
 
             .tsi-filter-icon {
                 width: 12px;
@@ -387,6 +383,10 @@
 
                     &:first-child, &:last-child {
                         min-width: 32px;
+                    }
+
+                    &:first-child {
+                        padding-left: 0;
                     }
                 }
             }
@@ -566,9 +566,13 @@
             min-height: 28px;
             font-size: 14px;
             align-items: center;
-            text-overflow: ellipsis;
-            overflow: hidden;
-            white-space: nowrap;
+            padding-right: 40px;
+
+            .tsi-name {
+                text-overflow: ellipsis;
+                overflow: hidden;
+                white-space: nowrap;
+            }
 
             .tsi-childCount {
                 opacity: 0.5;
@@ -619,7 +623,7 @@
         position: absolute;
         left: calc(100% - 32px);
         top: 0px;
-        z-index: 10;
+        z-index: 30;
         transition: top .2 ease-in-out; 
 
         ul {
