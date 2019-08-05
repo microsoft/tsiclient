@@ -510,8 +510,8 @@
         self._onKeyChange = function(e)
         {
             e = e || window.event;
-
-            if (self.isVisible()) {
+            // ignore if event comes from input box
+            if (self.isVisible() && e.target && e.target.type !== 'text') {
 
                 switch(e.keyCode){
                     case 13:

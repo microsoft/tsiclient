@@ -196,7 +196,7 @@ select::-ms-expand {
                             background-color:#d5ebe9; 
                         }
                     }
-                    &.is-endrange, &.is-startrange {
+                    &.is-endrange, &.is-startrange ,&.is-selected {
                         .pika-day {
                             background-color: #309d90;
                             color: white;
@@ -219,6 +219,11 @@ select::-ms-expand {
                             border-top-right-radius: 8px;
                         }
                     }
+                    &.is-selected {
+                        button {
+                            border-radius: 4px;
+                        }
+                    }
 
                     .pika-day {
                         width: 100%;
@@ -226,7 +231,7 @@ select::-ms-expand {
                         width: 28px;
                         margin: 0px;
                         &:hover {
-                            background-color: #309d90;
+                            background-color:#309d90;
                             color: white;
                         }
                     }

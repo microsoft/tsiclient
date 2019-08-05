@@ -20,6 +20,7 @@ import { EllipsisMenu } from "./Components/EllipsisMenu/EllipsisMenu";
 import { TsqExpression } from "./Models/TsqExpression";
 import { ModelAutocomplete } from "./Components/ModelAutocomplete/ModelAutocomplete";
 import { HierarchyNavigation } from "./Components/HierarchyNavigation/HierarchyNavigation";
+import { SingleDateTimePicker } from "./Components/SingleDateTimePicker/SingleDateTimePicker";
 
 class UXClient {
     UXClient () {
@@ -107,6 +108,10 @@ class UXClient {
 
     public EllipsisMenu(renderTarget) {
         return new EllipsisMenu(renderTarget);
+    }
+
+    public SingleDateTimePicker(renderTarget) {
+        return new SingleDateTimePicker(renderTarget);
     }
 
     public transformTsxToEventsArray (events, options) {
