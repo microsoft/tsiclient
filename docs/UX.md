@@ -232,9 +232,9 @@ The most common available parameters for chart options are as follows (bold opti
 |legend|string|**'shown'**,'compact','hidden'|Legend layout|
 |noAnimate|boolean|**false**, true|If true, uppresses animated chart transitions|
 |offset|any|**0**, -120, 'America/Los_Angeles'|Offset for all timestamps in minutes from UTC, or a timezone supported by moment.js|
-|spMeasures| Array&lt;string&gt; | Array&lt;string&gt; | X, Y, and Radius (optional) measures passed into Scatter Plot |
-|isTemporal| boolean| **false**, true | **true**: scatter plot has temporal slider to slide through time slices **false**: scatter plot renders all timestamps.|
-|spAxisLabels| Array&lt;string&gt; | **null**, Array&lt;string&gt; | If given array, first element of array is used as X axis label.  Second element of array is used as Y axis label.
+|spMeasures| Array&lt;string&gt; | Array&lt;string&gt; | X, Y, and Radius (optional) measures passed into Scatter Plot. *(Note: this is a scatter plot specific chart option)* |
+|isTemporal| boolean| **false**, true | **true**: scatter plot has temporal slider to slide through time slices **false**: scatter plot renders all timestamps. *(Note: this is a scatter plot specific chart option)*|
+|spAxisLabels| Array&lt;string&gt; | **null**, Array&lt;string&gt; | If given array, first element of array is used as X axis label.  Second element of array is used as Y axis label. *(Note: this is a scatter plot specific chart option)*|
 |stacked|boolean|**false**|If true, stack bars in barchart|
 |states|Array&lt;any&gt;|**null**, Array&lt;[State](#line-chart-events-and-states-data-shape)&gt;|An array of time range bound states passed into the linechart|
 |theme|string|**'dark'**, 'light'|Component color scheme|

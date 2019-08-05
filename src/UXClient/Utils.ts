@@ -7,6 +7,9 @@ import { ChartOptions } from './Models/ChartOptions';
 import { AggregateExpression } from './Models/AggregateExpression';
 import { ChartComponentData } from './Models/ChartComponentData';
 
+// Linechart stack states
+enum StackStates {Stacked = "stacked", Shared = "shared", Overlap = "overlap" }
+
 class Utils {
     static formatYAxisNumber (val: number) {
         if (Math.abs(val) < 1000000)
@@ -33,6 +36,10 @@ class Utils {
         return d3.format('.2n')(val); // scientific for everything else
     }
 
+    static getStackStates() {
+        return StackStates;
+    }
+    
     // format [0-9]+[ms|s|m|h|d], convert to millis
     static parseTimeInput (inputString: string) {
         inputString = inputString.toLowerCase();
@@ -666,6 +673,20 @@ class Utils {
             }
         }
         return false;
+    }
+    
+    static mergeAvailabilities (warmAvailability, coldAvailability) {
+        let warmStoreRange = warmAvailability.range;
+        let filteredColdDistribution = {};
+        Object.keys(coldAvailability.distribution).forEach((ts) => {
+            let tsDate = new Date(ts);
+            if (tsDate < (new Date(warmStoreRange.from)) || tsDate > (new Date(warmStoreRange.to))) {
+                filteredColdDistribution[ts] = coldAvailability.distribution[ts];
+            }
+        });
+        let mergedDistribution = Object.assign(filteredColdDistribution, warmAvailability.distribution) 
+
+        return Object.assign(coldAvailability, {distribution: mergedDistribution});
     }
 }
 
