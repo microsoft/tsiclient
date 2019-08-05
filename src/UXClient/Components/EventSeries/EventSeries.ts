@@ -71,7 +71,7 @@ class EventSeries extends TimelineComponent{
 			tooltip.draw (dRect, {}, mousePos[0], mousePos[1], {top: 0, bottom: 0, left: 0, right: 0}, (text) => {
 				text.text(null);
 				text.append('div')
-					.text(Utils.timeFormat(self.usesSeconds, self.usesMillis, self.chartOptions.offset, true, null, null, this.chartOptions.dateLocale)(new Date(dRect.time)))
+					.text(Utils.timeFormat(self.usesSeconds, self.usesMillis, self.chartOptions.offset, true, null, null, self.chartOptions.dateLocale)(new Date(dRect.time)))
 					.classed('title', true);
 				text.append('div')
 					.text(dRect.description)

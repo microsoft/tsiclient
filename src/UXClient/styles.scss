@@ -168,6 +168,11 @@ select::-ms-expand {
     background-position-x: calc(100% - 4px);
 }
 
+.tsi-warmRect {
+    fill: #FFA800;
+    stroke: #FFA800;
+}
+
 .pika-single {
     border-bottom: none;
     border-left: none;
