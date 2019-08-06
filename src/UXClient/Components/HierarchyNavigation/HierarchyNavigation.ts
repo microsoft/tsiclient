@@ -188,7 +188,7 @@ class HierarchyNavigation extends Component{
                 let modelAutocomplete = new ModelAutocomplete(searchWrapper.node() as Element);
                 modelAutocomplete.render(environmentFqdn, getToken, {onInput: autocompleteOnInput, onKeydown: (event, ap) => {handleKeydown(event, ap)},theme: hierarchyNavOptions.theme});
                 this.viewTypesElem = searchWrapper.append('div').classed('tsi-view-types', true);
-                this.viewTypesElem.append('div').classed('tsi-view-type selected', true)
+                this.viewTypesElem.append('div').classed('tsi-view-type', true)
                                         .attr('title', 'Hierarchy View')
                                         .attr('tabindex', 0)
                                         .attr('arialabel', 'Hierarchy View')
@@ -198,7 +198,7 @@ class HierarchyNavigation extends Component{
                                         })
                                         .append('i').classed('tsi-tree-icon', true)
                                             
-                this.viewTypesElem.append('div').classed('tsi-view-type', true)
+                this.viewTypesElem.append('div').classed('tsi-view-type selected', true)
                                         .attr('title', 'List View')
                                         .attr('tabindex', 0)
                                         .attr('arialabel', 'List View')
@@ -207,16 +207,6 @@ class HierarchyNavigation extends Component{
                                             self.switchToSearchView(ViewType.List);
                                         })
                                         .append('i').classed('tsi-list-icon', true)
-                this.searchGloballyElem = searchWrapper.append('div').classed('tsi-search-global', true);
-                this.searchGloballyElem.append('a').text('Search Globally')
-                                        .attr('title', 'Search Globally')
-                                        .attr('tabindex', 0)
-                                        .attr('arialabel', 'Search Globally')
-                                        .on('click keydown', function () {
-                                            if (Utils.isKeyDownAndNotEnter(d3.event)) {return; }
-                                            self.selectHierarchy(HierarchySelectionValues.All);
-                                            this.parentNode.style.display = 'none';
-                                        })
 
                 // filter path
                 this.filterPathElem = hierarchyNavWrapper.append('div').classed('tsi-filter-path-wrapper', true);
@@ -232,6 +222,17 @@ class HierarchyNavigation extends Component{
                         self.clearAndGetResults();
                         self.clearAndHideFilterPath();
                     });
+
+                this.searchGloballyElem = hierarchyNavWrapper.append('div').classed('tsi-search-global', true);
+                this.searchGloballyElem.append('a').text('Search Globally')
+                                        .attr('title', 'Search Globally')
+                                        .attr('tabindex', 0)
+                                        .attr('arialabel', 'Search Globally')
+                                        .on('click keydown', function () {
+                                            if (Utils.isKeyDownAndNotEnter(d3.event)) {return; }
+                                            self.selectHierarchy(HierarchySelectionValues.All);
+                                            this.parentNode.style.display = 'none';
+                                        })
 
                 // result (hierarchy or flat list)
                 let results = hierarchyNavWrapper.append('div').classed('tsi-hierarchy-or-list-wrapper', true);
@@ -283,7 +284,7 @@ class HierarchyNavigation extends Component{
                 if (event.which === 13 || event.keyCode === 13) {
                     this.searchString = st;
                     if (this.mode === State.Navigate) { // first time switching from navigate to search
-                        this.switchToSearchView(ViewType.Hierarchy, false);
+                        this.switchToSearchView(ViewType.List, false);
                     }
                     this.clearAndGetResults();
                 }
@@ -543,7 +544,7 @@ class HierarchyNavigation extends Component{
                         self.closeContextMenu();
                         self.clickedInstance = data[i];
                         let target = self.instanceListElem.select(function() { return this.parentNode});
-                        let mouseWrapper = d3.mouse(target.node());
+                        let mouseWrapper = d3.mouse(target.select(function() { return this.parentNode}).node());
                         let mouseElt = d3.mouse(this as any);
                         data[i].onClick(target, mouseWrapper[1], mouseElt[1]);
                     }
