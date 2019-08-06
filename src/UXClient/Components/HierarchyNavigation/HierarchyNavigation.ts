@@ -231,6 +231,7 @@ class HierarchyNavigation extends Component{
                                         .on('click keydown', function () {
                                             if (Utils.isKeyDownAndNotEnter(d3.event)) {return; }
                                             self.selectHierarchy(HierarchySelectionValues.All);
+                                            self.switchToSearchView(ViewType.List);
                                             this.parentNode.style.display = 'none';
                                         })
 
