@@ -533,6 +533,11 @@ class AvailabilityChart extends ChartComponent{
                                                 self.dateTimePickerAction(fromMillis - (Utils.getOffsetMinutes(self.chartOptions.offset, fromMillis) * 60 * 1000), 
                                                                           toMillis -  (Utils.getOffsetMinutes(self.chartOptions.offset, toMillis) * 60 * 1000));
                                                 (<any>d3.select(self.renderTarget).select(".tsi-dateTimeContainer").node()).focus();
+                                            },
+                                            () => {
+                                                self.dateTimePicker.updateFromAndTo(startMillis, endMillis);
+                                                self.dateTimePickerContainer.style("display", "none");
+                                                (<any>d3.select(self.renderTarget).select(".tsi-dateTimeContainer").node()).focus();
                                             });
 
             });
