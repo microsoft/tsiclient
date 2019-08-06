@@ -116,7 +116,7 @@ class LineChart extends TemporalXAxisComponent {
             leftPos: leftPos,
             rightPos: rightPos
         };
-    } 
+    }
 
     private voronoiMouseout (d: any)  {
         //supress if the context menu is visible
@@ -701,7 +701,7 @@ class LineChart extends TemporalXAxisComponent {
         return scooter;
     }
 
-    private scooterButtonClick = () => {
+    public addMarker = () => {
         if (this.isFirstMarkerDrop) {
             this.isFirstMarkerDrop = false;
             this.createMarkerInstructions();
@@ -1449,7 +1449,7 @@ class LineChart extends TemporalXAxisComponent {
             this.chartMargins.top = 40;
         
         if (this.chartOptions.hideChartControlPanel) {
-            this.chartMargins.top += -28;
+            this.chartMargins.top += -24;
         }
 
         if (!this.chartOptions.brushRangeVisible && this.targetElement) {
@@ -1502,7 +1502,7 @@ class LineChart extends TemporalXAxisComponent {
             this.drawEllipsisMenu([{
                 iconClass: "flag",
                 label: this.getString("Drop a Marker"),
-                action: this.scooterButtonClick,
+                action: this.addMarker,
                 description: ""
             }]);
             this.chartControlsPanel.style("top", Math.max((this.chartMargins.top - 24), 0) + 'px');

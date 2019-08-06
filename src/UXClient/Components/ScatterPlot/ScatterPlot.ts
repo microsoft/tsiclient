@@ -195,6 +195,7 @@ class ScatterPlot extends ChartComponent {
 
     /******** DRAW UPDATE FUNCTION ********/   
     private draw(){
+        this.activeDot = null;
         this.chartComponentData.updateTemporalDataArray(this.chartOptions.isTemporal);
         
         // Update extents to fit data if not temporal
@@ -490,10 +491,10 @@ class ScatterPlot extends ChartComponent {
 
     /******** UNHIGHLIGHT ACTIVE DOT ********/
     private unhighlightDot(){
-        if(this.activeDot != null){
-        this.activeDot
-                .attr("stroke", (d) => Utils.colorSplitBy(this.chartComponentData.displayState, d.splitByI, d.aggregateKey, this.chartOptions.keepSplitByColor))
-                .attr("stroke-width", "1px")
+        if(this.activeDot){
+            this.activeDot
+                    .attr("stroke", (d) => Utils.colorSplitBy(this.chartComponentData.displayState, d.splitByI, d.aggregateKey, this.chartOptions.keepSplitByColor))
+                    .attr("stroke-width", "1px")
         }
         this.activeDot = null;
     }
