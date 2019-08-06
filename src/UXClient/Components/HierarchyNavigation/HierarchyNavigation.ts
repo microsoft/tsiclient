@@ -283,9 +283,7 @@ class HierarchyNavigation extends Component{
             else {
                 if (event.which === 13 || event.keyCode === 13) {
                     this.searchString = st;
-                    if (this.mode === State.Navigate) { // first time switching from navigate to search
-                        this.switchToSearchView(ViewType.List, false);
-                    }
+                    this.switchToSearchView(ViewType.List, false);
                     this.clearAndGetResults();
                 }
             }
