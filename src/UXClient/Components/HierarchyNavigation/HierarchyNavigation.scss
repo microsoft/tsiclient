@@ -208,9 +208,10 @@
     }
 
     .tsi-hierarchy-selection-wrapper {
-        padding: 20px 20px 0px;
+        padding: 20px 20px 8px;
         flex-direction: column;
         display: flex;
+        z-index: 3;
 
         .tsi-hierarchy-select {
             display: flex;
@@ -222,7 +223,7 @@
             height: 32px;
 
             .tsi-hierarchy-name {
-                font-size: 15px;
+                font-size: 14px;
                 overflow: hidden;
                 text-overflow: ellipsis;
                 white-space: nowrap;
@@ -270,6 +271,7 @@
         align-items: center;
         padding: 0px 20px;
         flex-wrap: wrap;
+        margin-top: -8px;
 
         ul {
             z-index: 2 !important;
@@ -335,9 +337,9 @@
         opacity: 0.5;
 
         &.visible {
-            height: 29px;
+            height: 25px;
             transform: scaleY(1);
-            padding: 0px 20px 4px;
+            padding: 0px 20px;
             margin-top: -4px;
         }
 
@@ -498,7 +500,7 @@
     }
 
     .tsi-pin-icon {
-        z-index: 20 !important;
+        z-index: 3 !important;
         right: 20px;
         position: absolute;
         visibility: hidden;
@@ -624,7 +626,7 @@
         position: absolute;
         left: calc(100% - 32px);
         top: 0px;
-        z-index: 30;
+        z-index: 4;
         transition: top .2 ease-in-out; 
 
         ul {
