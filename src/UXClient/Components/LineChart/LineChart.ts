@@ -1449,7 +1449,7 @@ class LineChart extends TemporalXAxisComponent {
             this.chartMargins.top = 40;
         
         if (this.chartOptions.hideChartControlPanel) {
-            this.chartMargins.top += -24;
+            this.chartMargins.top += -28;
         }
 
         if (!this.chartOptions.brushRangeVisible && this.targetElement) {
