@@ -399,8 +399,6 @@ class AvailabilityChart extends ChartComponent{
     }
 
     private setFromAndToTimes (fromMillis, toMillis) {
-        fromMillis = Math.max(this.fromMillis, fromMillis);
-        toMillis = Math.min(this.toMillis, toMillis);
         let timezone = Utils.parseTimezoneName(this.chartOptions.offset);
         let timezoneAbbreviation = Utils.timezoneAbbreviation(timezone);
         let timezoneSuffix = ' (' + this.createTimezoneAbbreviation() + ')'

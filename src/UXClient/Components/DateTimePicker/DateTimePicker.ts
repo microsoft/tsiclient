@@ -58,7 +58,7 @@ class DateTimePicker extends ChartComponent{
         this.calendarPicker.draw();
 
         var rangeErrorCheck = this.rangeIsValid(this.fromMillis, this.toMillis);
-        this.setIsValid(rangeErrorCheck.rangeIsValid);
+        this.setIsSaveable(rangeErrorCheck.isSaveable);
         this.displayRangeErrors(rangeErrorCheck.errors);
     }
 
@@ -259,13 +259,11 @@ class DateTimePicker extends ChartComponent{
         this.setToMillis(toDate.valueOf());
     }
 
-    private setIsValid (isValid: boolean){
-        this.isValid = isValid;
-
+    private setIsSaveable (isSaveable: boolean){
         // For now, lets allow users to save the time even in the presence of errors
         this.targetElement.select(".tsi-saveButtonContainer").select(".tsi-saveButton")
-            .attr("disabled", this.isValid ? null : true)
-            .classed("tsi-buttonDisabled", !this.isValid);
+            .attr("disabled", isSaveable ? null : true)
+            .classed("tsi-buttonDisabled", !isSaveable);
 
     }
 
@@ -282,7 +280,7 @@ class DateTimePicker extends ChartComponent{
         var adjustedMillis = this.adjustSecondsAndMillis(millis);
         var rangeErrorCheck = this.rangeIsValid(millis, this.toMillis);
         this.fromMillis = adjustedMillis;
-        this.setIsValid(rangeErrorCheck.rangeIsValid);
+        this.setIsSaveable(rangeErrorCheck.isSaveable);
         this.displayRangeErrors(rangeErrorCheck.errors);
     } 
 
@@ -290,7 +288,7 @@ class DateTimePicker extends ChartComponent{
         var adjustedMillis = this.adjustSecondsAndMillis(millis);
         var rangeErrorCheck = this.rangeIsValid(this.fromMillis, adjustedMillis);
         this.toMillis = adjustedMillis;
-        this.setIsValid(rangeErrorCheck.rangeIsValid);
+        this.setIsSaveable(rangeErrorCheck.isSaveable);
         this.displayRangeErrors(rangeErrorCheck.errors);
     }
 
@@ -308,6 +306,7 @@ class DateTimePicker extends ChartComponent{
 
     private rangeIsValid (prospectiveFromMillis: number, prospectiveToMillis: number) {
         var accumulatedErrors = [];
+        var isSaveable = true;
         var firstDateTime = new Date(this.minMillis);
         var firstTimeText = Utils.getUTCHours(firstDateTime, this.chartOptions.is24HourTime) + ":" + 
                             (firstDateTime.getUTCMinutes() < 10 ? "0" : "") + String(firstDateTime.getUTCMinutes()) +
@@ -319,6 +318,7 @@ class DateTimePicker extends ChartComponent{
 
         if (prospectiveFromMillis > prospectiveToMillis) {
             accumulatedErrors.push("*Start time must be before end time");
+            isSaveable = false;
         }
         if (prospectiveFromMillis < this.minMillis) {
             accumulatedErrors.push("*Start time is before first possible time (" + firstTimeText + ")");
@@ -334,7 +334,8 @@ class DateTimePicker extends ChartComponent{
         }
         return {
             rangeIsValid : (accumulatedErrors.length == 0),
-            errors: accumulatedErrors
+            errors: accumulatedErrors,
+            isSaveable: isSaveable
         };
     }
 
