@@ -399,8 +399,6 @@ class AvailabilityChart extends ChartComponent{
     }
 
     private setFromAndToTimes (fromMillis, toMillis) {
-        fromMillis = Math.max(this.fromMillis, fromMillis);
-        toMillis = Math.min(this.toMillis, toMillis);
         let timezone = Utils.parseTimezoneName(this.chartOptions.offset);
         let timezoneAbbreviation = Utils.timezoneAbbreviation(timezone);
         let timezoneSuffix = ' (' + this.createTimezoneAbbreviation() + ')'
@@ -532,6 +530,11 @@ class AvailabilityChart extends ChartComponent{
                                                 self.sparkLineChart.chartOptions.offset = offset;
                                                 self.dateTimePickerAction(fromMillis - (Utils.getOffsetMinutes(self.chartOptions.offset, fromMillis) * 60 * 1000), 
                                                                           toMillis -  (Utils.getOffsetMinutes(self.chartOptions.offset, toMillis) * 60 * 1000));
+                                                (<any>d3.select(self.renderTarget).select(".tsi-dateTimeContainer").node()).focus();
+                                            },
+                                            () => {
+                                                self.dateTimePicker.updateFromAndTo(startMillis, endMillis);
+                                                self.dateTimePickerContainer.style("display", "none");
                                                 (<any>d3.select(self.renderTarget).select(".tsi-dateTimeContainer").node()).focus();
                                             });
 
