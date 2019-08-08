@@ -153,17 +153,15 @@
 
             toggleHierarchyNavigationOption = function(property, value = null) {
                 hierarchyNavOptions[property] = (value === null) ? !hierarchyNavOptions[property] : value; 
-                let data = Object.assign({}, hierarchyNavOptions);
-                hierarchy.render(environmentFqdn, authContext.getTsiToken, {data, onInstanceClick: instance => this.onInstanceClick(instance)});
+                hierarchy.render(environmentFqdn, authContext.getTsiToken, Object.assign({}, hierarchyNavOptions, {onInstanceClick: instance => this.onInstanceClick(instance)}));
             }
 
             window.onload = function() {
                 initAuth('Hierarchy Navigation Test');  // initiate auth objects, header, and login modal
                 tsiClient = new TsiClient();
                 
-                let data = Object.assign({}, hierarchyNavOptions);
                 hierarchy = new tsiClient.ux.HierarchyNavigation(document.getElementById('hierarchyNav'));
-                hierarchy.render(environmentFqdn, authContext.getTsiToken, {data, onInstanceClick: instance => this.onInstanceClick(instance)});
+                hierarchy.render(environmentFqdn, authContext.getTsiToken, Object.assign({}, hierarchyNavOptions, {onInstanceClick: instance => this.onInstanceClick(instance)}));
 
             }
         </script>
