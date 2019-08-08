@@ -448,8 +448,8 @@ class HierarchyNavigation extends Component{
                         self.closeContextMenu();
                         self.clickedInstance = data[el]; 
                         let mouseElt = d3.mouse(this as any);
-                        let target = self.hierarchyElem;
-                        let mouseWrapper = d3.mouse(target.select(function() { return this.parentNode}).node());
+                        let target = self.hierarchyElem.select(function() { return this.parentNode});
+                        let mouseWrapper = d3.mouse(target.node());
                         data[el].onClick(target, mouseWrapper[1], mouseElt[1]);
                     } else {
                         data[el].isExpanded ? data[el].collapse() : data[el].expand()
@@ -542,8 +542,8 @@ class HierarchyNavigation extends Component{
                         d3.event.stopPropagation();
                         self.closeContextMenu();
                         self.clickedInstance = data[i];
-                        let target = self.instanceListElem.select(function() { return this.parentNode});
-                        let mouseWrapper = d3.mouse(target.select(function() { return this.parentNode}).node());
+                        let target = self.instanceListElem.select(function() { return this.parentNode.parentNode});
+                        let mouseWrapper = d3.mouse(target.node());
                         let mouseElt = d3.mouse(this as any);
                         data[i].onClick(target, mouseWrapper[1], mouseElt[1]);
                     }
