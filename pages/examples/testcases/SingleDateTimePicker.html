@@ -11,11 +11,11 @@
         <button onclick="showDtp()" id="dtpButton"></button>
         <div id="dtp"></div>
         <script>
-            let offset = 600;
+            let offset = 120;
             window.onload = function() {
                 var tsiClient = new TsiClient();
                 var dtp = new tsiClient.ux.SingleDateTimePicker(dtpElement);
-                var fromMillis = (new Date()).valueOf() - 1000*60*60*24
+                var fromMillis = 23 * 60 * 60 * 1000;
                 dtp.render({theme: 'light', offset: offset}, 0, new Date().valueOf(),fromMillis, onSet);
                 dtpButton.innerHTML = dateFormat(fromMillis);
             };

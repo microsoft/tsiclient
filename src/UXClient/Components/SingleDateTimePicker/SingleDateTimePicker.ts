@@ -4,7 +4,6 @@ import * as moment from 'moment';
 import './SingleDateTimePicker.scss';
 import '../../../packages/pikaday/css/pikaday.css';
 import { ChartComponent } from '../../Interfaces/ChartComponent';
-import { TimezonePicker } from '../TimezonePicker/TimezonePicker';
 import { entries } from 'd3';
 import { Utils } from "./../../Utils";
 
@@ -26,28 +25,6 @@ class SingleDateTimePicker extends ChartComponent{
 
     constructor(renderTarget: Element){
         super(renderTarget);
-    }
-
-    private setNewOffset (oldOffset: any) {
-        var valuesToUpdate = ["minMillis", "maxMillis"];
-        valuesToUpdate.forEach((currValue: string) => {
-            var oldOffsetMinutes = Utils.getMinutesToUTC(oldOffset, this[currValue]);
-            var utcMillis = this[currValue] + (oldOffsetMinutes * 60 * 1000);
-            this[currValue] = utcMillis + Utils.getOffsetMinutes(this.chartOptions.offset, utcMillis) * 60 * 1000;
-        });   
-        
-        this.updateDisplayedDateTime();
-
-        this.date = new Date(this.millis);
-
-        this.calendarPicker.config({minDate: this.roundDay(this.offsetFromUTC(new Date(this.minMillis)))});
-        this.calendarPicker.config({maxDate: this.roundDay(this.offsetFromUTC(new Date(this.maxMillis)))});
-
-        this.calendarPicker.draw();
-
-        // var rangeErrorCheck = this.rangeIsValid(this.fromMillis, this.toMillis);
-        // this.setIsValid(rangeErrorCheck.rangeIsValid);
-        // this.displayRangeErrors(rangeErrorCheck.errors);
     }
 
     public render (chartOptions: any = {}, minMillis: number, maxMillis: number, 
@@ -79,13 +56,14 @@ class SingleDateTimePicker extends ChartComponent{
                 //TODO take the check out of here and put it on input value change
                 let dateTime = new Date(self.millis);
                 let dateString = dateTime.getUTCFullYear() + '-' + (dateTime.getUTCMonth() + 1) + '-' + dateTime.getUTCDate();
+                debugger;
                 let parsedDate = new Date(dateString + ' ' + this.timeControls.select(".tsi-timeInput").node().value);
-                
+                parsedDate.setTime( parsedDate.getTime() - parsedDate.getTimezoneOffset()*60*1000 );
                 let errorCheck = this.dateTimeIsValid(parsedDate.valueOf());
-                this.displayRangeErrors(errorCheck.errors);
+                this.displayErrors(errorCheck.errors);
                 if (errorCheck.rangeIsValid) {
                     this.setMillis(parsedDate.valueOf());
-                    self.onSet(parsedDate.valueOf(), self.chartOptions.offset);
+                    self.onSet(this.millis);
                 } 
             });
         
@@ -103,7 +81,8 @@ class SingleDateTimePicker extends ChartComponent{
 
     //zero out everything but year, month and day
     private roundDay (d: Date) {
-        return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+        let offsetDate = this.offsetFromUTC(d, this.chartOptions.offset);
+        return new Date(offsetDate.getUTCFullYear(), offsetDate.getUTCMonth(), offsetDate.getUTCDate());
     }
 
     private setSelectedDate (d: Date) {
@@ -133,42 +112,30 @@ class SingleDateTimePicker extends ChartComponent{
             onDraw: (d) => {
                 var self = this;
             },
-            minDate: this.offsetFromUTC(new Date(this.minMillis)),
-            maxDate: this.offsetFromUTC(new Date(this.maxMillis)),
-            defaultDate: this.offsetFromUTC(new Date(this.millis))
+            minDate: this.offsetFromUTC(new Date(this.minMillis), Utils.getOffsetMinutes(this.chartOptions.offset, this.minMillis)),
+            maxDate: this.offsetFromUTC(new Date(this.maxMillis), Utils.getOffsetMinutes(this.chartOptions.offset, this.maxMillis)),
+            defaultDate: this.offsetFromUTC(new Date(this.millis), Utils.getOffsetMinutes(this.chartOptions.offset, this.millis))
         });
     }
 
     private setDate (d: Date) {
-        var date = new Date(this.millis);
+        var date = this.offsetFromUTC(new Date(this.millis), this.chartOptions.offset);
         date.setUTCFullYear(d.getFullYear());
         date.setUTCMonth(d.getMonth());
         date.setUTCDate(d.getDate());
-        this.setMillis(date.valueOf());
+        this.setMillis(date.valueOf(), false);
     }
 
     private setIsValid (isValid: boolean){
         this.isValid = isValid;
     }
 
-    //line up the seconds and millis with the second and millis of the max date
-    private adjustSecondsAndMillis (rawMillis) {
-        var currDate = new Date(rawMillis);
-        var maxDate = new Date(this.maxMillis);
-        currDate.setUTCSeconds(maxDate.getUTCSeconds());
-        currDate.setUTCMilliseconds(maxDate.getUTCMilliseconds());
-        return currDate.valueOf();
-    }
-
-    private setMillis (millis: number) {
-        var adjustedMillis = this.adjustSecondsAndMillis(millis);
-        // var rangeErrorCheck = this.rangeIsValid(millis, this.toMillis);
+    private setMillis (millis: number, shouldOffset = true) {
+        var adjustedMillis = millis - (shouldOffset ? Utils.getOffsetMinutes(this.chartOptions.offset, millis) * 60 * 1000 : 0);
         this.millis = adjustedMillis;
-        // this.setIsValid(rangeErrorCheck.rangeIsValid);
-        // this.displayRangeErrors(rangeErrorCheck.errors);
     } 
 
-    private displayRangeErrors (rangeErrors) {
+    private displayErrors (rangeErrors) {
         this.targetElement.select(".tsi-errorMessageContainer").selectAll(".tsi-errorMessage").remove();
         if (rangeErrors.length != 0) {
             this.targetElement.select(".tsi-errorMessageContainer").selectAll(".tsi-errorMessages")
@@ -212,33 +179,29 @@ class SingleDateTimePicker extends ChartComponent{
         var selectedDate = new Date(this.millis);
         this.calendarPicker.setDate(this.roundDay(this.offsetFromUTC(selectedDate)));
         let timeInput = this.timeControls.select(".tsi-timeInput");
-        debugger;
         timeInput.node().value = this.createTimeString(selectedDate);
     }
 
     private createTimeString (currDate: Date) {
         var formatTwoDecimals = (val: number) => ('0' + String(val)).slice(-2);
         var formatThreeDecimals = (val: number) => ('00' + String(val)).slice(-3);
-        let offsetDate = this.offsetFromUTC(currDate);
+        let offsetDate = this.offsetFromUTC(currDate, this.chartOptions.offset);
         return offsetDate.getUTCHours() + ':' +  
             formatTwoDecimals(offsetDate.getUTCMinutes()) + ':' + 
             formatTwoDecimals(offsetDate.getUTCSeconds()) + '.' + 
             formatThreeDecimals(offsetDate.getUTCMilliseconds()); 
     }
 
-    private convert
-
-    private offsetUTC (date: Date) {
-        var dateCopy = new Date(date.valueOf())
-        dateCopy.setTime( dateCopy.getTime() - dateCopy.getTimezoneOffset()*60*1000 );
-        return dateCopy;
-    }
-
-    private offsetFromUTC(date: Date) {
-        var dateCopy = new Date(date.valueOf())
-        dateCopy.setTime( dateCopy.getTime() + dateCopy.getTimezoneOffset()*60*1000 );
+    private offsetFromUTC (date: Date, offset = 0) {
+        var dateCopy = new Date(date.valueOf() + offset * 60 * 1000);
         return dateCopy;    
     }
+
+    private offsetToUTC (date: Date, offset = 0) {
+        var dateCopy = new Date(date.valueOf() - offset * 60 * 1000);
+        return dateCopy;    
+    }
+
 
     private createTimePicker () {
         var self = this;
