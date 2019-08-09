@@ -219,6 +219,9 @@ class HierarchyNavigation extends Component{
                     .on('click keydown', function () {
                         if (Utils.isKeyDownAndNotEnter(d3.event)) {return; }
                         self.path = (self.selectedHierarchyName === HierarchySelectionValues.All || self.selectedHierarchyName === HierarchySelectionValues.Unparented) ? [] : [self.selectedHierarchyName];
+                        if (self.selectedHierarchyName === HierarchySelectionValues.All) {
+                            (self.searchGloballyElem.node() as any).style.display = 'none';
+                        }
                         self.clearAndGetResults();
                         self.clearAndHideFilterPath();
                     });
@@ -393,14 +396,16 @@ class HierarchyNavigation extends Component{
             this.noResultsElem.style('display', 'block');
             if (this.mode === State.Filter) {
                 (this.viewTypesElem.node() as any).style.display = 'none';
-                (this.searchGloballyElem.node() as any).style.display = 'none';
+            }
+            if (this.selectedHierarchyName !== HierarchySelectionValues.All || this.filterPathElem.classed('visible')) {
+                (this.searchGloballyElem.node() as any).style.display = 'inline-flex';
             }
             return;
         } else {
             this.noResultsElem.style('display', 'none');
             if (this.mode === State.Filter) {
                 (this.viewTypesElem.node() as any).style.display = 'inline-flex';
-                if (this.selectedHierarchyName !== HierarchySelectionValues.All || (d3.select('.tsi-filter-clear').node() as any).style.display === 'inline-block') {
+                if (this.selectedHierarchyName !== HierarchySelectionValues.All || this.filterPathElem.classed('visible')) {
                     (this.searchGloballyElem.node() as any).style.display = 'inline-flex';
                 }
             }
@@ -525,12 +530,14 @@ class HierarchyNavigation extends Component{
         if (Object.keys(data).length === 0) {
             this.noResultsElem.style('display', 'block');
             (this.viewTypesElem.node() as any).style.display = 'none';
-            (this.searchGloballyElem.node() as any).style.display = 'none';
+            if (this.selectedHierarchyName !== HierarchySelectionValues.All || this.filterPathElem.classed('visible')) {
+                (this.searchGloballyElem.node() as any).style.display = 'inline-flex';
+            }
             return;
         } else {
             this.noResultsElem.style('display', 'none');
             (this.viewTypesElem.node() as any).style.display = 'inline-flex';
-            if (this.selectedHierarchyName !== HierarchySelectionValues.All || (d3.select('.tsi-filter-clear').node() as any).style.display === 'inline-block') {
+            if (this.selectedHierarchyName !== HierarchySelectionValues.All || this.filterPathElem.classed('visible')) {
                 (this.searchGloballyElem.node() as any).style.display = 'inline-flex';
             }
         }
