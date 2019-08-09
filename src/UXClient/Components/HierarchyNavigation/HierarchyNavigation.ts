@@ -377,6 +377,9 @@ class HierarchyNavigation extends Component{
         this.hierarchyElem.html('');
         this.lastInstanceContinuationToken = null;
         this.usedInstanceSearchContinuationTokens = {};
+        if (this.mode === State.Search) {
+            this.hierarchyNavOptions.isInstancesRecursive = this.selectedHierarchyName === HierarchySelectionValues.Unparented ? false : true;
+        }
         if (this.viewType === ViewType.Hierarchy)
             this.pathSearch(this.getToken, this.environmentFqdn, this.requestPayload(), this.hierarchyElem);
         else

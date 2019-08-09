@@ -329,7 +329,6 @@
     .tsi-filter-path-wrapper {
         display: flex;
         height: 0px;
-        overflow: hidden;
         transform: scaleY(0);
         transform-origin: top;
         transition: transform 0.2s ease-out;
@@ -346,6 +345,7 @@
             display: flex;
             width: 100%;
             align-items: center;
+            flex-direction: row;
             padding: 0;
 
             .tsi-filter-icon {
