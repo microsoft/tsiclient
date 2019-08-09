@@ -400,8 +400,9 @@ class HierarchyNavigation extends Component{
             this.noResultsElem.style('display', 'none');
             if (this.mode === State.Filter) {
                 (this.viewTypesElem.node() as any).style.display = 'inline-flex';
-                if (this.selectedHierarchyName !== HierarchySelectionValues.All)
+                if (this.selectedHierarchyName !== HierarchySelectionValues.All || (d3.select('.tsi-filter-clear').node() as any).style.display === 'inline-block') {
                     (this.searchGloballyElem.node() as any).style.display = 'inline-flex';
+                }
             }
         }
         let list, currentShowMore;
@@ -529,8 +530,9 @@ class HierarchyNavigation extends Component{
         } else {
             this.noResultsElem.style('display', 'none');
             (this.viewTypesElem.node() as any).style.display = 'inline-flex';
-            if (this.selectedHierarchyName !== HierarchySelectionValues.All)
+            if (this.selectedHierarchyName !== HierarchySelectionValues.All || (d3.select('.tsi-filter-clear').node() as any).style.display === 'inline-block') {
                 (this.searchGloballyElem.node() as any).style.display = 'inline-flex';
+            }
         }
         target.select('.tsi-show-more.instance').remove();
 
