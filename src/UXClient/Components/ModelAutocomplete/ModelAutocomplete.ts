@@ -44,11 +44,8 @@ class ModelAutocomplete extends Component{
                 return;
             }
             let key = event.which || event.keyCode;
-            if(key=== 13){
+            if(key === 13){
                 noSuggest = true;
-                input.dispatch('input');
-            }
-            if(key === 8 || key === 46){
                 input.dispatch('input');
             }
         });
@@ -56,9 +53,9 @@ class ModelAutocomplete extends Component{
         var searchText;
         var self = this;
         
-        input.on('input', function() { 
+        input.on('input', function() {
             searchText = (<any>this).value;
-            if(!noSuggest){
+            if(searchText.replace(/ /g,'') && !noSuggest){
                 getToken().then(token => {
                     self.server.getTimeseriesInstancesSuggestions(token, environmentFqdn, searchText).then(r => {
                         self.ap.list = r.suggestions.map(s => s.searchString);

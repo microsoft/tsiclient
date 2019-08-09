@@ -663,6 +663,18 @@ class Utils {
         }
     }
 
+    static isKeyDownAndNotEnter = (e) => {
+        if (e && e.type && e.type === 'keydown') {
+            let key = e.which || e.keyCode;
+            if (key !== 13) {
+                return true;
+            } else {
+                e.preventDefault();
+            }
+        }
+        return false;
+    }
+    
     static mergeAvailabilities (warmAvailability, coldAvailability) {
         let warmStoreRange = warmAvailability.range;
         let filteredColdDistribution = {};
