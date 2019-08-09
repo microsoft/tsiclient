@@ -466,13 +466,14 @@
                 }
             }
             .tsi-show-more{
-                cursor: pointer;
-                text-align: center;
+                text-align: center !important;
                 padding: 8px;
-                font-size: 13px;
-                &:hover{
-                    text-decoration: underline;
-                }
+            }
+        }
+        .tsi-show-more{
+            font-size: 14px;
+            span {
+                cursor: pointer !important;
             }
         }
     }
