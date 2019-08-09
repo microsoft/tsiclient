@@ -556,8 +556,11 @@
             }
 
             .tsi-childCount {
-                opacity: 0.5;
+                opacity: .5;
                 padding-left: 8px;
+                font-size: 11px;
+                position: relative;
+                top: 1px;
             }
 
             .tsi-highlights-detail {
