@@ -212,6 +212,7 @@
         flex-direction: column;
         display: flex;
         z-index: 3;
+        position: relative;
 
         .tsi-hierarchy-select {
             display: flex;
