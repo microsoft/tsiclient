@@ -1,0 +1,22 @@
+
+<!DOCTYPE html> 
+<html>
+    <head>
+        <title>Date Time Picker Buttons</title>
+        
+        <!-- boilerplate headers are injected with head.js, grab them from the live example header, or include a link to head.js -->
+        <script src="../boilerplate/head.js"></script>
+    </head>
+    <body style="font-family: 'Segoe UI', sans-serif;">
+        <div id="buttonContainer" style="width: 100%; height: 160px;"></div>
+        <script>
+            window.onload = function() {              
+                var tsiClient = new TsiClient();
+
+                var dateTimeButtonComponent = new tsiClient.ux.DateTimeButtonSingle(document.getElementById('buttonContainer'));
+                let now = (new Date()).valueOf();
+                dateTimeButtonComponent.render({offset: 'Local'}, now - (24 * 60 * 60 * 1000), now, now);
+            };
+        </script>
+    </body>
+</html>
