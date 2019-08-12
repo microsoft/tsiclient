@@ -68,7 +68,7 @@
         </div>
         <script>
             var hierarchy;
-            var environmentFqdn = 'dcbba382-10bd-40ea-ba06-454094aee00a.env.timeseries.azure.com';
+            var environmentFqdn = 'dcbba382-10bd-40ea-ba06-454094aee00a.env.timeseries.azure.com'; //'bf43f133-3f68-4ec0-bcb4-fd64530e4256.env.crystal-dev.windows-int.net'
             var tsiClient;
             onInstanceClick = function(instance) {
                 let contextMenuActions = [];
@@ -153,7 +153,7 @@
 
             toggleHierarchyNavigationOption = function(property, value = null) {
                 hierarchyNavOptions[property] = (value === null) ? !hierarchyNavOptions[property] : value; 
-                hierarchy.render(environmentFqdn, authContext.getTsiToken, {...hierarchyNavOptions, onInstanceClick: instance => this.onInstanceClick(instance)});
+                hierarchy.render(environmentFqdn, authContext.getTsiToken, Object.assign({}, hierarchyNavOptions, {onInstanceClick: instance => this.onInstanceClick(instance)}));
             }
 
             window.onload = function() {
@@ -161,7 +161,7 @@
                 tsiClient = new TsiClient();
                 
                 hierarchy = new tsiClient.ux.HierarchyNavigation(document.getElementById('hierarchyNav'));
-                hierarchy.render(environmentFqdn, authContext.getTsiToken, {...hierarchyNavOptions, onInstanceClick: instance => this.onInstanceClick(instance)});
+                hierarchy.render(environmentFqdn, authContext.getTsiToken, Object.assign({}, hierarchyNavOptions, {onInstanceClick: instance => this.onInstanceClick(instance)}));
 
             }
         </script>

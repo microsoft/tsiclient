@@ -116,7 +116,7 @@ class LineChart extends TemporalXAxisComponent {
             leftPos: leftPos,
             rightPos: rightPos
         };
-    } 
+    }
 
     private voronoiMouseout (d: any)  {
         //supress if the context menu is visible
@@ -701,7 +701,7 @@ class LineChart extends TemporalXAxisComponent {
         return scooter;
     }
 
-    private scooterButtonClick = () => {
+    public addMarker = () => {
         if (this.isFirstMarkerDrop) {
             this.isFirstMarkerDrop = false;
             this.createMarkerInstructions();
@@ -1502,7 +1502,7 @@ class LineChart extends TemporalXAxisComponent {
             this.drawEllipsisMenu([{
                 iconClass: "flag",
                 label: this.getString("Drop a Marker"),
-                action: this.scooterButtonClick,
+                action: this.addMarker,
                 description: ""
             }]);
             this.chartControlsPanel.style("top", Math.max((this.chartMargins.top - 24), 0) + 'px');
@@ -1647,6 +1647,9 @@ class LineChart extends TemporalXAxisComponent {
                 var timeSet = d3.set(this.chartComponentData.allValues, (d: any) => d.dateTime);
                 var xRange = (this.chartComponentData.allValues.length != 0) ? Math.max(2, (xExtent[1].valueOf() - xExtent[0].valueOf())) : 2;
                 var xOffsetPercentage = this.xOffset / this.chartWidth;
+                if (this.chartOptions.timeFrame) {
+                    fromAndTo = [new Date(this.chartOptions.timeFrame[0]), new Date(this.chartOptions.timeFrame[1])];
+                }
                 this.x.domain(fromAndTo);
                 this.xLowerBound = this.x(fromAndTo[0]);
                 this.xUpperBound = this.x(fromAndTo[1]);
@@ -1847,6 +1850,7 @@ class LineChart extends TemporalXAxisComponent {
                 }
 
                 var visibleEventsCount = 0;
+                let timeFrame = (this.chartOptions.timeFrame) ? this.chartOptions.timeFrame : [xExtent[0],xExtent[1]];
                 if (this.chartComponentData.events) {
                     this.chartComponentData.events.forEach((namedEventSeries, i) => {
                         var name = Object.keys(namedEventSeries)[0];
@@ -1858,7 +1862,7 @@ class LineChart extends TemporalXAxisComponent {
                             .style("visibility", d => isVisible ? "visible" : "hidden")
                             .style("right", this.chartMargins.right  + 'px')
                             .style("bottom", this.chartMargins.bottom + this.timelineHeight - (visibleEventsCount * 10)  + 'px');
-                        this.eventSeriesComponents[i].render(namedEventSeries, {timeFrame: {from : xExtent[0], to: xExtent[1]}, 
+                        this.eventSeriesComponents[i].render(namedEventSeries, {timeFrame: timeFrame, 
                                                         xAxisHidden: true, theme: this.chartOptions.theme, 
                                                         offset: this.chartOptions.offset});
                     });
@@ -1875,7 +1879,7 @@ class LineChart extends TemporalXAxisComponent {
                             .style("visibility", d => this.chartComponentData.displayState.states[namedStateSeries.key].visible ? "visible" : "hidden")
                             .style("right", this.chartMargins.right + 'px')
                             .style("bottom", this.chartMargins.bottom + this.timelineHeight - ((visibleEventsCount * 10) + (visibleStatesCount * 10))  + 'px');
-                        this.stateSeriesComponents[i].render(namedStateSeries, {timeFrame: {from : xExtent[0], to: xExtent[1]}, 
+                        this.stateSeriesComponents[i].render(namedStateSeries, {timeFrame: timeFrame, 
                                                                            offset: this.chartOptions.offset,
                                                                            xAxisHidden: true, theme: this.chartOptions.theme});
                     });

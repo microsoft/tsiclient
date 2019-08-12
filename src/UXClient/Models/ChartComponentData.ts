@@ -455,7 +455,7 @@ class ChartComponentData {
     }
     
 
-    public generateCSVString (offset: number = 0, dateLocale: string = 'en'): string {
+    public generateCSVString (offset: number = 0, dateLocale: string = 'en', spMeasures = null): string {
         //replace comma at end of line with end line character
         var endLine = (s: string): string => {
             return s.slice(0, s.length - 1) + "\n";
@@ -470,12 +470,13 @@ class ChartComponentData {
             var aggKey = aggObj.aggKey;
             var splitByObject = this.displayState[aggKey].aggregateExpression.splitByObject;
             Object.keys(this.timeArrays[aggKey]).forEach((splitBy) => {
-                
                 var splitByString = this.displayState[aggKey].name;
                 if (splitByObject != null) {
                     splitByString += "/" + splitByObject.property + "/" + splitBy;
                 }
-                this.displayState[aggKey].splitBys[splitBy].types.forEach((type) => {
+
+                let types = spMeasures ? spMeasures : this.displayState[aggKey].splitBys[splitBy].types;
+                types.forEach((type) => {
                     var rowKey = aggKey + "_" + splitBy + "_" + type; 
                     rowMap[rowKey] = { };
                     rowOrder.push(rowKey);
@@ -490,13 +491,15 @@ class ChartComponentData {
             if (value.measures && Object.keys(value.measures).length != 0) {
                 Object.keys(value.measures).forEach((type) => {
                     var rowKey = value.aggregateKey + "_" + value.splitBy + "_" + type;
-                    rowMap[rowKey][value.dateTime.valueOf()] = 
+                    if(rowKey in rowMap){
+                        rowMap[rowKey][value.dateTime.valueOf()] = 
                         (value.measures[type] == null || value.measures[type] == undefined) ? 
                         "" : value.measures[type];
+                    }
                 });
             }
         });
-        
+
 
         this.allTimestampsArray.forEach((timeString: string) => {
             var millis = (new Date(timeString)).valueOf();
@@ -506,7 +509,7 @@ class ChartComponentData {
             });
             csvString = endLine(csvString);
         });
-        
+
         return csvString;
     }
 

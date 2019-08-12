@@ -7,6 +7,9 @@ import { ChartOptions } from './Models/ChartOptions';
 import { AggregateExpression } from './Models/AggregateExpression';
 import { ChartComponentData } from './Models/ChartComponentData';
 
+// Linechart stack states
+enum StackStates {Stacked = "stacked", Shared = "shared", Overlap = "overlap" }
+
 class Utils {
     static formatYAxisNumber (val: number) {
         if (Math.abs(val) < 1000000) {
@@ -34,6 +37,10 @@ class Utils {
         return d3.format('.2n')(val); // scientific for everything else
     }
 
+    static getStackStates() {
+        return StackStates;
+    }
+    
     // format [0-9]+[ms|s|m|h|d], convert to millis
     static parseTimeInput (inputString: string) {
         inputString = inputString.toLowerCase();
@@ -657,6 +664,18 @@ class Utils {
         }
     }
 
+    static isKeyDownAndNotEnter = (e) => {
+        if (e && e.type && e.type === 'keydown') {
+            let key = e.which || e.keyCode;
+            if (key !== 13) {
+                return true;
+            } else {
+                e.preventDefault();
+            }
+        }
+        return false;
+    }
+    
     static mergeAvailabilities (warmAvailability, coldAvailability) {
         let warmStoreRange = warmAvailability.range;
         let filteredColdDistribution = {};

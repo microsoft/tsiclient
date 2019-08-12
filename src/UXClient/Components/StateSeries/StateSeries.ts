@@ -31,8 +31,8 @@ class StateSeries extends TimelineComponent {
 		this.width  = Math.max((this.targetElement.node()).clientWidth, this.MINWIDTH);
 
 		var seriesWidth: number = this.width - this.margins.left - this.margins.right;
-		var fromTime = this.chartOptions.timeFrame.from;
-		var toTime = this.chartOptions.timeFrame.to;
+		var fromTime = new Date(this.chartOptions.timeFrame[0]);
+		var toTime = new Date(this.chartOptions.timeFrame[1]);
 		this.xScale = !(this.xScale) ? d3.scaleTime().domain([fromTime, toTime]).range([0, seriesWidth]) : this.xScale;
 
         var rects = this.g.selectAll("rect.tsi-stateRects").data(data, d => d.time + d.color + d.description);
@@ -46,10 +46,11 @@ class StateSeries extends TimelineComponent {
             }
             return xPos2 - xPos1;
         }	
+        this.xScale = d3.scaleTime().domain([fromTime, toTime]).range([0, seriesWidth]);
 		var enteredRects = rects.enter().append("rect")
 			.classed("tsi-stateRects", true)
 			.attr("display", d => (this.xScale(new Date(d.time)) < 0 || this.xScale(new Date(d.time)) > this.width) ? "none" : "block")
-            .attr("x", d => this.xScale(new Date(d.time)))
+			.attr("x", d => this.xScale(new Date(d.time)))
             .attr("y", 0)
 			.attr("height", 10)
 			.attr("fill", d => d.color)

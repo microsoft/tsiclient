@@ -33,10 +33,10 @@ class EventSeries extends TimelineComponent{
 		this.width  = Math.max((this.targetElement.node()).clientWidth, MINWIDTH);
 
 		var seriesWidth: number = this.width - this.margins.left - this.margins.right;
-		var fromTime = (this.chartOptions.timeFrame != undefined && this.chartOptions.timeFrame.from != undefined) ? 
-						this.chartOptions.timeFrame.from : data[0].time;
-		var toTime = (this.chartOptions.timeFrame != undefined && this.chartOptions.timeFrame.to != undefined) ? 
-					this.chartOptions.timeFrame.to : data[data.length - 1].time;
+		var fromTime = (this.chartOptions.timeFrame != undefined && this.chartOptions.timeFrame[0] != undefined) ? 
+						new Date(this.chartOptions.timeFrame[0]) : data[0].time;
+		var toTime = (this.chartOptions.timeFrame != undefined && this.chartOptions.timeFrame[1] != undefined) ? 
+					new Date(this.chartOptions.timeFrame[1]) : data[data.length - 1].time;
 		this.xScale = !(this.xScale) ? d3.scaleTime().domain([fromTime, toTime]).range([0, seriesWidth]) : this.xScale;
 
 		var rectGs = this.g.selectAll("g.tsi-eventRectG").data(data, d => d.time + d.color + d.description);		
