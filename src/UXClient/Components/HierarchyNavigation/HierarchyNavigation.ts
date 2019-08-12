@@ -233,7 +233,7 @@ class HierarchyNavigation extends Component{
                                         .attr('arialabel', 'Search Globally')
                                         .on('click keydown', function () {
                                             if (Utils.isKeyDownAndNotEnter(d3.event)) {return; }
-                                            self.selectHierarchy(HierarchySelectionValues.All);
+                                            self.selectHierarchy(HierarchySelectionValues.All, false);
                                             self.switchToSearchView(ViewType.List);
                                             this.parentNode.style.display = 'none';
                                         })
@@ -375,7 +375,7 @@ class HierarchyNavigation extends Component{
     }
 
     // clears both hierarchy tree and flat list for new results
-    private clearAndGetResults () {
+    private clearAndGetResults (applySearch: boolean = true) {
         this.instanceListElem.html('');
         this.hierarchyElem.html('');
         this.lastInstanceContinuationToken = null;
@@ -383,10 +383,12 @@ class HierarchyNavigation extends Component{
         if (this.mode === State.Search) {
             this.hierarchyNavOptions.isInstancesRecursive = this.selectedHierarchyName === HierarchySelectionValues.Unparented ? false : true;
         }
-        if (this.viewType === ViewType.Hierarchy)
+        if (applySearch) {
+            if (this.viewType === ViewType.Hierarchy)
             this.pathSearch(this.getToken, this.environmentFqdn, this.requestPayload(), this.hierarchyElem);
-        else
+            else
             this.pathSearch(this.getToken, this.environmentFqdn, this.requestPayload(), this.instanceListElem);
+        }
     }
 
     // renders tree for both 'Navigate' and 'Filter' mode (with Hierarchy View option selected), locInTarget refers to the 'show more' element -either hierarchy or instance- within the target
@@ -723,12 +725,12 @@ class HierarchyNavigation extends Component{
     }
 
     // when an hierarchy is selected from the flyout selection menu
-    private selectHierarchy = (pathName) => {
+    private selectHierarchy = (pathName, applySearch: boolean = true) => {
         this.path = pathName === HierarchySelectionValues.All || pathName === HierarchySelectionValues.Unparented ? [] : [pathName];
         this.selectedHierarchyName = pathName;
         let pathText = pathName === HierarchySelectionValues.All ? AllHierarchyOptionText : pathName === HierarchySelectionValues.Unparented ? UnassignedHierarchyOptionText : pathName;
         d3.select('.tsi-hierarchy-name').text(pathText).attr('title', pathText);
-        this.clearAndGetResults();
+        this.clearAndGetResults(applySearch);
         this.clearAndHideFilterPath();
         this.isHierarchySelectionActive = false;
         this.hierarchyListWrapperElem.style('display', 'none');
