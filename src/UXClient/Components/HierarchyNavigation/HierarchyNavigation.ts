@@ -76,12 +76,12 @@ class HierarchyNavigation extends Component{
         let self = this;
         this.getToken = getToken;
         this.environmentFqdn = environmentFqdn;
+        this.resettingVariablesForEnvChange();
         this.hierarchyNavOptions.setOptions(hierarchyNavOptions);
         let targetElement = d3.select(this.renderTarget);   
         targetElement.html(''); 
         let hierarchyNavWrapper = targetElement.append('div').attr('class', 'tsi-hierarchy-nav-wrapper');
         super.themify(hierarchyNavWrapper, this.hierarchyNavOptions.theme);
-        this.envHierarchies = {};
 
         getToken().then(token => {
             self.server.getTimeseriesInstancesPathSearch(token, environmentFqdn, {searchString: '', path: [], hierarchies: {sort: {by: HierarchiesSort.CumulativeInstanceCount}, expand: {kind: HierarchiesExpand.OneLevel}, pageSize: 100}}).then(r => {
@@ -732,6 +732,19 @@ class HierarchyNavigation extends Component{
         this.clearAndHideFilterPath();
         this.isHierarchySelectionActive = false;
         this.hierarchyListWrapperElem.style('display', 'none');
+    }
+
+    private resettingVariablesForEnvChange = () => {
+        this.path = [];
+        this.searchString = '';
+        this.lastInstanceContinuationToken = null;
+        this.usedInstanceSearchContinuationTokens = {};
+        this.envHierarchies = {};
+        this.envTypes = {};
+        this.setRequestParamsForNavigate();
+        this.viewType = ViewType.Hierarchy;
+        this.clickedInstance = null;
+        this.isHierarchySelectionActive = false;
     }
 }
 
