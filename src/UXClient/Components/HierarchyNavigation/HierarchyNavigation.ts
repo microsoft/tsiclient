@@ -396,16 +396,16 @@ class HierarchyNavigation extends Component{
             this.noResultsElem.style('display', 'block');
             if (this.mode === State.Filter) {
                 (this.viewTypesElem.node() as any).style.display = 'none';
-            }
-            if (this.selectedHierarchyName !== HierarchySelectionValues.All || this.filterPathElem.classed('visible')) {
-                (this.searchGloballyElem.node() as any).style.display = 'inline-flex';
+                if ((this.selectedHierarchyName !== HierarchySelectionValues.All) || this.filterPathElem.classed('visible')) {
+                    (this.searchGloballyElem.node() as any).style.display = 'inline-flex';
+                }
             }
             return;
         } else {
             this.noResultsElem.style('display', 'none');
             if (this.mode === State.Filter) {
                 (this.viewTypesElem.node() as any).style.display = 'inline-flex';
-                if (this.selectedHierarchyName !== HierarchySelectionValues.All || this.filterPathElem.classed('visible')) {
+                if ((this.selectedHierarchyName !== HierarchySelectionValues.All) || this.filterPathElem.classed('visible')) {
                     (this.searchGloballyElem.node() as any).style.display = 'inline-flex';
                 }
             }
@@ -530,14 +530,14 @@ class HierarchyNavigation extends Component{
         if (Object.keys(data).length === 0) {
             this.noResultsElem.style('display', 'block');
             (this.viewTypesElem.node() as any).style.display = 'none';
-            if (this.selectedHierarchyName !== HierarchySelectionValues.All || this.filterPathElem.classed('visible')) {
+            if ((this.selectedHierarchyName !== HierarchySelectionValues.All) || this.filterPathElem.classed('visible')) {
                 (this.searchGloballyElem.node() as any).style.display = 'inline-flex';
             }
             return;
         } else {
             this.noResultsElem.style('display', 'none');
             (this.viewTypesElem.node() as any).style.display = 'inline-flex';
-            if (this.selectedHierarchyName !== HierarchySelectionValues.All || this.filterPathElem.classed('visible')) {
+            if ((this.selectedHierarchyName !== HierarchySelectionValues.All) || this.filterPathElem.classed('visible')) {
                 (this.searchGloballyElem.node() as any).style.display = 'inline-flex';
             }
         }
