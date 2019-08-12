@@ -392,7 +392,7 @@ class HierarchyNavigation extends Component{
     }
 
     // renders tree for both 'Navigate' and 'Filter' mode (with Hierarchy View option selected), locInTarget refers to the 'show more' element -either hierarchy or instance- within the target
-    private renderTree (data, target, locInTarget = null) {
+    private renderTree (data, target, locInTarget = null, skipLevels = null) {
         let self = this;
         if (Object.keys(data).length === 0) {
             this.noResultsElem.style('display', 'block');
@@ -425,6 +425,12 @@ class HierarchyNavigation extends Component{
                     return i === list.length - 1;
                 });
             currentShowMore.node().style.display = 'none';
+        }
+        if (locInTarget && skipLevels) {
+            while (skipLevels) {
+                data = data[Object.keys(data)[0]].children;
+                skipLevels--;
+            }
         }
         Object.keys(data).forEach((el) => {
             let li;
@@ -582,14 +588,14 @@ class HierarchyNavigation extends Component{
         });
     }
 
-    private pathSearch = (getToken, envFqdn, payload, target: any, locInTarget = null, instancesContinuationToken = null, hierarchiesContinuationToken = null) => {
+    private pathSearch = (getToken, envFqdn, payload, target: any, locInTarget = null, instancesContinuationToken = null, hierarchiesContinuationToken = null, skipLevels = null) => {
         let self = this;
         let hierarchyData = {};
         let instancesData = {};
         getToken().then(token => {
             self.server.getTimeseriesInstancesPathSearch(token, envFqdn, payload, instancesContinuationToken, hierarchiesContinuationToken).then(r => {
                 if (r.hierarchyNodes && r.hierarchyNodes.hits.length) {
-                    hierarchyData = self.fillDataRecursively(r.hierarchyNodes, getToken, envFqdn, payload);
+                    hierarchyData = self.fillDataRecursively(r.hierarchyNodes, getToken, envFqdn, payload, payload);
                 }
                 if (r.instances && r.instances.hits && r.instances.hits.length) {
                     r.instances.hits.forEach((i) => {
@@ -615,7 +621,7 @@ class HierarchyNavigation extends Component{
                         self.renderTree(instancesData, target, locInTarget);
                     }
                 } else if (self.mode === State.Filter) {
-                    self.renderTree({...hierarchyData, ...instancesData}, target, locInTarget);
+                    self.renderTree({...hierarchyData, ...instancesData}, target, locInTarget, skipLevels);
                 } else {
                     self.renderInstances(instancesData, target);
                 }
@@ -625,7 +631,7 @@ class HierarchyNavigation extends Component{
     }
 
     // creates in-depth data object using the server response for hierarchyNodes to show in the tree all expanded, considering UntilChildren
-    private fillDataRecursively(hierarchyNodes, getToken, envFqdn, payload) {
+    private fillDataRecursively(hierarchyNodes, getToken, envFqdn, payload, payloadForContinuation = null) {
         let data = {};
         hierarchyNodes.hits.forEach((h) => {
             let hierarchy = new HierarchyNode(h.name, payload.path, payload.path.length - this.path.length, h.cumulativeInstanceCount);
@@ -640,7 +646,7 @@ class HierarchyNavigation extends Component{
             hierarchy.collapse = () => {hierarchy.isExpanded = false; hierarchy.node.classed('tsi-expanded', false); hierarchy.node.selectAll('ul').remove();};
             data[(h.name === "" ? "(Empty)" : h.name)] = hierarchy;
             if (h.hierarchyNodes && h.hierarchyNodes.hits.length) {
-                hierarchy.children = this.fillDataRecursively(h.hierarchyNodes, getToken, envFqdn, this.requestPayload(hierarchy.path));
+                hierarchy.children = this.fillDataRecursively(h.hierarchyNodes, getToken, envFqdn, this.requestPayload(hierarchy.path), payloadForContinuation);
             }
         });
 
@@ -648,7 +654,7 @@ class HierarchyNavigation extends Component{
             let showMorehierarchy = new HierarchyNode("Show More Hierarchies", payload.path, payload.path.length - this.path.length);
             showMorehierarchy.onClick = () => {
                 let self = this;
-                this.pathSearch(getToken, envFqdn, payload, showMorehierarchy.node.select(function() { return this.parentNode; }), '.tsi-show-more.hierarchy', null, hierarchyNodes.continuationToken);
+                this.pathSearch(getToken, envFqdn, payloadForContinuation ? payloadForContinuation : payload, showMorehierarchy.node.select(function() { return this.parentNode; }), '.tsi-show-more.hierarchy', null, hierarchyNodes.continuationToken, payloadForContinuation ? payload.path.length - payloadForContinuation.path.length : null);
             }
             data[showMorehierarchy.name] = showMorehierarchy;
         }
