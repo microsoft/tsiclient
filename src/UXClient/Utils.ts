@@ -684,7 +684,6 @@ class Utils {
         let maxWarmTime = new Date(warmStoreRange.to);
         if (retentionString !== null) {
             minWarmTime = new Date(Math.max(minWarmTime.valueOf(), (Date.now() - retentionPeriod)));
-            maxWarmTime = new Date();
         }
 
         Object.keys(coldAvailability.distribution).forEach((ts) => {
