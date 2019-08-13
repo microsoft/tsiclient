@@ -416,15 +416,16 @@ class HierarchyNavigation extends Component{
         if (!locInTarget) {
             list = target.append('ul');
         } else {
-            if (locInTarget === '.tsi-show-more.hierarchy')
-                currentShowMore = target.selectAll('.tsi-show-more.hierarchy').filter(function(d, i,list) {
+            if (locInTarget === '.tsi-show-more.tsi-show-more-hierarchy')
+                currentShowMore = target.selectAll('.tsi-show-more.tsi-show-more-hierarchy').filter(function(d, i,list) {
                     return i === list.length - 1;
                 });
             else
-                currentShowMore = target.selectAll('.tsi-show-more.instance').filter(function(d, i,list) {
+                currentShowMore = target.selectAll('.tsi-show-more.tsi-show-more-instance').filter(function(d, i,list) {
                     return i === list.length - 1;
                 });
             currentShowMore.node().style.display = 'none';
+            currentShowMore.classed('tsi-target-loc', true);
         }
         if (locInTarget && skipLevels) {
             while (skipLevels) {
@@ -435,15 +436,15 @@ class HierarchyNavigation extends Component{
         Object.keys(data).forEach((el) => {
             let li;
             if (locInTarget) {
-                li = target.insert('li', locInTarget).classed('tsi-leaf', data[el].isLeaf);
+                li = target.insert('li', '.tsi-target-loc').classed('tsi-leaf', data[el].isLeaf);
             } else {
                 li = list.append('li').classed('tsi-leaf', data[el].isLeaf);
             }       
 
             if(el === "Show More Hierarchies") {
-                li.classed('tsi-show-more hierarchy', true).append('span').classed('tsi-markedName', true).attr('style', `padding-left: ${(data[el].level) * 18 + 20}px`).html(el).on('click', data[el].onClick);
+                li.classed('tsi-show-more tsi-show-more-hierarchy', true).append('span').classed('tsi-markedName', true).attr('style', `padding-left: ${(data[el].level) * 18 + 20}px`).html(el).on('click', data[el].onClick);
             } else if (el === "Show More Instances") {
-                li.classed('tsi-show-more instance', true).append('span').classed('tsi-markedName', true).attr('style', `padding-left: ${(data[el].level) * 18 + 20}px`).html(el).on('click', data[el].onClick);
+                li.classed('tsi-show-more tsi-show-more-instance', true).append('span').classed('tsi-markedName', true).attr('style', `padding-left: ${(data[el].level) * 18 + 20}px`).html(el).on('click', data[el].onClick);
             } else {
                 li.append('span').classed('tsi-caret-icon', !data[el].isLeaf).attr('style', `left: ${(data[el].level) * 18 + 20}px`);
                 let newListElem;
@@ -549,12 +550,12 @@ class HierarchyNavigation extends Component{
                 (this.searchGloballyElem.node() as any).style.display = 'inline-flex';
             }
         }
-        target.select('.tsi-show-more.instance').remove();
+        target.select('.tsi-show-more.tsi-show-more-instance').remove();
 
         Object.keys(data).forEach((i) => {
             let div;
             if (data[i].name === "Show More Instances") {
-                div = target.append('div').classed('tsi-show-more instance', true);
+                div = target.append('div').classed('tsi-show-more tsi-show-more-instance', true);
                 div.append('span').classed('tsi-markedName', true).html(i).on('click', data[i].onClick);
             } else {
                 div = target.append('div').classed('tsi-modelResultWrapper', true).attr('tabindex', 0).html(this.getInstanceHtml(data[i])).on('click keydown', function() {
@@ -604,7 +605,7 @@ class HierarchyNavigation extends Component{
                 }
                 if (r.instances && r.instances.continuationToken && r.instances.continuationToken !== 'END') {
                     let showMoreInstances = new InstanceNode(null, "Show More Instances", null, null, null, self.hierarchyNavOptions.onInstanceClick, payload.path.length - self.path.length);
-                    showMoreInstances.onClick = () => self.pathSearch(getToken, envFqdn, payload, showMoreInstances.node.select(function() { return this.parentNode; }), '.tsi-show-more.instance', null, r.instances['continuationToken']);
+                    showMoreInstances.onClick = () => self.pathSearch(getToken, envFqdn, payload, showMoreInstances.node.select(function() { return this.parentNode; }), '.tsi-show-more.tsi-show-more-instance', null, r.instances['continuationToken']);
                     instancesData[showMoreInstances.name] = showMoreInstances;
 
                     if (!self.usedInstanceSearchContinuationTokens[r.instances.continuationToken]){
@@ -654,7 +655,7 @@ class HierarchyNavigation extends Component{
             let showMorehierarchy = new HierarchyNode("Show More Hierarchies", payload.path, payload.path.length - this.path.length);
             showMorehierarchy.onClick = () => {
                 let self = this;
-                this.pathSearch(getToken, envFqdn, payloadForContinuation ? payloadForContinuation : payload, showMorehierarchy.node.select(function() { return this.parentNode; }), '.tsi-show-more.hierarchy', null, hierarchyNodes.continuationToken, payloadForContinuation ? payload.path.length - payloadForContinuation.path.length : null);
+                this.pathSearch(getToken, envFqdn, payloadForContinuation ? payloadForContinuation : payload, showMorehierarchy.node.select(function() { return this.parentNode; }), '.tsi-show-more.tsi-show-more-hierarchy', null, hierarchyNodes.continuationToken, payloadForContinuation ? payload.path.length - payloadForContinuation.path.length : null);
             }
             data[showMorehierarchy.name] = showMorehierarchy;
         }
