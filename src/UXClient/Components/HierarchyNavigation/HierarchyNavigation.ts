@@ -677,9 +677,9 @@ class HierarchyNavigation extends Component{
     //returns the html of one hierarchy level item for tree rendering
     private getHierarchyItemHtml(hORi, key) {
         if (this.mode !== State.Navigate) {
-            if (hORi.highlights) {
+            if (hORi.highlights) { // means it is an instance not a hierarchy
                 return `<span>
-                            ${hORi.highlights.name ? this.stripHits(hORi.highlights.name) : this.stripHits(hORi.highlights.timeSeriesIds ? hORi.highlights.timeSeriesIds.join(' ') : hORi.highlights.timeSeriesId.join(' '))}
+                            ${hORi.highlights.name ? this.stripHits(hORi.highlights.name) : this.stripHits(hORi.highlights.timeSeriesIds ? (!hORi.highlights.timeSeriesIds[0] ? '(null)' : hORi.highlights.timeSeriesIds.join(' ')) : (hORi.highlights.timeSeriesId ? (!hORi.highlights.timeSeriesId[0] ? '(null)' : hORi.highlights.timeSeriesId.join(' ')) : '(null)'))}
                             <br>
                             ${this.hasHits(hORi.highlights.description) || hORi.highlights.instanceFieldNames.filter(this.hasHits).length > 0 ? 
                                 (`<span class="tsi-highlights-detail">
@@ -695,19 +695,19 @@ class HierarchyNavigation extends Component{
                         </span>`; 
             }
             else return '<span class=\"tsi-name\">'+ key + '</span>' + (hORi.cumulativeInstanceCount ? ' <span class=\"tsi-childCount\">' + hORi.cumulativeInstanceCount + '</span>' : '');
-        } else return '<span class=\"tsi-name\">'+ key + '</span>' + (hORi.cumulativeInstanceCount ? ' <span class=\"tsi-childCount\">' + hORi.cumulativeInstanceCount + '</span>' : '');
+        } else return '<span class=\"tsi-name\">'+ (key ? key : '(null)') + '</span>' + (hORi.cumulativeInstanceCount ? ' <span class=\"tsi-childCount\">' + hORi.cumulativeInstanceCount + '</span>' : '');
     }
 
     //returns the html of one instance item for flat list rendering
     private getInstanceHtml(i) {
         return `<div class="tsi-modelResult">
                     <div class="tsi-modelPK">
-                        ${i.highlights.name ? this.stripHits(i.highlights.name) : this.stripHits(i.highlights.timeSeriesIds ? i.highlights.timeSeriesIds.join(' ') : i.highlights.timeSeriesId.join(' '))}
+                        ${i.highlights.name ? this.stripHits(i.highlights.name) : this.stripHits(i.highlights.timeSeriesIds ? (!i.highlights.timeSeriesIds[0] ? '(null)' : i.highlights.timeSeriesIds.join(' ')) : (i.highlights.timeSeriesId ? (!i.highlights.timeSeriesId[0] ? '(null)' : i.highlights.timeSeriesId.join(' ')) : '(null)'))}
                     </div>
                     <div class="tsi-modelHighlights">
                         ${this.stripHits(i.highlights.description && i.highlights.description.length ? i.highlights.description : 'No description')}
                         <br/><table>
-                        ${i.highlights.name ? ('<tr><td>Time Series ID</td><td>' + this.stripHits(i.highlights.timeSeriesIds ? i.highlights.timeSeriesIds.join(' ') : i.highlights.timeSeriesId.join(' ')) + '</td></tr>') : ''}                        
+                        ${i.highlights.name ? ('<tr><td>Time Series ID</td><td>' + this.stripHits(i.highlights.timeSeriesIds ? (!i.highlights.timeSeriesIds[0] ? '(null)' : i.highlights.timeSeriesIds.join(' ')) : (i.highlights.timeSeriesId ? (!i.highlights.timeSeriesId[0] ? '(null)' : i.highlights.timeSeriesId.join(' ')) : '(null)')) + '</td></tr>') : ''}                        
                         ${i.highlights.instanceFieldNames.map((ifn, idx) => {
                             var val = i.highlights.instanceFieldValues[idx];
                             if (this.searchString)
