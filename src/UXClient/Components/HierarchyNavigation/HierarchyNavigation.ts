@@ -677,7 +677,6 @@ class HierarchyNavigation extends Component{
 
     //returns the html of one hierarchy level item for tree rendering
     private getHierarchyItemHtml(hORi, key) {
-        debugger;
         if (this.mode !== State.Navigate) {
             if (hORi.highlights) { // means it is an instance not a hierarchy
                 return `<span>
