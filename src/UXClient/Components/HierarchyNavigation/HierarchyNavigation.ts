@@ -600,7 +600,7 @@ class HierarchyNavigation extends Component{
                 }
                 if (r.instances && r.instances.hits && r.instances.hits.length) {
                     r.instances.hits.forEach((i) => {
-                        instancesData[i.name ? i.name : i.timeSeriesId.join(" ")] = new InstanceNode(i.timeSeriesId, i.name, self.envTypes[i.typeId], i.hierarchyIds, i.highlights, self.hierarchyNavOptions.onInstanceClick, payload.path.length - self.path.length);
+                        instancesData[i.name ? i.name : (i.timeSeriesId.filter(id => id !== null).length ? i.timeSeriesId.join(" "): '')] = new InstanceNode(i.timeSeriesId, i.name, self.envTypes[i.typeId], i.hierarchyIds, i.highlights, self.hierarchyNavOptions.onInstanceClick, payload.path.length - self.path.length);
                     });
                 }
                 if (r.instances && r.instances.continuationToken && r.instances.continuationToken !== 'END') {
@@ -677,10 +677,11 @@ class HierarchyNavigation extends Component{
 
     //returns the html of one hierarchy level item for tree rendering
     private getHierarchyItemHtml(hORi, key) {
+        debugger;
         if (this.mode !== State.Navigate) {
             if (hORi.highlights) { // means it is an instance not a hierarchy
                 return `<span>
-                            ${hORi.highlights.name ? this.stripHits(hORi.highlights.name) : this.stripHits(hORi.highlights.timeSeriesIds ? (!hORi.highlights.timeSeriesIds[0] ? '(null)' : hORi.highlights.timeSeriesIds.join(' ')) : (hORi.highlights.timeSeriesId ? (!hORi.highlights.timeSeriesId[0] ? '(null)' : hORi.highlights.timeSeriesId.join(' ')) : '(null)'))}
+                            ${hORi.highlights.name ? this.stripHits(hORi.highlights.name) : this.stripHits(hORi.highlights.timeSeriesId ? (hORi.highlights.timeSeriesId.filter(id => id !== null).length ? hORi.highlights.timeSeriesId.join(' ') : '(null)'): '(null)')}
                             <br>
                             ${this.hasHits(hORi.highlights.description) || hORi.highlights.instanceFieldNames.filter(this.hasHits).length > 0 ? 
                                 (`<span class="tsi-highlights-detail">
@@ -703,12 +704,12 @@ class HierarchyNavigation extends Component{
     private getInstanceHtml(i) {
         return `<div class="tsi-modelResult">
                     <div class="tsi-modelPK">
-                        ${i.highlights.name ? this.stripHits(i.highlights.name) : this.stripHits(i.highlights.timeSeriesIds ? (!i.highlights.timeSeriesIds[0] ? '(null)' : i.highlights.timeSeriesIds.join(' ')) : (i.highlights.timeSeriesId ? (!i.highlights.timeSeriesId[0] ? '(null)' : i.highlights.timeSeriesId.join(' ')) : '(null)'))}
+                        ${i.highlights.name ? this.stripHits(i.highlights.name) : this.stripHits(i.highlights.timeSeriesId ? (i.highlights.timeSeriesId.filter(id => id !== null).length ? i.highlights.timeSeriesId.join(' ') : '(null)'): '(null)')}
                     </div>
                     <div class="tsi-modelHighlights">
                         ${this.stripHits(i.highlights.description && i.highlights.description.length ? i.highlights.description : 'No description')}
                         <br/><table>
-                        ${i.highlights.name ? ('<tr><td>Time Series ID</td><td>' + this.stripHits(i.highlights.timeSeriesIds ? (!i.highlights.timeSeriesIds[0] ? '(null)' : i.highlights.timeSeriesIds.join(' ')) : (i.highlights.timeSeriesId ? (!i.highlights.timeSeriesId[0] ? '(null)' : i.highlights.timeSeriesId.join(' ')) : '(null)')) + '</td></tr>') : ''}                        
+                        ${i.highlights.name ? ('<tr><td>Time Series ID</td><td>' + this.stripHits(i.highlights.timeSeriesId ? (i.highlights.timeSeriesId.filter(id => id !== null).length ? i.highlights.timeSeriesId.join(' ') : '(null)'): '(null)') + '</td></tr>') : ''}                        
                         ${i.highlights.instanceFieldNames.map((ifn, idx) => {
                             var val = i.highlights.instanceFieldValues[idx];
                             if (this.searchString)
