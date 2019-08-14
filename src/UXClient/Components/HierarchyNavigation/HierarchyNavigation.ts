@@ -680,7 +680,7 @@ class HierarchyNavigation extends Component{
         if (this.mode !== State.Navigate) {
             if (hORi.highlights) { // means it is an instance not a hierarchy
                 return `<span>
-                            ${hORi.highlights.name ? this.stripHits(hORi.highlights.name) : this.stripHits(hORi.highlights.timeSeriesId ? (hORi.highlights.timeSeriesId.filter(id => id !== null && id !== '').length ? hORi.highlights.timeSeriesId.join(' ') : '(null)'): '(null)')}
+                            ${hORi.highlights.name ? this.stripHits(hORi.highlights.name) : this.stripHits(this.getTsidFromHighlights(hORi.highlights))}
                             <br>
                             ${this.hasHits(hORi.highlights.description) || hORi.highlights.instanceFieldNames.filter(this.hasHits).length > 0 ? 
                                 (`<span class="tsi-highlights-detail">
@@ -703,12 +703,12 @@ class HierarchyNavigation extends Component{
     private getInstanceHtml(i) {
         return `<div class="tsi-modelResult">
                     <div class="tsi-modelPK">
-                        ${i.highlights.name ? this.stripHits(i.highlights.name) : this.stripHits(i.highlights.timeSeriesId ? (i.highlights.timeSeriesId.filter(id => id !== null && id !== '').length ? i.highlights.timeSeriesId.join(' ') : '(null)'): '(null)')}
+                        ${i.highlights.name ? this.stripHits(i.highlights.name) : this.stripHits(this.getTsidFromHighlights(i.highlights))}
                     </div>
                     <div class="tsi-modelHighlights">
                         ${this.stripHits(i.highlights.description && i.highlights.description.length ? i.highlights.description : 'No description')}
                         <br/><table>
-                        ${i.highlights.name ? ('<tr><td>Time Series ID</td><td>' + this.stripHits(i.highlights.timeSeriesId ? (i.highlights.timeSeriesId.filter(id => id !== null && id !== '').length ? i.highlights.timeSeriesId.join(' ') : '(null)'): '(null)') + '</td></tr>') : ''}                        
+                        ${i.highlights.name ? ('<tr><td>Time Series ID</td><td>' + this.stripHits(this.getTsidFromHighlights(i.highlights)) + '</td></tr>') : ''}                        
                         ${i.highlights.instanceFieldNames.map((ifn, idx) => {
                             var val = i.highlights.instanceFieldValues[idx];
                             if (this.searchString)
@@ -754,6 +754,10 @@ class HierarchyNavigation extends Component{
         this.viewType = ViewType.Hierarchy;
         this.clickedInstance = null;
         this.isHierarchySelectionActive = false;
+    }
+
+    private getTsidFromHighlights = (highlights) => {
+        return highlights.timeSeriesId ? (highlights.timeSeriesId.filter(id => id !== null && id !== '').length ? highlights.timeSeriesId.join(' ') : '(null)') : '(null)'
     }
 }
 
