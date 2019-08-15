@@ -676,18 +676,30 @@ class Utils {
         return false;
     }
     
-    static mergeAvailabilities (warmAvailability, coldAvailability) {
+    static mergeAvailabilities (warmAvailability, coldAvailability, retentionString = null) {
+        let retentionPeriod = retentionString !== null ? Utils.parseTimeInput(retentionString) : null;
+
         let warmStoreRange = warmAvailability.range;
         let filteredColdDistribution = {};
+        let minWarmTime = new Date(warmStoreRange.from);
+        let maxWarmTime = new Date(warmStoreRange.to);
+        if (retentionString !== null) {
+            minWarmTime = new Date(Math.max(minWarmTime.valueOf(), (Date.now() - retentionPeriod)));
+        }
+
         Object.keys(coldAvailability.distribution).forEach((ts) => {
             let tsDate = new Date(ts);
-            if (tsDate < (new Date(warmStoreRange.from)) || tsDate > (new Date(warmStoreRange.to))) {
+            if (tsDate < minWarmTime || tsDate > maxWarmTime) {
                 filteredColdDistribution[ts] = coldAvailability.distribution[ts];
             }
         });
         let mergedDistribution = Object.assign(filteredColdDistribution, warmAvailability.distribution) 
-
-        return Object.assign(coldAvailability, {distribution: mergedDistribution});
+        let mergedAvailabilities = Object.assign(coldAvailability, {distribution: mergedDistribution});
+        mergedAvailabilities.warmStoreRange = [minWarmTime.toISOString(), maxWarmTime.toISOString()];
+        if (retentionString !== null) {
+            mergedAvailabilities.retentionPeriod = retentionString;
+        }
+        return mergedAvailabilities;
     }
 }
 

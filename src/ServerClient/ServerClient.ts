@@ -250,10 +250,7 @@ class ServerClient {
                     this.createPromiseFromXhr(warmUri, "GET", {}, token, (responseText) => {return JSON.parse(responseText);}).then(function (warmResponse) {
                         let availability = warmResponse ? warmResponse.availability : null ;
                         if (coldResponse.availability) {
-                            availability = Utils.mergeAvailabilities(warmResponse.availability, coldResponse.availability);
-                            if (warmResponse.availability.range) {
-                                availability['warmStoreRange'] = [warmResponse.availability.range.from, warmResponse.availability.range.to]; 
-                            }
+                            availability = Utils.mergeAvailabilities(warmResponse.availability, coldResponse.availability, warmResponse.retention);
                         } 
                         resolve({availability: availability});
                     });    
