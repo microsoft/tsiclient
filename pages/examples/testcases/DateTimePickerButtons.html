@@ -8,14 +8,18 @@
         <script src="../boilerplate/head.js"></script>
     </head>
     <body style="font-family: 'Segoe UI', sans-serif;">
-        <div id="buttonContainer" style="width: 100%; height: 160px;"></div>
+        <div id="singleButtonContainer" style="width: 100%; height: 60px; position: relative;"></div>
+        <div id="rangeButtonContainer" style="width: 100%; height: 60px; position: relative;"></div>
         <script>
             window.onload = function() {              
                 var tsiClient = new TsiClient();
 
-                var dateTimeButtonComponent = new tsiClient.ux.DateTimeButtonSingle(document.getElementById('buttonContainer'));
+                var singleDateTimeButtonComponent = new tsiClient.ux.DateTimeButtonSingle(document.getElementById('singleButtonContainer'));
                 let now = (new Date()).valueOf();
-                dateTimeButtonComponent.render({offset: 'Local'}, now - (24 * 60 * 60 * 1000), now, now);
+                singleDateTimeButtonComponent.render({offset: 'Local', theme: 'light'}, now - (13 * 60 * 60 * 1000), now, now - (1 * 60 * 60 * 1000), () => {});
+
+                var rangeDateTimeButtonComponent = new tsiClient.ux.DateTimeButtonRange(document.getElementById('rangeButtonContainer'));
+                rangeDateTimeButtonComponent.render({offset: 'Local', theme: 'light'}, now - (25 * 60 * 60 * 1000), now, now - (24 * 60 * 60 * 1000), now - (1 * 60 * 60 * 1000), () => {}, () => {});
             };
         </script>
     </body>

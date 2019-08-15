@@ -22,6 +22,7 @@ import { ModelAutocomplete } from "./Components/ModelAutocomplete/ModelAutocompl
 import { HierarchyNavigation } from "./Components/HierarchyNavigation/HierarchyNavigation";
 import { SingleDateTimePicker } from "./Components/SingleDateTimePicker/SingleDateTimePicker";
 import { DateTimeButtonSingle } from "./Components/DateTimeButtonSingle/DateTimeButtonSingle";
+import { DateTimeButtonRange } from "./Components/DateTimeButtonRange/DateTimeButtonRange";
 
 class UXClient {
     UXClient () {
@@ -117,6 +118,10 @@ class UXClient {
 
     public DateTimeButtonSingle (renderTarget) {
         return new DateTimeButtonSingle(renderTarget);
+    } 
+
+    public DateTimeButtonRange (renderTarget) {
+        return new DateTimeButtonRange(renderTarget);
     } 
 
     public transformTsxToEventsArray (events, options) {
