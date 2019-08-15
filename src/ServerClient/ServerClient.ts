@@ -3,33 +3,43 @@ import { Utils } from '../UXClient/Utils';
 
 class ServerClient {
     private apiVersionUrlParam = "?api-version=2016-12-12";
-    private tsmTsqApiVersion = "?api-version=2018-11-01-preview"
+    private tsmTsqApiVersion = "?api-version=2018-11-01-preview";
+    public maxRetryCount = 3;
 
     Server () {
     }
 
     private createPromiseFromXhr (uri, httpMethod, payload, token, responseTextFormat, continuationToken = null) {
         return new Promise((resolve: any, reject: any) => {
-            var xhr = new XMLHttpRequest();
-            xhr.onreadystatechange = () => {
-                if(xhr.readyState != 4) return;
-                    
-                if(xhr.status == 200){
-                    if (xhr.responseText.length == 0)
-                        resolve({}); 
-                    else {
-                        resolve(responseTextFormat(xhr.responseText));
+            let sendRequest;
+            let retryCount = 0;
+            sendRequest = () => {
+                var xhr = new XMLHttpRequest();
+                xhr.onreadystatechange = () => {
+                    if(xhr.readyState != 4) return;
+                        
+                    if(xhr.status == 200){
+                        if (xhr.responseText.length == 0)
+                            resolve({}); 
+                        else {
+                            resolve(responseTextFormat(xhr.responseText));
+                        }
+                    }
+                    else if(xhr.status == 503 && retryCount < this.maxRetryCount){
+                        retryCount++;
+                        this.retryWithDelay(retryCount, sendRequest);
+                    }
+                    else{
+                        reject(xhr);
                     }
                 }
-                else{
-                    reject(xhr);
-                }
+                xhr.open(httpMethod, uri);
+                xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+                if (continuationToken)
+                    xhr.setRequestHeader('x-ms-continuation', continuationToken);
+                xhr.send(payload);
             }
-            xhr.open(httpMethod, uri);
-            xhr.setRequestHeader('Authorization', 'Bearer ' + token);
-            if (continuationToken)
-                xhr.setRequestHeader('x-ms-continuation', continuationToken);
-            xhr.send(payload);
+            sendRequest();
         });
     }
     
@@ -66,6 +76,9 @@ class ServerClient {
         }
 
         var onreadystatechange;
+        var retryCount = 0;
+        var retryTimeout;
+        var continuationToken;
         var accumulator = [];
         onreadystatechange = () => {
             if(xhr.readyState != 4) return;
@@ -92,9 +105,20 @@ class ServerClient {
                     xhr.onreadystatechange = onreadystatechange;
                     xhr.open('POST', uri);
                     xhr.setRequestHeader('Authorization', 'Bearer ' + token);
-                    xhr.setRequestHeader('x-ms-continuation', message.continuationToken);
+                    continuationToken = message.continuationToken;
+                    xhr.setRequestHeader('x-ms-continuation', continuationToken);
                     xhr.send(JSON.stringify(contentObject));
                 }
+            }
+            else if(xhr.status === 503 && retryCount < this.maxRetryCount){
+                retryCount++;
+                retryTimeout = this.retryWithDelay(retryCount, () => {
+                    xhr.open('POST', uri);
+                    xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+                    if(continuationToken)
+                        xhr.setRequestHeader('x-ms-continuation', continuationToken);
+                    xhr.send(JSON.stringify(contentObject));
+                });
             }
             else if (xhr.status !== 0) {
                 results[index] = {__tsiError__: JSON.parse(xhr.responseText)};
@@ -108,6 +132,7 @@ class ServerClient {
         xhr.onreadystatechange = onreadystatechange;
         xhr.onabort = () => {
             resolve('__CANCELLED__');
+            clearTimeout(retryTimeout);
         }
         xhr.open('POST', uri);
         xhr.setRequestHeader('Authorization', 'Bearer ' + token);
@@ -272,6 +297,7 @@ class ServerClient {
     }
 
     private getDataWithContinuationBatch(token, resolve, reject, rows, url, verb, propName, continuationToken = null, maxResults = Number.MAX_VALUE){
+        var continuationToken, sendRequest, retryCount = 0;
         var xhr = new XMLHttpRequest();
         xhr.onreadystatechange = () => {
             if(xhr.readyState != 4) return;
@@ -282,22 +308,34 @@ class ServerClient {
                     rows = rows.concat(message[propName]);
                 
                 // HACK because /instances doesn't match /items
-                var continuationToken = verb == 'GET' ? message.continuationToken : xhr.getResponseHeader('x-ms-continuation');
+                continuationToken = verb == 'GET' ? message.continuationToken : xhr.getResponseHeader('x-ms-continuation');
 
                 if(!continuationToken || rows.length >= maxResults)
                     resolve(rows);
                 else
                     this.getDataWithContinuationBatch(token, resolve, reject, rows, url, verb, propName, continuationToken, maxResults);
             }
+            else if(xhr.status == 503 && retryCount < this.maxRetryCount){
+                retryCount++;
+                this.retryWithDelay(retryCount, sendRequest);
+            }
             else{
                 reject(xhr);
             }
         }
-        xhr.open(verb, url);
-        xhr.setRequestHeader('Authorization', 'Bearer ' + token);
-        if (continuationToken)
-            xhr.setRequestHeader('x-ms-continuation', continuationToken);
-        xhr.send(JSON.stringify({take: 100000}));
+        sendRequest = () => {
+            xhr.open(verb, url);
+            xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+            if (continuationToken)
+                xhr.setRequestHeader('x-ms-continuation', continuationToken);
+            xhr.send(JSON.stringify({take: 100000}));
+        }
+        sendRequest();
+    }
+
+    private retryWithDelay(retryNumber, method) {
+        let retryDelay = (Math.exp(retryNumber - 1) + Math.random()*2) * 1000;
+        return setTimeout(method, retryDelay);
     }
 }
 
