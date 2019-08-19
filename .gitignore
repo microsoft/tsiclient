@@ -3,3 +3,4 @@ dist/
 .gitignore
 .vscode/settings.json
 scripts
+.vs

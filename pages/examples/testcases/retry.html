@@ -1,0 +1,104 @@
+
+<!DOCTYPE html> 
+<html>
+    <head>
+        <title>Retries</title>
+
+        <!-- styles are only used for styling header and auth elements, where possible -->
+        <link rel="stylesheet" type="text/css" href="../styles.css" />
+
+        <!-- boilerplate headers are injected with head.js, grab them from the live example header, or include a link to head.js -->
+        <script src="../boilerplate/head.js"></script>
+
+        <!-- boilerplate auth code is injected with auth.js, check it out for auth setup -->
+        <script src="../boilerplate/auth.js"></script>
+    </head>
+    <body style="font-family: 'Segoe UI', sans-serif; overflow: auto">
+
+        <div id="chart1" style="width: 50%; height: 600px; margin-top: 40px; float: left;"></div>
+        <div id="hierarchyNav1" style="width: 50%; height: 600px; margin-top: 40px; float: right;"></div>
+        <div id="hierarchyNav2" style="width: 50%; height: 600px; margin-top: 40px; float: right;"></div>
+        <div id="hierarchyNav3" style="width: 50%; height: 600px; margin-top: 40px; float: right;"></div>
+        <div id="hierarchyNav4" style="width: 50%; height: 600px; margin-top: 40px; float: right;"></div>
+        <script>
+            window.onload = function() {
+                initAuth('Retries');  // initiate auth objects, header, and login modal
+                var tsiClient = new TsiClient();
+
+                var linechartTsqExpressions = [];
+                var startDate = new Date('2019-03-16T03:32:00.000Z');
+                var endDate = new Date(startDate.valueOf() + 1000*60*60*24*14);
+    
+                var getExpression = () => {
+                    return new tsiClient.ux.TsqExpression(
+                    {timeSeriesId: ['Sensor_6']}, // instance json
+                    {Max: {
+                        kind: 'numeric',
+                        value: {tsx: '$event.[Value].Double'},
+                        filter: null,
+                        aggregation: {tsx: 'max($value)'}
+                    }}, // variable json
+                    { from: startDate, to: endDate, bucketSize: '10m' }, // search span
+                    '#60B9AE', // color
+                    'MaxValue')
+                }
+
+                var expressionCount = 200;
+                for(var i = 0; i < expressionCount; i++)
+                    linechartTsqExpressions.push(getExpression());
+
+                // linechartTsqExpressions.push(new tsiClient.ux.TsqExpression(
+                //     {timeSeriesId: ['df4412c4-dba2-4a52-87af-780e78ff156b']}, // instance json
+                //     {Avg: {
+                //         kind: 'numeric',
+                //         value: {tsx: '$event.value.Double'},
+                //         filter: null,
+                //         aggregation: {tsx: 'avg($value)'}
+                //     }}, // variable json
+                //     { from: startDate, to: endDate, bucketSize: '6h' }, // search span
+                //     '#D869CB', // color
+                //     'AvgValue')); // 
+                
+                // var eventsTsqExpressions = [new tsiClient.ux.TsqExpression(
+                //     {timeSeriesId: ['df4412c4-dba2-4a52-87af-780e78ff156b']}, // instance json
+                //     {Avg: {
+                //         kind: 'numeric',
+                //         value: {tsx: '$event.value.Double'},
+                //         filter: null,
+                //         aggregation: {tsx: 'avg($value)'}
+                //     }}, // variable json
+                //     { from: startDate, to: new Date(startDate.valueOf() + 1000*60*60*2), bucketSize: '1m'}, // search span
+                //     '#D869CB', // color
+                //     'AvgValue')]; // 
+
+                var environmentFqdn = '3b34abe6-a990-4c07-8b1b-2e527bfc1cb5.env.timeseries.azure.com';
+                var hierarchyNavOptions = {
+                    theme: 'light',
+                    instancesPageSize: 10,
+                    hierarchiesPageSize: 10,
+                    isInstancesRecursive: false,
+                    isInstancesHighlighted: true,
+                    instancesSort: "DisplayName",
+                    hierarchiesExpand: "OneLevel",
+                    hierarchiesSort: "Name"
+                }
+                authContext.getTsiToken().then(function(token){
+                    tsiClient.server.getTsqResults(token, environmentFqdn, linechartTsqExpressions.map(function(ae){return ae.toTsq()})).then(function(result){
+                        console.log('aggErrorCount ' + result.filter(r => Object.keys(r).indexOf('__tsiError__') !== -1).length)
+                    });
+                    hierarchy = new tsiClient.ux.HierarchyNavigation(document.getElementById('hierarchyNav1'));
+                    hierarchy.render(environmentFqdn, authContext.getTsiToken, Object.assign({}, hierarchyNavOptions, {onInstanceClick: () => {}}));
+                    hierarchy = new tsiClient.ux.HierarchyNavigation(document.getElementById('hierarchyNav2'));
+                    hierarchy.render(environmentFqdn, authContext.getTsiToken, Object.assign({}, hierarchyNavOptions, {onInstanceClick: () => {}}));
+                    hierarchy = new tsiClient.ux.HierarchyNavigation(document.getElementById('hierarchyNav3'));
+                    hierarchy.render(environmentFqdn, authContext.getTsiToken, Object.assign({}, hierarchyNavOptions, {onInstanceClick: () => {}}));
+                    hierarchy = new tsiClient.ux.HierarchyNavigation(document.getElementById('hierarchyNav4'));
+                    hierarchy.render(environmentFqdn, authContext.getTsiToken, Object.assign({}, hierarchyNavOptions, {onInstanceClick: () => {}}));
+                    tsiClient.server.getTimeseriesInstances(token, environmentFqdn).then(r => {
+                        console.log('instancesdone ' + r.length);
+                    }).catch(() => {console.log('fail')})
+                });
+            }
+        </script>
+    </body>
+</html>
