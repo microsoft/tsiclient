@@ -281,7 +281,7 @@ class ServerClient {
                 if(message[propName])
                     rows = rows.concat(message[propName]);
                 
-                // HACK because /instances doesn't match /items
+                // HACK because /instances doesn't match /items 
                 var continuationToken = verb == 'GET' ? message.continuationToken : xhr.getResponseHeader('x-ms-continuation');
 
                 if(!continuationToken || rows.length >= maxResults)

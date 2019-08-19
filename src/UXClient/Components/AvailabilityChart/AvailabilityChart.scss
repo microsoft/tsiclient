@@ -167,6 +167,11 @@
             text-transform: capitalize;
             height: 32px;
             line-height: 32px;
+
+            .tsi-dateTimeButtonContainer {
+                margin-left: 8px;
+                width: 320px;
+            }
             .tsi-dateTimeButton {
                 height: 32px;
                 margin-left: 8px;

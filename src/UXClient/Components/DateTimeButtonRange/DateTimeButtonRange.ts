@@ -18,10 +18,15 @@ class DateTimeButtonRange extends DateTimeButton {
         this.dateTimeButton.node().innerHTML = this.buttonDateTimeFormat(fromMillis) + ' - ' + this.buttonDateTimeFormat(toMillis) + ' (' + timezoneAbbr + ')';
     }
 
+    private onClose () {
+        this.dateTimePickerContainer.style("display", "none");
+        this.dateTimeButton.node().focus();
+    }
+
     public render (chartOptions: any = {}, minMillis: number, maxMillis: number, 
         fromMillis: number = null, toMillis: number = null, onSet = null, onCancel = null) {
         super.render(chartOptions, minMillis, maxMillis, onSet);
-
+        debugger;
         this.fromMillis = fromMillis;
         this.toMillis = toMillis;
 
@@ -30,6 +35,22 @@ class DateTimeButtonRange extends DateTimeButton {
         if (!this.dateTimePicker) {
             this.dateTimePicker = new DateTimePicker(this.dateTimePickerContainer.node());
         }
+
+        let targetElement = <any>d3.select(this.renderTarget)
+        var dateTimeTextChildren =   (targetElement.select(".tsi-dateTimeContainer")).selectAll("*");
+        d3.select("html").on("click." + Utils.guid(), () => {
+            let pickerContainerChildren = this.dateTimePickerContainer.selectAll("*");
+            var outside = dateTimeTextChildren.filter(Utils.equalToEventTarget).empty() 
+                && targetElement.selectAll(".tsi-dateTimeContainer").filter(Utils.equalToEventTarget).empty()
+                && targetElement.selectAll(".tsi-dateTimeButton").filter(Utils.equalToEventTarget).empty();
+            targetElement.selectAll(".tsi-dateTimeContainer").filter(Utils.equalToEventTarget).empty()
+            var inClickTarget = pickerContainerChildren.filter(Utils.equalToEventTarget).empty();
+            if (outside && inClickTarget) {
+                this.dateTimePickerContainer.style("display", "none");
+                (<any>d3.select(this.renderTarget).select(".tsi-dateTimeButton").node()).focus();
+            }
+        });
+
         this.dateTimeButton.on("click", () => {
                 this.dateTimePickerContainer.style("display", "block");
                 var minMillis = this.minMillis + (Utils.getOffsetMinutes(this.chartOptions.offset, this.minMillis) * 60 * 1000);
@@ -47,14 +68,10 @@ class DateTimeButtonRange extends DateTimeButton {
     
                     this.setButtonText(adjustedFrom, adjustedTo, offset);
                     this.onSet(adjustedFrom, adjustedTo, offset);
-
-                    this.dateTimePickerContainer.style("display", "none");
-                    (<any>d3.select(this.renderTarget).select(".tsi-dateTimeContainer").node()).focus();
-                },
-                () => {
-                    this.dateTimePicker.updateFromAndTo(fromMillis, toMillis);
-                    this.dateTimePickerContainer.style("display", "none");
-                    (<any>d3.select(this.renderTarget).select(".tsi-dateTimeContainer").node()).focus();
+                    this.onClose();
+                }, () => {
+                    this.onClose();
+                    this.onCancel();
                 });
         });
     }

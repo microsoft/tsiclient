@@ -21,8 +21,8 @@ class EventSeries extends TimelineComponent{
 	public render(namedData: Array<any>, options: any = {}){
 		this.chartOptions.setOptions(options);
 		this.margins = {
-			left: (this.chartOptions.xAxisHidden === true) ? 10 : 40,
-			right: (this.chartOptions.xAxisHidden === true) ? 10 : 40
+			left: (this.chartOptions.xAxisHidden === true) ? 12 : 40,
+			right: (this.chartOptions.xAxisHidden === true) ? 12 : 40
 		}
 		this.createElements(this.chartOptions);
 		var tooltip = new Tooltip(d3.select(this.renderTarget));
@@ -33,6 +33,7 @@ class EventSeries extends TimelineComponent{
 		this.width  = Math.max((this.targetElement.node()).clientWidth, MINWIDTH);
 
 		var seriesWidth: number = this.width - this.margins.left - this.margins.right;
+		// debugger;
 		var fromTime = (this.chartOptions.timeFrame != undefined && this.chartOptions.timeFrame[0] != undefined) ? 
 						new Date(this.chartOptions.timeFrame[0]) : data[0].time;
 		var toTime = (this.chartOptions.timeFrame != undefined && this.chartOptions.timeFrame[1] != undefined) ? 
