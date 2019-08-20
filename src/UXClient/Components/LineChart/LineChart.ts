@@ -1418,8 +1418,7 @@ class LineChart extends TemporalXAxisComponent {
     }
 
     private getChartWidth () {
-        // debugger;
-        return Math.max(0, this.width - this.chartMargins.left - this.chartMargins.right - (this.chartOptions.legend == "shown" ? this.CONTROLSWIDTH + 16 : 0));
+        return Math.max(0, this.width - this.chartMargins.left - this.chartMargins.right - (this.chartOptions.legend == "shown" ? this.CONTROLSWIDTH : 0));
     }
 
     private nextStackedState = () => {
@@ -1726,9 +1725,10 @@ class LineChart extends TemporalXAxisComponent {
                             .y1(this.chartHeight);
                     }
                     
+                    console.log(this.x.domain());
+
                     if (!this.chartOptions.xAxisHidden) {
                         this.xAxis = g.selectAll(".xAxis").data([this.x]);
-            
                         this.drawXAxis(this.chartHeight + this.timelineHeight);
                         this.xAxis.exit().remove();
 
@@ -1855,7 +1855,7 @@ class LineChart extends TemporalXAxisComponent {
                 }
 
                 var visibleEventsCount = 0;
-                let timeFrame = (this.chartOptions.timeFrame) ? this.chartOptions.timeFrame : [xExtent[0],xExtent[1]];
+                let timeFrame = (this.chartOptions.timeFrame) ? this.chartOptions.timeFrame : this.x.domain();
                 if (this.chartComponentData.events) {
                     this.chartComponentData.events.forEach((namedEventSeries, i) => {
                         var name = Object.keys(namedEventSeries)[0];
@@ -1865,7 +1865,7 @@ class LineChart extends TemporalXAxisComponent {
                         this.eventSeriesWrappers[i].style("width", this.chartWidth  + 'px')
                             .style("height", d => isVisible ? '10px' : '0px')
                             .style("visibility", d => isVisible ? "visible" : "hidden")
-                            .style('right', this.timelineSeriesRight + 'px')
+                            .style('right', this.chartMargins.right + 'px')
                             .style('bottom', this.chartMargins.bottom + this.timelineHeight - (visibleEventsCount * 10)  + 'px');
                         this.eventSeriesComponents[i].render(namedEventSeries, {timeFrame: timeFrame, 
                                                         xAxisHidden: true, theme: this.chartOptions.theme, 

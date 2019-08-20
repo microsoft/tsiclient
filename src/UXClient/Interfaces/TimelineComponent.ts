@@ -14,6 +14,9 @@ class TimelineComponent extends Component {
 
 	protected width: number;
 	protected margins: any;
+
+	protected svgPaddingLeft;
+	protected svgPaddingRight;
 	
 	constructor(renderTarget: Element){
 		super(renderTarget);
@@ -44,9 +47,13 @@ class TimelineComponent extends Component {
 		var chartOptions = new ChartOptions();
 		chartOptions.setOptions(options);
 		var margins = {
-			left: (chartOptions.xAxisHidden == true) ? 10 : 40,
+			left: (chartOptions.xAxisHidden == true) ? 8 : 40,
 			right: (chartOptions.xAxisHidden == true) ? 10 : 40
-		}
+		};
+
+		this.svgPaddingLeft = (this.chartOptions.xAxisHidden === true) ? 10 : 40;
+		this.svgPaddingRight = (this.chartOptions.xAxisHidden === true) ? 14 : 40;
+
 		if(this.targetElement == null){
 			this.targetElement = d3.select(this.renderTarget);	
 			this.targetElement.html("");	

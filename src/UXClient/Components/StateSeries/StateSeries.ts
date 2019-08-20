@@ -18,10 +18,6 @@ class StateSeries extends TimelineComponent {
 	
 	public render(namedData: Array<any>, options: any = {}){
 		this.chartOptions.setOptions(options);
-		this.margins = {
-			left: (this.chartOptions.xAxisHidden === true) ? 10 : 40,
-			right: (this.chartOptions.xAxisHidden === true) ? 10 : 40
-		}
 		this.createElements(this.chartOptions.toObject());
 		var tooltip = new Tooltip(d3.select(this.renderTarget));
 		var seriesName = Object.keys(namedData)[0];
@@ -30,7 +26,7 @@ class StateSeries extends TimelineComponent {
 
 		this.width  = Math.max((this.targetElement.node()).clientWidth, this.MINWIDTH);
 
-		var seriesWidth: number = this.width - this.margins.left - this.margins.right;
+		var seriesWidth: number = this.width - this.svgPaddingLeft - this.svgPaddingRight;
 		var fromTime = new Date(this.chartOptions.timeFrame[0]);
 		var toTime = new Date(this.chartOptions.timeFrame[1]);
 		this.xScale = !(this.xScale) ? d3.scaleTime().domain([fromTime, toTime]).range([0, seriesWidth]) : this.xScale;
