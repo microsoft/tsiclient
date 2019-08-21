@@ -128,7 +128,7 @@
 
     .tsi-timePickerTextContainer {
         top: 0;
-        width: calc(100% - 160px);
+        width: calc(100% - 80px);
         position: relative;
         display: inline-flex;
 
@@ -156,9 +156,6 @@
             span {
                 opacity: .5;
             }
-            right: -60px;
-            position: absolute;
-            display: inline-flex;
             padding-right: 0px;
             margin-top: 4px;
             border: none;
@@ -167,10 +164,13 @@
             text-transform: capitalize;
             height: 32px;
             line-height: 32px;
+            width: 100%;
+            display: flex;
+            justify-content: flex-end;
+            
 
             .tsi-dateTimeButtonContainer {
                 margin-left: 8px;
-                width: 320px;
             }
             .tsi-dateTimeButton {
                 height: 32px;

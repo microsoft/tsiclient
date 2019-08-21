@@ -1725,8 +1725,6 @@ class LineChart extends TemporalXAxisComponent {
                             .y1(this.chartHeight);
                     }
                     
-                    console.log(this.x.domain());
-
                     if (!this.chartOptions.xAxisHidden) {
                         this.xAxis = g.selectAll(".xAxis").data([this.x]);
                         this.drawXAxis(this.chartHeight + this.timelineHeight);

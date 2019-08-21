@@ -1,0 +1,17 @@
+.tsi-dateTimeContainerRange {
+    .tsi-dateTimePickerContainer {
+        z-index: 1;
+        position: absolute;
+        top: 8px;
+        right: 0px;
+    }
+
+    .tsi-dateTimeButton {
+        height: 32px;
+        border: none;
+        cursor: pointer;
+        padding-left: 8px;
+        padding-right: 8px;
+        border-radius: 2px;
+    }
+}

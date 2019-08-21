@@ -13,7 +13,7 @@
     color: $gray1;
 }
 
-.tsi-dateTimeContainer {
+.tsi-dateTimeContainerSingle {
     &.tsi-dark{
 		$grays: grays('dark');
         @include dateTimeButtonSingleColors($grays);

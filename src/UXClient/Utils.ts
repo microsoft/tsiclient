@@ -145,6 +145,12 @@ class Utils {
         return abbr;
     } 
 
+    static createTimezoneAbbreviation (offset) {
+        let timezone = Utils.parseTimezoneName(offset);
+        let timezoneAbbreviation = Utils.timezoneAbbreviation(timezone);
+        return (timezoneAbbreviation.length !== 0 ? timezoneAbbreviation : Utils.addOffsetGuess(timezone));
+    }
+
     static parseTimezoneName (timezoneRaw: any) {
         if (!isNaN(timezoneRaw)) {
             if (timezoneRaw === 0) {

@@ -138,7 +138,7 @@ class AvailabilityChart extends ChartComponent{
         }});
     }
     private dateTimePickerAction (fromMillis, toMillis) {
-        this.setBrush(fromMillis, toMillis);
+        this.setBrush(fromMillis, toMillis, true);
         this.chartOptions.brushMoveEndAction(new Date(fromMillis), new Date(toMillis), this.chartOptions.offset);
         this.setTicks();
         this.dateTimePickerContainer.style("display", "none");
@@ -377,42 +377,33 @@ class AvailabilityChart extends ChartComponent{
         }, false);
     }
 
-    private createTimezoneAbbreviation () {
-        let timezone = Utils.parseTimezoneName(this.chartOptions.offset);
-        let timezoneAbbreviation = Utils.timezoneAbbreviation(timezone);
-        return (timezoneAbbreviation.length !== 0 ? timezoneAbbreviation : Utils.addOffsetGuess(timezone));
-    }
-
     private renderDateTimeButton () {
         let minMillis = this.fromMillis + (Utils.getOffsetMinutes(this.chartOptions.offset, this.fromMillis) * 60 * 1000);
         let maxMillis = this.toMillis + (Utils.getOffsetMinutes(this.chartOptions.offset, this.toMillis) * 60 * 1000);
         let startMillis = this.selectedFromMillis + (Utils.getOffsetMinutes(this.chartOptions.offset, this.selectedFromMillis) * 60 * 1000);
         let endMillis = this.selectedToMillis + (Utils.getOffsetMinutes(this.chartOptions.offset, this.selectedFromMillis) * 60 * 1000);
-        this.dateTimeButton.render(this.chartOptions, minMillis, maxMillis, startMillis, endMillis, 
+        this.dateTimeButton.render(this.chartOptions, this.fromMillis, this.toMillis, this.selectedFromMillis, this.selectedToMillis, 
             (fromMillis, toMillis, offset) => {
                 this.chartOptions.offset = offset;
                 this.timePickerLineChart.chartOptions.offset = offset;
                 this.sparkLineChart.chartOptions.offset = offset;
-                this.dateTimePickerAction(fromMillis - (Utils.getOffsetMinutes(this.chartOptions.offset, fromMillis) * 60 * 1000), 
-                                            toMillis -  (Utils.getOffsetMinutes(this.chartOptions.offset, toMillis) * 60 * 1000));
+                this.dateTimePickerAction(fromMillis, toMillis);
                 (<any>d3.select(this.renderTarget).select(".tsi-dateTimeContainer").node()).focus();
             },
             () => {
-                this.dateTimePicker.updateFromAndTo(startMillis, endMillis);
+                // this.dateTimePicker.updateFromAndTo(startMillis, endMillis);
                 this.dateTimePickerContainer.style("display", "none");
                 (<any>d3.select(this.renderTarget).select(".tsi-dateTimeContainer").node()).focus();
             });
     }
 
-    private setFromAndToTimes (fromMillis, toMillis) {
+    private setFromAndToTimes (fromMillis, toMillis, isFromButton = false) {
         let timezone = Utils.parseTimezoneName(this.chartOptions.offset);
         let timezoneAbbreviation = Utils.timezoneAbbreviation(timezone);
-        let timezoneSuffix = ' (' + this.createTimezoneAbbreviation() + ')'
-        let timeRangeText = 
-            Utils.timeFormat(false, false, this.chartOptions.offset, this.chartOptions.is24HourTime, null, null, this.chartOptions.dateLocale)(new Date(fromMillis).valueOf()) + " - " +
-            Utils.timeFormat(false, false, this.chartOptions.offset, this.chartOptions.is24HourTime, null, null, this.chartOptions.dateLocale)(new Date(toMillis).valueOf()) + timezoneSuffix;
         this.setSelectedMillis(fromMillis, toMillis);
-        this.renderDateTimeButton();
+        if (!isFromButton) {
+            this.renderDateTimeButton();
+        }
     }
 
     private drawGhost () {
@@ -477,7 +468,7 @@ class AvailabilityChart extends ChartComponent{
                 .classed('tsi-compactFromTo', true)
                 .style('left', (brushPositions.leftPos != null ? Math.max(brushPositions.leftPos, 5) : 5) + 'px')
                 .html(Utils.timeFormat(false, false, this.chartOptions.offset, this.chartOptions.is24HourTime, null, null, this.chartOptions.dateLocale)(new Date(this.selectedFromMillis)));
-            let timezoneAbbreviation = ' (' + this.createTimezoneAbbreviation() + ')';
+            let timezoneAbbreviation = ' (' + Utils.createTimezoneAbbreviation(this.chartOptions.offset) + ')';
             rightTimeText = this.timePickerContainer.append('div')
                 .attr('class', 'tsi-compactFromTo')
                 .style('right', brushPositions.rightPos != null ? 'calc(100% - ' + brushPositions.rightPos + 'px)' : '5px')
@@ -586,11 +577,11 @@ class AvailabilityChart extends ChartComponent{
         this.timePickerLineChart.setBrush();   
     }
 
-    public setBrush (fromMillis, toMillis) {
+    public setBrush (fromMillis, toMillis, isFromButton = false) {
         this.timePickerLineChart.setBrushEndTime(new Date(toMillis));
         this.timePickerLineChart.setBrushStartTime(new Date(fromMillis));
         this.timePickerLineChart.setBrush();
-        this.setFromAndToTimes(fromMillis, toMillis);
+        this.setFromAndToTimes(fromMillis, toMillis, isFromButton);
         this.drawGhost();
         
         if (this.isCustomTime(this.selectedFromMillis, this.selectedToMillis))

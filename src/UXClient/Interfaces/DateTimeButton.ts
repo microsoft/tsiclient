@@ -30,7 +30,7 @@ class DateTimeButton extends ChartComponent {
         this.minMillis = minMillis;
         this.maxMillis = maxMillis;
         this.onSet = onSet ? onSet : () => {};
-        let dateTimeContainer = d3.select(this.renderTarget).classed('tsi-dateTimeContainer', true);
+        let dateTimeContainer = d3.select(this.renderTarget);
         if (!this.dateTimeButton) {
             this.dateTimeButton = dateTimeContainer.append("button")
                 .classed('tsi-dateTimeButton', true);  

@@ -13,6 +13,7 @@ class DateTimeButtonSingle extends DateTimeButton {
 
     public render (chartOptions: any = {}, minMillis: number, maxMillis: number, selectedMillis: number = null, onSet = null) {
         super.render(chartOptions, minMillis, maxMillis, onSet);
+        d3.select(this.renderTarget).classed('tsi-dateTimeContainerSingle', true);
         this.dateTimeButton.node().innerHTML = this.buttonDateTimeFormat(selectedMillis);
         if (!this.dateTimePicker) {
             this.dateTimePicker = new SingleDateTimePicker(this.dateTimePickerContainer.node());

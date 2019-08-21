@@ -14,8 +14,8 @@ class DateTimeButtonRange extends DateTimeButton {
         super(renderTarget);
     }
 
-    private setButtonText (fromMillis, toMillis, timezoneAbbr) {
-        this.dateTimeButton.node().innerHTML = this.buttonDateTimeFormat(fromMillis) + ' - ' + this.buttonDateTimeFormat(toMillis) + ' (' + timezoneAbbr + ')';
+    private setButtonText (fromMillis, toMillis) {
+        this.dateTimeButton.node().innerHTML = this.buttonDateTimeFormat(fromMillis) + ' - ' + this.buttonDateTimeFormat(toMillis) + ' (' + Utils.createTimezoneAbbreviation(this.chartOptions.offset) + ')';
     }
 
     private onClose () {
@@ -26,12 +26,13 @@ class DateTimeButtonRange extends DateTimeButton {
     public render (chartOptions: any = {}, minMillis: number, maxMillis: number, 
         fromMillis: number = null, toMillis: number = null, onSet = null, onCancel = null) {
         super.render(chartOptions, minMillis, maxMillis, onSet);
-        debugger;
+        d3.select(this.renderTarget).classed('tsi-dateTimeContainerRange', true);
         this.fromMillis = fromMillis;
         this.toMillis = toMillis;
 
         this.onCancel = onCancel ? onCancel : () => {};
-        this.setButtonText (fromMillis, toMillis, 'Local');
+
+        this.setButtonText (fromMillis, toMillis);
         if (!this.dateTimePicker) {
             this.dateTimePicker = new DateTimePicker(this.dateTimePickerContainer.node());
         }
@@ -43,11 +44,9 @@ class DateTimeButtonRange extends DateTimeButton {
             var outside = dateTimeTextChildren.filter(Utils.equalToEventTarget).empty() 
                 && targetElement.selectAll(".tsi-dateTimeContainer").filter(Utils.equalToEventTarget).empty()
                 && targetElement.selectAll(".tsi-dateTimeButton").filter(Utils.equalToEventTarget).empty();
-            targetElement.selectAll(".tsi-dateTimeContainer").filter(Utils.equalToEventTarget).empty()
             var inClickTarget = pickerContainerChildren.filter(Utils.equalToEventTarget).empty();
-            if (outside && inClickTarget) {
-                this.dateTimePickerContainer.style("display", "none");
-                (<any>d3.select(this.renderTarget).select(".tsi-dateTimeButton").node()).focus();
+            if (outside && inClickTarget && (this.dateTimePickerContainer.style('display') !== 'none')) {
+                this.onClose();
             }
         });
 
@@ -66,7 +65,7 @@ class DateTimeButtonRange extends DateTimeButton {
                     this.fromMillis = adjustedFrom;
                     this.toMillis = adjustedTo;
     
-                    this.setButtonText(adjustedFrom, adjustedTo, offset);
+                    this.setButtonText(adjustedFrom, adjustedTo);
                     this.onSet(adjustedFrom, adjustedTo, offset);
                     this.onClose();
                 }, () => {
