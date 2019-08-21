@@ -30,7 +30,7 @@ class TimelineComponent extends Component {
 		});
 	}
 	
-	protected formatData (data: any): any {
+	protected formatData (data: any, onClickDefault: any): any {
 		data = this.orderData(data);
 		return data.map(eventData => {
 			var time = Object.keys(eventData)[0];

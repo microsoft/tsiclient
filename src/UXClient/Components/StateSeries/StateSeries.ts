@@ -15,6 +15,10 @@ class StateSeries extends TimelineComponent {
 
 	EventSeries() {
 	}
+
+	private getEndTime (data, i, toTime) {
+		return (i + 1 < data.length) ? (new Date(data[i+1].time)) : (new Date(toTime));
+	}
 	
 	public render(namedData: Array<any>, options: any = {}){
 		this.chartOptions.setOptions(options);
@@ -22,7 +26,7 @@ class StateSeries extends TimelineComponent {
 		var tooltip = new Tooltip(d3.select(this.renderTarget));
 		var seriesName = Object.keys(namedData)[0];
 		var data = namedData[seriesName];
-		data = this.formatData(data);
+		data = this.formatData(data, (startTime, endTime, color, description) => {});
 
 		this.width  = Math.max((this.targetElement.node()).clientWidth, this.MINWIDTH);
 
@@ -50,8 +54,8 @@ class StateSeries extends TimelineComponent {
             .attr("y", 0)
 			.attr("height", 10)
 			.attr("fill", d => d.color)
-			.on('click', d => {
-				d.onClick();
+			.on('click', (d, i) => {
+				d.onClick(d.time, this.getEndTime(data, i, toTime), d.color, d.description);
 			});
         this.xScale = d3.scaleTime().domain([fromTime, toTime]).range([0, seriesWidth]);
 		enteredRects = enteredRects.merge(rects);
@@ -64,7 +68,7 @@ class StateSeries extends TimelineComponent {
 		
 		var timeFormat = (d, i) => { 
 			var startTime = new Date(d.time);
-			var endTime = (i + 1 < data.length) ? (new Date(data[i+1].time)) : (new Date(toTime));
+			var endTime = this.getEndTime(data, i, toTime);
 			return Utils.timeFormat(this.usesSeconds, this.usesMillis, this.chartOptions.offset, self.chartOptions.is24HourTime, null, null, this.chartOptions.dateLocale)(startTime) + " - " + 
 				   Utils.timeFormat(this.usesSeconds, this.usesMillis, this.chartOptions.offset, self.chartOptions.is24HourTime, null, null, this.chartOptions.dateLocale)(endTime);
 		}

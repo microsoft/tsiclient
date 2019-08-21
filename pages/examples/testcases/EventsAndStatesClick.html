@@ -36,9 +36,10 @@
                         [from.toISOString()] : {
                             color: 'lightblue',
                             description: 'Cooling fan on',
-                            onClick: () => {
-                                console.log("clicked on first state");
-                            }
+                            onClick: (dateStart, dateEnd, color, description) => {
+                                    console.log(dateStart, dateEnd, color, description);
+                                }
+
                         }
                     },
                     {
@@ -61,8 +62,8 @@
                             [(new Date(from.valueOf() + 1000*60*8)).toISOString()] : {
                                 'color': '#C8E139',
                                 'description' : 'Recoverable failure',
-                                onClick: () => {
-                                    console.log("clicked on first event");
+                                onClick: (date, color, description) => {
+                                    console.log(date, color, description);
                                 }
                             }
                         },
