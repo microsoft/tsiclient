@@ -43,7 +43,6 @@
                         name: "Explore Events",
                         action: (fromTime, toTime) => {
                             let visibilityState = lineChart.getVisibilityState();
-                            debugger;
                             let predicateStrings = [];
                             aggregateExpressions.forEach((ae, idx) => {
                                 let visibilityStateForQuery = visibilityState[idx][Object.keys(visibilityState[idx])[0]];
