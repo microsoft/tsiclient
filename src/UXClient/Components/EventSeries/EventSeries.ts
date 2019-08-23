@@ -17,9 +17,6 @@ class EventSeries extends TimelineComponent{
 
 	EventSeries() {
 	}
-	private callOnClick (d) {
-		d.onClick()
-	}
 	
 	public render(namedData: Array<any>, options: any = {}){
 		this.chartOptions.setOptions(options);

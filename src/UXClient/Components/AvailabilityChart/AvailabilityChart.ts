@@ -391,7 +391,6 @@ class AvailabilityChart extends ChartComponent{
                 (<any>d3.select(this.renderTarget).select(".tsi-dateTimeContainer").node()).focus();
             },
             () => {
-                // this.dateTimePicker.updateFromAndTo(startMillis, endMillis);
                 this.dateTimePickerContainer.style("display", "none");
                 (<any>d3.select(this.renderTarget).select(".tsi-dateTimeContainer").node()).focus();
             });
