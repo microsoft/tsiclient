@@ -20,8 +20,6 @@ import { EllipsisMenu } from "./Components/EllipsisMenu/EllipsisMenu";
 import { TsqExpression } from "./Models/TsqExpression";
 import { ModelAutocomplete } from "./Components/ModelAutocomplete/ModelAutocomplete";
 import { HierarchyNavigation } from "./Components/HierarchyNavigation/HierarchyNavigation";
-import { SingleDateTimePicker } from "./Components/SingleDateTimePicker/SingleDateTimePicker";
-import { DateTimeButtonSingle } from "./Components/DateTimeButtonSingle/DateTimeButtonSingle";
 import { DateTimeButtonRange } from "./Components/DateTimeButtonRange/DateTimeButtonRange";
 
 class UXClient {
@@ -111,14 +109,6 @@ class UXClient {
     public EllipsisMenu(renderTarget) {
         return new EllipsisMenu(renderTarget);
     }
-
-    public SingleDateTimePicker(renderTarget) {
-        return new SingleDateTimePicker(renderTarget);
-    }
-
-    public DateTimeButtonSingle (renderTarget) {
-        return new DateTimeButtonSingle(renderTarget);
-    } 
 
     public DateTimeButtonRange (renderTarget) {
         return new DateTimeButtonRange(renderTarget);
