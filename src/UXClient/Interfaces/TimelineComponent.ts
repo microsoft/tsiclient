@@ -65,17 +65,17 @@ class TimelineComponent extends Component {
 			
 			this.targetElement.classed("tsi-eventSeries", true);
 			var height = (chartOptions.xAxisHidden == true) ? 10 : 40;
-			var width: number = Math.max((this.targetElement.node()).clientWidth, this.MINWIDTH);
 			var svg = this.targetElement.append("svg")
-				.attr("width", width)
 				.attr("height", height)
 				.attr("class", "tsi-chartSVG");
 			this.g = svg.append('g').attr("transform", 'translate(' + margins.left + ', 0)');
 	
 			this.xAxis = this.g.append("g")
 					.attr("class", "xAxis")
-					.attr("transform", "translate(0,10)")
-        }
+					.attr("transform", "translate(0,10)");
+		}
+		var width: number = Math.max((this.targetElement.node()).clientWidth, this.MINWIDTH);
+		this.targetElement.select('svg').attr('width', width);
 	}
 }
 export {TimelineComponent}
