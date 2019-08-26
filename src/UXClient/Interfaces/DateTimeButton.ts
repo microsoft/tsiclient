@@ -38,6 +38,7 @@ class DateTimeButton extends ChartComponent {
         if (!this.dateTimePickerContainer) {
             this.dateTimePickerContainer = dateTimeContainer.append('div').classed('tsi-dateTimePickerContainer', true);
         }
+        super.themify(d3.select(this.renderTarget), this.chartOptions.theme);        
     }
 }
 export {DateTimeButton}

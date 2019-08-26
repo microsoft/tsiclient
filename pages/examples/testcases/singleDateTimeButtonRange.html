@@ -15,7 +15,7 @@
                 var from = new Date();
                 var tsiClient = new TsiClient();
                 var rangeButtonWrapper = new tsiClient.ux.DateTimeButtonRange(document.getElementById('rangeButtonWrapper'));
-                rangeButtonWrapper.render({theme: 'light'}, from.valueOf(), new Date(from.valueOf() + 1000*60*60*60), from.valueOf() + 1000*60*60*20, from.valueOf() + 1000*60*60*40, (a, b, c) => {console.log(a + b + c), () => {debugger;}})
+                rangeButtonWrapper.render({theme: 'light', dateLocale: 'es'}, from.valueOf(), new Date(from.valueOf() + 1000*60*60*60), from.valueOf() + 1000*60*60*20, from.valueOf() + 1000*60*60*40, (a, b, c) => {console.log(a + b + c), () => {debugger;}})
 
             };
         </script>

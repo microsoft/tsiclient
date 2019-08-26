@@ -26,7 +26,7 @@ class EventSeries extends TimelineComponent{
 		var tooltip = new Tooltip(d3.select(this.renderTarget));
 		var seriesName = Object.keys(namedData)[0];
 		var data = namedData[seriesName];
-		data = this.formatData(data, (time, color, description) => {});
+		data = this.formatData(data);
 
 		this.width  = Math.max((this.targetElement.node()).clientWidth, MINWIDTH);
 
@@ -50,8 +50,11 @@ class EventSeries extends TimelineComponent{
 			.attr("height", 7)
 			.attr("fill", d => d.color)
 			.attr("transform", "rotate(45)")
+			.style('cursor', this.cursorStyle)
 			.on('click', d => {
-				d.onClick(d.time, d.color, d.description);
+				if (d.onClick !== null) {
+					d.onClick(d.time, d.color, d.description);
+				} 
 			});
 				
 		this.xScale = d3.scaleTime().domain([fromTime, toTime]).range([0, seriesWidth]);

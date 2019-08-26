@@ -29,8 +29,11 @@ class TimelineComponent extends Component {
 			return 1;
 		});
 	}
+	protected cursorStyle (d) {
+		return (d.onClick === null) ? 'inherit' : 'pointer';
+	}
 	
-	protected formatData (data: any, onClickDefault: any): any {
+	protected formatData (data: any): any {
 		data = this.orderData(data);
 		return data.map(eventData => {
 			var time = Object.keys(eventData)[0];
@@ -38,7 +41,7 @@ class TimelineComponent extends Component {
 				"time" : time,
 				"color" : eventData[time].color,
 				"description" : eventData[time].description,
-				'onClick': eventData[time].onClick ? eventData[time].onClick : () => {} 
+				'onClick': eventData[time].onClick ? eventData[time].onClick : null
 			};
 		});
 	}
