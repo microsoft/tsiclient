@@ -1,9 +1,7 @@
 import * as d3 from 'd3';
 import './EventSeries.scss';
 import {Utils} from "./../../Utils";
-import {Component} from "./../../Interfaces/Component";
 import { TimelineComponent } from '../../Interfaces/TimelineComponent';
-import { ChartOptions } from '../../Models/ChartOptions';
 import { Tooltip } from '../Tooltip/Tooltip';
 
 const MINWIDTH = 20;
@@ -16,9 +14,6 @@ class EventSeries extends TimelineComponent{
 	}
 
 	EventSeries() {
-	}
-	private callOnClick (d) {
-		d.onClick()
 	}
 	
 	public render(namedData: Array<any>, options: any = {}){

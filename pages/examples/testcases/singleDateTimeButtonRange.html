@@ -1,0 +1,23 @@
+
+<!DOCTYPE html> 
+<html>
+    <head>
+        <title>Range Button</title>
+        
+        <!-- boilerplate headers are injected with head.js, grab them from the live example header, or include a link to head.js -->
+        <script src="../boilerplate/head.js"></script>
+    </head>
+    <body style="font-family: 'Segoe UI', sans-serif;">
+        <div id="rangeButtonWrapper" style="width: 0; height: 0; position: absolute; top: 200px; left: 40%; border: 1px solid red;"></div>
+        <script>
+            window.onload = function() {
+                
+                var from = new Date();
+                var tsiClient = new TsiClient();
+                var rangeButtonWrapper = new tsiClient.ux.DateTimeButtonRange(document.getElementById('rangeButtonWrapper'));
+                rangeButtonWrapper.render({theme: 'light'}, from.valueOf(), new Date(from.valueOf() + 1000*60*60*60), from.valueOf() + 1000*60*60*20, from.valueOf() + 1000*60*60*40, (a, b, c) => {console.log(a + b + c), () => {debugger;}})
+
+            };
+        </script>
+    </body>
+</html>
