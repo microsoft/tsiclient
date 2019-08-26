@@ -1,9 +1,7 @@
 import * as d3 from 'd3';
 import './EventSeries.scss';
 import {Utils} from "./../../Utils";
-import {Component} from "./../../Interfaces/Component";
 import { TimelineComponent } from '../../Interfaces/TimelineComponent';
-import { ChartOptions } from '../../Models/ChartOptions';
 import { Tooltip } from '../Tooltip/Tooltip';
 
 const MINWIDTH = 20;

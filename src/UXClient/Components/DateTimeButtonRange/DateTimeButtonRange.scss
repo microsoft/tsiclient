@@ -3,7 +3,7 @@
         z-index: 1;
         position: absolute;
         top: 8px;
-        right: 0px;
+        left: 0px;
     }
 
     .tsi-dateTimeButton {
@@ -13,5 +13,9 @@
         padding-left: 8px;
         padding-right: 8px;
         border-radius: 2px;
+        position: absolute;
+        top: 0;
+        left: 0;
+        white-space: nowrap;
     }
 }
