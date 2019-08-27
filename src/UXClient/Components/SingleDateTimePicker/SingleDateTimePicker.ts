@@ -53,15 +53,11 @@ class SingleDateTimePicker extends ChartComponent{
         var self = this;
         var saveButton = saveButtonContainer.append("button").classed("tsi-saveButton", true).html(this.getString("Save"))
             .on("click", () =>  {
-                //TODO take the check out of here and put it on input value change
-                                
-                let parsedMillis = this.parseUserInputDateTime();
-                let errorCheck = this.dateTimeIsValid(parsedMillis);
-                this.displayErrors(errorCheck.errors);
-                if (errorCheck.rangeIsValid) {
+                if (this.isValid) {
+                    let parsedMillis = this.parseUserInputDateTime();
                     this.setMillis(parsedMillis, false);
                     self.onSet(this.millis);
-                } 
+                }
             });
         
         this.targetElement.append("div").classed("tsi-errorMessageContainer", true);
@@ -144,6 +140,13 @@ class SingleDateTimePicker extends ChartComponent{
         }
     }
 
+    private checkDateTimeValidity () {
+        let parsedMillis = this.parseUserInputDateTime();
+        let errorCheck = this.dateTimeIsValid(parsedMillis);
+        this.displayErrors(errorCheck.errors);
+        this.setIsValid(errorCheck.rangeIsValid);
+    }
+
     private dateTimeIsValid (prospectiveMillis: number) {
         var accumulatedErrors = [];
 
@@ -222,7 +225,10 @@ class SingleDateTimePicker extends ChartComponent{
     private createTimePicker () {
         var self = this;
         let timeLabel = this.timeControls.append("h4").classed("tsi-timeLabel", true).html(this.getString('time'));
-        this.timeControls.append('input').classed('tsi-timeInput', true);
+        this.timeControls.append('input').classed('tsi-timeInput', true)
+            .on('keyup', () => {
+                this.checkDateTimeValidity();
+            });
     }
 }
 
