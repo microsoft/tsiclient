@@ -56,6 +56,21 @@
                     background-color: rgba(48, 157, 144, .4) !important; 
                 }
             }
+
+            .pika-table {
+                .pika-row {
+                    td {
+                        &.is-selected {
+                            .pika-day {
+                                background-color: #309d90;
+                                color: white;
+                                border-bottom-left-radius: 8px;
+                                border-top-left-radius: 8px;
+                            }
+                        }
+                    }
+                }
+            }
         }
         
         .tsi-timeControlsContainer {
@@ -68,6 +83,28 @@
         
         .tsi-timeControlsContainer {
             border-top: 1px solid rgba(0, 0, 0, .4);
+        }
+
+        .pika-single {
+            .is-inrange {
+                .pika-day {
+                    background-color: rgba(48, 157, 144, .4) !important; 
+                }
+            }
+
+            .pika-table {
+                .pika-row {
+                    td {
+                        &.is-selected {
+                            .pika-day {
+                                background-color: #309d90;
+                                color: white;
+                                border-radius: 8px;
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 

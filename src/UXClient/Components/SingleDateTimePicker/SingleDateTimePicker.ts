@@ -47,8 +47,8 @@ class SingleDateTimePicker extends ChartComponent{
             .classed("tsi-singleDateTimePicker", true);
         this.targetElement.node().innerHTML = "";
         super.themify(this.targetElement, this.chartOptions.theme);
-        this.calendar = this.targetElement.append("div").classed("tsi-calendarPicker", true);
         this.timeControls = this.targetElement.append("div").classed("tsi-timeControlsContainer", true);
+        this.calendar = this.targetElement.append("div").classed("tsi-calendarPicker", true);
         var saveButtonContainer = this.targetElement.append("div").classed("tsi-saveButtonContainer", true);
         var self = this;
         var saveButton = saveButtonContainer.append("button").classed("tsi-saveButton", true).html(this.getString("Save"))
