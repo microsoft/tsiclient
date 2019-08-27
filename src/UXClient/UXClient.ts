@@ -20,6 +20,7 @@ import { EllipsisMenu } from "./Components/EllipsisMenu/EllipsisMenu";
 import { TsqExpression } from "./Models/TsqExpression";
 import { ModelAutocomplete } from "./Components/ModelAutocomplete/ModelAutocomplete";
 import { HierarchyNavigation } from "./Components/HierarchyNavigation/HierarchyNavigation";
+import { DateTimeButtonRange } from "./Components/DateTimeButtonRange/DateTimeButtonRange";
 
 class UXClient {
     UXClient () {
@@ -108,6 +109,10 @@ class UXClient {
     public EllipsisMenu(renderTarget) {
         return new EllipsisMenu(renderTarget);
     }
+
+    public DateTimeButtonRange (renderTarget) {
+        return new DateTimeButtonRange(renderTarget);
+    } 
 
     public transformTsxToEventsArray (events, options) {
         var timezoneOffset = options.timezoneOffset ? options.timezoneOffset : 0;

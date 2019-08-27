@@ -83,6 +83,8 @@ class LineChart extends TemporalXAxisComponent {
     };
     private xOffset = 8;
 
+    private timelineSeriesRight;
+
     constructor(renderTarget: Element){
         super(renderTarget);
         this.MINHEIGHT = 26;
@@ -1416,7 +1418,7 @@ class LineChart extends TemporalXAxisComponent {
     }
 
     private getChartWidth () {
-        return Math.max(0, this.width - this.chartMargins.left - this.chartMargins.right - (this.chartOptions.legend == "shown" ? this.CONTROLSWIDTH + 16 : 0));
+        return Math.max(0, this.width - this.chartMargins.left - this.chartMargins.right - (this.chartOptions.legend == "shown" ? this.CONTROLSWIDTH : 0));
     }
 
     private nextStackedState = () => {
@@ -1461,6 +1463,8 @@ class LineChart extends TemporalXAxisComponent {
         this.states = (this.chartOptions.states != undefined) ? this.chartOptions.states : null;
         this.strokeOpacity = this.chartOptions.isArea ? .55 : 1;
         this.nonFocusStrokeOpactiy = this.chartOptions.isArea ? .55 : .3;
+
+        this.timelineSeriesRight = (this.chartOptions.legend === 'shown') ? 78 : 62; 
 
         this.chartComponentData.mergeDataToDisplayStateAndTimeArrays(data, aggregateExpressionOptions, this.events, this.states);
         if (this.chartOptions.xAxisHidden && this.chartOptions.focusHidden) {
@@ -1723,7 +1727,6 @@ class LineChart extends TemporalXAxisComponent {
                     
                     if (!this.chartOptions.xAxisHidden) {
                         this.xAxis = g.selectAll(".xAxis").data([this.x]);
-            
                         this.drawXAxis(this.chartHeight + this.timelineHeight);
                         this.xAxis.exit().remove();
 
@@ -1850,7 +1853,7 @@ class LineChart extends TemporalXAxisComponent {
                 }
 
                 var visibleEventsCount = 0;
-                let timeFrame = (this.chartOptions.timeFrame) ? this.chartOptions.timeFrame : [xExtent[0],xExtent[1]];
+                let timeFrame = (this.chartOptions.timeFrame) ? this.chartOptions.timeFrame : this.x.domain();
                 if (this.chartComponentData.events) {
                     this.chartComponentData.events.forEach((namedEventSeries, i) => {
                         var name = Object.keys(namedEventSeries)[0];
@@ -1860,8 +1863,8 @@ class LineChart extends TemporalXAxisComponent {
                         this.eventSeriesWrappers[i].style("width", this.chartWidth  + 'px')
                             .style("height", d => isVisible ? '10px' : '0px')
                             .style("visibility", d => isVisible ? "visible" : "hidden")
-                            .style("right", this.chartMargins.right  + 'px')
-                            .style("bottom", this.chartMargins.bottom + this.timelineHeight - (visibleEventsCount * 10)  + 'px');
+                            .style('right', this.chartMargins.right + 'px')
+                            .style('bottom', this.chartMargins.bottom + this.timelineHeight - (visibleEventsCount * 10)  + 'px');
                         this.eventSeriesComponents[i].render(namedEventSeries, {timeFrame: timeFrame, 
                                                         xAxisHidden: true, theme: this.chartOptions.theme, 
                                                         offset: this.chartOptions.offset});

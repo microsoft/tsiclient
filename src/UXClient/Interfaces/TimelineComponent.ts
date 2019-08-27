@@ -14,6 +14,9 @@ class TimelineComponent extends Component {
 
 	protected width: number;
 	protected margins: any;
+
+	protected svgPaddingLeft;
+	protected svgPaddingRight;
 	
 	constructor(renderTarget: Element){
 		super(renderTarget);
@@ -26,6 +29,9 @@ class TimelineComponent extends Component {
 			return 1;
 		});
 	}
+	protected cursorStyle (d) {
+		return (d.onClick === null) ? 'inherit' : 'pointer';
+	}
 	
 	protected formatData (data: any): any {
 		data = this.orderData(data);
@@ -34,7 +40,8 @@ class TimelineComponent extends Component {
 			return {
 				"time" : time,
 				"color" : eventData[time].color,
-				"description" : eventData[time].description
+				"description" : eventData[time].description,
+				'onClick': eventData[time].onClick ? eventData[time].onClick : null
 			};
 		});
 	}
@@ -43,9 +50,13 @@ class TimelineComponent extends Component {
 		var chartOptions = new ChartOptions();
 		chartOptions.setOptions(options);
 		var margins = {
-			left: (chartOptions.xAxisHidden == true) ? 10 : 40,
+			left: (chartOptions.xAxisHidden == true) ? 8 : 40,
 			right: (chartOptions.xAxisHidden == true) ? 10 : 40
-		}
+		};
+
+		this.svgPaddingLeft = (this.chartOptions.xAxisHidden === true) ? 10 : 40;
+		this.svgPaddingRight = (this.chartOptions.xAxisHidden === true) ? 14 : 40;
+
 		if(this.targetElement == null){
 			this.targetElement = d3.select(this.renderTarget);	
 			this.targetElement.html("");	
@@ -54,22 +65,17 @@ class TimelineComponent extends Component {
 			
 			this.targetElement.classed("tsi-eventSeries", true);
 			var height = (chartOptions.xAxisHidden == true) ? 10 : 40;
-			var width: number = Math.max((this.targetElement.node()).clientWidth, this.MINWIDTH);
 			var svg = this.targetElement.append("svg")
-				.attr("width", width)
 				.attr("height", height)
 				.attr("class", "tsi-chartSVG");
 			this.g = svg.append('g').attr("transform", 'translate(' + margins.left + ', 0)');
 	
 			this.xAxis = this.g.append("g")
 					.attr("class", "xAxis")
-					.attr("transform", "translate(0,10)")
-        }
-	}
-
-	protected elementMouseover = (d, i, timeFormatFunction) => {
-		var selectedTime = new Date(d.time);
-		var xPos = this.xScale(selectedTime);
+					.attr("transform", "translate(0,10)");
+		}
+		var width: number = Math.max((this.targetElement.node()).clientWidth, this.MINWIDTH);
+		this.targetElement.select('svg').attr('width', width);
 	}
 }
 export {TimelineComponent}

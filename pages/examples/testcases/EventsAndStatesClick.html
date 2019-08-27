@@ -15,9 +15,6 @@
                 // create fake data in the shape our charts expect
                 var data = [];
                 var from = new Date();
-                from.setMinutes(0);
-                from.setSeconds(0);
-                from.setMilliseconds(0);
                 var to;
                 for(var i = 0; i < 2; i++){
                     var lines = {};
@@ -25,7 +22,7 @@
                     for(var j = 0; j < 5; j++){
                         var values = {};
                         lines[`Station${j}`] = values;
-                        for(var k = 0; k <= 60; k++){
+                        for(var k = 0; k < 60; k++){
                             if(!(k%2 && k%3)){  // if check is to create some sparseness in the data
                                 var to = new Date(from.valueOf() + 1000*60*k);
                                 values[to.toISOString()] = {avg: Math.random() * 20};
@@ -37,8 +34,12 @@
                 var states = [{"Component States" : [
                     {
                         [from.toISOString()] : {
-                            'color': 'lightblue',
-                            'description' : 'Cooling fan on'
+                            color: 'lightblue',
+                            description: 'Cooling fan on',
+                            onClick: (dateStart, dateEnd, color, description) => {
+                                    console.log(dateStart, dateEnd, color, description);
+                                }
+
                         }
                     },
                     {
@@ -48,7 +49,7 @@
                         }
                     },
                     {
-                        [(new Date(from.valueOf() + 1000*60*55)).toISOString()] : {
+                        [(new Date(from.valueOf() + 1000*60*32)).toISOString()] : {
                             'color': '#D869CB',
                             'description' : 'Pressing machine overheated'
                         }
@@ -58,9 +59,12 @@
                 var events = [
                     {"Incidents" : [
                         {
-                            [(new Date(from.valueOf() + 1000*60*10)).toISOString()] : {
+                            [(new Date(from.valueOf() + 1000*60*8)).toISOString()] : {
                                 'color': '#C8E139',
-                                'description' : 'Recoverable failure'
+                                'description' : 'Recoverable failure',
+                                onClick: (date, color, description) => {
+                                    console.log(date, color, description);
+                                }
                             }
                         },
                         {
@@ -95,7 +99,7 @@
                 // render the data in a chart
                 var tsiClient = new TsiClient();
                 var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart1'));
-                lineChart.render(data, {theme: 'light', legend: 'shown', grid: true, tooltip: true, events: events, states: states});
+                lineChart.render(data, {theme: 'dark', grid: true, tooltip: true, events: events, states: states});
             }
         </script>
     </body>    

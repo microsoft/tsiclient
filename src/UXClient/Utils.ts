@@ -12,22 +12,23 @@ enum StackStates {Stacked = "stacked", Shared = "shared", Overlap = "overlap" }
 
 class Utils {
     static formatYAxisNumber (val: number) {
-        if (Math.abs(val) < 1000000)
-        if (Math.abs(val) < .0000001)
-            return d3.format('.2n')(val); // scientific for less than 1 billionth
-        else {
-            // grouped thousands with 7 significant digits, trim insginificant trailing 0s
-            var formatted = d3.format(',.7r')(val); 
-            if (formatted.indexOf('.') != -1) {
-                var lastChar = formatted[formatted.length - 1]
-                while (lastChar == '0') {
-                    formatted = formatted.slice(0, -1);
-                    lastChar = formatted[formatted.length - 1]
+        if (Math.abs(val) < 1000000) {
+            if (Math.abs(val) < .0000001)
+                return d3.format('.2n')(val); // scientific for less than 1 billionth
+            else {
+                // grouped thousands with 7 significant digits, trim insginificant trailing 0s
+                var formatted = d3.format(',.7r')(val); 
+                if (formatted.indexOf('.') != -1) {
+                    var lastChar = formatted[formatted.length - 1]
+                    while (lastChar == '0') {
+                        formatted = formatted.slice(0, -1);
+                        lastChar = formatted[formatted.length - 1]
+                    }
+                    if (lastChar == '.')
+                        formatted = formatted.slice(0, -1);
                 }
-                if (lastChar == '.')
-                    formatted = formatted.slice(0, -1);
+                return formatted;
             }
-            return formatted;
         }
         else if (Math.abs(val) >= 1000000 && Math.abs(val) < 1000000000)
             return d3.format('.3s')(val); // suffix of M for millions
@@ -143,6 +144,12 @@ class Utils {
             return '';
         return abbr;
     } 
+
+    static createTimezoneAbbreviation (offset) {
+        let timezone = Utils.parseTimezoneName(offset);
+        let timezoneAbbreviation = Utils.timezoneAbbreviation(timezone);
+        return (timezoneAbbreviation.length !== 0 ? timezoneAbbreviation : Utils.addOffsetGuess(timezone));
+    }
 
     static parseTimezoneName (timezoneRaw: any) {
         if (!isNaN(timezoneRaw)) {
@@ -534,6 +541,10 @@ class Utils {
             return false;
         }
     }
+
+    static equalToEventTarget = (function ()  {
+        return (this == d3.event.target);
+    });
 
     static getAggKeys (data) {
         let aggregateCounterMap = {};

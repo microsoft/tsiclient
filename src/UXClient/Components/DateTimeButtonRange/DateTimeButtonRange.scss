@@ -1,0 +1,48 @@
+@import "../../styles";
+
+@mixin dateTimeButtonColors($grays){
+    $gray1: nth($grays, 1);
+    $gray2: nth($grays, 2); 
+    $gray3: nth($grays, 3); 
+    $gray4: nth($grays, 4); 
+    $gray5: nth($grays, 5); 
+    
+    color: $gray1;
+    .tsi-dateTimeButton {
+        background-color: rgba($gray5, .8) !important;
+        color: $gray1;
+        &:hover {
+            background-color: $gray5 !important;
+        }    
+    }
+}
+.tsi-dateTimeContainerRange {
+    &.tsi-dark{
+        $grays: grays('dark');
+        @include dateTimeButtonColors($grays);
+    }
+    &.tsi-light{
+        $grays: grays('light');
+        @include dateTimeButtonColors($grays);
+    }
+
+    .tsi-dateTimePickerContainer {
+        z-index: 1;
+        position: absolute;
+        top: 8px;
+        left: 0px;
+    }
+
+    .tsi-dateTimeButton {
+        height: 32px;
+        border: none;
+        cursor: pointer;
+        padding-left: 8px;
+        padding-right: 8px;
+        border-radius: 2px;
+        position: absolute;
+        top: 0;
+        left: 0;
+        white-space: nowrap;
+    }
+}       

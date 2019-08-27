@@ -1,9 +1,7 @@
 import * as d3 from 'd3';
 import './EventSeries.scss';
 import {Utils} from "./../../Utils";
-import {Component} from "./../../Interfaces/Component";
 import { TimelineComponent } from '../../Interfaces/TimelineComponent';
-import { ChartOptions } from '../../Models/ChartOptions';
 import { Tooltip } from '../Tooltip/Tooltip';
 
 const MINWIDTH = 20;
@@ -22,7 +20,7 @@ class EventSeries extends TimelineComponent{
 		this.chartOptions.setOptions(options);
 		this.margins = {
 			left: (this.chartOptions.xAxisHidden === true) ? 10 : 40,
-			right: (this.chartOptions.xAxisHidden === true) ? 10 : 40
+			right: (this.chartOptions.xAxisHidden === true) ? 14 : 40
 		}
 		this.createElements(this.chartOptions);
 		var tooltip = new Tooltip(d3.select(this.renderTarget));
@@ -51,7 +49,13 @@ class EventSeries extends TimelineComponent{
 			.attr("width", 7)
 			.attr("height", 7)
 			.attr("fill", d => d.color)
-			.attr("transform", "rotate(45)");
+			.attr("transform", "rotate(45)")
+			.style('cursor', this.cursorStyle)
+			.on('click', d => {
+				if (d.onClick !== null) {
+					d.onClick(d.time, d.color, d.description);
+				} 
+			});
 				
 		this.xScale = d3.scaleTime().domain([fromTime, toTime]).range([0, seriesWidth]);
 		enteredRectGs = enteredRectGs.merge(rectGs);
@@ -63,15 +67,12 @@ class EventSeries extends TimelineComponent{
 		var rects = enteredRectGs.select("rect");
 		var self = this;
 		rects.on("mouseover", function (dRect, iRect) { 
-			self.elementMouseover(dRect, iRect, (d, i) => { 
-				return Utils.timeFormat(this.usesSeconds, this.usesMillis, self.chartOptions.offset, null, null, null, this.chartOptions.dateLocale)(new Date(d.time));
-			});
 			var mousePos = d3.mouse(<any>self.g.node());
 			tooltip.render(self.chartOptions.theme);
 			tooltip.draw (dRect, {}, mousePos[0], mousePos[1], {top: 0, bottom: 0, left: 0, right: 0}, (text) => {
 				text.text(null);
 				text.append('div')
-					.text(Utils.timeFormat(self.usesSeconds, self.usesMillis, self.chartOptions.offset, true, null, null, self.chartOptions.dateLocale)(new Date(dRect.time)))
+					.text(Utils.timeFormat(self.usesSeconds, self.usesMillis, self.chartOptions.offset, self.chartOptions.is24HourTime, null, null, self.chartOptions.dateLocale)(new Date(dRect.time)))
 					.classed('title', true);
 				text.append('div')
 					.text(dRect.description)

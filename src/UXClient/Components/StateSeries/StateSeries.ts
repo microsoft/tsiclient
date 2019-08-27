@@ -15,13 +15,13 @@ class StateSeries extends TimelineComponent {
 
 	EventSeries() {
 	}
+
+	private getEndTime (data, i, toTime) {
+		return (i + 1 < data.length) ? (new Date(data[i+1].time)) : (new Date(toTime));
+	}
 	
 	public render(namedData: Array<any>, options: any = {}){
 		this.chartOptions.setOptions(options);
-		this.margins = {
-			left: (this.chartOptions.xAxisHidden === true) ? 10 : 40,
-			right: (this.chartOptions.xAxisHidden === true) ? 10 : 40
-		}
 		this.createElements(this.chartOptions.toObject());
 		var tooltip = new Tooltip(d3.select(this.renderTarget));
 		var seriesName = Object.keys(namedData)[0];
@@ -30,7 +30,7 @@ class StateSeries extends TimelineComponent {
 
 		this.width  = Math.max((this.targetElement.node()).clientWidth, this.MINWIDTH);
 
-		var seriesWidth: number = this.width - this.margins.left - this.margins.right;
+		var seriesWidth: number = this.width - this.svgPaddingLeft - this.svgPaddingRight;
 		var fromTime = new Date(this.chartOptions.timeFrame[0]);
 		var toTime = new Date(this.chartOptions.timeFrame[1]);
 		this.xScale = !(this.xScale) ? d3.scaleTime().domain([fromTime, toTime]).range([0, seriesWidth]) : this.xScale;
@@ -53,7 +53,14 @@ class StateSeries extends TimelineComponent {
 			.attr("x", d => this.xScale(new Date(d.time)))
             .attr("y", 0)
 			.attr("height", 10)
-			.attr("fill", d => d.color);
+			.attr("fill", d => d.color)
+			.style('cursor', this.cursorStyle)
+			.on('click', (d, i) => {
+				if (d.onClick !== null) {
+					d.onClick(d.time, this.getEndTime(data, i, toTime), d.color, d.description);
+				}
+			});
+        this.xScale = d3.scaleTime().domain([fromTime, toTime]).range([0, seriesWidth]);
 		enteredRects = enteredRects.merge(rects);
 		enteredRects
 			.transition()
@@ -64,16 +71,13 @@ class StateSeries extends TimelineComponent {
 		
 		var timeFormat = (d, i) => { 
 			var startTime = new Date(d.time);
-			var endTime = (i + 1 < data.length) ? (new Date(data[i+1].time)) : (new Date(toTime));
-			return Utils.timeFormat(this.usesSeconds, this.usesMillis, this.chartOptions.offset, null, null, null, this.chartOptions.dateLocale)(startTime) + " - " + 
-				   Utils.timeFormat(this.usesSeconds, this.usesMillis, this.chartOptions.offset, null, null, null, this.chartOptions.dateLocale)(endTime);
+			var endTime = this.getEndTime(data, i, toTime);
+			return Utils.timeFormat(this.usesSeconds, this.usesMillis, this.chartOptions.offset, self.chartOptions.is24HourTime, null, null, this.chartOptions.dateLocale)(startTime) + " - " + 
+				   Utils.timeFormat(this.usesSeconds, this.usesMillis, this.chartOptions.offset, self.chartOptions.is24HourTime, null, null, this.chartOptions.dateLocale)(endTime);
 		}
 
 		var self = this;
 		enteredRects.on("mousemove", function (dRect, iRect) { 
-			self.elementMouseover(dRect, iRect, (d, i) => { 
-				return Utils.timeFormat(this.usesSeconds, this.usesMillis, this.chartOptions.offset, null, null, null, this.chartOptions.dateLocale)(new Date(d.time));
-			});
 			var mousePos = d3.mouse(<any>self.g.node());
 			tooltip.render(self.chartOptions.theme);
 			tooltip.draw (dRect, {}, mousePos[0], mousePos[1], {top: 0, bottom: 0, left: 0, right: 0}, (text) => {
