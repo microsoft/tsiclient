@@ -1,9 +1,7 @@
 import * as d3 from 'd3';
 import './EventSeries.scss';
 import {Utils} from "./../../Utils";
-import {Component} from "./../../Interfaces/Component";
 import { TimelineComponent } from '../../Interfaces/TimelineComponent';
-import { ChartOptions } from '../../Models/ChartOptions';
 import { Tooltip } from '../Tooltip/Tooltip';
 
 const MINWIDTH = 20;
@@ -55,8 +53,11 @@ class EventSeries extends TimelineComponent{
 			.attr("height", 7)
 			.attr("fill", d => d.color)
 			.attr("transform", "rotate(45)")
+			.style('cursor', this.cursorStyle)
 			.on('click', d => {
-				d.onClick(d.time, d.color, d.description);
+				if (d.onClick !== null) {
+					d.onClick(d.time, d.color, d.description);
+				} 
 			});
 				
 		this.xScale = d3.scaleTime().domain([fromTime, toTime]).range([0, seriesWidth]);

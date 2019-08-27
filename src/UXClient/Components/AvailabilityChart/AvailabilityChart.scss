@@ -130,7 +130,6 @@
         top: 0;
         width: calc(100% - 80px);
         position: relative;
-        display: inline-flex;
 
         .tsi-select {
             top: 4px;
@@ -154,7 +153,8 @@
 
         .tsi-dateTimeContainer {
             span {
-                opacity: .5;
+                opacity: .66;
+                font-size: 12px;
             }
             padding-right: 0px;
             margin-top: 4px;
@@ -164,13 +164,15 @@
             text-transform: capitalize;
             height: 32px;
             line-height: 32px;
-            width: 100%;
-            display: flex;
-            justify-content: flex-end;
             
+            position: absolute;
+            left: calc(100% - 372px);
+            top: 0px;
 
             .tsi-dateTimeButtonContainer {
-                margin-left: 8px;
+                position: absolute;
+                left: 64px;
+                top: 0px;
             }
             .tsi-dateTimeButton {
                 height: 32px;
@@ -184,6 +186,12 @@
                 padding-left: 28px;
                 padding-right: 8px;
                 border-radius: 2px;
+            }
+            .tsi-dateTimePickerContainer {
+                left: unset;
+                right: -320px;
+                top: 0px;
+                display: block;
             }
         }
         .tsi-toText {

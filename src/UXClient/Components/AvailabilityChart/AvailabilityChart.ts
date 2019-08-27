@@ -295,7 +295,7 @@ class AvailabilityChart extends ChartComponent{
             this.targetElement.select('.tsi-timePickerContainer').style('max-height', '68px').style('top', '20px');
         } else {
             this.targetElement.select('.tsi-sparklineContainer').style("display", 'flex');
-            this.targetElement.select(".tsi-timePickerTextContainer").style('display', 'flex');
+            this.targetElement.select(".tsi-timePickerTextContainer").style('display', 'inherit');
             this.targetElement.select('.tsi-zoomButtonContainer').style('display', 'flex');
             this.targetElement.select('.tsi-timePickerContainer').style('max-height', 'none').style('top', '0px');
         }
@@ -391,7 +391,6 @@ class AvailabilityChart extends ChartComponent{
                 (<any>d3.select(this.renderTarget).select(".tsi-dateTimeContainer").node()).focus();
             },
             () => {
-                // this.dateTimePicker.updateFromAndTo(startMillis, endMillis);
                 this.dateTimePickerContainer.style("display", "none");
                 (<any>d3.select(this.renderTarget).select(".tsi-dateTimeContainer").node()).focus();
             });
