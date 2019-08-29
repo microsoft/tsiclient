@@ -41,6 +41,11 @@
                 }
             }
         }
+        .tsi-dateTimeInput {
+            color: $gray1;
+            background-color: $gray3;
+            border: 1px solid rgba($gray1, .4);
+        }
     }
 }
 
@@ -73,18 +78,11 @@
             }
         }
         
-        .tsi-timeControlsContainer {
-            border-top: 1px solid rgba(255, 255, 255, .4);
-        }
 	}
 	&.tsi-light{
 		$grays: grays('light');
         @include dateTimePickerColors($grays);
         
-        .tsi-timeControlsContainer {
-            border-top: 1px solid rgba(0, 0, 0, .4);
-        }
-
         .pika-single {
             .is-inrange {
                 .pika-day {
@@ -129,22 +127,23 @@
         width: calc(100% - 24px);
         margin-left: 12px;
         margin-right: 12px;
-        border-top: 1px solid rgba(0, 0, 0, .4);
         padding-top: 12px;
         padding-bottom: 20px;
 
-        .tsi-timeInput {
+        .tsi-dateTimeInput {
             height: 28px;
             padding-left: 4px;
             font-size: 12px;
             width: calc(100% - 8px);
+            -webkit-box-shadow: none;
+            -moz-box-shadow: none;
+            box-shadow: none;
         }
 
         .tsi-timeLabel {
             font-weight: normal;
             font-size: 12px;
             margin: 0;
-            text-transform: capitalize;
             margin-bottom: 4px;
         }
     }
@@ -164,6 +163,20 @@
             line-height: 14px;
             &.tsi-buttonDisabled {
                 background-color: grey;
+            }
+        }
+    }
+
+    .pika-single {
+        .pika-table {
+            .pika-row {
+                td {
+                    &.is-selected {
+                        .pika-day {
+                            border-radius: 8px;
+                        }
+                    }
+                }
             }
         }
     }

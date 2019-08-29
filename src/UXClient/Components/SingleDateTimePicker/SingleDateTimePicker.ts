@@ -22,6 +22,7 @@ class SingleDateTimePicker extends ChartComponent{
     private isValid: boolean = true;
     private offsetName: string;
     private date: Date;
+    private timeInput: any;
 
     constructor(renderTarget: Element){
         super(renderTarget);
@@ -31,7 +32,7 @@ class SingleDateTimePicker extends ChartComponent{
                    millis: number = null, onSet = null) {
         this.minMillis = minMillis;
         this.maxMillis = maxMillis;
-        if (chartOptions.offset && (typeof chartOptions.offset == "string")) {
+        if (chartOptions.offset && (typeof chartOptions.offset == "string")) {[]
             this.offsetName = chartOptions.offset;
         }
 
@@ -54,8 +55,6 @@ class SingleDateTimePicker extends ChartComponent{
         var saveButton = saveButtonContainer.append("button").classed("tsi-saveButton", true).html(this.getString("Save"))
             .on("click", () =>  {
                 if (this.isValid) {
-                    let parsedMillis = this.parseUserInputDateTime();
-                    this.setMillis(parsedMillis, false);
                     self.onSet(this.millis);
                 }
             });
@@ -81,6 +80,7 @@ class SingleDateTimePicker extends ChartComponent{
     private setSelectedDate (d: Date) {
         this.calendarPicker.setDate(d, true);
         this.setDate(d);
+        this.timeInput.node().value = this.createTimeString(this.offsetFromUTC(new Date(this.millis)));
     }
 
     private createCalendar () {
@@ -116,7 +116,7 @@ class SingleDateTimePicker extends ChartComponent{
         date.setUTCFullYear(d.getFullYear());
         date.setUTCMonth(d.getMonth());
         date.setUTCDate(d.getDate());
-        this.setMillis(date.valueOf(), false);
+        this.setMillis(date.valueOf(), true);
     }
 
     private setIsValid (isValid: boolean){
@@ -163,10 +163,10 @@ class SingleDateTimePicker extends ChartComponent{
                                (this.chartOptions.is24HourTime ? "" : (lastDateTime.getUTCHours() < 12 ? " AM" : " PM"));
     
             if (prospectiveMillis < this.minMillis) {
-                accumulatedErrors.push("*date/time is before first possible time (" + firstTimeText + ")");
+                accumulatedErrors.push("*date/time is before first possible date and time (" + this.getTimeFormat()(firstDateTime) + ")");
             }
             if (prospectiveMillis > this.maxMillis) {
-                accumulatedErrors.push("*date/time is after last possible time (" + lastTimeText + ")");
+                accumulatedErrors.push("*date/time is after last possible date and time (" + this.getTimeFormat()(lastDateTime) + ")");
             }
         }
 
@@ -176,10 +176,13 @@ class SingleDateTimePicker extends ChartComponent{
         };
     }
 
+    private getTimeFormat () {
+        return Utils.timeFormat(true, true, this.chartOptions.offset, true, 0, null, this.chartOptions.dateLocale);
+    }
+
     private parseUserInputDateTime () {
-        let dateTime = new Date(this.millis);
-        let dateString = dateTime.getUTCFullYear() + '-' + (dateTime.getUTCMonth() + 1) + '-' + dateTime.getUTCDate();
-        let parsedDate = new Date(dateString + ' ' + this.timeControls.select(".tsi-timeInput").node().value);
+        let dateTimeFormat = "L " + Utils.subDateTimeFormat(true,true, true);
+        let parsedDate = moment(this.timeInput.node().value, dateTimeFormat).toDate();
         let utcDate = this.offsetToUTC(this.convertFromLocal(parsedDate), this.chartOptions.offset);
         return utcDate.valueOf();
     }
@@ -187,18 +190,12 @@ class SingleDateTimePicker extends ChartComponent{
     private updateDisplayedDateTime () {
         var selectedDate = new Date(this.millis);
         this.calendarPicker.setDate(this.roundDay(this.offsetFromUTC(selectedDate)));
-        let timeInput = this.timeControls.select(".tsi-timeInput");
-        timeInput.node().value = this.createTimeString(selectedDate);
+        this.timeInput.node().value = this.createTimeString(this.offsetFromUTC(selectedDate));
     }
 
     private createTimeString (currDate: Date) {
-        var formatTwoDecimals = (val: number) => ('0' + String(val)).slice(-2);
-        var formatThreeDecimals = (val: number) => ('00' + String(val)).slice(-3);
         let offsetDate = this.offsetFromUTC(currDate, this.chartOptions.offset);
-        return offsetDate.getUTCHours() + ':' +  
-            formatTwoDecimals(offsetDate.getUTCMinutes()) + ':' + 
-            formatTwoDecimals(offsetDate.getUTCSeconds()) + '.' + 
-            formatThreeDecimals(offsetDate.getUTCMilliseconds()); 
+        return this.getTimeFormat()(currDate);
     }
 
     private offsetFromUTC (date: Date, offset = 0) {
@@ -224,10 +221,15 @@ class SingleDateTimePicker extends ChartComponent{
 
     private createTimePicker () {
         var self = this;
-        let timeLabel = this.timeControls.append("h4").classed("tsi-timeLabel", true).html(this.getString('time'));
-        this.timeControls.append('input').classed('tsi-timeInput', true)
+        let timeLabel = this.timeControls.append("h4").classed("tsi-timeLabel", true).html(this.getString('date and time'));
+        this.timeInput = this.timeControls.append('input').attr('class', 'tsi-dateTimeInput tsi-input')
             .on('keyup', () => {
                 this.checkDateTimeValidity();
+                if (this.isValid) {
+                    let parsedMillis = this.parseUserInputDateTime();
+                    this.setMillis(parsedMillis, false);
+                    this.calendarPicker.setDate(this.offsetFromUTC(new Date(this.millis)), true);
+                }
             });
     }
 }

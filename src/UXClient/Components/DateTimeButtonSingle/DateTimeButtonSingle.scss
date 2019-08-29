@@ -9,32 +9,26 @@
     $gray5: nth($grays, 5);
     $gray6: nth($grays, 6);
 
-    background-color: $gray3;
-    color: $gray1;
+    .tsi-dateTimeButton {
+        background-color: $gray5;
+        color: $gray1;        
+    }
 }
 
 .tsi-dateTimeContainerSingle {
     &.tsi-dark{
 		$grays: grays('dark');
         @include dateTimeButtonSingleColors($grays);
-        
-        .tsi-timeControlsContainer {
-            border-top: 1px solid rgba(255, 255, 255, .4);
-        }
 	}
 	&.tsi-light{
 		$grays: grays('light');
         @include dateTimeButtonSingleColors($grays);
-        
-        .tsi-timeControlsContainer {
-            border-top: 1px solid rgba(0, 0, 0, .4);
-        }
     }
 
     .tsi-dateTimePickerContainer {
         z-index: 1;
         position: absolute;
-        top: 40px;
+        top: 32px;
     }
 
     .tsi-dateTimeButton {

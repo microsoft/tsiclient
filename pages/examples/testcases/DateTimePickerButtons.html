@@ -17,10 +17,10 @@
 
                 var singleDateTimeButtonComponent = new tsiClient.ux.DateTimeButtonSingle(document.getElementById('singleButtonContainer'));
                 let now = (new Date()).valueOf();
-                singleDateTimeButtonComponent.render({offset: 'Local', theme: 'light'}, now - (1000 * 60 * 60 * 1000), now, now - (24 * 60 * 60 * 1000), () => {});
+                singleDateTimeButtonComponent.render({offset: 'Local', theme: 'light', dateLocale: 'en'}, now - (1000 * 60 * 60 * 1000), now, now - (24 * 60 * 60 * 1000), () => {});
 
                 var singleDateTimeButtonComponentDark = new tsiClient.ux.DateTimeButtonSingle(document.getElementById('singleButtonContainerDark'));
-                singleDateTimeButtonComponentDark.render({offset: 'Local', theme: 'dark'}, now - (1000 * 60 * 60 * 1000), now, now - (24 * 60 * 60 * 1000), () => {});
+                singleDateTimeButtonComponentDark.render({offset: 'Local', theme: 'dark', dateLocale: 'es'}, now - (1000 * 60 * 60 * 1000), now, now - (24 * 60 * 60 * 1000), () => {});
 
 
                 var rangeDateTimeButtonComponent = new tsiClient.ux.DateTimeButtonRange(document.getElementById('rangeButtonContainer'));
