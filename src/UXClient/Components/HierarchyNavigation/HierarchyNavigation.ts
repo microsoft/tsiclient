@@ -108,7 +108,8 @@ class HierarchyNavigation extends Component{
                     }
                     else {
                         self.hierarchyListElem.html('');
-                        self.hierarchyListElem.append('li').attr("hName", HierarchySelectionValues.All)
+                        self.hierarchyListElem.append('li').classed('selected', HierarchySelectionValues.All === self.selectedHierarchyName)
+                                                            .attr("hName", HierarchySelectionValues.All)
                                                             .attr('tabindex', 0)
                                                             .attr('arialabel', AllHierarchyOptionText)
                                                             .attr('title', AllHierarchyOptionText)
@@ -153,7 +154,8 @@ class HierarchyNavigation extends Component{
                                                                     self.selectHierarchy(hName);
                                                                 });
                         });
-                        self.hierarchyListElem.append('li').attr("hName", HierarchySelectionValues.Unparented)
+                        self.hierarchyListElem.append('li').classed('selected', HierarchySelectionValues.Unparented === self.selectedHierarchyName)
+                                                            .attr("hName", HierarchySelectionValues.Unparented)
                                                             .attr('tabindex', 0)
                                                             .attr('arialabel', UnassignedHierarchyOptionText)
                                                             .attr('title', UnassignedHierarchyOptionText)
