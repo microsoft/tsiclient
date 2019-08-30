@@ -98,11 +98,13 @@
             }
 
             &:focus {
-                box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+                box-shadow: 0px 4px 4px $gray5;
             }
         }
     
         .tsi-hierarchy-list-wrapper {
+            background: $gray3;
+            box-shadow: 0px 4px 4px $gray5;
             li {
                 background: $gray3;
                 &:hover{
@@ -237,20 +239,14 @@
             &:hover{
                 cursor: pointer;
             }
-
-            &.selected {
-                background: #DADADA;
-            }
         }
 
         .tsi-hierarchy-list-wrapper {
             display: none;
-            background: white;
             z-index: 3;
             position: absolute;
             width: calc(100% - 40px);
             top: 53px;
-            box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
 
             ul {
                 font-size: 14px;
