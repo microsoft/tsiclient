@@ -26,7 +26,7 @@ class StateSeries extends TimelineComponent {
 		var tooltip = new Tooltip(d3.select(this.renderTarget));
 		var seriesName = Object.keys(namedData)[0];
 		var data = namedData[seriesName];
-		data = this.formatData(data, (startTime, endTime, color, description) => {});
+		data = this.formatData(data);
 
 		this.width  = Math.max((this.targetElement.node()).clientWidth, this.MINWIDTH);
 

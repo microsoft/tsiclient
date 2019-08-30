@@ -33,7 +33,7 @@ class TimelineComponent extends Component {
 		return (d.onClick === null) ? 'inherit' : 'pointer';
 	}
 	
-	protected formatData (data: any, onClickDefault: any): any {
+	protected formatData (data: any): any {
 		data = this.orderData(data);
 		return data.map(eventData => {
 			var time = Object.keys(eventData)[0];
