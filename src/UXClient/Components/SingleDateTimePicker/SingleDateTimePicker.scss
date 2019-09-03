@@ -1,0 +1,183 @@
+@import "../../styles";
+
+
+@mixin dateTimePickerColors($grays){
+    $gray1: nth($grays, 1); // text
+    $gray2: nth($grays, 2); // hover
+    $gray3: nth($grays, 3); // element
+    $gray4: nth($grays, 4); // background
+    $gray5: nth($grays, 5);
+    $gray6: nth($grays, 6);
+
+    background-color: $gray3;
+    color: $gray1;
+
+    .tsi-select, .tsi-select option {
+        color: $gray1;
+        background-color: $gray3;
+    }
+    .pika-single  {
+        .pika-select, .pika-select option, .pika-label, .pika-day, .pika-prev, .pika-next {
+            color: $gray1;
+            background-color: $gray3;    
+            &:focus {
+                border:1px solid $gray6;
+            }
+        } 
+
+        .pika-prev, .pika-next {
+            color: $gray6;
+            background-color: white;
+        }
+
+        color: $gray1;
+        background-color: $gray3;
+    }
+    .tsi-timeControlsContainer {
+        .tsi-startContainer, .tsi-endContainer, .tsi-timezoneContainer {
+            .tsi-timeLabel {
+                .tsi-snapToEndRangeButton {
+                    color: $gray6;
+                }
+            }
+        }
+        .tsi-dateTimeInput {
+            color: $gray1;
+            background-color: $gray3;
+            border: 1px solid rgba($gray1, .4);
+        }
+    }
+}
+
+.tsi-singleDateTimePicker {
+    animation: tsi-slideIn 0.367s cubic-bezier(0.1, 0.9, 0.2, 1) forwards;
+    box-shadow: 0 3px 6px 0 rgba(0, 0, 0, 0.16);
+    &.tsi-dark{
+		$grays: grays('dark');
+        @include dateTimePickerColors($grays);
+        .pika-single {
+            .is-inrange {
+                .pika-day {
+                    background-color: rgba(48, 157, 144, .4) !important; 
+                }
+            }
+
+            .pika-table {
+                .pika-row {
+                    td {
+                        &.is-selected {
+                            .pika-day {
+                                background-color: #309d90;
+                                color: white;
+                                border-bottom-left-radius: 8px;
+                                border-top-left-radius: 8px;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+	}
+	&.tsi-light{
+		$grays: grays('light');
+        @include dateTimePickerColors($grays);
+        
+        .pika-single {
+            .is-inrange {
+                .pika-day {
+                    background-color: rgba(48, 157, 144, .4) !important; 
+                }
+            }
+
+            .pika-table {
+                .pika-row {
+                    td {
+                        &.is-selected {
+                            .pika-day {
+                                background-color: #309d90;
+                                color: white;
+                                border-radius: 8px;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    display: block;
+    align-items: stretch;
+    width: 220px;
+
+    .tsi-calendarPicker {
+        width: 100%;
+    }
+
+    .tsi-errorMessageContainer {
+        background-color: darkorange;
+        color: white;
+        .tsi-errorMessage {
+            padding: 8px;
+        }
+    }
+
+    .tsi-timeControlsContainer {
+        align-items: stretch;
+        width: calc(100% - 24px);
+        margin-left: 12px;
+        margin-right: 12px;
+        padding-top: 12px;
+        padding-bottom: 20px;
+
+        .tsi-dateTimeInput {
+            height: 28px;
+            padding-left: 4px;
+            font-size: 12px;
+            width: calc(100% - 8px);
+            -webkit-box-shadow: none;
+            -moz-box-shadow: none;
+            box-shadow: none;
+        }
+
+        .tsi-timeLabel {
+            font-weight: normal;
+            font-size: 12px;
+            margin: 0;
+            margin-bottom: 4px;
+        }
+    }
+    .tsi-saveButtonContainer {
+        width: 100%;
+        height: 48px;
+        .tsi-saveButton {
+            width: 92px;
+            border: none;
+            float: right;
+            margin-right: 12px;
+            height: 32px;
+            padding: 8px;
+            background-color: #309d90;
+            border-radius: 2px;
+            color: white;
+            line-height: 14px;
+            &.tsi-buttonDisabled {
+                background-color: grey;
+            }
+        }
+    }
+
+    .pika-single {
+        .pika-table {
+            .pika-row {
+                td {
+                    &.is-selected {
+                        .pika-day {
+                            border-radius: 8px;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
