@@ -48,7 +48,8 @@ class Strings {
         "Local": "Local",
         "Display Grid": "Display Grid",
         "Previous Month": "Previous Month",
-        "Next Month": "Next Month" 
+        "Next Month": "Next Month",
+        "date and time": "date and time"
     };
   
     private stringValues: any = {};
