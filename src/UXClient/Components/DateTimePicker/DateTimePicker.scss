@@ -45,6 +45,7 @@
 }
 
 .tsi-dateTimePicker {
+
     animation: tsi-slideIn 0.367s cubic-bezier(0.1, 0.9, 0.2, 1) forwards;
     box-shadow: 0 3px 6px 0 rgba(0, 0, 0, 0.16);
     &.tsi-dark{
@@ -56,24 +57,20 @@
                     background-color: rgba(48, 157, 144, .4) !important; 
                 }
             }
-        }
-        
-        .tsi-timeControlsContainer {
-            border-top: 1px solid rgba(255, 255, 255, .4);
-        }
+        }        
 	}
 	&.tsi-light{
 		$grays: grays('light');
         @include dateTimePickerColors($grays);
-        
-        .tsi-timeControlsContainer {
-            border-top: 1px solid rgba(0, 0, 0, .4);
-        }
     }
 
     display: block;
     align-items: stretch;
     width: 440px;
+
+    .pika-single {
+        border: none;
+    }
 
     .tsi-calendarPicker {
         width: 100%;
@@ -102,10 +99,9 @@
 
     .tsi-timeControlsContainer {
         align-items: stretch;
-        width: calc(100% - 24px);
-        margin-left: 12px;
-        margin-right: 12px;
-        border-top: 1px solid rgba(0, 0, 0, .4);
+        width: calc(100% - 32px);
+        margin-left: 16px;
+        margin-right: 16px;
 
         .tsi-timeInputContainer {
             display: inline-flex;
@@ -118,8 +114,14 @@
             }
             .tsi-startContainer, .tsi-endContainer {
                 padding-top: 12px;
-                padding-bottom: 20px;
                 width: 50%;
+
+                .tsi-dateTimeInput {
+                    width: calc(100% - 16px);
+                    padding: 0px 8px 0px 8px;
+                    height: 28px;
+                }
+
                 .tsi-startTimeInputContainer, .tsi-endTimeInputContainer {
                     display:flex;
                     .tsi-hoursInput, .tsi-minutesInput, .tsi-AMPMInput {
@@ -134,40 +136,42 @@
                 }
             }
         }
+  }
 
-        .tsi-startContainer, .tsi-endContainer, .tsi-timezoneContainer {
-            .tsi-timeLabel {
-                font-weight: normal;
-                font-size: 14px;
-                margin: 0;
-                text-transform: capitalize;
-                margin-bottom: 4px;
+    .tsi-timeControlsContainer, .tsi-timezoneContainer {
+        .tsi-timeLabel {
+            font-weight: normal;
+            font-size: 14px;
+            margin: 0;
+            margin-bottom: 4px;
 
-                .tsi-snapToEndRangeButton {
-                    text-decoration: underline;
-                    background: transparent;
-                    border: none;
-                    float: right;
-                    cursor: pointer;
-                    margin-left: 8px;
-                    padding: 0px;
-                }
+            .tsi-snapToEndRangeButton {
+                font-size: 12px;
+                text-decoration: underline;
+                background: transparent;
+                border: none;
+                float: right;
+                cursor: pointer;
+                margin-left: 8px;
+                padding: 0px;
             }
         }
+    }
 
-        .tsi-timezoneContainer {
-            padding-bottom: 12px;
+
+    .tsi-timezoneContainer {
+        padding-bottom: 12px;
+        width: calc(100% - 32px);
+        margin: 16px;
+        .tsi-timezonePickerContainer {
             width: 100%;
-            .tsi-timezonePickerContainer {
+            height: 100%;
+            .tsi-timezonePicker {
                 width: 100%;
-                height: 100%;
-                .tsi-timezonePicker {
-                    width: 100%;
-                    background: url(../../Icons/chevron.svg) 16px/16px no-repeat;
-                    background-position-y: 12px;
-                    background-position-x: calc(100% - 4px);
-                }    
-            }
+                background: url(../../Icons/chevron.svg) 16px/16px no-repeat;
+                background-position-y: 12px;
+                background-position-x: calc(100% - 4px);
+            }    
         }
     }
     .tsi-saveButtonContainer {
@@ -178,7 +182,7 @@
             width: 92px;
             border: none;
             float: right;
-            margin-right: 12px;
+            margin-right: 16px;
             height: 32px;
             padding: 8px;
             border-radius: 2px;
