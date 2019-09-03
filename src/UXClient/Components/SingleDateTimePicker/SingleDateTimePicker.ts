@@ -28,6 +28,10 @@ class SingleDateTimePicker extends ChartComponent{
         super(renderTarget);
     }
 
+    public getMillis () {
+        return this.millis;
+    }
+
     public render (chartOptions: any = {}, minMillis: number, maxMillis: number, 
                    millis: number = null, onSet = null) {
         this.minMillis = minMillis;
