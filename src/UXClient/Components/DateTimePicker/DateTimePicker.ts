@@ -285,6 +285,7 @@ class DateTimePicker extends ChartComponent{
                 this.calendarPicker.draw();
             },
             onDraw: (d) => {
+                this.calendar.select(".pika-single").selectAll('button').attr('tabindex', -1);
                 if (this.isSettingStartTime)
                     return; 
                 var self = this;
@@ -377,23 +378,17 @@ class DateTimePicker extends ChartComponent{
     private rangeIsValid (prospectiveFromMillis: number, prospectiveToMillis: number) {
         var accumulatedErrors = [];
         var isSaveable = true;
-        var firstDateTime = new Date(this.minMillis);
-        var firstTimeText = Utils.getUTCHours(firstDateTime, this.chartOptions.is24HourTime) + ":" + 
-                            (firstDateTime.getUTCMinutes() < 10 ? "0" : "") + String(firstDateTime.getUTCMinutes()) +
-                            (this.chartOptions.is24HourTime ? "" : (firstDateTime.getUTCHours() < 12 ? " AM" : " PM"));
-        var lastDateTime = new Date(this.maxMillis);
-        var lastTimeText = Utils.getUTCHours(lastDateTime, this.chartOptions.is24HourTime) + ":" + 
-                           (lastDateTime.getUTCMinutes() < 10 ? "0" : "") + String(lastDateTime.getUTCMinutes()) + 
-                           (this.chartOptions.is24HourTime ? "" : (lastDateTime.getUTCHours() < 12 ? " AM" : " PM"));
         let bothTimesValid = !isNaN(prospectiveFromMillis) && !isNaN(prospectiveToMillis);
+        var firstDateTime = Utils.offsetFromUTC(new Date(this.minMillis), this.chartOptions.offset);
+        var lastDateTime =  Utils.offsetFromUTC(new Date(this.maxMillis), this.chartOptions.offset);    
 
         if (isNaN(prospectiveFromMillis)) {
-            accumulatedErrors.push("*Invalid from date/time");
+            accumulatedErrors.push("*Invalid start date/time");
             isSaveable = false;
         }
 
         if (isNaN(prospectiveToMillis)) {
-            accumulatedErrors.push("*Invalid to date/time");
+            accumulatedErrors.push("*Invalid end date/time");
             isSaveable = false;
         }
 
@@ -403,16 +398,16 @@ class DateTimePicker extends ChartComponent{
                 isSaveable = false;
             }
             if (prospectiveFromMillis < this.minMillis) {
-                accumulatedErrors.push("*Start time is before first possible time (" + firstTimeText + ")");
+                accumulatedErrors.push("*Start time is before first possible time (" + this.getTimeFormat()(firstDateTime) + ")");
             }
             if (prospectiveFromMillis > this.maxMillis) {
-                accumulatedErrors.push("*Start time is after last possible time (" + lastTimeText + ")");
+                accumulatedErrors.push("*Start time is after last possible time (" + this.getTimeFormat()(lastDateTime) + ")");
             }
             if (prospectiveToMillis > this.maxMillis) {
-                accumulatedErrors.push("*End time is after last possible time (" + lastTimeText + ")");            
+                accumulatedErrors.push("*End time is after last possible time (" + this.getTimeFormat()(lastDateTime) + ")");            
             }
             if (prospectiveToMillis < this.minMillis) {
-                accumulatedErrors.push("*End time is before first possible time (" + firstTimeText + ")");
+                accumulatedErrors.push("*End time is before first possible time (" + this.getTimeFormat()(firstDateTime) + ")");
             }    
         }
         return {
