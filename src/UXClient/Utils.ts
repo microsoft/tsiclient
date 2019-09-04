@@ -332,6 +332,30 @@ class Utils {
         return colors;
     }
 
+    static convertFromLocal (date: Date) {
+        return new Date(date.valueOf() - date.getTimezoneOffset() * 60 * 1000);
+    }
+
+    static offsetFromUTC (date: Date, offset = 0) {
+        let offsetMinutes = Utils.getOffsetMinutes(offset, date.valueOf());
+        var dateCopy = new Date(date.valueOf() + offsetMinutes * 60 * 1000);
+        return dateCopy;    
+    }
+
+    static offsetToUTC (date: Date, offset = 0) {
+        let offsetMinutes = Utils.getOffsetMinutes(offset, date.valueOf())
+        var dateCopy = new Date(date.valueOf() - offsetMinutes * 60 * 1000);
+        return dateCopy;    
+    }
+
+
+    static parseUserInputDateTime (timeText, offset) {
+        let dateTimeFormat = "L " + this.subDateTimeFormat(true,true, true);
+        let parsedDate = moment(timeText, dateTimeFormat).toDate();
+        let utcDate = this.offsetToUTC(this.convertFromLocal(parsedDate), offset);
+        return utcDate.valueOf();
+    }
+    
     static getBrighterColor (color: string) {
         let hclColor = <any>d3.hcl(color);
         if (hclColor.l < 80) {

@@ -133,6 +133,22 @@ class DateTimePicker extends ChartComponent{
         return;
     }
 
+    private updateDisplayedDateTimes () {
+        ['from', 'to'].forEach((fromOrTo) => {
+            var selectedDate = new Date(this[fromOrTo + 'Millis']);
+            this.calendarPicker.setDate(this.roundDay(Utils.offsetFromUTC(selectedDate)));
+            this[fromOrTo + 'Input'].node().value = this.createTimeString(Utils.offsetFromUTC(selectedDate));    
+        })
+    }
+
+    private createTimeString (currDate: Date) {
+        let offsetDate = Utils.offsetFromUTC(currDate, this.chartOptions.offset);
+        return this.getTimeFormat()(currDate);
+    }
+
+    private getTimeFormat () {
+        return Utils.timeFormat(true, true, this.chartOptions.offset, true, 0, null, this.chartOptions.dateLocale);
+    }
 
     public updateFromAndTo (fromMillis, toMillis) {
         this.setFromMillis(fromMillis);
@@ -194,6 +210,8 @@ class DateTimePicker extends ChartComponent{
                 this.endRange = this.anchorDate;
                 this.startRange = d;
             }
+            this.setTimeInputBox(this.fromMillis, true);
+            this.setTimeInputBox(this.toMillis, false);
         }
     }
 
@@ -267,7 +285,7 @@ class DateTimePicker extends ChartComponent{
         this.targetElement.select(".tsi-saveButtonContainer").select(".tsi-saveButton")
             .attr("disabled", isSaveable ? null : true)
             .classed("tsi-buttonDisabled", !isSaveable);
-
+        this.isValid = isSaveable;
     }
 
     //line up the seconds and millis with the second and millis of the max date
@@ -318,22 +336,35 @@ class DateTimePicker extends ChartComponent{
         var lastTimeText = Utils.getUTCHours(lastDateTime, this.chartOptions.is24HourTime) + ":" + 
                            (lastDateTime.getUTCMinutes() < 10 ? "0" : "") + String(lastDateTime.getUTCMinutes()) + 
                            (this.chartOptions.is24HourTime ? "" : (lastDateTime.getUTCHours() < 12 ? " AM" : " PM"));
+        let bothTimesValid = !isNaN(prospectiveFromMillis) && !isNaN(prospectiveToMillis);
 
-        if (prospectiveFromMillis > prospectiveToMillis) {
-            accumulatedErrors.push("*Start time must be before end time");
+        if (isNaN(prospectiveFromMillis)) {
+            accumulatedErrors.push("*Invalid from date/time");
             isSaveable = false;
         }
-        if (prospectiveFromMillis < this.minMillis) {
-            accumulatedErrors.push("*Start time is before first possible time (" + firstTimeText + ")");
+
+        if (isNaN(prospectiveToMillis)) {
+            accumulatedErrors.push("*Invalid to date/time");
+            isSaveable = false;
         }
-        if (prospectiveFromMillis > this.maxMillis) {
-            accumulatedErrors.push("*Start time is after last possible time (" + lastTimeText + ")");
-        }
-        if (prospectiveToMillis > this.maxMillis) {
-            accumulatedErrors.push("*End time is after last possible time (" + lastTimeText + ")");            
-        }
-        if (prospectiveToMillis < this.minMillis) {
-            accumulatedErrors.push("*End time is before first possible time (" + firstTimeText + ")");
+
+        if (bothTimesValid) {
+            if (prospectiveFromMillis > prospectiveToMillis) {
+                accumulatedErrors.push("*Start time must be before end time");
+                isSaveable = false;
+            }
+            if (prospectiveFromMillis < this.minMillis) {
+                accumulatedErrors.push("*Start time is before first possible time (" + firstTimeText + ")");
+            }
+            if (prospectiveFromMillis > this.maxMillis) {
+                accumulatedErrors.push("*Start time is after last possible time (" + lastTimeText + ")");
+            }
+            if (prospectiveToMillis > this.maxMillis) {
+                accumulatedErrors.push("*End time is after last possible time (" + lastTimeText + ")");            
+            }
+            if (prospectiveToMillis < this.minMillis) {
+                accumulatedErrors.push("*End time is before first possible time (" + firstTimeText + ")");
+            }    
         }
         return {
             rangeIsValid : (accumulatedErrors.length == 0),
@@ -342,32 +373,18 @@ class DateTimePicker extends ChartComponent{
         };
     }
 
-    private updateDisplayedFromDateTime () {
+    private updateDisplayedFromDateTime (fromInput = false) {
         var fromDate = new Date(this.fromMillis);
         this.calendarPicker.setStartRange(this.roundDay(this.offsetFromUTC(fromDate)));
-        var inputContainer = this.timeControls.select(".tsi-timeInputContainer").select(".tsi-startTimeInputContainer");
-        var hours = Utils.getUTCHours(fromDate, this.chartOptions.is24HourTime);
-        inputContainer.select(".tsi-hoursInput").selectAll("option").filter((d) => d == hours).property("selected", true);    
-        var minutesString = (fromDate.getUTCMinutes() < 10 ? "0" : "") + String(fromDate.getUTCMinutes());
-        inputContainer.select(".tsi-minutesInput").selectAll("option").filter((d) => d == minutesString).property("selected", true);
-        if (!this.chartOptions.is24HourTime) {
-            var amPM = fromDate.getUTCHours() < 12 ? "AM" : "PM";
-            inputContainer.select(".tsi-AMPMInput").selectAll("option").filter((d) => d == amPM).property("selected", true);
-        }
+        if (!fromInput)
+            this.setTimeInputBox(fromDate, true);
     }
 
-    private updateDisplayedToDateTime () {
+    private updateDisplayedToDateTime (fromInput = false) {
         var toDate = new Date(this.toMillis);
         this.calendarPicker.setEndRange(this.roundDay(this.offsetFromUTC(toDate)));
-        var inputContainer = this.timeControls.select(".tsi-timeInputContainer").select(".tsi-endTimeInputContainer");
-        var hours = Utils.getUTCHours(toDate, this.chartOptions.is24HourTime);
-        inputContainer.select(".tsi-hoursInput").selectAll("option").filter((d) => d == hours).property("selected", true);    
-        var minutesString = (toDate.getUTCMinutes() < 10 ? "0" : "") + String(toDate.getUTCMinutes());
-        inputContainer.select(".tsi-minutesInput").selectAll("option").filter((d) => d == minutesString).property("selected", true);
-        if (!this.chartOptions.is24HourTime) {
-            var amPM = toDate.getUTCHours() < 12 ? "AM" : "PM";
-            inputContainer.select(".tsi-AMPMInput").selectAll("option").filter((d) => d == amPM).property("selected", true);
-        }
+        if (!fromInput)
+            this.setTimeInputBox(toDate, false);
     }
 
     private offsetUTC (date: Date) {
@@ -382,12 +399,46 @@ class DateTimePicker extends ChartComponent{
         return dateCopy;    
     }
 
+    private checkDateTimeValidity () {
+        let parsedFrom = Utils.parseUserInputDateTime(this.fromInput.node().value, this.chartOptions.offset);
+        let parsedTo = Utils.parseUserInputDateTime(this.toInput.node().value, this.chartOptions.offset);
+        let rangeErrorCheck = this.rangeIsValid(parsedFrom, parsedTo);
+        this.setIsSaveable(rangeErrorCheck.isSaveable);
+        this.displayRangeErrors(rangeErrorCheck.errors);
+    }
+
+    private setTimeInputBox (utcDate, isFrom) {
+        if (isFrom) {
+            this.fromInput.node().value = this.createTimeString(Utils.offsetFromUTC(utcDate));
+        } else {
+            this.toInput.node().value = this.createTimeString(Utils.offsetFromUTC(utcDate));
+        }
+    }
+
     private createTimePicker () {
         var timeInputContainer = this.timeControls.append("div").attr("class", "tsi-timeInputContainer");
         var createTimePicker = (startOrEnd) => {
             var fromOrToContainer = timeInputContainer.append("div").classed("tsi-" + startOrEnd + "Container", true);
-            let timeLabel = fromOrToContainer.append("h4").classed("tsi-timeLabel", true).html(this.getString(startOrEnd + " date and time"));
-            this[startOrEnd === 'start' ? 'fromInput' : 'toInput'] = fromOrToContainer.append('input').attr('class', 'tsi-dateTimeInput', true);
+            let timeLabel = fromOrToContainer.append("h4").classed("tsi-timeLabel", true).html(this.getString(startOrEnd));
+            let inputName = startOrEnd === 'start' ? 'fromInput' : 'toInput'
+            this[inputName] = fromOrToContainer.append('input').attr('class', 'tsi-dateTimeInput', true)
+                .on('input', () => {
+                    let rangeErrorCheck: any = this.checkDateTimeValidity();
+                    this.isSettingStartTime = true;
+                    if (this.isValid) {
+                        if (startOrEnd === 'start') {
+                            let parsedFrom = Utils.parseUserInputDateTime(this.fromInput.node().value, this.chartOptions.offset);
+                            this.setFromMillis(parsedFrom);
+                            this.updateDisplayedFromDateTime(true);
+                            this.calendarPicker.draw();
+                        } else {
+                            let parsedTo = Utils.parseUserInputDateTime(this.toInput.node().value, this.chartOptions.offset);
+                            this.setToMillis(parsedTo);
+                            this.updateDisplayedToDateTime(true);
+                            this.calendarPicker.draw();
+                        }
+                    }
+                });
             if (startOrEnd == 'end') {
                 timeLabel.append("button")
                     .attr("class", "tsi-snapToEndRangeButton")
@@ -395,14 +446,13 @@ class DateTimePicker extends ChartComponent{
                     .on("click", () => {
                         this.setFromDate(this.startRange);
                         this.setToMillis(this.maxMillis);
+                        this.updateDisplayedFromDateTime();
                         this.updateDisplayedToDateTime();
                         this.isSettingStartTime = true;
                         this.calendarPicker.draw();
                     })
             }
-
         }
-
         createTimePicker("start");
         createTimePicker("end");
     }
