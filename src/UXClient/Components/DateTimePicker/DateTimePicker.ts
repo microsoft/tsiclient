@@ -23,8 +23,11 @@ class DateTimePicker extends ChartComponent{
     private toHours: number;
     private onSet: any;
     private onCancel: any;
-    private targetElement: any;
     private isValid: boolean = true;
+
+    private targetElement: any;
+    private dateTimeSelectionPanel: any;
+    private quickTimesPanel: any;
 
     private isSettingStartTime: boolean = true;
     private startRange;
@@ -34,6 +37,18 @@ class DateTimePicker extends ChartComponent{
 
     private fromInput: any;
     private toInput: any;
+
+    private quickTimeArray: Array<any> = [
+        ["Last 30 mins", 30 * 60 * 1000],
+        ["Last Hour", 60 * 60 * 1000],
+        ["Last 2 Hours", 2 * 60 * 60 * 1000],
+        ["Last 4 Hours", 4 * 60 * 60 * 1000],
+        ["Last 12 Hours", 12 * 60 * 60 * 1000],
+        ["Last 24 Hours", 24 * 60 * 60 * 1000],
+        ["Last 7 Days", 7 * 24 * 60 * 60 * 1000],
+        ["Last 30 Days", 30 * 24 * 60 * 60 * 1000]
+    ];
+	
 
     constructor(renderTarget: Element){
         super(renderTarget);
@@ -90,10 +105,20 @@ class DateTimePicker extends ChartComponent{
             .classed("tsi-dateTimePicker", true);
         this.targetElement.node().innerHTML = "";
         super.themify(this.targetElement, this.chartOptions.theme);
-        this.timeControls = this.targetElement.append("div").classed("tsi-timeControlsContainer", true);
-        this.calendar = this.targetElement.append("div").classed("tsi-calendarPicker", true);
+
+        let group = this.targetElement.append('div')
+            .classed('tsi-dateTimeGroup', true);
+        this.quickTimesPanel = group.append('div')
+            .classed('tsi-quickTimesPanel', true);
+        this.buildQuickTimesPanel();
+
+        this.dateTimeSelectionPanel = group.append('div')
+            .classed('tsi-dateTimeSelectionPanel', true)
+
+        this.timeControls = this.dateTimeSelectionPanel.append("div").classed("tsi-timeControlsContainer", true);
+        this.calendar = this.dateTimeSelectionPanel.append("div").classed("tsi-calendarPicker", true);
         this.createTimezonePicker();
-        var saveButtonContainer = this.targetElement.append("div").classed("tsi-saveButtonContainer", true);
+        var saveButtonContainer = this.dateTimeSelectionPanel.append("div").classed("tsi-saveButtonContainer", true);
         var self = this;
 
         var onSaveOrCancel = () => {
@@ -141,6 +166,30 @@ class DateTimePicker extends ChartComponent{
         })
     }
 
+    private setFromQuickTimes (relativeMillis) {
+        // let rangeErrorCheck: any = this.checkDateTimeValidity();
+        this.isSettingStartTime = true;
+            this.setToMillis(this.maxMillis);
+            this.setFromMillis(this.maxMillis - relativeMillis); 
+            this.updateDisplayedFromDateTime();
+            this.updateDisplayedToDateTime();
+            this.calendarPicker.draw();
+    }
+
+    private buildQuickTimesPanel () {
+        let quickTimes = this.quickTimesPanel.selectAll('.tsi-quickTime')
+            .data(this.quickTimeArray);
+        quickTimes.enter()
+            .append('button')
+            .attr('class', 'tsi-quickTime')
+            .on('click', (d) => {
+                this.setFromQuickTimes(d[1]);
+            })
+            .each(function (d)  {
+                d3.select(this).node().innerHTML = d[0];
+            });
+    }
+
     private createTimeString (currDate: Date) {
         let offsetDate = Utils.offsetFromUTC(currDate, this.chartOptions.offset);
         return this.getTimeFormat()(currDate);
@@ -165,7 +214,7 @@ class DateTimePicker extends ChartComponent{
     private createTimezonePicker () {
         const offset = this.chartOptions.offset;
         if (this.chartOptions.includeTimezones && (typeof offset == "string" || offset == 0)) {
-            var timezoneContainer = this.targetElement.append("div").attr("class", "tsi-timezoneContainer");
+            var timezoneContainer = this.dateTimeSelectionPanel.append("div").attr("class", "tsi-timezoneContainer");
             timezoneContainer.append("h4").classed("tsi-timeLabel", true).html(this.getString("Time Zone"));
             var timezonePickerContainer = timezoneContainer.append("div").classed("tsi-timezonePickerContainer", true);
             var timezonePicker = new TimezonePicker(timezonePickerContainer.node());
@@ -282,7 +331,7 @@ class DateTimePicker extends ChartComponent{
 
     private setIsSaveable (isSaveable: boolean){
         // For now, lets allow users to save the time even in the presence of errors
-        this.targetElement.select(".tsi-saveButtonContainer").select(".tsi-saveButton")
+        this.dateTimeSelectionPanel.select(".tsi-saveButtonContainer").select(".tsi-saveButton")
             .attr("disabled", isSaveable ? null : true)
             .classed("tsi-buttonDisabled", !isSaveable);
         this.isValid = isSaveable;
