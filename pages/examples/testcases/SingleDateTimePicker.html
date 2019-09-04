@@ -16,7 +16,7 @@
                 var tsiClient = new TsiClient();
                 var dtp = new tsiClient.ux.SingleDateTimePicker(dtpElement);
                 var fromMillis = 23 * 60 * 60 * 1000;
-                dtp.render({theme: 'light', offset: offset}, 0, new Date().valueOf(),fromMillis, onSet);
+                dtp.render({theme: 'dark', offset: offset}, 0, new Date().valueOf(),fromMillis, onSet);
                 dtpButton.innerHTML = dateFormat(fromMillis);
             };
 

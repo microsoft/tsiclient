@@ -159,14 +159,7 @@ class SingleDateTimePicker extends ChartComponent{
             accumulatedErrors.push('*time is invalid');
         } else {
             var firstDateTime = Utils.offsetFromUTC(new Date(this.minMillis), this.chartOptions.offset);
-            var firstTimeText = Utils.getUTCHours(firstDateTime, this.chartOptions.is24HourTime) + ":" + 
-                                (firstDateTime.getUTCMinutes() < 10 ? "0" : "") + String(firstDateTime.getUTCMinutes()) +
-                                (this.chartOptions.is24HourTime ? "" : (firstDateTime.getUTCHours() < 12 ? " AM" : " PM"));
-            var lastDateTime =  Utils.offsetFromUTC(new Date(this.maxMillis), this.chartOptions.offset);
-            var lastTimeText = Utils.getUTCHours(lastDateTime, this.chartOptions.is24HourTime) + ":" + 
-                               (lastDateTime.getUTCMinutes() < 10 ? "0" : "") + String(lastDateTime.getUTCMinutes()) + 
-                               (this.chartOptions.is24HourTime ? "" : (lastDateTime.getUTCHours() < 12 ? " AM" : " PM"));
-    
+            var lastDateTime =  Utils.offsetFromUTC(new Date(this.maxMillis), this.chartOptions.offset);    
             if (prospectiveMillis < this.minMillis) {
                 accumulatedErrors.push("*date/time is before first possible date and time (" + this.getTimeFormat()(firstDateTime) + ")");
             }

@@ -127,7 +127,7 @@ class DateTimePicker extends ChartComponent{
 
         var saveButton = saveButtonContainer.append("button").classed("tsi-saveButton", true).html(this.getString("Save"))
             .on("click", function () {
-                self.onSet(self.fromMillis, self.toMillis, self.chartOptions.offset);
+                self.onSet(self.fromMillis, self.toMillis, self.chartOptions.offset, self.maxMillis === self.toMillis);
                 onSaveOrCancel();
             });
         
@@ -348,17 +348,15 @@ class DateTimePicker extends ChartComponent{
     }
 
     private setFromMillis (millis: number) {
-        var adjustedMillis = this.adjustSecondsAndMillis(millis);
         var rangeErrorCheck = this.rangeIsValid(millis, this.toMillis);
-        this.fromMillis = adjustedMillis;
+        this.fromMillis = millis;
         this.setIsSaveable(rangeErrorCheck.isSaveable);
         this.displayRangeErrors(rangeErrorCheck.errors);
     } 
 
     private setToMillis (millis: number) {
-        var adjustedMillis = this.adjustSecondsAndMillis(millis);
-        var rangeErrorCheck = this.rangeIsValid(this.fromMillis, adjustedMillis);
-        this.toMillis = adjustedMillis;
+        var rangeErrorCheck = this.rangeIsValid(this.fromMillis, millis);
+        this.toMillis = millis;
         this.setIsSaveable(rangeErrorCheck.isSaveable);
         this.displayRangeErrors(rangeErrorCheck.errors);
     }

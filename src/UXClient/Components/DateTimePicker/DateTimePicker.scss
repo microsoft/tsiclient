@@ -12,6 +12,21 @@
     background-color: $gray3;
     color: $gray1;
 
+    .tsi-dateTimeGroup {
+        .tsi-dateTimeSelectionPanel {
+            border-left: 1px solid $gray5;
+        }
+        .tsi-quickTimesPanel {
+            .tsi-quickTime {
+                color: $gray1;
+                background-color: $gray4;
+            }
+            .tsi-quickTime:hover {
+                background-color: $gray2;
+            }
+        }
+    }
+
     .tsi-select, .tsi-select option {
         color: $gray1;
         background-color: $gray3;
@@ -42,6 +57,11 @@
             }
         }
     }
+
+    // input {
+    //     background-color: $gray4;
+    //     color: $gray1;
+    // }
 }
 
 .tsi-dateTimePicker {
@@ -64,15 +84,15 @@
         @include dateTimePickerColors($grays);
     }
 
-    display: block;
     align-items: stretch;
     width: 600px;
 
     .tsi-dateTimeGroup {
-        display: inline-block;
+        display: inline-flex;
 
         .tsi-quickTimesPanel {
             width: calc(100% - 440px);
+            padding-top: 35px;
             float: left;
             height: 100%;
             .tsi-quickTime {
@@ -208,7 +228,6 @@
                     color: white;
                 }
             }
-        
         }
     }
 

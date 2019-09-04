@@ -17,12 +17,12 @@
             window.onload = function() {
                 var tsiClient = new TsiClient();
                 dtp = new tsiClient.ux.DateTimePicker(dtpElement);
-                dtp.render({theme: 'light'}, 0, new Date().valueOf(), fromMillis, toMillis, onSet, onCancel);
+                dtp.render({theme: 'light'}, 0, toMillis, fromMillis, toMillis, onSet, onCancel);
             };
 
             var dtpElement = document.getElementById('dtp');
-            var onSet = (fromMillisNew, toMillisNew, offset) => {
-                console.log(fromMillisNew, toMillisNew, offset);
+            var onSet = (fromMillisNew, toMillisNew, offset ,isEndRange) => {
+                console.log(fromMillisNew, toMillisNew, offset, isEndRange);
             }
             var onCancel = () => {}
         </script>
