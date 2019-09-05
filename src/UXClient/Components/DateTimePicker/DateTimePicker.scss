@@ -15,11 +15,22 @@
     .tsi-dateTimeGroup {
         .tsi-dateTimeSelectionPanel {
             border-left: 1px solid $gray5;
+
+            .tsi-dateTimeInput {
+                background-color: $gray3;
+                color: $gray1;
+                border: 1px solid rgba($gray1, .3);
+            }
         }
         .tsi-quickTimesPanel {
             .tsi-quickTime {
                 color: $gray1;
                 background-color: $gray4;
+
+                &.tsi-isSelected {
+                    background-color: rgba($gray6, .6) !important; 
+                    color: $gray1;
+                }
             }
             .tsi-quickTime:hover {
                 background-color: $gray2;
@@ -77,6 +88,11 @@
                     background-color: rgba(48, 157, 144, .4) !important; 
                 }
             }
+            .is-selected {
+                .pika-day {
+                    box-shadow: unset;
+                }
+            }
         }        
 	}
 	&.tsi-light{
@@ -92,23 +108,30 @@
 
         .tsi-quickTimesPanel {
             width: calc(100% - 440px);
-            padding-top: 35px;
             float: left;
             height: 100%;
             .tsi-quickTime {
                 text-align:left;
                 border: none;
-                height: 40px;
+                height: 43px;
                 padding-left: 8px;
                 width: 100%;
                 cursor: pointer;
             }
+
+
         }
         .tsi-dateTimeSelectionPanel {
             float: right;
-            width: 440px;
+            width: 444px;
             .pika-single {
                 border: none;
+                .is-selected {
+                    .pika-day {
+                        box-shadow: unset;
+                    }
+                }
+    
             }
         
             .tsi-calendarPicker {
@@ -130,18 +153,18 @@
         
             .tsi-timeControlsContainer {
                 align-items: stretch;
-                width: calc(100% - 32px);
-                margin-left: 16px;
-                margin-right: 16px;
+                width: calc(100% - 28px);
+                margin-left: 12px;
+                margin-right: 12px;
         
                 .tsi-timeInputContainer {
                     display: inline-flex;
                     width: 100%;
                     .tsi-startContainer {
-                        padding-right: 4px;
+                        padding-right: 10px;
                     }
                     .tsi-endContainer {
-                        padding-left: 12px;
+                        padding-left: 6px;
                     }
                     .tsi-startContainer, .tsi-endContainer {
                         padding-top: 12px;
@@ -171,16 +194,16 @@
     
             .tsi-timeControlsContainer, .tsi-timezoneContainer {
                 .tsi-timeLabel {
-                    font-weight: normal;
+                    font-weight: 600;
                     font-size: 14px;
                     margin: 0;
                     margin-bottom: 4px;
         
                     .tsi-snapToEndRangeButton {
-                        font-size: 12px;
                         text-decoration: underline;
                         background: transparent;
                         border: none;
+                        line-height: 20px;
                         float: right;
                         cursor: pointer;
                         margin-left: 8px;

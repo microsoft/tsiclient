@@ -12,7 +12,7 @@ class Strings {
         "Custom": "Custom",
         "Timeframe": "Timeframe",
         "Save": "Save",
-        "Time Zone": "Time Zone",
+        "timezone": "timezone",
         "start": "start",
         "end": "end",
         "Latest": "latest",

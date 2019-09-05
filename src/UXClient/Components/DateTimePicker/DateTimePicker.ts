@@ -39,6 +39,7 @@ class DateTimePicker extends ChartComponent{
     private toInput: any;
 
     private quickTimeArray: Array<any> = [
+        ["Last 15 mins", 15 * 60 * 1000],
         ["Last 30 mins", 30 * 60 * 1000],
         ["Last Hour", 60 * 60 * 1000],
         ["Last 2 Hours", 2 * 60 * 60 * 1000],
@@ -46,7 +47,8 @@ class DateTimePicker extends ChartComponent{
         ["Last 12 Hours", 12 * 60 * 60 * 1000],
         ["Last 24 Hours", 24 * 60 * 60 * 1000],
         ["Last 7 Days", 7 * 24 * 60 * 60 * 1000],
-        ["Last 30 Days", 30 * 24 * 60 * 60 * 1000]
+        ["Last 30 Days", 30 * 24 * 60 * 60 * 1000],
+        ["Last 90 Days", 90 * 24 * 60 * 60 * 1000]
     ];
 	
 
@@ -169,11 +171,11 @@ class DateTimePicker extends ChartComponent{
     private setFromQuickTimes (relativeMillis) {
         // let rangeErrorCheck: any = this.checkDateTimeValidity();
         this.isSettingStartTime = true;
-            this.setToMillis(this.maxMillis);
-            this.setFromMillis(this.maxMillis - relativeMillis); 
-            this.updateDisplayedFromDateTime();
-            this.updateDisplayedToDateTime();
-            this.calendarPicker.draw();
+        this.setToMillis(this.maxMillis);
+        this.setFromMillis(this.maxMillis - relativeMillis); 
+        this.updateDisplayedFromDateTime();
+        this.updateDisplayedToDateTime();
+        this.calendarPicker.draw();
     }
 
     private buildQuickTimesPanel () {
@@ -215,7 +217,7 @@ class DateTimePicker extends ChartComponent{
         const offset = this.chartOptions.offset;
         if (this.chartOptions.includeTimezones && (typeof offset == "string" || offset == 0)) {
             var timezoneContainer = this.dateTimeSelectionPanel.append("div").attr("class", "tsi-timezoneContainer");
-            timezoneContainer.append("h4").classed("tsi-timeLabel", true).html(this.getString("Time Zone"));
+            timezoneContainer.append("h4").classed("tsi-timeLabel", true).html(this.getString('timezone'));
             var timezonePickerContainer = timezoneContainer.append("div").classed("tsi-timezonePickerContainer", true);
             var timezonePicker = new TimezonePicker(timezonePickerContainer.node());
             timezonePicker.render((newOffset) => {
@@ -314,6 +316,13 @@ class DateTimePicker extends ChartComponent{
         });
     }
 
+    private setSelectedQuickTimes () {
+        this.quickTimesPanel.selectAll('.tsi-quickTime')
+        .classed('tsi-isSelected', d => {
+            return (this.toMillis === this.maxMillis && (this.toMillis - this.fromMillis === d[1]));
+        });
+    }
+
     private setFromDate (d: Date) {
         var fromDate = new Date(this.fromMillis);
         fromDate.setUTCFullYear(d.getFullYear());
@@ -352,6 +361,7 @@ class DateTimePicker extends ChartComponent{
         this.fromMillis = millis;
         this.setIsSaveable(rangeErrorCheck.isSaveable);
         this.displayRangeErrors(rangeErrorCheck.errors);
+        this.setSelectedQuickTimes();
     } 
 
     private setToMillis (millis: number) {
@@ -359,6 +369,7 @@ class DateTimePicker extends ChartComponent{
         this.toMillis = millis;
         this.setIsSaveable(rangeErrorCheck.isSaveable);
         this.displayRangeErrors(rangeErrorCheck.errors);
+        this.setSelectedQuickTimes();
     }
 
     private displayRangeErrors (rangeErrors) {
