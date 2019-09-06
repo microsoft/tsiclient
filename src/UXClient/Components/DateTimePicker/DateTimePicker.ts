@@ -185,7 +185,6 @@ class DateTimePicker extends ChartComponent{
     }
 
     private setFromQuickTimes (relativeMillis) {
-        // let rangeErrorCheck: any = this.checkDateTimeValidity();
         this.isSettingStartTime = true;
         this.setToMillis(this.maxMillis);
         this.setFromMillis(this.maxMillis - relativeMillis); 
