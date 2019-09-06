@@ -25,15 +25,15 @@
         .tsi-quickTimesPanel {
             .tsi-quickTime {
                 color: $gray1;
-                background-color: $gray4;
+                background-color: $gray3;
 
                 &.tsi-isSelected {
-                    background-color: rgba($gray6, .6) !important; 
+                    background-color: rgba($gray2, .6) !important; 
                     color: $gray1;
                 }
             }
             .tsi-quickTime:hover {
-                background-color: $gray2;
+                background-color: $gray4;
             }
         }
     }
@@ -96,7 +96,7 @@
     }
 
     align-items: stretch;
-    width: 600px;
+    width: 616px;
 
     .tsi-dateTimeGroup {
         display: inline-flex;
@@ -112,16 +112,20 @@
                 text-align:left;
                 border: none;
                 height: 10%;
-                padding-left: 8px;
+                padding-left: 20px;
                 width: 100%;
                 cursor: pointer;
+                overflow: hidden;
+                white-space: nowrap;
+                text-overflow: ellipsis;
             }
 
 
         }
         .tsi-dateTimeSelectionPanel {
             float: right;
-            width: 444px;
+            width: 460px;
+            padding-left: 8px;
             .pika-single {
                 border: none;
                 height: 250px;
@@ -135,6 +139,7 @@
         
             .tsi-calendarPicker {
                 width: 100%;
+                margin-top: 8px;
             }
     
             .tsi-select {
@@ -170,9 +175,10 @@
                         width: 50%;
         
                         .tsi-dateTimeInput {
-                            width: calc(100% - 16px);
+                            width: 100%;
                             padding: 0px 8px 0px 8px;
-                            height: 28px;
+                            height: 30px;
+                            box-sizing: border-box;
                         }
         
                         .tsi-startTimeInputContainer, .tsi-endTimeInputContainer {
@@ -197,6 +203,7 @@
                     font-size: 14px;
                     margin: 0;
                     margin-bottom: 4px;
+                    text-transform: capitalize;
         
                     .tsi-snapToEndRangeButton {
                         text-decoration: underline;
@@ -207,6 +214,7 @@
                         cursor: pointer;
                         margin-left: 8px;
                         padding: 0px;
+                        text-transform: capitalize;
                     }
                 }
             }
@@ -215,7 +223,7 @@
             .tsi-timezoneContainer {
                 padding-bottom: 12px;
                 width: calc(100% - 32px);
-                margin: 16px;
+                margin: 0 16px 16px 16px;
                 .tsi-timezonePickerContainer {
                     width: 100%;
                     height: 100%;
