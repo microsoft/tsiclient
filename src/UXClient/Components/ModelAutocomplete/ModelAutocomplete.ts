@@ -25,6 +25,7 @@ class ModelAutocomplete extends Component{
             .attr("class", "tsi-modelAutocompleteInputWrapper");
         let input = inputWrapper.append("input")
             .attr("class", "tsi-modelAutocompleteInput")
+            .attr("aria-label", "Search Time Series Instances")
             .attr("placeholder", this.getString("Search Time Series Instances") + '...');
         let clear = inputWrapper.append('div').attr('class', 'tsi-clear')
                     .on('click', function(){ (input.node() as any).value = ''; noSuggest = true; input.dispatch('input'); self.ap.close(); d3.select(this).classed('tsi-shown', false); });
