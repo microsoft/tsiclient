@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
     <head>
         <!-- styles are only used for styling header and auth elements, where possible -->
         <link rel="stylesheet" type="text/css" href="../styles.css" />
@@ -12,50 +12,50 @@
             <p>Note: Options are customizable for navigate only, refresh after search.</p>
             <div>
                 <label>Theme</label>
-                <select onchange="toggleHierarchyNavigationOption('theme', event.target.value)">
+                <select onchange="toggleHierarchyNavigationOption('theme', event.target.value)" aria-label="Select theme">
                     <option selected>light</option>
                     <option>dark</option>
                 </select>
             </div>
             <div>
                 <label>Instances Page Size</label>
-                <input style="width:50px;" type="number" value=10 onchange="toggleHierarchyNavigationOption('instancesPageSize', event.target.value)"></input>
+                <input style="width:50px;" type="number" value=10 onchange="toggleHierarchyNavigationOption('instancesPageSize', event.target.value)" aria-label="Select instances page size"></input>
             </div>
             <div>
                 <label>Instances Recursive</label>
-                <select onchange="toggleHierarchyNavigationOption('isInstancesRecursive', event.target.value)">
+                <select onchange="toggleHierarchyNavigationOption('isInstancesRecursive', event.target.value)" aria-label="Select instances recursion">
                     <option selected>false</option>
                     <option>true</option>
                 </select>
             </div>
             <div>
                 <label>Instances Highlighted</label>
-                <select onchange="toggleHierarchyNavigationOption('isInstancesHighlighted', event.target.value)">
+                <select onchange="toggleHierarchyNavigationOption('isInstancesHighlighted', event.target.value)" aria-label="Select instances hihglighting">
                     <option selected>false</option>
                     <option>true</option>
                 </select>
             </div>
             <div>
                 <label>Instances Sort</label>
-                <select onchange="toggleHierarchyNavigationOption('instancesSort', event.target.value)">
+                <select onchange="toggleHierarchyNavigationOption('instancesSort', event.target.value)" aria-label="Select instances sorting">
                     <option selected>DisplayName</option>
                     <option>Rank</option>
                 </select>
             </div>
             <div>
                 <label>Hierarchies Page Size</label>
-                <input style="width:50px;" type="number" value=10 onchange="toggleHierarchyNavigationOption('hierarchiesPageSize', event.target.value)"></input>
+                <input style="width:50px;" type="number" value=10 onchange="toggleHierarchyNavigationOption('hierarchiesPageSize', event.target.value)" aria-label="Select hierarchy page size"></input>
             </div>
             <div>
                 <label>Hierarchies Expand</label>
-                <select onchange="toggleHierarchyNavigationOption('hierarchiesExpand', event.target.value)">
+                <select onchange="toggleHierarchyNavigationOption('hierarchiesExpand', event.target.value)" aria-label="Select hierarchy expansion">
                     <option selected>OneLevel</option>
                     <option>UntilChildren</option>
                 </select>
             </div>
             <div>
                 <label>Hierarchies Sort</label>
-                <select onchange="toggleHierarchyNavigationOption('hierarchiesSort', event.target.value)">
+                <select onchange="toggleHierarchyNavigationOption('hierarchiesSort', event.target.value)" aria-label="Select hierarchy sorting">
                     <option selected>Name</option>
                     <option>CumulativeInstanceCount</option>
                 </select>

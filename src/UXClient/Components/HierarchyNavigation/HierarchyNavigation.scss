@@ -21,14 +21,15 @@
     }
 
     .tsi-hierarchy-or-list-wrapper {
-        li{
+        li{                     
             .tsi-markedName{
                 &:hover{
                     cursor: default;
                     background: $gray4;
                 }
                 &:focus {
-                    outline: 1px solid $gray4;
+                    outline: none;
+                    background: $gray4;
                 }
             }
             &.tsi-resultSelected{
@@ -48,6 +49,7 @@
         border-bottom: 1px solid rgba($gray1, .05);
         &:hover, &:focus {
             background-color: $gray4;
+            outline: none;
             &::after{
                 content: "";
                 position: absolute;
@@ -64,8 +66,9 @@
         }
     }
     .tsi-hierarchyNavigationContextMenu{
-        li:hover{
+        li:hover, li:focus{
             background: $gray4;
+            outline: none;
         }
     }
     .tsi-leaf {
@@ -83,8 +86,8 @@
     }
 
     .tsi-filter-clear {
-        &:hover{
-            background-color: $gray4;
+        &:focus{
+            outline: 1px solid $gray6;
         }
     }
 
@@ -107,8 +110,8 @@
             box-shadow: 0px 4px 4px $gray5;
             li {
                 background: $gray3;
-                &:hover{
-                    background-color: $gray4;
+                &:hover, &:focus{
+                    background-color: $gray4 !important;
                 }
                 &.selected {
                     background-color: $gray5;
@@ -119,7 +122,7 @@
 
     .tsi-filter-path {
         .tsi-path {
-            &:hover {
+            &:hover, &:focus {
                 background-color: $gray5;
             }
         }
@@ -127,6 +130,7 @@
 
     .tsi-hierarchy-search {
         .tsi-view-type {
+            outline: 1px solid $gray5;
             &.selected {
                 background-color: $gray2;
             }
@@ -140,6 +144,10 @@
     .tsi-search-global {
         a {
             color: $gray6;
+            &:hover, &:focus {
+                outline: none;
+                text-decoration: underline;
+            }
         }
     }
 
@@ -253,6 +261,7 @@
 
                 li {
                     padding: 8px;
+                    outline: none;
                     &:hover {
                         cursor: pointer;
                     }
@@ -290,10 +299,10 @@
             animation: fade-in .2s ease-in-out;
 
             .tsi-view-type {
-                outline: 1px solid #c1bdbd;
                 width: 32px;
                 height: 32px;
                 padding: 8px;
+                margin-left: 1px;
                 align-items: center;
                 cursor: pointer;
 
@@ -362,6 +371,7 @@
                     padding: 4px;
                     border-radius: 4px;
                     cursor: pointer;
+                    outline: none;
 
                     &:first-child, &:last-child {
                         min-width: 32px;
@@ -477,12 +487,12 @@
         right: 20px;
         position: absolute;
         visibility: hidden;
-        height: 10px;
-        width: 10px;
+        height: 16px;
+        width: 16px;
         cursor: pointer;
         background-size: 10px;
         background-repeat: no-repeat;
-        top: 8px;
+        top: 6px;
         background-position: 50%;
     }
 
@@ -551,7 +561,7 @@
             }
 
             .tsi-childCount {
-                opacity: .5;
+                opacity: .6;
                 padding-left: 8px;
                 font-size: 11px;
                 position: relative;

@@ -441,9 +441,15 @@ class HierarchyNavigation extends Component{
             }       
 
             if(el === this.getString("Show More Hierarchies")) {
-                li.classed('tsi-show-more tsi-show-more-hierarchy', true).append('span').classed('tsi-markedName', true).attr('style', `padding-left: ${(data[el].level) * 18 + 20}px`).html(el).on('click', data[el].onClick);
+                li.classed('tsi-show-more tsi-show-more-hierarchy', true).append('span').classed('tsi-markedName', true).attr('tabindex', 0).attr('style', `padding-left: ${(data[el].level) * 18 + 20}px`).html(el).on('click keydown', function () {
+                    if (Utils.isKeyDownAndNotEnter(d3.event)) {return; }
+                    data[el].onClick();    
+                });
             } else if (el === this.getString("Show More Instances")) {
-                li.classed('tsi-show-more tsi-show-more-instance', true).append('span').classed('tsi-markedName', true).attr('style', `padding-left: ${(data[el].level) * 18 + 20}px`).html(el).on('click', data[el].onClick);
+                li.classed('tsi-show-more tsi-show-more-instance', true).append('span').classed('tsi-markedName', true).attr('tabindex', 0).attr('style', `padding-left: ${(data[el].level) * 18 + 20}px`).html(el).on('click keydown', function () {
+                    if (Utils.isKeyDownAndNotEnter(d3.event)) {return; }
+                    data[el].onClick();
+                });
             } else {
                 li.append('span').classed('tsi-caret-icon', !data[el].isLeaf).attr('style', `left: ${(data[el].level) * 18 + 20}px`);
                 let newListElem;
@@ -555,7 +561,10 @@ class HierarchyNavigation extends Component{
             let div;
             if (data[i].name === this.getString("Show More Instances")) {
                 div = target.append('div').classed('tsi-show-more tsi-show-more-instance', true);
-                div.append('span').classed('tsi-markedName', true).html(i).on('click', data[i].onClick);
+                div.append('span').classed('tsi-markedName', true).attr('tabindex', 0).html(i).on('click keydown', function() {
+                    if (Utils.isKeyDownAndNotEnter(d3.event)) {return; }
+                    data[i].onClick();
+                });
             } else {
                 div = target.append('div').classed('tsi-modelResultWrapper', true).attr('tabindex', 0).html(this.getInstanceHtml(data[i])).on('click keydown', function() {
                     let clickInstance = () => {
