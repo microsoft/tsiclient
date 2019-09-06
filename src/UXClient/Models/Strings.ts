@@ -49,6 +49,12 @@ class Strings {
         "Display Grid": "Display Grid",
         "Previous Month": "Previous Month",
         "Next Month": "Next Month",
+        "Unassigned Time Series Instances": "Unassigned Time Series Instances",
+        "Search Globally": "Search Globally",
+        "Show More Instances": "Show More Instances",
+        "Show More Hierarchies": "Show More Hierarchies",
+        "Add to Filter Path": "Add to Filter Path",
+        "Empty": "Empty",
         "date and time": "date and time"
     };
   
