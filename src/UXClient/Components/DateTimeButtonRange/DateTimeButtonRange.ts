@@ -52,21 +52,14 @@ class DateTimeButtonRange extends DateTimeButton {
 
         this.dateTimeButton.on("click", () => {
                 this.dateTimePickerContainer.style("display", "block");
-                var minMillis = this.minMillis + (Utils.getOffsetMinutes(this.chartOptions.offset, this.minMillis) * 60 * 1000);
-                var maxMillis = this.maxMillis + (Utils.getOffsetMinutes(this.chartOptions.offset, this.maxMillis) * 60 * 1000);
-                var adjustedFrom = this.fromMillis + (Utils.getOffsetMinutes(this.chartOptions.offset, this.fromMillis) * 60 * 1000);
-                var adjustedTo = this.toMillis + (Utils.getOffsetMinutes(this.chartOptions.offset, this.toMillis) * 60 * 1000);
-
-                this.dateTimePicker.render(this.chartOptions, minMillis, maxMillis, adjustedFrom, adjustedTo, (fromMillis, toMillis, offset) => {
+                this.dateTimePicker.render(this.chartOptions, minMillis, maxMillis, this.fromMillis, this.toMillis, (fromMillis, toMillis, offset) => {
                     this.chartOptions.offset = offset;
-                    var adjustedFrom = fromMillis - (Utils.getOffsetMinutes(this.chartOptions.offset, fromMillis) * 60 * 1000);
-                    var adjustedTo = toMillis - (Utils.getOffsetMinutes(this.chartOptions.offset, toMillis) * 60 * 1000);
 
-                    this.fromMillis = adjustedFrom;
-                    this.toMillis = adjustedTo;
+                    this.fromMillis = fromMillis;
+                    this.toMillis = toMillis;
     
-                    this.setButtonText(adjustedFrom, adjustedTo);
-                    this.onSet(adjustedFrom, adjustedTo, offset);
+                    this.setButtonText(fromMillis, toMillis);
+                    this.onSet(fromMillis, toMillis, offset);
                     this.onClose();
                 }, () => {
                     this.onClose();
