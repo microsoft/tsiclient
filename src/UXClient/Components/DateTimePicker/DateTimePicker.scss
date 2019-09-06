@@ -107,13 +107,16 @@
         display: inline-flex;
 
         .tsi-quickTimesPanel {
-            width: calc(100% - 440px);
+            display: flex;
+            flex-direction: column;
+
+            width: 152px;
             float: left;
-            height: 100%;
+            height: auto;
             .tsi-quickTime {
                 text-align:left;
                 border: none;
-                height: 43px;
+                height: 10%;
                 padding-left: 8px;
                 width: 100%;
                 cursor: pointer;
@@ -126,6 +129,7 @@
             width: 444px;
             .pika-single {
                 border: none;
+                height: 250px;
                 .is-selected {
                     .pika-day {
                         box-shadow: unset;
