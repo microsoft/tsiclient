@@ -54,7 +54,8 @@ class Strings {
         "Show More Instances": "Show More Instances",
         "Show More Hierarchies": "Show More Hierarchies",
         "Add to Filter Path": "Add to Filter Path",
-        "Empty": "Empty"
+        "Empty": "Empty",
+        "date and time": "date and time"
     };
   
     private stringValues: any = {};
