@@ -1,0 +1,30 @@
+
+
+<!DOCTYPE html> 
+<html>
+    <head>
+        <title>Standalone Date Time Range Picker</title>
+
+        <!-- boilerplate headers are injected with head.js, grab them from the live example header, or include a link to head.js -->
+        <script src="../../boilerplate/head.js"></script>
+    </head>
+    <body style="font-family: 'Segoe UI', sans-serif;">
+        <div id="dtp"></div>
+        <script>
+            var toMillis = 1567792097008; // 10:48 Pacific
+            var fromMillis = toMillis - 1000*60*60*24*10;
+            var dtp;
+            window.onload = function() {
+                var tsiClient = new TsiClient();
+                dtp = new tsiClient.ux.DateTimePicker(dtpElement);
+                dtp.render({theme: 'light', offset: 'Local'}, 0, toMillis, fromMillis, toMillis, onSet, onCancel);
+            };
+
+            var dtpElement = document.getElementById('dtp');
+            var onSet = (fromMillisNew, toMillisNew, offset ,isEndRange) => {
+                console.log(fromMillisNew, toMillisNew, offset, isEndRange);
+            }
+            var onCancel = () => {}
+        </script>
+    </body>
+</html>
