@@ -264,7 +264,7 @@ class ServerClient {
         return this.createPromiseFromXhr(uri, "POST", payload, token, (responseText) => {return JSON.parse(responseText).properties;});
     }
 
-    public getAvailability(token: string, environmentFqdn: string, apiVersion: string = this.apiVersionUrlParam, hasWarm: boolean = true) {
+    public getAvailability(token: string, environmentFqdn: string, apiVersion: string = this.apiVersionUrlParam, hasWarm: boolean = false) {
         let uriBase = 'https://' + environmentFqdn + '/availability';
         let coldUri = uriBase + apiVersion + (hasWarm ? '&storeType=ColdStore' : '');
 
