@@ -98,6 +98,11 @@
             height: calc(100% - 4px);
         }
     }
+    &.tsi-withButton{
+        .tsi-timePickerContainer {
+            height: calc(100% - 4px);
+        }
+    }
 
     &.tsi-compact {
         .tsi-rangeTextContainer {
@@ -123,6 +128,12 @@
                 bottom: calc(100% - 4px);
                 position: absolute;
             }
+        }
+    }
+
+    &.tsi-compact.tsi-withButton{
+        .tsi-timePickerContainer {
+            height: 100%;
         }
     }
 
