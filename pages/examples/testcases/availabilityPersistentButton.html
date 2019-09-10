@@ -43,7 +43,7 @@
                 document.getElementById('availability').innerHTML = '';
                 availability = new tsiClient.ux.AvailabilityChart(document.getElementById('availability'));
                 var isCompact = document.getElementById('compact').checked;
-                document.getElementById('availability').style.height = isCompact ? '69px' : '160px';
+                document.getElementById('availability').style.height = isCompact ? '76px' : '160px';
                 availability.render([{availabilityCount: {"": {}}}], 
                                     {legend: 'hidden', theme: 'light', color: 'purple', offset: 'Local', isCompact: isCompact, persistDateTimeButtonRange: document.getElementById('persistButton').checked}, 
                                     {range: 

@@ -175,16 +175,9 @@
             font-size: 14px;
             text-transform: capitalize;
             height: 32px;
-            
-            position: absolute;
-            left: calc(100% - 372px);
-            top: 0px;
+            float: right;
+            display: flex;
 
-            .tsi-dateTimeButtonContainer {
-                position: absolute;
-                left: 64px;
-                top: 0px;
-            }
             .tsi-dateTimeButton {
                 height: 32px;
                 margin-left: 8px;
@@ -197,10 +190,11 @@
                 padding-left: 28px;
                 padding-right: 8px;
                 border-radius: 2px;
+                position: relative;
             }
             .tsi-dateTimePickerContainer {
                 left: unset;
-                right: -320px;
+                right: 0;
                 top: 0px;
                 display: block;
             }

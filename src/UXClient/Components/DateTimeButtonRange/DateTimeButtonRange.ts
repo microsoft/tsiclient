@@ -21,11 +21,14 @@ class DateTimeButtonRange extends DateTimeButton {
         if (!isRelative) {
             this.dateTimeButton.node().innerHTML = fromString + ' - ' + toString;
         }
-        else if (quickTime === -1) {
-            this.dateTimeButton.node().innerHTML = fromString + ' - ' + this.getString('Latest') + ' (' + toString + ')';
-        }
-        else {
-            this.dateTimeButton.node().innerHTML = this.dateTimePicker.getQuickTimeText(quickTime) + ' (' + fromString + ' - ' + toString + ')';
+        else{
+            let quickTimeText = this.dateTimePicker.getQuickTimeText(quickTime);
+            if(quickTimeText !== null){
+                this.dateTimeButton.node().innerHTML = quickTimeText + ' (' + fromString + ' - ' + toString + ')';
+            }
+            else{
+                this.dateTimeButton.node().innerHTML = fromString + ' - ' + this.getString('Latest') + ' (' + toString + ')';
+            }
         }
     }
 
