@@ -49,6 +49,7 @@ class ChartOptions {
     public onKeydown: (d3Event: any, awesompleteObject: any) => void;  // for handling keydown actions in ModelAutocomplete
     public onInput: (searchText: string, event) => void; // for handling after input actions in ModelAutocomplete
     public preserveAvailabilityState: boolean; // whether state in availability chart is saved or blown away on render
+    public persistDateTimeButtonRange: boolean; // whether the date time button range component is persisted in compact availability chart
     public scaledToCurrentTime: boolean; //whether slider base component's scale is based on current time's values (or all values)
     public spMeasures: Array<string>; // measures passed into scatter plot to plot on axis
     public scatterPlotRadius: Array<number>; // Range of values to use for radius measure range
@@ -99,6 +100,7 @@ class ChartOptions {
         chartOptionsObj = !chartOptionsObj ? {} : chartOptionsObj
         this.grid = this.mergeValue(chartOptionsObj, 'grid', false);
         this.preserveAvailabilityState = this.mergeValue(chartOptionsObj, 'preserveAvailabilityState', false);
+        this.persistDateTimeButtonRange = this.mergeValue(chartOptionsObj, 'persistDateTimeButtonRange', false);
         this.isCompact = this.mergeValue(chartOptionsObj, 'isCompact', false);
         this.keepBrush = this.mergeValue(chartOptionsObj, 'keepBrush', false);
         this.isArea = this.mergeValue(chartOptionsObj, 'isArea', false); 
@@ -178,6 +180,7 @@ class ChartOptions {
         return {
             grid: this.grid,
             preserveAvailabilityState: this.preserveAvailabilityState,
+            persistDateTimeButtonRange: this.persistDateTimeButtonRange,
             isCompact: this.isCompact,
             keepBrush: this.keepBrush,
             isArea: this.isArea, 
