@@ -15,7 +15,7 @@ class Strings {
         "timezone": "timezone",
         "start": "start",
         "end": "end",
-        "Latest": "latest",
+        "Latest": "Latest",
         "Show ellipsis menu": "Show ellipsis menu",
         "Hide ellipsis menu": "Hide ellipsis menu",
         "Download as CSV": "Download as CSV",

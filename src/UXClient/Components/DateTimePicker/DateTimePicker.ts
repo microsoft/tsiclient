@@ -67,6 +67,16 @@ class DateTimePicker extends ChartComponent{
         return matchingQuickTime[0][1];
     }
 
+    public getQuickTimeText (quickTimeMillis) {
+        let filteredQuickTime = this.quickTimeArray.filter((quickTimeTuple) => {
+            return (quickTimeMillis === quickTimeTuple[1]);
+        });
+        if (filteredQuickTime.length !== 1) {
+            return null;
+        }
+        return filteredQuickTime[0][0];
+    }
+
     private convertToCalendarDate (millis) {
         return this.roundDay(this.offsetFromUTC(Utils.offsetFromUTC(new Date(millis), this.chartOptions.offset)))
     }
@@ -145,7 +155,7 @@ class DateTimePicker extends ChartComponent{
 
         var saveButton = saveButtonContainer.append("button").classed("tsi-saveButton", true).html(this.getString("Save"))
             .on("click", function () {
-                self.onSet(self.fromMillis, self.toMillis, self.chartOptions.offset, self.maxMillis === self.toMillis);
+                self.onSet(self.fromMillis, self.toMillis, self.chartOptions.offset, self.maxMillis === self.toMillis, self.getCurrentQuickTime());
                 onSaveOrCancel();
             });
         
@@ -516,7 +526,7 @@ class DateTimePicker extends ChartComponent{
                         this.updateDisplayedToDateTime();
                         this.isSettingStartTime = true;
                         this.calendarPicker.draw();
-                    })
+                    });
             }
         }
         createTimePicker("start");

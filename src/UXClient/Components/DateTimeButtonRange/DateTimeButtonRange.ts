@@ -14,8 +14,19 @@ class DateTimeButtonRange extends DateTimeButton {
         super(renderTarget);
     }
 
-    private setButtonText (fromMillis, toMillis) {
-        this.dateTimeButton.node().innerHTML = this.buttonDateTimeFormat(fromMillis) + ' - ' + this.buttonDateTimeFormat(toMillis) + ' (' + Utils.createTimezoneAbbreviation(this.chartOptions.offset) + ')';
+    private setButtonText (fromMillis, toMillis, isRelative, quickTime) {
+        let fromString = this.buttonDateTimeFormat(fromMillis);
+        let tzAbbr = Utils.createTimezoneAbbreviation(this.chartOptions.offset);
+        let toString = this.buttonDateTimeFormat(toMillis) + ' (' + tzAbbr + ')';
+        if (!isRelative) {
+            this.dateTimeButton.node().innerHTML = fromString + ' - ' + toString;
+        }
+        else if (quickTime === -1) {
+            this.dateTimeButton.node().innerHTML = fromString + ' - ' + this.getString('Latest') + ' (' + toString + ')';
+        }
+        else {
+            this.dateTimeButton.node().innerHTML = this.dateTimePicker.getQuickTimeText(quickTime) + ' (' + fromString + ' - ' + toString + ')';
+        }
     }
 
     private onClose () {
@@ -32,10 +43,11 @@ class DateTimeButtonRange extends DateTimeButton {
 
         this.onCancel = onCancel ? onCancel : () => {};
 
-        this.setButtonText (fromMillis, toMillis);
         if (!this.dateTimePicker) {
             this.dateTimePicker = new DateTimePicker(this.dateTimePickerContainer.node());
         }
+
+        this.setButtonText(fromMillis, toMillis, toMillis === maxMillis, this.toMillis - this.fromMillis);
 
         let targetElement = <any>d3.select(this.renderTarget)
         var dateTimeTextChildren =   (targetElement.select(".tsi-dateTimeContainer")).selectAll("*");
@@ -52,13 +64,13 @@ class DateTimeButtonRange extends DateTimeButton {
 
         this.dateTimeButton.on("click", () => {
                 this.dateTimePickerContainer.style("display", "block");
-                this.dateTimePicker.render(this.chartOptions, minMillis, maxMillis, this.fromMillis, this.toMillis, (fromMillis, toMillis, offset) => {
+                this.dateTimePicker.render(this.chartOptions, minMillis, maxMillis, this.fromMillis, this.toMillis, (fromMillis, toMillis, offset, isRelative, currentQuickTime) => {
                     this.chartOptions.offset = offset;
 
                     this.fromMillis = fromMillis;
                     this.toMillis = toMillis;
     
-                    this.setButtonText(fromMillis, toMillis);
+                    this.setButtonText(fromMillis, toMillis, isRelative, currentQuickTime);
                     this.onSet(fromMillis, toMillis, offset);
                     this.onClose();
                 }, () => {
