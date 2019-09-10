@@ -511,7 +511,6 @@ class DateTimePicker extends ChartComponent{
                     .attr("class", "tsi-snapToEndRangeButton")
                     .html(this.getString("Latest"))
                     .on("click", () => {
-                        this.setFromDate(this.startRange);
                         this.setToMillis(this.maxMillis);
                         this.updateDisplayedFromDateTime();
                         this.updateDisplayedToDateTime();
