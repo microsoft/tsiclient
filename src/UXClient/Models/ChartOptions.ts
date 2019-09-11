@@ -72,10 +72,9 @@ class ChartOptions {
     public yExtent: any; // [min, max] of range of y values in chart
     public zeroYAxis: boolean; // whether bar chart's bar's bottom (or top if negative) is zero
     public withContextMenu: boolean; // whether the hierarchy uses a context menu when you click on a parent of leaf nodes
-    public strings: any;
+    public strings: any; // passed in key value pairs of strings -> strings
 
-
-    public stringsInstance: Strings = new Strings(); // passed in key value pairs of strings -> strings
+    public stringsInstance: Strings = new Strings(); 
 
     private getInterpolationFunction (interpolationName: string) {
         if (interpolationName == "curveLinear")
