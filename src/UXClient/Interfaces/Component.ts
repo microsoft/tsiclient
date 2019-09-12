@@ -11,7 +11,7 @@ class Component {
 	protected chartOptions: ChartOptions = new ChartOptions();
 
 	protected getString (str: string) {
-        return this.chartOptions.strings.getString(str);
+        return this.chartOptions.stringsInstance.getString(str);
     }
 	
 	constructor(renderTarget: Element){
