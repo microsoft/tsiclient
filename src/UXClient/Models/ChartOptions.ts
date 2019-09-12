@@ -165,7 +165,7 @@ class ChartOptions {
         this.isTemporal = this.mergeValue(chartOptionsObj, "isTemporal", false);
         this.xAxisTimeFormat = this.mergeValue(chartOptionsObj, 'xAxisTimeFormat', null);
         this.brushRangeVisible = this.mergeValue(chartOptionsObj, 'brushRangeVisible', true);
-        this.mergeStrings(Utils.getValueOrDefault(chartOptionsObj, 'strings', {}));
+        this.strings = this.mergeStrings(Utils.getValueOrDefault(chartOptionsObj, 'strings', {}));
         this.dateLocale = this.mergeValue(chartOptionsObj, 'dateLocale', Utils.languageGuess());
         this.warmStoreRange = this.mergeValue(chartOptionsObj, 'warmStoreRange', null)
     }
