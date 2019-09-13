@@ -1,10 +1,10 @@
 import * as d3 from 'd3';
 import { interpolatePath } from 'd3-interpolate-path';
 import './LinePlot.scss';
-import { Component } from '../../Interfaces/Component';
+import { Plot } from '../../Interfaces/Plot';
 import { Utils } from '../../Utils';
 
-class LinePlot extends Component {
+class LinePlot extends Plot {
     private defs;
     private chartComponentData;
     private chartHeight;
@@ -13,7 +13,7 @@ class LinePlot extends Component {
     private x;
     private visibleAggCount;
     private Utils = new Utils();
-    private TRANSDURATION;
+    private TRANSDURATION = 200;
     private strokeOpacity;
     private previousIncludeDots;
     private areaPath;
@@ -31,8 +31,8 @@ class LinePlot extends Component {
     }
 
    // returns the next visibleAggI
-    private render (visibleAggI, agg, aggVisible: boolean, aggregateGroup, chartComponentData, yExtent, chartOptions, 
-        chartHeight, visibleAggCount, colorMap, previousAggregateData, x, areaPath, strokeOpacity, y, yMap, defs) {
+    public render (chartOptions, visibleAggI, agg, aggVisible: boolean, aggregateGroup, chartComponentData, yExtent,  
+        chartHeight, visibleAggCount, colorMap, previousAggregateData, x, areaPath, strokeOpacity, y, yMap, defs, chartDataOptions) {
         this.defs = defs;
         this.chartOptions = chartOptions;
         this.chartHeight = chartHeight;

@@ -13,6 +13,7 @@ import { ChartOptions } from '../../Models/ChartOptions';
 import { EllipsisMenu } from '../EllipsisMenu/EllipsisMenu';
 import { ChartDataOptions } from '../../Models/ChartDataOptions';
 import { LinePlot } from '../LinePlot/LinePlot';
+import { CategoricalPlot } from '../CategoricalPlot/CategoricalPlot';
 
 class LineChart extends TemporalXAxisComponent {
     private svgSelection: any;
@@ -1151,7 +1152,7 @@ class LineChart extends TemporalXAxisComponent {
         }
     }
 
-    public render(data: any, options: any, aggregateExpressionOptions: any) {
+    public render (data: any, options: any, aggregateExpressionOptions: any) {
         this.data = data;
         this.hasBrush = options && (options.brushMoveAction || options.brushMoveEndAction || options.brushContextMenuActions);
         this.chartOptions.setOptions(options);
@@ -1503,12 +1504,12 @@ class LineChart extends TemporalXAxisComponent {
 
                             if (self.plotComponents[aggKey] === undefined) {
                                 let g = d3.select(this);
-                                self.plotComponents[aggKey] = new LinePlot(g);
+                                self.plotComponents[aggKey] = self.createPlot(g, i, self.aggregateExpressionOptions);
                             }
 
-                            self.plotComponents[aggKey].render(i, agg, true, d3.select(this), self.chartComponentData, yExtent, 
-                                self.chartOptions, self.chartHeight, self.visibleAggCount, self.colorMap, self.previousAggregateData, 
-                                self.x, self.areaPath, self.strokeOpacity, self.y, self.yMap, defs);
+                            self.plotComponents[aggKey].render(self.chartOptions, i, agg, true, d3.select(this), self.chartComponentData, yExtent, 
+                                self.chartHeight, self.visibleAggCount, self.colorMap, self.previousAggregateData, 
+                                self.x, self.areaPath, self.strokeOpacity, self.y, self.yMap, defs, self.aggregateExpressionOptions[i]);
                         });
                     aggregateGroups.exit().remove();
                     /******************** Voronoi diagram for hover action ************************/
@@ -1669,6 +1670,17 @@ class LineChart extends TemporalXAxisComponent {
                 this.ellipsisMenu.setMenuVisibility(false);
             }
         });
+    }
+
+    private createPlot (svgGroup, i, cDO) {
+        let chartType = cDO[i].dataType;
+        if (chartType === 'numeric') {
+            return new LinePlot(svgGroup);
+        } else if (chartType === 'categorical') {
+            return new CategoricalPlot(svgGroup);
+        }
+        // TODO Events plot
+        return null;
     }
 
     private drawEventsAndSeries () {

@@ -24,13 +24,24 @@
                         var values = {};
                         lines[`Station${j}`] = values;
                         for(var k = 0; k < 60; k++){
-                            if(!(k%2 && k%3)){  // if check is to create some sparseness in the data
+                            if (i < 2) {
+                                if(!(k%2 && k%3)){  // if check is to create some sparseness in the data
+                                    var to = new Date(from.valueOf() + 1000*60*k);
+                                    var val = Math.random();
+                                    var val2 = Math.random();
+                                    var val3 = Math.random();
+                                    var val4 = Math.random();
+                                    values[to.toISOString()] = {avg: val, x: val2, y: val3, r: val4};
+                                }
+                            } else {
+                                var val1 = Math.random();
+                                if (val1 < .5) {
+                                    val1 = 1;
+                                }
+                                var val2 = (1 - val1) / 2;
+                                var val3 = (1 - val1) / 2;
                                 var to = new Date(from.valueOf() + 1000*60*k);
-                                var val = Math.random();
-                                var val2 = Math.random();
-                                var val3 = Math.random();
-                                var val4 = Math.random();
-                                values[to.toISOString()] = {avg: val, x: val2, y: val3, r: val4};
+                                values[to.toISOString()] = {state1: val1, state2: val2, state3: val3};
                             }
                         } 
                     }
@@ -39,7 +50,18 @@
                 // render the data in a chart
                 var tsiClient = new TsiClient();
                 var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart1'));
-                lineChart.render(data, {theme: 'light'});
+                let valueMapping = {
+                    state1: {
+                        color: 'lightgrey'
+                    }, 
+                    state2: {
+                        color: 'blue'
+                    },
+                    state3: {
+                        color:'green'
+                    }
+                }
+                lineChart.render(data, {theme: 'light'}, [{dataType: 'numeric'}, {dataType: 'numeric'}, {dataType: 'categorical', valueMapping: valueMapping, height: 100}]);
             };
         </script>
     </body>
