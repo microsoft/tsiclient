@@ -22,17 +22,11 @@ class CategoricalPlot extends Plot {
     }
 
     private addGradientStops (d, i, gradient) {
-
-        // let colorMap = {
-        //     'state1': 'lightgrey',
-        //     'state2': 'blue'
-        // }
-
         let getColorForValue = (value) => {
             if (this.chartDataOptions.valueMapping && (this.chartDataOptions.valueMapping[value] !== undefined)) {
                 return this.chartDataOptions.valueMapping[value].color;
             }
-            return 'white';
+            return null;
         }
         let colorMap = this.chartDataOptions.valueMap
         Object.keys(d.measures).reduce((p, currMeasure) => {
@@ -90,7 +84,12 @@ class CategoricalPlot extends Plot {
         }
 
         let self = this;        
-        let series: Array<string> = Object.keys(this.chartComponentData.timeArrays[aggKey]);
+        let series: Array<string> = Object.keys(this.chartComponentData.timeArrays[aggKey]).filter((s) => {
+            return self.chartComponentData.isSplitByVisible(aggKey, s);
+        });
+
+        let heightPerSeries = Math.max((self.chartDataOptions.height - (series.length * TOPMARGIN))/ series.length, 0);
+
         let splitByGroups = aggregateGroup.selectAll(".tsi-splitByGroup")
             .data(series);
         splitByGroups.enter()
@@ -116,8 +115,6 @@ class CategoricalPlot extends Plot {
                     }
                     return xPos2 - xPos1;
                 }	
-
-                let heightPerSeries = Math.max((self.chartDataOptions.height - (series.length * TOPMARGIN))/ series.length, 0);
 
                 categoricalBuckets.enter()
                     .append("rect")

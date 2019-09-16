@@ -52,13 +52,13 @@
                 var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart1'));
                 let valueMapping = {
                     state1: {
-                        color: 'lightgrey'
+                        color: 'limegreen'
                     }, 
                     state2: {
                         color: 'blue'
                     },
                     state3: {
-                        color:'green'
+                        color:'lightgray'
                     }
                 }
                 lineChart.render(data, {theme: 'light'}, [{dataType: 'numeric'}, {dataType: 'numeric'}, {dataType: 'categorical', valueMapping: valueMapping, height: 100}]);
