@@ -1,6 +1,6 @@
 import * as d3 from 'd3';
 import { Plot } from '../../Interfaces/Plot';
-import { Utils } from '../../Utils';
+import { Utils, NONNUMERICTOPMARGIN } from '../../Utils';
 
 const TOPMARGIN = 4;
 
@@ -64,8 +64,7 @@ class CategoricalPlot extends Plot {
     }
 
     public render (chartOptions, visibleAggI, agg, aggVisible: boolean, aggregateGroup, chartComponentData, yExtent,  
-        chartHeight, visibleAggCount, colorMap, previousAggregateData, x, areaPath, strokeOpacity, y, yMap, defs, chartDataOptions) {
-
+        chartHeight, visibleAggCount, colorMap, previousAggregateData, x, areaPath, strokeOpacity, y, yMap, defs, chartDataOptions, previousIncludeDots) {
         this.chartOptions = chartOptions;
         this.x = x;
         this.chartComponentData = chartComponentData;
@@ -73,11 +72,6 @@ class CategoricalPlot extends Plot {
         let aggKey = agg.aggKey;
         this.chartDataOptions = chartDataOptions;
         
-        let aggY;
-        let aggLine;
-        let aggEnvelope;
-        let aggGapLine;
-
         var durationFunction = (d) => {
             let previousUndefined = previousAggregateData.get(this) === undefined;
             return (self.chartOptions.noAnimate || previousUndefined) ? 0 : self.TRANSDURATION
@@ -97,7 +91,7 @@ class CategoricalPlot extends Plot {
             .attr("class", "tsi-splitByGroup " + agg.aggKey)
             .merge(splitByGroups)
             .attr('transform', (d, i) => {
-                return 'translate(0,' + (i * (this.chartDataOptions.height / series.length)) + ')';
+                return 'translate(0,' + (NONNUMERICTOPMARGIN + (i * (this.chartDataOptions.height / series.length))) + ')';
             })
             .each(function (splitBy, j) {
                 let data = self.rollUpContiguous(self.chartComponentData.timeArrays[aggKey][splitBy]);

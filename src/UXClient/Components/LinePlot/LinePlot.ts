@@ -13,7 +13,7 @@ class LinePlot extends Plot {
     private x;
     private visibleAggCount;
     private Utils = new Utils();
-    private TRANSDURATION = 200;
+    private TRANSDURATION = 200; // HARDCODED remove
     private strokeOpacity;
     private previousIncludeDots;
     private areaPath;
@@ -32,7 +32,9 @@ class LinePlot extends Plot {
 
    // returns the next visibleAggI
     public render (chartOptions, visibleAggI, agg, aggVisible: boolean, aggregateGroup, chartComponentData, yExtent,  
-        chartHeight, visibleAggCount, colorMap, previousAggregateData, x, areaPath, strokeOpacity, y, yMap, defs, chartDataOptions) {
+        chartHeight, visibleAggCount, colorMap, previousAggregateData, x, areaPath, strokeOpacity, y, yMap, defs, chartDataOptions,
+        previousIncludeDots, yTopAndHeight) {
+        this.previousIncludeDots = previousIncludeDots;
         this.defs = defs;
         this.chartOptions = chartOptions;
         this.chartHeight = chartHeight;
@@ -49,7 +51,7 @@ class LinePlot extends Plot {
         let aggGapLine;
 
         let overwriteYRange = null;
-        if ((this.chartOptions.yAxisState == "shared") || (Object.keys(this.chartComponentData.timeArrays)).length < 2 || !aggVisible) {
+        if ((this.chartOptions.yAxisState === "shared") || (Object.keys(this.chartComponentData.timeArrays)).length < 2 || !aggVisible) {
             var yRange = (yExtent[1] - yExtent[0]) > 0 ? yExtent[1] - yExtent[0] : 1;
             var yOffsetPercentage = this.chartOptions.isArea ? (1.5 / this.chartHeight) : (10 / this.chartHeight);
             this.y.domain([yExtent[0] - (yRange * yOffsetPercentage), yExtent[1] + (yRange * (10 / this.chartHeight))]);
@@ -83,18 +85,15 @@ class LinePlot extends Plot {
                         });
         } else {
             aggY = d3.scaleLinear();
-            if (this.chartOptions.yAxisState == "overlap") {
-                aggY.range([this.chartHeight, this.chartOptions.aggTopMargin]);
-            } else {
-                overwriteYRange = [(this.chartHeight / this.visibleAggCount) * (visibleAggI + 1), 
-                    (this.chartHeight / this.visibleAggCount) * (visibleAggI) + this.chartOptions.aggTopMargin];
-                aggY.range([(this.chartHeight / this.visibleAggCount), this.chartOptions.aggTopMargin]);
-            }
+            overwriteYRange = [yTopAndHeight[0] + yTopAndHeight[1], yTopAndHeight[0] + this.chartOptions.aggTopMargin];
+
+            aggY.range([(this.chartHeight / this.visibleAggCount), this.chartOptions.aggTopMargin]);
+            aggY.range([yTopAndHeight[1], this.chartOptions.aggTopMargin]);
+
             if (this.chartComponentData.aggHasVisibleSplitBys(aggKey)) {
                 var yRange = (yExtent[1] - yExtent[0]) > 0 ? yExtent[1] - yExtent[0] : 1;
                 var yOffsetPercentage = 10 / (this.chartHeight / ((this.chartOptions.yAxisState == "overlap") ? 1 : this.visibleAggCount));
-                aggY.domain([yExtent[0] - (yRange * yOffsetPercentage), 
-                        yExtent[1] + (yRange * yOffsetPercentage)]);
+                aggY.domain([yExtent[0] - (yRange * yOffsetPercentage), yExtent[1] + (yRange * (10 / this.chartHeight))]);
             } else {
                 aggY.domain([0,1]);
                 yExtent = [0, 1];
@@ -128,7 +127,7 @@ class LinePlot extends Plot {
         
         var yAxis: any = aggregateGroup.selectAll(".yAxis")
                         .data([aggKey]);
-        var visibleYAxis = (aggVisible && (this.chartOptions.yAxisState != "shared" || visibleAggI == 0));
+        var visibleYAxis = (aggVisible && (this.chartOptions.yAxisState != "shared" || visibleAggI === 0));
         
         yAxis = yAxis.enter()
             .append("g")

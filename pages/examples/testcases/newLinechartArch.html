@@ -24,10 +24,10 @@
                         var values = {};
                         lines[`Station${j}`] = values;
                         for(var k = 0; k < 60; k++){
-                            if (i < 2) {
+                            if (i % 2 === 0) {
                                 if(!(k%2 && k%3)){  // if check is to create some sparseness in the data
                                     var to = new Date(from.valueOf() + 1000*60*k);
-                                    var val = Math.random();
+                                    var val = Math.random() + (j !== 4 ? 2 : 0);
                                     var val2 = Math.random();
                                     var val3 = Math.random();
                                     var val4 = Math.random();
@@ -47,12 +47,30 @@
                     }
                 }
 
+                var lines = {};
+                data.push({[`Factory3`]: lines});
+                for(var j = 0; j < 2; j++){
+                    var values = {};
+                    lines[`Station${j}`] = values;
+                    for(var k = 0; k < 60; k++){
+                        var val1 = Math.random();
+                        if (val1 < .5) {
+                            val1 = 1;
+                        }
+                        var val2 = (1 - val1) / 2;
+                        var val3 = (1 - val1) / 2;
+                        var to = new Date(from.valueOf() + 1000*60*k);
+                        values[to.toISOString()] = {state1: val1, state2: val2, state3: val3};
+                    } 
+                }
+
+
                 // render the data in a chart
                 var tsiClient = new TsiClient();
                 var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart1'));
                 let valueMapping = {
                     state1: {
-                        color: 'limegreen'
+                        color: 'darkgray'
                     }, 
                     state2: {
                         color: 'blue'
@@ -61,7 +79,7 @@
                         color:'lightgray'
                     }
                 }
-                lineChart.render(data, {theme: 'light'}, [{dataType: 'numeric'}, {dataType: 'numeric'}, {dataType: 'categorical', valueMapping: valueMapping, height: 100}]);
+                lineChart.render(data, {theme: 'light'}, [{dataType: 'numeric'}, {dataType: 'categorical', valueMapping: valueMapping, height: 100}, {dataType: 'numeric'}, {dataType: 'categorical', valueMapping: valueMapping, height: 50}]);
             };
         </script>
     </body>

@@ -7,6 +7,8 @@ import { ChartOptions } from './Models/ChartOptions';
 import { AggregateExpression } from './Models/AggregateExpression';
 import { ChartComponentData } from './Models/ChartComponentData';
 
+export const NONNUMERICTOPMARGIN = 16;
+
 // Linechart stack states
 enum StackStates {Stacked = "stacked", Shared = "shared", Overlap = "overlap" }
 
@@ -540,6 +542,10 @@ class Utils {
             return stringToEscape;
         }
     };
+
+    static getNonNumericHeight (rawHeight: number) {
+        return rawHeight + NONNUMERICTOPMARGIN;
+    }
 
     static getControlPanelWidth (renderTarget, legendWidth, isLegendShown) {
         return Math.max(1, (<any>d3.select(renderTarget).node()).clientWidth -

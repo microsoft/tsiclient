@@ -1152,6 +1152,62 @@ class LineChart extends TemporalXAxisComponent {
         }
     }
 
+    //returns an array of tuples of y offset and height for each 
+    private createYOffsets () {
+        //right now a lane is constrained to an aggregate - eventually this will support swim lanes
+
+        let visibleGroups = this.chartComponentData.data.filter((agg) => this.chartComponentData.displayState[agg.aggKey]["visible"]);
+        let visibleCDOs = this.aggregateExpressionOptions.filter((cDO) => this.chartComponentData.displayState[cDO.aggKey]["visible"]);
+
+
+        let allShared = this.chartOptions.yAxisState === 'shared' || this.chartOptions.yAxisState === 'overlap';
+        let visibleNumericCount = visibleGroups.filter((aggKey, i) => {
+            return visibleCDOs[i].dataType === 'numeric';
+        }).length;
+
+        let countNumericLanes = allShared ? (visibleNumericCount > 0 ? 1 : 0) : visibleNumericCount;
+
+
+        let heightNonNumeric = visibleGroups.reduce((sumPrevious, currGroup) => {
+            return sumPrevious + (currGroup.dataType !== 'numeric' ? Utils.getNonNumericHeight(currGroup.height) : 0);
+        }, 0);
+
+        if (allShared) {
+            let heightPerNumeric = this.chartHeight - heightNonNumeric;
+            let runningOffset = heightPerNumeric;
+            return visibleGroups.map((aggGroup) => {
+                if (aggGroup.dataType === 'numeric') {
+                    return [0, heightPerNumeric];
+                } else {
+                    let oldOffset = runningOffset;
+                    runningOffset += Utils.getNonNumericHeight(aggGroup.height)
+                    return [oldOffset, Utils.getNonNumericHeight(aggGroup.height)];
+                }
+            });
+        } else {
+            let heightPerNumeric = (this.chartHeight - heightNonNumeric) / countNumericLanes;
+            let cumulativeOffset = 0;
+            return visibleGroups.map((aggGroup) => {
+                let previousOffset = cumulativeOffset;
+                let height;
+                if (aggGroup.dataType === 'numeric') {
+                    height = heightPerNumeric;
+                } else {
+                    height = Utils.getNonNumericHeight(aggGroup.height);
+                }
+                cumulativeOffset += height;
+                return [previousOffset, height]
+            });
+        }
+    }
+
+    private heightNonNumeric () {
+        let visibleGroups = this.chartComponentData.data.filter((agg) => this.chartComponentData.displayState[agg.aggKey]["visible"]);
+        return visibleGroups.reduce((sumPrevious, currGroup) => {
+            return sumPrevious + (currGroup.dataType !== 'numeric' ? Utils.getNonNumericHeight(currGroup.height) : 0);
+        }, 0);
+    }
+
     public render (data: any, options: any, aggregateExpressionOptions: any) {
         this.data = data;
         this.hasBrush = options && (options.brushMoveAction || options.brushMoveEndAction || options.brushContextMenuActions);
@@ -1358,7 +1414,7 @@ class LineChart extends TemporalXAxisComponent {
                             .rangeRound([this.xOffset, Math.max(this.xOffset, this.chartWidth - (2 * this.xOffset))]);
         
                 this.y = d3.scaleLinear()
-                        .range([Math.max(this.chartHeight, this.chartOptions.aggTopMargin), this.chartOptions.aggTopMargin]);
+                        .range([Math.max(this.chartHeight - this.heightNonNumeric(), this.chartOptions.aggTopMargin), this.chartOptions.aggTopMargin]);
 
                 var fromAndTo: any = this.chartComponentData.setAllValuesAndVisibleTAs();
                 var xExtent: any = (this.chartComponentData.allValues.length != 0) ? d3.extent(this.chartComponentData.allValues, (d: any) => d.dateTime) : [0,1];
@@ -1423,54 +1479,59 @@ class LineChart extends TemporalXAxisComponent {
                 var yOffsetPercentage = this.chartOptions.isArea ? (1.5 / this.chartHeight) : (10 / this.chartHeight);
                 this.y.domain([yExtent[0] - (yRange * yOffsetPercentage), yExtent[1] + (yRange * (10 / this.chartHeight))]);
 
-                    if (this.chartOptions.isArea) {
-                        this.areaPath = d3.area()
-                            .curve(this.chartOptions.interpolationFunction)
-                            .defined( (d: any) => { 
-                                return (d.measures !== null) && 
-                                        (d.measures[this.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy)] !== null);
-                            })
-                            .x((d: any) => {
-                                return this.getXPosition(d, this.x);
-                            })
-                            .y0((d: any) => { 
-                                return d.measures ? this.y(d.measures[this.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy)]) : 0;
-                            })
-                            .y1(this.chartHeight);
-                    }
+                if (this.chartOptions.isArea) {
+                    this.areaPath = d3.area()
+                        .curve(this.chartOptions.interpolationFunction)
+                        .defined( (d: any) => { 
+                            return (d.measures !== null) && 
+                                    (d.measures[this.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy)] !== null);
+                        })
+                        .x((d: any) => {
+                            return this.getXPosition(d, this.x);
+                        })
+                        .y0((d: any) => { 
+                            return d.measures ? this.y(d.measures[this.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy)]) : 0;
+                        })
+                        .y1(this.chartHeight);
+                }
                     
-                    if (!this.chartOptions.xAxisHidden) {
-                        this.xAxis = g.selectAll(".xAxis").data([this.x]);
-                        this.drawXAxis(this.chartHeight + this.timelineHeight);
-                        this.xAxis.exit().remove();
+                if (!this.chartOptions.xAxisHidden) {
+                    this.xAxis = g.selectAll(".xAxis").data([this.x]);
+                    this.drawXAxis(this.chartHeight + this.timelineHeight);
+                    this.xAxis.exit().remove();
 
-                        var xAxisBaseline =  g.selectAll(".xAxisBaseline").data([this.x]);
-                        var xAxisBaselineEntered = xAxisBaseline.enter().append("line")
-                            .attr("class", "xAxisBaseline")
-                            .attr("x1", .5)
-                            .merge(xAxisBaseline)
-                            .attr("y2", this.chartHeight + this.timelineHeight + .5)
-                            .attr("y1", this.chartHeight + this.timelineHeight + .5)
-                            .attr("x2", this.chartWidth - this.xOffset);
-                        xAxisBaseline.exit().remove();
-                    }
-                    if (g.selectAll(".xAxis").size() !== 0) {
-                        g.selectAll(".xAxis").style("visibility", ((!this.chartOptions.xAxisHidden) ? "visible" : "hidden"));
-                    }
+                    var xAxisBaseline =  g.selectAll(".xAxisBaseline").data([this.x]);
+                    var xAxisBaselineEntered = xAxisBaseline.enter().append("line")
+                        .attr("class", "xAxisBaseline")
+                        .attr("x1", .5)
+                        .merge(xAxisBaseline)
+                        .attr("y2", this.chartHeight + this.timelineHeight + .5)
+                        .attr("y1", this.chartHeight + this.timelineHeight + .5)
+                        .attr("x2", this.chartWidth - this.xOffset);
+                    xAxisBaseline.exit().remove();
+                }
+                if (g.selectAll(".xAxis").size() !== 0) {
+                    g.selectAll(".xAxis").style("visibility", ((!this.chartOptions.xAxisHidden) ? "visible" : "hidden"));
+                }
 
             
-                    /******************** Draw Line and Points ************************/
-                    this.visibleAggCount = Object.keys(this.chartComponentData.timeArrays).reduce((count: number, aggKey: string): number => {
-                        return count + (this.chartComponentData.displayState[aggKey]['visible'] ? 1 : 0);
-                    }, 0);
-        
-                    this.yMap = {};
-                    this.colorMap = {};
-                    this.svgSelection.selectAll(".yAxis").remove();
-                    let aggregateGroups = this.svgSelection.select('.svgGroup').selectAll('.tsi-aggGroup')
-                        .data(this.chartComponentData.data.filter((agg) => this.chartComponentData.displayState[agg.aggKey]["visible"]), 
-                            (agg) => agg.aggKey);
+                /******************** Draw Line and Points ************************/
+                this.visibleAggCount = Object.keys(this.chartComponentData.timeArrays).reduce((count: number, aggKey: string): number => {
+                    return count + (this.chartComponentData.displayState[aggKey]['visible'] ? 1 : 0);
+                }, 0);
+    
+                this.yMap = {};
+                this.colorMap = {};
+                this.svgSelection.selectAll(".yAxis").remove();
+
+                let visibleGroupData = this.chartComponentData.data.filter((agg) => this.chartComponentData.displayState[agg.aggKey]["visible"]);
+                let visibleCDOs = this.aggregateExpressionOptions.filter((cDO) => this.chartComponentData.displayState[cDO.aggKey]["visible"]);
+                let offsetsAndHeights = this.createYOffsets();
+                let aggregateGroups = this.svgSelection.select('.svgGroup').selectAll('.tsi-aggGroup')
+                    .data(visibleGroupData, (agg) => agg.aggKey);
                     var self = this;
+
+                    let visibleNumericI = 0;
                     aggregateGroups.enter()
                         .append('g')
                         .classed('tsi-aggGroup', true)
@@ -1479,11 +1540,7 @@ class LineChart extends TemporalXAxisComponent {
                         .duration((this.chartOptions.noAnimate) ? 0 : self.TRANSDURATION)            
                         .ease(d3.easeExp)                                         
                         .attr('transform', (agg, i) => {
-                            let yTranslate = 0;
-                            if (this.chartOptions.yAxisState === "stacked") {
-                                yTranslate = (i / this.visibleAggCount) * this.chartHeight;
-                            }
-                            return 'translate(0,' + yTranslate + ')';
+                            return 'translate(0,' + offsetsAndHeights[i][0] + ')';
                         })
                         .each(function (agg, i) {
                             let yExtent ;
@@ -1507,9 +1564,12 @@ class LineChart extends TemporalXAxisComponent {
                                 self.plotComponents[aggKey] = self.createPlot(g, i, self.aggregateExpressionOptions);
                             }
 
-                            self.plotComponents[aggKey].render(self.chartOptions, i, agg, true, d3.select(this), self.chartComponentData, yExtent, 
+                            self.plotComponents[aggKey].render(self.chartOptions, visibleNumericI, agg, true, d3.select(this), self.chartComponentData, yExtent, 
                                 self.chartHeight, self.visibleAggCount, self.colorMap, self.previousAggregateData, 
-                                self.x, self.areaPath, self.strokeOpacity, self.y, self.yMap, defs, self.aggregateExpressionOptions[i]);
+                                self.x, self.areaPath, self.strokeOpacity, self.y, self.yMap, defs, visibleCDOs[i], self.previousIncludeDots, offsetsAndHeights[i]);
+                            
+                            //increment index of visible numerics if appropriate
+                            visibleNumericI += (visibleCDOs[i].dataType === 'numeric' ? 1 : 0);
                         });
                     aggregateGroups.exit().remove();
                     /******************** Voronoi diagram for hover action ************************/
