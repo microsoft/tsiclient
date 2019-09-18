@@ -138,7 +138,6 @@ class CategoricalPlot extends Plot {
             });
         gradients.exit().remove();
         
-
     }
 }
 export {CategoricalPlot}

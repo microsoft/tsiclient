@@ -67,7 +67,12 @@
                             val3 = 1;
                         }
                         var to = new Date(from.valueOf() + 1000*60*k);
-                        values[to.toISOString()] = {state1: val1, state2: val2, state3: val3};
+                        if (k < 20 || k >= 40) {
+                            values[to.toISOString()] = {state1: val1, state2: val2, state3: val3};
+                        } else {
+                            values[to.toISOString()] = null;
+                        }
+
                     } 
                 }
 

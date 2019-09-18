@@ -117,7 +117,6 @@ class Utils {
         });
     }
 
-
     static formatOffsetMinutes (offset) {
         return (offset < 0 ? '-' : '+') + 
             Math.floor(offset / 60) + ':' + 

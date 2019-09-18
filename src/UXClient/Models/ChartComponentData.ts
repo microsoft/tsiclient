@@ -393,9 +393,11 @@ class ChartComponentData {
             Object.keys(agg).sort().forEach((dateTime: string) => {
                 var timeValueObject: any = createTimeValueObject();
                 timeValueObject["dateTime"] = new Date(dateTime);
-                Object.keys(agg[dateTime]).forEach((measure: string) => {
-                    timeValueObject["measures"][measure] = agg[dateTime][measure];
-                });
+                if (agg[dateTime]) {
+                    Object.keys(agg[dateTime]).forEach((measure: string) => {
+                        timeValueObject["measures"][measure] = agg[dateTime][measure];
+                    });    
+                }
                 aggArray.push(timeValueObject);
             });
         }
