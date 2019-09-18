@@ -99,6 +99,25 @@ class Utils {
         return encodeURIComponent(aggName).split(".").join("_") + "_" + aggIndex;
     }
 
+    static rollUpContiguous (data) {
+        let areEquivalentBuckets = (d1, d2) => {
+            if (Object.keys(d1.measures).length !== Object.keys(d1.measures).length) {
+                return false;
+            }
+            return Object.keys(d1.measures).reduce((p, c, i) => {
+                return p && (d1.measures[c] === d2.measures[c]);
+            }, true);
+        }
+
+        return data.filter((d, i) => {
+            if (i !== 0) {
+                return !areEquivalentBuckets(d, data[i - 1]);
+            }
+            return true;
+        });
+    }
+
+
     static formatOffsetMinutes (offset) {
         return (offset < 0 ? '-' : '+') + 
             Math.floor(offset / 60) + ':' + 

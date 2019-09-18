@@ -17,18 +17,18 @@ class CategoricalPlot extends Plot {
         super(svgSelection)
     }
 
-    private createGradientKey (d, i) {
-        return d.aggregateKey + i;
+    private createGradientKey (d, splitByIndex, i) {
+        return d.aggregateKey + '_' + splitByIndex + '_' + i;
     }
 
-    private addGradientStops (d, i, gradient) {
+    private addGradientStops (d, gradient) {
         let getColorForValue = (value) => {
             if (this.chartDataOptions.valueMapping && (this.chartDataOptions.valueMapping[value] !== undefined)) {
                 return this.chartDataOptions.valueMapping[value].color;
             }
             return null;
         }
-        let colorMap = this.chartDataOptions.valueMap
+        let colorMap = this.chartDataOptions.valueMap;
         Object.keys(d.measures).reduce((p, currMeasure) => {
             let currFraction = d.measures[currMeasure];
             gradient.append('stop')
@@ -45,24 +45,6 @@ class CategoricalPlot extends Plot {
         }, 0);
     }
 
-    private rollUpContiguous (data) {
-        let areEquivalentBuckets = (d1, d2) => {
-            if (Object.keys(d1.measures).length !== Object.keys(d1.measures).length) {
-                return false;
-            }
-            return Object.keys(d1.measures).reduce((p, c, i) => {
-                return p && (d1.measures[c] === d2.measures[c]);
-            }, true);
-        }
-
-        return data.filter((d, i) => {
-            if (i !== 0) {
-                return !areEquivalentBuckets(d, data[i - 1]);
-            }
-            return true;
-        });
-    }
-
     public render (chartOptions, visibleAggI, agg, aggVisible: boolean, aggregateGroup, chartComponentData, yExtent,  
         chartHeight, visibleAggCount, colorMap, previousAggregateData, x, areaPath, strokeOpacity, y, yMap, defs, chartDataOptions, previousIncludeDots) {
         this.chartOptions = chartOptions;
@@ -71,6 +53,8 @@ class CategoricalPlot extends Plot {
         this.defs = defs;
         let aggKey = agg.aggKey;
         this.chartDataOptions = chartDataOptions;
+
+        let gradientData = [];
         
         var durationFunction = (d) => {
             let previousUndefined = previousAggregateData.get(this) === undefined;
@@ -85,7 +69,9 @@ class CategoricalPlot extends Plot {
         let heightPerSeries = Math.max((self.chartDataOptions.height - (series.length * TOPMARGIN))/ series.length, 0);
 
         let splitByGroups = aggregateGroup.selectAll(".tsi-splitByGroup")
-            .data(series);
+            .data(series, (d) => {
+                return d.splitBy;
+            });
         splitByGroups.enter()
             .append("g")
             .attr("class", "tsi-splitByGroup " + agg.aggKey)
@@ -94,7 +80,7 @@ class CategoricalPlot extends Plot {
                 return 'translate(0,' + (NONNUMERICTOPMARGIN + (i * (this.chartDataOptions.height / series.length))) + ')';
             })
             .each(function (splitBy, j) {
-                let data = self.rollUpContiguous(self.chartComponentData.timeArrays[aggKey][splitBy]);
+                let data = self.chartComponentData.timeArrays[aggKey][splitBy];
                 var categoricalBuckets = d3.select(this).selectAll(".tsi-categoricalBucket")
                     .data(data);
 
@@ -126,18 +112,33 @@ class CategoricalPlot extends Plot {
                         return self.x(new Date(d.dateTime))
                     })
                     .each(function (d, i) {
-                        var gradient = self.defs.append("linearGradient")
-                            .attr("id", self.createGradientKey(d, i))
-                            .attr("x2", "0%")
-                            .attr("y2", "100%");
-                        self.addGradientStops(d, i, gradient);
+                        let gradientKey = self.createGradientKey(d, j, i);
+                        gradientData.push([gradientKey, d]);
                         d3.select(this)
-                            .attr('fill', "url(#" + self.createGradientKey(d, i) + ")");
+                            .attr('fill', "url(#" + gradientKey + ")");
                     });
                 categoricalBuckets.exit().remove();
             });
             splitByGroups.exit().remove();
         
+        //corresponding linear gradients
+        let gradients = aggregateGroup.selectAll('linearGradient')
+                        .data(gradientData, (d) => {
+                            return d[1].splitBy;
+                        });
+        let enteredGradients = gradients.enter()
+            .append('linearGradient')
+            .attr("x2", "0%")
+            .attr("y2", "100%")
+            .merge(gradients)
+            .attr("id", d => d[0]);
+        enteredGradients
+            .each(function (d) {
+                self.addGradientStops(d[1], d3.select(this));
+            });
+        gradients.exit().remove();
+        
+
     }
 }
 export {CategoricalPlot}

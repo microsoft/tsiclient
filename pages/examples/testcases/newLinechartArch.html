@@ -49,16 +49,23 @@
 
                 var lines = {};
                 data.push({[`Factory3`]: lines});
-                for(var j = 0; j < 2; j++){
+                for(var j = 0; j < 3; j++){
                     var values = {};
                     lines[`Station${j}`] = values;
                     for(var k = 0; k < 60; k++){
-                        var val1 = Math.random();
-                        if (val1 < .5) {
-                            val1 = 1;
+                        var val1 = 1; 
+                        var val2 = 0;
+                        var val3 = 0;
+                        if (j === 1) {
+                            val1 = 0;
+                            val2 = 1;
+                            val3 = 0;
+                        } 
+                        if (j === 2) {
+                            val1 = 0;
+                            val2 = 0;
+                            val3 = 1;
                         }
-                        var val2 = (1 - val1) / 2;
-                        var val3 = (1 - val1) / 2;
                         var to = new Date(from.valueOf() + 1000*60*k);
                         values[to.toISOString()] = {state1: val1, state2: val2, state3: val3};
                     } 
