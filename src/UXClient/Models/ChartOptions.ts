@@ -72,8 +72,9 @@ class ChartOptions {
     public yExtent: any; // [min, max] of range of y values in chart
     public zeroYAxis: boolean; // whether bar chart's bar's bottom (or top if negative) is zero
     public withContextMenu: boolean; // whether the hierarchy uses a context menu when you click on a parent of leaf nodes
+    public strings: any; // passed in key value pairs of strings -> strings
 
-    public strings: Strings = new Strings(); // passed in key value pairs of strings -> strings
+    public stringsInstance: Strings = new Strings(); 
 
     private getInterpolationFunction (interpolationName: string) {
         if (interpolationName == "curveLinear")
@@ -164,9 +165,14 @@ class ChartOptions {
         this.isTemporal = this.mergeValue(chartOptionsObj, "isTemporal", false);
         this.xAxisTimeFormat = this.mergeValue(chartOptionsObj, 'xAxisTimeFormat', null);
         this.brushRangeVisible = this.mergeValue(chartOptionsObj, 'brushRangeVisible', true);
-        this.strings.mergeStrings(Utils.getValueOrDefault(chartOptionsObj, 'strings', {}));
-        this.dateLocale = this.mergeValue(chartOptionsObj, 'dateLocale', 'en');
+        this.strings = this.mergeStrings(Utils.getValueOrDefault(chartOptionsObj, 'strings', {}));
+        this.dateLocale = this.mergeValue(chartOptionsObj, 'dateLocale', Utils.languageGuess());
         this.warmStoreRange = this.mergeValue(chartOptionsObj, 'warmStoreRange', null)
+    }
+
+    private mergeStrings (strings) {
+        this.stringsInstance.mergeStrings(strings);
+        return this.stringsInstance.toObject();
     }
 
     private mergeValue (chartOptionsObj, propertyName, defaultValue) {

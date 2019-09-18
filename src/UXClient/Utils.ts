@@ -759,6 +759,11 @@ class Utils {
         }
         return mergedAvailabilities;
     }
+
+    static languageGuess () {
+        return navigator.languages && navigator.languages[0] || // Chrome / Firefox
+        navigator.language; // All browsers
+    }
 }
 
 export {Utils};
