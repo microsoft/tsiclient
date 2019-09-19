@@ -105,6 +105,7 @@ class ChartComponentData {
                     includeEnvelope: aggregateExpressionOptions[i].includeEnvelope,
                     includeDots: aggregateExpressionOptions[i].includeDots,
                     splitBys: {},
+                    dataType: aggregateExpressionOptions[i].dataType,
                     visibleSplitByCap: this.displayState[aggKey].visibleSplitByCap,
                     shownSplitBys: 20
                 }

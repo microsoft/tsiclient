@@ -5,6 +5,9 @@ import {Component} from "./../../Interfaces/Component";
 import { ChartOptions } from '../../Models/ChartOptions';
 import { ChartComponentData } from '../../Models/ChartComponentData';
 
+const NUMERICSPLITBYHEIGHT = 44;
+const NONNUMERICSPLITBYHEIGHT = 24; 
+
 class Legend extends Component {
     public drawChart: any;
     public legendElement: any;
@@ -71,6 +74,10 @@ class Legend extends Component {
         }
     }
 
+    private getHeightPerSplitBy (aggKey) {
+        return (this.chartComponentData.displayState[aggKey].dataType === 'numeric' ? NUMERICSPLITBYHEIGHT : NONNUMERICSPLITBYHEIGHT);
+    }
+
 	public draw(legendState, chartComponentData, labelMouseover, svgSelection, options, labelMouseoutAction = null, stickySeriesAction = null) {
         this.chartOptions.setOptions(options);
         this.chartComponentData = chartComponentData;
@@ -127,7 +134,6 @@ class Legend extends Component {
         var events: any = (this.chartComponentData.displayState.events) ? this.chartComponentData.displayState.events : [];
         var states: any = (this.chartComponentData.displayState.states) ? this.chartComponentData.displayState.states : [];
 
-        const heightPerSplitBy: number = 40;
         const heightPerNameLabel: number = 25;
         const verticalPaddingPerSeriesLabel: number = 16;
         const numEventsAndStates = Object.keys(events).length + Object.keys(states).length;
@@ -137,6 +143,7 @@ class Legend extends Component {
         var contentHeight = 0;
 
         seriesLabelsEntered.each(function (aggKey: string, i: number) {
+            let heightPerSplitBy = self.getHeightPerSplitBy(aggKey);
             var splitByLabelData = Object.keys(self.chartComponentData.timeArrays[aggKey]);
             var noSplitBys: boolean = splitByLabelData.length == 1 && splitByLabelData[0] == "";
             var seriesNameLabel = d3.select(this).selectAll(".tsi-seriesNameLabel").data([aggKey]);
@@ -176,14 +183,14 @@ class Legend extends Component {
             seriesNameLabel.exit().remove();
 
             var splitByContainerHeight;
-            if (splitByLabelData.length > 4) {
+            if (splitByLabelData.length > (prospectiveAggregateHeight / heightPerSplitBy)) {
                 splitByContainerHeight = prospectiveAggregateHeight - heightPerNameLabel;
                 contentHeight += splitByContainerHeight + heightPerNameLabel;
-            } else if (splitByLabelData.length > 1 || (splitByLabelData.length == 1 && splitByLabelData[0] != "")) {
+            } else if (splitByLabelData.length > 1 || (splitByLabelData.length === 1 && splitByLabelData[0] !== "")) {
                 splitByContainerHeight = splitByLabelData.length * heightPerSplitBy + heightPerNameLabel;
                 contentHeight += splitByContainerHeight + heightPerNameLabel;
             } else {
-                splitByContainerHeight = 44;
+                splitByContainerHeight = heightPerSplitBy;
                 contentHeight += splitByContainerHeight;
             }
             if (self.chartOptions.legend == "shown") {
@@ -198,7 +205,7 @@ class Legend extends Component {
                 .classed("tsi-splitByContainer", true);
 
 
-            var renderSplitBys = () => {
+            var renderSplitBys = (dataType) => {
                 var firstSplitBy = self.chartComponentData.displayState[aggKey].splitBys
                                 [Object.keys(self.chartComponentData.displayState[aggKey].splitBys)[0]];
                 var firstSplitByType = firstSplitBy ? firstSplitBy.visibleType : null;
@@ -235,7 +242,9 @@ class Legend extends Component {
                         labelMouseout(svgSelection, aggKey);
                     })
                     .attr("class", (splitBy, i) => {
-                        return "tsi-splitByLabel tsi-splitByLabel" + (Utils.getAgVisible(self.chartComponentData.displayState, aggKey, splitBy) ? " shown" : "")
+                        return "tsi-splitByLabel tsi-splitByLabel"
+                            + (dataType !== 'numeric' ? ' tsi-splitByLabelCompact' : '')  
+                            + (Utils.getAgVisible(self.chartComponentData.displayState, aggKey, splitBy) ? " shown" : "")
                     })
                     .classed("stickied", (splitBy, i) => {
                         if (self.chartComponentData.stickiedKey != null) {
@@ -247,15 +256,19 @@ class Legend extends Component {
 
                 splitByLabelsEntered.each(function (splitBy, j) {
                     let color = (self.chartComponentData.isFromHeatmap) ? self.chartComponentData.displayState[aggKey].color : colors[j];
-                    let colorKey = d3.select(this).selectAll('.tsi-colorKey').data([color]);
-                    colorKey.enter()
-                        .append("div")
-                        .attr("class", 'tsi-colorKey')
-                        .merge(colorKey)
-                        .style('background-color', (d) => {
-                            return d;
-                        });
-                    colorKey.exit().remove();
+                    if (dataType === 'numeric') {
+                        let colorKey = d3.select(this).selectAll('.tsi-colorKey').data([color]);
+                        colorKey.enter()
+                            .append("div")
+                            .attr("class", 'tsi-colorKey')
+                            .merge(colorKey)
+                            .style('background-color', (d) => {
+                                return d;
+                            });
+                        colorKey.exit().remove();    
+                    } else {
+                        d3.select(this).selectAll('.tsi-colorKey').remove();
+                    }
 
                     if (d3.select(this).select('.tsi-eyeIcon').empty()) {
                         d3.select(this).append("button")
@@ -276,50 +289,55 @@ class Legend extends Component {
                             .attr('class', 'tsi-aggName')
                             .text(d => (noSplitBys ? (self.chartComponentData.displayState[aggKey].name): splitBy));      
                     }
-                    
-                    if (d3.select(this).select('.tsi-seriesTypeSelection').empty()) {
-                        d3.select(this).append("select")
-                            .attr('aria-label', self.getString("Series type selection for") + ' ' + splitBy)
-                            .attr('class', 'tsi-seriesTypeSelection')
-                            .on("change", function (data: any) {
-                                var seriesType: any = d3.select(this).property("value");
-                                self.chartComponentData.displayState[aggKey].splitBys[splitBy].visibleType = seriesType; 
-                                self.drawChart();
-                            })
-                            .on("click", () => {
-                                d3.event.stopPropagation();
-                            });
-                    }
-                    d3.select(this).select('.tsi-seriesTypeSelection')
-                        .each(function (d) {
-                            var typeLabels = d3.select(this).selectAll('option')
-                            .data(data => self.chartComponentData.displayState[aggKey].splitBys[splitBy].types.map( (type) => {
-                                return {
-                                    type: type,
-                                    aggKey: aggKey,
-                                    splitBy: splitBy,
-                                    visibleMeasure: Utils.getAgVisibleMeasure(self.chartComponentData.displayState, aggKey, splitBy)
-                                }
-                            }));
 
-                            typeLabels
-                                .enter()
-                                .append("option")
-                                .attr("class", "seriesTypeLabel")
-                                .merge(typeLabels)
-                                .property("selected", (data: any) => {
-                                    return ((data.type == Utils.getAgVisibleMeasure(self.chartComponentData.displayState, data.aggKey, data.splitBy)) ? 
-                                            " selected" : "");
-                                })                           
-                                .text((data: any) => data.type);
-                            typeLabels.exit().remove();
-                        });
+                    if (dataType === 'numeric') {
+                        if (d3.select(this).select('.tsi-seriesTypeSelection').empty()) {
+                            d3.select(this).append("select")
+                                .attr('aria-label', self.getString("Series type selection for") + ' ' + splitBy)
+                                .attr('class', 'tsi-seriesTypeSelection')
+                                .on("change", function (data: any) {
+                                    var seriesType: any = d3.select(this).property("value");
+                                    self.chartComponentData.displayState[aggKey].splitBys[splitBy].visibleType = seriesType; 
+                                    self.drawChart();
+                                })
+                                .on("click", () => {
+                                    d3.event.stopPropagation();
+                                });
+                        }
+                        d3.select(this).select('.tsi-seriesTypeSelection')
+                            .each(function (d) {
+                                var typeLabels = d3.select(this).selectAll('option')
+                                .data(data => self.chartComponentData.displayState[aggKey].splitBys[splitBy].types.map( (type) => {
+                                    return {
+                                        type: type,
+                                        aggKey: aggKey,
+                                        splitBy: splitBy,
+                                        visibleMeasure: Utils.getAgVisibleMeasure(self.chartComponentData.displayState, aggKey, splitBy)
+                                    }
+                                }));
+    
+                                typeLabels
+                                    .enter()
+                                    .append("option")
+                                    .attr("class", "seriesTypeLabel")
+                                    .merge(typeLabels)
+                                    .property("selected", (data: any) => {
+                                        return ((data.type == Utils.getAgVisibleMeasure(self.chartComponentData.displayState, data.aggKey, data.splitBy)) ? 
+                                                " selected" : "");
+                                    })                           
+                                    .text((data: any) => data.type);
+                                typeLabels.exit().remove();
+                            });
+                    } else {
+                        d3.select(this).selectAll('.tsi-seriesTypeSelection').remove();
+                    }
                 });
                 splitByLabels.exit().remove();
 
                 return [splitByContainer, splitByContainerEntered];
             }
-            var sBs = renderSplitBys();
+            let dataType = self.chartComponentData.displayState[aggKey].dataType;
+            var sBs = renderSplitBys(dataType);
             var splitByContainer = sBs[0];
             var splitByContainerEntered = sBs[1];
             splitByContainerEntered.on("scroll", function () {
@@ -328,7 +346,7 @@ class Legend extends Component {
                         const oldShownSplitBys = self.chartComponentData.displayState[aggKey].shownSplitBys; 
                         self.chartComponentData.displayState[aggKey].shownSplitBys = Math.min(oldShownSplitBys + 20, splitByLabelData.length);
                         if (oldShownSplitBys != self.chartComponentData.displayState[aggKey].shownSplitBys) {
-                            renderSplitBys();
+                            renderSplitBys(dataType);
                         }
                     }    
                 }
@@ -340,7 +358,7 @@ class Legend extends Component {
                         const oldShownSplitBys = self.chartComponentData.displayState[aggKey].shownSplitBys; 
                         self.chartComponentData.displayState[aggKey].shownSplitBys = Math.min(oldShownSplitBys + 20, splitByLabelData.length);
                         if (oldShownSplitBys != self.chartComponentData.displayState[aggKey].shownSplitBys) {
-                            renderSplitBys();                   
+                            renderSplitBys(dataType);                   
                         }
                     }    
                 }
@@ -351,10 +369,13 @@ class Legend extends Component {
         if (this.chartOptions.legend == 'shown') {
             var legendHeight = legend.node().clientHeight;
             //minSplitBysForFlexGrow: the minimum number of split bys for flex-grow to be triggered 
-            var minSplitByForFlexGrow = (prospectiveAggregateHeight - heightPerNameLabel) / heightPerSplitBy;
             if (contentHeight < usableLegendHeight) {
                 this.legendElement.classed("tsi-flexLegend", true);
-                seriesLabelsEntered.each(function () {
+                seriesLabelsEntered.each(function (d) {
+                    debugger;
+                    let heightPerSplitBy = self.getHeightPerSplitBy(d.aggregateKey);
+                    var minSplitByForFlexGrow = (prospectiveAggregateHeight - heightPerNameLabel) / heightPerSplitBy;
+
                     var splitBysCount = Object.keys(self.chartComponentData.displayState[String(d3.select(this).data()[0])].splitBys).length;
                     if (splitBysCount > minSplitByForFlexGrow) {
                         d3.select(this).style("flex-grow", 1);

@@ -153,7 +153,6 @@
 			.tsi-splitByContainer {
 				overflow-y: auto;
 				visibility: hidden;
-				padding: 1px;
 				min-height: 42px;
 				height: calc(100% - 25px);
 
@@ -270,6 +269,10 @@
 			}
 			select::-ms-expand { 
 				display: none; /* remove default arrow on ie10 and ie11 */
+			}
+
+			&.tsi-splitByLabelCompact {
+				height: 24px;
 			}
 		}
 		.tsi-seriesNameLabel {

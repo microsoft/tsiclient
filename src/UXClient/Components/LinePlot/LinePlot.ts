@@ -33,7 +33,7 @@ class LinePlot extends Plot {
    // returns the next visibleAggI
     public render (chartOptions, visibleAggI, agg, aggVisible: boolean, aggregateGroup, chartComponentData, yExtent,  
         chartHeight, visibleAggCount, colorMap, previousAggregateData, x, areaPath, strokeOpacity, y, yMap, defs, chartDataOptions,
-        previousIncludeDots, yTopAndHeight) {
+        previousIncludeDots, yTopAndHeight, svgSelection, categoricalMouseover) {
         this.previousIncludeDots = previousIncludeDots;
         this.defs = defs;
         this.chartOptions = chartOptions;

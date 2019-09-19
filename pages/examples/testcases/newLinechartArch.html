@@ -12,7 +12,6 @@
     
         <script>
             window.onload = function() {
-                
                 // create fake data in the shape our charts expect
                 var data = [];
                 var from = new Date(Math.floor((new Date()).valueOf() / (1000*60 * 60)) * (1000*60 * 60));
@@ -66,10 +65,11 @@
                             val2 = 0;
                             val3 = 1;
                         }
+                        let previousTo = to;
                         var to = new Date(from.valueOf() + 1000*60*k);
-                        if (k < 20 || k >= 40) {
+                        if (k === 0 || k === 40) {
                             values[to.toISOString()] = {state1: val1, state2: val2, state3: val3};
-                        } else {
+                        } else if (k === 20){
                             values[to.toISOString()] = null;
                         }
 
@@ -91,7 +91,7 @@
                         color:'lightgray'
                     }
                 }
-                lineChart.render(data, {theme: 'light'}, [{dataType: 'numeric'}, {dataType: 'categorical', valueMapping: valueMapping, height: 100}, {dataType: 'numeric'}, {dataType: 'categorical', valueMapping: valueMapping, height: 50}]);
+                lineChart.render(data, {theme: 'light', tooltip: 'true'}, [{dataType: 'numeric'}, {dataType: 'categorical', valueMapping: valueMapping, height: 100}, {dataType: 'numeric'}, {dataType: 'categorical', valueMapping: valueMapping, height: 50}]);
             };
         </script>
     </body>

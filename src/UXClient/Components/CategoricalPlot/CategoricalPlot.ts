@@ -12,6 +12,13 @@ class CategoricalPlot extends Plot {
     private TRANSDURATION = 500; //TO BE REMOVED
     private defs;
     private chartDataOptions;
+    private hoverRect;
+    private chartHeight;
+    private chartGroup;
+    private categoricalMouseover;
+    private yTopAndHeight;
+    private aggregateGroup;
+    private splitBysGroup;
 
     constructor (svgSelection) {
         super(svgSelection)
@@ -21,38 +28,99 @@ class CategoricalPlot extends Plot {
         return d.aggregateKey + '_' + splitByIndex + '_' + i;
     }
 
-    private addGradientStops (d, gradient) {
-        let getColorForValue = (value) => {
-            if (this.chartDataOptions.valueMapping && (this.chartDataOptions.valueMapping[value] !== undefined)) {
-                return this.chartDataOptions.valueMapping[value].color;
-            }
-            return null;
+    private getColorForValue (value) {
+        if (this.chartDataOptions.valueMapping && (this.chartDataOptions.valueMapping[value] !== undefined)) {
+            return this.chartDataOptions.valueMapping[value].color;
         }
+        return null;
+    }
+
+    private addGradientStops (d, gradient) {
         let colorMap = this.chartDataOptions.valueMap;
         Object.keys(d.measures).reduce((p, currMeasure) => {
             let currFraction = d.measures[currMeasure];
             gradient.append('stop')
                 .attr("offset", (p * 100) + "%")
-                .attr("stop-color", getColorForValue(currMeasure))
+                .attr("stop-color", this.getColorForValue(currMeasure))
                 .attr("stop-opacity", 1);
             let newFraction = p + currFraction; 
 
             gradient.append('stop')
                 .attr("offset", (newFraction * 100) + "%")
-                .attr("stop-color",  getColorForValue(currMeasure))
+                .attr("stop-color",  this.getColorForValue(currMeasure))
                 .attr("stop-opacity", 1);
             return newFraction; 
         }, 0);
     }
 
+    private getVisibleMeasures (measures) {
+        return Object.keys(measures).filter((measure) => {
+            return measures[measure] !== 0;
+        });
+    }
+
+    private onMouseover (d, rectWidth) {
+        let visibleMeasures = this.getVisibleMeasures(d.measures)
+        if (!(visibleMeasures.length === 1)) {
+            return;
+        }
+
+        this.hoverRect.attr('visibility', 'visible')
+            .attr('x', () => {
+                return this.x(new Date(d.dateTime))
+            })
+            .attr('width', rectWidth)
+            .attr('fill', () => {
+                return this.getColorForValue(visibleMeasures[0])
+            });
+    }
+
+    private onMouseout () {
+        this.hoverRect.attr('visibility', 'hidden');
+    }
+
+    private createHoverRect () {
+        if (!this.hoverRect) {
+            this.hoverRect = this.chartGroup.append('rect')
+                .attr('class', 'tsi-categoricalHoverRect')
+                .attr('y', 0)
+                .attr('height', this.chartHeight)
+        }
+    }
+
+    private createBackdropRect () {
+        this.aggregateGroup.selectAll('.tsi-backdropRect')
+            .remove();
+
+        this.aggregateGroup.append('rect')
+            .attr('class', 'tsi-backdropRect')
+            .attr('x', 0)
+            .attr('y', 0)
+            .attr('width', this.x.range()[1])
+            .attr('height', this.yTopAndHeight[1]);
+    }
+
     public render (chartOptions, visibleAggI, agg, aggVisible: boolean, aggregateGroup, chartComponentData, yExtent,  
-        chartHeight, visibleAggCount, colorMap, previousAggregateData, x, areaPath, strokeOpacity, y, yMap, defs, chartDataOptions, previousIncludeDots) {
+        chartHeight, visibleAggCount, colorMap, previousAggregateData, x, areaPath, strokeOpacity, y, yMap, defs, 
+        chartDataOptions, previousIncludeDots, yTopAndHeight, chartGroup, categoricalMouseover) {
         this.chartOptions = chartOptions;
+        this.yTopAndHeight = yTopAndHeight;
         this.x = x;
         this.chartComponentData = chartComponentData;
-        this.defs = defs;
         let aggKey = agg.aggKey;
         this.chartDataOptions = chartDataOptions;
+        this.chartHeight = chartHeight;
+        this.chartGroup = chartGroup;
+        this.categoricalMouseover = categoricalMouseover;
+        this.aggregateGroup = aggregateGroup;
+        
+        this.createBackdropRect();
+        if (this.aggregateGroup.selectAll('defs').empty()) {
+            this.defs = this.aggregateGroup.append('defs');
+        }
+        if (this.aggregateGroup.selectAll('tsi-splitBysGroup').empty()) {
+            this.splitBysGroup = this.aggregateGroup.append('g').classed('tsi-splitBysGroup', true);
+        }
 
         let gradientData = [];
         
@@ -61,14 +129,16 @@ class CategoricalPlot extends Plot {
             return (self.chartOptions.noAnimate || previousUndefined) ? 0 : self.TRANSDURATION
         }
 
-        let self = this;        
+        let self = this;    
+        this.createHoverRect(); 
+
         let series: Array<string> = Object.keys(this.chartComponentData.timeArrays[aggKey]).filter((s) => {
             return self.chartComponentData.isSplitByVisible(aggKey, s);
         });
 
         let heightPerSeries = Math.max((self.chartDataOptions.height - (series.length * TOPMARGIN))/ series.length, 0);
 
-        let splitByGroups = aggregateGroup.selectAll(".tsi-splitByGroup")
+        let splitByGroups = this.splitBysGroup.selectAll(".tsi-splitByGroup")
             .data(series, (d) => {
                 return d.splitBy;
             });
@@ -103,6 +173,17 @@ class CategoricalPlot extends Plot {
                     .style("visibility", (d: any) => { 
                         return (self.chartComponentData.isSplitByVisible(aggKey, splitBy)) ? "visible" : "hidden";
                     })
+                    .on('mouseover', (d: any, i) => {
+                        let y = self.yTopAndHeight[0] + (j * (self.chartDataOptions.height / series.length));
+                        let x = self.x(new Date(d.dateTime)) + (getWidth(d, i));
+                        let shouldMouseover = self.categoricalMouseover(d, x, y);
+                        if (shouldMouseover) {
+                            self.onMouseover(d, getWidth(d, i));
+                        }
+                    })
+                    .on('mouseout', () => {
+                        self.onMouseout();
+                    })
                     .transition()
                     .duration(durationFunction)
                     .ease(d3.easeExp)
@@ -122,7 +203,7 @@ class CategoricalPlot extends Plot {
             splitByGroups.exit().remove();
         
         //corresponding linear gradients
-        let gradients = aggregateGroup.selectAll('linearGradient')
+        let gradients = this.defs.selectAll('linearGradient')
                         .data(gradientData, (d) => {
                             return d[1].splitBy;
                         });

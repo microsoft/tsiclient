@@ -173,6 +173,7 @@ class LineChart extends TemporalXAxisComponent {
     }   
     
     private tooltipFormat (d, text) {
+        let dataType = this.getDataType(d);
         var title = d.aggregateName;   
         
         text.append("div")
@@ -197,7 +198,8 @@ class LineChart extends TemporalXAxisComponent {
         Object.keys(d.measures).forEach((measureType, i) => {
             valueGroup.append("div")
                 .attr("class",  () => {
-                    return "value" + (measureType == this.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy) ? 
+                    return "value" + 
+                    (dataType === 'numeric' && (measureType === this.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy)) ? 
                                     " visibleValue" : "");
                 })
                 .text(measureType + ": " + Utils.formatYAxisNumber(d.measures[measureType]));
@@ -222,6 +224,28 @@ class LineChart extends TemporalXAxisComponent {
 
         this.focusedAggKey = aggKey;
         this.focusedSplitby = splitBy;
+    }
+
+    //returns false if supressed via isDroppingScooter, true otherwise
+    private categoricalMouseover = (d, x, y) => {
+        if (this.isDroppingScooter) {
+            return false;
+        }
+        let xPos = x;
+        let yPos = y + this.chartMargins.top;
+
+        let yValue = this.getValueOfVisible(d);
+
+        if (this.chartOptions.tooltip){
+            this.tooltip.render(this.chartOptions.theme);
+            this.tooltip.draw(d, this.chartComponentData, xPos, y, this.chartMargins, (text) => {
+                this.tooltipFormat(d, text);
+            });
+        }
+        else 
+            this.tooltip.hide();
+
+        return true;
     }
 
     private voronoiMouseover = (d: any) => {
@@ -610,10 +634,16 @@ class LineChart extends TemporalXAxisComponent {
         return Math.round(yScale(this.getValueOfVisible(d)) - this.chartOptions.aggTopMargin) + "px";
     }
 
+    private getDataType (d) {
+        return this.chartComponentData.displayState[d.aggregateKey].dataType;
+    } 
+
     private setScooterLabels (scooter, includeTransition = false) {
         var millis = this.scooterGuidMap[scooter.datum()];
         var values = this.chartComponentData.timeMap[millis] != undefined ? this.chartComponentData.timeMap[millis] : [];
-        values = values.filter((d) => this.getValueOfVisible(d) != null );
+        values = values.filter((d) => {
+            return (this.getValueOfVisible(d) !== null) && this.getDataType(d) === 'numeric'; 
+        });
         var self = this;
 
         var valueLabels = scooter.selectAll(".tsi-scooterValue").data(values, (d) => {
@@ -1566,7 +1596,7 @@ class LineChart extends TemporalXAxisComponent {
 
                             self.plotComponents[aggKey].render(self.chartOptions, visibleNumericI, agg, true, d3.select(this), self.chartComponentData, yExtent, 
                                 self.chartHeight, self.visibleAggCount, self.colorMap, self.previousAggregateData, 
-                                self.x, self.areaPath, self.strokeOpacity, self.y, self.yMap, defs, visibleCDOs[i], self.previousIncludeDots, offsetsAndHeights[i]);
+                                self.x, self.areaPath, self.strokeOpacity, self.y, self.yMap, defs, visibleCDOs[i], self.previousIncludeDots, offsetsAndHeights[i], g, self.categoricalMouseover);
                             
                             //increment index of visible numerics if appropriate
                             visibleNumericI += (visibleCDOs[i].dataType === 'numeric' ? 1 : 0);
