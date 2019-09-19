@@ -88,8 +88,14 @@ class Utils {
 
     static bucketSizeToTsqInterval (bucketSize: string) {
         let bucketSizeInMillis = Utils.parseTimeInput(bucketSize);
+        let padLeadingZeroes = (number) => {
+            let numberAsString = String(number);
+            if(numberAsString.length < 3) 
+                numberAsString = (numberAsString.length === 2 ? '0' : '00') + numberAsString;
+            return numberAsString
+        }
         if (bucketSizeInMillis < 1000) {
-            bucketSize = (bucketSize.toLowerCase().indexOf('d') !== -1) ? 'd.' : '.' + bucketSizeInMillis + "s"; 
+            bucketSize = (bucketSize.toLowerCase().indexOf('d') !== -1) ? 'd.' : '.' + padLeadingZeroes(bucketSizeInMillis) + "s"; 
         }
         let prefix = bucketSize.toLowerCase().indexOf('d') !== -1 ? 'P' : 'PT';
         return (prefix + bucketSize).toUpperCase();
