@@ -16,6 +16,7 @@ class CategoricalPlot extends Plot {
     private chartHeight;
     private chartGroup;
     private categoricalMouseover;
+    private categoricalMouseout;
     private yTopAndHeight;
     private aggregateGroup;
     private splitBysGroup;
@@ -61,9 +62,6 @@ class CategoricalPlot extends Plot {
 
     private onMouseover (d, rectWidth) {
         let visibleMeasures = this.getVisibleMeasures(d.measures)
-        if (!(visibleMeasures.length === 1)) {
-            return;
-        }
 
         this.hoverRect.attr('visibility', 'visible')
             .attr('x', () => {
@@ -71,12 +69,13 @@ class CategoricalPlot extends Plot {
             })
             .attr('width', rectWidth)
             .attr('fill', () => {
-                return this.getColorForValue(visibleMeasures[0])
+                return visibleMeasures.length === 1 ? this.getColorForValue(visibleMeasures[0]) : 'none'
             });
     }
 
     private onMouseout () {
         this.hoverRect.attr('visibility', 'hidden');
+        this.categoricalMouseout();
     }
 
     private createHoverRect () {
@@ -84,7 +83,7 @@ class CategoricalPlot extends Plot {
             this.hoverRect = this.chartGroup.append('rect')
                 .attr('class', 'tsi-categoricalHoverRect')
                 .attr('y', 0)
-                .attr('height', this.chartHeight)
+                .attr('height', this.chartHeight + 1)
         }
     }
 
@@ -100,9 +99,25 @@ class CategoricalPlot extends Plot {
             .attr('height', this.yTopAndHeight[1]);
     }
 
+    private getSeriesEndDate () {
+        if (this.chartDataOptions.searchSpan) {
+            return new Date(this.chartDataOptions.searchSpan.to);
+        }
+        return new Date(this.chartComponentData.toMillis);
+    }
+
+    private getBucketEndDate (d, i) {
+        let data = this.chartComponentData.timeArrays[d.aggregateKey][d.splitBy];
+        if (i + 1 < data.length) {
+            return data[i+1].dateTime; 
+        } else {
+            return this.getSeriesEndDate();
+        }
+    }
+
     public render (chartOptions, visibleAggI, agg, aggVisible: boolean, aggregateGroup, chartComponentData, yExtent,  
         chartHeight, visibleAggCount, colorMap, previousAggregateData, x, areaPath, strokeOpacity, y, yMap, defs, 
-        chartDataOptions, previousIncludeDots, yTopAndHeight, chartGroup, categoricalMouseover) {
+        chartDataOptions, previousIncludeDots, yTopAndHeight, chartGroup, categoricalMouseover, categoricalMouseout) {
         this.chartOptions = chartOptions;
         this.yTopAndHeight = yTopAndHeight;
         this.x = x;
@@ -113,6 +128,7 @@ class CategoricalPlot extends Plot {
         this.chartGroup = chartGroup;
         this.categoricalMouseover = categoricalMouseover;
         this.aggregateGroup = aggregateGroup;
+        this.categoricalMouseout = categoricalMouseout;
         
         this.createBackdropRect();
         if (this.aggregateGroup.selectAll('defs').empty()) {
@@ -157,12 +173,7 @@ class CategoricalPlot extends Plot {
                 var getWidth = (d, i) => {
                     let seriesWidth = self.x.range()[1] - self.x.range()[0];
                     var xPos1 = Math.max(Math.min(self.x(new Date(d.dateTime)), seriesWidth), 0);
-                    var xPos2;
-                    if (i + 1 < data.length) {
-                        xPos2 = Math.max(Math.min(self.x(new Date(data[i+1].dateTime)), seriesWidth), 0); 
-                    } else {
-                        xPos2 = seriesWidth;
-                    }
+                    var xPos2 = self.x(self.getBucketEndDate(d, i));
                     return xPos2 - xPos1;
                 }	
 
@@ -176,7 +187,8 @@ class CategoricalPlot extends Plot {
                     .on('mouseover', (d: any, i) => {
                         let y = self.yTopAndHeight[0] + (j * (self.chartDataOptions.height / series.length));
                         let x = self.x(new Date(d.dateTime)) + (getWidth(d, i));
-                        let shouldMouseover = self.categoricalMouseover(d, x, y);
+
+                        let shouldMouseover = self.categoricalMouseover(d, x, y + NONNUMERICTOPMARGIN, self.getBucketEndDate(d, i), getWidth(d, i));
                         if (shouldMouseover) {
                             self.onMouseover(d, getWidth(d, i));
                         }

@@ -18,6 +18,10 @@
     }
 
     .tsi-lineChartSVG{
+
+        .tsi-categoricalHoverRect {
+            stroke: $gray1;
+        }
         text{
             fill: $gray1;
         }
@@ -259,6 +263,8 @@
         .tsi-categoricalHoverRect {
             pointer-events: none;
             fill-opacity: .3;
+            stroke-opacity: .5;
+            stroke-width: 1px;
         }
 
         .tsi-backdropRect {

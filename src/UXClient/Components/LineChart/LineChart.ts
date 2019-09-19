@@ -173,9 +173,14 @@ class LineChart extends TemporalXAxisComponent {
     }   
     
     private tooltipFormat (d, text) {
-        let dataType = this.getDataType(d);
+        let dataType = this.getDataType(d.aggregateKey);
         var title = d.aggregateName;   
-        
+
+        let formatDate = (date) => {
+            return Utils.timeFormat(this.chartComponentData.usesSeconds, this.chartComponentData.usesMillis, 
+                this.chartOptions.offset, this.chartOptions.is24HourTime, shiftMillis, null, this.chartOptions.dateLocale)(date);
+        }
+
         text.append("div")
             .attr("class", "title")
             .text(d.aggregateName);
@@ -185,6 +190,13 @@ class LineChart extends TemporalXAxisComponent {
                 .attr("class", "value")
                 .text(d.splitBy);
         }
+
+        if (dataType === 'categorical') {
+            text.append('div')
+                .attr('class', 'value')
+                .text(formatDate(d.dateTime) + ' - ' + formatDate(d.endDate));
+        }
+
 
         let shiftMillis = this.chartComponentData.getTemporalShiftMillis(d.aggregateKey);
 
@@ -227,7 +239,7 @@ class LineChart extends TemporalXAxisComponent {
     }
 
     //returns false if supressed via isDroppingScooter, true otherwise
-    private categoricalMouseover = (d, x, y) => {
+    private categoricalMouseover = (d, x, y, endDate, width) => {
         if (this.isDroppingScooter) {
             return false;
         }
@@ -239,13 +251,17 @@ class LineChart extends TemporalXAxisComponent {
         if (this.chartOptions.tooltip){
             this.tooltip.render(this.chartOptions.theme);
             this.tooltip.draw(d, this.chartComponentData, xPos, y, this.chartMargins, (text) => {
+                d.endDate = endDate;
                 this.tooltipFormat(d, text);
-            });
+            }, width, 0, 0);
         }
         else 
             this.tooltip.hide();
-
         return true;
+    }
+
+    private categoricalMouseout = () => {
+        this.tooltip.hide();
     }
 
     private voronoiMouseover = (d: any) => {
@@ -420,6 +436,9 @@ class LineChart extends TemporalXAxisComponent {
     }
 
     public unstickySeries = (aggKey, splitby = null) => {
+        if (this.getDataType(aggKey) !== 'numeric') {
+            return;
+        }
         this.chartComponentData.stickiedKey = null;
         (<any>this.legendObject.legendElement.selectAll('.tsi-splitByLabel')).classed("stickied", false);
         // recompute voronoi with no sticky
@@ -428,6 +447,9 @@ class LineChart extends TemporalXAxisComponent {
     }
 
     private stickySeries = (aggregateKey: string, splitBy: string = null) => {
+        if (this.getDataType(aggregateKey) !== 'numeric') {
+            return;
+        }
         var filteredValues = this.getFilteredAndSticky(this.chartComponentData.allValues);
         if (filteredValues == null || filteredValues.length == 0)
             return;
@@ -634,15 +656,15 @@ class LineChart extends TemporalXAxisComponent {
         return Math.round(yScale(this.getValueOfVisible(d)) - this.chartOptions.aggTopMargin) + "px";
     }
 
-    private getDataType (d) {
-        return this.chartComponentData.displayState[d.aggregateKey].dataType;
+    private getDataType (aggKey) {
+        return this.chartComponentData.displayState[aggKey].dataType;
     } 
 
     private setScooterLabels (scooter, includeTransition = false) {
         var millis = this.scooterGuidMap[scooter.datum()];
         var values = this.chartComponentData.timeMap[millis] != undefined ? this.chartComponentData.timeMap[millis] : [];
         values = values.filter((d) => {
-            return (this.getValueOfVisible(d) !== null) && this.getDataType(d) === 'numeric'; 
+            return (this.getValueOfVisible(d) !== null) && this.getDataType(d.aggregateKey) === 'numeric'; 
         });
         var self = this;
 
@@ -1596,7 +1618,8 @@ class LineChart extends TemporalXAxisComponent {
 
                             self.plotComponents[aggKey].render(self.chartOptions, visibleNumericI, agg, true, d3.select(this), self.chartComponentData, yExtent, 
                                 self.chartHeight, self.visibleAggCount, self.colorMap, self.previousAggregateData, 
-                                self.x, self.areaPath, self.strokeOpacity, self.y, self.yMap, defs, visibleCDOs[i], self.previousIncludeDots, offsetsAndHeights[i], g, self.categoricalMouseover);
+                                self.x, self.areaPath, self.strokeOpacity, self.y, self.yMap, defs, visibleCDOs[i], self.previousIncludeDots, offsetsAndHeights[i], 
+                                g, self.categoricalMouseover, self.categoricalMouseout);
                             
                             //increment index of visible numerics if appropriate
                             visibleNumericI += (visibleCDOs[i].dataType === 'numeric' ? 1 : 0);
@@ -1625,6 +1648,9 @@ class LineChart extends TemporalXAxisComponent {
                     .on("mouseover", function () {
                         if (!self.isDroppingScooter) {
                             self.svgSelection.selectAll(".valueElement")
+                                .filter(function () {
+                                    return !d3.select(this).classed('tsi-categoricalBucket');
+                                })
                                 .attr("stroke-opacity", self.nonFocusStrokeOpactiy)
                                 .attr("fill-opacity", .3);
                             self.svgSelection.selectAll(".valueEnvelope")
