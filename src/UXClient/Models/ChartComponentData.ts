@@ -476,7 +476,7 @@ class ChartComponentData {
                 var splitByString = this.displayState[aggKey].name;
                 if (splitByObject !== undefined && splitByObject !== null) {
                     splitByString += "/" + splitByObject.property + "/" + splitBy;
-                } else {
+                } else if (splitBy !== ''){
                     splitByString += '/' + splitBy;
                 }
 
