@@ -30,10 +30,7 @@ class CategoricalPlot extends Plot {
     }
 
     private getColorForValue (value) {
-        if (this.chartDataOptions.valueMapping && (this.chartDataOptions.valueMapping[value] !== undefined)) {
-            return this.chartDataOptions.valueMapping[value].color;
-        }
-        return null;
+        return Utils.getColorForValue(this.chartDataOptions, value);
     }
 
     private addGradientStops (d, gradient) {
@@ -115,6 +112,10 @@ class CategoricalPlot extends Plot {
         }
     }
 
+    private hasData (d) {
+        return d.measures && (Object.keys(d.measures).length !== 0);
+    }
+
     public render (chartOptions, visibleAggI, agg, aggVisible: boolean, aggregateGroup, chartComponentData, yExtent,  
         chartHeight, visibleAggCount, colorMap, previousAggregateData, x, areaPath, strokeOpacity, y, yMap, defs, 
         chartDataOptions, previousIncludeDots, yTopAndHeight, chartGroup, categoricalMouseover, categoricalMouseout) {
@@ -182,7 +183,7 @@ class CategoricalPlot extends Plot {
                     .attr("class", "valueElement valueRect tsi-categoricalBucket")
                     .merge(categoricalBuckets)
                     .style("visibility", (d: any) => { 
-                        return (self.chartComponentData.isSplitByVisible(aggKey, splitBy)) ? "visible" : "hidden";
+                        return (self.chartComponentData.isSplitByVisible(aggKey, splitBy) && self.hasData(d)) ? "visible" : "hidden";
                     })
                     .on('mouseover', (d: any, i) => {
                         let y = self.yTopAndHeight[0] + (j * (self.chartDataOptions.height / series.length));

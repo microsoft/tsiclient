@@ -40,6 +40,11 @@
         white-space: nowrap;
     }
 
+    .value {
+        display: flex;
+        align-items: center;
+    }
+
     .title {
         font-weight: bold;
         font-size: 13px;
@@ -51,6 +56,13 @@
         &.visibleValue {
             font-weight: bold;
         }
+    }
+
+    .tsi-tooltipColorBlock {
+        width: 12px;
+        height: 12px;
+        display: inline-block;
+        margin-right: 8px;
     }
 
     .temporalShiftText {

@@ -105,6 +105,13 @@ class Utils {
         return encodeURIComponent(aggName).split(".").join("_") + "_" + aggIndex;
     }
 
+    static getColorForValue (chartDataOptions, value) {
+        if (chartDataOptions.valueMapping && (chartDataOptions.valueMapping[value] !== undefined)) {
+            return chartDataOptions.valueMapping[value].color;
+        }
+        return null;
+    }
+
     static rollUpContiguous (data) {
         let areEquivalentBuckets = (d1, d2) => {
             if (Object.keys(d1.measures).length !== Object.keys(d1.measures).length) {

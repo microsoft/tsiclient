@@ -171,10 +171,21 @@ class LineChart extends TemporalXAxisComponent {
     private destroyMarkerInstructions () {
         this.targetElement.selectAll(".tsi-markerInstructions").remove();
     }   
+
+    private getCDOFromAggKey (aggKey) {
+        let matches = this.aggregateExpressionOptions.filter((cDO) => {
+            return cDO.aggKey === aggKey;
+        });
+        if (matches.length === 1) {
+            return matches[0];
+        }
+        return {};
+    }
     
     private tooltipFormat (d, text) {
         let dataType = this.getDataType(d.aggregateKey);
         var title = d.aggregateName;   
+        let cDO = this.getCDOFromAggKey(d.aggregateKey);
 
         let formatDate = (date) => {
             return Utils.timeFormat(this.chartComponentData.usesSeconds, this.chartComponentData.usesMillis, 
@@ -208,13 +219,19 @@ class LineChart extends TemporalXAxisComponent {
 
         let valueGroup = text.append('div').classed('valueGroup', true);
         Object.keys(d.measures).forEach((measureType, i) => {
-            valueGroup.append("div")
+            let valueElement = valueGroup.append("div")
                 .attr("class",  () => {
                     return "value" + 
                     (dataType === 'numeric' && (measureType === this.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy)) ? 
                                     " visibleValue" : "");
-                })
-                .text(measureType + ": " + Utils.formatYAxisNumber(d.measures[measureType]));
+                });
+            if (dataType === 'categorical') {
+                valueElement.append('span')
+                    .classed('tsi-tooltipColorBlock', true)
+                    .style('background-color', Utils.getColorForValue(cDO, measureType));
+            }
+            valueElement.append('span')
+                .text(measureType +  ": " + Utils.formatYAxisNumber(d.measures[measureType]));
         });
     }
     public triggerLineFocus = (aggKey: string, splitBy: string) => {
