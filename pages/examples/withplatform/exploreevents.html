@@ -48,7 +48,7 @@
                         name: "Zoom",
                         action: (from, to) => {
                             getResults(new Date(from), new Date(to));
-                            availabilityChart.setBrush(from, to);
+                            availabilityChart.setBrush(new Date(from), new Date(to));
                         }
                     },
                     {  
@@ -81,7 +81,6 @@
                 
                 // get results from server and render them in a line chart
                 var getResults = (from, to, bs) => {
-                    debugger;
                     if(from && to && !bs){
                         var newBucketSizes = getValidBucketSizes(from.valueOf(), to.valueOf());
                         var newBucketSize = getNewBucketSize(validBucketSizes, newBucketSizes, bucketSize);
