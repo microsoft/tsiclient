@@ -26,7 +26,7 @@ class CategoricalPlot extends Plot {
     }
 
     private createGradientKey (d, splitByIndex, i) {
-        return d.aggregateKey + '_' + splitByIndex + '_' + i;
+        return unescape(d.aggregateKey).split(" ").join("_") + '_' + splitByIndex + '_' + i;
     }
 
     private getColorForValue (value) {
@@ -34,9 +34,19 @@ class CategoricalPlot extends Plot {
     }
 
     private addGradientStops (d, gradient) {
+
+        gradient.selectAll('stop').remove();
+
         let colorMap = this.chartDataOptions.valueMap;
+        let sumOfMeasures = Object.keys(d.measures).reduce((p, currMeasure) => {
+            return p + d.measures[currMeasure];
+        }, 0);
+        if (sumOfMeasures <= 0) {
+            return;
+        }
+
         Object.keys(d.measures).reduce((p, currMeasure) => {
-            let currFraction = d.measures[currMeasure];
+            let currFraction = d.measures[currMeasure] / sumOfMeasures;
             gradient.append('stop')
                 .attr("offset", (p * 100) + "%")
                 .attr("stop-color", this.getColorForValue(currMeasure))
@@ -135,7 +145,7 @@ class CategoricalPlot extends Plot {
         if (this.aggregateGroup.selectAll('defs').empty()) {
             this.defs = this.aggregateGroup.append('defs');
         }
-        if (this.aggregateGroup.selectAll('tsi-splitBysGroup').empty()) {
+        if (this.aggregateGroup.selectAll('.tsi-splitBysGroup').empty()) {
             this.splitBysGroup = this.aggregateGroup.append('g').classed('tsi-splitBysGroup', true);
         }
 
