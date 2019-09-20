@@ -260,6 +260,8 @@ class LineChart extends TemporalXAxisComponent {
         if (this.isDroppingScooter) {
             return false;
         }
+        this.legendObject.triggerSplitByFocus(d.aggregateKey, d.splitBy);
+
         let xPos = x;
         let yPos = y + this.chartMargins.top;
 

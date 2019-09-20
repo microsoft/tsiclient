@@ -19,7 +19,7 @@
                 for(var i = 0; i < 3; i++){
                     var lines = {};
                     data.push({[`Factory${i}`]: lines});
-                    for(var j = 0; j < 5; j++){
+                    for(var j = 0; j < 150; j++){
                         var values = {};
                         lines[`Station${j}`] = values;
                         for(var k = 0; k < 60; k++){
@@ -40,7 +40,10 @@
                                 var val2 = (1 - val1) / 2;
                                 var val3 = (1 - val1) / 2;
                                 var to = new Date(from.valueOf() + 1000*60*k);
-                                values[to.toISOString()] = {state1: val1, state2: val2, state3: val3};
+                                if(Math.random() < .2)
+                                    values[to.toISOString()] = {state1: val1, state2: val2, state3: val3};
+                                else
+                                    values[to.toISOString()] = null;
                             }
                         } 
                     }
@@ -48,12 +51,12 @@
 
                 var lines = {};
                 data.push({[`Factory3`]: lines});
-                for(var j = 0; j < 3; j++){
+                for(var j = 0; j < 1; j++){
                     var values = {};
-                    lines[`Station${j}`] = values;
+                    lines[``] = values;
                     for(var k = 0; k < 59; k++){
-                        var val1 = 1; 
-                        var val2 = 0;
+                        var val1 = Math.random(); 
+                        var val2 = 1- val1;
                         var val3 = 0;
                         if (j === 1) {
                             val1 = 0;
@@ -67,11 +70,11 @@
                         }
                         let previousTo = to;
                         var toLocal = new Date(from.valueOf() + 1000*60*k);
-                        if (k === 0 || k === 40) {
+                        // if (k === 0 || k === 40) {
                             values[toLocal.toISOString()] = {state1: val1, state2: val2, state3: val3};
-                        } else if (k === 20){
-                            values[toLocal.toISOString()] = null;
-                        }
+                        // } else if (k === 20){
+                            // values[toLocal.toISOString()] = null;
+                        // }
 
                     } 
                 }
@@ -89,13 +92,13 @@
                 var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart1'));
                 let valueMapping = {
                     state1: {
-                        color: 'darkgray'
+                        color: '#F2C80F'
                     }, 
                     state2: {
-                        color: 'blue'
+                        color: '#FD625E'
                     },
                     state3: {
-                        color:'lightgray'
+                        color:'#3599B8'
                     }
                 }
                 lineChart.render(data, {theme: 'light', tooltip: 'true'}, [{dataType: 'numeric', searchSpan: searchSpan}, {dataType: 'categorical', valueMapping: valueMapping, height: 100}, {dataType: 'numeric', searchSpan: searchSpan}, {dataType: 'categorical', valueMapping: valueMapping, height: 50}]);
