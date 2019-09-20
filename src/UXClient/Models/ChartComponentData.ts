@@ -474,8 +474,10 @@ class ChartComponentData {
             var splitByObject = this.displayState[aggKey].aggregateExpression.splitByObject;
             Object.keys(this.timeArrays[aggKey]).forEach((splitBy) => {
                 var splitByString = this.displayState[aggKey].name;
-                if (splitByObject != null) {
+                if (splitByObject !== undefined && splitByObject !== null) {
                     splitByString += "/" + splitByObject.property + "/" + splitBy;
+                } else {
+                    splitByString += '/' + splitBy;
                 }
 
                 let types = spMeasures ? spMeasures : this.displayState[aggKey].splitBys[splitBy].types;
