@@ -20,6 +20,7 @@ class CategoricalPlot extends Plot {
     private yTopAndHeight;
     private aggregateGroup;
     private splitBysGroup;
+    private backdropRect = null;
 
     constructor (svgSelection) {
         super(svgSelection)
@@ -38,6 +39,9 @@ class CategoricalPlot extends Plot {
         gradient.selectAll('stop').remove();
 
         let colorMap = this.chartDataOptions.valueMap;
+        if (!d.measures) {
+            return;
+        }
         let sumOfMeasures = Object.keys(d.measures).reduce((p, currMeasure) => {
             return p + d.measures[currMeasure];
         }, 0);
@@ -51,7 +55,7 @@ class CategoricalPlot extends Plot {
                 .attr("offset", (p * 100) + "%")
                 .attr("stop-color", this.getColorForValue(currMeasure))
                 .attr("stop-opacity", 1);
-            let newFraction = p + currFraction; 
+            let newFraction = p + currFraction;
 
             gradient.append('stop')
                 .attr("offset", (newFraction * 100) + "%")
@@ -75,6 +79,7 @@ class CategoricalPlot extends Plot {
                 return this.x(new Date(d.dateTime))
             })
             .attr('width', rectWidth)
+            .attr('height', this.chartHeight + 1)
             .attr('fill', () => {
                 return visibleMeasures.length === 1 ? this.getColorForValue(visibleMeasures[0]) : 'none'
             });
@@ -95,13 +100,13 @@ class CategoricalPlot extends Plot {
     }
 
     private createBackdropRect () {
-        this.aggregateGroup.selectAll('.tsi-backdropRect')
-            .remove();
-
-        this.aggregateGroup.append('rect')
-            .attr('class', 'tsi-backdropRect')
-            .attr('x', 0)
-            .attr('y', 0)
+        if (this.backdropRect === null) {
+            this.backdropRect = this.aggregateGroup.append('rect')
+                .attr('class', 'tsi-backdropRect')
+                .attr('x', 0)
+                .attr('y', 0);
+        }
+        this.backdropRect
             .attr('width', this.x.range()[1])
             .attr('height', this.yTopAndHeight[1]);
     }
@@ -118,7 +123,8 @@ class CategoricalPlot extends Plot {
         if (i + 1 < data.length) {
             return data[i+1].dateTime; 
         } else {
-            return this.getSeriesEndDate();
+            let shouldRoundEnd = Utils.safeNotNullOrUndefined(() => this.chartDataOptions.searchSpan) && Utils.safeNotNullOrUndefined(() => this.chartDataOptions.searchSpan.bucketSize);
+            return shouldRoundEnd ? Utils.roundToMillis(this.getSeriesEndDate().valueOf(), Utils.parseTimeInput(this.chartDataOptions.searchSpan.bucketSize)) : this.getSeriesEndDate();        
         }
     }
 

@@ -813,8 +813,15 @@ class LineChart extends TemporalXAxisComponent {
         }     
     } 
 
+    private voronoiExists (): boolean {
+        if (this.getVisibleNumerics() === 0) {
+            return false;
+        }
+        return true;
+    }
+
     private voronoiMousemove (mouseEvent) {
-        if (!this.filteredValueExist()) return;
+        if (!this.filteredValueExist() || !this.voronoiExists()) return;
         this.mx = mouseEvent[0];
         this.my = mouseEvent[1];
         const [mx, my] = mouseEvent;
@@ -862,7 +869,7 @@ class LineChart extends TemporalXAxisComponent {
     } 
 
     private voronoiContextMenu (mouseEvent) {
-        if (!this.filteredValueExist()) return;
+        if (!this.filteredValueExist() || !this.voronoiExists()) return;
         const [mx, my] = d3.mouse(mouseEvent);
         const site: any = this.voronoiDiagram.find(mx, my);
         if (this.chartComponentData.displayState[site.data.aggregateKey].contextMenuActions && 
@@ -890,7 +897,7 @@ class LineChart extends TemporalXAxisComponent {
     }
 
     private voronoiClick (mouseEvent) {
-        if (!this.filteredValueExist()) return;
+        if (!this.filteredValueExist() || !this.voronoiExists()) return;
         if (this.brushElem && !this.isDroppingScooter) return;
         const [mx, my] = d3.mouse(mouseEvent);
         var site: any = this.voronoiDiagram.find(mx, my);
@@ -1221,6 +1228,14 @@ class LineChart extends TemporalXAxisComponent {
         if (this.brushContextMenu) {
             this.brushContextMenu.hide();
         }
+    }
+
+    private getVisibleNumerics () {
+        let visibleGroups = this.chartComponentData.data.filter((agg) => this.chartComponentData.displayState[agg.aggKey]["visible"]);
+        let visibleCDOs = this.aggregateExpressionOptions.filter((cDO) => this.chartComponentData.displayState[cDO.aggKey]["visible"]);
+        return visibleGroups.filter((aggKey, i) => {
+            return visibleCDOs[i].dataType === 'numeric';
+        }).length;
     }
 
     //returns an array of tuples of y offset and height for each 
@@ -1677,7 +1692,7 @@ class LineChart extends TemporalXAxisComponent {
                         }
                     })
                     .on("mouseout", function (d)  {
-                        if (!self.filteredValueExist()) return;
+                        if (!self.filteredValueExist() || !self.voronoiExists()) return;
                         const [mx, my] = d3.mouse(this);
                         const site = self.voronoiDiagram.find(mx, my);
                         self.voronoiMouseout(site.data); 

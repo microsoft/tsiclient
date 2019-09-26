@@ -82,7 +82,7 @@
                 to = new Date(from.valueOf() + 1000*60*60);
                 let searchSpan = {
                     from: from.toISOString(),
-                    to: to.toISOString(),
+                    to: new Date(to.valueOf() - 30 * 1000).toISOString(),
                     bucketSize: '1m'
                 }
 
@@ -101,7 +101,7 @@
                         color:'#3599B8'
                     }
                 }
-                lineChart.render(data, {theme: 'light', tooltip: 'true'}, [{dataType: 'numeric', searchSpan: searchSpan}, {dataType: 'categorical', valueMapping: valueMapping, height: 100}, {dataType: 'numeric', searchSpan: searchSpan}, {dataType: 'categorical', valueMapping: valueMapping, height: 50}]);
+                lineChart.render(data, {theme: 'light', tooltip: 'true'}, [{dataType: 'numeric', searchSpan: searchSpan}, {dataType: 'categorical', valueMapping: valueMapping, height: 100, searchSpan: searchSpan}, {dataType: 'numeric', searchSpan: searchSpan}, {dataType: 'categorical', valueMapping: valueMapping, height: 50, searchSpan: searchSpan}]);
             };
         </script>
     </body>

@@ -7,7 +7,7 @@ import { ChartOptions } from './Models/ChartOptions';
 import { AggregateExpression } from './Models/AggregateExpression';
 import { ChartComponentData } from './Models/ChartComponentData';
 
-export const NONNUMERICTOPMARGIN = 16;
+export const NONNUMERICTOPMARGIN = 8;
 
 // Linechart stack states
 enum StackStates {Stacked = "stacked", Shared = "shared", Overlap = "overlap" }
@@ -622,7 +622,11 @@ class Utils {
             return aggKey;
         });
     }
-    
+
+    static roundToMillis (rawTo, bucketSize) {
+        return Math.ceil((rawTo + 62135596800000) / (bucketSize)) * (bucketSize) - 62135596800000;
+    }
+
     static mergeSeriesForScatterPlot(chartData: any, scatterMeasures: any){
         let xMeasure = chartData[scatterMeasures.X_MEASURE], yMeasure = chartData[scatterMeasures.Y_MEASURE], rMeasure = chartData[scatterMeasures.R_MEASURE];
 
