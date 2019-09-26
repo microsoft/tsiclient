@@ -16,6 +16,10 @@
     <body style="font-family: 'Segoe UI', sans-serif; height: 100%; position: relative; overflow: hidden;">
 
         <div id="availability" style="width: 100%; height: 200px; margin-top: 40px;"></div>
+        <div id="intervalSliderWrapper" style="width: 300px; height: 40px; position: absolute; margin-top: -40px; font-size: 12px; margin-left: 50px;">
+            Interval Size
+            <div style="position: relative; top: 22px; left: 20px;" id="intervalSlider"></div>
+        </div>
         <div id="chart1" style="width: 100%; height: calc(100% - 240px);"></div>
         <div id="eventsWrapper" style="position: absolute; top: 0; right: 0; width: 80%; height: calc(100% - 40px); transform: translateX(100%); transition: .4s all ease; background: white; border: 1px solid silver; z-index: 10; box-shadow: -4px 0px 4px 0px rgba(0,0,0,0.2);">
             <div style="position: absolute; top: 8px; left: 20px;">Events</div>
@@ -43,8 +47,8 @@
                     {  
                         name: "Zoom",
                         action: (from, to) => {
-                            availabilityChart.setBrush(from, to);
-                            getResults(new Date(from), new Date(to))
+                            getResults(new Date(from), new Date(to));
+                            availabilityChart.setBrush(new Date(from), new Date(to));
                         }
                     },
                     {  
@@ -76,8 +80,17 @@
                 var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart1'));
                 
                 // get results from server and render them in a line chart
-                var getResults = (from, to) => {
-                    aggregateExpressions.forEach(ae => {ae.searchSpan.from = from; ae.searchSpan.to = to, ae.searchSpan.bucketSize = getDimensionAndIntegerForRangeAndBuckets(from, to, 100)})
+                var getResults = (from, to, bs) => {
+                    if(from && to && !bs){
+                        var newBucketSizes = getValidBucketSizes(from.valueOf(), to.valueOf());
+                        var newBucketSize = getNewBucketSize(validBucketSizes, newBucketSizes, bucketSize);
+                        aggregateExpressions.forEach(ae => {ae.searchSpan.from = from; ae.searchSpan.to = to, ae.searchSpan.bucketSize = newBucketSize});
+                        renderIntervalSlider(from, to, newBucketSizes, newBucketSize);
+                    }
+                    else{
+                        aggregateExpressions.forEach(ae => {ae.searchSpan.bucketSize = bs});
+                        bucketSize = bs;
+                    }
                     authContext.getTsiToken().then(function(token){
                         tsiClient.server.getAggregates(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com', aggregateExpressions.map(function(ae){return ae.toTsx()})).then(function(result){
                             var transformedResult = tsiClient.ux.transformAggregatesForVisualization(result, aggregateExpressions);
@@ -85,6 +98,17 @@
                         });
                     });
                 }
+
+                // interval slider
+                var intervalSlider = new tsiClient.ux.Slider(document.getElementById('intervalSlider'));
+                var renderIntervalSlider = (from, to, newValidBucketSizes, newBucketSize) => {
+                    validBucketSizes = newValidBucketSizes;
+                    bucketSize = newBucketSize;
+                    intervalSlider.render(validBucketSizes.map(n => ({label: n.toString(), action: () => getResults(null, null, n) })), {theme: 'light', throttleSlider: true}, 300, bucketSize);
+                }
+                var validBucketSizes = getValidBucketSizes(startDate.valueOf(), endDate.valueOf());
+                var bucketSize = getDimensionAndIntegerForRangeAndBuckets(startDate.valueOf(), endDate.valueOf(), 100);
+                renderIntervalSlider(startDate, endDate, validBucketSizes, bucketSize);
 
                 // get availability, then get results
                 authContext.getTsiToken().then(function(token){
@@ -170,6 +194,21 @@
 
             return validTimeIntervals[idx];
         }
+
+        var getValidBucketSizes = (fromMillis, toMillis) => {
+            let minIntAndDim = getDimensionAndIntegerForRangeAndBuckets(fromMillis, toMillis, 1000);
+            let maxIntAndDim = getDimensionAndIntegerForRangeAndBuckets(fromMillis, toMillis, 1);
+            let minIdx = validTimeIntervals.indexOf(minIntAndDim);
+            let maxIdx = validTimeIntervals.indexOf(maxIntAndDim);
+            return validTimeIntervals.slice(minIdx, maxIdx + 1);            
+        }
+
+        var getNewBucketSize = (oldValidBucketSizes, newValidBucketSizes, oldBucketSize) => {
+            let prevPercentile = (oldBucketSize && oldValidBucketSizes.indexOf(oldBucketSize) !== -1) ? (oldValidBucketSizes.indexOf(oldBucketSize)) / oldValidBucketSizes.length : .1;
+            let newBucketIndex = Math.max(Math.min(Math.round(prevPercentile * newValidBucketSizes.length), newValidBucketSizes.length - 1), 0);
+            return newValidBucketSizes[newBucketIndex];
+        }
+
         </script>
     </body>
 </html>
