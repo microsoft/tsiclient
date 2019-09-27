@@ -187,6 +187,8 @@ class LineChart extends TemporalXAxisComponent {
         var title = d.aggregateName;   
         let cDO = this.getCDOFromAggKey(d.aggregateKey);
 
+        let shiftMillis = this.chartComponentData.getTemporalShiftMillis(d.aggregateKey);
+
         let formatDate = (date) => {
             return Utils.timeFormat(this.chartComponentData.usesSeconds, this.chartComponentData.usesMillis, 
                 this.chartOptions.offset, this.chartOptions.is24HourTime, shiftMillis, null, this.chartOptions.dateLocale)(date);
@@ -207,9 +209,6 @@ class LineChart extends TemporalXAxisComponent {
                 .attr('class', 'value')
                 .text(formatDate(d.dateTime) + ' - ' + formatDate(d.endDate));
         }
-
-
-        let shiftMillis = this.chartComponentData.getTemporalShiftMillis(d.aggregateKey);
 
         if (shiftMillis !== 0) {
             text.append("div")
