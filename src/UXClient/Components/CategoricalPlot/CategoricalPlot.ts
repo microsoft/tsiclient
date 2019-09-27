@@ -5,19 +5,12 @@ import { Utils, NONNUMERICTOPMARGIN } from '../../Utils';
 const TOPMARGIN = 4;
 
 class CategoricalPlot extends Plot {
-
-    private height;
-    private x;
-    private chartComponentData;
     private TRANSDURATION = 500; //TO BE REMOVED
     private defs;
-    private chartDataOptions;
     private hoverRect;
-    private chartHeight;
     private chartGroup;
     private categoricalMouseover;
     private categoricalMouseout;
-    private yTopAndHeight;
     private aggregateGroup;
     private splitBysGroup;
     private backdropRect = null;
@@ -28,10 +21,6 @@ class CategoricalPlot extends Plot {
 
     private createGradientKey (d, splitByIndex, i) {
         return unescape(d.aggregateKey).split(" ").join("_") + '_' + splitByIndex + '_' + i;
-    }
-
-    private getColorForValue (value) {
-        return Utils.getColorForValue(this.chartDataOptions, value);
     }
 
     private addGradientStops (d, gradient) {
@@ -63,12 +52,6 @@ class CategoricalPlot extends Plot {
                 .attr("stop-opacity", 1);
             return newFraction; 
         }, 0);
-    }
-
-    private getVisibleMeasures (measures) {
-        return Object.keys(measures).filter((measure) => {
-            return measures[measure] !== 0;
-        });
     }
 
     private onMouseover (d, rectWidth) {
@@ -108,7 +91,7 @@ class CategoricalPlot extends Plot {
         }
         this.backdropRect
             .attr('width', this.x.range()[1])
-            .attr('height', this.yTopAndHeight[1]);
+            .attr('height', this.height);
     }
 
     private getSeriesEndDate () {
@@ -128,15 +111,12 @@ class CategoricalPlot extends Plot {
         }
     }
 
-    private hasData (d) {
-        return d.measures && (Object.keys(d.measures).length !== 0);
-    }
-
     public render (chartOptions, visibleAggI, agg, aggVisible: boolean, aggregateGroup, chartComponentData, yExtent,  
         chartHeight, visibleAggCount, colorMap, previousAggregateData, x, areaPath, strokeOpacity, y, yMap, defs, 
         chartDataOptions, previousIncludeDots, yTopAndHeight, chartGroup, categoricalMouseover, categoricalMouseout) {
         this.chartOptions = chartOptions;
-        this.yTopAndHeight = yTopAndHeight;
+        this.yTop = yTopAndHeight[0];
+        this.height = yTopAndHeight[1];
         this.x = x;
         this.chartComponentData = chartComponentData;
         let aggKey = agg.aggKey;
@@ -202,7 +182,7 @@ class CategoricalPlot extends Plot {
                         return (self.chartComponentData.isSplitByVisible(aggKey, splitBy) && self.hasData(d)) ? "visible" : "hidden";
                     })
                     .on('mouseover', (d: any, i) => {
-                        let y = self.yTopAndHeight[0] + (j * (self.chartDataOptions.height / series.length));
+                        let y = self.yTop + (j * (self.chartDataOptions.height / series.length));
                         let x = self.x(new Date(d.dateTime)) + (getWidth(d, i));
 
                         let shouldMouseover = self.categoricalMouseover(d, x, y + NONNUMERICTOPMARGIN, self.getBucketEndDate(d, i), getWidth(d, i));

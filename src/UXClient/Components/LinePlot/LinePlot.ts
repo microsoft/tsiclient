@@ -6,13 +6,9 @@ import { Utils } from '../../Utils';
 
 class LinePlot extends Plot {
     private defs;
-    private chartComponentData;
-    private chartHeight;
     private chartWidth;
     private y;
-    private x;
     private visibleAggCount;
-    private Utils = new Utils();
     private TRANSDURATION = 200; // HARDCODED remove
     private strokeOpacity;
     private previousIncludeDots;
@@ -44,6 +40,9 @@ class LinePlot extends Plot {
         this.y = y;
         this.areaPath = areaPath;
         let aggKey = agg.aggKey;
+
+        this.yTop = yTopAndHeight[0];
+        this.height = yTopAndHeight[1];
         
         let aggY;
         let aggLine;
@@ -85,10 +84,10 @@ class LinePlot extends Plot {
                         });
         } else {
             aggY = d3.scaleLinear();
-            overwriteYRange = [yTopAndHeight[0] + yTopAndHeight[1], yTopAndHeight[0] + this.chartOptions.aggTopMargin];
+            overwriteYRange = [this.yTop + this.height, this.yTop + this.chartOptions.aggTopMargin];
 
             aggY.range([(this.chartHeight / this.visibleAggCount), this.chartOptions.aggTopMargin]);
-            aggY.range([yTopAndHeight[1], this.chartOptions.aggTopMargin]);
+            aggY.range([this.height, this.chartOptions.aggTopMargin]);
 
             if (this.chartComponentData.aggHasVisibleSplitBys(aggKey)) {
                 var yRange = (yExtent[1] - yExtent[0]) > 0 ? yExtent[1] - yExtent[0] : 1;
