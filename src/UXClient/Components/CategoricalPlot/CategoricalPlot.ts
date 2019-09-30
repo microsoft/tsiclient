@@ -155,9 +155,9 @@ class CategoricalPlot extends Plot {
 
                 var getWidth = (d, i) => {
                     let seriesWidth = self.x.range()[1] - self.x.range()[0];
-                    var xPos1 = Math.max(Math.min(self.x(new Date(d.dateTime)), seriesWidth), 0);
+                    var xPos1 = Math.max(self.x(new Date(d.dateTime)), 0);
                     var xPos2 = self.x(self.getBucketEndDate(d, i));
-                    return xPos2 - xPos1;
+                    return Math.max(xPos2 - xPos1, 1);
                 }	
 
                 categoricalBuckets.enter()

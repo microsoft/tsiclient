@@ -13,6 +13,7 @@
         <script>
             window.onload = function() {
                 // create fake data in the shape our charts expect
+                let numberOfBuckets = 120;
                 var data = [];
                 var from = new Date(Math.floor((new Date()).valueOf() / (1000*60 * 60)) * (1000*60 * 60));
                 var to;
@@ -22,7 +23,7 @@
                     for(var j = 0; j < 150; j++){
                         var values = {};
                         lines[`Station${j}`] = values;
-                        for(var k = 0; k < 60; k++){
+                        for(var k = 0; k < numberOfBuckets; k++){
                             if (i % 2 === 0) {
                                 // if(!(k%2 && k%3)){  // if check is to create some sparseness in the data
                                     var to = new Date(from.valueOf() + 1000*60*k);
@@ -54,7 +55,7 @@
                 for(var j = 0; j < 1; j++){
                     var values = {};
                     lines[``] = values;
-                    for(var k = 0; k < 59; k++){
+                    for(var k = 0; k < numberOfBuckets; k++){
                         var val1 = Math.random(); 
                         var val2 = 1- val1;
                         var val3 = 0;
@@ -75,14 +76,14 @@
                         // } else if (k === 20){
                             // values[toLocal.toISOString()] = null;
                         // }
+                        to = toLocal;
 
                     } 
                 }
 
-                to = new Date(from.valueOf() + 1000*60*60);
                 let searchSpan = {
                     from: from.toISOString(),
-                    to: new Date(to.valueOf() - 30 * 1000).toISOString(),
+                    to: new Date(to.valueOf() + 45 * 1000).toISOString(),
                     bucketSize: '1m'
                 }
 
