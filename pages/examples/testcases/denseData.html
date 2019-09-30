@@ -14,7 +14,7 @@
                 
                 // create fake data in the shape our charts expect
                 var data = [];
-                var from = new Date();
+                var from = new Date(1569669120723);
                 var to;
                 for(var i = 0; i < 5; i++){
                     var lines = {};
@@ -22,7 +22,7 @@
                     for(var j = 0; j < 1; j++){
                         var values = {};
                         lines[`Station${j}`] = values;
-                        for(var k = 0; k < 1000; k++){
+                        for(var k = 0; k < 400; k++){
                             var to = new Date(from.valueOf() + 1000*60*k);
                             var val = Math.random();
                             var val2 = Math.random();
@@ -34,7 +34,7 @@
                 // render the data in a chart
                 var tsiClient = new TsiClient();
                 var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart1'));
-                lineChart.render(data, {includeDots: false, brushContextMenuActions: [{name: 'zoom', action: () => {}}]}, 
+                lineChart.render(data, {includeDots: false, offset: 'Pacific/Auckland', brushContextMenuActions: [{name: 'zoom', action: () => {}}]}, 
                 [{contextMenu: [{name: 'zoom', action: () => {}}]}]);
                 var scatterPlot = new tsiClient.ux.ScatterPlot(document.getElementById('chart2'));
                 scatterPlot.render(data, {spMeasures:['avg', 'other']});
