@@ -11,9 +11,7 @@ class CategoricalPlot extends Plot {
     private chartGroup;
     private categoricalMouseover;
     private categoricalMouseout;
-    private aggregateGroup;
     private splitBysGroup;
-    private backdropRect = null;
 
     constructor (svgSelection) {
         super(svgSelection)
@@ -80,18 +78,6 @@ class CategoricalPlot extends Plot {
                 .attr('y', 0)
                 .attr('height', this.chartHeight + 1)
         }
-    }
-
-    private createBackdropRect () {
-        if (this.backdropRect === null) {
-            this.backdropRect = this.aggregateGroup.append('rect')
-                .attr('class', 'tsi-backdropRect')
-                .attr('x', 0)
-                .attr('y', 0);
-        }
-        this.backdropRect
-            .attr('width', this.x.range()[1])
-            .attr('height', this.height);
     }
 
     private getSeriesEndDate () {

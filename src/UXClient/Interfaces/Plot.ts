@@ -8,11 +8,26 @@ class Plot extends Component {
     protected chartComponentData;
     protected yTop;
     protected height;
+    protected aggregateGroup;
+    protected backdropRect = null;
 
 
 	constructor(renderTarget: Element){
         super(renderTarget);
     }
+
+    protected createBackdropRect () {
+        if (this.backdropRect === null) {
+            this.backdropRect = this.aggregateGroup.append('rect')
+                .attr('class', 'tsi-backdropRect')
+                .attr('x', 0)
+                .attr('y', 0);
+        }
+        this.backdropRect
+            .attr('width', this.x.range()[1])
+            .attr('height', this.height);
+    }
+
 
     protected getColorForValue (value) {
         return Utils.getColorForValue(this.chartDataOptions, value);

@@ -4,22 +4,14 @@ import { Utils, NONNUMERICTOPMARGIN } from '../../Utils';
 
 const TOPMARGIN = 4;
 
-class CategoricalPlot extends Plot {
-    private x;
-    private chartHeight;
-
-    private height;
-    private chartComponentData;
+class EventsPlot extends Plot {
     private TRANSDURATION = 500; //TO BE REMOVED
     private defs;
     private hoverRect;
     private chartGroup;
     private categoricalMouseover;
     private categoricalMouseout;
-    private yTopAndHeight;
-    private aggregateGroup;
     private splitBysGroup;
-    private backdropRect = null;
 
     constructor (svgSelection) {
         super(svgSelection)
@@ -53,19 +45,6 @@ class CategoricalPlot extends Plot {
         }
     }
 
-    //common to categorical
-    private createBackdropRect () {
-        if (this.backdropRect === null) {
-            this.backdropRect = this.aggregateGroup.append('rect')
-                .attr('class', 'tsi-backdropRect')
-                .attr('x', 0)
-                .attr('y', 0);
-        }
-        this.backdropRect
-            .attr('width', this.x.range()[1])
-            .attr('height', this.yTopAndHeight[1]);
-    }
-
     public render (chartOptions, visibleAggI, agg, aggVisible: boolean, aggregateGroup, chartComponentData, yExtent,  
         chartHeight, visibleAggCount, colorMap, previousAggregateData, x, areaPath, strokeOpacity, y, yMap, defs, 
         chartDataOptions, previousIncludeDots, yTopAndHeight, chartGroup, categoricalMouseover, categoricalMouseout) {
@@ -81,7 +60,6 @@ class CategoricalPlot extends Plot {
         this.categoricalMouseover = categoricalMouseover;
         this.aggregateGroup = aggregateGroup;
         this.categoricalMouseout = categoricalMouseout;
-        
     }
 }
-export {CategoricalPlot}
+export {EventsPlot}

@@ -40,6 +40,7 @@ class LinePlot extends Plot {
         this.y = y;
         this.areaPath = areaPath;
         let aggKey = agg.aggKey;
+        this.aggregateGroup = aggregateGroup;
 
         this.yTop = yTopAndHeight[0];
         this.height = yTopAndHeight[1];
@@ -124,7 +125,7 @@ class LinePlot extends Plot {
         } 
         yMap[aggKey] = localY;
         
-        var yAxis: any = aggregateGroup.selectAll(".yAxis")
+        var yAxis: any = this.aggregateGroup.selectAll(".yAxis")
                         .data([aggKey]);
         var visibleYAxis = (aggVisible && (this.chartOptions.yAxisState != "shared" || visibleAggI === 0));
         
@@ -156,7 +157,7 @@ class LinePlot extends Plot {
         let includeDots = this.chartOptions.includeDots || this.chartComponentData.displayState[aggKey].includeDots;
 
         let self = this;        
-        let splitByGroups = aggregateGroup.selectAll(".tsi-splitByGroup")
+        let splitByGroups = this.aggregateGroup.selectAll(".tsi-splitByGroup")
             .data(Object.keys(this.chartComponentData.timeArrays[aggKey]));
         splitByGroups.enter()
             .append("g")
