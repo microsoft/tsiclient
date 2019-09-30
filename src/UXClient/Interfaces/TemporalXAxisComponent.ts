@@ -22,10 +22,8 @@ class TemporalXAxisComponent extends ChartComponent {
         let xCopy = this.x.copy();
         let rawStart = this.chartOptions.timeFrame ? (new Date(this.chartOptions.timeFrame[0])) : xCopy.domain()[0];
         let rawEnd = this.chartOptions.timeFrame ? (new Date(this.chartOptions.timeFrame[1])) : xCopy.domain()[1];
-        let startMillis = rawStart.valueOf() + (rawStart.getTimezoneOffset() + Utils.getOffsetMinutes(this.chartOptions.offset, rawEnd.valueOf())) * 60 * 1000;
-        let endMillis = rawEnd.valueOf() + (rawEnd.getTimezoneOffset() + Utils.getOffsetMinutes(this.chartOptions.offset, rawEnd.valueOf())) * 60 * 1000;
         xCopy.domain([ 
-            new Date(startMillis), new Date(endMillis)
+            new Date(rawStart), new Date(rawEnd)
         ]);
         return xCopy;
     }
@@ -33,9 +31,6 @@ class TemporalXAxisComponent extends ChartComponent {
     private createXAxis (singleLineXAxisLabel, snapFirst = false, snapLast = false) {
         let offsetX: any = this.createOffsetXAxis();
         let ticks = offsetX.ticks(this.getXTickNumber(singleLineXAxisLabel));
-        ticks = ticks.map((d) => {
-            return new Date(d.valueOf() - ((d.getTimezoneOffset() + Utils.getOffsetMinutes(this.chartOptions.offset, d.valueOf())) * 60 * 1000))
-        })
         if (ticks.length <= 2) {
             ticks = this.x.domain();
         }
