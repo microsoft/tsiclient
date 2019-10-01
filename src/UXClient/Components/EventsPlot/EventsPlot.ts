@@ -12,17 +12,21 @@ class EventsPlot extends Plot {
     private discreteEventsMouseover;
     private discreteEventsMouseout;
     private splitBysGroup;
+    private eventHeight;
 
     constructor (svgSelection) {
         super(svgSelection)
     }
 
-    private onMouseover (d) {
+    private onMouseover (d, seriesNumber) {
         let getX = () => {
-            return this.x(new Date(d.dateTime))
+            return this.x(new Date(d.dateTime));
         }
 
-        let shouldMouseover = this.discreteEventsMouseover(d, getX(), this.yTop);
+        let seriesWidth = Math.ceil(this.eventHeight * Math.sqrt(2))
+        let seriesTop = this.yTop + NONNUMERICTOPMARGIN + (seriesWidth * seriesNumber) + (seriesWidth / 2);
+
+        let shouldMouseover = this.discreteEventsMouseover(d, getX() + (seriesWidth / 2), seriesTop, seriesWidth);
         if (!shouldMouseover) {
             return;
         }
@@ -50,13 +54,14 @@ class EventsPlot extends Plot {
                 .attr('class', 'tsi-discreteEventHoverLine')
                 .attr('y1', 0)
                 .attr('y2', this.chartHeight + 1)
+                .attr('pointer-events', 'none')
                 .attr('visibility', 'hidden');
         }
     }
 
-    private getEventHeight (numSeries) {
+    private setEventHeight (visibleSeriesCount) {
         let useableHeight = this.height - NONNUMERICTOPMARGIN;
-        return Math.floor((useableHeight / numSeries) / Math.sqrt(2)); 
+        this.eventHeight = Math.floor((useableHeight / visibleSeriesCount) / Math.sqrt(2)); 
     }
 
     public render (chartOptions, visibleAggI, agg, aggVisible: boolean, aggregateGroup, chartComponentData, yExtent,  
@@ -78,14 +83,13 @@ class EventsPlot extends Plot {
         this.createHoverLine();
 
         let series = this.getVisibleSeries(agg.aggKey);
+        this.setEventHeight(series.length);
 
         if (this.aggregateGroup.selectAll('.tsi-splitBysGroup').empty()) {
             this.splitBysGroup = this.aggregateGroup.append('g').classed('tsi-splitBysGroup', true);
         }
 
         let self = this;
-        let eventHeight = this.getEventHeight(series.length)
-
 
         let splitByGroups = this.splitBysGroup.selectAll(".tsi-splitByGroup")
             .data(series, (d) => {
@@ -112,8 +116,8 @@ class EventsPlot extends Plot {
                     .attr('transform', (d: any) => {
                         return 'translate(' + self.x(new Date(d.dateTime)) + ',0) rotate(45)';
                     })
-                    .attr('width', eventHeight)
-                    .attr('height', eventHeight)
+                    .attr('width', self.eventHeight)
+                    .attr('height', self.eventHeight)
                     .attr('fill', (d: any) => {
                         // NOTE - hardcoded for single value or first value if multiple
                         if (d.measures) {
@@ -126,7 +130,7 @@ class EventsPlot extends Plot {
                         return 'none';
                     })
                     .on('mouseover', (d) => {
-                        self.onMouseover(d);
+                        self.onMouseover(d, j);
                     })
                     .on('mouseout', () => {
                         self.onMouseout();

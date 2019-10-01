@@ -205,10 +205,16 @@ class LineChart extends TemporalXAxisComponent {
                 .text(d.splitBy);
         }
 
-        if (dataType === 'categorical') {
+        if (dataType === DataTypes.Categorical) {
             text.append('div')
                 .attr('class', 'value')
                 .text(formatDate(d.dateTime) + ' - ' + formatDate(d.endDate));
+        }
+
+        if (dataType === DataTypes.Events) {
+            text.append('div')
+                .attr('class', 'value')
+                .text(formatDate(d.dateTime));
         }
 
         if (shiftMillis !== 0) {
@@ -219,7 +225,7 @@ class LineChart extends TemporalXAxisComponent {
 
         let valueGroup = text.append('div').classed('valueGroup', true);
 
-        let formatValue = (dataType === 'events' ? (d) => d : Utils.formatYAxisNumber)
+        let formatValue = (dataType === DataTypes.Events ? (d) => d : Utils.formatYAxisNumber)
 
         Object.keys(d.measures).forEach((measureType, i) => {
             let valueElement = valueGroup.append("div")
@@ -228,7 +234,7 @@ class LineChart extends TemporalXAxisComponent {
                     (dataType === DataTypes.Numeric && (measureType === this.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy)) ? 
                                     " visibleValue" : "");
                 });
-            if (dataType === 'categorical') {
+            if (dataType === DataTypes.Categorical || dataType === DataTypes.Events) {
                 valueElement.append('span')
                     .classed('tsi-tooltipColorBlock', true)
                     .style('background-color', Utils.getColorForValue(cDO, measureType));
@@ -280,7 +286,7 @@ class LineChart extends TemporalXAxisComponent {
         }
     }
 
-    private discreteEventsMouseover = (d, x, y) => {
+    private discreteEventsMouseover = (d, x, y, width) => {
         if (this.isDroppingScooter) {
             return false;
         }
@@ -295,7 +301,7 @@ class LineChart extends TemporalXAxisComponent {
             this.tooltip.render(this.chartOptions.theme);
             this.tooltip.draw(d, this.chartComponentData, xPos, y, this.chartMargins, (text) => {
                 this.tooltipFormat(d, text);
-            }, 0, 0, 0);
+            }, width, 0, 0);
         }
         else 
             this.tooltip.hide();
@@ -1299,21 +1305,21 @@ class LineChart extends TemporalXAxisComponent {
 
         let allShared = this.chartOptions.yAxisState === 'shared' || this.chartOptions.yAxisState === 'overlap';
         let visibleNumericCount = visibleGroups.filter((aggKey, i) => {
-            return visibleCDOs[i].dataType === 'numeric';
+            return visibleCDOs[i].dataType === DataTypes.Numeric;
         }).length;
 
         let countNumericLanes = allShared ? (visibleNumericCount > 0 ? 1 : 0) : visibleNumericCount;
 
 
         let heightNonNumeric = visibleGroups.reduce((sumPrevious, currGroup) => {
-            return sumPrevious + (currGroup.dataType !== 'numeric' ? Utils.getNonNumericHeight(currGroup.height) : 0);
+            return sumPrevious + (currGroup.dataType !== DataTypes.Numeric ? Utils.getNonNumericHeight(currGroup.height) : 0);
         }, 0);
 
         if (allShared) {
             let heightPerNumeric = this.chartHeight - heightNonNumeric;
             let runningOffset = heightPerNumeric;
             return visibleGroups.map((aggGroup) => {
-                if (aggGroup.dataType === 'numeric') {
+                if (aggGroup.dataType === DataTypes.Numeric) {
                     return [0, heightPerNumeric];
                 } else {
                     let oldOffset = runningOffset;
@@ -1327,7 +1333,7 @@ class LineChart extends TemporalXAxisComponent {
             return visibleGroups.map((aggGroup) => {
                 let previousOffset = cumulativeOffset;
                 let height;
-                if (aggGroup.dataType === 'numeric') {
+                if (aggGroup.dataType === DataTypes.Numeric) {
                     height = heightPerNumeric;
                 } else {
                     height = Utils.getNonNumericHeight(aggGroup.height);
@@ -1341,7 +1347,7 @@ class LineChart extends TemporalXAxisComponent {
     private heightNonNumeric () {
         let visibleGroups = this.chartComponentData.data.filter((agg) => this.chartComponentData.displayState[agg.aggKey]["visible"]);
         return visibleGroups.reduce((sumPrevious, currGroup) => {
-            return sumPrevious + (currGroup.dataType !== 'numeric' ? Utils.getNonNumericHeight(currGroup.height) : 0);
+            return sumPrevious + (currGroup.dataType !== DataTypes.Numeric ? Utils.getNonNumericHeight(currGroup.height) : 0);
         }, 0);
     }
 
@@ -1701,15 +1707,15 @@ class LineChart extends TemporalXAxisComponent {
                                 self.plotComponents[aggKey] = self.createPlot(g, i, self.aggregateExpressionOptions);
                             }
 
-                            let mouseoverFunction = self.getMouseoverFunction(self.aggregateExpressionOptions.chartType);
-                            let mouseoutFunction = self.getMouseoutFunction(self.aggregateExpressionOptions.chartType);
+                            let mouseoverFunction = self.getMouseoverFunction(self.aggregateExpressionOptions[i].dataType);
+                            let mouseoutFunction = self.getMouseoutFunction(self.aggregateExpressionOptions[i].dataType);
                             self.plotComponents[aggKey].render(self.chartOptions, visibleNumericI, agg, true, d3.select(this), self.chartComponentData, yExtent, 
                                 self.chartHeight, self.visibleAggCount, self.colorMap, self.previousAggregateData, 
                                 self.x, self.areaPath, self.strokeOpacity, self.y, self.yMap, defs, visibleCDOs[i], self.previousIncludeDots, offsetsAndHeights[i], 
-                                g, self.categoricalMouseover, self.categoricalMouseout);
+                                g, mouseoverFunction, mouseoutFunction);
                             
                             //increment index of visible numerics if appropriate
-                            visibleNumericI += (visibleCDOs[i].dataType === 'numeric' ? 1 : 0);
+                            visibleNumericI += (visibleCDOs[i].dataType === DataTypes.Numeric ? 1 : 0);
                         });
                     aggregateGroups.exit().remove();
                     /******************** Voronoi diagram for hover action ************************/
@@ -1877,11 +1883,11 @@ class LineChart extends TemporalXAxisComponent {
 
     private createPlot (svgGroup, i, cDO) {
         let chartType = cDO[i].dataType;
-        if (chartType === 'numeric') {
+        if (chartType === DataTypes.Numeric) {
             return new LinePlot(svgGroup);
-        } else if (chartType === 'categorical') {
+        } else if (chartType === DataTypes.Categorical) {
             return new CategoricalPlot(svgGroup);
-        } else if (chartType === 'events') {
+        } else if (chartType === DataTypes.Events) {
             return new EventsPlot(svgGroup);
         }
         return null;

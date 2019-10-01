@@ -51,9 +51,9 @@
                 }
 
                 var lines = {};
-                data.push({[`Factory3`]: lines});
                 var events = {};
-                data.push({[`Factory4`]: events})
+                data.push({[`Factory3`]: events});
+                data.push({[`Factory4`]: lines})
                 for(var j = 0; j < 1; j++){
                     var values = {};
                     for(var j = 0; j < 2; j++){
@@ -130,8 +130,8 @@
                     [{dataType: 'numeric', searchSpan: searchSpan}, 
                      {dataType: 'categorical', valueMapping: valueMapping, height: 100, searchSpan: searchSpan}, 
                      {dataType: 'numeric', searchSpan: searchSpan}, 
-                     {dataType: 'categorical', valueMapping: valueMapping, height: 50, searchSpan: searchSpan}, 
-                     {dataType: 'events', valueMapping: eventValueMapping, height: 48}]);
+                     {dataType: 'events', valueMapping: eventValueMapping, height: 48},
+                     {dataType: 'categorical', valueMapping: valueMapping, height: 50, searchSpan: searchSpan}]);
             };
         </script>
     </body>
