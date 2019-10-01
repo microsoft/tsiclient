@@ -16,6 +16,12 @@ class Plot extends Component {
         super(renderTarget);
     }
 
+    protected getVisibleSeries (aggKey) { 
+        return Object.keys(this.chartComponentData.timeArrays[aggKey]).filter((s) => {
+            return this.chartComponentData.isSplitByVisible(aggKey, s);
+        });
+    }
+
     protected createBackdropRect () {
         if (this.backdropRect === null) {
             this.backdropRect = this.aggregateGroup.append('rect')

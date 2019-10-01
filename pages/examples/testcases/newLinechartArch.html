@@ -52,33 +52,49 @@
 
                 var lines = {};
                 data.push({[`Factory3`]: lines});
+                var events = {};
+                data.push({[`Factory4`]: events})
                 for(var j = 0; j < 1; j++){
                     var values = {};
-                    lines[``] = values;
-                    for(var k = 0; k < numberOfBuckets; k++){
-                        var val1 = Math.random(); 
-                        var val2 = 1- val1;
-                        var val3 = 0;
-                        if (j === 1) {
-                            val1 = 0;
-                            val2 = 1;
-                            val3 = 0;
-                        } 
-                        if (j === 2) {
-                            val1 = 0;
-                            val2 = 0;
-                            val3 = 1;
-                        }
-                        let previousTo = to;
-                        var toLocal = new Date(from.valueOf() + 1000*60*k);
-                        // if (k === 0 || k === 40) {
+                    for(var j = 0; j < 2; j++){
+                        var values = {};
+                        lines[`Station${j}`] = values;
+                        events[`Station${j}`] = {};
+                        for(var k = 0; k < numberOfBuckets; k++){
+                            var val1 = Math.random(); 
+                            var val2 = 1- val1;
+                            var val3 = 0;
+                            if (j === 1) {
+                                val1 = 0;
+                                val2 = 1;
+                                val3 = 0;
+                            } 
+                            if (j === 2) {
+                                val1 = 0;
+                                val2 = 0;
+                                val3 = 1;
+                            }
+                            let previousTo = to;
+                            var toLocal = new Date(from.valueOf() + 1000*60*k);
+                            // if (k === 0 || k === 40) {
                             values[toLocal.toISOString()] = {state1: val1, state2: val2, state3: val3};
-                        // } else if (k === 20){
-                            // values[toLocal.toISOString()] = null;
-                        // }
-                        to = toLocal;
+                            // } else if (k === 20){
+                                // values[toLocal.toISOString()] = null;
+                            // }
 
-                    } 
+                            if (Math.random() > .8) {
+                                let goodOrBad = Math.random() > .5;
+                                let goodAndBad = Math.random() > .8;
+                                let localEvent = {};
+                                events[`Station${j}`][toLocal.toISOString()] = localEvent;
+                                localEvent[goodOrBad ? 'goodEvent' : 'badEvent'] = (goodOrBad ? 'good message' : 'bad message');
+                                if (goodAndBad) {
+                                    localEvent[goodOrBad ? 'badEvent' : 'goddEvent'] = (!goodOrBad ? 'good message' : 'bad message');                                    
+                                }
+                            }
+                            to = toLocal;
+                        } 
+                    }
                 }
 
                 let searchSpan = {
@@ -102,7 +118,20 @@
                         color:'#3599B8'
                     }
                 }
-                lineChart.render(data, {theme: 'light', tooltip: 'true'}, [{dataType: 'numeric', searchSpan: searchSpan}, {dataType: 'categorical', valueMapping: valueMapping, height: 100, searchSpan: searchSpan}, {dataType: 'numeric', searchSpan: searchSpan}, {dataType: 'categorical', valueMapping: valueMapping, height: 50, searchSpan: searchSpan}]);
+                let eventValueMapping = {
+                    badEvent: {
+                        color: 'red'
+                    },
+                    goodEvent: {
+                        color: 'blue'
+                    }
+                }
+                lineChart.render(data, {theme: 'light', tooltip: 'true'}, 
+                    [{dataType: 'numeric', searchSpan: searchSpan}, 
+                     {dataType: 'categorical', valueMapping: valueMapping, height: 100, searchSpan: searchSpan}, 
+                     {dataType: 'numeric', searchSpan: searchSpan}, 
+                     {dataType: 'categorical', valueMapping: valueMapping, height: 50, searchSpan: searchSpan}, 
+                     {dataType: 'events', valueMapping: eventValueMapping, height: 48}]);
             };
         </script>
     </body>

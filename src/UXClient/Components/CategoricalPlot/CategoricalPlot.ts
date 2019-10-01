@@ -53,7 +53,7 @@ class CategoricalPlot extends Plot {
     }
 
     private onMouseover (d, rectWidth) {
-        let visibleMeasures = this.getVisibleMeasures(d.measures)
+        let visibleMeasures = this.getVisibleMeasures(d.measures);
 
         this.hoverRect.attr('visibility', 'visible')
             .attr('x', () => {
@@ -131,9 +131,7 @@ class CategoricalPlot extends Plot {
         let self = this;    
         this.createHoverRect(); 
 
-        let series: Array<string> = Object.keys(this.chartComponentData.timeArrays[aggKey]).filter((s) => {
-            return self.chartComponentData.isSplitByVisible(aggKey, s);
-        });
+        let series: Array<string> = this.getVisibleSeries(aggKey);
 
         let heightPerSeries = Math.max((self.chartDataOptions.height - (series.length * TOPMARGIN))/ series.length, 0);
 

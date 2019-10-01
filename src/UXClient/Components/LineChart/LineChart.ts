@@ -14,6 +14,7 @@ import { EllipsisMenu } from '../EllipsisMenu/EllipsisMenu';
 import { ChartDataOptions } from '../../Models/ChartDataOptions';
 import { LinePlot } from '../LinePlot/LinePlot';
 import { CategoricalPlot } from '../CategoricalPlot/CategoricalPlot';
+import { EventsPlot } from '../EventsPlot/EventsPlot';
 
 class LineChart extends TemporalXAxisComponent {
     private svgSelection: any;
@@ -217,6 +218,9 @@ class LineChart extends TemporalXAxisComponent {
         }
 
         let valueGroup = text.append('div').classed('valueGroup', true);
+
+        let formatValue = (dataType === 'events' ? (d) => d : Utils.formatYAxisNumber)
+
         Object.keys(d.measures).forEach((measureType, i) => {
             let valueElement = valueGroup.append("div")
                 .attr("class",  () => {
@@ -230,7 +234,7 @@ class LineChart extends TemporalXAxisComponent {
                     .style('background-color', Utils.getColorForValue(cDO, measureType));
             }
             valueElement.append('span')
-                .text(measureType +  ": " + Utils.formatYAxisNumber(d.measures[measureType]));
+                .text(measureType +  ": " + formatValue(d.measures[measureType]));
         });
     }
     public triggerLineFocus = (aggKey: string, splitBy: string) => {
@@ -252,6 +256,54 @@ class LineChart extends TemporalXAxisComponent {
 
         this.focusedAggKey = aggKey;
         this.focusedSplitby = splitBy;
+    }
+
+    private getMouseoverFunction (chartType = 'numeric') {
+        switch (chartType) {
+            case 'categorical':
+                return this.categoricalMouseover;
+            case 'events':
+                return this.discreteEventsMouseover;
+            default:
+                return () => {}
+        }
+    }
+
+    private getMouseoutFunction (chartType = 'numeric') {
+        switch (chartType) {
+            case 'categorical':
+                return this.categoricalMouseout;
+            case 'events':
+                return this.discreteEventsMouseout;
+            default:
+                return () => {}
+        }
+    }
+
+    private discreteEventsMouseover = (d, x, y) => {
+        if (this.isDroppingScooter) {
+            return false;
+        }
+        this.legendObject.triggerSplitByFocus(d.aggregateKey, d.splitBy);
+
+        let xPos = x;
+        let yPos = y + this.chartMargins.top;
+
+        let yValue = this.getValueOfVisible(d);
+
+        if (this.chartOptions.tooltip){
+            this.tooltip.render(this.chartOptions.theme);
+            this.tooltip.draw(d, this.chartComponentData, xPos, y, this.chartMargins, (text) => {
+                this.tooltipFormat(d, text);
+            }, 0, 0, 0);
+        }
+        else 
+            this.tooltip.hide();
+        return true;
+    }
+
+    private discreteEventsMouseout = () => {
+        this.tooltip.hide();
     }
 
     //returns false if supressed via isDroppingScooter, true otherwise
@@ -1649,6 +1701,8 @@ class LineChart extends TemporalXAxisComponent {
                                 self.plotComponents[aggKey] = self.createPlot(g, i, self.aggregateExpressionOptions);
                             }
 
+                            let mouseoverFunction = self.getMouseoverFunction(self.aggregateExpressionOptions.chartType);
+                            let mouseoutFunction = self.getMouseoutFunction(self.aggregateExpressionOptions.chartType);
                             self.plotComponents[aggKey].render(self.chartOptions, visibleNumericI, agg, true, d3.select(this), self.chartComponentData, yExtent, 
                                 self.chartHeight, self.visibleAggCount, self.colorMap, self.previousAggregateData, 
                                 self.x, self.areaPath, self.strokeOpacity, self.y, self.yMap, defs, visibleCDOs[i], self.previousIncludeDots, offsetsAndHeights[i], 
@@ -1827,8 +1881,9 @@ class LineChart extends TemporalXAxisComponent {
             return new LinePlot(svgGroup);
         } else if (chartType === 'categorical') {
             return new CategoricalPlot(svgGroup);
+        } else if (chartType === 'events') {
+            return new EventsPlot(svgGroup);
         }
-        // TODO Events plot
         return null;
     }
 
