@@ -17,10 +17,10 @@ class ServerClient {
                 var xhr = new XMLHttpRequest();
                 xhr.onreadystatechange = () => {
                     if(xhr.readyState != 4) return;
-                        
+
                     if(xhr.status == 200){
                         if (xhr.responseText.length == 0)
-                            resolve({}); 
+                            resolve({});
                         else {
                             resolve(responseTextFormat(xhr.responseText));
                         }
@@ -42,7 +42,7 @@ class ServerClient {
             sendRequest();
         });
     }
-    
+
     private mergeTsqEventsResults = (tsqEvents) => {
         let events = {properties: [], timestamps: []};
         tsqEvents.forEach(tsqe => {
@@ -82,7 +82,7 @@ class ServerClient {
         var accumulator = [];
         onreadystatechange = () => {
             if(xhr.readyState != 4) return;
-            
+
             if(xhr.status == 200){
                 var message = JSON.parse(xhr.responseText);
                 if(!message.continuationToken){
@@ -124,7 +124,7 @@ class ServerClient {
                 results[index] = {__tsiError__: JSON.parse(xhr.responseText)};
                 if(results.map(ar => !('progress' in ar)).reduce((p,c) => { p = c && p; return p}, true))
                     resolve(results);
-            } 
+            }
             let percentComplete = Math.max(results.map(r => 'progress' in r ? r.progress : 100).reduce((p,c) => p+c, 0) / results.length, 1);
             onProgressChange(percentComplete);
         }
@@ -156,7 +156,7 @@ class ServerClient {
         let storeTypeString = storeType ? '&storeType=' + storeType : '';
 
         let promise = new Promise((resolve: any, reject: any) => {
-            tsqArray.map((tsq, i) => { 
+            tsqArray.map((tsq, i) => {
                 return this.getQueryApiResult(token, tsqResults, tsq, i, `https://${uri}/timeseries/query${this.tsmTsqApiVersion}${storeTypeString}`, resolve, message => message, onProgressChange, mergeAccumulatedResults, xhrs[i]);
             });
         });
@@ -164,8 +164,8 @@ class ServerClient {
             xhrs.forEach((xhr) => {
                 xhr.abort();
             });
-        } 
-        
+        }
+
         if (hasCancelTrigger) {
             return [promise, cancelTrigger];
         }
@@ -177,7 +177,7 @@ class ServerClient {
         tsxArray.forEach(ae => {
             aggregateResults.push({progress: 0});
         });
-        
+
         return new Promise((resolve: any, reject: any) => {
             tsxArray.forEach((tsx, i) => {
                 this.getQueryApiResult(token, aggregateResults, tsx, i, `https://${uri}/aggregates${this.apiVersionUrlParam}`, resolve, message => message.aggregates[0], onProgressChange);
@@ -189,13 +189,13 @@ class ServerClient {
         if(!timeSeriesIds || timeSeriesIds.length === 0) {
             return new Promise((resolve: any, reject: any) => {
                 this.getDataWithContinuationBatch(token, resolve, reject, [], 'https://' + environmentFqdn + '/timeseries/instances/' + this.tsmTsqApiVersion, 'GET', 'instances', null, limit);
-            });        
+            });
         }
         else {
             return this.createPromiseFromXhr('https://' + environmentFqdn + '/timeseries/instances/$batch' + this.tsmTsqApiVersion, "POST", JSON.stringify({get: timeSeriesIds}), token, (responseText) => {return JSON.parse(responseText);});
         }
     }
-    
+
     public getTimeseriesTypes(token: string, environmentFqdn: string, typeIds: Array<any> = null) {
         if(!typeIds || typeIds.length === 0) {
             let uri = 'https://' + environmentFqdn + '/timeseries/types/' + this.tsmTsqApiVersion;
@@ -227,17 +227,17 @@ class ServerClient {
     public getTimeseriesInstancesSuggestions(token: string, environmentFqdn: string, searchString: string, take: number = 10) {
         let uri = 'https://' + environmentFqdn + '/timeseries/instances/suggest' + this.tsmTsqApiVersion;
         return this.createPromiseFromXhr(uri, "POST", JSON.stringify({searchString: searchString, take: take}), token, (responseText) => {return JSON.parse(responseText);});
-    }    
+    }
 
     public getTimeseriesInstancesSearch(token: string, environmentFqdn: string, searchString: string, continuationToken = null) {
         let uri = 'https://' + environmentFqdn + '/timeseries/instances/search' + this.tsmTsqApiVersion;
         return this.createPromiseFromXhr(uri, "POST", JSON.stringify({searchString: searchString}), token, (responseText) => {return JSON.parse(responseText);}, continuationToken);
-    }    
+    }
 
     public getReferenceDatasetRows(token: string, environmentFqdn: string, datasetId: string) {
         return new Promise((resolve: any, reject: any) => {
             this.getDataWithContinuationBatch(token, resolve, reject, [], "https://" + environmentFqdn + "/referencedatasets/" + datasetId + "/items" + this.apiVersionUrlParam + "&format=stream", 'POST', 'items');
-        });        
+        });
     }
 
     public getEnvironments(token: string, endpoint = 'https://api.timeseries.azure.com'){
@@ -272,13 +272,14 @@ class ServerClient {
             this.createPromiseFromXhr(coldUri, "GET", {}, token, (responseText) => {return JSON.parse(responseText);}).then((coldResponse) => {
                 if (hasWarm) {
                     let warmUri = uriBase + apiVersion + '&storeType=WarmStore';
-                    this.createPromiseFromXhr(warmUri, "GET", {}, token, (responseText) => {return JSON.parse(responseText);}).then(function (warmResponse) {
+                    this.createPromiseFromXhr(warmUri, "GET", {}, token, (responseText) => {return JSON.parse(responseText);}).then((warmResponse) => {
                         let availability = warmResponse ? warmResponse.availability : null ;
                         if (coldResponse.availability) {
                             availability = Utils.mergeAvailabilities(warmResponse.availability, coldResponse.availability, warmResponse.retention);
-                        } 
+                        }
                         resolve({availability: availability});
-                    });    
+                    })
+                    .catch(() => {resolve(coldResponse)});
                 } else {
                     resolve(coldResponse);
                 }
@@ -301,12 +302,12 @@ class ServerClient {
         var xhr = new XMLHttpRequest();
         xhr.onreadystatechange = () => {
             if(xhr.readyState != 4) return;
-            
+
             if(xhr.status == 200){
                 var message = JSON.parse(xhr.responseText);
                 if(message[propName])
                     rows = rows.concat(message[propName]);
-                
+
                 // HACK because /instances doesn't match /items
                 continuationToken = verb == 'GET' ? message.continuationToken : xhr.getResponseHeader('x-ms-continuation');
 
