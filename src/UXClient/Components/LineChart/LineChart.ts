@@ -1,7 +1,7 @@
 import * as d3 from 'd3';
 import { interpolatePath } from 'd3-interpolate-path';
 import './LineChart.scss';
-import {Utils} from "./../../Utils";
+import {Utils, DataTypes} from "./../../Utils";
 import {Legend} from "./../Legend/Legend";
 import {EventSeries} from "./../EventSeries/EventSeries";
 import {TemporalXAxisComponent} from "./../../Interfaces/TemporalXAxisComponent";
@@ -225,7 +225,7 @@ class LineChart extends TemporalXAxisComponent {
             let valueElement = valueGroup.append("div")
                 .attr("class",  () => {
                     return "value" + 
-                    (dataType === 'numeric' && (measureType === this.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy)) ? 
+                    (dataType === DataTypes.Numeric && (measureType === this.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy)) ? 
                                     " visibleValue" : "");
                 });
             if (dataType === 'categorical') {
@@ -258,22 +258,22 @@ class LineChart extends TemporalXAxisComponent {
         this.focusedSplitby = splitBy;
     }
 
-    private getMouseoverFunction (chartType = 'numeric') {
+    private getMouseoverFunction (chartType =DataTypes.Numeric) {
         switch (chartType) {
-            case 'categorical':
+            case DataTypes.Categorical:
                 return this.categoricalMouseover;
-            case 'events':
+            case DataTypes.Events:
                 return this.discreteEventsMouseover;
             default:
                 return () => {}
         }
     }
 
-    private getMouseoutFunction (chartType = 'numeric') {
+    private getMouseoutFunction (chartType = DataTypes.Numeric) {
         switch (chartType) {
-            case 'categorical':
+            case DataTypes.Categorical:
                 return this.categoricalMouseout;
-            case 'events':
+            case DataTypes.Events:
                 return this.discreteEventsMouseout;
             default:
                 return () => {}
@@ -506,7 +506,7 @@ class LineChart extends TemporalXAxisComponent {
     }
 
     public unstickySeries = (aggKey, splitby = null) => {
-        if (this.getDataType(aggKey) !== 'numeric') {
+        if (this.getDataType(aggKey) !== DataTypes.Numeric) {
             return;
         }
         this.chartComponentData.stickiedKey = null;
@@ -517,7 +517,7 @@ class LineChart extends TemporalXAxisComponent {
     }
 
     private stickySeries = (aggregateKey: string, splitBy: string = null) => {
-        if (this.getDataType(aggregateKey) !== 'numeric') {
+        if (this.getDataType(aggregateKey) !== DataTypes.Numeric) {
             return;
         }
         var filteredValues = this.getFilteredAndSticky(this.chartComponentData.allValues);
@@ -734,7 +734,7 @@ class LineChart extends TemporalXAxisComponent {
         var millis = this.scooterGuidMap[scooter.datum()];
         var values = this.chartComponentData.timeMap[millis] != undefined ? this.chartComponentData.timeMap[millis] : [];
         values = values.filter((d) => {
-            return (this.getValueOfVisible(d) !== null) && this.getDataType(d.aggregateKey) === 'numeric'; 
+            return (this.getValueOfVisible(d) !== null) && this.getDataType(d.aggregateKey) === DataTypes.Numeric; 
         });
         var self = this;
 
@@ -1285,7 +1285,7 @@ class LineChart extends TemporalXAxisComponent {
         let visibleGroups = this.chartComponentData.data.filter((agg) => this.chartComponentData.displayState[agg.aggKey]["visible"]);
         let visibleCDOs = this.aggregateExpressionOptions.filter((cDO) => this.chartComponentData.displayState[cDO.aggKey]["visible"]);
         return visibleGroups.filter((aggKey, i) => {
-            return visibleCDOs[i].dataType === 'numeric';
+            return visibleCDOs[i].dataType === DataTypes.Numeric;
         }).length;
     }
 

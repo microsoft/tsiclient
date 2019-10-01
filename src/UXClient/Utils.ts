@@ -12,6 +12,8 @@ export const NONNUMERICTOPMARGIN = 8;
 // Linechart stack states
 enum StackStates {Stacked = "stacked", Shared = "shared", Overlap = "overlap" }
 
+export enum DataTypes {Numeric = 'numeric', Categorical = 'categorical', Events = 'events'}
+
 class Utils {
     static formatYAxisNumber (val: number) {
         if (Math.abs(val) < 1000000) {

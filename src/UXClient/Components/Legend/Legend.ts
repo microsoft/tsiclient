@@ -1,6 +1,6 @@
 import * as d3 from 'd3';
 import './Legend.scss';
-import {Utils} from "./../../Utils";
+import {Utils, DataTypes} from "./../../Utils";
 import {Component} from "./../../Interfaces/Component";
 import { ChartOptions } from '../../Models/ChartOptions';
 import { ChartComponentData } from '../../Models/ChartComponentData';
@@ -75,7 +75,7 @@ class Legend extends Component {
     }
 
     private getHeightPerSplitBy (aggKey) {
-        return (this.chartComponentData.displayState[aggKey].dataType === 'numeric' ? NUMERICSPLITBYHEIGHT : NONNUMERICSPLITBYHEIGHT);
+        return (this.chartComponentData.displayState[aggKey].dataType === DataTypes.Numeric ? NUMERICSPLITBYHEIGHT : NONNUMERICSPLITBYHEIGHT);
     }
 
 	public draw(legendState, chartComponentData, labelMouseover, svgSelection, options, labelMouseoutAction = null, stickySeriesAction = null) {
@@ -243,7 +243,7 @@ class Legend extends Component {
                     })
                     .attr("class", (splitBy, i) => {
                         return "tsi-splitByLabel tsi-splitByLabel"
-                            + (dataType !== 'numeric' ? ' tsi-splitByLabelCompact' : '')  
+                            + (dataType !== DataTypes.Numeric ? ' tsi-splitByLabelCompact' : '')  
                             + (Utils.getAgVisible(self.chartComponentData.displayState, aggKey, splitBy) ? " shown" : "")
                     })
                     .classed("stickied", (splitBy, i) => {
@@ -256,7 +256,7 @@ class Legend extends Component {
 
                 splitByLabelsEntered.each(function (splitBy, j) {
                     let color = (self.chartComponentData.isFromHeatmap) ? self.chartComponentData.displayState[aggKey].color : colors[j];
-                    if (dataType === 'numeric') {
+                    if (dataType === DataTypes.Numeric) {
                         let colorKey = d3.select(this).selectAll('.tsi-colorKey').data([color]);
                         colorKey.enter()
                             .append("div")
@@ -290,7 +290,7 @@ class Legend extends Component {
                             .text(d => (noSplitBys ? (self.chartComponentData.displayState[aggKey].name): splitBy));      
                     }
 
-                    if (dataType === 'numeric') {
+                    if (dataType === DataTypes.Numeric) {
                         if (d3.select(this).select('.tsi-seriesTypeSelection').empty()) {
                             d3.select(this).append("select")
                                 .attr('aria-label', self.getString("Series type selection for") + ' ' + splitBy)
