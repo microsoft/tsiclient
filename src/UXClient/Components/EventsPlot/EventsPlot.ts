@@ -14,6 +14,8 @@ class EventsPlot extends Plot {
     private splitBysGroup;
     private eventHeight;
 
+    private gradientArray = {};
+
     constructor (svgSelection) {
         super(svgSelection)
     }
@@ -80,6 +82,10 @@ class EventsPlot extends Plot {
         this.discreteEventsMouseover = discreteEventsMouseover;
         this.discreteEventsMouseout = discreteEventsMouseout;
 
+        if (this.aggregateGroup.selectAll('defs').empty()) {
+            this.defs = this.aggregateGroup.append('defs');
+        }
+
         this.createHoverLine();
 
         let series = this.getVisibleSeries(agg.aggKey);
@@ -95,6 +101,8 @@ class EventsPlot extends Plot {
             .data(series, (d) => {
                 return d.splitBy;
             });
+
+        let gradientData = [];
 
         let enteredSplitByGroups = splitByGroups.enter()
             .append("g")
@@ -135,9 +143,38 @@ class EventsPlot extends Plot {
                     .on('mouseout', () => {
                         self.onMouseout();
                     })
+                    .on('click', (d: any) => {
+                        if (self.chartDataOptions.onElementClick) {
+                            self.chartDataOptions.onElementClick(d.aggregateKey, d.splitBy, d.dateTime.toISOString(), d.measures);
+                        }
+                    })
+                    .each(function (d: any, i) {
+                        if (Object.keys(d.measures).length > 1) {
+                            let gradientKey = self.createGradientKey(d, j, i);
+                            gradientData.push([gradientKey, d]);
+                            d3.select(this)
+                                .attr('fill', "url(#" + gradientKey + ")");    
+                        }
+                    });
                 discreteEvents.exit().remove();
                 });
-            splitByGroups.exit().remove()
+            splitByGroups.exit().remove();
+
+        let gradients = this.defs.selectAll('linearGradient')
+        .data(gradientData, (d) => {
+            return d[1].splitBy;
+        });
+        let enteredGradients = gradients.enter()
+            .append('linearGradient')
+            .attr("x2", "0%")
+            .attr("y2", "100%")
+            .merge(gradients)
+            .attr("id", d => d[0]);
+        enteredGradients
+            .each(function (d) {
+                self.addGradientStops(d[1], d3.select(this));
+            });
+        gradients.exit().remove();
 
     }
 }

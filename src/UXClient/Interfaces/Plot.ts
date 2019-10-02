@@ -22,6 +22,53 @@ class Plot extends Component {
         });
     }
 
+    protected createGradientKey (d, splitByIndex, i) {
+        return unescape(d.aggregateKey).split(" ").join("_") + '_' + splitByIndex + '_' + i;
+    }
+
+    protected addGradientStops (d, gradient) {
+
+        gradient.selectAll('stop').remove();
+
+        let colorMap = this.chartDataOptions.valueMap;
+        if (!d.measures) {
+            return;
+        }
+
+        //behavior if numeric measures
+        let allMeasuresNumeric = Object.keys(d.measures).reduce((p, currMeasure) => {
+            return (typeof d.measures[currMeasure]) === 'number' && p;
+        }, true);
+
+        let sumOfMeasures;
+        if (allMeasuresNumeric) {
+            sumOfMeasures = Object.keys(d.measures).reduce((p, currMeasure) => {
+                return p + d.measures[currMeasure];
+            }, 0);
+            if (sumOfMeasures <= 0) {
+                return;
+            }
+        }
+
+        let numMeasures = Object.keys(d.measures).length
+        Object.keys(d.measures).reduce((p, currMeasure, i) => {
+            let currFraction = allMeasuresNumeric ? (d.measures[currMeasure] / sumOfMeasures) : (i / numMeasures);
+            gradient.append('stop')
+                .attr("offset", (p * 100) + "%")
+                .attr("stop-color", this.getColorForValue(currMeasure))
+                .attr("stop-opacity", 1);
+
+            let newFraction = allMeasuresNumeric ? (p + currFraction) : ((i + 1) / numMeasures);
+
+            gradient.append('stop')
+                .attr("offset", (newFraction * 100) + "%")
+                .attr("stop-color",  this.getColorForValue(currMeasure))
+                .attr("stop-opacity", 1);
+            return newFraction; 
+        }, 0);
+    }
+
+
     protected createBackdropRect () {
         if (this.backdropRect === null) {
             this.backdropRect = this.aggregateGroup.append('rect')

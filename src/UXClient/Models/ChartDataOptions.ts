@@ -18,6 +18,7 @@ class ChartDataOptions {
     public dataType: string; //numeric, categorical, events?
     public valueMapping: any; //only present for non-numeric
     public height: number; //only present for non-numeric
+    public onElementClick: any;
 
     constructor (optionsObject: Object){
         this.searchSpan = Utils.getValueOrDefault(optionsObject, 'searchSpan');
@@ -34,6 +35,7 @@ class ChartDataOptions {
         this.dataType = Utils.getValueOrDefault(optionsObject, 'dataType', DataTypes.Numeric);
         this.valueMapping = Utils.getValueOrDefault(optionsObject, 'valueMapping', {});
         this.height = Utils.getValueOrDefault(optionsObject, 'height', DEFAULT_HEIGHT);
+        this.onElementClick = Utils.getValueOrDefault(optionsObject, 'onElementClick', null);
     }
 }
 export {ChartDataOptions}

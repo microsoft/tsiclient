@@ -17,41 +17,6 @@ class CategoricalPlot extends Plot {
         super(svgSelection)
     }
 
-    private createGradientKey (d, splitByIndex, i) {
-        return unescape(d.aggregateKey).split(" ").join("_") + '_' + splitByIndex + '_' + i;
-    }
-
-    private addGradientStops (d, gradient) {
-
-        gradient.selectAll('stop').remove();
-
-        let colorMap = this.chartDataOptions.valueMap;
-        if (!d.measures) {
-            return;
-        }
-        let sumOfMeasures = Object.keys(d.measures).reduce((p, currMeasure) => {
-            return p + d.measures[currMeasure];
-        }, 0);
-        if (sumOfMeasures <= 0) {
-            return;
-        }
-
-        Object.keys(d.measures).reduce((p, currMeasure) => {
-            let currFraction = d.measures[currMeasure] / sumOfMeasures;
-            gradient.append('stop')
-                .attr("offset", (p * 100) + "%")
-                .attr("stop-color", this.getColorForValue(currMeasure))
-                .attr("stop-opacity", 1);
-            let newFraction = p + currFraction;
-
-            gradient.append('stop')
-                .attr("offset", (newFraction * 100) + "%")
-                .attr("stop-color",  this.getColorForValue(currMeasure))
-                .attr("stop-opacity", 1);
-            return newFraction; 
-        }, 0);
-    }
-
     private onMouseover (d, rectWidth) {
         let visibleMeasures = this.getVisibleMeasures(d.measures);
 
@@ -176,6 +141,11 @@ class CategoricalPlot extends Plot {
                     })
                     .on('mouseout', () => {
                         self.onMouseout();
+                    })
+                    .on('click', (d: any) => {
+                        if (self.chartDataOptions.onElementClick) {
+                            self.chartDataOptions.onElementClick(d.aggregateKey, d.splitBy, d.dateTime.toISOString(), d.measures);
+                        }
                     })
                     .transition()
                     .duration(durationFunction)

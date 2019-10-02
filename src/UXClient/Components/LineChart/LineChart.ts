@@ -958,14 +958,21 @@ class LineChart extends TemporalXAxisComponent {
         if (this.brushElem && !this.isDroppingScooter) return;
         const [mx, my] = d3.mouse(mouseEvent);
         var site: any = this.voronoiDiagram.find(mx, my);
+        let cDO = this.aggregateExpressionOptions.filter((currCDO) => {
+            return (site.data.aggregateKey === currCDO.aggKey);
+        })[0];
         if (!this.isDroppingScooter) {
-            if (this.chartComponentData.stickiedKey != null) {
-                site = this.voronoiDiagram.find(mx, my);
-                this.voronoiMousemove(site.data);
-                this.unstickySeries(site.data.aggregateKey, site.data.splitBy);
-                return;
+            if (site.data && cDO.onElementClick !== null) {
+                cDO.onElementClick(site.data.aggregateKey, site.data.splitBy, site.data.dateTime.toISOString(), site.data.measures);
+            } else {
+                if (this.chartComponentData.stickiedKey != null) {
+                    site = this.voronoiDiagram.find(mx, my);
+                    this.voronoiMousemove(site.data);
+                    this.unstickySeries(site.data.aggregateKey, site.data.splitBy);
+                    return;
+                }
+                this.stickySeries(site.data.aggregateKey, site.data.splitBy);    
             }
-            this.stickySeries(site.data.aggregateKey, site.data.splitBy);
         } 
 
         this.destroyMarkerInstructions();
