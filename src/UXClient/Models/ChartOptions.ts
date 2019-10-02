@@ -17,6 +17,7 @@ class ChartOptions {
     public canDownload: boolean; // whether chart's ellipsis menu contains download button
     public color: string; // color of the time selection ghost in availability chart
     public dateLocale: string; //moment locale specifying the location specific format for dates, along with translations for month and day names
+    public defaultAvailabilityZoomRangeMillis: number; // default max period of time shown in the zoomed region of the availability chart
     public ellipsisItems: Array<any>; //objects reprenting options in the ellipsis menu 
     public events: Array<any>; // events passed into the linchart, an array of discrete time events
     public focusHidden: boolean; // whether focus element is hidden in chart
@@ -167,6 +168,7 @@ class ChartOptions {
         this.brushRangeVisible = this.mergeValue(chartOptionsObj, 'brushRangeVisible', true);
         this.strings = this.mergeStrings(Utils.getValueOrDefault(chartOptionsObj, 'strings', {}));
         this.dateLocale = this.mergeValue(chartOptionsObj, 'dateLocale', Utils.languageGuess());
+        this.defaultAvailabilityZoomRangeMillis = this.mergeValue(chartOptionsObj, 'defaultAvailabilityZoomRangeMillis', null);
         this.warmStoreRange = this.mergeValue(chartOptionsObj, 'warmStoreRange', null)
     }
 
@@ -251,6 +253,7 @@ class ChartOptions {
             brushRangeVisible: this.brushRangeVisible,
             strings: this.strings.toObject(),
             dateLocale: this.dateLocale,
+            defaultAvailabilityZoomRangeMillis: this.defaultAvailabilityZoomRangeMillis,
             warmStoreRange: this.warmStoreRange
         }
     }
