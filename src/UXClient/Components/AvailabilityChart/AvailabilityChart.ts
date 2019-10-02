@@ -270,13 +270,13 @@ class AvailabilityChart extends ChartComponent{
 
         if (!this.chartOptions.preserveAvailabilityState) { 
             this.zoomedToMillis = this.toMillis; 
-            this.zoomedFromMillis = Math.max(this.fromMillis, this.toMillis - 30*24*60*60*1000);
+            this.zoomedFromMillis = this.chartOptions.defaultAvailabilityZoomRangeMillis ? Math.max(this.fromMillis, this.toMillis - this.chartOptions.defaultAvailabilityZoomRangeMillis) : this.fromMillis;
             this.sparkLineChart.setBrushStartTime(new Date(this.zoomedFromMillis)); 
             this.sparkLineChart.setBrushEndTime(new Date(this.zoomedToMillis)); 
             this.setFromAndToTimes(Math.max(this.fromMillis, this.toMillis - (24 * 60 * 60 * 1000)), this.toMillis); 
             this.setBrush(Math.max(this.fromMillis, this.toMillis - (24 * 60 * 60 * 1000)), this.toMillis); 
         } else {
-            if (this.zoomedFromMillis == null) this.zoomedFromMillis = Math.max(this.fromMillis, this.toMillis - 30*24*60*60*1000); 
+            if (this.zoomedFromMillis == null) this.zoomedFromMillis = this.chartOptions.defaultAvailabilityZoomRangeMillis ? Math.max(this.fromMillis, this.toMillis - this.chartOptions.defaultAvailabilityZoomRangeMillis) : this.fromMillis;
             if (this.zoomedToMillis == null) this.zoomedToMillis = this.toMillis; 
             if (this.sparkLineChart.brushStartTime == null) this.sparkLineChart.setBrushStartTime(new Date(this.zoomedFromMillis)); 
             if (this.sparkLineChart.brushEndTime == null) this.sparkLineChart.setBrushEndTime(new Date(this.zoomedToMillis)); 
