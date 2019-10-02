@@ -21,6 +21,7 @@ class EventsPlot extends Plot {
     }
 
     private onMouseover (d, seriesNumber) {
+        
         let getX = () => {
             return this.x(new Date(d.dateTime));
         }
@@ -137,7 +138,8 @@ class EventsPlot extends Plot {
                         }
                         return 'none';
                     })
-                    .on('mouseover', (d) => {
+                    .on('mouseover', function (d) {
+                        d3.select(this).raise();
                         self.onMouseover(d, j);
                     })
                     .on('mouseout', () => {
