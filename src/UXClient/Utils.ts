@@ -10,9 +10,9 @@ import { ChartComponentData } from './Models/ChartComponentData';
 export const NONNUMERICTOPMARGIN = 8;
 
 // Linechart stack states
-enum StackStates {Stacked = "stacked", Shared = "shared", Overlap = "overlap" }
-
-export enum DataTypes {Numeric = 'numeric', Categorical = 'categorical', Events = 'events'}
+enum StackStates {Stacked = "stacked", Shared = "shared", Overlap = "overlap" };
+export enum DataTypes {Numeric = 'numeric', Categorical = 'categorical', Events = 'events'};
+export enum EventElementTypes {Diamond = 'diamond', Teardrop = 'teardrop'};
 
 class Utils {
     static formatYAxisNumber (val: number) {

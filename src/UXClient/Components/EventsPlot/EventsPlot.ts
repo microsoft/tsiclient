@@ -1,6 +1,6 @@
 import * as d3 from 'd3';
 import { Plot } from '../../Interfaces/Plot';
-import { Utils, NONNUMERICTOPMARGIN } from '../../Utils';
+import { Utils, NONNUMERICTOPMARGIN, EventElementTypes } from '../../Utils';
 
 const TOPMARGIN = 4;
 
@@ -105,39 +105,76 @@ class EventsPlot extends Plot {
 
         let gradientData = [];
 
+        let teardropD = (width, height) => {
+            return `M${width / 2} ${height / 14} 
+                    Q${width / 1.818} ${height / 6.17} ${width / 1.2} ${height / 2.33}
+                    A${width / 2.35} ${width / 2.35} 0 1 1 ${width / 6} ${width / 2.33}
+                    Q${width / 2.22} ${height / 6.18} ${width / 2} ${height / 14}z`;
+        }
+
+        let enterEventElements = (discreteEvents) => {
+            switch(this.chartDataOptions.eventElementType) {
+                case EventElementTypes.Teardrop:
+                    return discreteEvents.enter().append('path')
+                        .attr('y', 0)
+                        .attr('x', 0)
+                        .attr('class', 'tsi-discreteEvent tsi-discreteEventTeardrop')
+                        .merge(discreteEvents)
+                        .attr('transform', (d: any) => {
+                            return 'translate(' + (self.x(new Date(d.dateTime)) + self.eventHeight / 2) + ',' + (self.eventHeight * 1.4) + ') rotate(180)';
+                        })
+                        .attr('width', self.eventHeight)
+                        .attr('height', self.eventHeight)
+                        .attr('d', teardropD(self.eventHeight, self.eventHeight))
+                        .attr('stroke-width', Math.min(self.eventHeight / 4, 8))
+                        .attr('stroke', (d: any) => {
+                            if (d.measures) {
+                                if (Object.keys(d.measures).length === 1) {
+                                    return self.getColorForValue(Object.keys(d.measures)[0]);                            
+                                } else {
+                                    return 'grey';
+                                }
+                            }
+                            return 'none';
+                        });
+                case EventElementTypes.Diamond:
+                    return discreteEvents.enter()
+                        .append('rect')
+                        .attr('y', 0)
+                        .attr('x', 0)
+                        .attr('class', 'tsi-discreteEvent')
+                        .merge(discreteEvents)
+                        .attr('transform', (d: any) => {
+                            return 'translate(' + self.x(new Date(d.dateTime)) + ',0) rotate(45)';
+                        })
+                        .attr('width', self.eventHeight)
+                        .attr('height', self.eventHeight)
+                        .attr('fill', (d: any) => {
+                            // NOTE - hardcoded for single value or first value if multiple
+                            if (d.measures) {
+                                if (Object.keys(d.measures).length === 1) {
+                                    return self.getColorForValue(Object.keys(d.measures)[0]);                            
+                                } else {
+                                    return 'grey';
+                                }
+                            }
+                            return 'none';
+                        });
+            }
+        }
+
         let enteredSplitByGroups = splitByGroups.enter()
             .append("g")
             .attr("class", "tsi-splitByGroup " + agg.aggKey)
             .merge(splitByGroups)
             .attr('transform', (d, i) => {
-                return 'translate(0,' + (NONNUMERICTOPMARGIN + (i * (this.chartDataOptions.height / series.length))) + ')';
+                return 'translate(0,' + (  + (i * (this.chartDataOptions.height / series.length))) + ')';
             })
             .each(function (splitBy, j) {
                 let data = self.chartComponentData.timeArrays[aggKey][splitBy];
                 var discreteEvents = d3.select(this).selectAll(".tsi-discreteEvent")
                     .data(data);
-                let enteredEvents = discreteEvents.enter()
-                    .append('rect')
-                    .attr('y', 0)
-                    .attr('x', 0)
-                    .attr('class', 'tsi-discreteEvent')
-                    .merge(discreteEvents)
-                    .attr('transform', (d: any) => {
-                        return 'translate(' + self.x(new Date(d.dateTime)) + ',0) rotate(45)';
-                    })
-                    .attr('width', self.eventHeight)
-                    .attr('height', self.eventHeight)
-                    .attr('fill', (d: any) => {
-                        // NOTE - hardcoded for single value or first value if multiple
-                        if (d.measures) {
-                            if (Object.keys(d.measures).length === 1) {
-                                return self.getColorForValue(Object.keys(d.measures)[0]);                            
-                            } else {
-                                return 'grey';
-                            }
-                        }
-                        return 'none';
-                    })
+                let enteredEvents = enterEventElements(discreteEvents)
                     .on('mouseover', function (d) {
                         d3.select(this).raise();
                         self.onMouseover(d, j);
@@ -155,7 +192,7 @@ class EventsPlot extends Plot {
                             let gradientKey = self.createGradientKey(d, j, i);
                             gradientData.push([gradientKey, d]);
                             d3.select(this)
-                                .attr('fill', "url(#" + gradientKey + ")");    
+                                .attr(self.chartDataOptions.eventElementType === EventElementTypes.Teardrop ? 'stroke' : 'fill', "url(#" + gradientKey + ")");    
                         }
                     });
                 discreteEvents.exit().remove();

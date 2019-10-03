@@ -1,4 +1,4 @@
-import {Utils, DataTypes} from "../Utils";
+import {Utils, DataTypes, EventElementTypes} from "../Utils";
 
 const DEFAULT_HEIGHT = 40;
 // Represents an expression that is suitable for use as the expression options parameter in a chart component
@@ -19,6 +19,7 @@ class ChartDataOptions {
     public valueMapping: any; //only present for non-numeric
     public height: number; //only present for non-numeric
     public onElementClick: any;
+    public eventElementType: any;
 
     constructor (optionsObject: Object){
         this.searchSpan = Utils.getValueOrDefault(optionsObject, 'searchSpan');
@@ -36,6 +37,7 @@ class ChartDataOptions {
         this.valueMapping = Utils.getValueOrDefault(optionsObject, 'valueMapping', {});
         this.height = Utils.getValueOrDefault(optionsObject, 'height', DEFAULT_HEIGHT);
         this.onElementClick = Utils.getValueOrDefault(optionsObject, 'onElementClick', null);
+        this.eventElementType = Utils.getValueOrDefault(optionsObject, 'eventElementType', EventElementTypes.Diamond);
     }
 }
 export {ChartDataOptions}

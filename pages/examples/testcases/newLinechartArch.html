@@ -139,12 +139,25 @@
                     console.log(aggKey, splitBy, ts, measures);
                 }
 
-                lineChart.render(data, {theme: 'light', tooltip: 'true'}, 
-                    [{dataType: 'numeric', searchSpan: searchSpan}, 
-                     {dataType: 'categorical', valueMapping: valueMapping, height: 100, searchSpan: searchSpan}, 
-                     {dataType: 'numeric', searchSpan: searchSpan, onElementClick: onElementClick}, 
-                     {dataType: 'events', valueMapping: eventValueMapping, height: 48, onElementClick: onElementClick},
-                     {dataType: 'categorical', valueMapping: valueMapping, height: 50, searchSpan: searchSpan, onElementClick: onElementClick}]);
+                var renderCounter = 1;
+                var renderLinechart = function () {
+                    lineChart.render(data, {theme: 'light', tooltip: 'true'}, 
+                            [{dataType: 'numeric', searchSpan: searchSpan}, 
+                            {dataType: 'categorical', valueMapping: valueMapping, height: 100, searchSpan: searchSpan}, 
+                            {dataType: 'numeric', searchSpan: searchSpan, onElementClick: onElementClick}, 
+                            {dataType: 'events', valueMapping: eventValueMapping, height: 30 * renderCounter, eventElementType: 'teardrop', onElementClick: onElementClick},
+                            {dataType: 'categorical', valueMapping: valueMapping, height: 50, searchSpan: searchSpan, onElementClick: onElementClick}]);
+                }
+
+                renderLinechart();
+
+                setInterval (function () {
+                    renderCounter++;
+                    if (renderCounter < 10) {
+                        renderLinechart();
+                    }
+                }, 2000);
+
             };
         </script>
     </body>
