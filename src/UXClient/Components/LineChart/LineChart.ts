@@ -492,14 +492,16 @@ class LineChart extends TemporalXAxisComponent {
 
     private getFilteredAndSticky (aggValues) { //getFilteredValues, then filter by sticky
         var filteredValues = this.getFilteredValues(aggValues);
+        let numericFiltered = filteredValues.filter((d: any) => {
+            return (this.getDataType(d.aggregateKey) === DataTypes.Numeric)
+        })
         if (this.chartComponentData.stickiedKey == null)
-            return filteredValues;
-        var stickiedValues = filteredValues.filter((d: any) => {
+            return numericFiltered;
+        return numericFiltered.filter((d: any) => {
             return d.aggregateKey == this.chartComponentData.stickiedKey.aggregateKey &&
                 ((this.chartComponentData.stickiedKey.splitBy == null) ? true : 
                 d.splitBy == this.chartComponentData.stickiedKey.splitBy);
         });
-        return stickiedValues;
     }
 
     public stickyOrUnstickySeries = (aggKey, splitBy) => {
@@ -881,11 +883,7 @@ class LineChart extends TemporalXAxisComponent {
         if (!this.filteredValueExist() || !this.voronoiExists()) return;
         this.mx = mouseEvent[0];
         this.my = mouseEvent[1];
-        const [mx, my] = mouseEvent;
-      
-        var filteredValues = this.getFilteredAndSticky(this.chartComponentData.allValues);
-        if (filteredValues == null || filteredValues.length == 0)
-            return;
+        const [mx, my] = mouseEvent;      
         var site: any = this.voronoiDiagram.find(this.mx, this.my);
         if (!this.isDroppingScooter) {
             this.voronoiMouseover(site.data);  
@@ -1714,8 +1712,8 @@ class LineChart extends TemporalXAxisComponent {
                                 self.plotComponents[aggKey] = self.createPlot(g, i, self.aggregateExpressionOptions);
                             }
 
-                            let mouseoverFunction = self.getMouseoverFunction(self.aggregateExpressionOptions[i].dataType);
-                            let mouseoutFunction = self.getMouseoutFunction(self.aggregateExpressionOptions[i].dataType);
+                            let mouseoverFunction = self.getMouseoverFunction(visibleCDOs[i].dataType);
+                            let mouseoutFunction = self.getMouseoutFunction(visibleCDOs[i].dataType);
                             self.plotComponents[aggKey].render(self.chartOptions, visibleNumericI, agg, true, d3.select(this), self.chartComponentData, yExtent, 
                                 self.chartHeight, self.visibleAggCount, self.colorMap, self.previousAggregateData, 
                                 self.x, self.areaPath, self.strokeOpacity, self.y, self.yMap, defs, visibleCDOs[i], self.previousIncludeDots, offsetsAndHeights[i], 

@@ -61,13 +61,13 @@ class Legend extends Component {
             return (d3.select(this.parentNode).datum() == aggKey) && (labelData == splitBy);
         }).classed("inFocus", true);
 
-        var indexOfSplitBy = Object.keys(this.chartComponentData.displayState[aggKey].splitBys).sort().indexOf(splitBy);
+        var indexOfSplitBy = Object.keys(this.chartComponentData.displayState[aggKey].splitBys).indexOf(splitBy);
 
         if (indexOfSplitBy != -1) {
             var splitByNode = this.legendElement.selectAll('.tsi-splitByContainer').filter((d) => {
                 return d == aggKey;
             }).node();
-            var prospectiveScrollTop = indexOfSplitBy * 40;
+            var prospectiveScrollTop = Math.max((indexOfSplitBy - 1) * this.getHeightPerSplitBy(aggKey), 0) ;
             if (splitByNode.scrollTop < prospectiveScrollTop - (splitByNode.clientHeight - 40) || splitByNode.scrollTop > prospectiveScrollTop) {
                 splitByNode.scrollTop = prospectiveScrollTop;
             }  
