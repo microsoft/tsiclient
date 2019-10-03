@@ -372,7 +372,7 @@ class Legend extends Component {
             if (contentHeight < usableLegendHeight) {
                 this.legendElement.classed("tsi-flexLegend", true);
                 seriesLabelsEntered.each(function (d) {
-                    let heightPerSplitBy = self.getHeightPerSplitBy(d.aggregateKey);
+                    let heightPerSplitBy = self.getHeightPerSplitBy(d);
                     var minSplitByForFlexGrow = (prospectiveAggregateHeight - heightPerNameLabel) / heightPerSplitBy;
 
                     var splitBysCount = Object.keys(self.chartComponentData.displayState[String(d3.select(this).data()[0])].splitBys).length;
