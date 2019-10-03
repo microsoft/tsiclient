@@ -108,9 +108,9 @@ class Legend extends Component {
             .classed('hidden', legendState == 'hidden')
             .style('width', legendState == 'hidden' ? '0px' : this.legendWidth + "px");
 
-        let seriesNames = Object.keys(this.chartComponentData.displayState).filter((seriesName: string) => {
-            return (seriesName != 'states' && seriesName != 'events')
-        }); 
+
+        let seriesNames = Object.keys(this.chartComponentData.displayState);
+        // debugger; 
         var seriesLabels: any = legend.selectAll(".tsi-seriesLabel")
             .data(seriesNames, d => d);
 
@@ -131,14 +131,9 @@ class Legend extends Component {
 
         var self = this;
 
-        var events: any = (this.chartComponentData.displayState.events) ? this.chartComponentData.displayState.events : [];
-        var states: any = (this.chartComponentData.displayState.states) ? this.chartComponentData.displayState.states : [];
-
         const heightPerNameLabel: number = 25;
         const verticalPaddingPerSeriesLabel: number = 16;
-        const numEventsAndStates = Object.keys(events).length + Object.keys(states).length;
-        const usableLegendHeight: number = legend.node().clientHeight - (numEventsAndStates * heightPerNameLabel + 
-            (numEventsAndStates > 0 ? verticalPaddingPerSeriesLabel / 2 : 0));
+        const usableLegendHeight: number = legend.node().clientHeight;
         var prospectiveAggregateHeight = Math.ceil(Math.max(201, (usableLegendHeight / seriesLabelsEntered.size())));
         var contentHeight = 0;
 
@@ -205,7 +200,7 @@ class Legend extends Component {
                 .classed("tsi-splitByContainer", true);
 
 
-            var renderSplitBys = (dataType) => {
+            var renderSplitBys = (dataType = DataTypes.Numeric) => {
                 var firstSplitBy = self.chartComponentData.displayState[aggKey].splitBys
                                 [Object.keys(self.chartComponentData.displayState[aggKey].splitBys)[0]];
                 var firstSplitByType = firstSplitBy ? firstSplitBy.visibleType : null;
@@ -372,7 +367,7 @@ class Legend extends Component {
             if (contentHeight < usableLegendHeight) {
                 this.legendElement.classed("tsi-flexLegend", true);
                 seriesLabelsEntered.each(function (d) {
-                    let heightPerSplitBy = self.getHeightPerSplitBy(d.aggregateKey);
+                    let heightPerSplitBy = self.getHeightPerSplitBy(d);
                     var minSplitByForFlexGrow = (prospectiveAggregateHeight - heightPerNameLabel) / heightPerSplitBy;
 
                     var splitBysCount = Object.keys(self.chartComponentData.displayState[String(d3.select(this).data()[0])].splitBys).length;
@@ -386,90 +381,6 @@ class Legend extends Component {
         }
 
         seriesLabels.exit().remove();
-
-        /** Events ************************************************************************************************/
-        legend.selectAll(".tsi-eventSeriesLabel").remove();
-        var eventSeriesLabels: any = legend.selectAll(".tsi-eventSeriesLabel")
-            .data(Object.keys(events));
-        var eventSeriesLabelsEntered = eventSeriesLabels
-            .enter()
-            .append("div")
-            .attr("class", (d, i) => "tsi-eventSeriesLabel" + (this.chartComponentData.displayState.events[d].visible ? " shown" : ""))
-            .append("div")
-            .attr("class", (d, i) => "tsi-seriesNameLabel" + (this.chartComponentData.displayState.events[d].visible ? " shown" : ""));
-
-        eventSeriesLabelsEntered.each(function (d, i) {
-            var eyeIcons = d3.select(this).selectAll('.tsi-eyeIcon')
-                .data([d]);
-            eyeIcons
-                .enter().append("div")
-                .attr("class", "tsi-eyeIcon")
-                .on("click", function (data: any, i: number) {
-                    self.chartComponentData.displayState.events[d].visible = !self.chartComponentData.displayState.events[d].visible;
-                    self.drawChart();
-                });
-        });  
-
-        eventSeriesLabels.merge(eventSeriesLabels)
-        .classed("shown", (d, i) => {
-            return  this.chartComponentData.displayState.events[d].visible;
-        });
-
-        var eventSeriesLabelText = eventSeriesLabelsEntered
-            .append("h4");
-
-        eventSeriesLabelText.each(function() {
-            var svg = d3.select(this).append("svg")
-                            .attr("width", 20)
-                            .attr("height", 10);
-            Utils.createSeriesTypeIcon("event", svg);
-        }); 
-        eventSeriesLabelText.html(function(d) { 
-            return d3.select(this).html() + events[d].name;
-        });
-
-        eventSeriesLabels.exit().remove();
-
-        /** States ************************************************************************************************/
-        legend.selectAll(".tsi-stateSeriesLabel").remove();
-        var stateSeriesLabels: any = legend.selectAll(".tsi-stateSeriesLabel")
-            .data(Object.keys(states));
-        var stateSeriesLabelsEntered = stateSeriesLabels
-            .enter()
-            .append("div")
-            .attr("class", d => "tsi-stateSeriesLabel" + (this.chartComponentData.displayState.states[d].visible ? " shown" : ""))
-            .append("div")
-            .attr("class", d => "tsi-seriesNameLabel" + (this.chartComponentData.displayState.states[d].visible ? " shown" : ""));
-    
-        stateSeriesLabelsEntered.each(function (d, i) {
-            var eyeIcons = d3.select(this).selectAll('.tsi-eyeIcon')
-                .data([d]);
-            eyeIcons
-                .enter().append("div")
-                .attr("class", "tsi-eyeIcon")
-                .on("click", function (data: any, i: number) {
-                    self.chartComponentData.displayState.states[d].visible = !self.chartComponentData.displayState.states[d].visible;
-                    self.drawChart();
-                });
-        });  
-
-        stateSeriesLabels.merge(stateSeriesLabels)
-        .classed("shown", (d, i) => {
-            return  this.chartComponentData.displayState.states[d].visible;
-        });
-
-        var stateSeriesLabelText = stateSeriesLabelsEntered
-            .append("h4").each(function() {
-            var svg = d3.select(this).append("svg")
-                            .attr("width", 20)
-                            .attr("height", 10);
-            Utils.createSeriesTypeIcon("state", svg);
-        }); 
-        stateSeriesLabelText.html(function(d) { 
-            return d3.select(this).html() + states[d].name;
-        });
-
-        stateSeriesLabels.exit().remove();
 	}
 }
 

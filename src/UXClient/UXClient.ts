@@ -5,8 +5,6 @@ import {ScatterPlot} from "./Components/ScatterPlot/ScatterPlot";
 import {GroupedBarChart} from "./Components/GroupedBarChart/GroupedBarChart";
 import {Grid} from "./Components/Grid/Grid";
 import {Slider} from "./Components/Slider/Slider";
-import {EventSeries} from "./Components/EventSeries/EventSeries";
-import {StateSeries} from "./Components/StateSeries/StateSeries";
 import {Hierarchy} from "./Components/Hierarchy/Hierarchy";
 import {AggregateExpression} from "./Models/AggregateExpression";
 import {Heatmap} from "./Components/Heatmap/Heatmap";
@@ -58,14 +56,6 @@ class UXClient {
     
     public Slider(renderTarget){
         return new Slider(renderTarget);
-    }
-
-    public EventSeries(renderTarget) {
-        return new EventSeries(renderTarget);
-    }
-
-    public StateSeries(renderTarget) {
-        return new StateSeries(renderTarget);
     }
 
     public Hierarchy(renderTarget) {

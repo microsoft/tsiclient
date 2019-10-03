@@ -293,15 +293,6 @@
             fill: none;   
         }
 
-        .valueLine {
-            path {
-                stroke-width: 2px;
-                stroke-linecap: round;
-                stroke-linejoin: round;
-                pointer-events: none;
-                transition: stroke-opacity .2s ease;
-            }
-        }
         .focus {
             circle {
                 stroke-width: 1px;
@@ -316,6 +307,11 @@
         .valueLine {
             stroke-width: 2px;
             will-change: stroke-opacity;
+            stroke-width: 2px;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            pointer-events: none;
+            transition: stroke-opacity .2s ease;
         }
 
         .valueArea {

@@ -3,9 +3,7 @@ import { interpolatePath } from 'd3-interpolate-path';
 import './LineChart.scss';
 import {Utils, DataTypes} from "./../../Utils";
 import {Legend} from "./../Legend/Legend";
-import {EventSeries} from "./../EventSeries/EventSeries";
 import {TemporalXAxisComponent} from "./../../Interfaces/TemporalXAxisComponent";
-import {StateSeries} from "../StateSeries/StateSeries";
 import {LineChartData} from "./../../Models/LineChartData";
 import { ContextMenu } from '../ContextMenu/ContextMenu';
 import { Tooltip } from '../Tooltip/Tooltip';
@@ -26,8 +24,6 @@ class LineChart extends TemporalXAxisComponent {
     private setDisplayStateFromData: any;
     private width: number;
     public draw: any;
-    private events: any;
-    private states: any;
     private minBrushWidth = 1;
     private strokeOpacity = 1;
     private nonFocusStrokeOpactiy = .3;
@@ -44,7 +40,6 @@ class LineChart extends TemporalXAxisComponent {
     private xUpperBound: number;
     private y: any;
     private yMap: any;
-    private timelineHeight: number;
     private line: any;
     private areaPath: any;
     private envelope: any;
@@ -71,11 +66,6 @@ class LineChart extends TemporalXAxisComponent {
     private focusedAggKey: string = null;
     private focusedSplitby: string = null;
 
-    private eventSeriesWrappers;
-    private eventSeriesComponents;
-    private stateSeriesWrappers;
-    private stateSeriesComponents;
-
     private plotComponents = {};
 
     private isFirstMarkerDrop = true;
@@ -87,8 +77,6 @@ class LineChart extends TemporalXAxisComponent {
         right: 60
     };
     private xOffset = 8;
-
-    private timelineSeriesRight;
 
     constructor(renderTarget: Element){
         super(renderTarget);
@@ -358,7 +346,7 @@ class LineChart extends TemporalXAxisComponent {
         this.focus.select('.vLine').attr("transform", "translate(0," + (-yPos) + ")");
         
         this.focus.select('.hHoverG')
-            .attr("transform", "translate(0," + (this.chartHeight + this.timelineHeight - yPos) + ")");
+            .attr("transform", "translate(0," + (this.chartHeight - yPos) + ")");
         var text = this.focus.select('.hHoverG').select("text").text("");
 
         var bucketSize = this.chartComponentData.displayState[d.aggregateKey].bucketSize;
@@ -1376,21 +1364,16 @@ class LineChart extends TemporalXAxisComponent {
             this.deleteBrushRange();
         }
 
-        let eventsOrStatesChanged = (this.chartOptions.events !== this.events) || (this.chartOptions.states !== this.states);
-        this.events = (this.chartOptions.events != undefined) ? this.chartOptions.events : null;
-        this.states = (this.chartOptions.states != undefined) ? this.chartOptions.states : null;
         this.strokeOpacity = this.chartOptions.isArea ? .55 : 1;
         this.nonFocusStrokeOpactiy = this.chartOptions.isArea ? .55 : .3;
 
-        this.timelineSeriesRight = (this.chartOptions.legend === 'shown') ? 78 : 62; 
 
-        this.chartComponentData.mergeDataToDisplayStateAndTimeArrays(data, aggregateExpressionOptions, this.events, this.states);
+        this.chartComponentData.mergeDataToDisplayStateAndTimeArrays(data, aggregateExpressionOptions);
         if (this.chartOptions.xAxisHidden && this.chartOptions.focusHidden) {
             this.chartMargins.bottom = 5;
         }
 
-        this.timelineHeight = (this.chartComponentData.visibleEventsAndStatesCount * 10);
-        this.chartHeight = Math.max(1, this.height - this.chartMargins.bottom - this.chartMargins.top - this.timelineHeight); 
+        this.chartHeight = Math.max(1, this.height - this.chartMargins.bottom - this.chartMargins.top); 
         this.chartWidth = this.getChartWidth();
 
         if (this.brush && this.svgSelection.select('.svgGroup').select(".brushElem") && !this.chartOptions.keepBrush) {
@@ -1464,7 +1447,7 @@ class LineChart extends TemporalXAxisComponent {
                 .attr("x1", 0)
                 .attr("x2", 0)
                 .attr("y1", this.chartOptions.aggTopMargin)
-                .attr("y2", this.chartHeight + this.timelineHeight);
+                .attr("y2", this.chartHeight);
             this.focus.append("line")
                 .attr("class", "focusLine hLine")
                 .attr("x1", 0)
@@ -1527,13 +1510,10 @@ class LineChart extends TemporalXAxisComponent {
                     this.chartMargins.bottom = 5;
                 }
 
-                this.chartComponentData.updateVisibleEventsAndStatesCount();
-                this.timelineHeight = (this.chartComponentData.visibleEventsAndStatesCount * 10);
-      
                 this.width = Math.max((<any>d3.select(this.renderTarget).node()).clientWidth, this.MINWIDTH);
                 this.chartWidth = this.getChartWidth();
                 this.height = Math.max((<any>d3.select(this.renderTarget).node()).clientHeight, this.MINHEIGHT);
-                this.chartHeight = Math.max(1, this.height - this.chartMargins.bottom - this.chartMargins.top - this.timelineHeight); 
+                this.chartHeight = Math.max(1, this.height - this.chartMargins.bottom - this.chartMargins.top); 
 
                 g.attr("transform", "translate(" + this.chartMargins.left + "," + this.chartMargins.top + ")");
 
@@ -1542,7 +1522,7 @@ class LineChart extends TemporalXAxisComponent {
                 }
 
                 this.focus.select('.hLine').attr("x2", this.chartWidth);
-                this.focus.select('.vLine').attr("y2", this.chartHeight + this.timelineHeight);
+                this.focus.select('.vLine').attr("y2", this.chartHeight);
                 this.svgSelection
                     .style("width", (this.chartWidth + this.chartMargins.left + this.chartMargins.right) + "px")
                     .style("height", this.height + "px");
@@ -1645,7 +1625,7 @@ class LineChart extends TemporalXAxisComponent {
                     
                 if (!this.chartOptions.xAxisHidden) {
                     this.xAxis = g.selectAll(".xAxis").data([this.x]);
-                    this.drawXAxis(this.chartHeight + this.timelineHeight);
+                    this.drawXAxis(this.chartHeight);
                     this.xAxis.exit().remove();
 
                     var xAxisBaseline =  g.selectAll(".xAxisBaseline").data([this.x]);
@@ -1653,8 +1633,8 @@ class LineChart extends TemporalXAxisComponent {
                         .attr("class", "xAxisBaseline")
                         .attr("x1", .5)
                         .merge(xAxisBaseline)
-                        .attr("y2", this.chartHeight + this.timelineHeight + .5)
-                        .attr("y1", this.chartHeight + this.timelineHeight + .5)
+                        .attr("y2", this.chartHeight + .5)
+                        .attr("y1", this.chartHeight + .5)
                         .attr("x2", this.chartWidth - this.xOffset);
                     xAxisBaseline.exit().remove();
                 }
@@ -1803,41 +1783,7 @@ class LineChart extends TemporalXAxisComponent {
                     .classed('tsi-darkTheme', this.chartOptions.theme == 'dark');
                 }
 
-                var visibleEventsCount = 0;
                 let timeFrame = (this.chartOptions.timeFrame) ? this.chartOptions.timeFrame : this.x.domain();
-                if (this.chartComponentData.events) {
-                    this.chartComponentData.events.forEach((namedEventSeries, i) => {
-                        var name = Object.keys(namedEventSeries)[0];
-                        var eventSeries = namedEventSeries[name];
-                        var isVisible = this.chartComponentData.displayState.events[namedEventSeries.key].visible;
-                        visibleEventsCount += (isVisible) ? 1 : 0;
-                        this.eventSeriesWrappers[i].style("width", this.chartWidth  + 'px')
-                            .style("height", d => isVisible ? '10px' : '0px')
-                            .style("visibility", d => isVisible ? "visible" : "hidden")
-                            .style('right', this.chartMargins.right + 'px')
-                            .style('bottom', this.chartMargins.bottom + this.timelineHeight - (visibleEventsCount * 10)  + 'px');
-                        this.eventSeriesComponents[i].render(namedEventSeries, {timeFrame: timeFrame, 
-                                                        xAxisHidden: true, theme: this.chartOptions.theme, 
-                                                        offset: this.chartOptions.offset});
-                    });
-                }
-                if (this.chartComponentData.states) {
-                    var visibleStatesCount = 0;
-                    this.chartComponentData.states.forEach((namedStateSeries, i) => {
-                        var name = Object.keys(namedStateSeries)[0];
-                        var stateSeries = namedStateSeries[name];
-                        var isVisible = this.chartComponentData.displayState.states[namedStateSeries.key].visible;
-                        visibleStatesCount += (isVisible) ? 1 : 0;
-                        this.stateSeriesWrappers[i].style("width", this.chartWidth + 'px')
-                            .style("height", d => this.chartComponentData.displayState.states[namedStateSeries.key].visible ? '10px' : '0px')
-                            .style("visibility", d => this.chartComponentData.displayState.states[namedStateSeries.key].visible ? "visible" : "hidden")
-                            .style("right", this.chartMargins.right + 'px')
-                            .style("bottom", this.chartMargins.bottom + this.timelineHeight - ((visibleEventsCount * 10) + (visibleStatesCount * 10))  + 'px');
-                        this.stateSeriesComponents[i].render(namedStateSeries, {timeFrame: timeFrame, 
-                                                                           offset: this.chartOptions.offset,
-                                                                           xAxisHidden: true, theme: this.chartOptions.theme});
-                    });
-                }
 
                 if (!this.chartOptions.hideChartControlPanel && this.chartControlsPanel !== null) {
                     let controlPanelWidth = Utils.getControlPanelWidth(this.renderTarget, this.CONTROLSWIDTH, this.chartOptions.legend === 'shown');
@@ -1867,11 +1813,7 @@ class LineChart extends TemporalXAxisComponent {
             });
         }
 
-        if (eventsOrStatesChanged) {
-            this.drawEventsAndSeries();
-        }
-
-        this.chartComponentData.mergeDataToDisplayStateAndTimeArrays(this.data, this.aggregateExpressionOptions, this.events, this.states);
+        this.chartComponentData.mergeDataToDisplayStateAndTimeArrays(this.data, this.aggregateExpressionOptions);
         this.draw();
         this.chartOptions.noAnimate = false;  // ensure internal renders are always animated, overriding the users noAnimate option
 
@@ -1896,37 +1838,6 @@ class LineChart extends TemporalXAxisComponent {
             return new EventsPlot(svgGroup);
         }
         return null;
-    }
-
-    private drawEventsAndSeries () {
-        this.targetElement.selectAll('.tsi-lineChartEventsWrapper').remove();
-        this.targetElement.selectAll('.tsi-lineChartStatesWrapper').remove();
-        if (this.events && this.events.length > 0) {
-            
-            this.eventSeriesWrappers = this.events.map((events, i) => {
-                return this.targetElement.append("div").attr("class", "tsi-lineChartEventsWrapper");
-            });
-            this.eventSeriesComponents = this.events.map((eSC, i) => {
-                return (new EventSeries(<any>this.eventSeriesWrappers[i].node()));
-            });
-        }
-        else {
-            this.eventSeriesWrappers = [];
-            this.eventSeriesComponents = [];
-        }
-
-        if (this.states && this.states.length > 0) {
-            this.stateSeriesWrappers = this.states.map((state, i) => {
-                return this.targetElement.append("div").attr("class", "tsi-lineChartStatesWrapper");
-            });
-            this.stateSeriesComponents = this.states.map((tSC, i) => {
-                return (new StateSeries(<any>this.stateSeriesWrappers[i].node()));
-            });
-        } 
-        else {
-            this.stateSeriesWrappers = [];
-            this.stateSeriesComponents = [];
-        }
     }
 }
 export {LineChart}
