@@ -19,7 +19,6 @@ class ChartOptions {
     public dateLocale: string; //moment locale specifying the location specific format for dates, along with translations for month and day names
     public defaultAvailabilityZoomRangeMillis: number; // default max period of time shown in the zoomed region of the availability chart
     public ellipsisItems: Array<any>; //objects reprenting options in the ellipsis menu 
-    public events: Array<any>; // events passed into the linchart, an array of discrete time events
     public focusHidden: boolean; // whether focus element is hidden in chart
     public fromChart: boolean; // whether a component is a subcomponent of another one or is a standalone
     public grid: boolean; // whether the chart includes a grid and grid button
@@ -58,7 +57,6 @@ class ChartOptions {
     public singleLineXAxisLabel: boolean; // whether x axis time labels are on a single line (else split into two lines)
     public snapBrush: boolean; // whether to snap linechart brush to closest value
     public stacked: boolean; //whether bars in barchart are stacked
-    public states: Array<any>; // states passed into the linchart, an array of time range bound states
     public suppressResizeListener: boolean; // whether a component's resize function is ignored. Applies to components which draw an SVG
     public theme: string; // theme for styling chart, light or dark
     public timeFrame: any; // from and to to specify range of an event or state series
@@ -115,8 +113,6 @@ class ChartOptions {
         this.focusHidden = this.mergeValue(chartOptionsObj, 'focusHidden', false);
         this.singleLineXAxisLabel = this.mergeValue(chartOptionsObj, 'singleLineXAxisLabel', false);
         this.legend = this.mergeValue(chartOptionsObj, 'legend', 'shown');
-        this.states = this.mergeValue(chartOptionsObj, 'states', null);
-        this.events = this.mergeValue(chartOptionsObj, 'events', null);
         this.tooltip = this.mergeValue(chartOptionsObj, 'tooltip', false);
         this.throttleSlider = this.mergeValue(chartOptionsObj, 'throttleSlider', false);
         this.snapBrush = this.mergeValue(chartOptionsObj, 'snapBrush', false);
@@ -201,8 +197,6 @@ class ChartOptions {
             focusHidden: this.focusHidden,
             singleLineXAxisLabel: this.singleLineXAxisLabel,
             legend: this.legend,
-            states: this.states,
-            events: this.events,
             tooltip: this.tooltip,
             throttleSlider: this.throttleSlider,
             snapBrush: this.snapBrush,

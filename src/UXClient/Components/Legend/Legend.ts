@@ -110,7 +110,6 @@ class Legend extends Component {
 
 
         let seriesNames = Object.keys(this.chartComponentData.displayState);
-        // debugger; 
         var seriesLabels: any = legend.selectAll(".tsi-seriesLabel")
             .data(seriesNames, d => d);
 
