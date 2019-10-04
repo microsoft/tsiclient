@@ -143,6 +143,7 @@ class CategoricalPlot extends Plot {
                     .on('mouseout', () => {
                         self.onMouseout();
                     })
+                    .attr('cursor', (self.chartDataOptions.onElementClick ? 'pointer' : 'inherit'))
                     .on('click', (d: any) => {
                         if (self.chartDataOptions.onElementClick) {
                             self.chartDataOptions.onElementClick(d.aggregateKey, d.splitBy, d.dateTime.toISOString(), d.measures);

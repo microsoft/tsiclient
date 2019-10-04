@@ -189,6 +189,7 @@ class EventsPlot extends Plot {
                             self.chartDataOptions.onElementClick(d.aggregateKey, d.splitBy, d.dateTime.toISOString(), d.measures);
                         }
                     })
+                    .attr('cursor', (self.chartDataOptions.onElementClick ? 'pointer' : 'inherit'))
                     .each(function (d: any, i) {
                         if (Object.keys(d.measures).length > 1) {
                             let gradientKey = self.createGradientKey(d, j, i);
