@@ -83,6 +83,7 @@ class EventsPlot extends Plot {
         this.discreteEventsMouseover = discreteEventsMouseover;
         this.discreteEventsMouseout = discreteEventsMouseout;
 
+        this.createBackdropRect();
         if (this.aggregateGroup.selectAll('defs').empty()) {
             this.defs = this.aggregateGroup.append('defs');
         }
