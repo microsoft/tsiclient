@@ -1,0 +1,139 @@
+
+<!DOCTYPE html> 
+<html>
+    <head>
+        <title>Basic Charts</title>
+
+        <!-- boilerplate headers are injected with head.js, grab them from the live example header, or include a link to head.js -->
+        <script src="../boilerplate/head.js"></script>
+    </head>
+    <body style="font-family: 'Segoe UI', sans-serif;">
+        <div id="chart1" style="box-sizing: border-box; width: calc(100% - 240px); height: 350px; margin: 0 120px; margin-top: 200px; border: 1px solid silver; border-radius: 3px;"></div>
+    
+        <script>
+            window.onload = function() {
+                var tsiClient = new TsiClient();
+                var res = tsiClient.ux.transformTsqResultsForVisualization([catData, catData, catData, catData], [{alias: 'Other nums'}, {alias: 'These Numbers'}, {alias: 'These Events'}, {alias: 'These Categories'}]);
+                let valueMapping = {
+                    'ColorColorWhatColor[Blue]': {
+                        color: 'blue'
+                    }, 
+                    'ColorColorWhatColor[Green]': {
+                        color: 'green'
+                    },
+                    'ColorColorWhatColor[Yellow]': {
+                        color:'yellow'
+                    },
+                    'ColorColorWhatColor[Orange]': {
+                        color:'orange'
+                    },
+                    'ColorColorWhatColor[Others]': {
+                        color:'gray'
+                    }
+                }
+                var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart1'));
+                lineChart.render(res, {theme: 'light', tooltip: true}, 
+                            [{}, {dataType: 'categorical', eventElementType: '', valueMapping: valueMapping, height: 50}, {}, {dataType: 'categorical', eventElementType: 'diamond', valueMapping: valueMapping, height: 50}]);
+            };
+
+            var catData = {
+  "timestamps": [
+    "2016-08-01T00:00:00Z",
+    "2016-08-01T00:01:00Z",
+    "2016-08-01T00:02:00Z",
+    "2016-08-01T00:03:00Z",
+    "2016-08-01T00:04:00Z",
+    "2016-08-01T00:05:00Z",
+    "2016-08-01T00:06:00Z",
+    "2016-08-01T00:07:00Z",
+    "2016-08-01T00:08:00Z",
+    "2016-08-01T00:09:00Z"
+  ],
+  "properties": [
+    {
+      "values": [
+        0.08333333333333332,
+        0.38333333333333336,
+        0.13333333333333333,
+        0.35,
+        0.15,
+        0.23333333333333334,
+        0.3,
+        0.2,
+        0.3,
+        0.21666666666666667
+      ],
+      "name": "ColorColorWhatColor[Blue]",
+      "type": "Double"
+    },
+    {
+      "values": [
+        0.13333333333333333,
+        0.05,
+        0.083333333333333329,
+        0.13333333333333333,
+        0.13333333333333333,
+        0.066666666666666666,
+        0.11666666666666667,
+        0.18333333333333332,
+        0.083333333333333329,
+        0.083333333333333329
+      ],
+      "name": "ColorColorWhatColor[Green]",
+      "type": "Double"
+    },
+    {
+      "values": [
+        0.066666666666666666,
+        0.18333333333333332,
+        0.18333333333333332,
+        0.11666666666666667,
+        0.083333333333333329,
+        0.15,
+        0.1,
+        0.083333333333333329,
+        0.066666666666666666,
+        0.083333333333333329
+      ],
+      "name": "ColorColorWhatColor[Yellow]",
+      "type": "Double"
+    },
+    {
+      "values": [
+        0.083333333333333329,
+        0.083333333333333329,
+        0.083333333333333329,
+        0.033333333333333333,
+        0.11666666666666667,
+        0.16666666666666666,
+        0.1,
+        0.15,
+        0.066666666666666666,
+        0.1
+      ],
+      "name": "ColorColorWhatColor[Orange]",
+      "type": "Double"
+    },
+    {
+      "values": [
+        0.36666666666666664,
+        0.3,
+        0.51666666666666672,
+        0.36666666666666664,
+        0.51666666666666672,
+        0.38333333333333336,
+        0.38333333333333336,
+        0.38333333333333336,
+        0.48333333333333334,
+        0.51666666666666672
+      ],
+      "name": "ColorColorWhatColor[Others]",
+      "type": "Double"
+    }
+  ],
+  "continuationToken": null,
+  "progress": 100.0
+};
+        </script>
+    </body>
+</html>
