@@ -9,7 +9,6 @@ class LinePlot extends Plot {
     private chartWidth;
     private y;
     private visibleAggCount;
-    private TRANSDURATION = 200; // HARDCODED remove
     private strokeOpacity;
     private previousIncludeDots;
     private areaPath;

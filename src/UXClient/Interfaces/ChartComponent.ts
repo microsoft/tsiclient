@@ -8,7 +8,6 @@ class ChartComponent extends Component {
 	readonly MINWIDTH = 350;
 	protected MINHEIGHT = 150;
 	readonly CONTROLSWIDTH = 200;
-	readonly TRANSDURATION = (window.navigator.userAgent.indexOf("Edge") > -1) ? 0 : 400;
     public data: any;
 	public aggregateExpressionOptions: any;
 	protected chartControlsPanel = null;

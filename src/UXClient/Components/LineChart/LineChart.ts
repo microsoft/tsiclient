@@ -297,6 +297,7 @@ class LineChart extends TemporalXAxisComponent {
     }
 
     private discreteEventsMouseout = () => {
+        (<any>this.legendObject.legendElement.selectAll('.tsi-splitByLabel')).classed("inFocus", false);
         this.tooltip.hide();
     }
 
@@ -325,6 +326,7 @@ class LineChart extends TemporalXAxisComponent {
     }
 
     private categoricalMouseout = () => {
+        (<any>this.legendObject.legendElement.selectAll('.tsi-splitByLabel')).classed("inFocus", false);
         this.tooltip.hide();
     }
 

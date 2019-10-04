@@ -4,6 +4,7 @@ import { ChartOptions } from "../Models/ChartOptions";
 class Component {
 	public renderTarget;
 	protected currentTheme: string;
+	readonly TRANSDURATION = (window.navigator.userAgent.indexOf("Edge") > -1) ? 0 : 400;
 
 	public usesSeconds: boolean = false;
 	public usesMillis: boolean = false;

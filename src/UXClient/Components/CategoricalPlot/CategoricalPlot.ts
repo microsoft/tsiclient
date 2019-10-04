@@ -5,7 +5,6 @@ import { Utils, NONNUMERICTOPMARGIN } from '../../Utils';
 const TOPMARGIN = 4;
 
 class CategoricalPlot extends Plot {
-    private TRANSDURATION = 500; //TO BE REMOVED
     private defs;
     private hoverRect;
     private chartGroup;
@@ -42,6 +41,8 @@ class CategoricalPlot extends Plot {
                 .attr('class', 'tsi-categoricalHoverRect')
                 .attr('y', 0)
                 .attr('height', this.chartHeight + 1)
+        } else {
+            this.hoverRect.raise();
         }
     }
 

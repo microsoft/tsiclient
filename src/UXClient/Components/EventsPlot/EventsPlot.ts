@@ -5,7 +5,6 @@ import { Utils, NONNUMERICTOPMARGIN, EventElementTypes } from '../../Utils';
 const TOPMARGIN = 4;
 
 class EventsPlot extends Plot {
-    private TRANSDURATION = 500; //TO BE REMOVED
     private defs;
     private hoverLine;
     private chartGroup;
@@ -59,6 +58,8 @@ class EventsPlot extends Plot {
                 .attr('y2', this.chartHeight + 1)
                 .attr('pointer-events', 'none')
                 .attr('visibility', 'hidden');
+        } else {
+            this.hoverLine.raise();
         }
     }
 
