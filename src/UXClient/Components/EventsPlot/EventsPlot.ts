@@ -1,6 +1,6 @@
 import * as d3 from 'd3';
 import { Plot } from '../../Interfaces/Plot';
-import { Utils, NONNUMERICTOPMARGIN, EventElementTypes } from '../../Utils';
+import { Utils, NONNUMERICTOPMARGIN, EventElementTypes, DataTypes, LINECHARTTOPPADDING } from '../../Utils';
 
 const TOPMARGIN = 4;
 
@@ -16,7 +16,8 @@ class EventsPlot extends Plot {
     private gradientArray = {};
 
     constructor (svgSelection) {
-        super(svgSelection)
+        super(svgSelection);
+        this.plotDataType = DataTypes.Events;
     }
 
     private onMouseover (d, seriesNumber) {
@@ -38,7 +39,7 @@ class EventsPlot extends Plot {
         this.hoverLine.attr('visibility', 'visible')
             .attr('x1', getX)
             .attr('x2', getX)
-            .attr('y1', 0)
+            .attr('y1', LINECHARTTOPPADDING)
             .attr('y2', this.chartHeight + 1)
             .attr('stroke', () => {
                 return visibleMeasures.length === 1 ? this.getColorForValue(visibleMeasures[0]) : 'grey'
@@ -54,7 +55,7 @@ class EventsPlot extends Plot {
         if (!this.hoverLine) {
             this.hoverLine = this.chartGroup.append('line')
                 .attr('class', 'tsi-discreteEventHoverLine')
-                .attr('y1', 0)
+                .attr('y1', LINECHARTTOPPADDING)
                 .attr('y2', this.chartHeight + 1)
                 .attr('pointer-events', 'none')
                 .attr('visibility', 'hidden');

@@ -2,7 +2,7 @@ import * as d3 from 'd3';
 import { interpolatePath } from 'd3-interpolate-path';
 import './LinePlot.scss';
 import { Plot } from '../../Interfaces/Plot';
-import { Utils } from '../../Utils';
+import { Utils, DataTypes } from '../../Utils';
 
 class LinePlot extends Plot {
     private defs;
@@ -14,7 +14,8 @@ class LinePlot extends Plot {
     private areaPath;
 
     constructor (svgSelection) {
-        super(svgSelection)
+        super(svgSelection);
+        this.plotDataType = DataTypes.Numeric;
     }
 
     // ALSO IN LINECHART

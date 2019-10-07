@@ -10,6 +10,7 @@ class Plot extends Component {
     protected height;
     protected aggregateGroup;
     protected backdropRect = null;
+    protected plotDataType: string;
 
 
 	constructor(renderTarget: Element){

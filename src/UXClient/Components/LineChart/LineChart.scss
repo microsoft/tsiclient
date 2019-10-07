@@ -314,6 +314,10 @@
             transition: stroke-opacity .2s ease;
         }
 
+        .valueEnvelope {
+            pointer-events: none;
+        }
+
         .valueArea {
             stroke: none;
             will-change: fill-opacity;

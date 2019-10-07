@@ -1,6 +1,6 @@
 import * as d3 from 'd3';
 import { Plot } from '../../Interfaces/Plot';
-import { Utils, NONNUMERICTOPMARGIN } from '../../Utils';
+import { Utils, NONNUMERICTOPMARGIN, DataTypes, LINECHARTTOPPADDING } from '../../Utils';
 
 const TOPMARGIN = 4;
 
@@ -13,7 +13,8 @@ class CategoricalPlot extends Plot {
     private splitBysGroup;
 
     constructor (svgSelection) {
-        super(svgSelection)
+        super(svgSelection);
+        this.plotDataType = DataTypes.Categorical;
     }
 
     private onMouseover (d, rectWidth) {
@@ -24,7 +25,7 @@ class CategoricalPlot extends Plot {
                 return this.x(new Date(d.dateTime))
             })
             .attr('width', rectWidth)
-            .attr('height', this.chartHeight + 1)
+            .attr('height', this.chartHeight + 1 - LINECHARTTOPPADDING)
             .attr('fill', () => {
                 return visibleMeasures.length === 1 ? this.getColorForValue(visibleMeasures[0]) : 'none'
             });
@@ -39,7 +40,7 @@ class CategoricalPlot extends Plot {
         if (!this.hoverRect) {
             this.hoverRect = this.chartGroup.append('rect')
                 .attr('class', 'tsi-categoricalHoverRect')
-                .attr('y', 0)
+                .attr('y', LINECHARTTOPPADDING)
                 .attr('height', this.chartHeight + 1)
         } else {
             this.hoverRect.raise();
@@ -100,7 +101,7 @@ class CategoricalPlot extends Plot {
         let series: Array<string> = this.getVisibleSeries(aggKey);
 
         let heightPerSeries = Math.max((self.chartDataOptions.height - (series.length * TOPMARGIN))/ series.length, 0);
-
+        // series = Utils.rollUpContiguous(series);
         let splitByGroups = this.splitBysGroup.selectAll(".tsi-splitByGroup")
             .data(series, (d) => {
                 return d.splitBy;

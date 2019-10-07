@@ -8,6 +8,7 @@ import { AggregateExpression } from './Models/AggregateExpression';
 import { ChartComponentData } from './Models/ChartComponentData';
 
 export const NONNUMERICTOPMARGIN = 8;
+export const LINECHARTTOPPADDING = 16;
 
 // Linechart stack states
 enum StackStates {Stacked = "stacked", Shared = "shared", Overlap = "overlap" };

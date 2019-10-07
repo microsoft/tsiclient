@@ -1,7 +1,7 @@
 import * as d3 from 'd3';
 import { interpolatePath } from 'd3-interpolate-path';
 import './LineChart.scss';
-import {Utils, DataTypes} from "./../../Utils";
+import {Utils, DataTypes, LINECHARTTOPPADDING} from "./../../Utils";
 import {Legend} from "./../Legend/Legend";
 import {TemporalXAxisComponent} from "./../../Interfaces/TemporalXAxisComponent";
 import {LineChartData} from "./../../Models/LineChartData";
@@ -299,6 +299,13 @@ class LineChart extends TemporalXAxisComponent {
     private discreteEventsMouseout = () => {
         (<any>this.legendObject.legendElement.selectAll('.tsi-splitByLabel')).classed("inFocus", false);
         this.tooltip.hide();
+    }
+    private mismatchingChartType (aggKey) {
+        if (!this.plotComponents[aggKey]) {
+            return false;
+        }
+        let typeOfPlot = this.plotComponents[aggKey].plotDataType;
+        return typeOfPlot !== this.getDataType(aggKey);
     }
 
     //returns false if supressed via isDroppingScooter, true otherwise
@@ -1308,7 +1315,7 @@ class LineChart extends TemporalXAxisComponent {
 
         let heightNonNumeric = visibleGroups.reduce((sumPrevious, currGroup) => {
             return sumPrevious + (currGroup.dataType !== DataTypes.Numeric ? Utils.getNonNumericHeight(currGroup.height) : 0);
-        }, 0);
+        }, LINECHARTTOPPADDING);
 
         if (allShared) {
             let heightPerNumeric = this.chartHeight - heightNonNumeric;
@@ -1324,7 +1331,7 @@ class LineChart extends TemporalXAxisComponent {
             });
         } else {
             let heightPerNumeric = (this.chartHeight - heightNonNumeric) / countNumericLanes;
-            let cumulativeOffset = 0;
+            let cumulativeOffset = LINECHARTTOPPADDING;
             return visibleGroups.map((aggGroup) => {
                 let previousOffset = cumulativeOffset;
                 let height;
@@ -1689,8 +1696,10 @@ class LineChart extends TemporalXAxisComponent {
                                 yExtent = [0,1];
                             }
 
-                            if (self.plotComponents[aggKey] === undefined) {
+                            if (self.plotComponents[aggKey] === undefined || self.mismatchingChartType(aggKey)) {
                                 let g = d3.select(this);
+                                delete self.plotComponents[aggKey];
+                                g.selectAll('*').remove();
                                 self.plotComponents[aggKey] = self.createPlot(g, i, self.aggregateExpressionOptions);
                             }
 
