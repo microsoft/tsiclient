@@ -1312,17 +1312,19 @@ class LineChart extends TemporalXAxisComponent {
 
         let countNumericLanes = allShared ? (visibleNumericCount > 0 ? 1 : 0) : visibleNumericCount;
 
+        let linechartTopPadding = this.chartOptions.isArea ? 0 : LINECHARTTOPPADDING;
+        let useableHeight = this.chartHeight - linechartTopPadding;
 
         let heightNonNumeric = visibleGroups.reduce((sumPrevious, currGroup) => {
             return sumPrevious + (currGroup.dataType !== DataTypes.Numeric ? Utils.getNonNumericHeight(currGroup.height) : 0);
-        }, LINECHARTTOPPADDING);
-
+        }, 0);
+        
         if (allShared) {
-            let heightPerNumeric = this.chartHeight - heightNonNumeric;
-            let runningOffset = heightPerNumeric;
+            let heightPerNumeric = useableHeight - heightNonNumeric;
+            let runningOffset = heightPerNumeric + linechartTopPadding;
             return visibleGroups.map((aggGroup) => {
                 if (aggGroup.dataType === DataTypes.Numeric) {
-                    return [0, heightPerNumeric];
+                    return [linechartTopPadding, heightPerNumeric];
                 } else {
                     let oldOffset = runningOffset;
                     runningOffset += Utils.getNonNumericHeight(aggGroup.height)
@@ -1330,8 +1332,8 @@ class LineChart extends TemporalXAxisComponent {
                 }
             });
         } else {
-            let heightPerNumeric = (this.chartHeight - heightNonNumeric) / countNumericLanes;
-            let cumulativeOffset = LINECHARTTOPPADDING;
+            let heightPerNumeric = (useableHeight - heightNonNumeric) / countNumericLanes;
+            let cumulativeOffset = linechartTopPadding;            
             return visibleGroups.map((aggGroup) => {
                 let previousOffset = cumulativeOffset;
                 let height;
@@ -1551,7 +1553,7 @@ class LineChart extends TemporalXAxisComponent {
                             .rangeRound([this.xOffset, Math.max(this.xOffset, this.chartWidth - (2 * this.xOffset))]);
         
                 this.y = d3.scaleLinear()
-                        .range([Math.max(this.chartHeight - this.heightNonNumeric(), this.chartOptions.aggTopMargin), this.chartOptions.aggTopMargin]);
+                        .range([Math.max(this.chartHeight - this.heightNonNumeric(), this.chartOptions.aggTopMargin) - (this.chartOptions.isArea ? 0 : LINECHARTTOPPADDING), this.chartOptions.aggTopMargin]);
 
                 var fromAndTo: any = this.chartComponentData.setAllValuesAndVisibleTAs();
                 var xExtent: any = (this.chartComponentData.allValues.length != 0) ? d3.extent(this.chartComponentData.allValues, (d: any) => d.dateTime) : [0,1];
