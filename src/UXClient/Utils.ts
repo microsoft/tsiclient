@@ -7,8 +7,13 @@ import { ChartOptions } from './Models/ChartOptions';
 import { AggregateExpression } from './Models/AggregateExpression';
 import { ChartComponentData } from './Models/ChartComponentData';
 
+export const NONNUMERICTOPMARGIN = 8;
+export const LINECHARTTOPPADDING = 16;
+
 // Linechart stack states
-enum StackStates {Stacked = "stacked", Shared = "shared", Overlap = "overlap" }
+enum StackStates {Stacked = "stacked", Shared = "shared", Overlap = "overlap" };
+export enum DataTypes {Numeric = 'numeric', Categorical = 'categorical', Events = 'events'};
+export enum EventElementTypes {Diamond = 'diamond', Teardrop = 'teardrop'};
 
 class Utils {
     static formatYAxisNumber (val: number) {
@@ -101,6 +106,34 @@ class Utils {
 
     static createEntityKey (aggName: string, aggIndex: number) {
         return encodeURIComponent(aggName).split(".").join("_") + "_" + aggIndex;
+    }
+
+    static getColorForValue (chartDataOptions, value) {
+        if (chartDataOptions.valueMapping && (chartDataOptions.valueMapping[value] !== undefined)) {
+            return chartDataOptions.valueMapping[value].color;
+        }
+        return null;
+    }
+
+    static rollUpContiguous (data) {
+        let areEquivalentBuckets = (d1, d2) => {
+            if (!d1.measures || !d2.measures) {
+                return false;
+            }
+            if (Object.keys(d1.measures).length !== Object.keys(d2.measures).length) {
+                return false;
+            }
+            return Object.keys(d1.measures).reduce((p, c, i) => {
+                return p && (d1.measures[c] === d2.measures[c]);
+            }, true);
+        }
+
+        return data.filter((d, i) => {
+            if (i !== 0) {
+                return !areEquivalentBuckets(d, data[i - 1]);
+            }
+            return true;
+        });
     }
 
     static formatOffsetMinutes (offset) {
@@ -547,6 +580,10 @@ class Utils {
         }
     };
 
+    static getNonNumericHeight (rawHeight: number) {
+        return rawHeight + NONNUMERICTOPMARGIN;
+    }
+
     static getControlPanelWidth (renderTarget, legendWidth, isLegendShown) {
         return Math.max(1, (<any>d3.select(renderTarget).node()).clientWidth -
                 (isLegendShown ? legendWidth : 0));
@@ -591,7 +628,11 @@ class Utils {
             return aggKey;
         });
     }
-    
+
+    static roundToMillis (rawTo, bucketSize) {
+        return Math.ceil((rawTo + 62135596800000) / (bucketSize)) * (bucketSize) - 62135596800000;
+    }
+
     static mergeSeriesForScatterPlot(chartData: any, scatterMeasures: any){
         let xMeasure = chartData[scatterMeasures.X_MEASURE], yMeasure = chartData[scatterMeasures.Y_MEASURE], rMeasure = chartData[scatterMeasures.R_MEASURE];
 

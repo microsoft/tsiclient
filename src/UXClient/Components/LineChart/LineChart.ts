@@ -1,17 +1,18 @@
 import * as d3 from 'd3';
 import { interpolatePath } from 'd3-interpolate-path';
 import './LineChart.scss';
-import {Utils} from "./../../Utils";
+import {Utils, DataTypes, LINECHARTTOPPADDING} from "./../../Utils";
 import {Legend} from "./../Legend/Legend";
-import {EventSeries} from "./../EventSeries/EventSeries";
 import {TemporalXAxisComponent} from "./../../Interfaces/TemporalXAxisComponent";
-import {StateSeries} from "../StateSeries/StateSeries";
 import {LineChartData} from "./../../Models/LineChartData";
 import { ContextMenu } from '../ContextMenu/ContextMenu';
 import { Tooltip } from '../Tooltip/Tooltip';
 import { ChartOptions } from '../../Models/ChartOptions';
 import { EllipsisMenu } from '../EllipsisMenu/EllipsisMenu';
 import { ChartDataOptions } from '../../Models/ChartDataOptions';
+import { LinePlot } from '../LinePlot/LinePlot';
+import { CategoricalPlot } from '../CategoricalPlot/CategoricalPlot';
+import { EventsPlot } from '../EventsPlot/EventsPlot';
 
 class LineChart extends TemporalXAxisComponent {
     private svgSelection: any;
@@ -23,8 +24,6 @@ class LineChart extends TemporalXAxisComponent {
     private setDisplayStateFromData: any;
     private width: number;
     public draw: any;
-    private events: any;
-    private states: any;
     private minBrushWidth = 1;
     private strokeOpacity = 1;
     private nonFocusStrokeOpactiy = .3;
@@ -41,7 +40,6 @@ class LineChart extends TemporalXAxisComponent {
     private xUpperBound: number;
     private y: any;
     private yMap: any;
-    private timelineHeight: number;
     private line: any;
     private areaPath: any;
     private envelope: any;
@@ -68,10 +66,7 @@ class LineChart extends TemporalXAxisComponent {
     private focusedAggKey: string = null;
     private focusedSplitby: string = null;
 
-    private eventSeriesWrappers;
-    private eventSeriesComponents;
-    private stateSeriesWrappers;
-    private stateSeriesComponents;
+    private plotComponents = {};
 
     private isFirstMarkerDrop = true;
     
@@ -82,8 +77,6 @@ class LineChart extends TemporalXAxisComponent {
         right: 60
     };
     private xOffset = 8;
-
-    private timelineSeriesRight;
 
     constructor(renderTarget: Element){
         super(renderTarget);
@@ -167,10 +160,29 @@ class LineChart extends TemporalXAxisComponent {
     private destroyMarkerInstructions () {
         this.targetElement.selectAll(".tsi-markerInstructions").remove();
     }   
+
+    private getCDOFromAggKey (aggKey) {
+        let matches = this.aggregateExpressionOptions.filter((cDO) => {
+            return cDO.aggKey === aggKey;
+        });
+        if (matches.length === 1) {
+            return matches[0];
+        }
+        return {};
+    }
     
     private tooltipFormat (d, text) {
+        let dataType = this.getDataType(d.aggregateKey);
         var title = d.aggregateName;   
-        
+        let cDO = this.getCDOFromAggKey(d.aggregateKey);
+
+        let shiftMillis = this.chartComponentData.getTemporalShiftMillis(d.aggregateKey);
+
+        let formatDate = (date) => {
+            return Utils.timeFormat(this.chartComponentData.usesSeconds, this.chartComponentData.usesMillis, 
+                this.chartOptions.offset, this.chartOptions.is24HourTime, shiftMillis, null, this.chartOptions.dateLocale)(date);
+        }
+
         text.append("div")
             .attr("class", "title")
             .text(d.aggregateName);
@@ -181,7 +193,17 @@ class LineChart extends TemporalXAxisComponent {
                 .text(d.splitBy);
         }
 
-        let shiftMillis = this.chartComponentData.getTemporalShiftMillis(d.aggregateKey);
+        if (dataType === DataTypes.Categorical) {
+            text.append('div')
+                .attr('class', 'value')
+                .text(formatDate(d.dateTime) + ' - ' + formatDate(d.endDate));
+        }
+
+        if (dataType === DataTypes.Events) {
+            text.append('div')
+                .attr('class', 'value')
+                .text(formatDate(d.dateTime));
+        }
 
         if (shiftMillis !== 0) {
             text.append("div")
@@ -190,13 +212,23 @@ class LineChart extends TemporalXAxisComponent {
         }
 
         let valueGroup = text.append('div').classed('valueGroup', true);
+
+        let formatValue = (dataType === DataTypes.Events ? (d) => d : Utils.formatYAxisNumber)
+
         Object.keys(d.measures).forEach((measureType, i) => {
-            valueGroup.append("div")
+            let valueElement = valueGroup.append("div")
                 .attr("class",  () => {
-                    return "value" + (measureType == this.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy) ? 
+                    return "value" + 
+                    (dataType === DataTypes.Numeric && (measureType === this.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy)) ? 
                                     " visibleValue" : "");
-                })
-                .text(measureType + ": " + Utils.formatYAxisNumber(d.measures[measureType]));
+                });
+            if (dataType === DataTypes.Categorical || dataType === DataTypes.Events) {
+                valueElement.append('span')
+                    .classed('tsi-tooltipColorBlock', true)
+                    .style('background-color', Utils.getColorForValue(cDO, measureType));
+            }
+            valueElement.append('span')
+                .text(measureType +  ": " + formatValue(d.measures[measureType]));
         });
     }
     public triggerLineFocus = (aggKey: string, splitBy: string) => {
@@ -220,6 +252,91 @@ class LineChart extends TemporalXAxisComponent {
         this.focusedSplitby = splitBy;
     }
 
+    private getMouseoverFunction (chartType =DataTypes.Numeric) {
+        switch (chartType) {
+            case DataTypes.Categorical:
+                return this.categoricalMouseover;
+            case DataTypes.Events:
+                return this.discreteEventsMouseover;
+            default:
+                return () => {}
+        }
+    }
+
+    private getMouseoutFunction (chartType = DataTypes.Numeric) {
+        switch (chartType) {
+            case DataTypes.Categorical:
+                return this.categoricalMouseout;
+            case DataTypes.Events:
+                return this.discreteEventsMouseout;
+            default:
+                return () => {}
+        }
+    }
+
+    private discreteEventsMouseover = (d, x, y, width) => {
+        if (this.isDroppingScooter) {
+            return false;
+        }
+        this.legendObject.triggerSplitByFocus(d.aggregateKey, d.splitBy);
+
+        let xPos = x;
+        let yPos = y + this.chartMargins.top;
+
+        let yValue = this.getValueOfVisible(d);
+
+        if (this.chartOptions.tooltip){
+            this.tooltip.render(this.chartOptions.theme);
+            this.tooltip.draw(d, this.chartComponentData, xPos, y, this.chartMargins, (text) => {
+                this.tooltipFormat(d, text);
+            }, width, 0, 0);
+        }
+        else 
+            this.tooltip.hide();
+        return true;
+    }
+
+    private discreteEventsMouseout = () => {
+        (<any>this.legendObject.legendElement.selectAll('.tsi-splitByLabel')).classed("inFocus", false);
+        this.tooltip.hide();
+    }
+    private mismatchingChartType (aggKey) {
+        if (!this.plotComponents[aggKey]) {
+            return false;
+        }
+        let typeOfPlot = this.plotComponents[aggKey].plotDataType;
+        return typeOfPlot !== this.getDataType(aggKey);
+    }
+
+    //returns false if supressed via isDroppingScooter, true otherwise
+    private categoricalMouseover = (d, x, y, endDate, width) => {
+        if (this.isDroppingScooter) {
+            return false;
+        }
+        this.legendObject.triggerSplitByFocus(d.aggregateKey, d.splitBy);
+
+        let xPos = x;
+        let yPos = y + this.chartMargins.top;
+
+        let yValue = this.getValueOfVisible(d);
+
+        if (this.chartOptions.tooltip){
+            this.tooltip.render(this.chartOptions.theme);
+            this.tooltip.draw(d, this.chartComponentData, xPos, y, this.chartMargins, (text) => {
+                d.endDate = endDate;
+                this.tooltipFormat(d, text);
+            }, width, 0, 0);
+        }
+        else 
+            this.tooltip.hide();
+        return true;
+    }
+
+    private categoricalMouseout = () => {
+        (<any>this.legendObject.legendElement.selectAll('.tsi-splitByLabel')).classed("inFocus", false);
+        this.tooltip.hide();
+    }
+
     private voronoiMouseover = (d: any) => {
         //supress if the context menu is visible
         if (this.contextMenu && this.contextMenu.contextMenuVisible)
@@ -238,7 +355,7 @@ class LineChart extends TemporalXAxisComponent {
         this.focus.select('.vLine').attr("transform", "translate(0," + (-yPos) + ")");
         
         this.focus.select('.hHoverG')
-            .attr("transform", "translate(0," + (this.chartHeight + this.timelineHeight - yPos) + ")");
+            .attr("transform", "translate(0," + (this.chartHeight - yPos) + ")");
         var text = this.focus.select('.hHoverG').select("text").text("");
 
         var bucketSize = this.chartComponentData.displayState[d.aggregateKey].bucketSize;
@@ -319,7 +436,7 @@ class LineChart extends TemporalXAxisComponent {
         this.chartOptions.onMouseover(d.aggregateKey, d.splitBy);
     }
 
-    //get the extent of an array of timeValues
+    // //get the extent of an array of timeValues
     private getYExtent (aggValues, isEnvelope, aggKey = null) {   
         let extent;
         if (aggKey !== null && (this.chartComponentData.displayState[aggKey].yExtent !== null)) {
@@ -372,14 +489,16 @@ class LineChart extends TemporalXAxisComponent {
 
     private getFilteredAndSticky (aggValues) { //getFilteredValues, then filter by sticky
         var filteredValues = this.getFilteredValues(aggValues);
+        let numericFiltered = filteredValues.filter((d: any) => {
+            return (this.getDataType(d.aggregateKey) === DataTypes.Numeric)
+        })
         if (this.chartComponentData.stickiedKey == null)
-            return filteredValues;
-        var stickiedValues = filteredValues.filter((d: any) => {
+            return numericFiltered;
+        return numericFiltered.filter((d: any) => {
             return d.aggregateKey == this.chartComponentData.stickiedKey.aggregateKey &&
                 ((this.chartComponentData.stickiedKey.splitBy == null) ? true : 
                 d.splitBy == this.chartComponentData.stickiedKey.splitBy);
         });
-        return stickiedValues;
     }
 
     public stickyOrUnstickySeries = (aggKey, splitBy) => {
@@ -392,6 +511,9 @@ class LineChart extends TemporalXAxisComponent {
     }
 
     public unstickySeries = (aggKey, splitby = null) => {
+        if (this.getDataType(aggKey) !== DataTypes.Numeric) {
+            return;
+        }
         this.chartComponentData.stickiedKey = null;
         (<any>this.legendObject.legendElement.selectAll('.tsi-splitByLabel')).classed("stickied", false);
         // recompute voronoi with no sticky
@@ -400,6 +522,9 @@ class LineChart extends TemporalXAxisComponent {
     }
 
     private stickySeries = (aggregateKey: string, splitBy: string = null) => {
+        if (this.getDataType(aggregateKey) !== DataTypes.Numeric) {
+            return;
+        }
         var filteredValues = this.getFilteredAndSticky(this.chartComponentData.allValues);
         if (filteredValues == null || filteredValues.length == 0)
             return;
@@ -606,10 +731,16 @@ class LineChart extends TemporalXAxisComponent {
         return Math.round(yScale(this.getValueOfVisible(d)) - this.chartOptions.aggTopMargin) + "px";
     }
 
+    private getDataType (aggKey) {
+        return this.chartComponentData.displayState[aggKey].dataType;
+    } 
+
     private setScooterLabels (scooter, includeTransition = false) {
         var millis = this.scooterGuidMap[scooter.datum()];
         var values = this.chartComponentData.timeMap[millis] != undefined ? this.chartComponentData.timeMap[millis] : [];
-        values = values.filter((d) => this.getValueOfVisible(d) != null );
+        values = values.filter((d) => {
+            return (this.getValueOfVisible(d) !== null) && this.getDataType(d.aggregateKey) === DataTypes.Numeric; 
+        });
         var self = this;
 
         var valueLabels = scooter.selectAll(".tsi-scooterValue").data(values, (d) => {
@@ -738,15 +869,18 @@ class LineChart extends TemporalXAxisComponent {
         }     
     } 
 
+    private voronoiExists (): boolean {
+        if (this.getVisibleNumerics() === 0) {
+            return false;
+        }
+        return true;
+    }
+
     private voronoiMousemove (mouseEvent) {
-        if (!this.filteredValueExist()) return;
+        if (!this.filteredValueExist() || !this.voronoiExists()) return;
         this.mx = mouseEvent[0];
         this.my = mouseEvent[1];
-        const [mx, my] = mouseEvent;
-      
-        var filteredValues = this.getFilteredAndSticky(this.chartComponentData.allValues);
-        if (filteredValues == null || filteredValues.length == 0)
-            return;
+        const [mx, my] = mouseEvent;      
         var site: any = this.voronoiDiagram.find(this.mx, this.my);
         if (!this.isDroppingScooter) {
             this.voronoiMouseover(site.data);  
@@ -787,7 +921,7 @@ class LineChart extends TemporalXAxisComponent {
     } 
 
     private voronoiContextMenu (mouseEvent) {
-        if (!this.filteredValueExist()) return;
+        if (!this.filteredValueExist() || !this.voronoiExists()) return;
         const [mx, my] = d3.mouse(mouseEvent);
         const site: any = this.voronoiDiagram.find(mx, my);
         if (this.chartComponentData.displayState[site.data.aggregateKey].contextMenuActions && 
@@ -815,18 +949,25 @@ class LineChart extends TemporalXAxisComponent {
     }
 
     private voronoiClick (mouseEvent) {
-        if (!this.filteredValueExist()) return;
+        if (!this.filteredValueExist() || !this.voronoiExists()) return;
         if (this.brushElem && !this.isDroppingScooter) return;
         const [mx, my] = d3.mouse(mouseEvent);
         var site: any = this.voronoiDiagram.find(mx, my);
+        let cDO = this.aggregateExpressionOptions.filter((currCDO) => {
+            return (site.data.aggregateKey === currCDO.aggKey);
+        })[0];
         if (!this.isDroppingScooter) {
-            if (this.chartComponentData.stickiedKey != null) {
-                site = this.voronoiDiagram.find(mx, my);
-                this.voronoiMousemove(site.data);
-                this.unstickySeries(site.data.aggregateKey, site.data.splitBy);
-                return;
+            if (site.data && cDO.onElementClick !== null) {
+                cDO.onElementClick(site.data.aggregateKey, site.data.splitBy, site.data.dateTime.toISOString(), site.data.measures);
+            } else {
+                if (this.chartComponentData.stickiedKey != null) {
+                    site = this.voronoiDiagram.find(mx, my);
+                    this.voronoiMousemove(site.data);
+                    this.unstickySeries(site.data.aggregateKey, site.data.splitBy);
+                    return;
+                }
+                this.stickySeries(site.data.aggregateKey, site.data.splitBy);    
             }
-            this.stickySeries(site.data.aggregateKey, site.data.splitBy);
         } 
 
         this.destroyMarkerInstructions();
@@ -1127,296 +1268,6 @@ class LineChart extends TemporalXAxisComponent {
         this.targetElement.select('.tsi-rangeTextContainer').remove();
     }
 
-    // returns the next visibleAggI
-    private generateLine = (visibleAggI, agg, aggVisible: boolean, aggregateGroup) => {
-        var defs = this.svgSelection.select("defs");
-        var aggKey = agg.aggKey;
-        var aggY;
-        var aggLine;
-        var aggEnvelope;
-        var aggGapLine;
-        var yExtent;
-
-        let overwriteYRange = null;
-        if ((this.chartOptions.yAxisState == "shared") || (Object.keys(this.chartComponentData.timeArrays)).length < 2 || !aggVisible) {
-            yExtent = this.getYExtent(this.chartComponentData.allValues, this.chartComponentData.displayState[aggKey].includeEnvelope ? this.chartComponentData.displayState[aggKey].includeEnvelope : this.chartOptions.includeEnvelope, null);
-            var yRange = (yExtent[1] - yExtent[0]) > 0 ? yExtent[1] - yExtent[0] : 1;
-            var yOffsetPercentage = this.chartOptions.isArea ? (1.5 / this.chartHeight) : (10 / this.chartHeight);
-            this.y.domain([yExtent[0] - (yRange * yOffsetPercentage), yExtent[1] + (yRange * (10 / this.chartHeight))]);
-            aggY = this.y;
-            aggLine = d3.line()
-                    .curve(this.chartComponentData.displayState[aggKey].interpolationFunction ? d3[this.chartComponentData.displayState[aggKey].interpolationFunction] : this.chartOptions.interpolationFunction)
-                    .defined( (d: any) => { 
-                        return (d.measures !== null) && 
-                                (d.measures[this.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy)] !== null);
-                    })
-                    .x((d: any) => {
-                        return this.getXPosition(d, this.x);
-                    })
-                    .y((d: any) => { 
-                        return d.measures ? this.y(d.measures[this.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy)]) : 0;
-                    });
-            aggGapLine = null;
-            aggEnvelope = d3.area()
-                        .curve(this.chartComponentData.displayState[aggKey].interpolationFunction ? d3[this.chartComponentData.displayState[aggKey].interpolationFunction] : this.chartOptions.interpolationFunction)
-                        .defined( (d: any) => { 
-                            return (d.measures !== null) && (d.measures['min'] !== null) && (d.measures['max'] !== null);
-                        })
-                        .x((d: any) => {
-                            return this.getXPosition(d, this.x);
-                        })
-                        .y0((d: any) => { 
-                            return d.measures ? this.y(d.measures['max']) : 0;
-                        })
-                        .y1((d: any) => { 
-                            return d.measures ? this.y(d.measures['min']) : 0;
-                        });
-        } else {
-            var aggValues: Array<any> = [];
-            Object.keys(this.chartComponentData.visibleTAs[aggKey]).forEach((splitBy) => {
-                aggValues = aggValues.concat(this.chartComponentData.visibleTAs[aggKey][splitBy]);
-            });
-            aggY = d3.scaleLinear();
-            if (this.chartOptions.yAxisState == "overlap") {
-                aggY.range([this.chartHeight, this.chartOptions.aggTopMargin]);
-            } else {
-                overwriteYRange = [(this.chartHeight / this.visibleAggCount) * (visibleAggI + 1), 
-                    (this.chartHeight / this.visibleAggCount) * (visibleAggI) + this.chartOptions.aggTopMargin];
-                aggY.range([(this.chartHeight / this.visibleAggCount), this.chartOptions.aggTopMargin]);
-            }
-            if (this.chartComponentData.aggHasVisibleSplitBys(aggKey)) {
-                yExtent = this.getYExtent(aggValues, this.chartComponentData.displayState[aggKey].includeEnvelope ? this.chartComponentData.displayState[aggKey].includeEnvelope : this.chartOptions.includeEnvelope, aggKey);
-                var yRange = (yExtent[1] - yExtent[0]) > 0 ? yExtent[1] - yExtent[0] : 1;
-                var yOffsetPercentage = 10 / (this.chartHeight / ((this.chartOptions.yAxisState == "overlap") ? 1 : this.visibleAggCount));
-                aggY.domain([yExtent[0] - (yRange * yOffsetPercentage), 
-                        yExtent[1] + (yRange * yOffsetPercentage)]);
-            } else {
-                aggY.domain([0,1]);
-                yExtent = [0, 1];
-            }
-            aggLine = d3.line()
-                .curve(this.chartComponentData.displayState[aggKey].interpolationFunction ? d3[this.chartComponentData.displayState[aggKey].interpolationFunction] : this.chartOptions.interpolationFunction)
-                .defined((d: any) =>  {
-                    return (d.measures !== null) && 
-                            (d.measures[this.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy)] !== null);
-                })
-                .x((d: any) => this.getXPosition(d, this.x))
-                .y((d: any) => {                 
-                    return d.measures ? aggY(d.measures[this.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy)]) : null;
-                });
-
-            aggEnvelope = d3.area()
-                .curve(this.chartComponentData.displayState[aggKey].interpolationFunction ? d3[this.chartComponentData.displayState[aggKey].interpolationFunction] : this.chartOptions.interpolationFunction)
-                .defined((d: any) => (d.measures !== null) && (d.measures['min'] !== null) && (d.measures['max'] !== null))
-                .x((d: any) => this.getXPosition(d, this.x))
-                .y0((d: any) => d.measures ? aggY(d.measures['max']) : 0)
-                .y1((d: any) => d.measures ? aggY(d.measures['min']) : 0);
-
-            aggGapLine = aggLine;
-        }
-
-        let localY = aggY.copy();
-        if (overwriteYRange !== null) {
-            localY.range(overwriteYRange)
-        } 
-        this.yMap[aggKey] = localY;
-        
-        var yAxis: any = aggregateGroup.selectAll(".yAxis")
-                        .data([aggKey]);
-        var visibleYAxis = (aggVisible && (this.chartOptions.yAxisState != "shared" || visibleAggI == 0));
-        
-        yAxis = yAxis.enter()
-            .append("g")
-            .attr("class", "yAxis")
-            .merge(yAxis)
-            .style("visibility", ((visibleYAxis && !this.chartOptions.yAxisHidden) ? "visible" : "hidden"));
-        if (this.chartOptions.yAxisState == "overlap" && this.visibleAggCount > 1) {
-            yAxis.call(d3.axisLeft(aggY).tickFormat(Utils.formatYAxisNumber).tickValues(yExtent))
-                .selectAll("text")
-                .attr("y", (d, j) => {return (j == 0) ? (-visibleAggI * 16) : (visibleAggI * 16) })
-                .style("fill", this.chartComponentData.displayState[aggKey].color);
-        }
-        else {
-            yAxis.call(d3.axisLeft(aggY).tickFormat(Utils.formatYAxisNumber)
-                .ticks(Math.max(2, Math.ceil(this.chartHeight/(this.chartOptions.yAxisState == 'stacked' ? this.visibleAggCount : 1)/90))))
-                .selectAll("text").classed("standardYAxisText", true)
-        }
-        yAxis.exit().remove();
-        
-        var guideLinesData = {
-            x: this.x,
-            y: aggY,
-            visible: visibleYAxis
-        };
-        let splitByColors = Utils.createSplitByColors(this.chartComponentData.displayState, aggKey, this.chartOptions.keepSplitByColor);
-
-        let includeDots = this.chartOptions.includeDots || this.chartComponentData.displayState[aggKey].includeDots;
-
-        let self = this;        
-        let splitByGroups = aggregateGroup.selectAll(".tsi-splitByGroup")
-            .data(Object.keys(this.chartComponentData.timeArrays[aggKey]));
-        splitByGroups.enter()
-            .append("g")
-            .attr("class", "tsi-splitByGroup " + agg.aggKey)
-            .merge(splitByGroups)
-            .each(function (splitBy, j) {
-                self.colorMap[aggKey + "_" + splitBy] = splitByColors[j];
-                // creation of segments between each gap in the data
-                var segments = [];
-                var lineData = self.chartComponentData.timeArrays[aggKey][splitBy];
-                var visibleMeasure = self.chartComponentData.getVisibleMeasure(aggKey, splitBy);
-                for (var i = 0; i < lineData.length - 1; i++) {
-                    if (lineData[i].measures !== null && lineData[i].measures[visibleMeasure] !== null) {
-                        var scannerI: number = i + 1;
-                        while(scannerI < lineData.length && ((lineData[scannerI].measures == null) || 
-                                                                lineData[scannerI].measures[visibleMeasure] == null)) {
-                            scannerI++;
-                        }
-                        if (scannerI < lineData.length && scannerI != i + 1) {
-                            segments.push([lineData[i], lineData[scannerI]]);
-                        }
-                        i = scannerI - 1;
-                    }
-                }
-
-                var durationFunction = (d) => {
-                    let previousUndefined = self.previousAggregateData.get(this) === undefined;
-                    return (self.chartOptions.noAnimate || previousUndefined) ? 0 : self.TRANSDURATION
-                }
-
-                var gapPath = d3.select(this).selectAll(".gapLine")
-                    .data(segments);
-                gapPath.enter()
-                    .append("path")
-                    .attr("class", "valueElement gapLine")
-                    .merge(gapPath)
-                    .style("visibility", (d: any) => { 
-                        return (self.chartComponentData.isSplitByVisible(aggKey, splitBy)) ? "visible" : "hidden";
-                    })   
-                    .transition()
-                    .duration(durationFunction)
-                    .ease(d3.easeExp)                                         
-                    .attr("stroke-dasharray","5,5")      
-                    .attr("stroke", splitByColors[j])
-                    .attrTween('d', function (d) {
-                        var previous = d3.select(this).attr('d');
-                        var current = aggLine(d);
-                        return interpolatePath(previous, current);
-                    });
-
-                var path = d3.select(this).selectAll(".valueLine")
-                    .data([self.chartComponentData.timeArrays[aggKey][splitBy]]);
-
-                path.enter()
-                    .append("path")
-                    .attr("class", "valueElement valueLine")
-                    .merge(path)
-                    .style("visibility", (d: any) => { 
-                        return (self.chartComponentData.isSplitByVisible(aggKey, splitBy)) ? "visible" : "hidden";
-                    })                                            
-                    .transition()
-                    .duration(durationFunction)
-                    .ease(d3.easeExp)
-                    .attr("stroke", splitByColors[j])
-                    .attr("stroke-opacity", self.strokeOpacity)
-                    .attrTween('d', function (d) {
-                        var previous = d3.select(this).attr('d');
-                        var current = aggLine(d);
-                        return interpolatePath(previous, current);
-                    });
-
-                if (self.chartOptions.includeDots || self.chartComponentData.displayState[aggKey].includeDots) {
-                    let dots = d3.select(this).selectAll(".valueDot")
-                        .data(self.chartComponentData.timeArrays[aggKey][splitBy].filter((d) => {
-                            return d && d.measures && d.measures[self.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy)] !== null;
-                        }), (d: any, i) => {
-                            return d.dateTime.toString();
-                        });
-
-                    dots.enter()
-                        .append('circle')
-                        .attr('class', 'valueElement valueDot')
-                        .attr('r', 3)
-                        .merge(dots)
-                        .style("visibility", (d: any) => { 
-                            return (self.chartComponentData.isSplitByVisible(aggKey, splitBy) && d.measures) ? "visible" : "hidden";
-                        }) 
-                        .transition()
-                        .duration(function (d, i) {
-                            return (self.previousIncludeDots.get(this) === true) ? durationFunction(d) : 0;
-                        })
-                        .ease(d3.easeExp)
-                        .attr("fill", splitByColors[j])
-                        .attr('cx', (d: any) => self.getXPosition(d, self.x))
-                        .attr('cy', (d: any) => {     
-                            return d.measures ? aggY(d.measures[self.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy)]) : null;
-                        })
-                        .each(function () {
-                            self.previousIncludeDots.set(this, includeDots);
-                        })
-                    
-                    dots.exit().remove();
-                } else {
-                    d3.select(this).selectAll(".valueDot").remove();
-                }
-                
-                if ((self.chartComponentData.displayState[aggKey].includeEnvelope || self.chartOptions.includeEnvelope) && self.chartComponentData.isPossibleEnvelope(aggKey, splitBy)) {
-                    var envelopeData = self.chartComponentData.timeArrays[aggKey][splitBy].map((d: any) => ({...d, isEnvelope: true}));
-                    var envelope = d3.select(this).selectAll(".valueEnvelope")
-                        .data([envelopeData]);
-                    
-                    envelope.enter()
-                        .append("path")
-                        .attr("class", "valueElement valueEnvelope")
-                        .merge(envelope)
-                        .style("visibility", (d: any) => { 
-                            return (self.chartComponentData.isSplitByVisible(aggKey, splitBy)) ? "visible" : "hidden";
-                        })                                            
-                        .transition()
-                        .duration(durationFunction)
-                        .ease(d3.easeExp)
-                        .style("fill", splitByColors[j])
-                        .attr("fill-opacity", .2)
-                        .attr("d", aggEnvelope);
-                }
-
-                if (self.chartOptions.isArea) {
-                    var area = d3.select(this).selectAll(".valueArea")
-                        .data([self.chartComponentData.timeArrays[aggKey][splitBy]]);
-
-                    // logic for shiny gradient fill via url()
-                    let svgId = Utils.guid();
-                    let lg = defs.selectAll('linearGradient')
-                            .data([self.chartComponentData.timeArrays[aggKey][splitBy]]);
-                    var gradient = lg.enter()
-                        .append('linearGradient');
-                    gradient.merge(lg)
-                        .attr('id', svgId).attr('x1', '0%').attr('x2', '0%').attr('y1', '0%').attr('y2', '100%');
-                    gradient.append('stop').attr('offset', '0%').attr('style', () =>{return 'stop-color:' + splitByColors[j] + ';stop-opacity:.2'});
-                    gradient.append('stop').attr('offset', '100%').attr('style', () =>{return 'stop-color:' + splitByColors[j] + ';stop-opacity:.03'});
-                    lg.exit().remove();
-
-                    area.enter()
-                        .append("path")
-                        .attr("class", "valueArea")
-                        .merge(area)
-                        .style("fill", 'url(#' + (svgId) + ')')
-                        .style("visibility", (d: any) => { 
-                            return (self.chartComponentData.isSplitByVisible(aggKey, splitBy)) ? "visible" : "hidden";
-                        })                                            
-                        .transition()
-                        .duration(durationFunction)
-                        .ease(d3.easeExp)
-                        .attr("d", self.areaPath);
-                    area.exit().remove();
-                }
-
-                gapPath.exit().remove();
-                path.exit().remove();
-                self.previousAggregateData.set(this, splitBy);
-            });
-    }
-
     private getChartWidth () {
         return Math.max(0, this.width - this.chartMargins.left - this.chartMargins.right - (this.chartOptions.legend == "shown" ? this.CONTROLSWIDTH : 0));
     }
@@ -1438,7 +1289,73 @@ class LineChart extends TemporalXAxisComponent {
         }
     }
 
-    public render(data: any, options: any, aggregateExpressionOptions: any) {
+    private getVisibleNumerics () {
+        let visibleGroups = this.chartComponentData.data.filter((agg) => this.chartComponentData.displayState[agg.aggKey]["visible"]);
+        let visibleCDOs = this.aggregateExpressionOptions.filter((cDO) => this.chartComponentData.displayState[cDO.aggKey]["visible"]);
+        return visibleGroups.filter((aggKey, i) => {
+            return visibleCDOs[i].dataType === DataTypes.Numeric;
+        }).length;
+    }
+
+    //returns an array of tuples of y offset and height for each 
+    private createYOffsets () {
+        //right now a lane is constrained to an aggregate - eventually this will support swim lanes
+
+        let visibleGroups = this.chartComponentData.data.filter((agg) => this.chartComponentData.displayState[agg.aggKey]["visible"]);
+        let visibleCDOs = this.aggregateExpressionOptions.filter((cDO) => this.chartComponentData.displayState[cDO.aggKey]["visible"]);
+
+
+        let allShared = this.chartOptions.yAxisState === 'shared' || this.chartOptions.yAxisState === 'overlap';
+        let visibleNumericCount = visibleGroups.filter((aggKey, i) => {
+            return visibleCDOs[i].dataType === DataTypes.Numeric;
+        }).length;
+
+        let countNumericLanes = allShared ? (visibleNumericCount > 0 ? 1 : 0) : visibleNumericCount;
+
+        let linechartTopPadding = this.chartOptions.isArea ? 0 : LINECHARTTOPPADDING;
+        let useableHeight = this.chartHeight - linechartTopPadding;
+
+        let heightNonNumeric = visibleGroups.reduce((sumPrevious, currGroup) => {
+            return sumPrevious + (currGroup.dataType !== DataTypes.Numeric ? Utils.getNonNumericHeight(currGroup.height) : 0);
+        }, 0);
+        
+        if (allShared) {
+            let heightPerNumeric = useableHeight - heightNonNumeric;
+            let runningOffset = heightPerNumeric + linechartTopPadding;
+            return visibleGroups.map((aggGroup) => {
+                if (aggGroup.dataType === DataTypes.Numeric) {
+                    return [linechartTopPadding, heightPerNumeric];
+                } else {
+                    let oldOffset = runningOffset;
+                    runningOffset += Utils.getNonNumericHeight(aggGroup.height)
+                    return [oldOffset, Utils.getNonNumericHeight(aggGroup.height)];
+                }
+            });
+        } else {
+            let heightPerNumeric = (useableHeight - heightNonNumeric) / countNumericLanes;
+            let cumulativeOffset = linechartTopPadding;            
+            return visibleGroups.map((aggGroup) => {
+                let previousOffset = cumulativeOffset;
+                let height;
+                if (aggGroup.dataType === DataTypes.Numeric) {
+                    height = heightPerNumeric;
+                } else {
+                    height = Utils.getNonNumericHeight(aggGroup.height);
+                }
+                cumulativeOffset += height;
+                return [previousOffset, height]
+            });
+        }
+    }
+
+    private heightNonNumeric () {
+        let visibleGroups = this.chartComponentData.data.filter((agg) => this.chartComponentData.displayState[agg.aggKey]["visible"]);
+        return visibleGroups.reduce((sumPrevious, currGroup) => {
+            return sumPrevious + (currGroup.dataType !== DataTypes.Numeric ? Utils.getNonNumericHeight(currGroup.height) : 0);
+        }, 0);
+    }
+
+    public render (data: any, options: any, aggregateExpressionOptions: any) {
         this.data = data;
         this.hasBrush = options && (options.brushMoveAction || options.brushMoveEndAction || options.brushContextMenuActions);
         this.chartOptions.setOptions(options);
@@ -1458,21 +1375,16 @@ class LineChart extends TemporalXAxisComponent {
             this.deleteBrushRange();
         }
 
-        let eventsOrStatesChanged = (this.chartOptions.events !== this.events) || (this.chartOptions.states !== this.states);
-        this.events = (this.chartOptions.events != undefined) ? this.chartOptions.events : null;
-        this.states = (this.chartOptions.states != undefined) ? this.chartOptions.states : null;
         this.strokeOpacity = this.chartOptions.isArea ? .55 : 1;
         this.nonFocusStrokeOpactiy = this.chartOptions.isArea ? .55 : .3;
 
-        this.timelineSeriesRight = (this.chartOptions.legend === 'shown') ? 78 : 62; 
 
-        this.chartComponentData.mergeDataToDisplayStateAndTimeArrays(data, aggregateExpressionOptions, this.events, this.states);
+        this.chartComponentData.mergeDataToDisplayStateAndTimeArrays(data, aggregateExpressionOptions);
         if (this.chartOptions.xAxisHidden && this.chartOptions.focusHidden) {
             this.chartMargins.bottom = 5;
         }
 
-        this.timelineHeight = (this.chartComponentData.visibleEventsAndStatesCount * 10);
-        this.chartHeight = Math.max(1, this.height - this.chartMargins.bottom - this.chartMargins.top - this.timelineHeight); 
+        this.chartHeight = Math.max(1, this.height - this.chartMargins.bottom - this.chartMargins.top); 
         this.chartWidth = this.getChartWidth();
 
         if (this.brush && this.svgSelection.select('.svgGroup').select(".brushElem") && !this.chartOptions.keepBrush) {
@@ -1546,7 +1458,7 @@ class LineChart extends TemporalXAxisComponent {
                 .attr("x1", 0)
                 .attr("x2", 0)
                 .attr("y1", this.chartOptions.aggTopMargin)
-                .attr("y2", this.chartHeight + this.timelineHeight);
+                .attr("y2", this.chartHeight);
             this.focus.append("line")
                 .attr("class", "focusLine hLine")
                 .attr("x1", 0)
@@ -1609,13 +1521,10 @@ class LineChart extends TemporalXAxisComponent {
                     this.chartMargins.bottom = 5;
                 }
 
-                this.chartComponentData.updateVisibleEventsAndStatesCount();
-                this.timelineHeight = (this.chartComponentData.visibleEventsAndStatesCount * 10);
-      
                 this.width = Math.max((<any>d3.select(this.renderTarget).node()).clientWidth, this.MINWIDTH);
                 this.chartWidth = this.getChartWidth();
                 this.height = Math.max((<any>d3.select(this.renderTarget).node()).clientHeight, this.MINHEIGHT);
-                this.chartHeight = Math.max(1, this.height - this.chartMargins.bottom - this.chartMargins.top - this.timelineHeight); 
+                this.chartHeight = Math.max(1, this.height - this.chartMargins.bottom - this.chartMargins.top); 
 
                 g.attr("transform", "translate(" + this.chartMargins.left + "," + this.chartMargins.top + ")");
 
@@ -1624,7 +1533,7 @@ class LineChart extends TemporalXAxisComponent {
                 }
 
                 this.focus.select('.hLine').attr("x2", this.chartWidth);
-                this.focus.select('.vLine').attr("y2", this.chartHeight + this.timelineHeight);
+                this.focus.select('.vLine').attr("y2", this.chartHeight);
                 this.svgSelection
                     .style("width", (this.chartWidth + this.chartMargins.left + this.chartMargins.right) + "px")
                     .style("height", this.height + "px");
@@ -1644,7 +1553,7 @@ class LineChart extends TemporalXAxisComponent {
                             .rangeRound([this.xOffset, Math.max(this.xOffset, this.chartWidth - (2 * this.xOffset))]);
         
                 this.y = d3.scaleLinear()
-                        .range([Math.max(this.chartHeight, this.chartOptions.aggTopMargin), this.chartOptions.aggTopMargin]);
+                        .range([Math.max(this.chartHeight - this.heightNonNumeric(), this.chartOptions.aggTopMargin) - (this.chartOptions.isArea ? 0 : LINECHARTTOPPADDING), this.chartOptions.aggTopMargin]);
 
                 var fromAndTo: any = this.chartComponentData.setAllValuesAndVisibleTAs();
                 var xExtent: any = (this.chartComponentData.allValues.length != 0) ? d3.extent(this.chartComponentData.allValues, (d: any) => d.dateTime) : [0,1];
@@ -1709,54 +1618,59 @@ class LineChart extends TemporalXAxisComponent {
                 var yOffsetPercentage = this.chartOptions.isArea ? (1.5 / this.chartHeight) : (10 / this.chartHeight);
                 this.y.domain([yExtent[0] - (yRange * yOffsetPercentage), yExtent[1] + (yRange * (10 / this.chartHeight))]);
 
-                    if (this.chartOptions.isArea) {
-                        this.areaPath = d3.area()
-                            .curve(this.chartOptions.interpolationFunction)
-                            .defined( (d: any) => { 
-                                return (d.measures !== null) && 
-                                        (d.measures[this.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy)] !== null);
-                            })
-                            .x((d: any) => {
-                                return this.getXPosition(d, this.x);
-                            })
-                            .y0((d: any) => { 
-                                return d.measures ? this.y(d.measures[this.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy)]) : 0;
-                            })
-                            .y1(this.chartHeight);
-                    }
+                if (this.chartOptions.isArea) {
+                    this.areaPath = d3.area()
+                        .curve(this.chartOptions.interpolationFunction)
+                        .defined( (d: any) => { 
+                            return (d.measures !== null) && 
+                                    (d.measures[this.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy)] !== null);
+                        })
+                        .x((d: any) => {
+                            return this.getXPosition(d, this.x);
+                        })
+                        .y0((d: any) => { 
+                            return d.measures ? this.y(d.measures[this.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy)]) : 0;
+                        })
+                        .y1(this.chartHeight);
+                }
                     
-                    if (!this.chartOptions.xAxisHidden) {
-                        this.xAxis = g.selectAll(".xAxis").data([this.x]);
-                        this.drawXAxis(this.chartHeight + this.timelineHeight);
-                        this.xAxis.exit().remove();
+                if (!this.chartOptions.xAxisHidden) {
+                    this.xAxis = g.selectAll(".xAxis").data([this.x]);
+                    this.drawXAxis(this.chartHeight);
+                    this.xAxis.exit().remove();
 
-                        var xAxisBaseline =  g.selectAll(".xAxisBaseline").data([this.x]);
-                        var xAxisBaselineEntered = xAxisBaseline.enter().append("line")
-                            .attr("class", "xAxisBaseline")
-                            .attr("x1", .5)
-                            .merge(xAxisBaseline)
-                            .attr("y2", this.chartHeight + this.timelineHeight + .5)
-                            .attr("y1", this.chartHeight + this.timelineHeight + .5)
-                            .attr("x2", this.chartWidth - this.xOffset);
-                        xAxisBaseline.exit().remove();
-                    }
-                    if (g.selectAll(".xAxis").size() !== 0) {
-                        g.selectAll(".xAxis").style("visibility", ((!this.chartOptions.xAxisHidden) ? "visible" : "hidden"));
-                    }
+                    var xAxisBaseline =  g.selectAll(".xAxisBaseline").data([this.x]);
+                    var xAxisBaselineEntered = xAxisBaseline.enter().append("line")
+                        .attr("class", "xAxisBaseline")
+                        .attr("x1", .5)
+                        .merge(xAxisBaseline)
+                        .attr("y2", this.chartHeight + .5)
+                        .attr("y1", this.chartHeight + .5)
+                        .attr("x2", this.chartWidth - this.xOffset);
+                    xAxisBaseline.exit().remove();
+                }
+                if (g.selectAll(".xAxis").size() !== 0) {
+                    g.selectAll(".xAxis").style("visibility", ((!this.chartOptions.xAxisHidden) ? "visible" : "hidden"));
+                }
 
             
-                    /******************** Draw Line and Points ************************/
-                    this.visibleAggCount = Object.keys(this.chartComponentData.timeArrays).reduce((count: number, aggKey: string): number => {
-                        return count + (this.chartComponentData.displayState[aggKey]['visible'] ? 1 : 0);
-                    }, 0);
-        
-                    this.yMap = {};
-                    this.colorMap = {};
-                    this.svgSelection.selectAll(".yAxis").remove();
-                    let aggregateGroups = this.svgSelection.select('.svgGroup').selectAll('.tsi-aggGroup')
-                        .data(this.chartComponentData.data.filter((agg) => this.chartComponentData.displayState[agg.aggKey]["visible"]), 
-                            (agg) => agg.aggKey);
+                /******************** Draw Line and Points ************************/
+                this.visibleAggCount = Object.keys(this.chartComponentData.timeArrays).reduce((count: number, aggKey: string): number => {
+                    return count + (this.chartComponentData.displayState[aggKey]['visible'] ? 1 : 0);
+                }, 0);
+    
+                this.yMap = {};
+                this.colorMap = {};
+                this.svgSelection.selectAll(".yAxis").remove();
+
+                let visibleGroupData = this.chartComponentData.data.filter((agg) => this.chartComponentData.displayState[agg.aggKey]["visible"]);
+                let visibleCDOs = this.aggregateExpressionOptions.filter((cDO) => this.chartComponentData.displayState[cDO.aggKey]["visible"]);
+                let offsetsAndHeights = this.createYOffsets();
+                let aggregateGroups = this.svgSelection.select('.svgGroup').selectAll('.tsi-aggGroup')
+                    .data(visibleGroupData, (agg) => agg.aggKey);
                     var self = this;
+
+                    let visibleNumericI = 0;
                     aggregateGroups.enter()
                         .append('g')
                         .classed('tsi-aggGroup', true)
@@ -1765,14 +1679,41 @@ class LineChart extends TemporalXAxisComponent {
                         .duration((this.chartOptions.noAnimate) ? 0 : self.TRANSDURATION)            
                         .ease(d3.easeExp)                                         
                         .attr('transform', (agg, i) => {
-                            let yTranslate = 0;
-                            if (this.chartOptions.yAxisState === "stacked") {
-                                yTranslate = (i / this.visibleAggCount) * this.chartHeight;
-                            }
-                            return 'translate(0,' + yTranslate + ')';
+                            return 'translate(0,' + offsetsAndHeights[i][0] + ')';
                         })
                         .each(function (agg, i) {
-                            self.generateLine(i, agg, true, d3.select(this));
+                            let yExtent ;
+                            let aggVisible = true;
+                            var aggValues: Array<any> = [];
+                            let aggKey = agg.aggKey;
+                            Object.keys(self.chartComponentData.visibleTAs[aggKey]).forEach((splitBy) => {
+                                aggValues = aggValues.concat(self.chartComponentData.visibleTAs[aggKey][splitBy]);
+                            });
+
+                            if ((self.chartOptions.yAxisState == "shared") || (Object.keys(self.chartComponentData.timeArrays)).length < 2 || !aggVisible) {
+                                yExtent = self.getYExtent(self.chartComponentData.allValues, self.chartComponentData.displayState[aggKey].includeEnvelope ? self.chartComponentData.displayState[aggKey].includeEnvelope : self.chartOptions.includeEnvelope, null);
+                            } else if (self.chartComponentData.aggHasVisibleSplitBys(aggKey)) {
+                                yExtent = self.getYExtent(aggValues, self.chartComponentData.displayState[aggKey].includeEnvelope ? self.chartComponentData.displayState[aggKey].includeEnvelope : self.chartOptions.includeEnvelope, aggKey);
+                            } else {
+                                yExtent = [0,1];
+                            }
+
+                            if (self.plotComponents[aggKey] === undefined || self.mismatchingChartType(aggKey)) {
+                                let g = d3.select(this);
+                                delete self.plotComponents[aggKey];
+                                g.selectAll('*').remove();
+                                self.plotComponents[aggKey] = self.createPlot(g, i, self.aggregateExpressionOptions);
+                            }
+
+                            let mouseoverFunction = self.getMouseoverFunction(visibleCDOs[i].dataType);
+                            let mouseoutFunction = self.getMouseoutFunction(visibleCDOs[i].dataType);
+                            self.plotComponents[aggKey].render(self.chartOptions, visibleNumericI, agg, true, d3.select(this), self.chartComponentData, yExtent, 
+                                self.chartHeight, self.visibleAggCount, self.colorMap, self.previousAggregateData, 
+                                self.x, self.areaPath, self.strokeOpacity, self.y, self.yMap, defs, visibleCDOs[i], self.previousIncludeDots, offsetsAndHeights[i], 
+                                g, mouseoverFunction, mouseoutFunction);
+                            
+                            //increment index of visible numerics if appropriate
+                            visibleNumericI += (visibleCDOs[i].dataType === DataTypes.Numeric ? 1 : 0);
                         });
                     aggregateGroups.exit().remove();
                     /******************** Voronoi diagram for hover action ************************/
@@ -1798,6 +1739,9 @@ class LineChart extends TemporalXAxisComponent {
                     .on("mouseover", function () {
                         if (!self.isDroppingScooter) {
                             self.svgSelection.selectAll(".valueElement")
+                                .filter(function () {
+                                    return !d3.select(this).classed('tsi-categoricalBucket');
+                                })
                                 .attr("stroke-opacity", self.nonFocusStrokeOpactiy)
                                 .attr("fill-opacity", .3);
                             self.svgSelection.selectAll(".valueEnvelope")
@@ -1805,7 +1749,7 @@ class LineChart extends TemporalXAxisComponent {
                         }
                     })
                     .on("mouseout", function (d)  {
-                        if (!self.filteredValueExist()) return;
+                        if (!self.filteredValueExist() || !self.voronoiExists()) return;
                         const [mx, my] = d3.mouse(this);
                         const site = self.voronoiDiagram.find(mx, my);
                         self.voronoiMouseout(site.data); 
@@ -1852,41 +1796,7 @@ class LineChart extends TemporalXAxisComponent {
                     .classed('tsi-darkTheme', this.chartOptions.theme == 'dark');
                 }
 
-                var visibleEventsCount = 0;
                 let timeFrame = (this.chartOptions.timeFrame) ? this.chartOptions.timeFrame : this.x.domain();
-                if (this.chartComponentData.events) {
-                    this.chartComponentData.events.forEach((namedEventSeries, i) => {
-                        var name = Object.keys(namedEventSeries)[0];
-                        var eventSeries = namedEventSeries[name];
-                        var isVisible = this.chartComponentData.displayState.events[namedEventSeries.key].visible;
-                        visibleEventsCount += (isVisible) ? 1 : 0;
-                        this.eventSeriesWrappers[i].style("width", this.chartWidth  + 'px')
-                            .style("height", d => isVisible ? '10px' : '0px')
-                            .style("visibility", d => isVisible ? "visible" : "hidden")
-                            .style('right', this.chartMargins.right + 'px')
-                            .style('bottom', this.chartMargins.bottom + this.timelineHeight - (visibleEventsCount * 10)  + 'px');
-                        this.eventSeriesComponents[i].render(namedEventSeries, {timeFrame: timeFrame, 
-                                                        xAxisHidden: true, theme: this.chartOptions.theme, 
-                                                        offset: this.chartOptions.offset});
-                    });
-                }
-                if (this.chartComponentData.states) {
-                    var visibleStatesCount = 0;
-                    this.chartComponentData.states.forEach((namedStateSeries, i) => {
-                        var name = Object.keys(namedStateSeries)[0];
-                        var stateSeries = namedStateSeries[name];
-                        var isVisible = this.chartComponentData.displayState.states[namedStateSeries.key].visible;
-                        visibleStatesCount += (isVisible) ? 1 : 0;
-                        this.stateSeriesWrappers[i].style("width", this.chartWidth + 'px')
-                            .style("height", d => this.chartComponentData.displayState.states[namedStateSeries.key].visible ? '10px' : '0px')
-                            .style("visibility", d => this.chartComponentData.displayState.states[namedStateSeries.key].visible ? "visible" : "hidden")
-                            .style("right", this.chartMargins.right + 'px')
-                            .style("bottom", this.chartMargins.bottom + this.timelineHeight - ((visibleEventsCount * 10) + (visibleStatesCount * 10))  + 'px');
-                        this.stateSeriesComponents[i].render(namedStateSeries, {timeFrame: timeFrame, 
-                                                                           offset: this.chartOptions.offset,
-                                                                           xAxisHidden: true, theme: this.chartOptions.theme});
-                    });
-                }
 
                 if (!this.chartOptions.hideChartControlPanel && this.chartControlsPanel !== null) {
                     let controlPanelWidth = Utils.getControlPanelWidth(this.renderTarget, this.CONTROLSWIDTH, this.chartOptions.legend === 'shown');
@@ -1916,11 +1826,7 @@ class LineChart extends TemporalXAxisComponent {
             });
         }
 
-        if (eventsOrStatesChanged) {
-            this.drawEventsAndSeries();
-        }
-
-        this.chartComponentData.mergeDataToDisplayStateAndTimeArrays(this.data, this.aggregateExpressionOptions, this.events, this.states);
+        this.chartComponentData.mergeDataToDisplayStateAndTimeArrays(this.data, this.aggregateExpressionOptions);
         this.draw();
         this.chartOptions.noAnimate = false;  // ensure internal renders are always animated, overriding the users noAnimate option
 
@@ -1935,35 +1841,16 @@ class LineChart extends TemporalXAxisComponent {
         });
     }
 
-    private drawEventsAndSeries () {
-        this.targetElement.selectAll('.tsi-lineChartEventsWrapper').remove();
-        this.targetElement.selectAll('.tsi-lineChartStatesWrapper').remove();
-        if (this.events && this.events.length > 0) {
-            
-            this.eventSeriesWrappers = this.events.map((events, i) => {
-                return this.targetElement.append("div").attr("class", "tsi-lineChartEventsWrapper");
-            });
-            this.eventSeriesComponents = this.events.map((eSC, i) => {
-                return (new EventSeries(<any>this.eventSeriesWrappers[i].node()));
-            });
+    private createPlot (svgGroup, i, cDO) {
+        let chartType = cDO[i].dataType;
+        if (chartType === DataTypes.Numeric) {
+            return new LinePlot(svgGroup);
+        } else if (chartType === DataTypes.Categorical) {
+            return new CategoricalPlot(svgGroup);
+        } else if (chartType === DataTypes.Events) {
+            return new EventsPlot(svgGroup);
         }
-        else {
-            this.eventSeriesWrappers = [];
-            this.eventSeriesComponents = [];
-        }
-
-        if (this.states && this.states.length > 0) {
-            this.stateSeriesWrappers = this.states.map((state, i) => {
-                return this.targetElement.append("div").attr("class", "tsi-lineChartStatesWrapper");
-            });
-            this.stateSeriesComponents = this.states.map((tSC, i) => {
-                return (new StateSeries(<any>this.stateSeriesWrappers[i].node()));
-            });
-        } 
-        else {
-            this.stateSeriesWrappers = [];
-            this.stateSeriesComponents = [];
-        }
+        return null;
     }
 }
 export {LineChart}

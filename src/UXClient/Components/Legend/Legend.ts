@@ -1,9 +1,12 @@
 import * as d3 from 'd3';
 import './Legend.scss';
-import {Utils} from "./../../Utils";
+import {Utils, DataTypes} from "./../../Utils";
 import {Component} from "./../../Interfaces/Component";
 import { ChartOptions } from '../../Models/ChartOptions';
 import { ChartComponentData } from '../../Models/ChartComponentData';
+
+const NUMERICSPLITBYHEIGHT = 44;
+const NONNUMERICSPLITBYHEIGHT = 24; 
 
 class Legend extends Component {
     public drawChart: any;
@@ -58,17 +61,21 @@ class Legend extends Component {
             return (d3.select(this.parentNode).datum() == aggKey) && (labelData == splitBy);
         }).classed("inFocus", true);
 
-        var indexOfSplitBy = Object.keys(this.chartComponentData.displayState[aggKey].splitBys).sort().indexOf(splitBy);
+        var indexOfSplitBy = Object.keys(this.chartComponentData.displayState[aggKey].splitBys).indexOf(splitBy);
 
         if (indexOfSplitBy != -1) {
             var splitByNode = this.legendElement.selectAll('.tsi-splitByContainer').filter((d) => {
                 return d == aggKey;
             }).node();
-            var prospectiveScrollTop = indexOfSplitBy * 40;
+            var prospectiveScrollTop = Math.max((indexOfSplitBy - 1) * this.getHeightPerSplitBy(aggKey), 0) ;
             if (splitByNode.scrollTop < prospectiveScrollTop - (splitByNode.clientHeight - 40) || splitByNode.scrollTop > prospectiveScrollTop) {
                 splitByNode.scrollTop = prospectiveScrollTop;
             }  
         }
+    }
+
+    private getHeightPerSplitBy (aggKey) {
+        return (this.chartComponentData.displayState[aggKey].dataType === DataTypes.Numeric ? NUMERICSPLITBYHEIGHT : NONNUMERICSPLITBYHEIGHT);
     }
 
 	public draw(legendState, chartComponentData, labelMouseover, svgSelection, options, labelMouseoutAction = null, stickySeriesAction = null) {
@@ -101,9 +108,8 @@ class Legend extends Component {
             .classed('hidden', legendState == 'hidden')
             .style('width', legendState == 'hidden' ? '0px' : this.legendWidth + "px");
 
-        let seriesNames = Object.keys(this.chartComponentData.displayState).filter((seriesName: string) => {
-            return (seriesName != 'states' && seriesName != 'events')
-        }); 
+
+        let seriesNames = Object.keys(this.chartComponentData.displayState);
         var seriesLabels: any = legend.selectAll(".tsi-seriesLabel")
             .data(seriesNames, d => d);
 
@@ -124,19 +130,14 @@ class Legend extends Component {
 
         var self = this;
 
-        var events: any = (this.chartComponentData.displayState.events) ? this.chartComponentData.displayState.events : [];
-        var states: any = (this.chartComponentData.displayState.states) ? this.chartComponentData.displayState.states : [];
-
-        const heightPerSplitBy: number = 40;
         const heightPerNameLabel: number = 25;
         const verticalPaddingPerSeriesLabel: number = 16;
-        const numEventsAndStates = Object.keys(events).length + Object.keys(states).length;
-        const usableLegendHeight: number = legend.node().clientHeight - (numEventsAndStates * heightPerNameLabel + 
-            (numEventsAndStates > 0 ? verticalPaddingPerSeriesLabel / 2 : 0));
+        const usableLegendHeight: number = legend.node().clientHeight;
         var prospectiveAggregateHeight = Math.ceil(Math.max(201, (usableLegendHeight / seriesLabelsEntered.size())));
         var contentHeight = 0;
 
         seriesLabelsEntered.each(function (aggKey: string, i: number) {
+            let heightPerSplitBy = self.getHeightPerSplitBy(aggKey);
             var splitByLabelData = Object.keys(self.chartComponentData.timeArrays[aggKey]);
             var noSplitBys: boolean = splitByLabelData.length == 1 && splitByLabelData[0] == "";
             var seriesNameLabel = d3.select(this).selectAll(".tsi-seriesNameLabel").data([aggKey]);
@@ -176,14 +177,14 @@ class Legend extends Component {
             seriesNameLabel.exit().remove();
 
             var splitByContainerHeight;
-            if (splitByLabelData.length > 4) {
+            if (splitByLabelData.length > (prospectiveAggregateHeight / heightPerSplitBy)) {
                 splitByContainerHeight = prospectiveAggregateHeight - heightPerNameLabel;
                 contentHeight += splitByContainerHeight + heightPerNameLabel;
-            } else if (splitByLabelData.length > 1 || (splitByLabelData.length == 1 && splitByLabelData[0] != "")) {
+            } else if (splitByLabelData.length > 1 || (splitByLabelData.length === 1 && splitByLabelData[0] !== "")) {
                 splitByContainerHeight = splitByLabelData.length * heightPerSplitBy + heightPerNameLabel;
                 contentHeight += splitByContainerHeight + heightPerNameLabel;
             } else {
-                splitByContainerHeight = 44;
+                splitByContainerHeight = heightPerSplitBy;
                 contentHeight += splitByContainerHeight;
             }
             if (self.chartOptions.legend == "shown") {
@@ -198,7 +199,7 @@ class Legend extends Component {
                 .classed("tsi-splitByContainer", true);
 
 
-            var renderSplitBys = () => {
+            var renderSplitBys = (dataType = DataTypes.Numeric) => {
                 var firstSplitBy = self.chartComponentData.displayState[aggKey].splitBys
                                 [Object.keys(self.chartComponentData.displayState[aggKey].splitBys)[0]];
                 var firstSplitByType = firstSplitBy ? firstSplitBy.visibleType : null;
@@ -235,7 +236,9 @@ class Legend extends Component {
                         labelMouseout(svgSelection, aggKey);
                     })
                     .attr("class", (splitBy, i) => {
-                        return "tsi-splitByLabel tsi-splitByLabel" + (Utils.getAgVisible(self.chartComponentData.displayState, aggKey, splitBy) ? " shown" : "")
+                        return "tsi-splitByLabel tsi-splitByLabel"
+                            + (dataType !== DataTypes.Numeric ? ' tsi-splitByLabelCompact' : '')  
+                            + (Utils.getAgVisible(self.chartComponentData.displayState, aggKey, splitBy) ? " shown" : "")
                     })
                     .classed("stickied", (splitBy, i) => {
                         if (self.chartComponentData.stickiedKey != null) {
@@ -247,15 +250,19 @@ class Legend extends Component {
 
                 splitByLabelsEntered.each(function (splitBy, j) {
                     let color = (self.chartComponentData.isFromHeatmap) ? self.chartComponentData.displayState[aggKey].color : colors[j];
-                    let colorKey = d3.select(this).selectAll('.tsi-colorKey').data([color]);
-                    colorKey.enter()
-                        .append("div")
-                        .attr("class", 'tsi-colorKey')
-                        .merge(colorKey)
-                        .style('background-color', (d) => {
-                            return d;
-                        });
-                    colorKey.exit().remove();
+                    if (dataType === DataTypes.Numeric) {
+                        let colorKey = d3.select(this).selectAll('.tsi-colorKey').data([color]);
+                        colorKey.enter()
+                            .append("div")
+                            .attr("class", 'tsi-colorKey')
+                            .merge(colorKey)
+                            .style('background-color', (d) => {
+                                return d;
+                            });
+                        colorKey.exit().remove();    
+                    } else {
+                        d3.select(this).selectAll('.tsi-colorKey').remove();
+                    }
 
                     if (d3.select(this).select('.tsi-eyeIcon').empty()) {
                         d3.select(this).append("button")
@@ -276,50 +283,55 @@ class Legend extends Component {
                             .attr('class', 'tsi-aggName')
                             .text(d => (noSplitBys ? (self.chartComponentData.displayState[aggKey].name): splitBy));      
                     }
-                    
-                    if (d3.select(this).select('.tsi-seriesTypeSelection').empty()) {
-                        d3.select(this).append("select")
-                            .attr('aria-label', self.getString("Series type selection for") + ' ' + splitBy)
-                            .attr('class', 'tsi-seriesTypeSelection')
-                            .on("change", function (data: any) {
-                                var seriesType: any = d3.select(this).property("value");
-                                self.chartComponentData.displayState[aggKey].splitBys[splitBy].visibleType = seriesType; 
-                                self.drawChart();
-                            })
-                            .on("click", () => {
-                                d3.event.stopPropagation();
-                            });
-                    }
-                    d3.select(this).select('.tsi-seriesTypeSelection')
-                        .each(function (d) {
-                            var typeLabels = d3.select(this).selectAll('option')
-                            .data(data => self.chartComponentData.displayState[aggKey].splitBys[splitBy].types.map( (type) => {
-                                return {
-                                    type: type,
-                                    aggKey: aggKey,
-                                    splitBy: splitBy,
-                                    visibleMeasure: Utils.getAgVisibleMeasure(self.chartComponentData.displayState, aggKey, splitBy)
-                                }
-                            }));
 
-                            typeLabels
-                                .enter()
-                                .append("option")
-                                .attr("class", "seriesTypeLabel")
-                                .merge(typeLabels)
-                                .property("selected", (data: any) => {
-                                    return ((data.type == Utils.getAgVisibleMeasure(self.chartComponentData.displayState, data.aggKey, data.splitBy)) ? 
-                                            " selected" : "");
-                                })                           
-                                .text((data: any) => data.type);
-                            typeLabels.exit().remove();
-                        });
+                    if (dataType === DataTypes.Numeric) {
+                        if (d3.select(this).select('.tsi-seriesTypeSelection').empty()) {
+                            d3.select(this).append("select")
+                                .attr('aria-label', self.getString("Series type selection for") + ' ' + splitBy)
+                                .attr('class', 'tsi-seriesTypeSelection')
+                                .on("change", function (data: any) {
+                                    var seriesType: any = d3.select(this).property("value");
+                                    self.chartComponentData.displayState[aggKey].splitBys[splitBy].visibleType = seriesType; 
+                                    self.drawChart();
+                                })
+                                .on("click", () => {
+                                    d3.event.stopPropagation();
+                                });
+                        }
+                        d3.select(this).select('.tsi-seriesTypeSelection')
+                            .each(function (d) {
+                                var typeLabels = d3.select(this).selectAll('option')
+                                .data(data => self.chartComponentData.displayState[aggKey].splitBys[splitBy].types.map( (type) => {
+                                    return {
+                                        type: type,
+                                        aggKey: aggKey,
+                                        splitBy: splitBy,
+                                        visibleMeasure: Utils.getAgVisibleMeasure(self.chartComponentData.displayState, aggKey, splitBy)
+                                    }
+                                }));
+    
+                                typeLabels
+                                    .enter()
+                                    .append("option")
+                                    .attr("class", "seriesTypeLabel")
+                                    .merge(typeLabels)
+                                    .property("selected", (data: any) => {
+                                        return ((data.type == Utils.getAgVisibleMeasure(self.chartComponentData.displayState, data.aggKey, data.splitBy)) ? 
+                                                " selected" : "");
+                                    })                           
+                                    .text((data: any) => data.type);
+                                typeLabels.exit().remove();
+                            });
+                    } else {
+                        d3.select(this).selectAll('.tsi-seriesTypeSelection').remove();
+                    }
                 });
                 splitByLabels.exit().remove();
 
                 return [splitByContainer, splitByContainerEntered];
             }
-            var sBs = renderSplitBys();
+            let dataType = self.chartComponentData.displayState[aggKey].dataType;
+            var sBs = renderSplitBys(dataType);
             var splitByContainer = sBs[0];
             var splitByContainerEntered = sBs[1];
             splitByContainerEntered.on("scroll", function () {
@@ -328,7 +340,7 @@ class Legend extends Component {
                         const oldShownSplitBys = self.chartComponentData.displayState[aggKey].shownSplitBys; 
                         self.chartComponentData.displayState[aggKey].shownSplitBys = Math.min(oldShownSplitBys + 20, splitByLabelData.length);
                         if (oldShownSplitBys != self.chartComponentData.displayState[aggKey].shownSplitBys) {
-                            renderSplitBys();
+                            renderSplitBys(dataType);
                         }
                     }    
                 }
@@ -340,7 +352,7 @@ class Legend extends Component {
                         const oldShownSplitBys = self.chartComponentData.displayState[aggKey].shownSplitBys; 
                         self.chartComponentData.displayState[aggKey].shownSplitBys = Math.min(oldShownSplitBys + 20, splitByLabelData.length);
                         if (oldShownSplitBys != self.chartComponentData.displayState[aggKey].shownSplitBys) {
-                            renderSplitBys();                   
+                            renderSplitBys(dataType);                   
                         }
                     }    
                 }
@@ -351,10 +363,12 @@ class Legend extends Component {
         if (this.chartOptions.legend == 'shown') {
             var legendHeight = legend.node().clientHeight;
             //minSplitBysForFlexGrow: the minimum number of split bys for flex-grow to be triggered 
-            var minSplitByForFlexGrow = (prospectiveAggregateHeight - heightPerNameLabel) / heightPerSplitBy;
             if (contentHeight < usableLegendHeight) {
                 this.legendElement.classed("tsi-flexLegend", true);
-                seriesLabelsEntered.each(function () {
+                seriesLabelsEntered.each(function (d) {
+                    let heightPerSplitBy = self.getHeightPerSplitBy(d);
+                    var minSplitByForFlexGrow = (prospectiveAggregateHeight - heightPerNameLabel) / heightPerSplitBy;
+
                     var splitBysCount = Object.keys(self.chartComponentData.displayState[String(d3.select(this).data()[0])].splitBys).length;
                     if (splitBysCount > minSplitByForFlexGrow) {
                         d3.select(this).style("flex-grow", 1);
@@ -366,90 +380,6 @@ class Legend extends Component {
         }
 
         seriesLabels.exit().remove();
-
-        /** Events ************************************************************************************************/
-        legend.selectAll(".tsi-eventSeriesLabel").remove();
-        var eventSeriesLabels: any = legend.selectAll(".tsi-eventSeriesLabel")
-            .data(Object.keys(events));
-        var eventSeriesLabelsEntered = eventSeriesLabels
-            .enter()
-            .append("div")
-            .attr("class", (d, i) => "tsi-eventSeriesLabel" + (this.chartComponentData.displayState.events[d].visible ? " shown" : ""))
-            .append("div")
-            .attr("class", (d, i) => "tsi-seriesNameLabel" + (this.chartComponentData.displayState.events[d].visible ? " shown" : ""));
-
-        eventSeriesLabelsEntered.each(function (d, i) {
-            var eyeIcons = d3.select(this).selectAll('.tsi-eyeIcon')
-                .data([d]);
-            eyeIcons
-                .enter().append("div")
-                .attr("class", "tsi-eyeIcon")
-                .on("click", function (data: any, i: number) {
-                    self.chartComponentData.displayState.events[d].visible = !self.chartComponentData.displayState.events[d].visible;
-                    self.drawChart();
-                });
-        });  
-
-        eventSeriesLabels.merge(eventSeriesLabels)
-        .classed("shown", (d, i) => {
-            return  this.chartComponentData.displayState.events[d].visible;
-        });
-
-        var eventSeriesLabelText = eventSeriesLabelsEntered
-            .append("h4");
-
-        eventSeriesLabelText.each(function() {
-            var svg = d3.select(this).append("svg")
-                            .attr("width", 20)
-                            .attr("height", 10);
-            Utils.createSeriesTypeIcon("event", svg);
-        }); 
-        eventSeriesLabelText.html(function(d) { 
-            return d3.select(this).html() + events[d].name;
-        });
-
-        eventSeriesLabels.exit().remove();
-
-        /** States ************************************************************************************************/
-        legend.selectAll(".tsi-stateSeriesLabel").remove();
-        var stateSeriesLabels: any = legend.selectAll(".tsi-stateSeriesLabel")
-            .data(Object.keys(states));
-        var stateSeriesLabelsEntered = stateSeriesLabels
-            .enter()
-            .append("div")
-            .attr("class", d => "tsi-stateSeriesLabel" + (this.chartComponentData.displayState.states[d].visible ? " shown" : ""))
-            .append("div")
-            .attr("class", d => "tsi-seriesNameLabel" + (this.chartComponentData.displayState.states[d].visible ? " shown" : ""));
-    
-        stateSeriesLabelsEntered.each(function (d, i) {
-            var eyeIcons = d3.select(this).selectAll('.tsi-eyeIcon')
-                .data([d]);
-            eyeIcons
-                .enter().append("div")
-                .attr("class", "tsi-eyeIcon")
-                .on("click", function (data: any, i: number) {
-                    self.chartComponentData.displayState.states[d].visible = !self.chartComponentData.displayState.states[d].visible;
-                    self.drawChart();
-                });
-        });  
-
-        stateSeriesLabels.merge(stateSeriesLabels)
-        .classed("shown", (d, i) => {
-            return  this.chartComponentData.displayState.states[d].visible;
-        });
-
-        var stateSeriesLabelText = stateSeriesLabelsEntered
-            .append("h4").each(function() {
-            var svg = d3.select(this).append("svg")
-                            .attr("width", 20)
-                            .attr("height", 10);
-            Utils.createSeriesTypeIcon("state", svg);
-        }); 
-        stateSeriesLabelText.html(function(d) { 
-            return d3.select(this).html() + states[d].name;
-        });
-
-        stateSeriesLabels.exit().remove();
 	}
 }
 

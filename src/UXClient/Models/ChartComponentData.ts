@@ -1,4 +1,4 @@
-import {Utils} from "./../Utils";
+import {Utils, DataTypes} from "./../Utils";
 import { ChartDataOptions } from "./ChartDataOptions";
 
 class ChartComponentData {
@@ -61,7 +61,7 @@ class ChartComponentData {
         return aggregateExpressionOptions;
     }
 
-    public mergeDataToDisplayStateAndTimeArrays(data, aggregateExpressionOptions = null, events = null, states = null ) {
+    public mergeDataToDisplayStateAndTimeArrays(data, aggregateExpressionOptions = null) {
         this.data = data;
         var newDisplayState: any = {};
         this.timeArrays = {};
@@ -76,14 +76,6 @@ class ChartComponentData {
         this.usesMillis = false;
         aggregateExpressionOptions = this.fillColors(aggregateExpressionOptions);
         let aggKeys = Utils.getAggKeys(this.data);
-
-        if (this.displayState.events) {
-            newDisplayState.events = this.displayState.events;
-        }
-
-        if (this.displayState.states) {
-            newDisplayState.states = this.displayState.events;
-        }
 
         this.data = this.data.map((aggregate: any, i: number) => {
             var aggName: string = Object.keys(aggregate)[0];
@@ -105,6 +97,7 @@ class ChartComponentData {
                     includeEnvelope: aggregateExpressionOptions[i].includeEnvelope,
                     includeDots: aggregateExpressionOptions[i].includeDots,
                     splitBys: {},
+                    dataType: aggregateExpressionOptions[i].dataType,
                     visibleSplitByCap: this.displayState[aggKey].visibleSplitByCap,
                     shownSplitBys: 20
                 }
@@ -156,7 +149,10 @@ class ChartComponentData {
                 this.timeArrays[aggKey][splitBy] = 
                     this.convertAggregateToArray(data[i][aggName][splitBy], aggKey, aggName, splitBy, 
                                                  newDisplayState[aggKey].from, newDisplayState[aggKey].to, 
-                                                 newDisplayState[aggKey].bucketSize, aggregateExpressionOptions[i].timeShift);               
+                                                 newDisplayState[aggKey].bucketSize, aggregateExpressionOptions[i].timeShift);  
+                if (newDisplayState[aggKey].dataType === DataTypes.Categorical && aggregateExpressionOptions[i].rollupCategoricalValues){
+                    this.timeArrays[aggKey][splitBy] = Utils.rollUpContiguous(this.timeArrays[aggKey][splitBy]);
+                }             
 
                 let isVisible;
 
@@ -393,9 +389,11 @@ class ChartComponentData {
             Object.keys(agg).sort().forEach((dateTime: string) => {
                 var timeValueObject: any = createTimeValueObject();
                 timeValueObject["dateTime"] = new Date(dateTime);
-                Object.keys(agg[dateTime]).forEach((measure: string) => {
-                    timeValueObject["measures"][measure] = agg[dateTime][measure];
-                });
+                if (agg[dateTime]) {
+                    Object.keys(agg[dateTime]).forEach((measure: string) => {
+                        timeValueObject["measures"][measure] = agg[dateTime][measure];
+                    });    
+                }
                 aggArray.push(timeValueObject);
             });
         }
@@ -471,8 +469,10 @@ class ChartComponentData {
             var splitByObject = this.displayState[aggKey].aggregateExpression.splitByObject;
             Object.keys(this.timeArrays[aggKey]).forEach((splitBy) => {
                 var splitByString = this.displayState[aggKey].name;
-                if (splitByObject != null) {
+                if (splitByObject !== undefined && splitByObject !== null) {
                     splitByString += "/" + splitByObject.property + "/" + splitBy;
+                } else if (splitBy !== ''){
+                    splitByString += '/' + splitBy;
                 }
 
                 let types = spMeasures ? spMeasures : this.displayState[aggKey].splitBys[splitBy].types;

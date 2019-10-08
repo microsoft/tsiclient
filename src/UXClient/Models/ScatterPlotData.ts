@@ -56,8 +56,8 @@ class ScatterPlotData extends GroupedBarChartData {
     }
 
     /******** UPDATES CHART DATA, ALL TIMESTAMPS, AND VALUES AT THE CURRENT TIMESTAMP ********/
-    public mergeDataToDisplayStateAndTimeArrays (data, timestamp, aggregateExpressionOptions = null, events = null, states = null ) {
-        ChartComponentData.prototype.mergeDataToDisplayStateAndTimeArrays.call(this, data, aggregateExpressionOptions, events, states);
+    public mergeDataToDisplayStateAndTimeArrays (data, timestamp, aggregateExpressionOptions = null) {
+        ChartComponentData.prototype.mergeDataToDisplayStateAndTimeArrays.call(this, data, aggregateExpressionOptions);
         this.timestamp = (timestamp != undefined && this.allTimestampsArray.indexOf(timestamp) !== -1) ? timestamp : this.allTimestampsArray[0];
         this.setValuesAtTimestamp();
         this.setAllTimestampsArray();

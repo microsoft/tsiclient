@@ -18,8 +18,8 @@ class GroupedBarChartData extends ChartComponentData {
         super();
     }
 
-    public mergeDataToDisplayStateAndTimeArrays (data, timestamp, aggregateExpressionOptions = null, events = null, states = null ) {
-        super.mergeDataToDisplayStateAndTimeArrays(data, aggregateExpressionOptions, events, states);
+    public mergeDataToDisplayStateAndTimeArrays (data, timestamp, aggregateExpressionOptions = null) {
+        super.mergeDataToDisplayStateAndTimeArrays(data, aggregateExpressionOptions);
         this.timestamp = timestamp;
         this.setValuesAtTimestamp();
         this.setFilteredAggregates();

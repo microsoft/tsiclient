@@ -34,68 +34,83 @@
                     }
                 }
 
-                var states = [{"Component States" : [
-                    {
-                        [from.toISOString()] : {
-                            'color': 'lightblue',
-                            'description' : 'Cooling fan on'
-                        }
-                    },
-                    {
-                        [(new Date(from.valueOf() + 1000*60*12)).toISOString()] : {
-                            'color': '#C8E139',
-                            'description' : 'Filling tank at maximum pressure'
-                        }
-                    },
-                    {
-                        [(new Date(from.valueOf() + 1000*60*55)).toISOString()] : {
-                            'color': '#D869CB',
-                            'description' : 'Pressing machine overheated'
+                var events = {};
+                data.push({[`Factory2`]: events});
+                for(var j = 0; j < 2; j++){
+                    var values = {};
+                    events[`Station${j}`] = values;
+                    for(var k = 0; k <= 60; k++){
+                        if((k%2 === 0 || k%3 === 0)){  // if check is to create some sparseness in the data
+                            var to = new Date(from.valueOf() + 1000*60*k);
+                            let measures = {};
+                            if (k % 2 === 0 && Math.random() > .7) {
+                                measures['badEvent'] = 'something bad happened';
+                            }
+                            if (k % 3 === 0 && Math.random() > .4) {
+                                measures['goodEvent'] = 'something good happened';
+                            }
+                            if (Object.keys(measures).length > 0) {
+                                values[to.toISOString()] = measures
+                            }
                         }
                     }
-                ]}];
+                }
 
-                var events = [
-                    {"Incidents" : [
-                        {
-                            [(new Date(from.valueOf() + 1000*60*10)).toISOString()] : {
-                                'color': '#C8E139',
-                                'description' : 'Recoverable failure'
-                            }
-                        },
-                        {
-                            [(new Date(from.valueOf() + 1000*60*38)).toISOString()] : {
-                                'color': '#D869CB',
-                                'description' : 'Catastrophic failure'
-                            }
-                        },
-                            {
-                            [(new Date(from.valueOf() + 1000*60*48)).toISOString()] : {
-                                'color': '#D869CB',
-                                'description' : 'Informational event'
-                            }
+                var states = {};
+                data.push({[`Factory3`]: states});
+                var values = {};
+                var values4 = {};
+                for(var j = 0; j < 3; j++){
+                    values = {};
+                    states[`Station${j}`] = values;
+                    for(var k = 0; k < 60; k++){
+                        var val1 = Math.random();
+                        if (val1 < .5) {
+                            val1 = 1;
                         }
-                    ]},
-                    {"Other events" : [
-                        {
-                            [(new Date(from.valueOf() + 1000*60*18)).toISOString()] : {
-                                'color': 'teal',
-                                'description' : 'Nothing to worry about'
-                            }
-                        },
-                        {
-                            [(new Date(from.valueOf() + 1000*60*42)).toISOString()] : {
-                                'color': 'pink',
-                                'description' : 'Also irrelevant'
-                            }
-                        }
-                    ]}
-                ];
+                        var val2 = (1 - val1) / 2;
+                        var val3 = (1 - val1) / 2;
+                        var to = new Date(from.valueOf() + 1000*60*k);
+                        if(Math.random() < .8)
+                            values[to.toISOString()] = {state1: val1, state2: val2, state3: val3};
+                        else
+                            values[to.toISOString()] = null;
+                        
+                        values4[to.toISOString()] = {state1: .4};
+                    } 
+                }
+
+                states[`Station3`] = values4;
+
+                let eventValueMapping = {
+                    badEvent: {
+                        color: 'red'
+                    },
+                    goodEvent: {
+                        color: 'blue'
+                    }
+                }
+
+                let valueMapping = {
+                    state1: {
+                        color: '#F2C80F'
+                    }, 
+                    state2: {
+                        color: '#FD625E'
+                    },
+                    state3: {
+                        color:'#3599B8'
+                    }
+                }
 
                 // render the data in a chart
+                var onElementClick = function (aggKey, sb, ts, measures) { console.log(aggKey, sb, ts, measures); }
                 var tsiClient = new TsiClient();
                 var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart1'));
-                lineChart.render(data, {theme: 'light', legend: 'shown', grid: true, tooltip: true, events: events, states: states});
+                lineChart.render(data, {theme: 'light', legend: 'shown', grid: true, tooltip: true, brushMoveEndAction: () => {}}, [{}, {}, 
+                {dataType: 'events', valueMapping: eventValueMapping, height: 50, eventElementType: 'teardrop', onElementClick: onElementClick},
+                {dataType: 'categorical', valueMapping: valueMapping, height: 100, onElementClick: onElementClick, rollupCategoricalValues: true}
+            ]);
             }
         </script>
     </body>    

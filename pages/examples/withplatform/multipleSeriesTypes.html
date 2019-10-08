@@ -1,0 +1,120 @@
+
+<!DOCTYPE html> 
+<html>
+    <head>
+        <title>PAYG Multiple Series Types</title>
+
+        <!-- styles are only used for styling header and auth elements, where possible -->
+        <link rel="stylesheet" type="text/css" href="../styles.css" />
+
+        <!-- boilerplate headers are injected with head.js, grab them from the live example header, or include a link to head.js -->
+        <script src="https://unpkg.com/tsiclient@1.3.0-beta.1/tsiclient.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/bluebird/3.3.4/bluebird.min.js"></script>
+        <link rel="stylesheet" type="text/css" href="https://unpkg.com/tsiclient@1.3.0-beta.1/tsiclient.css">
+
+        <!-- boilerplate auth code is injected with auth.js, check it out for auth setup -->
+        <script src="../boilerplate/auth.js"></script>
+    </head>
+    <body style="font-family: 'Segoe UI', sans-serif;">
+
+        <div id="chart1" style="width: calc(100% - 160px); height: 600px; margin: 80px; float: left;"></div>
+        <script>
+            window.onload = function() {
+                initAuth('PAYG with multiple series types');  // initiate auth objects, header, and login modal
+                var tsiClient = new TsiClient();
+
+
+                /* CREATE PARAMETERS FOR QUERYING THE TSI PAYG API */
+                var linechartTsqExpressions = [];
+                var startDate = new Date('2017-04-20T20:00:00Z');
+                var endDate = new Date(startDate.valueOf() + 1000*60*60*24*30);
+    
+                linechartTsqExpressions.push(new tsiClient.ux.TsqExpression(
+                    {timeSeriesId: ['df4412c4-dba2-4a52-87af-780e78ff156b']}, // instance json
+                    {Max: {
+                        kind: 'numeric',
+                        value: {tsx: '$event.value.Double'},
+                        filter: null,
+                        aggregation: {tsx: 'max($value)'}
+                    }}, // variable json
+                    { from: startDate, to: endDate, bucketSize: '6h' }, // search span
+                    '#60B9AE', // color
+                    'MaxValue')); // alias
+
+                linechartTsqExpressions.push(new tsiClient.ux.TsqExpression(
+                    {timeSeriesId: ['df4412c4-dba2-4a52-87af-780e78ff156b']}, // instance json
+                    {Avg: {
+                        kind: 'numeric',
+                        value: {tsx: '$event.value.Double'},
+                        filter: null,
+                        aggregation: {tsx: 'avg($value)'}
+                    }}, // variable json
+                    { from: startDate, to: endDate, bucketSize: '6h' }, // search span
+                    '#D869CB', // color
+                    'AvgValue')); // 
+                /* END: CREATE PARAMETERS FOR QUERYING THE TSI PAYG API */               
+
+
+                /* CREATE MAINTENANCE EVENTS, MAPPING, AND ASSOCIATED CHART OPTIONS */
+                var maintenanceEvents = {
+                    'Maintenance': {
+                        '': {
+                            '2017-04-22T20:00:00Z': {
+                                'Normal Maintenance': '1 Event'
+                            },
+                            '2017-04-28T20:00:00Z': {
+                                'Bad Maintenance': 1,
+                                'Good Maintenance': 3
+                            },
+                            '2017-05-12T20:00:00Z': {
+                                'Some Other Thing': 'Not really clear what happened here?',
+                            }
+                        }
+                    }
+                }
+
+                var valueMapping = {
+                    'Normal Maintenance': {
+                        color: 'purple'
+                    }, 
+                    'Bad Maintenance': {
+                        color: 'red'
+                    },
+                    'Good Maintenance': {
+                        color:'green'
+                    },
+                    'Some Other Thing': {
+                        color:'orange'
+                    }
+                }
+
+                var maintenanceEventsChartDataOptions = {
+                    onElementClick: (dataGroupName, seriesName, timestamp, data) => {
+                        alert(`${dataGroupName} ${seriesName} ${timestamp} ${JSON.stringify(data)}`)
+                    }, 
+                    dataType: 'events', 
+                    eventElementType: 'teardrop', 
+                    valueMapping: valueMapping, 
+                    height: 32
+                }
+                /* END: CREATE MAINTENANCE EVENTS, MAPPING, AND ASSOCIATED CHART OPTIONS */
+
+
+                // Get data, render chart
+                authContext.getTsiToken().then(function(token){
+                    tsiClient.server.getTsqResults(token, '10000000-0000-0000-0000-100000000109.env.timeseries.azure.com', linechartTsqExpressions.map(function(ae){return ae.toTsq()})).then(function(result){
+                        var transformedResult = tsiClient.ux.transformTsqResultsForVisualization(result, linechartTsqExpressions);
+                        
+                        // Add maintenance events to the data
+                        transformedResult.push(maintenanceEvents);
+                        linechartTsqExpressions.push(maintenanceEventsChartDataOptions)
+                        
+                        var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart1'));
+                        lineChart.render(transformedResult, {theme: 'light', grid: true, tooltip: true, legend: 'shown'}, linechartTsqExpressions);
+                    });
+
+                });
+            }
+        </script>
+    </body>
+</html>

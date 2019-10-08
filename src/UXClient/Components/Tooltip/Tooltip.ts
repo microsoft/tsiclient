@@ -57,7 +57,10 @@ class Tooltip extends Component {
 
         super.themify(this.tooltipDiv, theme);
 
-        this.draw = (d: any, chartComponentData: ChartComponentData, xPos, yPos, chartMargins, addText) => {
+        
+        //  element width is an optional parameter which ensurea that the tooltip doesn't interfere with the element
+        //when positioning to the right
+        this.draw = (d: any, chartComponentData: ChartComponentData, xPos, yPos, chartMargins, addText, elementWidth: number = null, xOffset = 20, yOffset = 20) => {
             this.tooltipDiv.style("display", "block")
                 .text(null);
 
@@ -70,8 +73,10 @@ class Tooltip extends Component {
         
             var tooltipWidth = this.tooltipDiv.node().getBoundingClientRect().width;
             var tooltipHeight = this.tooltipDiv.node().getBoundingClientRect().height;
-            var translateX = this.isRightOffset(tooltipWidth, xPos, chartMargins.left) ? 20 : (-Math.round(tooltipWidth) - 20); 
-            var translateY = this.isTopOffset(tooltipHeight, yPos, chartMargins.bottom) ? 20 :  (-Math.round(tooltipHeight) - 20);
+            var translateX = this.isRightOffset(tooltipWidth, xPos, chartMargins.left) ? xOffset : 
+                (-Math.round(tooltipWidth) - xOffset - (elementWidth !== null ? elementWidth : 0));             
+            translateX = Math.max(0 - xPos, translateX);
+            var translateY = this.isTopOffset(tooltipHeight, yPos, chartMargins.bottom) ? yOffset :  (-Math.round(tooltipHeight) - yOffset);
             this.tooltipDiv.style("transform", "translate(" + translateX + "px," + translateY + "px)");
 
         }

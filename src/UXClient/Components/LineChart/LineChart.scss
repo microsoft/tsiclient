@@ -18,6 +18,12 @@
     }
 
     .tsi-lineChartSVG{
+        .tsi-discreteEventTeardrop{
+            fill: $gray3;
+        }        
+        .tsi-categoricalHoverRect {
+            stroke: $gray1;
+        }
         text{
             fill: $gray1;
         }
@@ -256,6 +262,17 @@
     }
 
     .tsi-lineChartSVG {
+        .tsi-categoricalHoverRect {
+            pointer-events: none;
+            fill-opacity: .3;
+            stroke-opacity: .5;
+            stroke-width: 1px;
+        }
+
+        .tsi-backdropRect {
+            fill: white;
+            fill-opacity: 0;
+        }
 
         .voronoiRect {
             fill-opacity: 0;
@@ -272,14 +289,10 @@
             font-size:12px;
         }
 
-        path {
-            stroke-width: 2px;
-            fill: none;
-            stroke-linecap: round;
-            stroke-linejoin: round;
-            pointer-events: none;
-            transition: stroke-opacity .2s ease;
+        path{
+            fill: none;   
         }
+
         .focus {
             circle {
                 stroke-width: 1px;
@@ -294,6 +307,15 @@
         .valueLine {
             stroke-width: 2px;
             will-change: stroke-opacity;
+            stroke-width: 2px;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            pointer-events: none;
+            transition: stroke-opacity .2s ease;
+        }
+
+        .valueEnvelope {
+            pointer-events: none;
         }
 
         .valueArea {
