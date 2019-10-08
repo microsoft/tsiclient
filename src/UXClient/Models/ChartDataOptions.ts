@@ -20,6 +20,7 @@ class ChartDataOptions {
     public height: number; //only present for non-numeric
     public onElementClick: any;
     public eventElementType: any;
+    public rollupCategoricalValues: boolean;
 
     constructor (optionsObject: Object){
         this.searchSpan = Utils.getValueOrDefault(optionsObject, 'searchSpan');
@@ -38,6 +39,7 @@ class ChartDataOptions {
         this.height = Utils.getValueOrDefault(optionsObject, 'height', DEFAULT_HEIGHT);
         this.onElementClick = Utils.getValueOrDefault(optionsObject, 'onElementClick', null);
         this.eventElementType = Utils.getValueOrDefault(optionsObject, 'eventElementType', EventElementTypes.Diamond);
+        this.rollupCategoricalValues = Utils.getValueOrDefault(optionsObject, 'rollupCategoricalValues', false);
     }
 }
 export {ChartDataOptions}

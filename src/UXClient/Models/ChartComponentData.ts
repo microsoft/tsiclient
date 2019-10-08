@@ -150,7 +150,7 @@ class ChartComponentData {
                     this.convertAggregateToArray(data[i][aggName][splitBy], aggKey, aggName, splitBy, 
                                                  newDisplayState[aggKey].from, newDisplayState[aggKey].to, 
                                                  newDisplayState[aggKey].bucketSize, aggregateExpressionOptions[i].timeShift);  
-                if (newDisplayState[aggKey].dataType === DataTypes.Categorical){
+                if (newDisplayState[aggKey].dataType === DataTypes.Categorical && aggregateExpressionOptions[i].rollupCategoricalValues){
                     this.timeArrays[aggKey][splitBy] = Utils.rollUpContiguous(this.timeArrays[aggKey][splitBy]);
                 }             
 

@@ -109,7 +109,7 @@
                 var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart1'));
                 lineChart.render(data, {theme: 'light', legend: 'shown', grid: true, tooltip: true, brushMoveEndAction: () => {}}, [{}, {}, 
                 {dataType: 'events', valueMapping: eventValueMapping, height: 50, eventElementType: 'teardrop', onElementClick: onElementClick},
-                {dataType: 'categorical', valueMapping: valueMapping, height: 100, onElementClick: onElementClick}
+                {dataType: 'categorical', valueMapping: valueMapping, height: 100, onElementClick: onElementClick, rollupCategoricalValues: true}
             ]);
             }
         </script>
