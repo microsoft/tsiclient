@@ -101,7 +101,6 @@ class CategoricalPlot extends Plot {
         let series: Array<string> = this.getVisibleSeries(aggKey);
 
         let heightPerSeries = Math.max((self.chartDataOptions.height - (series.length * TOPMARGIN))/ series.length, 0);
-        // series = Utils.rollUpContiguous(series);
         let splitByGroups = this.splitBysGroup.selectAll(".tsi-splitByGroup")
             .data(series, (d) => {
                 return d.splitBy;

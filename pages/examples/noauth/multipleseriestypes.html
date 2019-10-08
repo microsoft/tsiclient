@@ -58,8 +58,10 @@
 
                 var states = {};
                 data.push({[`Factory3`]: states});
+                var values = {};
+                var values4 = {};
                 for(var j = 0; j < 3; j++){
-                    var values = {};
+                    values = {};
                     states[`Station${j}`] = values;
                     for(var k = 0; k < 60; k++){
                         var val1 = Math.random();
@@ -73,8 +75,12 @@
                             values[to.toISOString()] = {state1: val1, state2: val2, state3: val3};
                         else
                             values[to.toISOString()] = null;
+                        
+                        values4[to.toISOString()] = {state1: .4};
                     } 
                 }
+
+                states[`Station3`] = values4;
 
                 let eventValueMapping = {
                     badEvent: {

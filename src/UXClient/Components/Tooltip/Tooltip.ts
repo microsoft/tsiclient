@@ -74,7 +74,8 @@ class Tooltip extends Component {
             var tooltipWidth = this.tooltipDiv.node().getBoundingClientRect().width;
             var tooltipHeight = this.tooltipDiv.node().getBoundingClientRect().height;
             var translateX = this.isRightOffset(tooltipWidth, xPos, chartMargins.left) ? xOffset : 
-                (-Math.round(tooltipWidth) - xOffset - (elementWidth !== null ? elementWidth : 0)); 
+                (-Math.round(tooltipWidth) - xOffset - (elementWidth !== null ? elementWidth : 0));             
+            translateX = Math.max(0 - xPos, translateX);
             var translateY = this.isTopOffset(tooltipHeight, yPos, chartMargins.bottom) ? yOffset :  (-Math.round(tooltipHeight) - yOffset);
             this.tooltipDiv.style("transform", "translate(" + translateX + "px," + translateY + "px)");
 

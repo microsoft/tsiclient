@@ -1,4 +1,4 @@
-import {Utils} from "./../Utils";
+import {Utils, DataTypes} from "./../Utils";
 import { ChartDataOptions } from "./ChartDataOptions";
 
 class ChartComponentData {
@@ -149,7 +149,10 @@ class ChartComponentData {
                 this.timeArrays[aggKey][splitBy] = 
                     this.convertAggregateToArray(data[i][aggName][splitBy], aggKey, aggName, splitBy, 
                                                  newDisplayState[aggKey].from, newDisplayState[aggKey].to, 
-                                                 newDisplayState[aggKey].bucketSize, aggregateExpressionOptions[i].timeShift);               
+                                                 newDisplayState[aggKey].bucketSize, aggregateExpressionOptions[i].timeShift);  
+                if (newDisplayState[aggKey].dataType === DataTypes.Categorical){
+                    this.timeArrays[aggKey][splitBy] = Utils.rollUpContiguous(this.timeArrays[aggKey][splitBy]);
+                }             
 
                 let isVisible;
 

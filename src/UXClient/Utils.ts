@@ -117,7 +117,10 @@ class Utils {
 
     static rollUpContiguous (data) {
         let areEquivalentBuckets = (d1, d2) => {
-            if (Object.keys(d1.measures).length !== Object.keys(d1.measures).length) {
+            if (!d1.measures || !d2.measures) {
+                return false;
+            }
+            if (Object.keys(d1.measures).length !== Object.keys(d2.measures).length) {
                 return false;
             }
             return Object.keys(d1.measures).reduce((p, c, i) => {
