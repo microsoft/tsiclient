@@ -870,10 +870,7 @@ class LineChart extends TemporalXAxisComponent {
     } 
 
     private voronoiExists (): boolean {
-        if (this.getVisibleNumerics() === 0) {
-            return false;
-        }
-        return true;
+        return (this.getVisibleNumerics() !== 0); 
     }
 
     private voronoiMousemove (mouseEvent) {
@@ -953,9 +950,7 @@ class LineChart extends TemporalXAxisComponent {
         if (this.brushElem && !this.isDroppingScooter) return;
         const [mx, my] = d3.mouse(mouseEvent);
         var site: any = this.voronoiDiagram.find(mx, my);
-        let cDO = this.aggregateExpressionOptions.filter((currCDO) => {
-            return (site.data.aggregateKey === currCDO.aggKey);
-        })[0];
+        let cDO = this.getCDOFromAggKey(site.data.aggregateKey);
         if (!this.isDroppingScooter) {
             if (site.data && cDO.onElementClick !== null) {
                 cDO.onElementClick(site.data.aggregateKey, site.data.splitBy, site.data.dateTime.toISOString(), site.data.measures);
@@ -996,8 +991,10 @@ class LineChart extends TemporalXAxisComponent {
             .attr('height', handleHeight)
             .attr('y', (this.chartHeight - handleHeight) / 2);
 
-        if (!d3.event.sourceEvent) return;
-        if (d3.event.sourceEvent && d3.event.sourceEvent.type == 'mousemove') {
+        if (!d3.event.sourceEvent){
+            return;
+        } 
+        if (d3.event.sourceEvent && d3.event.sourceEvent.type === 'mousemove') {
             this.brushElem.select(".selection").attr("visibility", "visible");
             //check boundary conditions for width of the brush
             if (d3.event.selection[1] - d3.event.selection[0] < this.minBrushWidth) {
