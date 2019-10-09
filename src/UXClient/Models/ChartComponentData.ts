@@ -61,9 +61,14 @@ class ChartComponentData {
         return aggregateExpressionOptions;
     }
 
-    private getVisibleType = (aggKey, splitBy, defaultType) => {
-        return (this.displayState[aggKey] && this.displayState[aggKey].splitBys[splitBy]) ? 
-            this.displayState[aggKey].splitBys[splitBy].visibleType : defaultType;
+    private getVisibleType = (aggKey, splitBy, defaultType, measures) => {
+        if (this.displayState[aggKey] && this.displayState[aggKey].splitBys[splitBy]) {
+            let prospectiveVisible = this.displayState[aggKey].splitBys[splitBy].visibleType;
+            if (measures.indexOf(prospectiveVisible) !== -1) {
+                return prospectiveVisible;
+            }
+        }
+        return defaultType;
     }
 
     public mergeDataToDisplayStateAndTimeArrays(data, aggregateExpressionOptions = null) {
@@ -193,7 +198,7 @@ class ChartComponentData {
                 if (!newDisplayState[aggKey].splitBys[splitBy].visibleType || (newDisplayState[aggKey].splitBys[splitBy].types.indexOf(newDisplayState[aggKey].splitBys[splitBy].visibleType) === -1)){
                     var visibleMeasure = newDisplayState[aggKey].splitBys[splitBy].types.indexOf("avg") !== -1 ? "avg" : 
                         newDisplayState[aggKey].splitBys[splitBy].types[0];
-                    newDisplayState[aggKey].splitBys[splitBy].visibleType = this.getVisibleType(aggKey, splitBy, visibleMeasure);
+                    newDisplayState[aggKey].splitBys[splitBy].visibleType = this.getVisibleType(aggKey, splitBy, visibleMeasure, newDisplayState[aggKey].splitBys[splitBy].types);
                 }
 
                 //add to visible display states if splitby is visible
