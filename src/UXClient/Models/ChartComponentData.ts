@@ -61,6 +61,16 @@ class ChartComponentData {
         return aggregateExpressionOptions;
     }
 
+    private getVisibleType = (aggKey, splitBy, defaultType, measures) => {
+        if (this.displayState[aggKey] && this.displayState[aggKey].splitBys[splitBy]) {
+            let prospectiveVisible = this.displayState[aggKey].splitBys[splitBy].visibleType;
+            if (measures.indexOf(prospectiveVisible) !== -1) {
+                return prospectiveVisible;
+            }
+        }
+        return defaultType;
+    }
+
     public mergeDataToDisplayStateAndTimeArrays(data, aggregateExpressionOptions = null) {
         this.data = data;
         var newDisplayState: any = {};
@@ -145,6 +155,7 @@ class ChartComponentData {
             var aggregateVisible = newDisplayState[aggKey].visible;
             this.timeArrays[aggKey] = [];
             this.visibleTAs[aggKey] = {};
+
             Object.keys(data[i][aggName]).forEach((splitBy: string, splitByI: number) => {
                 this.timeArrays[aggKey][splitBy] = 
                     this.convertAggregateToArray(data[i][aggName][splitBy], aggKey, aggName, splitBy, 
@@ -185,9 +196,9 @@ class ChartComponentData {
                     newDisplayState[aggKey].splitBys[splitBy].types = this.determineMeasureTypes(this.timeArrays[aggKey][splitBy])
                 }
                 if (!newDisplayState[aggKey].splitBys[splitBy].visibleType || (newDisplayState[aggKey].splitBys[splitBy].types.indexOf(newDisplayState[aggKey].splitBys[splitBy].visibleType) === -1)){
-                    var visibleMeasure = newDisplayState[aggKey].splitBys[splitBy].types.indexOf("avg") != -1 ? "avg" : 
+                    var visibleMeasure = newDisplayState[aggKey].splitBys[splitBy].types.indexOf("avg") !== -1 ? "avg" : 
                         newDisplayState[aggKey].splitBys[splitBy].types[0];
-                    newDisplayState[aggKey].splitBys[splitBy].visibleType = visibleMeasure;
+                    newDisplayState[aggKey].splitBys[splitBy].visibleType = this.getVisibleType(aggKey, splitBy, visibleMeasure, newDisplayState[aggKey].splitBys[splitBy].types);
                 }
 
                 //add to visible display states if splitby is visible
