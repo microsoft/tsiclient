@@ -126,7 +126,7 @@ class CategoricalPlot extends Plot {
 
                 categoricalBuckets.enter()
                     .append("rect")
-                    .attr("class", "valueElement valueRect tsi-categoricalBucket")
+                    .attr("class", "valueElement tsi-categoricalBucket")
                     .merge(categoricalBuckets)
                     .style("visibility", (d: any) => { 
                         return (self.chartComponentData.isSplitByVisible(aggKey, splitBy) && self.hasData(d)) ? "visible" : "hidden";
