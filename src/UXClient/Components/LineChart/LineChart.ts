@@ -1699,7 +1699,7 @@ class LineChart extends TemporalXAxisComponent {
                                 let g = d3.select(this);
                                 delete self.plotComponents[aggKey];
                                 g.selectAll('*').remove();
-                                self.plotComponents[aggKey] = self.createPlot(g, i, self.aggregateExpressionOptions);
+                                self.plotComponents[aggKey] = self.createPlot(g, i, visibleCDOs);
                             }
 
                             let mouseoverFunction = self.getMouseoverFunction(visibleCDOs[i].dataType);
