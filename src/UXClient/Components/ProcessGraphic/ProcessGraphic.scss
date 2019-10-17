@@ -1,0 +1,29 @@
+.tsi-process-graphic-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tsi-process-graphic {
+  position: relative;
+}
+
+.tsi-process-graphic img {
+  width: 100%;
+  height: 100%;
+}
+
+.tsi-process-graphic-label {
+  position: absolute;
+}
+
+.tsi-temporal-slider-container {
+  display: flex;
+  flex-direction: row;
+}
+
+
+.tsi-playback-play button {
+  width: 100%;
+  height: 100%;
+}

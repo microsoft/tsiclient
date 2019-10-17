@@ -13,6 +13,7 @@ class Slider extends Component{
     private sliderWidth: number;
     private selectedLabel: string;
     private isAscendingTimePeriods: boolean;
+    private onStartCallback: Function;
 
     private margins = {
         left: 60,
@@ -53,7 +54,7 @@ class Slider extends Component{
         return isAscending;
     }
 	
-	public render(data: Array<any>, options: any, width: number, selectedLabel: string = null){
+	public render(data: Array<any>, options: any, width: number, selectedLabel: string = null, onStartCallback: Function = null){
         this.chartOptions.setOptions(options);
         this.data = data;
         this.isAscendingTimePeriods = this.determineIfAscendingTimePeriods();
@@ -85,6 +86,7 @@ class Slider extends Component{
                 .call(d3.drag()
                     .on("start.interrupt", function() { slider.interrupt(); })
                     .on("start drag", (d) => { 
+                        onStartCallback();
                         self.onDrag(d3.event.x); 
                     })
                     .on("end", (d) => {
@@ -184,7 +186,7 @@ class Slider extends Component{
         this.sliderTextDiv.style("right", (this.width - (this.margins.right + this.getXPositionOfLabel(this.selectedLabel))) - centerDivOffset + "px");
     }
 
-    private moveLeft () {
+    public moveLeft () {
         for (var i = 0; i < this.data.length; i++) {
             if (this.data[i].label == this.selectedLabel) {
                 var newI = Math.max(0, i - 1);
@@ -196,7 +198,7 @@ class Slider extends Component{
         }
     }
 
-    private moveRight () {
+    public moveRight () {
         for (var i = 0; i < this.data.length; i++) {
             if (this.data[i].label == this.selectedLabel) {
                 var newI = Math.min(this.data.length - 1, i + 1);

@@ -16,11 +16,13 @@ import {Utils} from "./Utils";
 import './styles.scss'
 import { EllipsisMenu } from "./Components/EllipsisMenu/EllipsisMenu";
 import { TsqExpression } from "./Models/TsqExpression";
+import { ProcessGraphicTsqExpression } from "./Models/ProcessGraphicTsqExpression";
 import { ModelAutocomplete } from "./Components/ModelAutocomplete/ModelAutocomplete";
 import { HierarchyNavigation } from "./Components/HierarchyNavigation/HierarchyNavigation";
 import { SingleDateTimePicker } from "./Components/SingleDateTimePicker/SingleDateTimePicker";
 import { DateTimeButtonSingle } from "./Components/DateTimeButtonSingle/DateTimeButtonSingle";
 import { DateTimeButtonRange } from "./Components/DateTimeButtonRange/DateTimeButtonRange";
+import { ProcessGraphic } from './Components/ProcessGraphic/ProcessGraphic';
 
 class UXClient {
     UXClient () {
@@ -74,6 +76,12 @@ class UXClient {
             return new TsqExpression(instanceObject, variableObject, searchSpan, colorOrOptionsObject, alias, contextMenu);
     }
 
+    public ProcessGraphicTsqExpression(instanceObject: any, variableObject: any, searchSpan: any, 
+        colorOrOptionsObject: any, alias: string = '', contextMenu: Array<any> = [], positionX: number, positionY: number) {
+            return new ProcessGraphicTsqExpression(instanceObject, variableObject, searchSpan, colorOrOptionsObject, 
+                alias, contextMenu, positionX, positionY);
+    }
+
     public Heatmap(renderTarget) {
         return new Heatmap(renderTarget);
     }
@@ -112,7 +120,11 @@ class UXClient {
 
     public DateTimeButtonRange (renderTarget) {
         return new DateTimeButtonRange(renderTarget);
-    } 
+    }
+
+    public ProcessGraphic(renderTarget) {
+        return new ProcessGraphic(renderTarget);
+    }
 
     public transformTsxToEventsArray (events, options) {
         var timezoneOffset = options.timezoneOffset ? options.timezoneOffset : 0;
