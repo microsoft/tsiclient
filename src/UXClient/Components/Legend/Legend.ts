@@ -277,10 +277,10 @@ class Legend extends Component {
                             });    
                     }
 
-                    if (d3.select(this).select('.tsi-aggName').empty()) {
+                    if (d3.select(this).select('.tsi-seriesName').empty()) {
                         d3.select(this)
-                            .append('h5')
-                            .attr('class', 'tsi-aggName')
+                            .append('div')
+                            .attr('class', 'tsi-seriesName')
                             .text(d => (noSplitBys ? (self.chartComponentData.displayState[aggKey].name): splitBy));      
                     }
 

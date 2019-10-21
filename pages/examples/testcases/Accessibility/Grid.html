@@ -2,13 +2,14 @@
 <!DOCTYPE html> 
 <html lang='en'>
     <head>
-        <title>Multiple Series Types</title>
+        <title>Grid</title>
 
         <!-- boilerplate headers are injected with head.js, grab them from the live example header, or include a link to head.js -->
-        <script src="../boilerplate/head.js"></script>
+        <script src="../../boilerplate/head.js"></script>
     </head>
     <body style="font-family: 'Segoe UI', sans-serif;">
         <div id="chart1" style="width: 100%; height: 600px;"></div>
+        <div id="chart2" style="width: 100%; height: 600px;"></div>
         <script>
             window.onload = function() {
                 
@@ -106,11 +107,14 @@
                 // render the data in a chart
                 var onElementClick = function (aggKey, sb, ts, measures) { console.log(aggKey, sb, ts, measures); }
                 var tsiClient = new TsiClient();
-                var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart1'));
-                lineChart.render(data, {theme: 'light', legend: 'shown', grid: true, tooltip: true, brushMoveEndAction: () => {}}, [{}, {}, 
-                {dataType: 'events', valueMapping: eventValueMapping, height: 50, eventElementType: 'teardrop', onElementClick: onElementClick},
-                {dataType: 'categorical', valueMapping: valueMapping, height: 100, onElementClick: onElementClick, rollupCategoricalValues: true}
-            ]);
+                var gridDark = new tsiClient.ux.Grid(document.getElementById('chart1'));
+                var gridLight = new tsiClient.ux.Grid(document.getElementById('chart2'));
+                [gridDark, gridLight].forEach(function(grid, i) {
+                    grid.render(data, {theme: i === 0 ? 'dark' : 'light', legend: 'shown', grid: true, tooltip: true, brushMoveEndAction: () => {}}, [{}, {}, 
+                        {dataType: 'events', valueMapping: eventValueMapping, height: 50, eventElementType: 'teardrop', onElementClick: onElementClick},
+                        {dataType: 'categorical', valueMapping: valueMapping, height: 100, onElementClick: onElementClick, rollupCategoricalValues: true}
+                    ]);
+                });
             }
         </script>
     </body>    

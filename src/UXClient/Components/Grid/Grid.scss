@@ -1,67 +1,166 @@
+@import "../../styles";
+
+@mixin gridColors($grays){
+    $gray1: nth($grays, 1); // text
+    $gray2: nth($grays, 2); // hover
+    $gray3: nth($grays, 3); // element
+    $gray4: nth($grays, 4); // background
+    $gray5: nth($grays, 5);
+    $gray6: nth($grays, 6); // hover
+
+
+    color: $gray1;
+    background: $gray3;
+    &.tsi-fromChart{
+		background: rgba($gray3,.7);
+		.tsi-gridWrapper{
+			background: rgba($gray3,.8);
+			box-shadow: 0px 0px 10px 4px rgba($gray3,0.3);
+		}
+	}
+	.tsi-closeButton{
+		background: #ccc;
+		box-shadow: 0px 0px 10px 4px rgba(0, 0, 0, 0.3);
+	}
+	.tsi-gridWrapper{
+		table{
+			tr{
+				td, th{
+					&:focus, &:active{
+						box-shadow: inset 0px 0px 1px 1px $gray6;
+					}
+					border: 1px solid rgba($gray1, .7);
+				}
+				th, .tsi-rowHeaderWrapper, .tsi-rowHeaderCell{
+					background: $gray5;
+				}
+				.tsi-rowHeaderWrapper{
+					.tsi-measureTypeWrapper{
+						.tsi-measureType{
+							opacity: .6;
+						}
+					}
+				}
+			}
+		}
+	}
+    @include chartColors($grays);
+}
+
+
 .tsi-gridComponent{
+	&.tsi-dark{
+        $grays: grays('dark');
+        @include gridColors($grays);
+    }
+    &.tsi-light{
+        $grays: grays('light');
+        @include gridColors($grays);
+    }
+
+
 	width: 100%;
 	height: 100%;
 	position: absolute;
-	color: black;
 	&.tsi-fromChart{
-		background: rgba(0,0,0,.3);
+		.tsi-closeButton{
+			display: block;
+			opacity: 1;
+			z-index: 1;
+		}
 		.tsi-gridWrapper{
 			width: calc(100% - 40px);
 			height: calc(100% - 40px);
 			margin: 20px;	
-			background: rgba(255,255,255,.8);
 			box-shadow: 0px 0px 10px 4px rgba(0,0,0,0.3);
-			.tsi-closeButton{
-				display: block;
-				opacity: 1;
-				z-index: 1;
-			}
 		}
 	}
+
+	.tsi-closeButton{
+		display: block;
+		padding: 4px 8px;
+		border-radius: 12px;
+		cursor: pointer;
+		position: absolute;
+		right: 4px;
+		top: 4px;
+		background: #ccc;
+		border: none;
+		box-shadow: 0px 0px 10px 4px rgba(0, 0, 0, 0.3);
+	}
+
+
 	.tsi-gridWrapper{
 		width: 100%;
 		height: 100%;
 		overflow: auto;
-		.tsi-closeButton{
-			display: block;
-			padding: 4px 8px;
-			border-radius: 12px;
-			cursor: pointer;
-			position: absolute;
-			right: 4px;
-			top: 4px;
-			opacity: 0;
-			z-index: -1;
-			background: #ccc;
-			border: none;
-			box-shadow: 0px 0px 10px 4px rgba(0, 0, 0, 0.3);
-		}
 		table{
-			font-family: monospace;
 			font-size: 11px;
 			border-collapse: collapse;
-			tr{
-				td, th{
-					&:focus, &:active{
-						box-shadow: inset 0px 0px 1px 1px teal;
+			.tsi-gridContentRow {
+
+				&:hover{
+					.tsi-rowHeaderMeasures{
+						visibility: visible !important;
+					}				
+				}
+
+				.tsi-valueCell {
+					padding: 0px;
+				}
+
+				.tsi-valueCell .tsi-measureValue, .tsi-rowHeaderCell .tsi-rowHeaderContainer .tsi-rowHeaderMeasures .tsi-measureName {
+					height: 20px;
+					padding: 0px 4px;
+					white-space: nowrap;
+					display: flex;
+    				align-items: center;
+
+				}
+
+				.tsi-rowHeaderCell {
+					padding: 0px;
+					.tsi-rowHeaderContainer {
+						display: table;
+						.tsi-rowHeaderSeriesName {
+							padding:2px;
+						}
+						.tsi-rowHeaderMeasures {
+							visibility: hidden;
+							min-width: 80px;
+							display: table;
+							display: table-cell;
+						    text-align: center;
+							vertical-align: middle;
+							
+							.tsi-measureName {
+								opacity: .6;
+								white-space: nowrap;
+								overflow: hidden;
+								text-overflow: ellipsis;
+								align-content: flex-end;
+    							justify-content: flex-end;
+							}
+						}
+	
 					}
 				}
-				th, .tsi-rowHeaderWrapper{
-					background: #ccc;
-					border: 1px solid #666;
+			}
+
+			tr{
+				th, .tsi-rowHeaderWrapper, .tsi-rowHeaderCell{
 					padding: 2px;
 					white-space: nowrap;
+					
 				}
 				td{
-					background: white;
-					border: 1px solid #666;
 					padding: 2px;
 				}
 				.tsi-rowHeaderWrapper{
 					border-left: 4px solid transparent;
 					white-space: nowrap;
 					position: relative;
-					padding-right: 40px;
+					padding-right: 88px;
 					.tsi-rowHeader{
 						max-width: 150px;
 						text-overflow: ellipsis;
@@ -72,15 +171,15 @@
 						right: 4px;
 						top: 2px;
 						display: none;
+						max-width: 76px;
+						overflow: hidden;
 						.tsi-measureType{
-							color: #666;
+							text-overflow: ellipsis;
+							overflow: hidden;
+							display: block;
+							opacity: .6;
 						}
 					}
-				}
-				&:hover{
-					.tsi-measureTypeWrapper{
-						display: block;
-					}				
 				}
 			}
 		}

@@ -1664,7 +1664,9 @@ class LineChart extends TemporalXAxisComponent {
                 this.svgSelection.selectAll(".yAxis").remove();
 
                 let visibleGroupData = this.chartComponentData.data.filter((agg) => this.chartComponentData.displayState[agg.aggKey]["visible"]);
-                let visibleCDOs = this.aggregateExpressionOptions.filter((cDO) => this.chartComponentData.displayState[cDO.aggKey]["visible"]);
+                let visibleCDOs = this.aggregateExpressionOptions.filter((cDO) => {
+                    return this.chartComponentData.displayState[cDO.aggKey]["visible"];
+                });
                 let offsetsAndHeights = this.createYOffsets();
                 let aggregateGroups = this.svgSelection.select('.svgGroup').selectAll('.tsi-aggGroup')
                     .data(visibleGroupData, (agg) => agg.aggKey);
