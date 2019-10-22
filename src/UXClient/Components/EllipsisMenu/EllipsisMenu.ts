@@ -25,6 +25,36 @@ class EllipsisMenu extends Component {
         this.containerElement.classed("tsi-ellipsisMenuShown", this.menuIsVisible);
     }
 
+    private focusOnMenuItem (itemIndex: number = 0) {
+        itemIndex = (itemIndex + this.menuItems.length) % this.menuItems.length;
+        let menuItem = this.menuElement.selectAll(".tsi-ellipsisMenuItem").filter((d, i) => {
+            return (itemIndex === i);
+        });
+        menuItem.node().focus();
+    }
+
+    private menuItemKeyHandler (d, i) {
+        switch(d3.event.keyCode) {
+            case 9: //tab
+                this.focusOnMenuItem(i + 1);
+                d3.event.preventDefault();
+                break;
+            case 27: //escape
+                this.setMenuVisibility(false);
+                this.buttonElement.node().focus();
+                d3.event.preventDefault();
+                break;
+            case 38: // up arrow
+                this.focusOnMenuItem(i - 1);
+                d3.event.preventDefault();
+                break;
+            case 40: // down arrow
+                this.focusOnMenuItem(i + 1);
+                d3.event.preventDefault();
+                break;
+        }
+    }
+
     public render (menuItems, options: any = {}) {
         this.menuIsVisible = false;
         this.chartOptions.setOptions(options);
@@ -40,8 +70,11 @@ class EllipsisMenu extends Component {
             .attr("aria-label", "Show ellipsis menu")
             .on("click", function () {
                 d3.select(this).attr("aria-label", self.menuIsVisible ? "Show ellipsis menu" : "Hide ellipsis menu");
-                self.setMenuVisibility(!self.menuIsVisible)
-            })
+                self.setMenuVisibility(!self.menuIsVisible);
+                if(self.menuIsVisible) {
+                    self.focusOnMenuItem(0);
+                }
+            });
         
         this.menuElement = d3.select(this.renderTarget).insert("div")
             .attr("class", "tsi-ellipsisMenu");
@@ -51,6 +84,7 @@ class EllipsisMenu extends Component {
             .append("button")
             .classed("tsi-ellipsisMenuItem", true)
             .attr("aria-label", d => d.label)
+            .on('keydown', (d, i) => {this.menuItemKeyHandler(d, i)})
             .on("click", (d: any) => {
                 d.action();
             })
@@ -72,7 +106,6 @@ class EllipsisMenu extends Component {
     }
 
     private setMenuItems (rawMenuItems: Array<any>) {
-        // TODO - add validaction to each rawMenuItem
         this.menuItems = rawMenuItems.reduce((menuItems, currMenuItem) => {
             menuItems.push({
                 iconClass : currMenuItem.iconClass,
