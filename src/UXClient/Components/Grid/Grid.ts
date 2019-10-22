@@ -174,8 +174,6 @@ class Grid extends Component {
 
         super.themify(this.gridComponent, this.chartOptions.theme);        
 
-		// if(this.gridComponent.style("position") == "static")
-        //     this.gridComponent.style("position", "relative")
         this.gridComponent
             .classed("tsi-gridComponent", true)
             .classed("tsi-fromChart", !!options.fromChart)
