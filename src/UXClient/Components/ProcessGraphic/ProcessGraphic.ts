@@ -2,220 +2,221 @@ import * as d3 from 'd3';
 import './ProcessGraphic.scss';
 import {Component} from "./../../Interfaces/Component";
 import { Slider } from '../Slider/Slider';
-import { ProcessGraphicTsqExpression } from '../../Models/ProcessGraphicTsqExpression';
 import { ServerClient } from '../../../ServerClient/ServerClient';
 import { Utils } from '../../Utils';
-
-class TemporalSlider extends Component {
-  private slider: Slider;
-  private playbackInterval: number;
-  private playButtonSelection: d3.Selection<d3.BaseType, unknown, null, undefined>;
-
-  constructor(renderTarget: Element){
-    super(renderTarget);
-    this.playbackInterval = null;
-  }
-  
-  public render(data: Array<any>, options: any, width: number, selectedLabel: string = null) {
-    let targetElement = d3.select(this.renderTarget);
-    targetElement.html('');
-    
-    let self = this;
-    let container = targetElement.append('div')
-      .classed('tsi-playback-play', true)
-      .style('width', '60px')
-      .style('height', '60px');
-    this.playButtonSelection = container
-      .append('button')
-      .text('Play')
-      .on('click', function() {
-        if (self.playbackInterval === null) {
-          let timeout = options.playbackInterval || 1000;
-          self.playbackInterval = window.setInterval(self.next.bind(self), timeout);
-          d3.select(this).text('Pause');
-        } else {
-          self.pause();
-        }
-      });
-
-    let sliderContainer = targetElement.append('div')
-      .classed('tsi-playback-slider', true)
-      .style('height', '60px')
-      .style('width', `${width}px`);
-
-    this.slider = new Slider(<any>sliderContainer.node());
-    this.slider.render(data, options, width, selectedLabel || data[0].label, this.pause.bind(this));
-  }
-
-  public next() {
-    this.slider.moveRight();
-  }
-
-  public pause() {
-    // Pause only if component is in 'play' mode (i.e. an interval has ben set)
-    // otherwise, do nothing.
-    if (this.playbackInterval !== null) {
-      window.clearInterval(this.playbackInterval);
-      this.playbackInterval = null;
-      this.playButtonSelection.text('Resume');
-    }
-  }
-}
+import { TsqExpression } from '../../Models/TsqExpression';
 
 class ProcessGraphic extends Component {
   private targetElement;
+  private processGraphicContainer;
   private processGraphic;
-  private temporalSlider;
+  private playbackControlsContainer;
+  private playbackControls;
   private xScale: d3.ScaleLinear<number, number>;
   private yScale: d3.ScaleLinear<number, number>;
   private serverClient: ServerClient;
-  private validTimeIntervals: Array<string>;
   private currentCancelTrigger;
   private sliderData;
   private image: HTMLImageElement;
+  private imageOriginalWidth: number;
+  private imageOriginalHeight: number;
   private selectedTimestamp: Date;
   private timeFormatter: Function;
+  private availabilityInterval: number;
+  private environmentFqdn: string;
+  private availabilityFrom: Date;
+  private availabilityTo: Date;
 
-  readonly playbackSliderHeight = 60;
+  readonly fetchAvailabilityFrequency = 10000; // 10 seconds
+  readonly playbackSliderHeight = 80;
+  readonly previewApiFlag = '?api-version=2018-11-01-preview';
 
   constructor(renderTarget: Element){ 
     super(renderTarget); 
-    this.xScale = null;
-    this.yScale = null;
     this.serverClient = new ServerClient();
-    this.validTimeIntervals = this.computeValidTimeIntervals();
     this.currentCancelTrigger = null;
-    this.processGraphic = null;
   }
 
   render(environmentFqdn: string, 
     getToken: () => Promise<string>, 
     imageSrc: string, 
-    data: Array<ProcessGraphicTsqExpression>, 
+    data: Array<TsqExpression>, 
     chartOptions) {
-    this.chartOptions.setOptions(chartOptions);;
+    this.environmentFqdn = environmentFqdn;
+    this.chartOptions.setOptions(chartOptions);
     this.timeFormatter = Utils.timeFormat(true, true, this.chartOptions.offset, true, 0, null, this.chartOptions.dateLocale);
 
-    getToken().then((token: string) => {
-      this.serverClient.getAvailability(token, environmentFqdn, '?api-version=2018-11-01-preview')
-        .then((availabilityResponse) => {
-          let from = new Date(availabilityResponse.availability.range.from);
-          let to = new Date(availabilityResponse.availability.range.to);
+    getToken().then((authToken: string) => {
+      this.serverClient.getAvailability(authToken, this.environmentFqdn, this.previewApiFlag)
+        .then(availabilityResponse => {
 
-          let numBuckets = 1000;
-          let timeRange = new Utils.TsqRange(from, to);
-          timeRange.calculateNeatBucketSize(numBuckets);
-          timeRange.snapToServerBuckets();
-
-          // let bucketSize = this.getDimensionAndIntegerForRangeAndBuckets(from.valueOf(), to.valueOf(), 1000);
-          // let bucketSizeMillis = Utils.parseTimeInput(bucketSize);
-
-          // let roundedFrom = Utils.adjustStartMillisToAbsoluteZero(from.valueOf(), bucketSizeMillis);
-          // let roundedTo = Utils.roundToMillis(to.valueOf(), bucketSizeMillis);
-
-          let sliderTimestamps = [];
-          let fromMs = timeRange.from.valueOf();
-          let toMs = timeRange.to.valueOf();
-          for(let momentInTime = fromMs; momentInTime < toMs; momentInTime += timeRange.bucketSizeMillis) {
-            sliderTimestamps.push(new Date(momentInTime));
+          if (!this.availabilityInterval) {
+            this.availabilityInterval = window.setInterval(this.pollAvailability.bind(this, data, authToken), this.fetchAvailabilityFrequency);
           }
 
-          this.sliderData = sliderTimestamps.map(ts => {
-            let tsqArray = data.map(tsqExpression => {
-              tsqExpression.searchSpan = { 
-                from: ts.valueOf() - timeRange.bucketSizeMillis, 
-                to: ts.valueOf(), 
-                bucketSize: timeRange.bucketSizeStr };
-              return tsqExpression.toTsq();
-            });
-            let timeStampLabel = this.timeFormatter(Utils.offsetUTC(ts));
+          let { from, to } = this.parseAvailabilityResponse(availabilityResponse);
 
-            return {
-              label: timeStampLabel,
-              action: () => {
-                this.selectedTimestamp = timeStampLabel;
-                let [promise, cancelTrigger] = this.serverClient.getCancellableTsqResults(token, environmentFqdn, tsqArray);
-
-                // We keep track of the last AJAX call we made to the server, and cancel it if it hasn't finished yet. This is
-                // a cheap way to avoid a scenario where we get out-of-order responses back from the server. We can revisit 
-                // this at a later time if we need to handle it in a more sophisticated way.
-                if (this.currentCancelTrigger) {
-                  this.currentCancelTrigger();
-                }
-
-                this.currentCancelTrigger = cancelTrigger;
-
-                (promise as Promise<any>).then(results => {
-                  let processGraphicData = results.map((r, i) => {
-                    return {
-                      value: this.getValueFromResult(r),
-                      x: data[i].positionX,
-                      y: data[i].positionY,
-                      color: data[i].color
-                    };
-                  });
-
-                  this.updateTextLabels(processGraphicData);
-                }); 
-              }
-            };
-          });
+          this.availabilityFrom = from;
+          this.availabilityTo = to;
+          this.updatePlaybackControlsData(data, authToken);
 
           this.targetElement = d3.select(this.renderTarget);
           this.targetElement.html('');
+          this.targetElement.classed('tsi-process-graphic-target', true);
           super.themify(this.targetElement, this.chartOptions.theme);
-
-          let graphicContainerWidth = this.renderTarget.clientWidth;
-          let graphicContainerHeight = this.renderTarget.clientHeight - this.playbackSliderHeight;
 
           this.loadImage(imageSrc).then((image: HTMLImageElement) => {
             this.image = image;
-
-            let resizedImageDimensions = this.getAdjustedImageDimensions(
-              graphicContainerWidth,
-              graphicContainerHeight,
-              this.image.width,
-              this.image.height);
+            this.imageOriginalWidth = this.image.width;
+            this.imageOriginalHeight = this.image.height;
   
-            let processGraphicContainer = this.targetElement.append('div')
-              .classed('tsi-process-graphic-container', true)
-              .style('width', `${graphicContainerWidth}px`)
-              .style('height', `${graphicContainerHeight}px`);
+            this.processGraphicContainer = this.targetElement
+              .append('div')
+              .classed('tsi-process-graphic-container', true);
 
-            this.processGraphic = processGraphicContainer.append('div')
-              .classed('tsi-process-graphic', true)
-              .style('width', `${resizedImageDimensions.width}px`)
-              .style('height', `${resizedImageDimensions.height}px`);
+            this.processGraphic = this.processGraphicContainer
+              .append('div')
+              .classed('tsi-process-graphic', true);
 
-            let temporalSliderContainer = this.targetElement.append('div')
-              .classed('tsi-temporal-slider-container', true)
-              .style('width', `${this.renderTarget.clientWidth}px`)
-              .style('height', `${this.playbackSliderHeight}px`);
-            this.temporalSlider = new TemporalSlider(<any>temporalSliderContainer.node());
+            this.processGraphic.append(() => this.image);
+
+            this.playbackControlsContainer = this.targetElement
+              .append('div')
+              .classed('tsi-playback-controls-container', true);
+
+            this.playbackControls = new PlaybackControls(<any>this.playbackControlsContainer.node());
           
-            this.draw(resizedImageDimensions.width, resizedImageDimensions.height);
+            this.draw();
 
             window.addEventListener('resize', () => {
-              this.draw(resizedImageDimensions.width, resizedImageDimensions.height);
+              this.draw();
             });
           });
+        })
+        .catch(reason => {
+          console.error(`Failed to fetch data availability: ${reason}`);
         });
     })
   }
 
-  private draw(imageWidth: number, imageHeight: number) {
+  pauseAvailabilityUpdates() {
+    if(this.availabilityInterval) {
+      window.clearInterval(this.availabilityInterval);
+    }
+  }
+
+  private async pollAvailability(tsqExpressions: Array<TsqExpression>, authToken): Promise<any> {
+    return this.serverClient.getAvailability(authToken, this.environmentFqdn, this.previewApiFlag)
+      .then(availabilityResponse => {
+        let { from, to } = this.parseAvailabilityResponse(availabilityResponse);
+
+        if (from.valueOf() !== this.availabilityFrom.valueOf() || 
+          to.valueOf() !== this.availabilityTo.valueOf()) {
+          this.availabilityFrom = from;
+          this.availabilityTo = to;
+          this.updatePlaybackControlsData(tsqExpressions, authToken);
+          this.draw();
+        }        
+      })
+      .catch(reason => {
+        console.log(`Failed to update data availability: ${reason}`);
+      });
+  }
+
+  private updatePlaybackControlsData(tsqExpressions: Array<TsqExpression>, authToken) {
+    let numBuckets = 1000;
+    let timeRange = new Utils.TsqRange(this.availabilityFrom, this.availabilityTo);
+    timeRange.calculateNeatBucketSize(numBuckets);
+    timeRange.snapToServerBuckets();
+
+    let sliderTimestamps = [];
+    let fromMs = timeRange.from.valueOf();
+    let toMs = timeRange.to.valueOf();
+    for(let momentInTime = fromMs; momentInTime < toMs; momentInTime += timeRange.bucketSizeMillis) {
+      sliderTimestamps.push(new Date(momentInTime));
+    }
+
+    this.sliderData = sliderTimestamps.map(ts => this.generateSliderDataElement(ts, tsqExpressions, timeRange, authToken));
+  }
+
+  private generateSliderDataElement( 
+    timeStamp: Date,
+    tsqExpressions: Array<TsqExpression>,
+    sliderTimeRange,
+    token) {
+    let tsqArray = tsqExpressions.map(tsqExpression => {
+      tsqExpression.searchSpan = { 
+        from: timeStamp.valueOf() - sliderTimeRange.bucketSizeMillis, 
+        to: timeStamp.valueOf(), 
+        bucketSize: sliderTimeRange.bucketSizeStr };
+      return tsqExpression.toTsq();
+    });
+
+    let timeStampLabel = this.timeFormatter(Utils.offsetUTC(timeStamp));
+    return {
+      label: timeStampLabel,
+      action: () => {
+        this.selectedTimestamp = timeStampLabel;
+        let [promise, cancelTrigger] = this.serverClient.getCancellableTsqResults(token, this.environmentFqdn, tsqArray);
+
+        // We keep track of the last AJAX call we made to the server, and cancel it if it hasn't finished yet. This is
+        // a cheap way to avoid a scenario where we get out-of-order responses back from the server. We can revisit 
+        // this at a later time if we need to handle it in a more sophisticated way.
+        if (this.currentCancelTrigger) {
+          this.currentCancelTrigger();
+        }
+
+        this.currentCancelTrigger = cancelTrigger;
+
+        (promise as Promise<any>).then(results => {
+          let processGraphicData = results.map((r, i): ProcessGraphicLabelData => {
+            return {
+              value: this.parseTsqResponse(r),
+              alias: tsqExpressions[i].alias,
+              x: tsqExpressions[i].positionX,
+              y: tsqExpressions[i].positionY,
+              color: tsqExpressions[i].color
+            };
+          });
+
+          this.updateTextLabels(processGraphicData);
+        }); 
+      }
+    };
+  }
+
+  private draw() {
+    let graphicContainerWidth = this.renderTarget.clientWidth;
+    let graphicContainerHeight = this.renderTarget.clientHeight - this.playbackSliderHeight;
+
+    this.processGraphicContainer
+      .style('width', `${graphicContainerWidth}px`)
+      .style('height', `${graphicContainerHeight}px`);
+
+    let resizedImageDim = this.getResizedImageDimensions(
+      graphicContainerWidth,
+      graphicContainerHeight,
+      this.imageOriginalWidth,
+      this.imageOriginalHeight);
+
+    this.processGraphic
+      .style('width', `${resizedImageDim.width}px`)
+      .style('height', `${resizedImageDim.height}px`);
+
     this.xScale = d3.scaleLinear()
       .domain([0, 100])
-      .range([0, imageWidth]);
+      .range([0, resizedImageDim.width]);
 
     this.yScale = d3.scaleLinear()
       .domain([0, 100])
-      .range([0, imageHeight]);
+      .range([0, resizedImageDim.height]);
 
-    this.processGraphic.append(() => this.image);
+    this.playbackControlsContainer
+      .style('width', `${this.renderTarget.clientWidth}px`)
+      .style('height', `${this.playbackSliderHeight}px`);
 
     let sliderWidth = this.renderTarget.clientWidth - 60;
-    this.temporalSlider.render(this.sliderData, this.chartOptions, sliderWidth, this.selectedTimestamp);
+    this.playbackControls.render(this.sliderData, this.chartOptions, sliderWidth, this.selectedTimestamp);
   }
 
   private loadImage(imageSrc: string): Promise<HTMLImageElement> {
@@ -234,7 +235,7 @@ class ProcessGraphic extends Component {
     });
   }
 
-  private getAdjustedImageDimensions(containerWidth: number, containerHeight: number, imageWidth: number, imageHeight: number) {
+  private getResizedImageDimensions(containerWidth: number, containerHeight: number, imageWidth: number, imageHeight: number) {
     if (containerWidth >= imageWidth && containerHeight >= imageHeight) {
       return {
         width: imageWidth,
@@ -251,93 +252,119 @@ class ProcessGraphic extends Component {
     let resizeFactor = Math.min(widthFactor, heightFactor);
 
     return {
-      width: Math.round(imageWidth * resizeFactor),
-      height: Math.round(imageHeight * resizeFactor)
+      width: imageWidth * resizeFactor,
+      height: imageHeight * resizeFactor
     }
   }
 
-  private updateTextLabels(data) {
-    let textElements = this.processGraphic.selectAll('span')
+  private updateTextLabels(data: Array<ProcessGraphicLabelData>) {
+    let textElements = this.processGraphic.selectAll('div')
       .data(data);
-    textElements.enter()
-      .append('span')
-      .classed('tsi-process-graphic-label', true)
-      .merge(textElements)
-      .style('left', (tsqe, i) => `${this.xScale(tsqe.x)}px`)
-      .style('top', (tsqe, i) => `${this.yScale(tsqe.y)}px`)
+
+    let newElements = textElements.enter()
+      .append('div')
+      .classed('tsi-process-graphic-label', true);
+
+    newElements.append('div')
+      .classed('title', true);
+
+    newElements.append('div')
+      .classed('value', true);
+
+    newElements.merge(textElements)
+      .classed('tsi-dark', false)
+      .classed('tsi-light', false)
+      .classed(Utils.getTheme(this.chartOptions.theme), true)
+      .style('left', tsqe => `${tsqe.x}%`)
+      .style('top', tsqe => `${tsqe.y}%`);
+
+    this.processGraphic.selectAll('.title')
+      .data(data)
+      .text(tsqe => tsqe.alias || '');
+
+    this.processGraphic.selectAll('.value')
+      .data(data)
       .text(tsqe => tsqe.value ? Utils.formatYAxisNumber(tsqe.value) : '--')
       .style('color', tsqe => tsqe.color);
   }
 
-  private getDimensionAndIntegerForRangeAndBuckets(zoomMin: number, zoomMax: number, targetBuckets: number) {
-    let timeRangeInMillis = Math.max(zoomMax - zoomMin, 1);
-    let bucketSizeInMillis = Math.ceil(timeRangeInMillis / targetBuckets);
-    let int: number, dim: string;
-    if (bucketSizeInMillis < 1000) {
-      dim = 'ms';
-      int = bucketSizeInMillis;
+  private parseAvailabilityResponse(response) {
+    let range = response && response.availability && response.availability.range;
+    let from = (range && range.from && new Date(range.from)) || null;
+    let to = (range && range.to && new Date(range.to)) || null;
+
+    if (from === null || to === null) {
+      throw 'Query to get availability returned a response with an unexpected structure';
     }
-    else if (bucketSizeInMillis < 1000 * 60) {
-      dim = 's';
-      int = Math.ceil(bucketSizeInMillis / 1000);
-    }
-    else if (bucketSizeInMillis < 1000 * 60 * 60) {
-      dim = 'm';
-      int = Math.ceil(bucketSizeInMillis / (1000 * 60));
-    }
-    else if (bucketSizeInMillis < 1000 * 60 * 60 * 24) {
-      dim = 'h';
-      int = Math.ceil(bucketSizeInMillis / (1000 * 60 * 60));
-    }
-    else {
-      dim = 'd';
-      int = Math.ceil(bucketSizeInMillis / (1000 * 60 * 60 * 24));
-    }
-  
-    // round to next smallest interval that is a valid interval
-    let idx = -1;
-    while (idx === -1) {
-      idx = this.validTimeIntervals.indexOf(int + dim);
-      if (idx === -1) {
-        int--;
-      }
-    }
-  
-    return this.validTimeIntervals[idx];
+
+    return { from, to };
   }
 
-  private computeValidTimeIntervals() {
-    let validTimeIntervals = [];
-    for (let i = 1; i < 1000; i++) {
-      if (1000 % i === 0) {
-        validTimeIntervals.push(i + 'ms');
-      }
-    }
-    for (let i = 1; i < 60; i++) {
-      if (60 % i === 0) {
-        validTimeIntervals.push(i + 's');
-      }
-    }
-    for (let i = 1; i < 60; i++) {
-      if (60 % i === 0) {
-        validTimeIntervals.push(i + 'm');
-      }
-    }
-    for (let i = 1; i < 24; i++) {
-      if (24 % i === 0) {
-        validTimeIntervals.push(i + 'h');
-      }
-    }
-    for (let i = 1; i < 8; i++) {
-      validTimeIntervals.push(i + 'd');
-    }
-    return validTimeIntervals;
-  }
-
-  private getValueFromResult(result) {
-    return (result && result.properties && result.properties[0] && result.properties[0].values) 
-      ? result.properties[0].values[0] 
+  private parseTsqResponse(response) {
+    return (response && response.properties && response.properties[0] && response.properties[0].values) 
+      ? response.properties[0].values[0] 
       : null;
+  }
+}
+
+interface ProcessGraphicLabelData {
+  value: number,
+  alias: string,
+  x: number,
+  y: number,
+  color: string
+}
+
+class PlaybackControls extends Component {
+  private slider: Slider;
+  private playbackInterval: number;
+  private playButtonSelection: d3.Selection<d3.BaseType, unknown, null, undefined>;
+
+  constructor(renderTarget: Element){
+    super(renderTarget);
+    this.playbackInterval = null;
+  }
+  
+  public render(data: Array<any>, options: any, width: number, selectedLabel: string = null) {
+    let targetElement = d3.select(this.renderTarget);
+    targetElement.html('');
+  
+    let sliderContainer = targetElement.append('div')
+      .classed('tsi-playback-timeline', true);
+
+    let self = this;
+    let container = targetElement.append('div')
+      .classed('tsi-playback-play', true);
+    
+    this.playButtonSelection = container
+      .append('button')
+      .text('Play')
+      .on('click', function() {
+        if (self.playbackInterval === null) {
+          let timeout = options.playbackInterval || 1000;
+          self.playbackInterval = window.setInterval(self.next.bind(self), timeout);
+          d3.select(this).text('Pause');
+        } else {
+          self.pause();
+        }
+      });
+
+    this.slider = new Slider(<any>sliderContainer.node());
+    this.slider.render(data, options, width, selectedLabel || data[0].label, this.pause.bind(this));
+  }
+
+  public next() {
+    this.slider.moveRight();
+  }
+
+  public pause() {
+    // Pause only if component is in 'play' mode (i.e. an interval has ben set)
+    // otherwise, do nothing.
+    if (this.playbackInterval !== null) {
+      window.clearInterval(this.playbackInterval);
+      this.playbackInterval = null;
+      this.playButtonSelection.text('Resume');
+    }
   }
 }
 

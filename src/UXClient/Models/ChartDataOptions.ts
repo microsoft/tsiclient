@@ -21,6 +21,8 @@ class ChartDataOptions {
     public onElementClick: any;
     public eventElementType: any;
     public rollupCategoricalValues: boolean;
+    public positionX: number;
+    public positionY: number;
 
     constructor (optionsObject: Object){
         this.searchSpan = Utils.getValueOrDefault(optionsObject, 'searchSpan');
@@ -40,6 +42,8 @@ class ChartDataOptions {
         this.onElementClick = Utils.getValueOrDefault(optionsObject, 'onElementClick', null);
         this.eventElementType = Utils.getValueOrDefault(optionsObject, 'eventElementType', EventElementTypes.Diamond);
         this.rollupCategoricalValues = Utils.getValueOrDefault(optionsObject, 'rollupCategoricalValues', false);
+        this.positionX = Utils.getValueOrDefault(optionsObject, 'positionX', 0);
+        this.positionY = Utils.getValueOrDefault(optionsObject, 'positionY', 0);
     }
 }
 export {ChartDataOptions}

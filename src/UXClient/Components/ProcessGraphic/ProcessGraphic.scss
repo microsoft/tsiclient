@@ -1,29 +1,95 @@
+@import "../../styles";
+
+@mixin tColors($grays) {
+    $gray1: nth($grays, 1); // text
+    $gray2: nth($grays, 2); // hover
+    $gray3: nth($grays, 3); // element
+    $gray4: nth($grays, 4); // background
+    $gray6: nth($grays, 6); // hover
+
+    color: $gray1;
+    background-color: $gray3;
+    border-color: $gray6;
+    @include chartColors($grays);
+}
+
+.tsi-process-graphic-target {
+    &.tsi-dark{
+        $grays: grays('dark');
+        @include tColors($grays);
+    }
+
+    &.tsi-light{
+        $grays: grays('light');
+        @include tColors($grays);
+    }
+}
+
 .tsi-process-graphic-container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .tsi-process-graphic {
-  position: relative;
+    position: relative;
 }
 
 .tsi-process-graphic img {
-  width: 100%;
-  height: 100%;
+    width: 100%;
+    height: 100%;
 }
 
 .tsi-process-graphic-label {
-  position: absolute;
+    position: absolute;
+    border-width: 1px;
+    border-style: solid;
+    padding: 8px;
+
+    &.tsi-dark{
+        $grays: grays('dark');
+        @include tColors($grays);
+    }
+
+    &.tsi-light{
+        $grays: grays('light');
+        @include tColors($grays);
+    }
+
+    .title, .value {
+        overflow: hidden;
+        white-space: nowrap;
+    }
+
+    .value {
+        display: flex;
+        align-items: center;
+        font-weight: normal;
+        font-size: 12px;
+    }
+
+    .title {
+        font-weight: bold;
+        font-size: 13px;
+    } 
 }
 
-.tsi-temporal-slider-container {
-  display: flex;
-  flex-direction: row;
+.tsi-playback-controls-container {
+    display: flex;
+    flex-direction: row;
 }
 
+.tsi-playback-timeline {
+    width: 100%;
+    height: 30px;
+}
 
 .tsi-playback-play button {
-  width: 100%;
-  height: 100%;
+    width: 100%;
+    height: 30px;
+}
+
+.tsi-playback-play button {
+    width: 30px;
+    height: 30px;
 }

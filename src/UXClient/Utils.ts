@@ -812,12 +812,6 @@ class Utils {
             86400000, 172800000, 259200000, 345600000, 432000000, 518400000, 604800000
         ];
 
-        // readonly neatMsIntervals = [1, 2, 4, 5, 8, 10, 20, 25, 40, 50, 100, 125, 200, 250, 500];
-        // readonly neatSecondIntervals = [1, 2, 3, 4, 5, 6, 10, 12, 15, 20, 30];
-        // readonly neatMinuteIntervals = [1, 2, 3, 4, 5, 6, 10, 12, 15, 20, 30];
-        // readonly neatHourIntervals =     ;
-        // readonly neatDayIntervals = [1, 2, 3, 4, 5, 6, 7];
-
         constructor(from: Date, to: Date) {
             this.from = from;
             this.to = to;
