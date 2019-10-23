@@ -18,7 +18,6 @@ class LinePlot extends Plot {
         this.plotDataType = DataTypes.Numeric;
     }
 
-    // ALSO IN LINECHART
     private getXPosition (d, x) {
         var bucketSize = this.chartComponentData.displayState[d.aggregateKey].bucketSize;
         if (bucketSize)
@@ -120,9 +119,7 @@ class LinePlot extends Plot {
         }
 
         let localY = aggY.copy();
-        if (overwriteYRange !== null) {
-            localY.range(overwriteYRange)
-        } 
+        localY.range([this.yTop + this.height, this.yTop + this.chartOptions.aggTopMargin]);
         yMap[aggKey] = localY;
         
         var yAxis: any = this.aggregateGroup.selectAll(".yAxis")

@@ -116,54 +116,46 @@ class EventsPlot extends Plot {
         }
 
         let enterEventElements = (discreteEvents) => {
+            let enteredEvents;
+
+            let colorFunction = (d) => {
+                if (d.measures) {
+                    if (Object.keys(d.measures).length === 1) {
+                        return self.getColorForValue(Object.keys(d.measures)[0]);                            
+                    } else {
+                        return 'grey';
+                    }
+                }
+                return 'none';
+            }
             switch(this.chartDataOptions.eventElementType) {
                 case EventElementTypes.Teardrop:
-                    return discreteEvents.enter().append('path')
-                        .attr('y', 0)
-                        .attr('x', 0)
+                    enteredEvents = discreteEvents.enter().append('path')
                         .attr('class', 'tsi-discreteEvent tsi-discreteEventTeardrop')
                         .merge(discreteEvents)
                         .attr('transform', (d: any) => {
                             return 'translate(' + (self.x(new Date(d.dateTime)) + self.eventHeight / 2) + ',' + (self.eventHeight * 1.4) + ') rotate(180)';
                         })
-                        .attr('width', self.eventHeight)
-                        .attr('height', self.eventHeight)
                         .attr('d', teardropD(self.eventHeight, self.eventHeight))
                         .attr('stroke-width', Math.min(self.eventHeight / 4, 8))
-                        .attr('stroke', (d: any) => {
-                            if (d.measures) {
-                                if (Object.keys(d.measures).length === 1) {
-                                    return self.getColorForValue(Object.keys(d.measures)[0]);                            
-                                } else {
-                                    return 'grey';
-                                }
-                            }
-                            return 'none';
-                        });
+                        .attr('stroke', colorFunction);
+                    break;
                 case EventElementTypes.Diamond:
-                    return discreteEvents.enter()
-                        .append('rect')
-                        .attr('y', 0)
-                        .attr('x', 0)
+                    enteredEvents = discreteEvents.enter().append('rect')
                         .attr('class', 'tsi-discreteEvent')
                         .merge(discreteEvents)
                         .attr('transform', (d: any) => {
                             return 'translate(' + self.x(new Date(d.dateTime)) + ',0) rotate(45)';
                         })
-                        .attr('width', self.eventHeight)
-                        .attr('height', self.eventHeight)
-                        .attr('fill', (d: any) => {
-                            // NOTE - hardcoded for single value or first value if multiple
-                            if (d.measures) {
-                                if (Object.keys(d.measures).length === 1) {
-                                    return self.getColorForValue(Object.keys(d.measures)[0]);                            
-                                } else {
-                                    return 'grey';
-                                }
-                            }
-                            return 'none';
-                        });
+                        .attr('fill', colorFunction);
+                    break;
             }
+            return enteredEvents
+                .attr('y', 0)
+                .attr('x', 0)
+                .attr('width', self.eventHeight)
+                .attr('height', self.eventHeight);
+
         }
 
         let enteredSplitByGroups = splitByGroups.enter()

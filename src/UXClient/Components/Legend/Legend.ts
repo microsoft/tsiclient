@@ -236,9 +236,9 @@ class Legend extends Component {
                         labelMouseout(svgSelection, aggKey);
                     })
                     .attr("class", (splitBy, i) => {
-                        return "tsi-splitByLabel tsi-splitByLabel"
-                            + (dataType !== DataTypes.Numeric ? ' tsi-splitByLabelCompact' : '')  
-                            + (Utils.getAgVisible(self.chartComponentData.displayState, aggKey, splitBy) ? " shown" : "")
+                        let compact = (dataType !== DataTypes.Numeric) ? 'tsi-splitByLabelCompact' : '';
+                        let shown = Utils.getAgVisible(self.chartComponentData.displayState, aggKey, splitBy) ? 'shown' : ''; 
+                        return `tsi-splitByLabel tsi-splitByLabel ${compact} ${shown}`;
                     })
                     .classed("stickied", (splitBy, i) => {
                         if (self.chartComponentData.stickiedKey != null) {
