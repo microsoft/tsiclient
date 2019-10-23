@@ -1,7 +1,7 @@
 import * as d3 from 'd3';
 import './ProcessGraphic.scss';
-import {Component} from "./../../Interfaces/Component";
-import { Slider } from '../Slider/Slider';
+import { Component } from "./../../Interfaces/Component";
+import { PlaybackControls } from '../PlaybackControls/PlaybackControls';
 import { ServerClient } from '../../../ServerClient/ServerClient';
 import { Utils } from '../../Utils';
 import { TsqExpression } from '../../Models/TsqExpression';
@@ -12,8 +12,6 @@ class ProcessGraphic extends Component {
   private processGraphic;
   private playbackControlsContainer;
   private playbackControls;
-  private xScale: d3.ScaleLinear<number, number>;
-  private yScale: d3.ScaleLinear<number, number>;
   private serverClient: ServerClient;
   private currentCancelTrigger;
   private sliderData;
@@ -28,7 +26,7 @@ class ProcessGraphic extends Component {
   private availabilityTo: Date;
 
   readonly fetchAvailabilityFrequency = 10000; // 10 seconds
-  readonly playbackSliderHeight = 80;
+  readonly playbackSliderHeight = 72;
   readonly previewApiFlag = '?api-version=2018-11-01-preview';
 
   constructor(renderTarget: Element){ 
@@ -94,7 +92,7 @@ class ProcessGraphic extends Component {
           });
         })
         .catch(reason => {
-          console.error(`Failed to fetch data availability: ${reason}`);
+          console.error(`Failed while fetching data availability: ${reason}`);
         });
     })
   }
@@ -203,20 +201,11 @@ class ProcessGraphic extends Component {
       .style('width', `${resizedImageDim.width}px`)
       .style('height', `${resizedImageDim.height}px`);
 
-    this.xScale = d3.scaleLinear()
-      .domain([0, 100])
-      .range([0, resizedImageDim.width]);
-
-    this.yScale = d3.scaleLinear()
-      .domain([0, 100])
-      .range([0, resizedImageDim.height]);
-
     this.playbackControlsContainer
       .style('width', `${this.renderTarget.clientWidth}px`)
       .style('height', `${this.playbackSliderHeight}px`);
 
-    let sliderWidth = this.renderTarget.clientWidth - 60;
-    this.playbackControls.render(this.sliderData, this.chartOptions, sliderWidth, this.selectedTimestamp);
+    this.playbackControls.render(this.sliderData, this.chartOptions);
   }
 
   private loadImage(imageSrc: string): Promise<HTMLImageElement> {
@@ -315,57 +304,6 @@ interface ProcessGraphicLabelData {
   color: string
 }
 
-class PlaybackControls extends Component {
-  private slider: Slider;
-  private playbackInterval: number;
-  private playButtonSelection: d3.Selection<d3.BaseType, unknown, null, undefined>;
 
-  constructor(renderTarget: Element){
-    super(renderTarget);
-    this.playbackInterval = null;
-  }
-  
-  public render(data: Array<any>, options: any, width: number, selectedLabel: string = null) {
-    let targetElement = d3.select(this.renderTarget);
-    targetElement.html('');
-  
-    let sliderContainer = targetElement.append('div')
-      .classed('tsi-playback-timeline', true);
 
-    let self = this;
-    let container = targetElement.append('div')
-      .classed('tsi-playback-play', true);
-    
-    this.playButtonSelection = container
-      .append('button')
-      .text('Play')
-      .on('click', function() {
-        if (self.playbackInterval === null) {
-          let timeout = options.playbackInterval || 1000;
-          self.playbackInterval = window.setInterval(self.next.bind(self), timeout);
-          d3.select(this).text('Pause');
-        } else {
-          self.pause();
-        }
-      });
-
-    this.slider = new Slider(<any>sliderContainer.node());
-    this.slider.render(data, options, width, selectedLabel || data[0].label, this.pause.bind(this));
-  }
-
-  public next() {
-    this.slider.moveRight();
-  }
-
-  public pause() {
-    // Pause only if component is in 'play' mode (i.e. an interval has ben set)
-    // otherwise, do nothing.
-    if (this.playbackInterval !== null) {
-      window.clearInterval(this.playbackInterval);
-      this.playbackInterval = null;
-      this.playButtonSelection.text('Resume');
-    }
-  }
-}
-
-export { ProcessGraphic};
+export { ProcessGraphic };

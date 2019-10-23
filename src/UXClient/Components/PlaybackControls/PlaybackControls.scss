@@ -1,0 +1,64 @@
+.tsi-playback-controls-container {
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+.tsi-playback-timeline {
+    width: 100%;
+    height: 30px;
+}
+
+.tsi-playback-timeline svg {
+    width: 100%;
+    height: 100%;
+}
+
+.tsi-playback-track, .tsi-playback-handle {
+    cursor: pointer;
+}
+
+.tsi-playback-track {
+    stroke: #777;
+}
+
+.tsi-playback-handle {
+    fill: #ddd;
+}
+
+.tsi-playback-buttons {
+    width: 100%;
+    height: 36px;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+
+    .tsi-play-button, .tsi-pause-button {
+        width: 36px;
+        height: 36px;
+        fill: #eee;
+        background: transparent;
+        border: none;
+    }
+
+    .tsi-play-button {
+        background-image: url(../../Icons/play.svg);
+    }
+
+    .tsi-pause-button {
+        background-image: url(../../Icons/pause.svg);
+    }
+}
+
+.tsi-playback-timestamp {
+    margin: 0 20px;
+}
+
+.tsi-playback-buttons button {
+    cursor: pointer;
+    width: 36px;
+    height: 36px;
+}
+
+.tsi-playback-buttons button:focus {
+    outline: none;
+}
