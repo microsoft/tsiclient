@@ -166,6 +166,15 @@ class DateTimePicker extends ChartComponent{
                 self.onCancel();
                 onSaveOrCancel();
             })
+            .on('keydown', function () {
+                if (d3.event.keyCode === 9 && !d3.event.shiftKey && this.chartOptions.dTPIsModal) { // tab
+                    self.quickTimesPanel.selectAll('.tsi-quickTime')
+                        .filter((d, i) => i === 0)
+                        .node()
+                        .focus();
+                    d3.event.preventDefault();
+                }
+            });
 
         //originally set toMillis to last possible time
         this.toMillis = this.maxMillis;
@@ -206,15 +215,29 @@ class DateTimePicker extends ChartComponent{
     private buildQuickTimesPanel () {
         let quickTimes = this.quickTimesPanel.selectAll('.tsi-quickTime')
             .data(this.quickTimeArray);
-        quickTimes.enter()
+        let enteredQuickTimes = quickTimes.enter()
             .append('button')
             .attr('class', 'tsi-quickTime')
             .on('click', (d) => {
                 this.setFromQuickTimes(d[1]);
-            })
-            .each(function (d)  {
-                d3.select(this).node().innerHTML = d[0];
             });
+        enteredQuickTimes.each(function (d)  {
+            d3.select(this).node().innerHTML = d[0];
+        });
+        // wrap around tab order if dTP in modal form
+        let firstQuickTime = enteredQuickTimes.filter((d, i) => {
+            return (i === 0);
+        })            
+        .on('keydown', () => {
+            if (d3.event.keyCode === 9 && d3.event.shiftKey && this.chartOptions.dTPIsModal) { // shift tab
+                this.dateTimeSelectionPanel.select(".tsi-saveButtonContainer").select(".tsi-cancelButton").node().focus();
+                d3.event.preventDefault();
+            }
+        });
+
+        if (this.chartOptions.dTPIsModal) {
+            firstQuickTime.node().focus();
+        }
     }
 
     private createTimeString (currDate: Date) {
