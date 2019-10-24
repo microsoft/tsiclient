@@ -166,9 +166,9 @@ class DateTimePicker extends ChartComponent{
                 self.onCancel();
                 onSaveOrCancel();
             })
-            .on('keydown', function () {
+            .on('keydown', () => {
                 if (d3.event.keyCode === 9 && !d3.event.shiftKey && this.chartOptions.dTPIsModal) { // tab
-                    self.quickTimesPanel.selectAll('.tsi-quickTime')
+                    this.quickTimesPanel.selectAll('.tsi-quickTime')
                         .filter((d, i) => i === 0)
                         .node()
                         .focus();
