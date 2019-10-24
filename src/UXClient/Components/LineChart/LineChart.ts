@@ -1401,8 +1401,8 @@ class LineChart extends TemporalXAxisComponent {
                 .attr("class", "tsi-stackedButton")
                 .attr("aria-label", () => this.getString("set axis state to") + ' ' + this.nextStackedState())
                 .on("click", function () {
-                    d3.select(this).attr("aria-label", () => self.getString("set axis state to") + ' ' + self.nextStackedState());
                     self.chartOptions.yAxisState = self.nextStackedState();
+                    d3.select(this).attr("aria-label", () => self.getString("set axis state to") + ' ' + self.nextStackedState());
                     self.draw();
                     setTimeout (() => (d3.select(this).node() as any).focus(), 200);
                 });

@@ -173,8 +173,10 @@
                     .tsi-startContainer, .tsi-endContainer {
                         padding-top: 12px;
                         width: 50%;
+                        position: relative;
         
                         .tsi-dateTimeInput {
+                            margin-top: 4px;
                             width: 100%;
                             padding: 0px 8px 0px 8px;
                             height: 30px;
@@ -202,20 +204,25 @@
                     font-weight: 600;
                     font-size: 14px;
                     margin: 0;
-                    margin-bottom: 4px;
                     text-transform: capitalize;
-        
-                    .tsi-snapToEndRangeButton {
-                        text-decoration: underline;
-                        background: transparent;
-                        border: none;
-                        line-height: 20px;
-                        float: right;
-                        cursor: pointer;
-                        margin-left: 8px;
-                        padding: 0px;
-                        text-transform: capitalize;
-                    }
+                    height: 20px;
+                    line-height: 20px;
+                    opacity: 1;
+                }
+                .tsi-snapToEndRangeButton {
+                    text-decoration: underline;
+                    background: transparent;
+                    border: none;
+                    line-height: 20px;
+                    cursor: pointer;
+                    margin-left: 8px;
+                    padding: 0px;
+                    text-transform: capitalize;
+                    position: absolute;
+                    top: 0px;
+                    right: 0px;
+                    margin-top: 12px;
+
                 }
             }
         

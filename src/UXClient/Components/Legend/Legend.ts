@@ -147,7 +147,9 @@ class Legend extends Component {
                 .attr("class", (agg: string, i) => {
                     return "tsi-seriesNameLabel" + (self.chartComponentData.displayState[agg].visible ? " shown" : "");
                 }) 
-                .attr("aria-label", (agg: string) => self.getString("toggle visibility for") + ' ' + agg)   
+                .attr("aria-label", (agg: string) => {
+                    return `${self.getString("toggle visibility for")} ${self.chartComponentData.displayState[agg].name}`;
+                })   
                 .on("click", function (d: string, i: number) {
                     var newState = !self.chartComponentData.displayState[d].visible;
                     self.chartComponentData.displayState[d].visible = newState;

@@ -312,11 +312,13 @@ class AvailabilityChart extends ChartComponent{
             .classed("tsi-zoomButtonContainer", true);
         buttonsDiv.append("button")
             .attr("class", "tsi-zoomButton tsi-zoomButtonIn")
+            .attr('aria-label', 'zoom in')
             .on("click", () => {
                 this.zoom("in", midpoint);
             });
         buttonsDiv.append("button")
             .attr("class", "tsi-zoomButton tsi-zoomButtonOut")
+            .attr('aria-label', 'zoom out')
             .on("click", () => {
                 this.zoom("out", midpoint);
             });
@@ -465,7 +467,7 @@ class AvailabilityChart extends ChartComponent{
 
     private buildFromAndToContainer () {
         let dateTimeContainer = this.timePickerTextContainer.append('div').classed('tsi-dateTimeContainer', true);
-        dateTimeContainer.append("span").node().innerHTML = this.getString("Timeframe");
+        let timeframeLabel = dateTimeContainer.append("label").html(this.getString("Timeframe"));
         let dateTimeButtonContainer = dateTimeContainer.append("div")
             .classed('tsi-dateTimeButtonContainer', true);
         this.dateTimeButton = new DateTimeButtonRange(dateTimeButtonContainer.node());
