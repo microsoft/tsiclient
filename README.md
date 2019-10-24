@@ -14,7 +14,7 @@ The Azure Time Series Insights JavaScript SDK (aka **tsiclient**) is a JavaScrip
 If you use npm, `npm install tsiclient`. You can also load directly from [unpkg](https://unpkg.com/tsiclient/). For example:
 
 ```html
-<script src="'https://unpkg.com/tsiclient@1.2.24/tsiclient.js'"></script>
+<script src="https://unpkg.com/tsiclient@1.2.24/tsiclient.js"></script>
 <link rel="stylesheet" type="text/css" href="https://unpkg.com/tsiclient@1.2.24/tsiclient.css"></link>
 ```
 
