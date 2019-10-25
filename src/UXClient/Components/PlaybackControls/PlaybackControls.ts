@@ -1,19 +1,27 @@
 import * as d3 from 'd3';
 import './PlaybackControls.scss';
 import { Component } from "./../../Interfaces/Component";
+import { Utils } from '../../Utils';
+
+type d3Selection = d3.Selection<d3.BaseType, unknown, null, undefined>;
 
 class PlaybackControls extends Component {
   private playbackInterval: number;
-  private playButton: d3.Selection<d3.BaseType, unknown, null, undefined>;
-  private trackWidth;
-  private trackPositionToLabelMapper;
-  private handleElement;
-  private handleNotches: Array<number>;
-  private data;
-  private controlsContainer;
+  private playButton: d3Selection;
+  private trackPositionToLabelMapper: Function;
+  private handleElement: d3Selection;
+  private notchPositions: Array<number>;
+  private data: Array<any>;
+  private controlsContainer: d3Selection;
   private selectedLabelIndex: number;
   private onGetLatest: Function;
-  private options: any;
+  private options;
+  private track: d3Selection;
+  private trackXOffset: number;
+  private trackYOffset: number;
+  private trackWidth: number;
+
+  readonly handleRadius: number = 7;
 
   constructor(renderTarget: Element){
     super(renderTarget);
@@ -21,12 +29,18 @@ class PlaybackControls extends Component {
     this.selectedLabelIndex = 0;
   }
   
-  render(data: Array<any>, options: any, onGetLatest: Function = null) {
+  render(data: Array<any>, options, onGetLatest: Function = null, startingTimestamp = null) {
     this.data = data;
     this.onGetLatest = onGetLatest;
     this.options = options;
 
+    if (startingTimestamp !== null) { 
+      this.selectedLabelIndex = this.findClosestTimestamp(startingTimestamp);
+    }
+
     let targetElement = d3.select(this.renderTarget);
+    super.themify(targetElement, this.chartOptions.theme);
+
     targetElement.html('');
 
     let sliderContainer = targetElement.append('div')
@@ -34,56 +48,72 @@ class PlaybackControls extends Component {
 
     let sliderContainerWidth = (<any>sliderContainer.node()).clientWidth;
     let sliderContainerHeight = (<any>sliderContainer.node()).clientHeight;
-    let handleRadius = 7;
-    let trackStrokeWidth = 5;
-    this.trackWidth = sliderContainerWidth;
+    this.trackXOffset = this.handleRadius + 8;
+    this.trackYOffset = Math.floor(sliderContainerHeight / 2);
+    this.trackWidth = sliderContainerWidth - (2 * this.trackXOffset);
 
-    this.handleNotches = data.map((v, index) => {
+    this.notchPositions = data.map((v, index) => {
       if (index === 0) { return 0; }
       if (index === data.length - 1) { return this.trackWidth; }
       return Math.floor((this.trackWidth / data.length) * (index + 0.5));
     });
 
     let bucketWidthPixels = this.trackWidth / (this.data.length - 1);
-    let offset = Math.floor(bucketWidthPixels / 2);
+    let inputOffset = Math.floor(bucketWidthPixels / 2);
     this.trackPositionToLabelMapper = d3.scaleQuantize()
-      .domain([-offset, this.trackWidth + offset])
+      .domain([-inputOffset, this.trackWidth + inputOffset])
       .range(d3.range(data.length));
     
     let gWrapper = sliderContainer
       .append('svg')
       .append('g');
 
-    let track = gWrapper.append('line')
+    sliderContainer.append('div')
+      .classed('tsi-playback-input', true)
+      .style('left', `${this.trackXOffset}px`)
+      .style('width', `${this.trackWidth}px`)
+      .style('height', '100%')
+
+    this.track = gWrapper
+      .append('g')
       .classed('tsi-playback-track', true);
-    
-    track.attr('x1', handleRadius)
-      .attr('y1', Math.floor(sliderContainerHeight / 2))
-      .attr('x2', this.trackWidth - handleRadius)
-      .attr('y2', Math.floor(sliderContainerHeight / 2))
-      .style('stroke-width', trackStrokeWidth)
-    
+
     gWrapper.call(d3.drag()
-        .on('start.interrupt', () => { gWrapper.interrupt(); })
-        .on('start drag', () => {
-          this.onDrag(d3.event.x);
-        })
-        .on('end', () => {
-          this.onDragEnd();
-        })
-      );
+      .container(<any>sliderContainer.select('.tsi-playback-input').node())
+      .on('start.interrupt', () => { gWrapper.interrupt(); })
+      .on('start drag', () => {
+        this.onDrag(d3.event.x);
+      })
+      .on('end', () => {
+        this.onDragEnd();
+      })
+    );
+    
+    let handlePosition = this.notchPositions[this.selectedLabelIndex] + this.trackXOffset;
+
+    this.track.append('line')
+      .classed('tsi-left-of-handle', true)
+      .attr('y1', this.trackYOffset)
+      .attr('y2', this.trackYOffset);
+    
+    this.track.append('line')
+      .classed('tsi-right-of-handle', true)
+      .attr('y1', this.trackYOffset)
+      .attr('y2', this.trackYOffset);
 
     this.handleElement = gWrapper.append('circle')
       .classed('tsi-playback-handle', true)
-      .attr('cx', handleRadius)
-      .attr('cy', Math.floor(sliderContainerHeight / 2))
-      .attr('r', handleRadius);
+      .attr('r', this.handleRadius)
+      .attr('cy', this.trackYOffset);
+
+    this.drawTrackAndHandle(handlePosition);
 
     this.controlsContainer = targetElement.append('div')
       .classed('tsi-playback-buttons', true);
     
     this.playButton = this.controlsContainer.append('button')
-      .classed('tsi-play-button', true)
+      .classed('tsi-play-button', this.playbackInterval === null)
+      .classed('tsi-pause-button', this.playbackInterval !== null)
       .on('click', () => {
         if (this.playbackInterval === null) {
           this.play();
@@ -94,13 +124,19 @@ class PlaybackControls extends Component {
 
     this.controlsContainer.append('span')
       .classed('tsi-playback-timestamp', true)
-      .text(data[0].label);
+      .text(data[this.selectedLabelIndex].label);
+  }
+
+  get currentTimestamp() {
+    return this.data[this.selectedLabelIndex].label;
   }
 
   next() {
     // If we are already at the timeline, trigger the onGetLatest() callback instead.
-    if (this.selectedLabelIndex === this.data.length - 1 && this.onGetLatest) {
-      this.onGetLatest();
+    if (this.selectedLabelIndex === this.data.length - 1) {
+      if (typeof(this.onGetLatest) === typeof(Function)) {
+        this.onGetLatest();
+      }
     } else {
       this.selectedLabelIndex++;
       this.setStateFromLabelIndex(this.selectedLabelIndex);
@@ -110,7 +146,11 @@ class PlaybackControls extends Component {
 
   play() {
     if (this.playbackInterval === null) {
-      this.playbackInterval = window.setInterval(this.next.bind(this), this.options.getLatestInterval || 2000);
+      // Default to a 2 second interval if one is not provided. Also, the interval should
+      // not be lower than 2 seconds.
+      let playbackIntervalMs = Math.max(this.options.playbackIntervalMs || 2000, 2000);
+
+      this.playbackInterval = window.setInterval(this.next.bind(this), playbackIntervalMs);
       this.playButton
       .classed('tsi-play-button', false)
       .classed('tsi-pause-button', true);
@@ -130,6 +170,7 @@ class PlaybackControls extends Component {
   }
 
   private onDrag(positionX: number) {
+    this.pause();
     this.updateHandleSelection(positionX);
   }
 
@@ -142,8 +183,22 @@ class PlaybackControls extends Component {
     this.setStateFromLabelIndex(this.selectedLabelIndex);
   }
 
+  private drawTrackAndHandle(handlePositionX: number) {
+    this.track.select('.tsi-left-of-handle')
+      .attr('x1', this.trackXOffset)
+      .attr('x2', handlePositionX);
+  
+    this.track.select('.tsi-right-of-handle')
+      .attr('x1', handlePositionX)
+      .attr('x2', this.trackXOffset + this.trackWidth);
+
+    this.handleElement
+      .attr('cx', handlePositionX);
+  }
+
   private setStateFromLabelIndex(labelIndex: number) {
-    this.handleElement.attr('cx', this.handleNotches[labelIndex]);
+    this.drawTrackAndHandle(this.notchPositions[labelIndex] + this.trackXOffset);
+
     let tsqExpression = this.data[labelIndex];
     this.controlsContainer
       .select('.tsi-playback-timestamp')
@@ -152,7 +207,31 @@ class PlaybackControls extends Component {
 
   private triggerCurrentAction() {
     let tsqExpression = this.data[this.selectedLabelIndex];
-    if (typeof(tsqExpression.action) === 'function') { tsqExpression.action(); }
+    if (typeof(tsqExpression.action) === typeof(Function)) { tsqExpression.action(); }
+  }
+
+  private findClosestTimestamp(timestamp: number | string) {
+    if (!this.data || this.data.length === 0) {
+      return;
+    }
+
+    let asDate = new Date(timestamp);
+    let smallestDiff = this.dateDiff(asDate, new Date(this.data[0].label));
+    let closestMatchIndex = 0;
+
+    for(let i = 1; i < this.data.length; i++) {
+      let diff = this.dateDiff(asDate, new Date(this.data[i].label));
+      if (diff < smallestDiff) {
+        smallestDiff = diff;
+        closestMatchIndex = i;
+      }
+    }
+
+    return closestMatchIndex;
+  }
+
+  private dateDiff(date1: Date, date2: Date): number {
+    return Math.abs(date1.valueOf() - date2.valueOf());
   }
 }
 

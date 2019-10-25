@@ -1,3 +1,5 @@
+@import "../../styles";
+
 .tsi-playback-controls-container {
     padding-left: 20px;
     padding-right: 20px;
@@ -6,11 +8,18 @@
 .tsi-playback-timeline {
     width: 100%;
     height: 30px;
+    position: relative;
 }
 
 .tsi-playback-timeline svg {
     width: 100%;
     height: 100%;
+    position: absolute;
+}
+
+.tsi-playback-input {
+    position: absolute;
+    pointer-events: none;
 }
 
 .tsi-playback-track, .tsi-playback-handle {
@@ -18,39 +27,68 @@
 }
 
 .tsi-playback-track {
-    stroke: #777;
+    stroke-width: 5px;
+    stroke-linecap: round;
+
+    .tsi-left-of-handle {
+        stroke: #605E5C;
+    }
+
+    .tsi-right-of-handle {
+        stroke: #C8C6C4;
+    }
 }
 
 .tsi-playback-handle {
-    fill: #ddd;
+    stroke-width: 2px;
+    stroke: #605E5C;
+    fill: #fff;
 }
 
 .tsi-playback-buttons {
     width: 100%;
     height: 36px;
     margin-bottom: 6px;
-    display: flex;
-    align-items: center;
 
     .tsi-play-button, .tsi-pause-button {
-        width: 36px;
-        height: 36px;
-        fill: #eee;
-        background: transparent;
+        padding: 2px;
+        background: none;
         border: none;
+        background-repeat: no-repeat;
+        background-position: center;
     }
+}
 
-    .tsi-play-button {
-        background-image: url(../../Icons/play.svg);
+.tsi-dark {
+    .tsi-playback-buttons {
+        .tsi-play-button {
+            background-image: url(../../Icons/Play_Icon_Dark_Theme.svg);
+        }
+
+        .tsi-pause-button {
+            background-image: url(../../Icons/Pause_Icon_Dark_Theme.svg);
+        }
     }
+}
 
-    .tsi-pause-button {
-        background-image: url(../../Icons/pause.svg);
+.tsi-light {
+    .tsi-playback-buttons {
+        .tsi-play-button {
+            background-image: url(../../Icons/Play_Icon_Light_Theme.svg);
+        }
+
+        .tsi-pause-button {
+            background-image: url(../../Icons/Pause_Icon_Light_Theme.svg);
+        }
     }
 }
 
 .tsi-playback-timestamp {
     margin: 0 20px;
+    height: 100%;
+    float: right;
+    display: flex;
+    align-items: center;
 }
 
 .tsi-playback-buttons button {
