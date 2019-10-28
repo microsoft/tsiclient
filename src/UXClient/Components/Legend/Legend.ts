@@ -148,7 +148,8 @@ class Legend extends Component {
                     return "tsi-seriesNameLabel" + (self.chartComponentData.displayState[agg].visible ? " shown" : "");
                 }) 
                 .attr("aria-label", (agg: string) => {
-                    return `${self.getString("toggle visibility for")} ${self.chartComponentData.displayState[agg].name}`;
+                    let showOrHide = self.chartComponentData.displayState[agg].visible ? self.getString('hide group') : self.getString('show group');
+                    return `${showOrHide} ${self.getString('group')} ${self.chartComponentData.displayState[agg].name}`;
                 })   
                 .on("click", function (d: string, i: number) {
                     var newState = !self.chartComponentData.displayState[d].visible;
@@ -269,7 +270,11 @@ class Legend extends Component {
                     if (d3.select(this).select('.tsi-eyeIcon').empty()) {
                         d3.select(this).append("button")
                             .attr("class", "tsi-eyeIcon")
-                            .attr('aria-label', self.getString("toggle visibility for") + ' ' + splitBy)
+                            .attr('aria-label', () => {
+                                let showOrHide = self.chartComponentData.displayState[aggKey].splitBys[splitBy].visible ? self.getString('hide series') : self.getString('show series');            
+                                return `${showOrHide} ${splitBy} ${self.getString('in group')} ${self.chartComponentData.displayState[aggKey].name}`;
+
+                            })
                             .on("click", function (data: any, i: number) {
                                 d3.event.stopPropagation();
                                 self.toggleSplitByVisible(aggKey, splitBy);
@@ -289,7 +294,7 @@ class Legend extends Component {
                     if (dataType === DataTypes.Numeric) {
                         if (d3.select(this).select('.tsi-seriesTypeSelection').empty()) {
                             d3.select(this).append("select")
-                                .attr('aria-label', self.getString("Series type selection for") + ' ' + splitBy)
+                                .attr('aria-label', `${self.getString("Series type selection for")} ${splitBy} ${self.getString('in group')} ${self.chartComponentData.displayState[aggKey].name}`)
                                 .attr('class', 'tsi-seriesTypeSelection')
                                 .on("change", function (data: any) {
                                     var seriesType: any = d3.select(this).property("value");
