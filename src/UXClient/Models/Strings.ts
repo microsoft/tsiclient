@@ -60,7 +60,16 @@ class Strings {
         "hide series": "hide series",
         "in group": "in group",
         "show group": "show group",
-        "hide group": "hide group"
+        "hide group": "hide group",
+        "Use the arrow keys to navigate the values of each cell": "Use the arrow keys to navigate the values of each cell",
+        "A grid of values": "A grid of values",
+        "close grid": "close grid",
+        "column header for date": "column header for date",
+        "row header for": "row header for",
+        "values for cell at": "values for cell at",
+        "no values at": "no values at",
+        "and": "and",
+        "are": "are"
     };
   
     private stringValues: any = {};

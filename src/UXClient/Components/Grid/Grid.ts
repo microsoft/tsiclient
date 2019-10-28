@@ -82,6 +82,13 @@ class Grid extends Component {
         });
     }
 
+    private getFormattedDate = (h) => {
+        var hAsDate = <any>(new Date(h));
+        if(hAsDate != this.getString('Invalid Date'))
+            return Utils.timeFormat(this.usesSeconds, this.usesMillis, this.chartOptions.offset, null, null, null, this.chartOptions.dateLocale)(hAsDate);
+        return h;
+    }
+
     private addHeaderCells () {
         let headerCellData = this.chartComponentData.allTimestampsArray;
         let headerCells = this.tableHeaderRow.selectAll('.tsi-headerCell').data(headerCellData);
@@ -91,11 +98,9 @@ class Grid extends Component {
             .merge(headerCells)
             .attr("class", (d, i) => this.cellClass(0, i+1) + ' tsi-headerCell')
             .on("keydown", (d, i) => {this.arrowNavigate(d3.event, 0, i+1)})
-            .text((h, i) => {
-                var hAsDate = <any>(new Date(h));
-                if(hAsDate != this.getString('Invalid Date'))
-                    return Utils.timeFormat(this.usesSeconds, this.usesMillis, this.chartOptions.offset, null, null, null, this.chartOptions.dateLocale)(hAsDate);
-                return h;
+            .text(this.getFormattedDate)
+            .attr('aria-label', (h) => {
+                return `${this.getString('column header for date')} ${this.getFormattedDate(h)}`
             });
     }
 
@@ -107,6 +112,8 @@ class Grid extends Component {
             tsMap[ts] = {};
             return tsMap;
         }, {});
+
+        let headerCellData = this.chartComponentData.allTimestampsArray;
 
         let rowsEntered = rows.enter()
             .append('tr')
@@ -120,18 +127,26 @@ class Grid extends Component {
 
                 //Row header with the name of the series
                 let headerCell = d3.select(this).selectAll('tsi-rowHeaderCell').data([d]);
+                
+                let getRowHeaderText = (d) => {
+                    return `${self.chartComponentData.displayState[aggKey].name}${(splitBy !== '' ? (': ' + splitBy) : '')}`;
+                }
+
                 headerCell.enter()  
                     .append('td')
                     .attr("tabindex", 1)
                     .merge(headerCell)
                     .attr('class', (d, col) => `tsi-rowHeaderCell ${self.cellClass(i + 1, 0)}`)
                     .on("keydown", (d, col) => {self.arrowNavigate(d3.event, i + 1, 0)})
+                    .attr('aria-label', d => {
+                        return `${self.getString('row header for')} ${getRowHeaderText(d)}`;
+                    })
                     .each(function (d) {
                         d3.select(this).select('*').remove();
                         let container = d3.select(this).append('div').attr('class', 'tsi-rowHeaderContainer');
                         container.append('div')
                             .attr('class', 'tsi-rowHeaderSeriesName')
-                            .text(`${self.chartComponentData.displayState[aggKey].name}${(splitBy !== '' ? (': ' + splitBy) : '')}`);
+                            .text(getRowHeaderText);
                         let measureContainer = container.append('div')
                             .attr('class', 'tsi-rowHeaderMeasures');
 
@@ -149,7 +164,16 @@ class Grid extends Component {
                     .attr('class', (d, col) => `tsi-valueCell ${self.cellClass(i + 1, col + 1)}`)
                     .on("keydown", (d, col) => {self.arrowNavigate(d3.event, i + 1, col + 1)})
                     .attr("tabindex", 1)
-                    .each(function (d: any, i) {                        
+                    .attr('aria-label', (d: any, i) => {
+                        if (!d.measures || Object.keys(d.measures).length === 0) {
+                            return `${self.getString('no values at')} ${getRowHeaderText(d)} and ${self.getFormattedDate(new Date(headerCellData[i]))}`; // TODO replace 
+                        }
+                        let formattedValues = Object.keys(d.measures).map((measureName) => {
+                            return `${measureName}: ${d.measures[measureName]}`;
+                        }).join(', ');
+                        return `${self.getString('values for cell at')} ${getRowHeaderText(d)} ${self.getString('and')} ${self.getFormattedDate(d.dateTime)} ${self.getString('are')} ${formattedValues}`;
+                    })
+                    .each(function (d: any, i) {      
                         let measures = d3.select(this).selectAll('.tsi-measureValue').data(measuresData);
                         measures.enter()
                             .append('div')
@@ -177,7 +201,6 @@ class Grid extends Component {
         this.gridComponent
             .classed("tsi-gridComponent", true)
             .classed("tsi-fromChart", !!options.fromChart)
-            .attr("aria-label", "A grid of values.  Use tab to enter, and the arrow keys to navigate the values of each cell");
 		var grid = this.gridComponent
 			.append('div')
 			.attr("class", "tsi-gridWrapper")
@@ -199,7 +222,11 @@ class Grid extends Component {
         if (!this.table) {
             this.table = grid.append('table').classed('tsi-gridTable', true);
             this.tableHeaderRow = this.table.append('tr').classed('tsi-gridHeaderRow', true);
-            this.tableHeaderRow.append('th').attr("tabindex", 0).attr("class", "tsi-topLeft " + this.cellClass(0,0)).on("keydown", () => {this.arrowNavigate(d3.event, 0, 0)}).attr("aria-label", "A grid of values.  Use the arrow keys to navigate the values of each cell");
+            this.tableHeaderRow.append('th')
+                .attr("tabindex", 0)
+                .attr("class", "tsi-topLeft " + this.cellClass(0,0))
+                .on("keydown", () => {this.arrowNavigate(d3.event, 0, 0)})
+                .attr("aria-label", `${this.getString('A grid of values')} - ${this.getString('Use the arrow keys to navigate the values of each cell')}`)
         }
 
         this.addHeaderCells();
@@ -209,6 +236,7 @@ class Grid extends Component {
             this.gridComponent.selectAll('.tsi-closeButton').remove();
             this.closeButton = grid.append('button')
                 .attr("class", "tsi-closeButton")
+                .attr('aria-label', this.getString('close grid'))
                 .html('&times')
                 .on('keydown', () => {
                     if (d3.event.keyCode === 9) {
