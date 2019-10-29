@@ -265,7 +265,7 @@ class DateTimePicker extends ChartComponent{
             var timezoneContainer = this.dateTimeSelectionPanel.append("div").attr("class", "tsi-timezoneContainer");
             timezoneContainer.append("label")
                 .classed("tsi-timeLabel", true)
-                .attr('aria-label', 'timezone selection')
+                .attr('aria-label', this.getString('timezone selection'))
                 .html(this.getString('timezone'));
             var timezonePickerContainer = timezoneContainer.append("div").classed("tsi-timezonePickerContainer", true);
             var timezonePicker = new TimezonePicker(timezonePickerContainer.node());
@@ -524,7 +524,7 @@ class DateTimePicker extends ChartComponent{
             let startOrEndText = startOrEnd ? 'Start' : 'End';
             let timeLabel = fromOrToContainer.append("label")
                 .classed("tsi-timeLabel", true)
-                .attr('aria-label', `${startOrEnd} time input`)
+                .attr('aria-label', `${startOrEnd ? this.getString('Start time input') : this.getString('End time input')}`)
                 .html(this.getString(startOrEnd));
             let inputName = startOrEnd === 'start' ? 'fromInput' : 'toInput'
             this[inputName] = fromOrToContainer.append('input').attr('class', 'tsi-dateTimeInput', true)
@@ -549,7 +549,7 @@ class DateTimePicker extends ChartComponent{
                 fromOrToContainer.append("button")
                     .attr("class", "tsi-snapToEndRangeButton")
                     .html(this.getString("Latest"))
-                    .attr('aria-label', 'snap end time to latest')
+                    .attr('aria-label', this.getString('snap end time to latest'))
                     .on("click", () => {
                         if (!this.isSettingStartTime) {
                             this.setFromDate(this.startRange);

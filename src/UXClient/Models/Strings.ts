@@ -69,7 +69,11 @@ class Strings {
         "values for cell at": "values for cell at",
         "no values at": "no values at",
         "and": "and",
-        "are": "are"
+        "are": "are",
+        "timezone selection": "timezone selection",
+        "Start time input": "Start time input",
+        "End time input": "End time input",
+        "snap end time to latest": "snap end time to latest"
     };
   
     private stringValues: any = {};

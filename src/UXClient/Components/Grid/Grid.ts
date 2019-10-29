@@ -166,7 +166,7 @@ class Grid extends Component {
                     .attr("tabindex", 1)
                     .attr('aria-label', (d: any, i) => {
                         if (!d.measures || Object.keys(d.measures).length === 0) {
-                            return `${self.getString('no values at')} ${getRowHeaderText(d)} and ${self.getFormattedDate(new Date(headerCellData[i]))}`; // TODO replace 
+                            return `${self.getString('no values at')} ${getRowHeaderText(d)} and ${self.getFormattedDate(new Date(headerCellData[i]))}`; 
                         }
                         let formattedValues = Object.keys(d.measures).map((measureName) => {
                             return `${measureName}: ${d.measures[measureName]}`;
@@ -285,18 +285,6 @@ class Grid extends Component {
             default:
                 break;
         }
-    }
-		
-    private getAriaLabel = (rowLabel, colLabel, rowIdx, colIdx, valuesObject) => {
-        let text = '';
-        if (valuesObject) {
-            text = typeof(valuesObject) != 'string' ? ('values ' + (Object.keys(valuesObject).reduce((p,c) => {
-                p += ", " + c + ", " + valuesObject[c];
-                return p;
-            }, ""))) : valuesObject
-        }
-        return "Cell in row " + (rowIdx) + ", column " + colIdx + ".  " + (rowLabel.length ? ("Row is labeled " + rowLabel) : '') + " in column named " + colLabel + " with  " +
-        text;
     }
 }
 
