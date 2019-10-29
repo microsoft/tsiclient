@@ -222,7 +222,7 @@ class DateTimePicker extends ChartComponent{
                 this.setFromQuickTimes(d[1]);
             })
             .html((d) => d[0])
-            .attr('aria-label', (d) => `select quick time of ${d[0]}`);
+            .attr('aria-label', (d) => `${this.getString('select quick time of')} ${d[0]}`);
         // wrap around tab order if dTP in modal form
         let firstQuickTime = enteredQuickTimes.filter((d, i) => {
             return (i === 0);

@@ -73,7 +73,10 @@ class Strings {
         "timezone selection": "timezone selection",
         "Start time input": "Start time input",
         "End time input": "End time input",
-        "snap end time to latest": "snap end time to latest"
+        "snap end time to latest": "snap end time to latest",
+        "zoom in": "zoom in",
+        "zoom out": "zoom out",
+        "select quick time of": "select quick time of"
     };
   
     private stringValues: any = {};

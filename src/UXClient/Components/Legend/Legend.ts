@@ -219,7 +219,7 @@ class Legend extends Component {
                     .enter()
                     .append("div")
                     .merge(splitByLabels)
-                    .attr('role', legendState === 'compact' ? 'button' : '')
+                    .attr('role', legendState === 'compact' ? 'button' : 'presentation')
                     .attr('tabindex', legendState === 'compact' ? '0' : '-1')
                     .on('keypress', (splitBy: string) => {
                         if (legendState === 'compact' && (d3.event.keyCode === 13 || d3.event.keyCode === 32)) { //space or enter
