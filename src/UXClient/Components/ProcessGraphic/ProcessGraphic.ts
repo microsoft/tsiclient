@@ -101,6 +101,9 @@ class ProcessGraphic extends Component {
           console.error(`Failed while fetching data availability: ${reason}`);
         });
     })
+    .catch(reason => {
+      console.error(`Failed to acquire authentication token: ${reason}`);
+    });
   }
 
   pauseAvailabilityUpdates() {

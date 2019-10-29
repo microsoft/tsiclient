@@ -1,7 +1,6 @@
 import * as d3 from 'd3';
 import './PlaybackControls.scss';
 import { Component } from "./../../Interfaces/Component";
-import { Utils } from '../../Utils';
 
 type d3Selection = d3.Selection<d3.BaseType, unknown, null, undefined>;
 

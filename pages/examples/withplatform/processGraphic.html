@@ -1,0 +1,69 @@
+
+<!DOCTYPE html> 
+<html>
+    <head>
+        <title>Basic Charts</title>
+
+        <!-- styles are only used for styling header and auth elements, where possible -->
+        <link rel="stylesheet" type="text/css" href="../styles.css" />
+
+        <!-- boilerplate headers are injected with head.js, grab them from the live example header, or include a link to head.js -->
+        <script src="../boilerplate/head.js"></script>
+
+        <!-- boilerplate auth code is injected with auth.js, check it out for auth setup -->
+        <script src="../boilerplate/auth.js"></script>
+    </head>
+    <body style="font-family: 'Segoe UI', sans-serif; background-color: white; height: 100vh; width: 100vw;">
+        <div id="process-graphic" style="width: 70%; height: 70%; margin-top: 50px;"></div>
+        <script type="text/javascript">
+          window.onload = () => {
+            initAuth('Process Graphic');
+            let tsiClient = new TsiClient();
+            let environmentFqdn = '0293bb6f-5d98-4953-be00-e8e9eedf9b88.env.timeseries.azure.com';
+            let container = document.getElementById('process-graphic');
+
+            let tsqExpression1 = new tsiClient.ux.TsqExpression(
+              { timeSeriesId: ['Sensor_0'] },
+              {
+                Max: {
+                  kind: 'numeric',
+                  value: { tsx: '$event.[Value].Double' },
+                  filter: null,
+                  aggregation: { tsx: 'max($value)' }
+                }
+              },
+              { },
+              { color: '#0C0',
+                positionX: 20,
+                positionY: 50,
+                alias: 'Sensor 1',
+                contextMenu: []
+              }
+            );
+
+            let tsqExpression2 = new tsiClient.ux.TsqExpression(
+              { timeSeriesId: ['Sensor_1'] },
+              {
+                Max: {
+                  kind: 'numeric',
+                  value: { tsx: '$event.[Value].Double' },
+                  filter: null,
+                  aggregation: { tsx: 'max($value)' }
+                }
+              },
+              { },
+              { positionX: 85,
+                positionY: 85,
+                alias: 'Sensor 2',
+                contextMenu: []
+              }
+            );
+
+            let processGraphic = tsiClient.ux.ProcessGraphic(container);
+            let processGraphicOptions = { theme: 'light', throttleSlider: true, getLatestInverval: 1000 };
+            let image = '../images/vat.svg';
+            processGraphic.render(environmentFqdn, authContext.getTsiToken, image, [tsqExpression1, tsqExpression2], processGraphicOptions);
+          }
+        </script>
+    </body>
+</html>
