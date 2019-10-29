@@ -214,14 +214,23 @@ class Legend extends Component {
                     .data(splitByLabelData.slice(0, self.chartComponentData.displayState[aggKey].shownSplitBys), function (d: string): string {
                         return d;
                     });
-                
+
                 var splitByLabelsEntered = splitByLabels                    
                     .enter()
                     .append("div")
                     .merge(splitByLabels)
+                    .attr('role', legendState === 'compact' ? 'button' : '')
+                    .attr('tabindex', legendState === 'compact' ? '0' : '-1')
+                    .on('keypress', (splitBy: string) => {
+                        if (legendState === 'compact' && (d3.event.keyCode === 13 || d3.event.keyCode === 32)) { //space or enter
+                            self.toggleSplitByVisible(aggKey, splitBy);
+                            self.drawChart();
+                            d3.event.preventDefault();
+                        }
+                    })
                     .on("click", function (splitBy: string, i: number) {
                         if (legendState == "compact") {
-                            self.toggleSplitByVisible(aggKey, splitBy)
+                            self.toggleSplitByVisible(aggKey, splitBy);
                         } else {
                             toggleSticky(aggKey, splitBy);
                         }
