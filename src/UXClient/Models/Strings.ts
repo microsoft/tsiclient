@@ -55,7 +55,28 @@ class Strings {
         "Show More Hierarchies": "Show More Hierarchies",
         "Add to Filter Path": "Add to Filter Path",
         "Empty": "Empty",
-        "date and time": "date and time"
+        "date and time": "date and time",
+        "show series": "show series",
+        "hide series": "hide series",
+        "in group": "in group",
+        "show group": "show group",
+        "hide group": "hide group",
+        "Use the arrow keys to navigate the values of each cell": "Use the arrow keys to navigate the values of each cell",
+        "A grid of values": "A grid of values",
+        "close grid": "close grid",
+        "column header for date": "column header for date",
+        "row header for": "row header for",
+        "values for cell at": "values for cell at",
+        "no values at": "no values at",
+        "and": "and",
+        "are": "are",
+        "timezone selection": "timezone selection",
+        "Start time input": "Start time input",
+        "End time input": "End time input",
+        "snap end time to latest": "snap end time to latest",
+        "zoom in": "zoom in",
+        "zoom out": "zoom out",
+        "select quick time of": "select quick time of"
     };
   
     private stringValues: any = {};
