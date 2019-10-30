@@ -263,9 +263,13 @@ class DateTimePicker extends ChartComponent{
         const offset = this.chartOptions.offset;
         if (this.chartOptions.includeTimezones && (typeof offset == "string" || offset == 0)) {
             var timezoneContainer = this.dateTimeSelectionPanel.append("div").attr("class", "tsi-timezoneContainer");
+            let timezoneSelectionLabelID = Utils.guid();
+            let timezoneSelectionID = timezoneSelectionLabelID + 'Tz';
             timezoneContainer.append("label")
                 .classed("tsi-timeLabel", true)
                 .attr('aria-label', this.getString('timezone selection'))
+                .attr('id', timezoneSelectionLabelID)
+                .attr('for', timezoneSelectionID)
                 .html(this.getString('timezone'));
             var timezonePickerContainer = timezoneContainer.append("div").classed("tsi-timezonePickerContainer", true);
             var timezonePicker = new TimezonePicker(timezonePickerContainer.node());
@@ -278,6 +282,9 @@ class DateTimePicker extends ChartComponent{
                     this.setFromQuickTimes(matchingQuickTime); 
                 }
             }, (typeof offset == "string" ? offset : "UTC"));
+            d3.select(timezonePicker.renderTarget).select('select')
+                .attr('aria-labelledBy', timezoneSelectionLabelID)
+                .attr('id', timezoneSelectionID);
         }
     }
 
@@ -522,12 +529,19 @@ class DateTimePicker extends ChartComponent{
         var createTimePicker = (startOrEnd) => {
             var fromOrToContainer = timeInputContainer.append("div").classed("tsi-" + startOrEnd + "Container", true);
             let startOrEndText = startOrEnd ? 'Start' : 'End';
+            let inputLabelID = Utils.guid();
+            let inputID = inputLabelID + 'Input';
             let timeLabel = fromOrToContainer.append("label")
                 .classed("tsi-timeLabel", true)
+                .attr('id', inputLabelID)
+                .attr('for', inputID)
                 .attr('aria-label', `${startOrEnd ? this.getString('Start time input') : this.getString('End time input')}`)
                 .html(this.getString(startOrEnd));
             let inputName = startOrEnd === 'start' ? 'fromInput' : 'toInput'
-            this[inputName] = fromOrToContainer.append('input').attr('class', 'tsi-dateTimeInput', true)
+            this[inputName] = fromOrToContainer.append('input')
+                .attr('class', 'tsi-dateTimeInput', true)
+                .attr('aria-labelledby', inputLabelID)
+                .attr('id', inputID)
                 .on('input', () => {
                     let rangeErrorCheck: any = this.checkDateTimeValidity();
                     this.isSettingStartTime = true;
