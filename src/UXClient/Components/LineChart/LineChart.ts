@@ -732,7 +732,7 @@ class LineChart extends TemporalXAxisComponent {
     }
 
     private getDataType (aggKey) {
-        return this.chartComponentData.displayState[aggKey].dataType;
+        return this.chartComponentData.displayState[aggKey] ? this.chartComponentData.displayState[aggKey].dataType : null;
     } 
 
     private setScooterLabels (scooter, includeTransition = false) {
