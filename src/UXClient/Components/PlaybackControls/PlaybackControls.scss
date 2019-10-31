@@ -7,7 +7,7 @@
 
 .tsi-playback-timeline {
     width: 100%;
-    height: 30px;
+    height: 32px;
     position: relative;
 }
 
@@ -48,10 +48,10 @@
 .tsi-playback-buttons {
     width: 100%;
     height: 36px;
-    margin-bottom: 6px;
+    margin-bottom: 8px;
 
     .tsi-play-button, .tsi-pause-button {
-        padding: 2px;
+        padding: 4px;
         background: none;
         border: none;
         background-repeat: no-repeat;

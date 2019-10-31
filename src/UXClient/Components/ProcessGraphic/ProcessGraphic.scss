@@ -47,14 +47,22 @@
     border-style: solid;
     padding: 8px;
 
-    &.tsi-dark{
+    &.tsi-dark {
         $grays: grays('dark');
         @include tColors($grays);
+
+        &.tsi-label-highlight {
+            animation: border-glow-dark .5s ease-in 0s 1;
+        }
     }
 
-    &.tsi-light{
+    &.tsi-light {
         $grays: grays('light');
         @include tColors($grays);
+
+        &.tsi-label-highlight {
+            animation: border-glow-light .5s ease-in 0s 1;
+        }
     }
 
     .title, .value {
@@ -72,5 +80,26 @@
     .title {
         font-weight: bold;
         font-size: 13px;
-    } 
+    }
+}
+
+@keyframes border-glow-dark {
+    from {
+        box-shadow: 0px 0px 4px 0px white;
+    }
+
+    to {
+        box-shadow: none;
+    }
+}
+
+@keyframes border-glow-light {
+    from {
+        $grays: grays('dark');
+        box-shadow: 0px 0px 4px 0px nth($grays, 6);
+    }
+
+    to {
+        box-shadow: none;
+    }
 }

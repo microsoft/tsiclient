@@ -27,6 +27,7 @@ class ProcessGraphic extends Component {
   private availabilityFrom: Date;
   private availabilityTo: Date;
   private getLatestCallback: Function;
+  private getAuthToken: () => Promise<string>;
 
   readonly numberOfBuckets = 1000;
   readonly fetchAvailabilityFrequency = 30000; // 30 seconds
@@ -45,24 +46,25 @@ class ProcessGraphic extends Component {
     data: Array<TsqExpression>, 
     chartOptions) {
     this.environmentFqdn = environmentFqdn;
+    this.getAuthToken = getToken;
     this.tsqExpressions = data;
     this.chartOptions.setOptions(chartOptions);
     this.timeFormatter = Utils.timeFormat(true, true, this.chartOptions.offset, true, 0, null, this.chartOptions.dateLocale);
 
-    getToken().then((authToken: string) => {
-      this.getLatestCallback = this.getLatest.bind(this, authToken);
+    this.getAuthToken().then((authToken: string) => {
+      this.getLatestCallback = this.getLatest.bind(this);
       this.serverClient.getAvailability(authToken, this.environmentFqdn, this.previewApiFlag)
         .then(availabilityResponse => {
 
           if (!this.availabilityInterval) {
-            this.availabilityInterval = window.setInterval(this.pollAvailability.bind(this, authToken), this.fetchAvailabilityFrequency);
+            this.availabilityInterval = window.setInterval(this.pollAvailability.bind(this), this.fetchAvailabilityFrequency);
           }
 
           let { from, to } = this.parseAvailabilityResponse(availabilityResponse);
 
           this.availabilityFrom = from;
           this.availabilityTo = to;
-          this.updatePlaybackControlsData(authToken);
+          this.updatePlaybackControlsData();
 
           this.targetElement = d3.select(this.renderTarget);
           this.targetElement.html('');
@@ -121,7 +123,7 @@ class ProcessGraphic extends Component {
           to.valueOf() !== this.availabilityTo.valueOf()) {
           this.availabilityFrom = from;
           this.availabilityTo = to;
-          this.updatePlaybackControlsData(authToken);
+          this.updatePlaybackControlsData();
 
           this.playbackControls.render(
             this.sliderData, 
@@ -139,7 +141,7 @@ class ProcessGraphic extends Component {
       });
   }
 
-  private updatePlaybackControlsData(authToken: string) {
+  private updatePlaybackControlsData() {
     let timeRange = new Utils.TsqRange(this.availabilityFrom, this.availabilityTo);
     timeRange.calculateNeatBucketSize(this.numberOfBuckets);
     timeRange.snapToServerBuckets();
@@ -151,27 +153,30 @@ class ProcessGraphic extends Component {
       sliderTimestamps.push(new Date(momentInTime));
     }
 
-    this.sliderData = sliderTimestamps.map(ts => this.generateSliderDataElement(ts, timeRange, authToken));
+    this.sliderData = sliderTimestamps.map(ts => this.generateSliderDataElement(ts, timeRange));
   }
 
-  private async getLatest(authToken: string): Promise<any> {
-    return this.pollAvailability(authToken)
-      .then((availbilityHasChanged: boolean) => {
-        if (availbilityHasChanged && this.sliderData.length > 0) {
-          // Trigger the last action of the slider data, which will set the 
-          // process graphic text labels to the values at the latest timestamp
-          let getLatestDataHandler = this.sliderData[this.sliderData.length - 1].action;
-          if(typeof(getLatestDataHandler) === typeof(Function)) {
-            getLatestDataHandler();
-          }
-        }
+  private async getLatest(): Promise<any> {
+    return this.getAuthToken().then((authToken: string) => {
+
+        return this.pollAvailability(authToken)
+          .then((availbilityHasChanged: boolean) => {
+            if (availbilityHasChanged && this.sliderData.length > 0) {
+              // Trigger the last action of the slider data, which will set the 
+              // process graphic text labels to the values at the latest timestamp
+              let getLatestDataHandler = this.sliderData[this.sliderData.length - 1].action;
+              if(typeof(getLatestDataHandler) === typeof(Function)) {
+                getLatestDataHandler();
+              }
+            }
+          });
+
       });
   }
 
   private generateSliderDataElement( 
     timeStamp: Date,
-    sliderTimeRange,
-    authToken: string) {
+    sliderTimeRange) {
     let tsqArray = this.tsqExpressions.map(tsqExpression => {
       tsqExpression.searchSpan = { 
         from: timeStamp.valueOf() - sliderTimeRange.bucketSizeMillis, 
@@ -184,30 +189,32 @@ class ProcessGraphic extends Component {
     return {
       label: timeStampLabel,
       action: () => {
-        let [promise, cancelTrigger] = this.serverClient.getCancellableTsqResults(authToken, this.environmentFqdn, tsqArray);
+        this.getAuthToken().then((authToken: string) => {
+          let [promise, cancelTrigger] = this.serverClient.getCancellableTsqResults(authToken, this.environmentFqdn, tsqArray);
 
-        // We keep track of the last AJAX call we made to the server, and cancel it if it hasn't finished yet. This is
-        // a cheap way to avoid a scenario where we get out-of-order responses back from the server during 'play' mode.
-        // We can revisit this at a later time if we need to handle it in a more sophisticated way.
-        if (this.currentCancelTrigger) {
-          this.currentCancelTrigger();
-        }
-
-        this.currentCancelTrigger = <Function>cancelTrigger;
-
-        (promise as Promise<any>).then(results => {
-          let processGraphicData = results.map((r, i): ProcessGraphicLabelInfo => {
-            return {
-              value: this.parseTsqResponse(r),
-              alias: this.tsqExpressions[i].alias,
-              x: this.tsqExpressions[i].positionX,
-              y: this.tsqExpressions[i].positionY,
-              color: this.tsqExpressions[i].color
-            };
-          });
-
-          this.updateTextLabels(processGraphicData);
-        }); 
+          // We keep track of the last AJAX call we made to the server, and cancel it if it hasn't finished yet. This is
+          // a cheap way to avoid a scenario where we get out-of-order responses back from the server during 'play' mode.
+          // We can revisit this at a later time if we need to handle it in a more sophisticated way.
+          if (this.currentCancelTrigger) {
+            this.currentCancelTrigger();
+          }
+  
+          this.currentCancelTrigger = <Function>cancelTrigger;
+  
+          (promise as Promise<any>).then(results => {
+            let processGraphicData = results.map((r, i): ProcessGraphicLabelInfo => {
+              return {
+                value: this.parseTsqResponse(r),
+                alias: this.tsqExpressions[i].alias,
+                x: this.tsqExpressions[i].positionX,
+                y: this.tsqExpressions[i].positionY,
+                color: this.tsqExpressions[i].color
+              };
+            });
+  
+            this.updateTextLabels(processGraphicData);
+          }); 
+        });
       }
     };
   }
@@ -295,6 +302,14 @@ class ProcessGraphic extends Component {
       .classed(Utils.getTheme(this.chartOptions.theme), true)
       .style('left', tsqe => `${tsqe.x}%`)
       .style('top', tsqe => `${tsqe.y}%`);
+
+    // Trigger glow css animation when values update.
+    const highlightCssClass = 'tsi-label-highlight';
+    this.processGraphic.selectAll('.tsi-process-graphic-label')
+      .classed(highlightCssClass, true)
+      .on('animationend', function() {
+        d3.select(this).classed(highlightCssClass, false);
+      });
 
     this.processGraphic.selectAll('.title')
       .data(graphicValues)
