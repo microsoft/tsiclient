@@ -225,20 +225,19 @@ class GroupedBarChart extends ChartComponent {
                 if (!this.chartOptions.hideChartControlPanel && this.chartControlsPanel === null) {
                     this.chartControlsPanel = Utils.createControlPanel(this.renderTarget, this.CONTROLSWIDTH, this.chartMargins.top, this.chartOptions);
 
-                    let labelStackedButton = () => {
-                        return this.chartOptions.stacked ? this.getString("Unstack bars") : this.getString("Stack bars");
-                    } 
                     this.stackedButton = this.chartControlsPanel.append("button")
                         .style("left", "60px")
-                        .attr("aria-label", labelStackedButton)
                         .attr("class", "tsi-stackedButton").on("click", function () {
                             self.chartOptions.stacked = !self.chartOptions.stacked;
-                            d3.select(this).attr("aria-label", labelStackedButton);
                             self.draw();
                         })
                         .attr('title', this.getString('Stack/Unstack Bars'));
                 } else  if (this.chartOptions.hideChartControlPanel && this.chartControlsPanel !== null){
                     this.removeControlPanel();
+                }
+
+                if (this.chartControlsPanel) {
+                    this.stackedButton.attr('aria-label', this.chartOptions.stacked ? this.getString("Unstack bars") : this.getString("Stack bars"))
                 }
         
                 if (this.chartControlsPanel !== null && this.ellipsisItemsExist()) {

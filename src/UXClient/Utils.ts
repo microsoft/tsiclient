@@ -512,10 +512,14 @@ class Utils {
     static showGrid(renderTarget: any, chartOptions: ChartOptions, aggregateExpressionOptions: any, 
             chartComponentData: ChartComponentData) {
         chartOptions.fromChart = true; 
-        var gridComponent: Grid= new Grid(renderTarget);
+        let gridContainer: any = d3.select(renderTarget).append('div')
+                .style('width', '100%')
+                .style('height', '100%');
+
+        var gridComponent: Grid = new Grid(gridContainer.node());
         gridComponent.usesSeconds = chartComponentData.usesSeconds;
         gridComponent.usesMillis = chartComponentData.usesMillis; 
-        var grid = gridComponent.renderFromAggregates(chartComponentData.data, chartOptions, aggregateExpressionOptions);
+        var grid = gridComponent.renderFromAggregates(chartComponentData.data, chartOptions, aggregateExpressionOptions, chartComponentData);
         gridComponent.focus(0,0);
     }
 
@@ -525,8 +529,7 @@ class Utils {
             iconClass: "grid",
             label: labelText,
             action: () => { 
-                this.showGrid(renderTarget, chartOptions, 
-                              aggregateExpressionOptions, chartComponentData);
+                this.showGrid(renderTarget, chartOptions, aggregateExpressionOptions, chartComponentData);
             },
             description: ""
         };

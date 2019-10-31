@@ -1,15 +1,23 @@
 import * as d3 from 'd3';
 import './Grid.scss';
-import {Utils} from "./../../Utils";
+import {Utils, DataTypes} from "./../../Utils";
 import {Component} from "./../../Interfaces/Component";
 import { ChartOptions } from '../../Models/ChartOptions';
+import { ChartComponentData } from '../../Models/ChartComponentData';
 
 class Grid extends Component {
 	private gridComponent: any;
 	private rowLabelKey: string = "__tsiLabel__";
 	private colorKey: string = "__tsiColor__";
+	private aggIndexKey: string = '__tsiAggIndex__';
+    private chartComponentData: ChartComponentData = new ChartComponentData();
+    private draw;
+    private closeButton = null;
 
-	private targetElement;
+    private table;
+    private tableHeaderRow;
+    private tableContentRows;
+
 	public usesSeconds: boolean = false;
 	public usesMillis:boolean = false;
 
@@ -26,14 +34,14 @@ class Grid extends Component {
 
 	public focus = (rowIdx, colIdx) => { 
 		try {
-			(<any>this.targetElement.select('.' + this.cellClass(rowIdx, colIdx)).node())
+			(<any>this.gridComponent.select('.' + this.cellClass(rowIdx, colIdx)).node())
 				.focus();
 	 	} catch(e) {
-			console.log(e)
+			console.log(e);
 		}
 	}
 	
-	public renderFromAggregates(data: any, options: any, aggregateExpressionOptions: any) {
+	public renderFromAggregates(data: any, options: any, aggregateExpressionOptions: any, chartComponentData) {
 		this.chartOptions.setOptions(options);
 		var dataAsJson = data.reduce((p,c,i) => {
 			var aeName = Object.keys(c)[0]; 
@@ -45,22 +53,154 @@ class Grid extends Component {
 				row[this.rowLabelKey] = (Object.keys(c[aeName]).length == 1 && sbName == "" ? aeName : sbName);
 				if(aggregateExpressionOptions[i].color)
 					row[this.colorKey] = aggregateExpressionOptions[i].color;
+				row[this.aggIndexKey] = i;
 				p.push(row);
 			})
 			return p;
-		},[])
-		return this.render(dataAsJson, options, aggregateExpressionOptions);
-	}
-	
-	public render(data: any, options: any, aggregateExpressionOptions: any) {
-		this.chartOptions.setOptions(options);
-		this.targetElement = d3.select(this.renderTarget);
+		},[]);
+		return this.render(dataAsJson, options, aggregateExpressionOptions, chartComponentData);
+    }
+    
+    private getRowData () {
+        let rowData = [];
+        Object.keys(this.chartComponentData.timeArrays).forEach((aggKey) => {
+            Object.keys(this.chartComponentData.timeArrays[aggKey]).forEach((sb,sbI) => {
+                rowData.push([aggKey, sb]);
+            })            
+        });
+        return rowData;
 
-		if(this.targetElement.style("position") == "static")
-			this.targetElement.style("position", "relative")
-		if(this.gridComponent)
-			this.gridComponent.remove();
-		this.gridComponent = this.targetElement.append('div').attr("class", "tsi-gridComponent").classed("tsi-fromChart", !!options.fromChart).attr("aria-label", "A grid of values.  Use tab to enter, and the arrow keys to navigate the values of each cell");
+    }
+
+    private convertSeriesToGridData (allTimeStampMap, currSeries) {
+        currSeries.map((dataPoint) => {
+            allTimeStampMap[dataPoint.dateTime.toISOString()] = dataPoint;
+        });
+
+        return Object.keys(allTimeStampMap).map((ts) => {
+            return allTimeStampMap[ts];
+        });
+    }
+
+    private getFormattedDate = (h) => {
+        var hAsDate = <any>(new Date(h));
+        if(hAsDate != this.getString('Invalid Date'))
+            return Utils.timeFormat(this.usesSeconds, this.usesMillis, this.chartOptions.offset, null, null, null, this.chartOptions.dateLocale)(hAsDate);
+        return h;
+    }
+
+    private addHeaderCells () {
+        let headerCellData = this.chartComponentData.allTimestampsArray;
+        let headerCells = this.tableHeaderRow.selectAll('.tsi-headerCell').data(headerCellData);
+        headerCells.enter()
+            .append('th')
+            .attr("tabindex", 1)
+            .merge(headerCells)
+            .attr("class", (d, i) => this.cellClass(0, i+1) + ' tsi-headerCell')
+            .on("keydown", (d, i) => {this.arrowNavigate(d3.event, 0, i+1)})
+            .text(this.getFormattedDate)
+            .attr('aria-label', (h) => {
+                return `${this.getString('column header for date')} ${this.getFormattedDate(h)}`
+            });
+    }
+
+    private addValueCells () {
+        let rowData = this.getRowData();
+        let rows = this.table.selectAll('.tsi-gridContentRow').data(rowData);
+        let self = this;
+        let allTimeStampMap = self.chartComponentData.allTimestampsArray.reduce((tsMap, ts) => {
+            tsMap[ts] = {};
+            return tsMap;
+        }, {});
+
+        let headerCellData = this.chartComponentData.allTimestampsArray;
+
+        let rowsEntered = rows.enter()
+            .append('tr')
+            .classed('tsi-gridContentRow', true)
+            .each(function(d, i) {
+                let aggKey = d[0];
+                let splitBy = d[1];
+                let seriesData = self.convertSeriesToGridData(allTimeStampMap, self.chartComponentData.timeArrays[aggKey][splitBy]);
+                let cells = d3.select(this).selectAll('.tsi-valueCell').data(seriesData);
+                let measuresData = self.chartComponentData.displayState[aggKey].splitBys[splitBy].types;
+
+                //Row header with the name of the series
+                let headerCell = d3.select(this).selectAll('tsi-rowHeaderCell').data([d]);
+                
+                let getRowHeaderText = (d) => {
+                    return `${self.chartComponentData.displayState[aggKey].name}${(splitBy !== '' ? (': ' + splitBy) : '')}`;
+                }
+
+                headerCell.enter()  
+                    .append('td')
+                    .attr("tabindex", 1)
+                    .merge(headerCell)
+                    .attr('class', (d, col) => `tsi-rowHeaderCell ${self.cellClass(i + 1, 0)}`)
+                    .on("keydown", (d, col) => {self.arrowNavigate(d3.event, i + 1, 0)})
+                    .attr('aria-label', d => {
+                        return `${self.getString('row header for')} ${getRowHeaderText(d)}`;
+                    })
+                    .each(function (d) {
+                        d3.select(this).select('*').remove();
+                        let container = d3.select(this).append('div').attr('class', 'tsi-rowHeaderContainer');
+                        container.append('div')
+                            .attr('class', 'tsi-rowHeaderSeriesName')
+                            .text(getRowHeaderText);
+                        let measureContainer = container.append('div')
+                            .attr('class', 'tsi-rowHeaderMeasures');
+
+                        let measureNames = measureContainer.selectAll('.tsi-measureName').data(measuresData);
+                        measureNames.enter()
+                            .append('div')
+                            .attr('class', 'tsi-measureName')
+                            .html((d: any) => d);
+                    })
+                headerCell.exit().remove();
+
+                cells.enter()
+                    .append('td')
+                    .merge(cells)
+                    .attr('class', (d, col) => `tsi-valueCell ${self.cellClass(i + 1, col + 1)}`)
+                    .on("keydown", (d, col) => {self.arrowNavigate(d3.event, i + 1, col + 1)})
+                    .attr("tabindex", 1)
+                    .attr('aria-label', (d: any, i) => {
+                        if (!d.measures || Object.keys(d.measures).length === 0) {
+                            return `${self.getString('no values at')} ${getRowHeaderText(d)} and ${self.getFormattedDate(new Date(headerCellData[i]))}`; 
+                        }
+                        let formattedValues = Object.keys(d.measures).map((measureName) => {
+                            return `${measureName}: ${d.measures[measureName]}`;
+                        }).join(', ');
+                        return `${self.getString('values for cell at')} ${getRowHeaderText(d)} ${self.getString('and')} ${self.getFormattedDate(d.dateTime)} ${self.getString('are')} ${formattedValues}`;
+                    })
+                    .each(function (d: any, i) {      
+                        let measures = d3.select(this).selectAll('.tsi-measureValue').data(measuresData);
+                        measures.enter()
+                            .append('div')
+                            .attr('class', 'tsi-measureValue')
+                            .html((measure: string) => d.measures ? d.measures[measure] : '&nbsp;');
+                        measures.exit().remove(); 
+                    });
+                cells.exit().remove();
+            });
+
+        rowsEntered.exit().remove();
+    }
+	
+	public render(data: any, options: any, aggregateExpressionOptions: any, chartComponentData: ChartComponentData = null) {
+        this.chartOptions.setOptions(options);
+        this.gridComponent = d3.select(this.renderTarget);
+        if (chartComponentData) {
+            this.chartComponentData = chartComponentData    
+        } else {
+            this.chartComponentData.mergeDataToDisplayStateAndTimeArrays(data, aggregateExpressionOptions);
+        }
+
+        super.themify(this.gridComponent, this.chartOptions.theme);        
+
+        this.gridComponent
+            .classed("tsi-gridComponent", true)
+            .classed("tsi-fromChart", !!options.fromChart)
 		var grid = this.gridComponent
 			.append('div')
 			.attr("class", "tsi-gridWrapper")
@@ -69,121 +209,83 @@ class Grid extends Component {
 				if (this) {
 					this.focus(0,0);
 				} 
-			});
+            });
+            
 		var headers = Object.keys(data.reduce((p,c) => {
 			Object.keys(c).forEach(k => {
 				if(k != this.rowLabelKey && k != this.colorKey)
 					p[k] = true;
 			})
 			return p;
-		}, {})).sort();
+        }, {})).sort();
+        
+        if (!this.table) {
+            this.table = grid.append('table').classed('tsi-gridTable', true);
+            this.tableHeaderRow = this.table.append('tr').classed('tsi-gridHeaderRow', true);
+            this.tableHeaderRow.append('th')
+                .attr("tabindex", 0)
+                .attr("class", "tsi-topLeft " + this.cellClass(0,0))
+                .on("keydown", () => {this.arrowNavigate(d3.event, 0, 0)})
+                .attr("aria-label", `${this.getString('A grid of values')} - ${this.getString('Use the arrow keys to navigate the values of each cell')}`)
+        }
 
-		var draw = () => {
-			var table = grid.append('table');
-			var headersRow = table.append('tr')
-			headersRow.append('th').attr("tabindex", 0).attr("class", "tsi-topLeft " + this.cellClass(0,0)).on("keydown", () => {arrowNavigate(d3.event, 0, 0)}).attr("aria-label", "A grid of values.  Use the arrow keys to navigate the values of each cell");
-			
-			headers.forEach((h, i) => {
-				headersRow.append('th').attr("tabindex", 0).attr("class", this.cellClass(0, i+1)).on("keydown", () => {arrowNavigate(d3.event, 0, i+1)}).text(() => {
-					var hAsDate = <any>(new Date(h));
-					if(hAsDate != this.getString('Invalid Date'))
-						return Utils.timeFormat(this.usesSeconds, this.usesMillis, this.chartOptions.offset, null, null, null, this.chartOptions.dateLocale)(hAsDate);
-					return h;
-				})
-			});
-			
-			data.forEach((d, i) => {
-				var currentRow = table.append('tr');
-				if(d.hasOwnProperty(this.rowLabelKey)){
-					var headerTd = currentRow.append('td').attr("tabindex", 0)
-								   .attr("class", "tsi-rowHeaderWrapper " + this.cellClass(i + 1, 0))
-								   .on("keydown", () => {arrowNavigate(d3.event, i + 1, 0)})
-								   .attr("aria-label", "Label for row " + (i+1) + ", has value " + d[this.rowLabelKey])
-					var headerDiv = headerTd.append('div');
-					headerDiv.append('div').text(d[this.rowLabelKey]).attr("class", "tsi-rowHeader");
-					var measureTypeDiv = headerDiv.append('div').attr("class", "tsi-measureTypeWrapper")
-					Object.keys(d[Object.keys(d)[0]]).forEach(mt => {
-						measureTypeDiv.append('div').text(mt).attr("class", "tsi-measureType");
-					});
-					
-					if(d.hasOwnProperty(this.colorKey))
-						headerTd.style("border-left", "4px solid " + d[this.colorKey]);
-				}
-				headers.forEach((h, j) => {
-					var currentTd = currentRow.append('td')
-									.attr("tabindex", 0)
-									.attr("class", this.cellClass(i+1, j+1))
-									.on("keydown", () => {
-										arrowNavigate(d3.event, i+1, j+1);
-									})
-									.attr("aria-label", getAriaLabel(d.hasOwnProperty(this.rowLabelKey) ? 
-										d[this.rowLabelKey] : '', h, i+1, j+1, d.hasOwnProperty(h) ? d[h] : 'No values'));
-					if(d.hasOwnProperty(h)){
-						Object.keys(d[h]).forEach(mt => {
-							currentTd.append('div').text(d[h][mt]);
-						})
-					}
-				});
-			})
-		}
-		
-		var arrowNavigate = (d3event: any, rowIdx: number, colIdx: number) => {
-			if(d3event.keyCode == 9 && !d3event.shiftKey){
-				(<any>closeButton.node()).focus();
-				d3event.preventDefault();
-				return;
-			}
-			if(d3event.shiftKey && d3event.keyCode == 9){
-				(<any>grid.node()).focus();
-				d3event.preventDefault();
-				return;
-			}
-			var codes = [37, 38, 39, 40];
-			var codeIndex = codes.indexOf(d3event.keyCode);
-			if(codeIndex == -1)
-				return;
-			switch(codeIndex){
-				case 0:
-					this.focus(rowIdx, colIdx - 1);
-					d3event.preventDefault();
-					break;
-				case 1:
-					this.focus(rowIdx - 1, colIdx);
-					d3event.preventDefault();
-					break;
-				case 2:
-					this.focus(rowIdx, colIdx + 1);
-					d3event.preventDefault();
-					break;		
-				case 3:
-					this.focus(rowIdx + 1, colIdx);
-					d3event.preventDefault();
-					break;
-				default:
-					break;
-			}
-		}
-		
-		var getAriaLabel = (rowLabel, colLabel, rowIdx, colIdx, valuesObject) => {
-			var text = typeof(valuesObject) != 'string' ? ('values ' + (Object.keys(valuesObject).reduce((p,c) => {
-				p += ", " + c + ", " + valuesObject[c];
-				return p;
-			}, ""))) : valuesObject
-			return "Cell in row " + (rowIdx) + ", column " + colIdx + ".  " + (rowLabel.length ? ("Row is labeled " + rowLabel) : '') + " in column named " + colLabel + " with  " +
-			text;
-		}
-		
-		draw();
-		var closeButton = grid.append('button')
-			.attr("class", "tsi-closeButton")
-			.html('&times')
-			.on("click", () => {
-				if(!!options.fromChart) {
-					Utils.focusOnEllipsisButton(this.renderTarget);
-					this.gridComponent.remove();
-				}
-			});
-	}
+        this.addHeaderCells();
+        this.addValueCells();
+
+        if (this.chartOptions.fromChart) {
+            this.gridComponent.selectAll('.tsi-closeButton').remove();
+            this.closeButton = grid.append('button')
+                .attr("class", "tsi-closeButton")
+                .attr('aria-label', this.getString('close grid'))
+                .html('&times')
+                .on('keydown', () => {
+                    if (d3.event.keyCode === 9) {
+                        this.focus(0, 0);
+                        d3.event.preventDefault();
+                    }
+                })
+                .on("click", () => {
+                    if(!!options.fromChart) {
+                        Utils.focusOnEllipsisButton(this.renderTarget.parentNode);
+                        this.gridComponent.remove();
+                    }
+                });
+        } 
+    }
+
+    private arrowNavigate = (d3event: any, rowIdx: number, colIdx: number) => {
+        if(d3event.keyCode === 9){
+            if (this.closeButton){
+                (this.closeButton.node()).focus();
+                d3event.preventDefault();
+            } 
+            return;
+        }
+        var codes = [37, 38, 39, 40];
+        var codeIndex = codes.indexOf(d3event.keyCode);
+        if(codeIndex == -1)
+            return;
+        switch(codeIndex){
+            case 0:
+                this.focus(rowIdx, colIdx - 1);
+                d3event.preventDefault();
+                break;
+            case 1:
+                this.focus(rowIdx - 1, colIdx);
+                d3event.preventDefault();
+                break;
+            case 2:
+                this.focus(rowIdx, colIdx + 1);
+                d3event.preventDefault();
+                break;
+            case 3:
+                this.focus(rowIdx + 1, colIdx);
+                d3event.preventDefault();
+                break;
+            default:
+                break;
+        }
+    }
 }
 
 export {Grid}
