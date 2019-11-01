@@ -14,7 +14,10 @@ lineChart.render(data, chartOptions, chartDataOptionsArray);
 
 where the parameter ``data`` follows the shape definied in [Chart Data Shape](#chart-data-shape), ``chartOptions`` contain some subset of the properties defined in [Chart Options](#chart-options), and ``chartDataOptionsArray`` is an array of objects that contain a subset of properties definied in [Chart Data Options](#chart-data-options).
 
-By specifying [``events`` and ``states``](#line-chart-events-and-states-data-shape) in ``chartOptions``, you can create charts with multiple series types like in [this example](https://tsiclientsample.azurewebsites.net/noauth/multipleseriestypes.html)
+A line chart can hold three different types of plots - a line plot, and event plot, and a categorical plot. The type of plot for each data group is specified
+with the [DataType](#chart-data-options) Chart Data Option, and multiple types are possible concurrently in one line chart. An example of all three types in one chart can be 
+found in [this example](https://tsiclientsample.azurewebsites.net/noauth/multipleseriestypes.html). Special Chart Data Options are used when dataType is non-numeric: heght,
+valueMapping, and onElementClick. rollupCategoricalValues is unique to groups with datType of categorical.
 
 ### Bar Chart
 
@@ -224,7 +227,6 @@ The most common available parameters for chart options are as follows (bold opti
 |Property Name|Type|Value Options|Description|
 |-|-|-|-|
 |brushContextMenuActions|Array<any>|**null**, Array&lt;[brushContextMenuAction](#brush-context-menu-actions)&gt;|An array of objects defining brush actions
-|events|Array<any>|**null**, Array&lt;[Event](#line-chart-events-and-states-data-shape)&gt;|events passed into the linechart, an array of discrete time events|
 |grid|boolean|**false**, true|If true, add accessible grid button to the ellipsis menu|
 |includeDots|boolean|**false**, true|If true, the linechart plots dots for values|
 |includeEnvelope|boolean|**false**, true|If true, include an area showing min/max boundaries in the line chart|
@@ -236,7 +238,6 @@ The most common available parameters for chart options are as follows (bold opti
 |isTemporal| boolean| **false**, true | **true**: scatter plot has temporal slider to slide through time slices **false**: scatter plot renders all timestamps. *(Note: this is a scatter plot specific chart option)*|
 |spAxisLabels| Array&lt;string&gt; | **null**, Array&lt;string&gt; | If given array, first element of array is used as X axis label.  Second element of array is used as Y axis label. *(Note: this is a scatter plot specific chart option)*|
 |stacked|boolean|**false**|If true, stack bars in barchart|
-|states|Array&lt;any&gt;|**null**, Array&lt;[State](#line-chart-events-and-states-data-shape)&gt;|An array of time range bound states passed into the linechart|
 |theme|string|**'dark'**, 'light'|Component color scheme|
 |timestamp|string|**null**,'2017-04-19T13:00:00Z'|If an ISO string, sets the slider in the bar or pie chart to the specified timestamp|
 |tooltip|boolean|**false**,true|If true, display tooltip on hover over a value element|
@@ -260,6 +261,7 @@ The available parameters for chart data options are as follows...
 |-|-|-|-|
 |color|string|'#4286f4'|The color of this group in a component|
 |alias|string|'Factory1'|The display name for this group|
+|dataType|string| **numeric**, categorical, events|specifies the visual representation of the data - numeric creates a line plot, categrocial a series of rectangles, and events a diamond or teardrop at each timestamp with data
 |contextMenu|Array&lt;[groupContextMenuAction](#group-context-menu-actions)&gt;|[]|Actions to take on context menu click on a group, or time series|
 |searchSpan|[searchSpanObject](#search-span-object)|null|Specifies search span for this group|
 |measureTypes|Array&lt;string>|['min', 'avg', max']|The measure properties specified in the time series of this group|
@@ -268,6 +270,10 @@ The available parameters for chart data options are as follows...
 |includeDots|boolean|true|If true, draw circles for each value in the group|
 |yExtent|[number, number]|[0,400]|A minimum and maximum for the extent of the yAxis for this group|
 |visibilityState|[boolean, [string]?]|[true,['sb1', 'sb7']]|The first element specifies whether the data group is visible, the second is an optional array of visible time series names. If omitted, the data group reverts to default visibility state for each time series|
+|height|number|**40**|For non-numeric dataTypes; the vertical space this group consumes in the chart|
+|valueMapping|[valueMapping](#value-mapping)|{}|Defines the relationship between measures and their colors in non-numeric plots in the line chart|
+|onElementClick|(dataGroupName: string, timeSeriesName: string, timestamp: string, measures: Array<any>) => void|**null**|handler for when an element in a non-numeric plot in the linechart is clicked. the paramters are: data group, series name, timestamp, and measures at that timestamp| 
+|rollupCategoricalValues|boolean|**false**|for categorical plots in line charts, this specifies that adjacent measures with the same values should be rolled into the first with those values|
 
 ***Note**: Some parameters are present in both chart options and chart data options. For boolean values, the property will evaluate to true if either value is true. For other types of values, the chart data option value will take precendence over the chart option value.* 
 
@@ -329,38 +335,23 @@ var searchSpanObject = {
 }
 ```
 
-### Line Chart Events and States Data Shape
+### Value Mapping
 
-Events and states are used to show diamonds and blocks of color for specifying categorical data overlayed with a line chart, like in the example [here](https://tsiclientsample.azurewebsites.net/noauth/multipleseriestypes.html).  Good examples of such events are "an important incident occured" for a diamond, or "a compressor was on" for a block of color.  They are specified as an array of JSON objects--each element of the array will get its own vertical space on the chart.  The general shape for both events and states is as follows...
+Used for event and categorial data types in the line chart, this object specifies the relationship between measure values and
+colors in the plot, with the following shape...
 
 ```js
-var statesOrEvents = [
-    {"Component States" : // This key is shown in the legend
-        [
-            {
-                [from.toISOString()] : {  // this timestamp is where the event or state is drawn
-                    'color': 'lightblue',  // the color of the diamond or block
-                    'description' : 'Cooling fan on' // the text on hover
-                }
-            },
-            {
-                [(new Date(from.valueOf() + 1000*60*12)).toISOString()] : {
-                    'color': '#C8E139',
-                    'description' : 'Filling tank at maximum pressure'
-                }
-            },
-            {
-                [(new Date(from.valueOf() + 1000*60*32)).toISOString()] : {
-                    'color': '#D869CB',
-                    'description' : 'Pressing machine overheated'
-                }
-            }
-        ]
+var valueMapping = {
+    state1: {
+        color: '#F2C80F'
+    }, 
+    state2: {
+        color: '#FD625E'
+    },
+    state3: {
+        color:'#3599B8'
     }
-];
-
-// later, use states or events like this...
-lineChart.render(data, {states: statesOrEvents, events: statesOrEvents}, chartDataOptionsArray);
+}
 ```
 
 ## Appendix
