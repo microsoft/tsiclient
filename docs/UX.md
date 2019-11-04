@@ -15,9 +15,9 @@ lineChart.render(data, chartOptions, chartDataOptionsArray);
 where the parameter ``data`` follows the shape definied in [Chart Data Shape](#chart-data-shape), ``chartOptions`` contain some subset of the properties defined in [Chart Options](#chart-options), and ``chartDataOptionsArray`` is an array of objects that contain a subset of properties definied in [Chart Data Options](#chart-data-options).
 
 A line chart can hold three different types of plots - a line plot, an event plot, and a categorical plot. The type of plot for each data group is specified
-with the [DataType](#chart-data-options) Chart Data Option, and multiple types are possible concurrently in one line chart. An example of all three types in one chart can be 
-found in [this example](https://tsiclientsample.azurewebsites.net/noauth/multipleseriestypes.html). Special Chart Data Options are used when dataType is non-numeric: heght,
-valueMapping, and onElementClick. rollupCategoricalValues is unique to groups with datType of categorical.
+with the [dataType](#chart-data-options) Chart Data Option, and multiple types are possible concurrently in one line chart. An example of all three types in one chart can be 
+found in [this example](https://tsiclientsample.azurewebsites.net/noauth/multipleseriestypes.html). Special Chart Data Options are used when dataType is non-numeric: height,
+[valueMapping](#value-mapping), and onElementClick. rollupCategoricalValues is unique to groups with datType of categorical.
 
 ### Bar Chart
 
