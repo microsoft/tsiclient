@@ -28,6 +28,11 @@ var tsiClient = new TsiClient();
 var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart'));
 ```
 
+## Release Notes
+
+Starting with version 1.3.0, discrete events and state transitions will be represented just like numeric time series in the LineChart component.  This may be a breaking change for users representing non-numeric series in the line chart using the "events" and "states" Chart Options.  For usage instructions, consult [this example](https://tsiclientsample.azurewebsites.net/noauth/multipleseriestypes.html) and the associated [documentation](https://github.com/microsoft/tsiclient/blob/master/docs/UX.md#line-chart).
+
+
 # Contributing
 
 This project welcomes contributions and suggestions.  Most contributions require you to agree to a

@@ -8,41 +8,22 @@
         <script src="../boilerplate/head.js"></script>
     </head>
     <body style="font-family: 'Segoe UI', sans-serif;">
-        <button onclick="showDtp()" id="dtpButton"></button>
         <div id="dtp"></div>
         <script>
-            var fromMillis = (new Date()).valueOf() - 1000*60*60*24
-            var toMillis = (new Date()).valueOf();
+            var now = new Date();
+            var fromMillis = (now).valueOf() - 1000*60*60*24;
+            var minMillis = (now).valueOf() - 1000*60*60*24*7;
+            var toMillis = (now).valueOf();
             var dtp;
+            var dtpElement = document.getElementById('dtp');
+            var onSet = (fromMillis, toMillis) => {
+                console.log(from, to);
+            }
             window.onload = function() {
                 var tsiClient = new TsiClient();
-                dtp = new tsiClient.ux.DateTimePicker(dtpElement);
-                dtp.render({theme: 'light'}, 0, new Date().valueOf(), fromMillis, toMillis, onSet, onCancel);
-                dtpButton.innerHTML = dateFormat(fromMillis, toMillis, 'UTC');
+                dtp = new tsiClient.ux.DateTimeButtonRange(dtpElement);
+                dtp.render({theme: 'light'}, minMillis, toMillis, fromMillis, toMillis, onSet);
             };
-
-            var dtpElement = document.getElementById('dtp');
-            var dtpButton = document.getElementById('dtpButton');
-            var onSet = (fromMillisNew, toMillisNew, offset) => {
-                fromMillis = fromMillisNew;
-                toMillis = toMillisNew;
-                dtpButton.innerHTML = dateFormat(fromMillis, toMillis, offset)
-                dtpElement.style.display = 'none';
-            }
-            var onCancel = () => {
-                dtp.updateFromAndTo(fromMillis, toMillis);
-                dtpElement.style.display = 'none';
-            }
-            dtpElement.style.display = 'none';
-            var showDtp = () => {
-                dtpElement.style.display = 'block';
-            }
-            var dateFormat = (fromMillis, toMillis, offset) => {
-                var fromDate = new Date(fromMillis);
-                var toDate = new Date(toMillis);
-                var formatMinutes = minutes => String(minutes).length === 1 ? `0${minutes}` : minutes;
-                return `${fromDate.toLocaleDateString()} ${fromDate.getHours()}:${formatMinutes(fromDate.getMinutes())} - ${toDate.toLocaleDateString()} ${toDate.getHours()}:${formatMinutes(toDate.getMinutes())} (${offset === 0 ? 'UTC' : offset})`
-            }
         </script>
     </body>
 </html>
