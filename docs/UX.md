@@ -14,7 +14,7 @@ lineChart.render(data, chartOptions, chartDataOptionsArray);
 
 where the parameter ``data`` follows the shape definied in [Chart Data Shape](#chart-data-shape), ``chartOptions`` contain some subset of the properties defined in [Chart Options](#chart-options), and ``chartDataOptionsArray`` is an array of objects that contain a subset of properties definied in [Chart Data Options](#chart-data-options).
 
-A line chart can hold three different types of plots - a line plot, and event plot, and a categorical plot. The type of plot for each data group is specified
+A line chart can hold three different types of plots - a line plot, an event plot, and a categorical plot. The type of plot for each data group is specified
 with the [DataType](#chart-data-options) Chart Data Option, and multiple types are possible concurrently in one line chart. An example of all three types in one chart can be 
 found in [this example](https://tsiclientsample.azurewebsites.net/noauth/multipleseriestypes.html). Special Chart Data Options are used when dataType is non-numeric: heght,
 valueMapping, and onElementClick. rollupCategoricalValues is unique to groups with datType of categorical.
@@ -274,6 +274,7 @@ The available parameters for chart data options are as follows...
 |valueMapping|[valueMapping](#value-mapping)|{}|Defines the relationship between measures and their colors in non-numeric plots in the line chart|
 |onElementClick|(dataGroupName: string, timeSeriesName: string, timestamp: string, measures: Array<any>) => void|**null**|handler for when an element in a non-numeric plot in the linechart is clicked. the paramters are: data group, series name, timestamp, and measures at that timestamp| 
 |rollupCategoricalValues|boolean|**false**|for categorical plots in line charts, this specifies that adjacent measures with the same values should be rolled into the first with those values|
+|eventElementType|string|**'diamond'**, teardrop|specifies the svg icon for an event in the line chart, either a diamond or a teardrop|
 
 ***Note**: Some parameters are present in both chart options and chart data options. For boolean values, the property will evaluate to true if either value is true. For other types of values, the chart data option value will take precendence over the chart option value.* 
 
