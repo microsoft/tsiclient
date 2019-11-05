@@ -39,6 +39,7 @@ class ChartOptions {
     public minBrushWidth: number // minimum possible width of brush in linechart
     public minutesForTimeLabels: boolean; // whether time labels forced to minute granularity
     public noAnimate: boolean; // whether animations happen on state change
+    public updateInterval: number; // frequency with which the component should trigger updates
     public offset: any; // offset for all timestamps in minutes from UTC
     public onInstanceClick: (instance: any) => any;  // for model search, takes an instance and returns an object of context menu actions
     public onMarkersChange: (markers: Array<number>) => any; //triggered when a marker is either added or removed in the linechart
@@ -105,6 +106,7 @@ class ChartOptions {
         this.keepBrush = this.mergeValue(chartOptionsObj, 'keepBrush', false);
         this.isArea = this.mergeValue(chartOptionsObj, 'isArea', false); 
         this.noAnimate = this.mergeValue(chartOptionsObj, 'noAnimate', false); 
+        this.updateInterval = this.mergeValue(chartOptionsObj, 'updateInterval', 0);
         this.minutesForTimeLabels = this.mergeValue(chartOptionsObj, 'minutesForTimeLabels', false);
         this.aggTopMargin = this.mergeValue(chartOptionsObj, 'aggTopMargin', 12);
         this.color = this.mergeValue(chartOptionsObj, 'color', null);

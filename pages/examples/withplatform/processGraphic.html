@@ -36,7 +36,7 @@
               { color: '#0C0',
                 positionX: 20,
                 positionY: 50,
-                alias: 'Sensor 1',
+                alias: 'Sensor_0',
                 contextMenu: []
               }
             );
@@ -54,13 +54,13 @@
               { },
               { positionX: 85,
                 positionY: 85,
-                alias: 'Sensor 2',
+                alias: 'Sensor_1',
                 contextMenu: []
               }
             );
 
             let processGraphic = tsiClient.ux.ProcessGraphic(container);
-            let processGraphicOptions = { theme: 'light', throttleSlider: true, getLatestInverval: 1000 };
+            let processGraphicOptions = { theme: 'light', throttleSlider: true, getLatestInverval: 1000, xAxisHidden: false };
             let image = '../images/vat.svg';
             processGraphic.render(environmentFqdn, authContext.getTsiToken, image, [tsqExpression1, tsqExpression2], processGraphicOptions);
           }

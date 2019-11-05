@@ -20,6 +20,7 @@
 .tsi-playback-input {
     position: absolute;
     pointer-events: none;
+    height: 100%;
 }
 
 .tsi-playback-track, .tsi-playback-handle {
@@ -45,9 +46,29 @@
     fill: #fff;
 }
 
+.tsi-playback-axis {
+    position: absolute;
+    height: 100%;
+
+    svg {
+        width: 100%;
+        height: 100%;
+        overflow: visible;
+
+        g:first-of-type {
+            text-anchor: start;
+        }
+
+        g:last-of-type {
+            text-anchor: end;
+        }
+    }
+}
+
 .tsi-playback-buttons {
     width: 100%;
     height: 36px;
+    margin-top: 16px;
     margin-bottom: 8px;
 
     .tsi-play-button, .tsi-pause-button {
@@ -73,6 +94,10 @@
 
 .tsi-light {
     .tsi-playback-buttons {
+        .tsi-play-button, .tsi-pause-button {
+            margin-left: 6px;
+        }
+
         .tsi-play-button {
             background-image: url(../../Icons/Play_Icon_Light_Theme.svg);
         }
