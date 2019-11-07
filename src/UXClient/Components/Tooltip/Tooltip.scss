@@ -5,12 +5,21 @@
     $gray2: nth($grays, 2); // hover
     $gray3: nth($grays, 3); // element
     $gray4: nth($grays, 4); // background
+    $gray5: nth($grays, 5); 
     $gray6: nth($grays, 6); // hover
     
     color: $gray1;
     background-color: $gray3;
     border-color: $gray6;
     @include chartColors($grays);
+
+    .tsi-tooltipSubtitle {
+        border-bottom: 1px solid rgba($gray1, .3);
+    }
+
+    .tsi-tooltipTable td {
+        border: 1px solid rgba($gray1, .2);
+    }
 }
 
 .tsi-tooltip {
@@ -20,7 +29,7 @@
     border-width: 1px;
     border-style: solid;
     
-    padding: 8px;
+    padding: 12px;
 
     -webkit-box-shadow: 0 3px 3px 0 rgba(0, 0, 0, 0.56);
     -moz-box-shadow: 0 3px 3px 0 rgba(0, 0, 0, 0.56);
@@ -35,41 +44,75 @@
         @include tColors($grays);
     }
 
-    .title, .value {
+    .title, .value, .tsi-tooltipTitle {
         overflow: hidden;
         white-space: nowrap;
     }
+
+    .tsi-tooltipSubtitle, .tsi-tooltipAttrs, .tsi-tooltipValues {
+        font-size: 12px;
+    }
+
+    .tsi-tooltipSubtitle {
+        padding-bottom: 4px;
+        margin-bottom: 8px;
+        display: block;
+        h4 {
+            white-space: nowrap;
+            font-weight: normal;
+            margin: 0px;
+            &.tsi-tooltipSeriesName {
+                font-style: italic;
+                padding-bottom: 4px;
+            }
+        }
+
+    }
+
 
     .value {
         display: flex;
         align-items: center;
     }
 
-    .title {
+    .tsi-tooltipTable {        
+        border-collapse: collapse;
+        margin: 4px 4px 8px 4px;
+        min-width: calc(100% - 8px);
+    }
+
+    .tsi-tooltipTable td {
+        margin: 0px;
+        padding: 4px;
+        white-space: nowrap;
+        &.tsi-visibleValue {
+            font-weight: bold;
+        }
+    }
+
+    .tsi-tooltipTable tr.tsi-visibleValue {
         font-weight: bold;
-        font-size: 13px;
+    }
+
+    .title, .tsi-tooltipTitle {
+        font-weight: bold;
+        font-size: 16px;
+        line-height: 1;
     } 
     .value, .temporalShiftText {
         font-weight: normal;
         font-size: 12px;
         font-weight: lighter;
-        &.visibleValue {
-            font-weight: bold;
-        }
     }
 
-    .tsi-tooltipColorBlock {
+    .tsi-tooltipColorBlockCell {
         width: 12px;
-        height: 12px;
-        display: inline-block;
-        margin-right: 8px;
-    }
-
-    .temporalShiftText {
-        font-style: italic;
-    }
-
-    .valueGroup {
-        margin-top: 4px;    
+        .tsi-tooltipColorBlock {
+            width: 12px;
+            height: 12px;
+            display:block; 
+            text-align:center; 
+            margin:0 auto;
+        }    
     }
 }

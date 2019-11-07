@@ -184,52 +184,73 @@ class LineChart extends TemporalXAxisComponent {
         }
 
         text.append("div")
-            .attr("class", "title")
+            .attr("class", "title .tsi-tooltipTitle")
             .text(d.aggregateName);
 
+        let subtitle = text.append("div")
+            .attr("class", "tsi-tooltipSubtitle")
+
         if (d.splitBy && d.splitBy != ""){
-            text.append("div")
-                .attr("class", "value")
-                .text(d.splitBy);
+            subtitle.append('h4')
+                .text(d.splitBy)
+                .attr('class', 'tsi-tooltipSeriesName');
         }
 
         if (dataType === DataTypes.Categorical) {
-            text.append('div')
-                .attr('class', 'value')
+            subtitle.append('h4')
                 .text(formatDate(d.dateTime) + ' - ' + formatDate(d.endDate));
         }
 
         if (dataType === DataTypes.Events) {
-            text.append('div')
-                .attr('class', 'value')
+            subtitle.append('h4')
                 .text(formatDate(d.dateTime));
         }
 
         if (shiftMillis !== 0) {
-            text.append("div")
-                .attr("class", "temporalShiftText")
-                .text('(' + this.getString("shifted") + ' ' + this.chartComponentData.getTemporalShiftString(d.aggregateKey) + ')');
+            let attrsGroup = text.append('table')
+                .attr('class', 'tsi-tooltipAttrs tsi-tooltipTable');
+            let timeShiftRow = attrsGroup.append('tr');
+            timeShiftRow.append('td').text(this.getString("shifted"));
+            timeShiftRow.append('td').text(this.chartComponentData.getTemporalShiftString(d.aggregateKey));
         }
-
-        let valueGroup = text.append('div').classed('valueGroup', true);
 
         let formatValue = (dataType === DataTypes.Events ? (d) => d : Utils.formatYAxisNumber)
 
-        Object.keys(d.measures).forEach((measureType, i) => {
-            let valueElement = valueGroup.append("div")
-                .attr("class",  () => {
-                    return "value" + 
-                    (dataType === DataTypes.Numeric && (measureType === this.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy)) ? 
-                                    " visibleValue" : "");
-                });
-            if (dataType === DataTypes.Categorical || dataType === DataTypes.Events) {
-                valueElement.append('span')
-                    .classed('tsi-tooltipColorBlock', true)
-                    .style('background-color', Utils.getColorForValue(cDO, measureType));
-            }
-            valueElement.append('span')
-                .text(measureType +  ": " + formatValue(d.measures[measureType]));
-        });
+        if (d.measures && Object.keys(d.measures).length) {
+            let valueGroup = text.append('table')
+                .attr('class', 'tsi-tooltipValues tsi-tooltipTable');
+
+            let formatValue = (dataType === DataTypes.Events ? (d) => d : Utils.formatYAxisNumber)
+
+            Object.keys(d.measures).forEach((measureType, i) => {
+                let tr = valueGroup.append('tr')
+                    .classed('tsi-visibleValue', (dataType === DataTypes.Numeric && (measureType === this.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy))));
+                if (dataType === DataTypes.Categorical || dataType === DataTypes.Events) {
+                    tr.append('td')
+                        .attr('class', 'tsi-tooltipColorBlockCell')
+                        .append('span')
+                        .classed('tsi-tooltipColorBlock', true)
+                        .style('background-color', Utils.getColorForValue(cDO, measureType));
+                }
+                tr.append('td').text(measureType);
+                tr.append('td').text(formatValue(d.measures[measureType]))
+            });
+        }
+        // Object.keys(d.measures).forEach((measureType, i) => {
+        //     let valueElement = valueGroup.append("div")
+        //         .attr("class",  () => {
+        //             return "value" + 
+        //             (dataType === DataTypes.Numeric && (measureType === this.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy)) ? 
+        //                             " visibleValue" : "");
+        //         });
+        //     if (dataType === DataTypes.Categorical || dataType === DataTypes.Events) {
+        //         valueElement.append('span')
+        //             .classed('tsi-tooltipColorBlock', true)
+        //             .style('background-color', Utils.getColorForValue(cDO, measureType));
+        //     }
+        //     valueElement.append('span')
+        //         .text(measureType +  ": " + formatValue(d.measures[measureType]));
+        // });
     }
     public triggerLineFocus = (aggKey: string, splitBy: string) => {
         this.svgSelection.selectAll(".valueElement")
@@ -402,7 +423,7 @@ class LineChart extends TemporalXAxisComponent {
             this.tooltip.render(this.chartOptions.theme);
             this.tooltip.draw(d, this.chartComponentData, xPos, yPos, this.chartMargins, (text) => {
                 this.tooltipFormat(d, text);
-            });
+            }, null, 20, 20, this.chartComponentData.displayState[d.aggregateKey].color);
         }
         else 
             this.tooltip.hide();
@@ -1176,7 +1197,7 @@ class LineChart extends TemporalXAxisComponent {
 
     public labelMouseout = () =>{
         if (this.svgSelection) {
-            this.svgSelection.selectAll(".tsi-scooterValue")
+            d3.select(this.renderTarget).selectAll(".tsi-scooterValue")
                 .style("opacity", 1);
         
             this.svgSelection.selectAll(".valueElement")
