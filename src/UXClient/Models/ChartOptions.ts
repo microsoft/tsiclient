@@ -8,6 +8,7 @@ class ChartOptions {
     public arcWidthRatio: number; // number between 0 and 1 which determines how thic the pie chart arc is
     public autoTriggerBrushContextMenu: boolean; // whether the brush context menu gets triggered on brush mouse up
     public availabilityLeftMargin: number; // number which sets the left margin of the availability chart
+    public bucketSizeMillis: number; // desired bucket size, expressed in milliseconds, that will likely be rounded down the the nearest neat bucket size
     public brushClearable: boolean; // whether to keep the brush selected region upon clear and non-selection of a new region
     public brushContextMenuActions: Array<any>; // pairs of names/actions for context menu for the brush
     public brushHandlesVisible: boolean; // whether handles on the brush are visible
@@ -26,6 +27,7 @@ class ChartOptions {
     public includeDots: boolean; // whether the linechart uses dots for values
     public includeEnvelope: boolean; //whether to include an area showing min/max boundaries in the line chart
     public includeTimezones: boolean; //whether timezone dropdown is included in dateTimePicker
+    public initialValue: any; // a value used to hydrate the initial state of the chart
     public interpolationFunction: any; //which interpolation function used for line chart lines
     public isArea: boolean; // whether lines in LineChart are also areas
     public isCompact: boolean; // whether availability chart is in compact or expanded mode
@@ -129,6 +131,7 @@ class ChartOptions {
         this.scaledToCurrentTime = this.mergeValue(chartOptionsObj, 'scaledToCurrentTime', false);
         this.zeroYAxis = this.mergeValue( chartOptionsObj, 'zeroYAxis', true);
         this.arcWidthRatio = this.mergeValue(chartOptionsObj, 'arcWidthRatio', 0);
+        this.bucketSizeMillis = this.mergeValue(chartOptionsObj, 'bucketSizeMillis', 0);
         this.brushClearable = this.mergeValue(chartOptionsObj, 'brushClearable', true);
         this.brushMoveAction = this.mergeValue(chartOptionsObj, 'brushMoveAction', () => {});
         this.brushMoveEndAction = this.mergeValue(chartOptionsObj, 'brushMoveEndAction', () => {});
@@ -167,7 +170,8 @@ class ChartOptions {
         this.strings = this.mergeStrings(Utils.getValueOrDefault(chartOptionsObj, 'strings', {}));
         this.dateLocale = this.mergeValue(chartOptionsObj, 'dateLocale', Utils.languageGuess());
         this.defaultAvailabilityZoomRangeMillis = this.mergeValue(chartOptionsObj, 'defaultAvailabilityZoomRangeMillis', null);
-        this.warmStoreRange = this.mergeValue(chartOptionsObj, 'warmStoreRange', null)
+        this.warmStoreRange = this.mergeValue(chartOptionsObj, 'warmStoreRange', null);
+        this.initialValue = this.mergeValue(chartOptionsObj, 'initialValue', null);
     }
 
     private mergeStrings (strings) {
@@ -250,7 +254,10 @@ class ChartOptions {
             strings: this.strings.toObject(),
             dateLocale: this.dateLocale,
             defaultAvailabilityZoomRangeMillis: this.defaultAvailabilityZoomRangeMillis,
-            warmStoreRange: this.warmStoreRange
+            warmStoreRange: this.warmStoreRange,
+            initialValue: this.initialValue,
+            bucketSizeMillis: this.bucketSizeMillis,
+            updateInterval: this.updateInterval
         }
     }
 }

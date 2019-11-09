@@ -47,6 +47,10 @@
     border-style: solid;
     padding: 8px;
 
+    &.clickable {
+        cursor: pointer;
+    }
+
     &.tsi-dark {
         $grays: grays('dark');
         @include tColors($grays);

@@ -55,12 +55,19 @@
               { positionX: 85,
                 positionY: 85,
                 alias: 'Sensor_1',
-                contextMenu: []
+                contextMenu: [],
+                color: (x) => {
+                  if(typeof(x) !== 'number' || Number.isNaN(x)) { return 'black'; }
+                  return x < 30 ? '#FF0000' : '#00FF00';
+                },
+                onElementClick: ({timeStamp, value, color}) => {
+                  alert(`Making Plans For Nigel \u266b\u266b\n time stamp: ${timeStamp}\n value: ${value}\n color: ${color}`);
+                }
               }
             );
 
             let processGraphic = tsiClient.ux.ProcessGraphic(container);
-            let processGraphicOptions = { theme: 'light', throttleSlider: true, getLatestInverval: 1000, xAxisHidden: false };
+            let processGraphicOptions = { theme: 'light', throttleSlider: true, xAxisHidden: false, bucketSizeMillis: 1000, updateInterval: 5000, initialValue: new Date('09/29/2019 16:29:01') };
             let image = '../images/vat.svg';
             processGraphic.render(environmentFqdn, authContext.getTsiToken, image, [tsqExpression1, tsqExpression2], processGraphicOptions);
           }

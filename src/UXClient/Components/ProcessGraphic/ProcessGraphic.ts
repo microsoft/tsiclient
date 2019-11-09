@@ -23,8 +23,7 @@ class ProcessGraphic extends Component {
   private imageOriginalHeight: number;
   private availabilityInterval: number;
   private environmentFqdn: string;
-  private availabilityFrom: Date;
-  private availabilityTo: Date;
+  private availability: TsqRange;
   private getAuthToken: () => Promise<string>;
   private playbackRate: number;
 
@@ -60,9 +59,7 @@ class ProcessGraphic extends Component {
           }
 
           let { from, to } = this.parseAvailabilityResponse(availabilityResponse);
-
-          this.availabilityFrom = from;
-          this.availabilityTo = to;
+          this.updateAvailability(from, to);
 
           this.targetElement = d3.select(this.renderTarget);
           this.targetElement.html('');
@@ -88,7 +85,8 @@ class ProcessGraphic extends Component {
               .append('div')
               .classed('tsi-playback-controls-container', true);
 
-            this.playbackControls = new PlaybackControls(<any>this.playbackControlsContainer.node());
+            let initialTimeStamp = this.chartOptions.initialValue instanceof Date ? this.chartOptions.initialValue : null;
+            this.playbackControls = new PlaybackControls(<any>this.playbackControlsContainer.node(), initialTimeStamp);
           
             this.draw();
 
@@ -118,19 +116,16 @@ class ProcessGraphic extends Component {
         .then(availabilityResponse => {
           let { from, to } = this.parseAvailabilityResponse(availabilityResponse);
 
-          if (from.valueOf() !== this.availabilityFrom.valueOf() || 
-            to.valueOf() !== this.availabilityTo.valueOf()) {
-            this.availabilityFrom = from;
-            this.availabilityTo = to;
-            let timeRange = new TsqRange(this.availabilityFrom, this.availabilityTo);
-            timeRange.calculateNeatBucketSize(this.numberOfBuckets);
+          if (from.valueOf() !== this.availability.fromMillis || 
+            to.valueOf() !== this.availability.toMillis) {
+            this.updateAvailability(from, to);
 
             this.playbackControls.render(
-              this.availabilityFrom,
-              this.availabilityTo,
+              this.availability.from,
+              this.availability.to,
               this.onSelecTimestamp.bind(this),
               this.chartOptions, 
-              { intervalMillis: this.playbackRate, stepSizeMillis: timeRange.bucketSizeMillis });
+              { intervalMillis: this.playbackRate, stepSizeMillis: this.availability.bucketSizeMillis });
             
             return true;
           }
@@ -168,12 +163,18 @@ class ProcessGraphic extends Component {
 
       (promise as Promise<any>).then(results => {
         let processGraphicData = results.map((r, i): IProcessGraphicLabelInfo => {
+          let value = this.parseTsqResponse(r);
+          let color = typeof(this.tsqExpressions[i].color) === 'function'
+            ? (<Function>this.tsqExpressions[i].color)(value)
+            : this.tsqExpressions[i].color;
+
           return {
-            value: this.parseTsqResponse(r),
+            value,
             alias: this.tsqExpressions[i].alias,
             x: this.tsqExpressions[i].positionX,
             y: this.tsqExpressions[i].positionY,
-            color: this.tsqExpressions[i].color
+            color: this.sanitizeAttribute(color),
+            onClick: this.tsqExpressions[i].onElementClick
           };
         });
 
@@ -183,17 +184,13 @@ class ProcessGraphic extends Component {
   }
 
   private calcQueryWindow(timeStamp: Date) {
-    let timeRange = new TsqRange(this.availabilityFrom, this.availabilityTo);
-    timeRange.calculateNeatBucketSize(this.numberOfBuckets);
-    timeRange.snapToServerBuckets();
-
-    let timelineOffset = timeRange.from.valueOf();
-    let queryToMillis: number = Math.ceil((timeStamp.valueOf() - timelineOffset) / timeRange.bucketSizeMillis) * timeRange.bucketSizeMillis + timelineOffset;
+    let timelineOffset = this.availability.fromMillis;
+    let queryToMillis: number = Math.ceil((timeStamp.valueOf() - timelineOffset) / this.availability.bucketSizeMillis) * this.availability.bucketSizeMillis + timelineOffset;
 
     return {
-      fromMillis: queryToMillis - timeRange.bucketSizeMillis,
+      fromMillis: queryToMillis - this.availability.bucketSizeMillis,
       toMillis: queryToMillis,
-      bucketSize: timeRange.bucketSizeStr
+      bucketSize: this.availability.bucketSizeStr
     }
   }
 
@@ -219,15 +216,12 @@ class ProcessGraphic extends Component {
       .style('width', `${this.renderTarget.clientWidth}px`)
       .style('height', `${this.playbackSliderHeight}px`);
 
-    let timeRange = new TsqRange(this.availabilityFrom, this.availabilityTo);
-    timeRange.calculateNeatBucketSize(this.numberOfBuckets);
-
     this.playbackControls.render(
-      this.availabilityFrom,
-      this.availabilityTo,
+      this.availability.from,
+      this.availability.to,
       this.onSelecTimestamp.bind(this),
       this.chartOptions, 
-      { intervalMillis: this.playbackRate, stepSizeMillis: timeRange.bucketSizeMillis });
+      { intervalMillis: this.playbackRate, stepSizeMillis: this.availability.bucketSizeMillis });
   }
 
   private loadImage(imageSrc: string): Promise<HTMLImageElement> {
@@ -268,6 +262,18 @@ class ProcessGraphic extends Component {
     }
   }
 
+  private updateAvailability(from: Date, to: Date) {
+    this.availability = new TsqRange(from, to);
+
+    if(this.chartOptions.bucketSizeMillis && this.chartOptions.bucketSizeMillis > 0) {
+      this.availability.setNeatBucketSizeByRoughBucketSize(this.chartOptions.bucketSizeMillis);
+    } else {
+      this.availability.setNeatBucketSizeByNumerOfBuckets(this.numberOfBuckets);
+    }
+
+    this.availability.alignWithServerEpoch();
+  }
+
   private updateTextLabels(graphicValues: Array<IProcessGraphicLabelInfo>) {
     let textElements = this.processGraphic.selectAll('div')
       .data(graphicValues);
@@ -291,10 +297,22 @@ class ProcessGraphic extends Component {
 
     // Trigger glow css animation when values update.
     const highlightCssClass = 'tsi-label-highlight';
+    
     this.processGraphic.selectAll('.tsi-process-graphic-label')
+      .data(graphicValues)
       .classed(highlightCssClass, true)
+      .classed('clickable', (tsqe) => tsqe.onClick !== null)
       .on('animationend', function() {
         d3.select(this).classed(highlightCssClass, false);
+      })
+      .on('click', (tsqe) => {
+        if(typeof(tsqe.onClick) === 'function') {
+          tsqe.onClick({
+            timeStamp: this.playbackControls.currentTimeStamp,
+            value: tsqe.value,
+            color: tsqe.color
+          });
+        }
       });
 
     this.processGraphic.selectAll('.title')
@@ -303,7 +321,7 @@ class ProcessGraphic extends Component {
 
     this.processGraphic.selectAll('.value')
       .data(graphicValues)
-      .text(tsqe => tsqe.value ? Utils.formatYAxisNumber(tsqe.value) : '--')
+      .text(tsqe => tsqe.value !== null ? Utils.formatYAxisNumber(tsqe.value) : '--')
       .style('color', tsqe => tsqe.color);
   }
 
@@ -324,6 +342,14 @@ class ProcessGraphic extends Component {
       ? response.properties[0].values[0] 
       : null;
   }
+
+  private sanitizeAttribute(str) {
+    let sanitized = String(str);
+    let illegalChars = ['"', "'", '?', '<', '>', ';'];
+    illegalChars.forEach(c => { sanitized = sanitized.split(c).join('') });
+
+    return sanitized;
+  }
 }
 
 interface IProcessGraphicLabelInfo {
@@ -331,7 +357,8 @@ interface IProcessGraphicLabelInfo {
   alias: string,
   x: number,
   y: number,
-  color: string
+  color: string,
+  onClick: Function
 }
 
 export { ProcessGraphic };

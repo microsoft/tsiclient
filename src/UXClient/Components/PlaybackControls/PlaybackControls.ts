@@ -23,11 +23,16 @@ class PlaybackControls extends Component {
   private end: Date;
 
   readonly handleRadius: number = 7;
+  readonly minimumPlaybackInterval: number = 1000; // 1 second
 
-  constructor(renderTarget: Element){
+  constructor(renderTarget: Element, initialTimeStamp: Date = null){
     super(renderTarget);
     this.playbackInterval = null;
-    this.selectedTimeStamp = null;
+    this.selectedTimeStamp = initialTimeStamp;
+  }
+
+  get currentTimeStamp() {
+    return this.selectedTimeStamp;
   }
   
   render(
@@ -40,7 +45,7 @@ class PlaybackControls extends Component {
     this.selectTimeStampCallback = onSelectTimeStamp;
     this.chartOptions.setOptions(options);
     this.playbackSettings = playbackSettings;
-    this.timeFormatter = Utils.timeFormat(true, true, this.chartOptions.offset, true, 0, null, this.chartOptions.dateLocale);
+    this.timeFormatter = Utils.timeFormat(true, false, this.chartOptions.offset, true, 0, null, this.chartOptions.dateLocale);
 
     let targetElement = d3.select(this.renderTarget);
     super.themify(targetElement, this.chartOptions.theme);
@@ -133,9 +138,9 @@ class PlaybackControls extends Component {
 
   play() {
     if (this.playbackInterval === null) {
-      // Default to a 2 second interval if one is not provided. Also, the interval should
-      // not be lower than 2 seconds.
-      let playbackIntervalMs = Math.max(this.playbackSettings.intervalMillis || 2000, 2000);
+      // Default to an interval if one is not provided. Also, the interval should
+      // not be lower than the minimum playback interval.
+      let playbackIntervalMs = Math.max(this.playbackSettings.intervalMillis || this.minimumPlaybackInterval, this.minimumPlaybackInterval);
 
       this.playbackInterval = window.setInterval(this.next.bind(this), playbackIntervalMs);
       this.playButton

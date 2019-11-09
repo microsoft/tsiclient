@@ -5,7 +5,7 @@ const DEFAULT_HEIGHT = 40;
 class ChartDataOptions {
 
     public searchSpan: any;  // from,to,bucketSize as TSX
-    public color: string;
+    public color: string | Function;
     public alias: string;
     public contextMenu: any; // describes menu shown with a split by member on context menu, and actions
     public measureTypes: Array<string>;  // 

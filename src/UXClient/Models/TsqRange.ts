@@ -3,7 +3,6 @@ import { Utils } from '../Utils';
 class TsqRange{
     public from: Date;
     public to: Date;
-    private numBuckets: number;
     private bucketSizeMs: number;
 
     // List of interval values that would divide a time range neatly
@@ -28,28 +27,34 @@ class TsqRange{
         this.to = to;
     }
 
-    calculateNeatBucketSize(targetNumberOfBuckets: number) {
+    setNeatBucketSizeByNumerOfBuckets(targetNumberOfBuckets: number) {
         let timeRangeMs = Math.max(this.to.valueOf() - this.from.valueOf(), 1);
-        let estimatedBucketSizeMs = Math.ceil(timeRangeMs / targetNumberOfBuckets);
+        let roughBucketsize = Math.ceil(timeRangeMs / targetNumberOfBuckets);
+        this.setNeatBucketSizeByRoughBucketSize(roughBucketsize);
+    }
 
+    setNeatBucketSizeByRoughBucketSize(roughBucketSizeMillis: number) {
         let neatIntervalIndex = 1;
         for (; neatIntervalIndex < TsqRange.NeatIntervalsMs.length; neatIntervalIndex++) {
-            if (TsqRange.NeatIntervalsMs[neatIntervalIndex] > estimatedBucketSizeMs) { break; }
+            if (TsqRange.NeatIntervalsMs[neatIntervalIndex] > roughBucketSizeMillis) { break; }
         }
 
         this.bucketSizeMs = TsqRange.NeatIntervalsMs[neatIntervalIndex - 1];
-        this.numBuckets = Math.ceil(timeRangeMs / this.bucketSizeMs);
     }
 
-    snapToServerBuckets() {
+    alignWithServerEpoch() {
         let fromMs = Utils.adjustStartMillisToAbsoluteZero(this.from.valueOf(), this.bucketSizeMs);
         let toMs = Utils.roundToMillis(this.to.valueOf(), this.bucketSizeMs);
         this.from = new Date(fromMs);
         this.to = new Date(toMs);
     }
 
-    get numberOfBuckets() {
-        return this.numBuckets;
+    get fromMillis() {
+        return this.from.valueOf();
+    }
+
+    get toMillis() {
+        return this.to.valueOf();
     }
 
     get bucketSizeMillis() {
