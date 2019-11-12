@@ -137,7 +137,7 @@ class EventsPlot extends Plot {
                             return 'translate(' + (self.x(new Date(d.dateTime)) + self.eventHeight / 2) + ',' + (self.eventHeight * 1.4) + ') rotate(180)';
                         })
                         .attr('d', teardropD(self.eventHeight, self.eventHeight))
-                        .attr('stroke-width', Math.min(self.eventHeight / 4, 8))
+                        .attr('stroke-width', Math.min(self.eventHeight / 2.25, 8))
                         .attr('stroke', colorFunction);
                     break;
                 case EventElementTypes.Diamond:

@@ -732,7 +732,7 @@ class LineChart extends TemporalXAxisComponent {
     }
 
     private getDataType (aggKey) {
-        return this.chartComponentData.displayState[aggKey].dataType;
+        return this.chartComponentData.displayState[aggKey] ? this.chartComponentData.displayState[aggKey].dataType : null;
     } 
 
     private setScooterLabels (scooter, includeTransition = false) {
@@ -1401,8 +1401,8 @@ class LineChart extends TemporalXAxisComponent {
                 .attr("class", "tsi-stackedButton")
                 .attr("aria-label", () => this.getString("set axis state to") + ' ' + this.nextStackedState())
                 .on("click", function () {
-                    d3.select(this).attr("aria-label", () => self.getString("set axis state to") + ' ' + self.nextStackedState());
                     self.chartOptions.yAxisState = self.nextStackedState();
+                    d3.select(this).attr("aria-label", () => self.getString("set axis state to") + ' ' + self.nextStackedState());
                     self.draw();
                     setTimeout (() => (d3.select(this).node() as any).focus(), 200);
                 });
@@ -1661,7 +1661,9 @@ class LineChart extends TemporalXAxisComponent {
                 this.svgSelection.selectAll(".yAxis").remove();
 
                 let visibleGroupData = this.chartComponentData.data.filter((agg) => this.chartComponentData.displayState[agg.aggKey]["visible"]);
-                let visibleCDOs = this.aggregateExpressionOptions.filter((cDO) => this.chartComponentData.displayState[cDO.aggKey]["visible"]);
+                let visibleCDOs = this.aggregateExpressionOptions.filter((cDO) => {
+                    return this.chartComponentData.displayState[cDO.aggKey]["visible"];
+                });
                 let offsetsAndHeights = this.createYOffsets();
                 let aggregateGroups = this.svgSelection.select('.svgGroup').selectAll('.tsi-aggGroup')
                     .data(visibleGroupData, (agg) => agg.aggKey);
@@ -1699,7 +1701,7 @@ class LineChart extends TemporalXAxisComponent {
                                 let g = d3.select(this);
                                 delete self.plotComponents[aggKey];
                                 g.selectAll('*').remove();
-                                self.plotComponents[aggKey] = self.createPlot(g, i, self.aggregateExpressionOptions);
+                                self.plotComponents[aggKey] = self.createPlot(g, i, visibleCDOs);
                             }
 
                             let mouseoverFunction = self.getMouseoverFunction(visibleCDOs[i].dataType);

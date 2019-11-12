@@ -19,6 +19,7 @@ class ChartOptions {
     public color: string; // color of the time selection ghost in availability chart
     public dateLocale: string; //moment locale specifying the location specific format for dates, along with translations for month and day names
     public defaultAvailabilityZoomRangeMillis: number; // default max period of time shown in the zoomed region of the availability chart
+    public dTPIsModal: boolean; //whether date time picker should behave like a modal
     public ellipsisItems: Array<any>; //objects reprenting options in the ellipsis menu 
     public focusHidden: boolean; // whether focus element is hidden in chart
     public fromChart: boolean; // whether a component is a subcomponent of another one or is a standalone
@@ -172,6 +173,7 @@ class ChartOptions {
         this.defaultAvailabilityZoomRangeMillis = this.mergeValue(chartOptionsObj, 'defaultAvailabilityZoomRangeMillis', null);
         this.warmStoreRange = this.mergeValue(chartOptionsObj, 'warmStoreRange', null);
         this.initialValue = this.mergeValue(chartOptionsObj, 'initialValue', null);
+        this.dTPIsModal = this.mergeValue(chartOptionsObj, 'dTPIsModal', false);
     }
 
     private mergeStrings (strings) {
@@ -257,7 +259,8 @@ class ChartOptions {
             warmStoreRange: this.warmStoreRange,
             initialValue: this.initialValue,
             bucketSizeMillis: this.bucketSizeMillis,
-            updateInterval: this.updateInterval
+            updateInterval: this.updateInterval,
+            dTPIsModal: this.dTPIsModal
         }
     }
 }

@@ -819,7 +819,10 @@ function InstanceNode (tsId, name = null, type, hierarchyIds, highlights, contex
         let overflowAtBottom = this.contextMenu.node().getBoundingClientRect().height - leftSpaceAtBottom;
         if (overflowAtBottom > 0)
             this.contextMenu.style('top', (parseFloat(this.contextMenu.node().style.top) - overflowAtBottom) + 'px');
-        (d3.select('.tsi-hierarchyNavigationContextMenu li').node() as any).focus();
+        let contextMenuFirstElt = (d3.select('.tsi-hierarchyNavigationContextMenu li').node() as any);
+        if(contextMenuFirstElt){
+            contextMenuFirstElt.focus();
+        }
     }
     this.isLeaf = true;
     this.level = level;

@@ -130,7 +130,7 @@
 						width: 10px;
 						top: -3px;
 					}
-					h5{
+					.tsi-seriesName {
 						max-width: 100px;
 						margin-left: 16px;
 						margin-right: 0px;
@@ -231,7 +231,7 @@
 		}
 		.tsi-seriesNameLabel, .tsi-splitByContainer .tsi-splitByLabel {
 			display:flex;
-			h4, h5 {
+			h4, .tsi-seriesName {
 				text-overflow: ellipsis;
 				white-space: nowrap;
 				overflow: hidden;
@@ -247,7 +247,7 @@
 				font-size: 14px;
 			}
 
-			h5 {
+			.tsi-seriesName {
 				cursor: default;
 				overflow-x:hidden;
 				text-overflow: ellipsis;

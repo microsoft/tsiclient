@@ -24,7 +24,7 @@ class Plot extends Component {
     }
 
     protected createGradientKey (d, splitByIndex, i) {
-        return unescape(d.aggregateKey).split(" ").join("_") + '_' + splitByIndex + '_' + i;
+        return d.aggregateKey.replace(/^[^a-z]+|[^\w:.-]+/gi, "") + '_' + splitByIndex + '_' + i;
     }
 
     protected addGradientStops (d, gradient) {

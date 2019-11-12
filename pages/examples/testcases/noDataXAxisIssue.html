@@ -1,0 +1,42 @@
+<html>
+<head>
+    <script src="../../../dist/tsiclient.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bluebird/3.3.4/bluebird.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../../dist/tsiclient.css"><meta><meta content="no-cache">
+    <style>
+        .valueLine{stroke: transparent}
+    </style>
+</head>
+<body style="font-family: 'Segoe UI', sans-serif;">
+    <div id="chart1" style="width: 1200px; height: 500px;"></div>
+    <script>
+        window.onload = function() {
+            
+            // create fake data in the shape our charts expect
+            var data = [];
+            var from = new Date(Math.floor((new Date()).valueOf() / (1000*60)) * (1000*60));
+            var to = new Date(from.valueOf() + 1000);
+            for(var i = 0; i < 1; i++){
+                var lines = {};
+                data.push({[`Factory${i}`]: lines});
+                for(var j = 0; j < 4; j++){
+                    var values = {};
+                    lines[`Station${j}`] = values;
+                    for(var k = 0; k < 0; k++){
+                        if(!(k%2 && k%3)){  // if check is to create some sparseness in the data
+                            var to = new Date(from.valueOf() + 1000*60*k);
+                            var val = (Math.random() + j);
+                            values[to.toISOString()] = {avg: val};
+                        }
+                    } 
+                }
+            }
+
+            // render the data in a chart
+            var tsiClient = new TsiClient();
+            var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart1'));
+            lineChart.render(data, {includeDots: true, theme: 'light'});
+        };
+    </script>
+    </body>
+</html>

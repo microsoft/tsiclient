@@ -299,6 +299,9 @@ class ChartComponentData {
         //set this.toMillis and this.fromMillis if new values are more extreme 
         this.toMillis = (toMillis > this.toMillis) ? toMillis : this.toMillis;
         this.fromMillis = (fromMillis < this.fromMillis) ? fromMillis : this.fromMillis;
+        if (this.fromMillis === Infinity) {
+            this.fromMillis = this.toMillis - 1;
+        }
         return [new Date(this.fromMillis), new Date(this.toMillis)];
     }
 

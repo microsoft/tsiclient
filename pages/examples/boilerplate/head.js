@@ -1,6 +1,6 @@
 window.addEventListener('DOMContentLoaded', function(){
     var sdkJs = document.createElement('script');
-    // sdkJs.src = 'https://unpkg.com/tsiclient@1.2.59/tsiclient.js';
+    // sdkJs.src = 'https://unpkg.com/tsiclient@1.3.0/tsiclient.js';
     sdkJs.src = '../../../dist/tsiclient.js';  // for local testing
 
     var promiseJs = document.createElement('script');
@@ -9,7 +9,7 @@ window.addEventListener('DOMContentLoaded', function(){
     var sdkCss = document.createElement('link');
     sdkCss.rel = 'stylesheet';
     sdkCss.type = 'text/css';
-    // sdkCss.href = 'https://unpkg.com/tsiclient@1.2.59/tsiclient.css';
+    // sdkCss.href = 'https://unpkg.com/tsiclient@1.3.0/tsiclient.css';
     sdkCss.href = '../../../dist/tsiclient.css';  // for local testing
 
     var metaCharset = document.createElement('meta');
