@@ -45,7 +45,7 @@ class PlaybackControls extends Component {
     this.selectTimeStampCallback = onSelectTimeStamp;
     this.chartOptions.setOptions(options);
     this.playbackSettings = playbackSettings;
-    this.timeFormatter = Utils.timeFormat(true, false, this.chartOptions.offset, true, 0, null, this.chartOptions.dateLocale);
+    this.timeFormatter = Utils.timeFormat(true, false, this.chartOptions.offset, this.chartOptions.is24HourTime, null, null, this.chartOptions.dateLocale)
 
     let targetElement = d3.select(this.renderTarget);
     super.themify(targetElement, this.chartOptions.theme);
@@ -178,10 +178,6 @@ class PlaybackControls extends Component {
     this.selectTimeStampCallback(this.selectedTimeStamp);
   }
 
-  private timeToFormattedString(date: Date) {
-    return this.timeFormatter(Utils.offsetUTC(date));
-  }
-
   private clamp(number: number, min: number, max: number) {
     let clamped = Math.max(number, min);
     return Math.min(clamped, max);
@@ -214,7 +210,7 @@ class PlaybackControls extends Component {
 
     this.controlsContainer
       .select('.tsi-playback-timestamp')
-      .text(this.timeToFormattedString(timeStamp));
+      .text(this.timeFormatter(timeStamp));
   }
 }
 
