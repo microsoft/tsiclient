@@ -21,6 +21,7 @@ class PlaybackControls extends Component {
   private timeStampToPosition: d3.ScaleTime<number, number>;
   private playbackSettings: IPlaybackSettings;
   private end: Date;
+  private wasPlayingWhenDragStarted: boolean;
 
   readonly handleRadius: number = 7;
   readonly minimumPlaybackInterval: number = 1000; // 1 second
@@ -184,6 +185,7 @@ class PlaybackControls extends Component {
   }
 
   private onDrag(positionX: number) {
+    this.wasPlayingWhenDragStarted = this.wasPlayingWhenDragStarted || (this.playbackInterval !== null);
     this.pause();
 
     let handlePosition = this.clamp(positionX, 0, this.trackWidth);
@@ -194,6 +196,10 @@ class PlaybackControls extends Component {
 
   private onDragEnd() {
     this.selectTimeStampCallback(this.selectedTimeStamp);
+    if(this.wasPlayingWhenDragStarted){
+      this.play();
+      this.wasPlayingWhenDragStarted = false;
+    }
   }
 
   private updateSelection(handlePositionX: number, timeStamp: Date) {

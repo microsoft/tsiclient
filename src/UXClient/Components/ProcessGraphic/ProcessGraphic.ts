@@ -90,6 +90,10 @@ class ProcessGraphic extends Component {
           
             this.draw();
 
+            if(initialTimeStamp){
+              this.playbackControls.play();
+            }
+
             window.addEventListener('resize', () => {
               this.draw();
             });

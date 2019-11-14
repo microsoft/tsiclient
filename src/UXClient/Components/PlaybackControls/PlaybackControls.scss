@@ -109,11 +109,9 @@
 }
 
 .tsi-playback-timestamp {
-    margin: 0 20px;
     height: 100%;
-    float: right;
-    display: flex;
-    align-items: center;
+    position: relative;
+    top: -8px;
 }
 
 .tsi-playback-buttons button {

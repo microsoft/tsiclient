@@ -148,7 +148,8 @@
                 isInstancesHighlighted: true,
                 instancesSort: "DisplayName",
                 hierarchiesExpand: "OneLevel",
-                hierarchiesSort: "Name"
+                hierarchiesSort: "Name",
+                onMouseout: () => {alert('foo')}
             }
 
             toggleHierarchyNavigationOption = function(property, value = null) {

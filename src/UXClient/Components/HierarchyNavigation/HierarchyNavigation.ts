@@ -483,6 +483,8 @@ class HierarchyNavigation extends Component{
                         .attr('tabindex', 0)
                         .attr('arialabel', this.getString('Add to Filter Path'))
                         .on('click keydown', function() {
+                            self.hierarchyNavOptions.onMouseout();
+                            return;
                             if (Utils.isKeyDownAndNotEnter(d3.event)) {return; }
                             self.path = data[el].path;
                             let pathListElem = d3.select('.tsi-path-list');
@@ -848,6 +850,7 @@ function HiararchyNavigationOptions () {
         this.hierarchiesExpand = options.hasOwnProperty('hierarchiesExpand') && options.hierarchiesExpand in HierarchiesExpand ? options.hierarchiesExpand : this.hierarchiesExpand; 
         this.hierarchiesSort = options.hasOwnProperty('hierarchiesSort') && options.hierarchiesSort in HierarchiesSort ? options.hierarchiesSort : this.hierarchiesSort; 
         this.theme = options.hasOwnProperty('theme') && options.theme in Theme ? options.theme : this.theme;
+        this.onMouseout = options.onMouseout;
         if (options.hasOwnProperty('onInstanceClick')) {
             this.onInstanceClick = options.onInstanceClick;
         } 
