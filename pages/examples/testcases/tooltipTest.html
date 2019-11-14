@@ -114,6 +114,12 @@
                     }
                 }
 
+                var tooltipAttributes = [
+                    ['property1', 'some value'],
+                    ['a slightly longer name', '.2999'],
+                    ['short', 'dsdsd']
+                ];
+
 
                 // render the data in a chart
                 var onElementClick = function (aggKey, sb, ts, measures) { console.log(aggKey, sb, ts, measures); }
@@ -122,7 +128,7 @@
                 lineChart.render(data, {theme: 'light', legend: 'shown', grid: true, tooltip: true, brushMoveEndAction: () => {}}, [{}, {}, 
                 {dataType: 'events', valueMapping: eventValueMapping, height: 50, eventElementType: 'teardrop', onElementClick: onElementClick},
                 {dataType: 'categorical', valueMapping: valueMapping, height: 100, onElementClick: onElementClick, rollupCategoricalValues: true},
-                {timeShift: '-1m'}
+                {timeShift: '-1m', tooltipAttributes: tooltipAttributes}
             ]);
             }
         </script>

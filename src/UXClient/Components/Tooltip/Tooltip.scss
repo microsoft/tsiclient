@@ -7,18 +7,30 @@
     $gray4: nth($grays, 4); // background
     $gray5: nth($grays, 5); 
     $gray6: nth($grays, 6); // hover
+
+    box-shadow: 0 1px 3px 0 rgba($gray1, .16);
     
     color: $gray1;
     background-color: $gray3;
-    border-color: $gray6;
+    border-color: rgba($gray1, .2);
     @include chartColors($grays);
 
-    .tsi-tooltipSubtitle {
-        border-bottom: 1px solid rgba($gray1, .3);
+
+    .tsi-tooltipTable tr {
+        border-bottom: 1px solid rgba($gray1, .1);
+        &:last-of-type {
+            border-bottom: none;
+        }
+        border-left-width: 4px;
+        border-left-style: solid;
     }
 
-    .tsi-tooltipTable td {
-        border: 1px solid rgba($gray1, .2);
+    .tsi-tooltipFlexyBox {
+        .tsi-tooltipFlexyItem {
+            .tsi-tooltipMeasureValue { 
+                color: rgba($gray1, .6);
+            }
+        }
     }
 }
 
@@ -28,8 +40,9 @@
     overflow: hidden;
     border-width: 1px;
     border-style: solid;
-    
-    padding: 12px;
+    border-radius: 2px;
+    width: 260px;
+    padding: 4px 12px;
 
     -webkit-box-shadow: 0 3px 3px 0 rgba(0, 0, 0, 0.56);
     -moz-box-shadow: 0 3px 3px 0 rgba(0, 0, 0, 0.56);
@@ -62,11 +75,9 @@
             font-weight: normal;
             margin: 0px;
             &.tsi-tooltipSeriesName {
-                font-style: italic;
                 padding-bottom: 4px;
             }
         }
-
     }
 
 
@@ -75,18 +86,62 @@
         align-items: center;
     }
 
-    .tsi-tooltipTable {        
-        border-collapse: collapse;
-        margin: 4px 4px 8px 4px;
-        min-width: calc(100% - 8px);
+    .tsi-tooltipFlexyBox {
+        display: flex;
+        flex-wrap: wrap;
+        font-size: 12px;
+        margin-bottom: 12px;
+        width: 100%;
+        .tsi-flexBreak {
+            flex-basis: 100%;
+            height: 0;          
+        }
+        .tsi-tooltipFlexyItem {
+            padding-right: 4px;
+            padding-left: 4px;
+            white-space: nowrap;
+            flex-grow: 1;
+            overflow: hidden;
+            .tsi-tooltipAttrTitle, .tsi-tooltipMeasureTitle {
+                font-weight: bold;
+            }
+    
+            .tsi-tooltipAttrValue, .tsi-tooltipMeasureValue {
+                font-weight: lighter;
+            }
+            .tsi-tooltipMeasureValue {
+                font-size: 16px;
+            }
+        }
     }
 
-    .tsi-tooltipTable td {
-        margin: 0px;
-        padding: 4px;
+    .tsi-tooltipTable {        
+        border-collapse: collapse;
+        margin: 4px 4px 8px 0px;
+        width: calc(100% - 8px);
+        overflow: hidden;
         white-space: nowrap;
-        &.tsi-visibleValue {
-            font-weight: bold;
+        table-layout: fixed;
+
+        td {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+    }
+
+    .tsi-tooltipTable tr {
+        padding-left: 16px;
+        td {
+            margin: 0px;
+            padding: 4px;
+            white-space: nowrap;
+            &.tsi-visibleValue {
+                font-weight: bold;
+            }
+            &.tsi-valueCell {
+                text-align: right;
+            }
         }
     }
 
@@ -97,7 +152,6 @@
     .title, .tsi-tooltipTitle {
         font-weight: bold;
         font-size: 16px;
-        line-height: 1;
     } 
     .value, .temporalShiftText {
         font-weight: normal;
