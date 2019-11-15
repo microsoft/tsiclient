@@ -139,7 +139,9 @@ class Heatmap extends TemporalXAxisComponent {
                     .style("height", this.chartHeight + "px")
                     .style("top", (20 + (this.chartControlsExist() ? 36 : 0) + (this.chartOptions.legend === 'compact' ? 40 : 0)) + "px");
 
-                this.setControlsPanelWidth();
+                if (this.chartControlsExist()) {
+                    this.setControlsPanelWidth();
+                }
 
                 var canvasWrapperHeightTotal = this.chartHeight - this.timeLabelsHeight - this.chartMargins.bottom;
                 this.heatmapCanvasMap = {};

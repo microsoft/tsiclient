@@ -331,10 +331,7 @@ class ScatterPlot extends ChartComponent {
         this.drawVoronoi();
 
         // Resize controls
-        if (!this.chartOptions.hideChartControlPanel && this.chartControlsPanel !== null) {
-            let controlPanelWidth = Utils.getControlPanelWidth(this.renderTarget, this.CONTROLSWIDTH, this.chartOptions.legend === 'shown');
-            this.chartControlsPanel.style("width", controlPanelWidth + "px");
-        }
+        this.setControlsPanelWidth();
 
         /******************** Temporal Slider ************************/
         if(this.chartComponentData.allTimestampsArray.length > 1 && this.chartOptions.isTemporal){
