@@ -6,6 +6,7 @@ import { ChartComponent } from './Interfaces/ChartComponent';
 import { ChartOptions } from './Models/ChartOptions';
 import { AggregateExpression } from './Models/AggregateExpression';
 import { ChartComponentData } from './Models/ChartComponentData';
+import { TsqExpression } from './Models/TsqExpression';
 
 export const NONNUMERICTOPMARGIN = 8;
 export const LINECHARTTOPPADDING = 16;

@@ -7,7 +7,28 @@ class TsqExpression extends ChartDataOptions {
 
     constructor(instanceObject: any, variableObject: any, searchSpan: any, 
                 colorOrOptionsObject: any, alias: string, contextMenu: Array<any>){
-        super((typeof(colorOrOptionsObject) === 'object' && !!colorOrOptionsObject) ? {...colorOrOptionsObject, searchSpan: searchSpan, measureTypes: Object.keys(variableObject)} : {color: colorOrOptionsObject, searchSpan: searchSpan, measureTypes: Object.keys(variableObject), alias: alias, contextMenu: contextMenu });
+        // This constructor should be called with the following parameters: 
+        // new TsqExpression(instanceObject, variableObject, searchSpan, optionsObject)
+        // where the optionsObject should contain properties for color, alias, and contextMenu.
+        //
+        // However, to maintain backwards compatibility with older code, the constructor still 
+        // accepts the older set of parameters:
+        // new TsqExpression(instanceObject, variableObject, searchSpan, color, alias, contextMenu)
+        // Here we differentiate between both and call the parent class's constructor as appropriate.
+        let optionsObject = (typeof(colorOrOptionsObject) === 'object' && !!colorOrOptionsObject) 
+            ? { 
+                ...colorOrOptionsObject, 
+                searchSpan: searchSpan, 
+                measureTypes: Object.keys(variableObject) 
+            } 
+            : { 
+                color: colorOrOptionsObject, 
+                searchSpan: searchSpan, 
+                measureTypes: Object.keys(variableObject), 
+                alias: alias, 
+                contextMenu: contextMenu }; 
+        
+        super(optionsObject);
         this.instanceObject = instanceObject;
         this.variableObject = variableObject;
     }
