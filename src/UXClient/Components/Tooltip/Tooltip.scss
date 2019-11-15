@@ -34,6 +34,7 @@
     border-width: 1px;
     border-style: solid;
     border-radius: 2px;
+    min-width: 108px;
     max-width: 260px;
     padding: 8px 12px;
 
@@ -111,7 +112,7 @@
     .tsi-tooltipTable {        
         border-collapse: collapse;
         margin: 8px 0 4px;
-        width: 100%;
+        width: 236px;
         overflow: hidden;
         white-space: nowrap;
         table-layout: fixed;

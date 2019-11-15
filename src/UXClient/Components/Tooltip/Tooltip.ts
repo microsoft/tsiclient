@@ -82,7 +82,7 @@ class Tooltip extends Component {
             this.tooltipDiv.style("transform", "translate(" + translateX + "px," + translateY + "px)");
             if (this.borderColor) {
                 this.tooltipDiv.style('border-color', this.borderColor)
-                    .style('border-right-width', '4px');
+                    .style('border-right-width', '5px');
             } else {
                 this.tooltipDiv.style('border-right-width', '1px');
             }
