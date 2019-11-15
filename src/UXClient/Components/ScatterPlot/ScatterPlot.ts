@@ -11,7 +11,6 @@ import { Utils } from './../../Utils';
 class ScatterPlot extends ChartComponent {
     private activeDot: any = null;
     private chartHeight: number;
-    private chartWidth: number;
     private controlsOffset: number;
     private focus: any;
     private focusedAggKey: string;
@@ -19,20 +18,17 @@ class ScatterPlot extends ChartComponent {
     private focusedSite: any = null;
     private g: any;
     private height: number;
-    private legendObject: Legend;
     private measures: Array<string>;
     private pointWrapper: any;
     private rMeasure: string;
     private rScale: any;
     private slider: any;
     private sliderWrapper: any;
-    private svgSelection: any;
     private targetElement: any;
     private tooltip: Tooltip;
     private voronoi: any;
     private voronoiDiagram: any;
     private voronoiGroup: any;
-    private width: number;
     private xAxis: any;
     private xMeasure: string;
     private xScale: any;
@@ -50,15 +46,15 @@ class ScatterPlot extends ChartComponent {
     
     chartComponentData = new ScatterPlotData();
 
-    public chartMargins: any = {        
-        top: 40,
-        bottom: 48,
-        left: 70, 
-        right: 60
-    };
-  
+
     constructor(renderTarget: Element){
         super(renderTarget);
+        this.chartMargins = {        
+            top: 40,
+            bottom: 48,
+            left: 70, 
+            right: 60
+        };
     }
 
     ScatterPlot(){}
@@ -191,10 +187,14 @@ class ScatterPlot extends ChartComponent {
                 this.ellipsisMenu.setMenuVisibility(false);
             }
         });
+
+        if (this.chartOptions.legend === 'shown') {
+            this.splitLegendAndSVG(this.svgSelection.node());
+        }
     }
 
     /******** DRAW UPDATE FUNCTION ********/   
-    private draw(){
+    public draw = (isFromResize = false) => {
         this.activeDot = null;
         this.chartComponentData.updateTemporalDataArray(this.chartOptions.isTemporal);
         
@@ -222,10 +222,10 @@ class ScatterPlot extends ChartComponent {
             this.chartMargins.bottom = 48;
         }
            
-        this.setWidthAndHeight();
+        this.setWidthAndHeight(isFromResize);
         this.svgSelection
             .attr("height", this.height)
-            .attr("width", this.width);
+            .style("width", `${this.getSVGWidth()}px`);
 
         this.g
             .attr("transform", "translate(" + this.chartMargins.left + "," + this.chartMargins.top + ")");
@@ -691,12 +691,13 @@ class ScatterPlot extends ChartComponent {
     }
 
     /******** UPDATE CHART DIMENSIONS ********/
-    private setWidthAndHeight(){
-        this.width = Math.max((<any>d3.select(this.renderTarget).node()).clientWidth, this.MINWIDTH) - this.controlsOffset;
+    private setWidthAndHeight(isFromResize = false){
         this.height = Math.max((<any>d3.select(this.renderTarget).node()).clientHeight, this.MINHEIGHT);
-
-        this.chartWidth = this.width - this.chartMargins.left  - this.chartMargins.right;
         this.chartHeight = this.height - this.chartMargins.top - this.chartMargins.bottom;
+        this.width = this.getWidth();
+        if (!isFromResize) {
+            this.chartWidth = this.getChartWidth();
+        }
     }
 
     /******** SCALE AND DRAW AXIS ********/

@@ -105,9 +105,7 @@ class Legend extends Component {
 
         legend.style('visibility', legendState != 'hidden')
             .classed('compact', legendState == 'compact')
-            .classed('hidden', legendState == 'hidden')
-            .style('width', legendState == 'hidden' ? '0px' : this.legendWidth + "px");
-
+            .classed('hidden', legendState == 'hidden');
 
         let seriesNames = Object.keys(this.chartComponentData.displayState);
         var seriesLabels: any = legend.selectAll(".tsi-seriesLabel")

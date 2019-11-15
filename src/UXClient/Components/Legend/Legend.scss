@@ -14,6 +14,10 @@
 		stroke: $gray1;
 	}
 
+	&:not(.compact) {
+		border-right: 1px solid $gray4;
+	}
+
 	.tsi-seriesLabel{
 		.tsi-seriesNameLabel, .tsi-splitByContainer .tsi-splitByLabel {
 			fill: $gray1;
@@ -148,8 +152,11 @@
 			display: flex;
 			flex-direction: column;	
 		}
+
+		height: 100%;
 	
 		.tsi-seriesLabel {
+			
 			.tsi-splitByContainer {
 				overflow-y: auto;
 				visibility: hidden;
@@ -174,7 +181,7 @@
 				position: absolute;
 				height: 100%;
 				width: 16px;
-				left: 124px;
+				right: 16px;
 			}
 			.tsi-eyeIcon {
 				display: inherit;
@@ -235,10 +242,10 @@
 				text-overflow: ellipsis;
 				white-space: nowrap;
 				overflow: hidden;
-				margin-top:2px;
-				margin-bottom:4px;
+				margin-top: 2px;
+				margin-bottom: 4px;
 				font-weight: 400;
-				margin-right: 46px;
+				margin-right: 32px;
 			}
 
 			h4 {

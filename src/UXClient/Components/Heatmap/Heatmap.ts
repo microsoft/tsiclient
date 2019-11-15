@@ -15,21 +15,21 @@ class Heatmap extends TemporalXAxisComponent {
     private splitByLabelWidth = 140;
     private heatmapWrapper: any;
     private splitByLabels: any;
-    private legend: Legend;
-    public draw: any;
     private heatmapCanvasMap: any;
     private timeLabels: any = null;
     private height: number;
     private timeLabelsHeight = 52;
-    private svgSelection = null;
     private visibleAggs = null;
 
-    public chartMargins: any = {        
-        top: 0,
-        bottom: 8,
-        left: 40, 
-        right: 20
-    };
+    constructor (renderTarget: Element){
+        super(renderTarget);        
+        this.chartMargins = {        
+            top: 0,
+            bottom: 8,
+            left: 40, 
+            right: 20
+        };
+    }
 
     private focusOnEllipsis () {
         if (this.ellipsisContainer !== null) {
@@ -118,13 +118,16 @@ class Heatmap extends TemporalXAxisComponent {
             this.heatmapWrapper = targetElement.append('div')
                 .attr("class", "tsi-heatmapWrapper");
 
-            this.draw = () => { 
+            this.draw = (isFromResize = false) => { 
 
                 this.height = Math.floor(Math.max((<any>d3.select(this.renderTarget).node()).clientHeight, this.MINHEIGHT));        
                 this.chartHeight = this.height - ((12 + (this.chartControlsExist() ? 28 : 0) + (this.chartOptions.legend === 'compact' ? 48 : 0)));
 
                 super.themify(targetElement, this.chartOptions.theme);
-                this.chartWidth = Math.floor(targetElement.node().getBoundingClientRect().width) - (this.chartOptions.legend == "shown" ? 200 : 0) - (this.chartMargins.left + this.chartMargins.right);
+                this.width = this.getWidth();
+                if (!isFromResize) {
+                    this.chartWidth = this.getChartWidth();
+                } 
 
                 this.x = d3.scaleTime()
                 .rangeRound([0, this.chartWidth - 90]); // HARDCODED to be the width of a heatmapCanvas
@@ -136,10 +139,7 @@ class Heatmap extends TemporalXAxisComponent {
                     .style("height", this.chartHeight + "px")
                     .style("top", (20 + (this.chartControlsExist() ? 36 : 0) + (this.chartOptions.legend === 'compact' ? 40 : 0)) + "px");
 
-                if (this.chartControlsExist()) {
-                    let controlPanelWidth = Utils.getControlPanelWidth(this.renderTarget, this.CONTROLSWIDTH, this.chartOptions.legend === 'shown');
-                    this.chartControlsPanel.style("width", controlPanelWidth + "px");
-                }    
+                this.setControlsPanelWidth();
 
                 var canvasWrapperHeightTotal = this.chartHeight - this.timeLabelsHeight - this.chartMargins.bottom;
                 this.heatmapCanvasMap = {};
@@ -169,7 +169,7 @@ class Heatmap extends TemporalXAxisComponent {
                             function onCellFocus (focusStartTime, focusEndTime, focusX1, focusX2, focusY, splitBy) {
                                 let shiftMillis = self.chartComponentData.getTemporalShiftMillis(aggKey);
                                 self.renderTimeLabels(focusStartTime, focusEndTime, focusX1, focusX2, focusY, (aggI * canvasWrapperHeightTotal / self.visibleAggs.length), shiftMillis);
-                                self.legend.triggerSplitByFocus(aggKey, splitBy);
+                                self.legendObject.triggerSplitByFocus(aggKey, splitBy);
                                 self.chartOptions.onMouseover(aggKey, splitBy);
                             }
 
@@ -178,18 +178,24 @@ class Heatmap extends TemporalXAxisComponent {
                         renderHeatmapCanvas();         
                     }).on("mouseleave", () => {
                         self.timeLabels.selectAll(".tsi-heatmapTimeLabels").remove();
-                        self.legend.legendElement.selectAll('.tsi-splitByLabel').classed("inFocus", false);
+                        self.legendObject.legendElement.selectAll('.tsi-splitByLabel').classed("inFocus", false);
                         self.chartOptions.onMouseout();
                     })
                 canvasWrappers.exit().remove();
 
-                this.legend.draw(this.chartOptions.legend, this.chartComponentData, this.mouseover, 
+                this.legendObject.draw(this.chartOptions.legend, this.chartComponentData, this.mouseover, 
                     this.heatmapWrapper, this.chartOptions, this.mouseout);
 
                 //remove all the colorKeys
-                this.legend.legendElement.selectAll(".seriesLabel").selectAll(".tsi-splitByLabel").selectAll(".colorKey").style("display", "none");
+                this.legendObject.legendElement.selectAll(".seriesLabel").selectAll(".tsi-splitByLabel").selectAll(".colorKey").style("display", "none");
+
+                if (isFromResize) {
+                    this.addTimeLabels();
+                }
             }
-            this.legend = new Legend(this.draw, this.renderTarget, this.CONTROLSWIDTH);
+            this.legendObject = new Legend(this.draw, this.renderTarget, this.CONTROLSWIDTH);
+
+           
         }
         this.chartComponentData.mergeDataToDisplayStateAndTimeArrays(data, aggregateExpressionOptions);
         this.draw();
@@ -200,6 +206,11 @@ class Heatmap extends TemporalXAxisComponent {
                 this.addTimeLabels();
             }
         });
+
+        if (this.chartOptions.legend === 'shown') {
+            this.splitLegendAndSVG(this.heatmapWrapper.node());
+            this.setControlsPanelWidth();
+        }
     }
 
     public renderTimeLabels = (focusStartTime, focusEndTime, focusX1, focusX2, focusY, yOffset, shiftMillis) => {

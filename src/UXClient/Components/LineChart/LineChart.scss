@@ -239,6 +239,10 @@
                 background-color: rgba(0, 0, 0, .9);
             }
         }
+
+        .tsi-resizeGutter {
+            background-image: url(../../Icons/drag_handle_dark.svg)
+        }
     }
     &.tsi-light{
         $grays: grays('light');
@@ -247,6 +251,9 @@
             .tsi-scooterValueLabel {
                 background-color: rgba(255, 255, 255, .9);
             }
+        }
+        .tsi-resizeGutter {
+            background-image: url(../../Icons/drag_handle_light.svg);
         }
     }
         
