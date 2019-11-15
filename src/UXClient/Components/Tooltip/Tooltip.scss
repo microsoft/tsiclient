@@ -25,13 +25,6 @@
         border-left-style: solid;
     }
 
-    .tsi-tooltipFlexyBox {
-        .tsi-tooltipFlexyItem {
-            .tsi-tooltipMeasureValue { 
-                color: rgba($gray1, .6);
-            }
-        }
-    }
 }
 
 .tsi-tooltip {
@@ -41,12 +34,8 @@
     border-width: 1px;
     border-style: solid;
     border-radius: 2px;
-    width: 260px;
-    padding: 4px 12px;
-
-    -webkit-box-shadow: 0 3px 3px 0 rgba(0, 0, 0, 0.56);
-    -moz-box-shadow: 0 3px 3px 0 rgba(0, 0, 0, 0.56);
-    box-shadow: 0 3px 3px 0 rgba(0, 0, 0, 0.56);
+    max-width: 260px;
+    padding: 8px 12px;
 
     &.tsi-dark{
         $grays: grays('dark');
@@ -57,7 +46,7 @@
         @include tColors($grays);
     }
 
-    .title, .value, .tsi-tooltipTitle {
+    .tsi-tooltipTitle {
         overflow: hidden;
         white-space: nowrap;
     }
@@ -67,58 +56,62 @@
     }
 
     .tsi-tooltipSubtitle {
-        padding-bottom: 4px;
-        margin-bottom: 8px;
+        opacity: .7;
         display: block;
+        padding-bottom: 8px;
+        .tsi-tooltipTimeStamp{
+            padding-top: 2px;
+        }
         h4 {
             white-space: nowrap;
             font-weight: normal;
             margin: 0px;
-            &.tsi-tooltipSeriesName {
-                padding-bottom: 4px;
-            }
         }
     }
 
 
-    .value {
-        display: flex;
-        align-items: center;
-    }
-
     .tsi-tooltipFlexyBox {
         display: flex;
-        flex-wrap: wrap;
+        flex-wrap: nowrap;
         font-size: 12px;
-        margin-bottom: 12px;
         width: 100%;
+        &.tsi-tooltipAttributeContainer{
+            margin-bottom: 4px;
+            flex-wrap: wrap;
+            .tsi-tooltipFlexyItem {
+                padding-bottom: 4px;
+            }
+        }
         .tsi-flexBreak {
             flex-basis: 100%;
             height: 0;          
         }
         .tsi-tooltipFlexyItem {
-            padding-right: 4px;
-            padding-left: 4px;
+            padding-right: 8px;
             white-space: nowrap;
             flex-grow: 1;
             overflow: hidden;
             .tsi-tooltipAttrTitle, .tsi-tooltipMeasureTitle {
                 font-weight: bold;
             }
-    
+
             .tsi-tooltipAttrValue, .tsi-tooltipMeasureValue {
-                font-weight: lighter;
+                opacity: .7;
+            }
+            .tsi-tooltipAttrValue, .tsi-tooltipMeasureValue, .tsi-tooltipAttrTitle, .tsi-tooltipMeasureTitle{
+                overflow: hidden;
+                text-overflow: ellipsis;
             }
             .tsi-tooltipMeasureValue {
-                font-size: 16px;
+                font-size: 14px;
             }
         }
     }
 
     .tsi-tooltipTable {        
         border-collapse: collapse;
-        margin: 4px 4px 8px 0px;
-        width: calc(100% - 8px);
+        margin: 8px 0 4px;
+        width: 100%;
         overflow: hidden;
         white-space: nowrap;
         table-layout: fixed;
@@ -141,6 +134,7 @@
             }
             &.tsi-valueCell {
                 text-align: right;
+                white-space: pre-wrap;
             }
         }
     }
@@ -149,15 +143,10 @@
         font-weight: bold;
     }
 
-    .title, .tsi-tooltipTitle {
+    .tsi-tooltipTitle {
         font-weight: bold;
-        font-size: 16px;
+        font-size: 14px;
     } 
-    .value, .temporalShiftText {
-        font-weight: normal;
-        font-size: 12px;
-        font-weight: lighter;
-    }
 
     .tsi-tooltipColorBlockCell {
         width: 12px;

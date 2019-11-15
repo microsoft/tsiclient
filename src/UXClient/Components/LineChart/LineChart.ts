@@ -184,7 +184,7 @@ class LineChart extends TemporalXAxisComponent {
         }
 
         text.append("div")
-            .attr("class", "title .tsi-tooltipTitle")
+            .attr("class", "tsi-tooltipTitle")
             .text(d.aggregateName);
 
         let subtitle = text.append("div")
@@ -225,10 +225,6 @@ class LineChart extends TemporalXAxisComponent {
                 timeShiftRow.append('div')
                     .attr('class', 'tsi-tooltipAttrValue')
                     .text(attrTuple[1]);
-                if (i % 3 === 2) {
-                    attrsGroup.append('div')
-                        .attr('class', 'tsi-flexBreak');
-                }
             })
         }
 
