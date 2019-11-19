@@ -174,7 +174,7 @@ class LineChart extends TemporalXAxisComponent {
     private getFilteredMeasures (measureList, visibleMeasure) {
         let justVisibleMeasure = [visibleMeasure];
         if (measureList.length !== 3) {
-            return justVisibleMeasure
+            return justVisibleMeasure;
         }
         let isAvgMinMax = true;
         measureList.forEach((measure) => {
@@ -250,7 +250,6 @@ class LineChart extends TemporalXAxisComponent {
             if(dataType !== DataTypes.Numeric) {
                 let valueGroup = text.append('table')
                     .attr('class', 'tsi-tooltipValues tsi-tooltipTable');
-                let filteredMeasures = this.getFilteredMeasures(Object.keys(d.measures), this.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy)); 
                 Object.keys(d.measures).forEach((measureType, i) => {
                     let tr = valueGroup.append('tr')
                         .classed('tsi-visibleValue', (dataType === DataTypes.Numeric && (measureType === this.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy))))
@@ -265,7 +264,8 @@ class LineChart extends TemporalXAxisComponent {
             } else {
                 let valueGroup = text.append('div')
                     .attr('class', 'tsi-tooltipFlexyBox');
-                Object.keys(d.measures).forEach((measureType, i) => {
+                let filteredMeasures = this.getFilteredMeasures(Object.keys(d.measures), this.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy)); 
+                filteredMeasures.forEach((measureType, i) => {
                     let valueItem = valueGroup.append('div')
                         .attr('class', 'tsi-tooltipFlexyItem')
                         .classed('tsi-visibleValue', (dataType === DataTypes.Numeric && (measureType === this.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy))));
