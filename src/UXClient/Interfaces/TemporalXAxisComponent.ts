@@ -104,8 +104,8 @@ class TemporalXAxisComponent extends ChartComponent {
             .attr("class", "xAxis")
             .merge(this.xAxis)
             .attr("transform", "translate(0," + yOffset + ")")
-            .call(this.createXAxis(this.chartOptions.singleLineXAxisLabel));
-        this.updateAxisText();
+            .call(this.createXAxis(this.chartOptions.singleLineXAxisLabel, snapFirst, snapLast));
+        this.updateAxisText(snapFirst, snapLast);
     }
 
     private isSameDate (d1, d2) {

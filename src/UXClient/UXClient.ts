@@ -21,6 +21,7 @@ import { HierarchyNavigation } from "./Components/HierarchyNavigation/HierarchyN
 import { SingleDateTimePicker } from "./Components/SingleDateTimePicker/SingleDateTimePicker";
 import { DateTimeButtonSingle } from "./Components/DateTimeButtonSingle/DateTimeButtonSingle";
 import { DateTimeButtonRange } from "./Components/DateTimeButtonRange/DateTimeButtonRange";
+import { ProcessGraphic } from './Components/ProcessGraphic/ProcessGraphic';
 
 class UXClient {
     UXClient () {
@@ -112,7 +113,11 @@ class UXClient {
 
     public DateTimeButtonRange (renderTarget) {
         return new DateTimeButtonRange(renderTarget);
-    } 
+    }
+
+    public ProcessGraphic(renderTarget) {
+        return new ProcessGraphic(renderTarget);
+    }
 
     public transformTsxToEventsArray (events, options) {
         var timezoneOffset = options.timezoneOffset ? options.timezoneOffset : 0;
