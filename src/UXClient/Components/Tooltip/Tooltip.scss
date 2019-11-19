@@ -92,13 +92,18 @@
             white-space: nowrap;
             flex-grow: 1;
             overflow: hidden;
-            .tsi-tooltipAttrTitle, .tsi-tooltipMeasureTitle {
-                font-weight: bold;
+            .tsi-tooltipAttrTitle {
+                font-weight: 600;
             }
 
             .tsi-tooltipAttrValue, .tsi-tooltipMeasureValue {
                 opacity: .7;
             }
+
+            &.tsi-visibleValue {
+                font-weight: bold;
+            }
+
             .tsi-tooltipAttrValue, .tsi-tooltipMeasureValue, .tsi-tooltipAttrTitle, .tsi-tooltipMeasureTitle{
                 overflow: hidden;
                 text-overflow: ellipsis;
@@ -130,9 +135,6 @@
             margin: 0px;
             padding: 4px;
             white-space: nowrap;
-            &.tsi-visibleValue {
-                font-weight: bold;
-            }
             &.tsi-valueCell {
                 text-align: right;
                 white-space: pre-wrap;

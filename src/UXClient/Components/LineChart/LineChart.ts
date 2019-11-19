@@ -170,6 +170,20 @@ class LineChart extends TemporalXAxisComponent {
         }
         return {};
     }
+
+    private getFilteredMeasures (measureList, visibleMeasure) {
+        let justVisibleMeasure = [visibleMeasure];
+        if (measureList.length !== 3) {
+            return justVisibleMeasure
+        }
+        let isAvgMinMax = true;
+        measureList.forEach((measure) => {
+            if (!(measure === 'avg' || measure === 'min' || measure === 'max')) {
+                isAvgMinMax = false;
+            }
+        });
+        return isAvgMinMax ? measureList : justVisibleMeasure; 
+    }
     
     private tooltipFormat (d, text) {
         let dataType = this.getDataType(d.aggregateKey);
@@ -236,11 +250,14 @@ class LineChart extends TemporalXAxisComponent {
             if(dataType !== DataTypes.Numeric) {
                 let valueGroup = text.append('table')
                     .attr('class', 'tsi-tooltipValues tsi-tooltipTable');
+                let filteredMeasures = this.getFilteredMeasures(Object.keys(d.measures), this.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy)); 
                 Object.keys(d.measures).forEach((measureType, i) => {
                     let tr = valueGroup.append('tr')
                         .classed('tsi-visibleValue', (dataType === DataTypes.Numeric && (measureType === this.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy))))
                         .style('border-left-color', Utils.getColorForValue(cDO, measureType));
-                    tr.append('td').text(measureType);
+                    tr.append('td')
+                        .attr('class', 'tsi-valueLabel')
+                        .text(measureType);
                     tr.append('td')
                         .attr('class', 'tsi-valueCell')
                         .text(formatValue(d.measures[measureType]))
@@ -433,7 +450,7 @@ class LineChart extends TemporalXAxisComponent {
             this.tooltip.render(this.chartOptions.theme);
             this.tooltip.draw(d, this.chartComponentData, xPos, yPos, this.chartMargins, (text) => {
                 this.tooltipFormat(d, text);
-            }, null, 20, 20, this.chartComponentData.displayState[d.aggregateKey].color);
+            }, null, 20, 20, this.colorMap[d.aggregateKey + "_" + d.splitBy]);
         }
         else 
             this.tooltip.hide();
