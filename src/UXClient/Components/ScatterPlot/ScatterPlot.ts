@@ -192,6 +192,9 @@ class ScatterPlot extends ChartComponent {
             this.splitLegendAndSVG(this.svgSelection.node());
         }
     }
+    private getSliderWidth () {
+        return this.chartWidth + this.chartMargins.left + this.chartMargins.right - 16;
+    }
 
     /******** DRAW UPDATE FUNCTION ********/   
     public draw = (isFromResize = false) => {
@@ -343,7 +346,7 @@ class ScatterPlot extends ChartComponent {
                 }
                 return {label: Utils.timeFormat(this.chartComponentData.usesSeconds, this.chartComponentData.usesMillis, this.chartOptions.offset, 
                     this.chartOptions.is24HourTime, null, null, this.chartOptions.dateLocale)(new Date(ts)), action: action};
-            }), this.chartOptions, this.width - 10,  Utils.timeFormat(this.chartComponentData.usesSeconds, this.chartComponentData.usesMillis, 
+            }), this.chartOptions, this.getSliderWidth(),  Utils.timeFormat(this.chartComponentData.usesSeconds, this.chartComponentData.usesMillis, 
                 this.chartOptions.offset, this.chartOptions.is24HourTime, null, null, this.chartOptions.dateLocale)(new Date(this.chartComponentData.timestamp)));
         }
         else{
