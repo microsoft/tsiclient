@@ -182,7 +182,7 @@ class LineChart extends TemporalXAxisComponent {
                 isAvgMinMax = false;
             }
         });
-        return isAvgMinMax ? measureList : justVisibleMeasure; 
+        return isAvgMinMax ? measureList.sort(m => m === 'min' ? -1 : (m === 'avg' ? 0 : 1)) : justVisibleMeasure; 
     }
     
     private tooltipFormat (d, text) {
