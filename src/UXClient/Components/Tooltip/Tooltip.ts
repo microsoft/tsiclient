@@ -10,6 +10,7 @@ class Tooltip extends Component {
     private tooltipDiv;
     private tooltipText;
     public draw;
+    private borderColor;
 
 	constructor(renderTarget) {
         super(renderTarget);
@@ -56,13 +57,14 @@ class Tooltip extends Component {
         this.tooltipDiv.text(d => d);
 
         super.themify(this.tooltipDiv, theme);
-
         
         //  element width is an optional parameter which ensurea that the tooltip doesn't interfere with the element
         //when positioning to the right
-        this.draw = (d: any, chartComponentData: ChartComponentData, xPos, yPos, chartMargins, addText, elementWidth: number = null, xOffset = 20, yOffset = 20) => {
+        this.draw = (d: any, chartComponentData: ChartComponentData, xPos, yPos, chartMargins, addText, elementWidth: number = null, xOffset = 20, yOffset = 20, borderColor: string = null) => {
             this.tooltipDiv.style("display", "block")
                 .text(null);
+
+            this.borderColor = borderColor;
 
             var leftOffset = this.getLeftOffset(chartMargins);
             var topOffset = this.getTopOffset(chartMargins)
@@ -78,7 +80,12 @@ class Tooltip extends Component {
             translateX = Math.max(0 - xPos, translateX);
             var translateY = this.isTopOffset(tooltipHeight, yPos, chartMargins.bottom) ? yOffset :  (-Math.round(tooltipHeight) - yOffset);
             this.tooltipDiv.style("transform", "translate(" + translateX + "px," + translateY + "px)");
-
+            if (this.borderColor) {
+                this.tooltipDiv.style('border-color', this.borderColor)
+                    .style('border-right-width', '5px');
+            } else {
+                this.tooltipDiv.style('border-right-width', '1px');
+            }
         }
     }
 

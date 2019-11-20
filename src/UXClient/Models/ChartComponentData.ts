@@ -94,6 +94,7 @@ class ChartComponentData {
 
             this.data[i].aggKey = aggKey;
             aggregateCopy.aggKey = aggKey;
+            
             if (this.displayState[aggKey]) {
                 newDisplayState[aggKey] = {
                     visible: (aggregateExpressionOptions[i] && aggregateExpressionOptions[i].visibilityState) ? 
