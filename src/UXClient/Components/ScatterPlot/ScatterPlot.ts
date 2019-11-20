@@ -75,7 +75,7 @@ class ScatterPlot extends ChartComponent {
         this.chartMargins.left = (this.chartOptions.spAxisLabels != null && this.chartOptions.spAxisLabels.length >= 2) ? 120 : 70;
         this.aggregateExpressionOptions = data.map((d, i) => Object.assign(d, aggregateExpressionOptions && i in aggregateExpressionOptions  ? new ChartDataOptions(aggregateExpressionOptions[i]) : new ChartDataOptions({})));
 
-        this.chartComponentData.mergeDataToDisplayStateAndTimeArrays(data, this.chartOptions.timestamp, aggregateExpressionOptions);
+        this.chartComponentData.mergeDataToDisplayStateAndTimeArrays(data, this.chartOptions.timestamp, this.aggregateExpressionOptions);
         this.chartComponentData.setExtents(this.chartOptions.spMeasures, !fromSlider);
         
         // Check measure validity

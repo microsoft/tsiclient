@@ -21,7 +21,7 @@
 	.tsi-seriesLabel{
 		.tsi-splitByContainer {
 			.tsi-legendShowMore {
-				color: $gray1;
+				color: $gray6;
 				opacity: 1;
 			}
 		}
@@ -169,7 +169,9 @@
 					visibility: visible;
 					margin: 8px auto;
 					cursor: pointer;
-					text-decoration: underline;
+					&:hover{
+						text-decoration: underline;
+					}
 				}
 				overflow-y: auto;
 				visibility: hidden;
