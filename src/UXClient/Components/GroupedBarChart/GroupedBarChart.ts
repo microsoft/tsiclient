@@ -480,25 +480,13 @@ class GroupedBarChart extends ChartComponent {
                             
                             (<any>focus.node()).parentNode.appendChild(focus.node());
                         })
-                        .on("mousemove", function (d) {
+                        .on("mousemove", function (d, i) {
                             if (self.chartOptions.tooltip) {
                                 var mousePos = d3.mouse(<any>g.node());
                                 tooltip.render(self.chartOptions.theme)
-                                tooltip.draw(d, self.chartComponentData, mousePos[0], mousePos[1], self.chartMargins, (text) => {
-                                    text.text(null);
-                                    text.append("div")
-                                        .attr("class", "title")
-                                        .text(self.chartComponentData.displayState[d.aggKey].name);  
-                                    if (d.splitBy != "") {
-                                        text.append("div")
-                                            .attr("class", "value")
-                                            .text(d.splitBy);
-                                    }
-            
-                                    text.append("div")
-                                        .attr("class", "value")
-                                        .text(Utils.formatYAxisNumber(d.val));
-                                });
+                                tooltip.draw(d, self.chartComponentData, mousePos[0], mousePos[1], self.chartMargins,(text) => {
+                                    self.tooltipFormat(self.convertToTimeValueFormat(d), text);
+                                }, null, null, null, splitByColors[i]);
                             } else {
                                 tooltip.hide();
                             }

@@ -792,29 +792,8 @@ class ScatterPlot extends ChartComponent {
 
             this.tooltip.render(this.chartOptions.theme);
             this.tooltip.draw(d, this.chartComponentData, xPos, yPos, this.chartMargins, (text) => {
-                text.append("div")
-                    .attr("class", "title")
-                    .text(self.chartComponentData.displayState[d.aggregateKey].name);  
-                text.append("div")
-                    .attr("class", "value")
-                    .text(d.splitBy);
-
-                // Display datetime if scatter plot is not temporal
-                if(!this.chartOptions.isTemporal){
-                    text.append("div")
-                        .attr("class", "value")
-                        .text(Utils.timeFormat(this.labelFormatUsesSeconds(), this.labelFormatUsesMillis(), this.chartOptions.offset, 
-                            this.chartOptions.is24HourTime, null, null, this.chartOptions.dateLocale)(new Date(d.timestamp)));
-                }
-
-                let valueGroup = text.append('div').classed('valueGroup', true);
-                Object.keys(d.measures).forEach((measureType) => {
-                    if(measureType in this.chartComponentData.extents){
-                        valueGroup.append("div")
-                        .attr("class",  "value")
-                        .text(measureType + ": " + Utils.formatYAxisNumber(d.measures[measureType]));
-                    }
-                });
+                d.aggregateName = this.chartComponentData.displayState[d.aggregateKey].name;
+                this.tooltipFormat(d, text);
             });
         }
     }

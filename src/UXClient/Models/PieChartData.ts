@@ -30,7 +30,7 @@ class PieChartData extends GroupedBarChartData {
                 values.push({
                     aggKey: aggKey,
                     splitBy: splitBy,
-                    value: value,
+                    val: value,
                     splitByI: splitByI
                 });
                 this.visibleValuesSum += Math.abs(value);
