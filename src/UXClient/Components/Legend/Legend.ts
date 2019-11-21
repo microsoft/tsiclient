@@ -244,7 +244,7 @@ class Legend extends Component {
         splitByContainerEntered.selectAll('.tsi-legendShowMore').remove();
         if(this.legendState === 'shown' && shouldShowMore) {
             splitByContainerEntered.append('button')
-                .text('show more')
+                .text(this.getString('Show more'))
                 .attr('class', 'tsi-legendShowMore')
                 .style('display', (this.legendState === 'shown' && shouldShowMore) ? 'block': 'none')
                 .on('click', showMoreSplitBys);
