@@ -10,7 +10,6 @@ class HeatmapCanvas extends ChartComponent {
     private heatmapData: HeatmapData;
     private canvas: any;
     private ctx: any;
-    private width: number;
     private height: number;
     private rawCellWidth: number;
     private cellWidthMod: number;
@@ -18,7 +17,6 @@ class HeatmapCanvas extends ChartComponent {
     private cellHeightMod: number; 
     private colorLegend: any;
     private colorScale: any;
-    private legendWidth = 80;
     private gradientWidth = 8;
     private aggKey: string;
     private focusedXIndex: number = -1;
@@ -30,6 +28,11 @@ class HeatmapCanvas extends ChartComponent {
     private onCellFocus;
     private aggI: number;
     private isOnlyAgg: boolean;
+
+    constructor (renderTarget) {
+        super(renderTarget);
+        this.legendWidth = 80;
+    }
 
     private renderScale () {
         this.colorLegend.selectAll("*").remove();

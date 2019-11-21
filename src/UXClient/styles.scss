@@ -65,6 +65,15 @@ div[class^='tsi-']{
     }
 }
 
+.tsi-resizeGutter {
+    width: 6px;
+    cursor: e-resize;
+    padding: 2px;
+    background-position-y: 50%;
+    background-position-x: 0px;
+    background-repeat: no-repeat;
+}
+
 .tsi-baseContextMenu{
     white-space: nowrap;
     padding: 4px 0;
@@ -266,6 +275,12 @@ select::-ms-expand {
     .vHoverBox, .hHoverBox {
         fill: $gray3;
         stroke: $gray6;
+    }
+
+    .tsi-resizeGutter {
+        &.tsi-isDragging {
+            background-color: $gray5;
+        }
     }
 
     ::-webkit-scrollbar {

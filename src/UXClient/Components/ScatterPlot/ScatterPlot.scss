@@ -30,10 +30,17 @@
     &.tsi-dark{
         $grays: grays('dark');
         @include spColors($grays);
+        .tsi-resizeGutter {
+            background-image: url(./../../Icons/drag_handle_dark.svg);
+        }
+
     }
     &.tsi-light{
         $grays: grays('light');
         @include spColors($grays);
+        .tsi-resizeGutter {
+            background-image: url(./../../Icons/drag_handle_light.svg);
+        }
     }
     // Hide data type dropdown in scatter plot -- selection has no effect
     .tsi-splitByLabel{

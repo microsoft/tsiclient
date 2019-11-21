@@ -15,15 +15,11 @@ import { CategoricalPlot } from '../CategoricalPlot/CategoricalPlot';
 import { EventsPlot } from '../EventsPlot/EventsPlot';
 
 class LineChart extends TemporalXAxisComponent {
-    private svgSelection: any;
     private targetElement: any;
-    private legendObject: Legend;
     private focus: any;
     private contextMenu: ContextMenu;
     private brushContextMenu: ContextMenu;
     private setDisplayStateFromData: any;
-    private width: number;
-    public draw: any;
     private minBrushWidth = 1;
     private strokeOpacity = 1;
     private nonFocusStrokeOpactiy = .3;
@@ -69,18 +65,17 @@ class LineChart extends TemporalXAxisComponent {
     private plotComponents = {};
 
     private isFirstMarkerDrop = true;
-    
-    public chartMargins: any = {        
-        top: 40,
-        bottom: 40,
-        left: 70, 
-        right: 60
-    };
     private xOffset = 8;
 
     constructor(renderTarget: Element){
         super(renderTarget);
         this.MINHEIGHT = 26;
+        this.chartMargins = {        
+            top: 40,
+            bottom: 40,
+            left: 70, 
+            right: 60
+        };
     }
 
     LineChart() { 
@@ -1276,6 +1271,7 @@ class LineChart extends TemporalXAxisComponent {
     }
 
     public updateBrushRange () {
+        let svgLeftOffset = this.chartOptions.legend === 'shown' ? (this.width - this.svgSelection.node().getBoundingClientRect().width) : 0;
         if (!(this.brushStartTime || this.brushEndTime)) {
             this.deleteBrushRange();
             return;
@@ -1285,10 +1281,10 @@ class LineChart extends TemporalXAxisComponent {
         let rangeTextContainer = this.targetElement.select('.tsi-rangeTextContainer');
 
         let leftPos = this.chartMargins.left + 
-            Math.min(Math.max(0, this.x(this.brushStartTime)), this.x.range()[1]) + (this.chartOptions.legend === 'shown' ? this.CONTROLSWIDTH : 0);
+            Math.min(Math.max(0, this.x(this.brushStartTime)), this.x.range()[1]) + svgLeftOffset;
 
         let rightPos = this.chartMargins.left + 
-            Math.min(Math.max(0, this.x(this.brushEndTime)), this.x.range()[1]) + (this.chartOptions.legend === 'shown' ? this.CONTROLSWIDTH : 0);
+            Math.min(Math.max(0, this.x(this.brushEndTime)), this.x.range()[1]) + svgLeftOffset;
  
         rangeTextContainer
             .html(rangeText)
@@ -1311,10 +1307,6 @@ class LineChart extends TemporalXAxisComponent {
 
     public deleteBrushRange () {
         this.targetElement.select('.tsi-rangeTextContainer').remove();
-    }
-
-    private getChartWidth () {
-        return Math.max(0, this.width - this.chartMargins.left - this.chartMargins.right - (this.chartOptions.legend == "shown" ? this.CONTROLSWIDTH : 0));
     }
 
     private nextStackedState = () => {
@@ -1405,7 +1397,7 @@ class LineChart extends TemporalXAxisComponent {
         this.hasBrush = options && (options.brushMoveAction || options.brushMoveEndAction || options.brushContextMenuActions);
         this.chartOptions.setOptions(options);
         this.aggregateExpressionOptions = data.map((d, i) => Object.assign(d, aggregateExpressionOptions && i in aggregateExpressionOptions  ? new ChartDataOptions(aggregateExpressionOptions[i]) : new ChartDataOptions({})));
-        this.width = Math.max((<any>d3.select(this.renderTarget).node()).clientWidth, this.MINWIDTH);
+        this.width = this.getWidth();
         this.height = Math.max((<any>d3.select(this.renderTarget).node()).clientHeight, this.MINHEIGHT);
         if (this.chartOptions.legend == "compact")
             this.chartMargins.top = 72;
@@ -1441,7 +1433,7 @@ class LineChart extends TemporalXAxisComponent {
         d3.select(this.renderTarget).select(".tsi-tooltip").remove();
 
         if (!this.chartOptions.hideChartControlPanel && this.chartControlsPanel === null) {
-            this.chartControlsPanel = Utils.createControlPanel(this.renderTarget, this.CONTROLSWIDTH, Math.max((this.chartMargins.top + 12), 0), this.chartOptions);
+            this.chartControlsPanel = Utils.createControlPanel(this.renderTarget, this.legendWidth + (this.GUTTERWIDTH / 2), Math.max((this.chartMargins.top + 12), 0), this.chartOptions);
             var self = this;
             this.hasStackedButton = true;
             this.stackedButton = this.chartControlsPanel.append("button")
@@ -1558,8 +1550,7 @@ class LineChart extends TemporalXAxisComponent {
     
             this.tooltip = new Tooltip(d3.select(this.renderTarget));                        
 
-            this.draw = () => {  
-
+            this.draw = (isFromResize = false) => {  
                 this.minBrushWidth = (this.chartOptions.minBrushWidth) ? this.chartOptions.minBrushWidth : this.minBrushWidth;
                 this.focus.attr("visibility", (this.chartOptions.focusHidden) ? "hidden" : "visible")
                 if (this.chartOptions.xAxisHidden && this.chartOptions.focusHidden) {
@@ -1567,7 +1558,9 @@ class LineChart extends TemporalXAxisComponent {
                 }
 
                 this.width = Math.max((<any>d3.select(this.renderTarget).node()).clientWidth, this.MINWIDTH);
-                this.chartWidth = this.getChartWidth();
+                if (!isFromResize) {
+                    this.chartWidth = this.getChartWidth();
+                }
                 this.height = Math.max((<any>d3.select(this.renderTarget).node()).clientHeight, this.MINHEIGHT);
                 this.chartHeight = Math.max(1, this.height - this.chartMargins.bottom - this.chartMargins.top); 
 
@@ -1580,16 +1573,19 @@ class LineChart extends TemporalXAxisComponent {
                 this.focus.select('.hLine').attr("x2", this.chartWidth);
                 this.focus.select('.vLine').attr("y2", this.chartHeight);
                 this.svgSelection
-                    .style("width", (this.chartWidth + this.chartMargins.left + this.chartMargins.right) + "px")
+                    .style("width", this.getSVGWidth() + "px")
                     .style("height", this.height + "px");
                      
                 super.themify(this.targetElement, this.chartOptions.theme);
-                        
-                this.legendObject.draw(this.chartOptions.legend, this.chartComponentData, (aggKey, splitBy) => { this.labelMouseover(aggKey, splitBy); }, 
-                                       this.svgSelection, this.chartOptions, () => {
-                                        d3.select(this.renderTarget).selectAll(".tsi-scooterValue")
-                                            .style("opacity", 1);
-                                       }, this.stickySeries);
+
+                
+                if (!isFromResize) {
+                    this.legendObject.draw(this.chartOptions.legend, this.chartComponentData, (aggKey, splitBy) => { this.labelMouseover(aggKey, splitBy); }, 
+                    this.svgSelection, this.chartOptions, () => {
+                     d3.select(this.renderTarget).selectAll(".tsi-scooterValue")
+                         .style("opacity", 1);
+                    }, this.stickySeries);
+                }        
 
                 this.svgSelection.selectAll('.valueElement').style("visibility", "hidden");
                 this.svgSelection.selectAll(".yAxis").style("visibility", "hidden");    
@@ -1846,8 +1842,7 @@ class LineChart extends TemporalXAxisComponent {
                 let timeFrame = (this.chartOptions.timeFrame) ? this.chartOptions.timeFrame : this.x.domain();
 
                 if (!this.chartOptions.hideChartControlPanel && this.chartControlsPanel !== null) {
-                    let controlPanelWidth = Utils.getControlPanelWidth(this.renderTarget, this.CONTROLSWIDTH, this.chartOptions.legend === 'shown');
-                    this.chartControlsPanel.style("width", controlPanelWidth + "px");
+                    this.chartControlsPanel.style("width", this.calcSVGWidth() + "px")
                 }
 
                 if (Object.keys(this.chartComponentData.timeMap).length == 0) {
@@ -1859,7 +1854,7 @@ class LineChart extends TemporalXAxisComponent {
                 this.voronoiDiagram = this.voronoi(this.getFilteredAndSticky(this.chartComponentData.allValues));
             }
 
-            this.legendObject = new Legend(this.draw, this.renderTarget, this.CONTROLSWIDTH);
+            this.legendObject = new Legend(this.draw, this.renderTarget, this.legendWidth);
             this.contextMenu = new ContextMenu(this.draw, this.renderTarget);
             this.brushContextMenu = new ContextMenu(this.draw, this.renderTarget);
             window.addEventListener("resize", () => {
@@ -1886,6 +1881,13 @@ class LineChart extends TemporalXAxisComponent {
                 this.ellipsisMenu.setMenuVisibility(false);
             }
         });
+
+        if (this.chartOptions.legend === 'shown') {
+            this.splitLegendAndSVG(this.svgSelection.node(), () => {                
+                this.updateBrushRange();
+            });
+            this.setControlsPanelWidth();
+        }
     }
 
     private createPlot (svgGroup, i, cDO) {
