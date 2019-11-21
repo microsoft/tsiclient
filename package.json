@@ -35,6 +35,7 @@
         "d3-interpolate-path": "^1.1.1",
         "moment-timezone": "^0.5.21",
         "npm": "^6.4.0",
-        "promise-polyfill": "^7.1.0"
+        "promise-polyfill": "^7.1.0",
+        "split.js": "^1.5.11"
     }
 }
