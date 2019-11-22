@@ -6,7 +6,7 @@ import { Legend } from './../Legend/Legend';
 import { ScatterPlotData } from '../../Models/ScatterPlotData';
 import {Slider} from './../Slider/Slider';
 import { Tooltip } from '../Tooltip/Tooltip';
-import { Utils } from './../../Utils';
+import { Utils, TooltipMeasureFormat } from './../../Utils';
 
 class ScatterPlot extends ChartComponent {
     private activeDot: any = null;
@@ -794,8 +794,8 @@ class ScatterPlot extends ChartComponent {
             this.tooltip.render(this.chartOptions.theme);
             this.tooltip.draw(d, this.chartComponentData, xPos, yPos, this.chartMargins, (text) => {
                 d.aggregateName = this.chartComponentData.displayState[d.aggregateKey].name;
-                this.tooltipFormat(d, text);
-            });
+                this.tooltipFormat(d, text, TooltipMeasureFormat.Scatter, [this.xMeasure, this.yMeasure, this.rMeasure]);
+            }, null, 20, 20, Utils.colorSplitBy(this.chartComponentData.displayState, d.splitByI, d.aggregateKey, this.chartOptions.keepSplitByColor));
         }
     }
 

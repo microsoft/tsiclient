@@ -1,7 +1,7 @@
 import * as d3 from 'd3';
 import { interpolatePath } from 'd3-interpolate-path';
 import './LineChart.scss';
-import {Utils, DataTypes, LINECHARTTOPPADDING} from "./../../Utils";
+import {Utils, DataTypes, LINECHARTTOPPADDING, TooltipMeasureFormat} from "./../../Utils";
 import {Legend} from "./../Legend/Legend";
 import {TemporalXAxisComponent} from "./../../Interfaces/TemporalXAxisComponent";
 import {LineChartData} from "./../../Models/LineChartData";
@@ -213,7 +213,7 @@ class LineChart extends TemporalXAxisComponent {
         if (this.chartOptions.tooltip){
             this.tooltip.render(this.chartOptions.theme);
             this.tooltip.draw(d, this.chartComponentData, xPos, y, this.chartMargins, (text) => {
-                this.tooltipFormat(d, text);
+                this.tooltipFormat(d, text, TooltipMeasureFormat.SingleValue);
             }, width, 0, 0);
         }
         else 
@@ -249,7 +249,7 @@ class LineChart extends TemporalXAxisComponent {
             this.tooltip.render(this.chartOptions.theme);
             this.tooltip.draw(d, this.chartComponentData, xPos, y, this.chartMargins, (text) => {
                 d.endDate = endDate;
-                this.tooltipFormat(d, text);
+                this.tooltipFormat(d, text,TooltipMeasureFormat.SingleValue);
             }, width, 0, 0);
         }
         else 
@@ -326,7 +326,7 @@ class LineChart extends TemporalXAxisComponent {
         if (this.chartOptions.tooltip){
             this.tooltip.render(this.chartOptions.theme);
             this.tooltip.draw(d, this.chartComponentData, xPos, yPos, this.chartMargins, (text) => {
-                this.tooltipFormat(d, text);
+                this.tooltipFormat(d, text, TooltipMeasureFormat.Enveloped);
             }, null, 20, 20, this.colorMap[d.aggregateKey + "_" + d.splitBy]);
         }
         else 

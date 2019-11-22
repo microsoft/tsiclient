@@ -1,6 +1,6 @@
 import * as d3 from 'd3';
 import './GroupedBarChart.scss';
-import {Utils} from "./../../Utils";
+import {Utils, TooltipMeasureFormat} from "./../../Utils";
 import {Legend} from './../Legend/Legend';
 import {Slider} from './../Slider/Slider';
 import {ChartComponent} from "./../../Interfaces/ChartComponent";
@@ -479,8 +479,8 @@ class GroupedBarChart extends ChartComponent {
                                 var mousePos = d3.mouse(<any>g.node());
                                 tooltip.render(self.chartOptions.theme)
                                 tooltip.draw(d, self.chartComponentData, mousePos[0], mousePos[1], self.chartMargins,(text) => {
-                                    self.tooltipFormat(self.convertToTimeValueFormat(d), text);
-                                }, null, null, null, splitByColors[i]);
+                                    self.tooltipFormat(self.convertToTimeValueFormat(d), text, TooltipMeasureFormat.SingleValue);
+                                }, null, 20, 20, splitByColors[i]);
                             } else {
                                 tooltip.hide();
                             }

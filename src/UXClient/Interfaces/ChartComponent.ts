@@ -1,4 +1,4 @@
-import {Utils, DataTypes } from "./../Utils";
+import {Utils, DataTypes, TooltipMeasureFormat } from "./../Utils";
 import {Component} from "./Component";
 import {ChartComponentData} from './../Models/ChartComponentData'; 
 import {ChartOptions} from './../Models/ChartOptions';
@@ -107,18 +107,25 @@ class ChartComponent extends Component {
         return {};
 	}
 	
-	protected getFilteredMeasures (measureList, visibleMeasure) {
-        let justVisibleMeasure = [visibleMeasure];
-        if (measureList.length !== 3) {
-            return justVisibleMeasure;
-        }
-        let isAvgMinMax = true;
-        measureList.forEach((measure) => {
-            if (!(measure === 'avg' || measure === 'min' || measure === 'max')) {
-                isAvgMinMax = false;
-            }
-        });
-        return isAvgMinMax ? measureList.sort(m => m === 'min' ? -1 : (m === 'avg' ? 0 : 1)) : justVisibleMeasure; 
+	protected getFilteredMeasures (measureList, visibleMeasure, measureFormat: TooltipMeasureFormat, xyrMeasures = null) {
+		let justVisibleMeasure = [visibleMeasure];
+		switch (measureFormat) {
+			case TooltipMeasureFormat.SingleValue: 
+				return justVisibleMeasure;
+			case TooltipMeasureFormat.Scatter:
+				return xyrMeasures;
+			default:
+				if (measureList.length !== 3) {
+					return justVisibleMeasure;
+				}
+				let isAvgMinMax = true;
+				measureList.forEach((measure) => {
+					if (!(measure === 'avg' || measure === 'min' || measure === 'max')) {
+						isAvgMinMax = false;
+					}
+				});
+				return isAvgMinMax ? measureList.sort(m => m === 'min' ? -1 : (m === 'avg' ? 0 : 1)) : justVisibleMeasure; 
+		}
 	}
 	
 	// to get alignment for data points between other types and linechart for tooltip formatting
@@ -134,7 +141,7 @@ class ChartComponent extends Component {
 		}
 	}
 
-	protected tooltipFormat (d, text) {
+	protected tooltipFormat (d, text, measureFormat: TooltipMeasureFormat, xyrMeasures = null) {
         let dataType = this.getDataType(d.aggregateKey);
         var title = d.aggregateName;   
         let cDO = this.getCDOFromAggKey(d.aggregateKey);
@@ -212,12 +219,15 @@ class ChartComponent extends Component {
                 });    
             } else {
                 let valueGroup = text.append('div')
-                    .attr('class', 'tsi-tooltipFlexyBox');
-                let filteredMeasures = this.getFilteredMeasures(Object.keys(d.measures), this.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy)); 
-                filteredMeasures.forEach((measureType, i) => {
+					.attr('class', 'tsi-tooltipFlexyBox');
+                let filteredMeasures = this.getFilteredMeasures(Object.keys(d.measures), this.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy), measureFormat, xyrMeasures); 
+				filteredMeasures.forEach((measureType, i) => {
                     let valueItem = valueGroup.append('div')
                         .attr('class', 'tsi-tooltipFlexyItem')
-                        .classed('tsi-visibleValue', (dataType === DataTypes.Numeric && (measureType === this.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy))));
+						.classed('tsi-visibleValue', 
+							(dataType === DataTypes.Numeric && 
+							(measureType === this.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy)) &&
+							(measureFormat !== TooltipMeasureFormat.Scatter)));
                     valueItem.append('div')
                         .attr('class', 'tsi-tooltipMeasureTitle')    
                         .text(measureType);
