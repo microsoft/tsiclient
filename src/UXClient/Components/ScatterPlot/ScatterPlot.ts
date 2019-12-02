@@ -791,10 +791,15 @@ class ScatterPlot extends ChartComponent {
             let xPos = mousePosition[0];
             let yPos = mousePosition[1];
 
+            let xyrMeasures = [this.xMeasure, this.yMeasure];
+            if (this.rMeasure !== null) {
+                xyrMeasures.push(this.rMeasure);
+            }
+
             this.tooltip.render(this.chartOptions.theme);
             this.tooltip.draw(d, this.chartComponentData, xPos, yPos, this.chartMargins, (text) => {
                 d.aggregateName = this.chartComponentData.displayState[d.aggregateKey].name;
-                this.tooltipFormat(d, text, TooltipMeasureFormat.Scatter, [this.xMeasure, this.yMeasure, this.rMeasure]);
+                this.tooltipFormat(d, text, TooltipMeasureFormat.Scatter, xyrMeasures);
             }, null, 20, 20, Utils.colorSplitBy(this.chartComponentData.displayState, d.splitByI, d.aggregateKey, this.chartOptions.keepSplitByColor));
         }
     }
