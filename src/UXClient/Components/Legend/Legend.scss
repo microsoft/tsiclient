@@ -277,7 +277,7 @@
 			}
 			select {
 				left: 20px;
-				width: 60px;
+				max-width: calc(100% - 64px);
 				margin: 2px;
 				border: none;
 				position: absolute;
@@ -286,8 +286,12 @@
 				-moz-appearance: none;
 				appearance: none;
 				padding: 2px;
-				background: url(../../Icons/chevron.svg) 90% / 30% no-repeat;
+				background-image: url(../../Icons/chevron.svg);
+				background-repeat: no-repeat;
+				background-position-x: calc(100% - 4px);
 				background-position-y: 7px;
+				background-size: 18px;
+				padding-right: 28px;
 			}
 			select::-ms-expand { 
 				display: none; /* remove default arrow on ie10 and ie11 */
