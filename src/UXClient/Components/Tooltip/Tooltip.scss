@@ -67,6 +67,9 @@
             white-space: nowrap;
             font-weight: normal;
             margin: 0px;
+            font-size: 12px;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
     }
 
