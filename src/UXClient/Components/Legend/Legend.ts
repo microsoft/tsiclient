@@ -125,12 +125,12 @@ class Legend extends Component {
                 }
             })
             .on("click", function (splitBy: string, i: number) {
-                if (this.legendState == "compact") {
-                    this.toggleSplitByVisible(aggKey, splitBy);
+                if (self.legendState == "compact") {
+                    self.toggleSplitByVisible(aggKey, splitBy);
                 } else {
-                    this.toggleSticky(aggKey, splitBy);
+                    self.toggleSticky(aggKey, splitBy);
                 }
-                this.drawChart();
+                self.drawChart();
             })
             .on("mouseover", function(splitBy: string, i: number) {
                 d3.event.stopPropagation();

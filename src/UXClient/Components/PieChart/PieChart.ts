@@ -1,6 +1,6 @@
 import * as d3 from 'd3';
 import './PieChart.scss';
-import {Utils} from "./../../Utils";
+import {Utils, TooltipMeasureFormat} from "./../../Utils";
 import {Legend} from './../Legend/Legend';
 import {ContextMenu} from './../ContextMenu/ContextMenu';
 import {ChartComponent} from "./../../Interfaces/ChartComponent";
@@ -116,26 +116,10 @@ class PieChart extends ChartComponent {
                     var xPos = mousePosition[0];
                     var yPos = mousePosition[1];
                     tooltip.render(self.chartOptions.theme);
+                    let color = Utils.colorSplitBy(self.chartComponentData.displayState, d.data.splitByI, d.data.aggKey, self.chartOptions.keepSplitByColor);
                     tooltip.draw(d, self.chartComponentData, xPos, yPos, {...self.chartMargins, top: 0, bottom: 0}, (text) => {
-                        text.text(null); 
-                        text.append("div")
-                            .attr("class", "title")
-                            .text(self.chartComponentData.displayState[d.data.aggKey].name);  
-                        //split by if appropriate
-                        if (d.data.splitBy != "") {
-                            text.append("div")
-                                .attr("class", "value")
-                                .text(d.data.splitBy);
-                        }
-
-                        text.append("div")
-                            .attr("class", "value")
-                            .text(Utils.formatYAxisNumber(d.data.value));
-                        
-                        text.append("div")
-                            .attr("class", "value")
-                            .text((Math.round(1000 * Math.abs(d.data.value) / self.chartComponentData.visibleValuesSum) / 10) + "%");
-                    });
+                        self.tooltipFormat(self.convertToTimeValueFormat(d.data), text, TooltipMeasureFormat.SingleValue);
+                    }, null, 20, 20, color);
                 }
 
                 this.legendObject.draw(this.chartOptions.legend, this.chartComponentData, labelMouseover, 
@@ -143,7 +127,7 @@ class PieChart extends ChartComponent {
                 var pie = d3.pie()
                     .sort(null)
                     .value(function(d: any) { 
-                        return Math.abs(d.value); 
+                        return Math.abs(d.val); 
                     });
                 
                 var path: any = d3.arc()

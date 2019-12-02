@@ -1,7 +1,7 @@
 import * as d3 from 'd3';
 import { interpolatePath } from 'd3-interpolate-path';
 import './LineChart.scss';
-import {Utils, DataTypes, LINECHARTTOPPADDING} from "./../../Utils";
+import {Utils, DataTypes, LINECHARTTOPPADDING, TooltipMeasureFormat} from "./../../Utils";
 import {Legend} from "./../Legend/Legend";
 import {TemporalXAxisComponent} from "./../../Interfaces/TemporalXAxisComponent";
 import {LineChartData} from "./../../Models/LineChartData";
@@ -156,124 +156,6 @@ class LineChart extends TemporalXAxisComponent {
         this.targetElement.selectAll(".tsi-markerInstructions").remove();
     }   
 
-    private getCDOFromAggKey (aggKey) {
-        let matches = this.aggregateExpressionOptions.filter((cDO) => {
-            return cDO.aggKey === aggKey;
-        });
-        if (matches.length === 1) {
-            return matches[0];
-        }
-        return {};
-    }
-
-    private getFilteredMeasures (measureList, visibleMeasure) {
-        let justVisibleMeasure = [visibleMeasure];
-        if (measureList.length !== 3) {
-            return justVisibleMeasure;
-        }
-        let isAvgMinMax = true;
-        measureList.forEach((measure) => {
-            if (!(measure === 'avg' || measure === 'min' || measure === 'max')) {
-                isAvgMinMax = false;
-            }
-        });
-        return isAvgMinMax ? measureList.sort(m => m === 'min' ? -1 : (m === 'avg' ? 0 : 1)) : justVisibleMeasure; 
-    }
-    
-    private tooltipFormat (d, text) {
-        let dataType = this.getDataType(d.aggregateKey);
-        var title = d.aggregateName;   
-        let cDO = this.getCDOFromAggKey(d.aggregateKey);
-
-        let shiftMillis = this.chartComponentData.getTemporalShiftMillis(d.aggregateKey);
-
-        let formatDate = (date) => {
-            return Utils.timeFormat(this.chartComponentData.usesSeconds, this.chartComponentData.usesMillis, 
-                this.chartOptions.offset, this.chartOptions.is24HourTime, shiftMillis, null, this.chartOptions.dateLocale)(date);
-        }
-
-        text.append("div")
-            .attr("class", "tsi-tooltipTitle")
-            .text(d.aggregateName);
-
-        let subtitle = text.append("div")
-            .attr("class", "tsi-tooltipSubtitle")
-
-        if (d.splitBy && d.splitBy != ""){
-            subtitle.append('h4')
-                .text(d.splitBy)
-                .attr('class', 'tsi-tooltipSeriesName');
-        }
-
-        if (dataType === DataTypes.Categorical) {
-            subtitle.append('h4')
-                .attr('class', 'tsi-tooltipTimeStamp')
-                .text(formatDate(d.dateTime) + ' - ' + formatDate(d.endDate));
-        }
-
-        if (dataType === DataTypes.Events) {
-            subtitle.append('h4')
-                .attr('class', 'tsi-tooltipTimeStamp')
-                .text(formatDate(d.dateTime));
-        }
-
-        let tooltipAttrs = cDO.tooltipAttributes;
-        if (shiftMillis !== 0 && tooltipAttrs) {
-            tooltipAttrs = [...tooltipAttrs, [this.getString("shifted"), this.chartComponentData.getTemporalShiftString(d.aggregateKey)]];
-        }
-
-        if (tooltipAttrs && tooltipAttrs.length > 0) {
-            let attrsGroup = text.append('div')
-                .attr('class', 'tsi-tooltipAttributeContainer tsi-tooltipFlexyBox');
-            tooltipAttrs.forEach((attrTuple, i) => {
-                let timeShiftRow = attrsGroup.append('div')
-                    .attr('class', 'tsi-tooltipAttribute tsi-tooltipFlexyItem');
-                timeShiftRow.append('div')
-                    .attr('class', 'tsi-tooltipAttrTitle')
-                    .text(attrTuple[0]);
-                timeShiftRow.append('div')
-                    .attr('class', 'tsi-tooltipAttrValue')
-                    .text(attrTuple[1]);
-            })
-        }
-
-        let formatValue = (dataType === DataTypes.Events ? (d) => d : Utils.formatYAxisNumber)
-
-        if (d.measures && Object.keys(d.measures).length) {
-            let formatValue = (dataType === DataTypes.Events ? (d) => d : Utils.formatYAxisNumber)
-            
-            if(dataType !== DataTypes.Numeric) {
-                let valueGroup = text.append('table')
-                    .attr('class', 'tsi-tooltipValues tsi-tooltipTable');
-                Object.keys(d.measures).forEach((measureType, i) => {
-                    let tr = valueGroup.append('tr')
-                        .classed('tsi-visibleValue', (dataType === DataTypes.Numeric && (measureType === this.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy))))
-                        .style('border-left-color', Utils.getColorForValue(cDO, measureType));
-                    tr.append('td')
-                        .attr('class', 'tsi-valueLabel')
-                        .text(measureType);
-                    tr.append('td')
-                        .attr('class', 'tsi-valueCell')
-                        .text(formatValue(d.measures[measureType]))
-                });    
-            } else {
-                let valueGroup = text.append('div')
-                    .attr('class', 'tsi-tooltipFlexyBox');
-                let filteredMeasures = this.getFilteredMeasures(Object.keys(d.measures), this.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy)); 
-                filteredMeasures.forEach((measureType, i) => {
-                    let valueItem = valueGroup.append('div')
-                        .attr('class', 'tsi-tooltipFlexyItem')
-                        .classed('tsi-visibleValue', (dataType === DataTypes.Numeric && (measureType === this.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy))));
-                    valueItem.append('div')
-                        .attr('class', 'tsi-tooltipMeasureTitle')    
-                        .text(measureType);
-                    valueItem.append('div')
-                        .attr('class', 'tsi-tooltipMeasureValue')
-                        .text(formatValue(d.measures[measureType]))
-                });   
-            }
-        }
-    }
     public triggerLineFocus = (aggKey: string, splitBy: string) => {
         this.svgSelection.selectAll(".valueElement")
             .attr("stroke-opacity", this.nonFocusStrokeOpactiy)
@@ -331,7 +213,7 @@ class LineChart extends TemporalXAxisComponent {
         if (this.chartOptions.tooltip){
             this.tooltip.render(this.chartOptions.theme);
             this.tooltip.draw(d, this.chartComponentData, xPos, y, this.chartMargins, (text) => {
-                this.tooltipFormat(d, text);
+                this.tooltipFormat(d, text, TooltipMeasureFormat.SingleValue);
             }, width, 0, 0);
         }
         else 
@@ -367,7 +249,7 @@ class LineChart extends TemporalXAxisComponent {
             this.tooltip.render(this.chartOptions.theme);
             this.tooltip.draw(d, this.chartComponentData, xPos, y, this.chartMargins, (text) => {
                 d.endDate = endDate;
-                this.tooltipFormat(d, text);
+                this.tooltipFormat(d, text,TooltipMeasureFormat.SingleValue);
             }, width, 0, 0);
         }
         else 
@@ -444,7 +326,7 @@ class LineChart extends TemporalXAxisComponent {
         if (this.chartOptions.tooltip){
             this.tooltip.render(this.chartOptions.theme);
             this.tooltip.draw(d, this.chartComponentData, xPos, yPos, this.chartMargins, (text) => {
-                this.tooltipFormat(d, text);
+                this.tooltipFormat(d, text, TooltipMeasureFormat.Enveloped);
             }, null, 20, 20, this.colorMap[d.aggregateKey + "_" + d.splitBy]);
         }
         else 
@@ -773,10 +655,6 @@ class LineChart extends TemporalXAxisComponent {
         var yScale = this.yMap[d.aggregateKey];
         return Math.round(yScale(this.getValueOfVisible(d)) - this.chartOptions.aggTopMargin) + "px";
     }
-
-    private getDataType (aggKey) {
-        return this.chartComponentData.displayState[aggKey] ? this.chartComponentData.displayState[aggKey].dataType : null;
-    } 
 
     private setScooterLabels (scooter, includeTransition = false) {
         var millis = this.scooterGuidMap[scooter.datum()];
