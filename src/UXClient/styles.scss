@@ -14,6 +14,14 @@ div[class^='tsi-']{
 	font-family: "Segoe UI", sans-serif; 
 }
 
+.tsi-textWrap{
+    overflow: hidden;
+    white-space: pre-wrap;
+    text-overflow: ellipsis;
+    hyphens: auto;
+    overflow-wrap: break-word;
+}
+
 .tsi-hidden{
     display: none;
 }
@@ -61,7 +69,17 @@ div[class^='tsi-']{
                 background-color: $gray3;
             }
         }  
+        box-shadow: 0 1px 3px 0 rgba($gray1, .16);
     }
+}
+
+.tsi-resizeGutter {
+    width: 6px;
+    cursor: e-resize;
+    padding: 2px;
+    background-position-y: 50%;
+    background-position-x: 0px;
+    background-repeat: no-repeat;
 }
 
 .tsi-baseContextMenu{
@@ -265,6 +283,12 @@ select::-ms-expand {
     .vHoverBox, .hHoverBox {
         fill: $gray3;
         stroke: $gray6;
+    }
+
+    .tsi-resizeGutter {
+        &.tsi-isDragging {
+            background-color: $gray5;
+        }
     }
 
     ::-webkit-scrollbar {

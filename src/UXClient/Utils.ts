@@ -15,6 +15,7 @@ export const LINECHARTTOPPADDING = 16;
 enum StackStates {Stacked = "stacked", Shared = "shared", Overlap = "overlap" };
 export enum DataTypes {Numeric = 'numeric', Categorical = 'categorical', Events = 'events'};
 export enum EventElementTypes {Diamond = 'diamond', Teardrop = 'teardrop'};
+export enum TooltipMeasureFormat {Enveloped = 'Enveloped', SingleValue = 'SingleValue', Scatter = 'Scatter'} 
 
 class Utils {
     static formatYAxisNumber (val: number) {

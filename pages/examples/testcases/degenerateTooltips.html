@@ -1,0 +1,149 @@
+
+<!DOCTYPE html>
+<html lang='en'>
+    <head>
+        <title>Multiple Series Types</title>
+
+        <!-- boilerplate headers are injected with head.js, grab them from the live example header, or include a link to head.js -->
+        <script src="../boilerplate/head.js"></script>
+    </head>
+    <body style="font-family: 'Segoe UI', sans-serif;">
+        <div id="chart1" style="width: 100%; height: 600px;"></div>
+        <div id="chart2" style="width: 100%; height: 600px;"></div>
+        <script>
+            window.onload = function() {
+
+                // create fake data in the shape our charts expect
+                var data = [];
+                var from = new Date();
+                from.setMinutes(0);
+                from.setSeconds(0);
+                from.setMilliseconds(0);
+                var to;
+                for(var i = 0; i < 2; i++){
+                    var lines = {};
+                    data.push({[`Factory${i}`]: lines});
+                    for(var j = 0; j < 5; j++){
+                        var values = {};
+                        lines[`Station${j}`] = values;
+                        for(var k = 0; k <= 60; k++){
+                            if(!(k%2 && k%3)){  // if check is to create some sparseness in the data
+                                var to = new Date(from.valueOf() + 1000*60*k);
+                                let val = Math.random() * 20 + .0002010405;
+                                if(i=== 0)
+                                    values[to.toISOString()] = {avg: val, min: val -1, max: val+1};
+                                else
+                                    values[to.toISOString()] = {avg: val};
+                            }
+                        }
+                    }
+                }
+
+                var events = {};
+                data.push({[`Factory2asdlkjf;alsdkjf;alskjdf;laks jdf;laskjdf;laksjdf;lkaj;laskdjf;laskdjf`]: events});
+                for(var j = 0; j < 2; j++){
+                    var values = {};
+                    events[`Station${j}.masd;/flajsd;lfkjas;dlfkjasd;lfkjas;ldkfj;asldkfj a; slkdjf ;laskdjf;laksjdf;alksjdf `] = values;
+                    for(var k = 0; k <= 60; k++){
+                        if((k%2 === 0 || k%3 === 0)){  // if check is to create some sparseness in the data
+                            var to = new Date(from.valueOf() + 1000*60*k);
+                            let measures = {};
+                            if (k % 2 === 0 && Math.random() > .7) {
+                                measures['badEvent'] = 'something bad happened';
+                            }
+                            if (k % 3 === 0 && Math.random() > .4) {
+                                measures['goodEvent'] = 'something good happened';
+                            }
+                            if (Object.keys(measures).length > 0) {
+                                values[to.toISOString()] = measures
+                            }
+                        }
+                    }
+                }
+
+                var states = {};
+                data.push({[`Factory3`]: states});
+                var values = {};
+                var values4 = {};
+                for(var j = 0; j < 3; j++){
+                    values = {};
+                    states[`Station${j}`] = values;
+                    for(var k = 0; k < 60; k++){
+                        var val1 = Math.random();
+                        if (val1 < .5) {
+                            val1 = 1;
+                        }
+                        var val2 = (1 - val1) / 2;
+                        var val3 = (1 - val1) / 2;
+                        var to = new Date(from.valueOf() + 1000*60*k);
+                        if(Math.random() < .8)
+                            values[to.toISOString()] = {state1: val1, state2: val2, 'statasdf asdfasdfasdfasdfasfasdf asdfasdfasdfasdfasdfasdfae4': val3, statasdfasdfasdfasdfasdfasfasdfasdfasdfasdfasdfasdfasdfae4: 0, state5: 0, state6: 0, state7: 0};
+                        else
+                            values[to.toISOString()] = null;
+
+                        values4[to.toISOString()] = {state1: .4};
+                    }
+                }
+
+                states[`Station3`] = values4;
+
+                var eventValueMapping = {
+                    badEvent: {
+                        color: '#FD625E'
+                    },
+                    goodEvent: {
+                        color: '#3599B8'
+                    }
+                }
+
+                var valueMapping = {
+                    state1: {
+                        color: '#F2C80F'
+                    },
+                    state2: {
+                        color: '#FD625E'
+                    },
+                    'statasdf asdfasdfasdfasdfasfasdf asdfasdfasdfasdfasdfasdfae4': {
+                        color:'#3599B8'
+                    },
+                    statasdfasdfasdfasdfasdfasfasdfasdfasdfasdfasdfasdfasdfae4: {
+                        color:'red'
+                    },
+                    state5: {
+                        color:'orange'
+                    },
+                    state6: {
+                        color:'green'
+                    },
+                    state7: {
+                        color:'purple'
+                    }
+                }
+
+                // render the data in a chart
+                var onElementClick = function (aggKey, sb, ts, measures) { console.log(aggKey, sb, ts, measures); }
+                var tsiClient = new TsiClient();
+                var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart1'));
+                var data2 = JSON.parse(JSON.stringify(data));
+                lineChart.render(data, {theme: 'dark', legend: 'shown', grid: true, tooltip: true, brushMoveEndAction: () => {}},
+                    [{includeEnvelope: true, tooltipAttributes: [['Units','Celsius'], ['Manufacturer', 'Eaton']]},
+                    {},
+                    // {dataType: 'events', valueMapping: eventValueMapping, height: 50, eventElementType: 'teardrop', onElementClick: onElementClick},
+                    // {dataType: 'categorical', valueMapping: valueMapping, height: 100, onElementClick: onElementClick, rollupCategoricalValues: true}
+                    {tooltipAttributes: [['foo','bar'], ['fizzzlfkja asdfasdfasdfasdfasdfasdfasdfasdfasfdasfdlkjdalfj', 'buzokj asdflknadf;oihn'], ['fizzzlfk jalkjdaasdfasdflfj', 'buzasdfasdfasd fasdfasdfasdfokjasdflknadf; ihasdfasdfasdfasn']], dataType: 'events', valueMapping: eventValueMapping, height: 50, eventElementType: 'teardrop', onElementClick: onElementClick},
+                    {tooltipAttributes: [['foo','bar'], ['fizzzlfkjalkjdalfj', 'buzokjasdflknadf;oihn']], dataType: 'categorical', valueMapping: valueMapping, height: 100, onElementClick: onElementClick, rollupCategoricalValues: true}
+                ]);
+
+                var lineChart2 = new tsiClient.ux.LineChart(document.getElementById('chart2'));
+                lineChart2.render(data2, {theme: 'light', legend: 'shown', grid: true, tooltip: true, brushMoveEndAction: () => {}},
+                    [{includeEnvelope: true, tooltipAttributes: [['Units','Celsius'], ['Manufacturer', 'Eaton']]},
+                    {},
+                    {dataType: 'events', valueMapping: eventValueMapping, height: 50, eventElementType: 'teardrop', onElementClick: onElementClick},
+                    {dataType: 'categorical', valueMapping: valueMapping, height: 100, onElementClick: onElementClick, rollupCategoricalValues: true}
+                    // {tooltipAttributes: [['foo','bar'], ['fizzzlfkjaasdfasdfasdfasdfasdfasdfasdfasdfasfdasfdlkjdalfj', 'buzokjasdflknadf;oihn'], ['fizzzlfkjalkjdaasdfasdflfj', 'buzasdfasdfasdfasdfasdfasdfokjasdflknadf;oihasdfasdfasdfasn']], dataType: 'events', valueMapping: eventValueMapping, height: 50, eventElementType: 'teardrop', onElementClick: onElementClick},
+                    // {tooltipAttributes: [['foo','bar'], ['fizzzlfkjalkjdalfj', 'buzokjasdflknadf;oihn']], dataType: 'categorical', valueMapping: valueMapping, height: 100, onElementClick: onElementClick, rollupCategoricalValues: true}
+                ]);
+            }
+        </script>
+    </body>
+</html>

@@ -52,8 +52,8 @@
                 <div>
                     <label>tooltip </label>
                     <select onchange='(function(){ toggleChartOption("tooltip", (event.target.value === "true")) })(event)'>
-                        <option value='true'>true</option>
-                        <option value='false' selected>false</option>
+                        <option value='true' selected>true</option>
+                        <option value='false'>false</option>
                     </select>
                 </div>
                 <div>
@@ -218,7 +218,7 @@
                 yExtent: [0,1], 
                 legend: 'shown', 
                 offset: 'Local', 
-                tooltip: false, 
+                tooltip: true, 
                 canDownload: false, 
                 hideChartControlPanel: false, 
                 is24HourTime: false, 

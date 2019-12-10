@@ -6,12 +6,11 @@ import { Legend } from './../Legend/Legend';
 import { ScatterPlotData } from '../../Models/ScatterPlotData';
 import {Slider} from './../Slider/Slider';
 import { Tooltip } from '../Tooltip/Tooltip';
-import { Utils } from './../../Utils';
+import { Utils, TooltipMeasureFormat } from './../../Utils';
 
 class ScatterPlot extends ChartComponent {
     private activeDot: any = null;
     private chartHeight: number;
-    private chartWidth: number;
     private controlsOffset: number;
     private focus: any;
     private focusedAggKey: string;
@@ -19,20 +18,17 @@ class ScatterPlot extends ChartComponent {
     private focusedSite: any = null;
     private g: any;
     private height: number;
-    private legendObject: Legend;
     private measures: Array<string>;
     private pointWrapper: any;
     private rMeasure: string;
     private rScale: any;
     private slider: any;
     private sliderWrapper: any;
-    private svgSelection: any;
     private targetElement: any;
     private tooltip: Tooltip;
     private voronoi: any;
     private voronoiDiagram: any;
     private voronoiGroup: any;
-    private width: number;
     private xAxis: any;
     private xMeasure: string;
     private xScale: any;
@@ -50,15 +46,15 @@ class ScatterPlot extends ChartComponent {
     
     chartComponentData = new ScatterPlotData();
 
-    public chartMargins: any = {        
-        top: 40,
-        bottom: 48,
-        left: 70, 
-        right: 60
-    };
-  
+
     constructor(renderTarget: Element){
         super(renderTarget);
+        this.chartMargins = {        
+            top: 40,
+            bottom: 48,
+            left: 70, 
+            right: 60
+        };
     }
 
     ScatterPlot(){}
@@ -79,7 +75,7 @@ class ScatterPlot extends ChartComponent {
         this.chartMargins.left = (this.chartOptions.spAxisLabels != null && this.chartOptions.spAxisLabels.length >= 2) ? 120 : 70;
         this.aggregateExpressionOptions = data.map((d, i) => Object.assign(d, aggregateExpressionOptions && i in aggregateExpressionOptions  ? new ChartDataOptions(aggregateExpressionOptions[i]) : new ChartDataOptions({})));
 
-        this.chartComponentData.mergeDataToDisplayStateAndTimeArrays(data, this.chartOptions.timestamp, aggregateExpressionOptions);
+        this.chartComponentData.mergeDataToDisplayStateAndTimeArrays(data, this.chartOptions.timestamp, this.aggregateExpressionOptions);
         this.chartComponentData.setExtents(this.chartOptions.spMeasures, !fromSlider);
         
         // Check measure validity
@@ -191,10 +187,17 @@ class ScatterPlot extends ChartComponent {
                 this.ellipsisMenu.setMenuVisibility(false);
             }
         });
+
+        if (this.chartOptions.legend === 'shown') {
+            this.splitLegendAndSVG(this.svgSelection.node());
+        }
+    }
+    private getSliderWidth () {
+        return this.chartWidth + this.chartMargins.left + this.chartMargins.right - 16;
     }
 
     /******** DRAW UPDATE FUNCTION ********/   
-    private draw(){
+    public draw = (isFromResize = false) => {
         this.activeDot = null;
         this.chartComponentData.updateTemporalDataArray(this.chartOptions.isTemporal);
         
@@ -222,10 +225,10 @@ class ScatterPlot extends ChartComponent {
             this.chartMargins.bottom = 48;
         }
            
-        this.setWidthAndHeight();
+        this.setWidthAndHeight(isFromResize);
         this.svgSelection
             .attr("height", this.height)
-            .attr("width", this.width);
+            .style("width", `${this.getSVGWidth()}px`);
 
         this.g
             .attr("transform", "translate(" + this.chartMargins.left + "," + this.chartMargins.top + ")");
@@ -331,10 +334,7 @@ class ScatterPlot extends ChartComponent {
         this.drawVoronoi();
 
         // Resize controls
-        if (!this.chartOptions.hideChartControlPanel && this.chartControlsPanel !== null) {
-            let controlPanelWidth = Utils.getControlPanelWidth(this.renderTarget, this.CONTROLSWIDTH, this.chartOptions.legend === 'shown');
-            this.chartControlsPanel.style("width", controlPanelWidth + "px");
-        }
+        this.setControlsPanelWidth();
 
         /******************** Temporal Slider ************************/
         if(this.chartComponentData.allTimestampsArray.length > 1 && this.chartOptions.isTemporal){
@@ -346,7 +346,7 @@ class ScatterPlot extends ChartComponent {
                 }
                 return {label: Utils.timeFormat(this.chartComponentData.usesSeconds, this.chartComponentData.usesMillis, this.chartOptions.offset, 
                     this.chartOptions.is24HourTime, null, null, this.chartOptions.dateLocale)(new Date(ts)), action: action};
-            }), this.chartOptions, this.width - 10,  Utils.timeFormat(this.chartComponentData.usesSeconds, this.chartComponentData.usesMillis, 
+            }), this.chartOptions, this.getSliderWidth(),  Utils.timeFormat(this.chartComponentData.usesSeconds, this.chartComponentData.usesMillis, 
                 this.chartOptions.offset, this.chartOptions.is24HourTime, null, null, this.chartOptions.dateLocale)(new Date(this.chartComponentData.timestamp)));
         }
         else{
@@ -691,12 +691,13 @@ class ScatterPlot extends ChartComponent {
     }
 
     /******** UPDATE CHART DIMENSIONS ********/
-    private setWidthAndHeight(){
-        this.width = Math.max((<any>d3.select(this.renderTarget).node()).clientWidth, this.MINWIDTH) - this.controlsOffset;
+    private setWidthAndHeight(isFromResize = false){
         this.height = Math.max((<any>d3.select(this.renderTarget).node()).clientHeight, this.MINHEIGHT);
-
-        this.chartWidth = this.width - this.chartMargins.left  - this.chartMargins.right;
         this.chartHeight = this.height - this.chartMargins.top - this.chartMargins.bottom;
+        this.width = this.getWidth();
+        if (!isFromResize) {
+            this.chartWidth = this.getChartWidth();
+        }
     }
 
     /******** SCALE AND DRAW AXIS ********/
@@ -790,32 +791,16 @@ class ScatterPlot extends ChartComponent {
             let xPos = mousePosition[0];
             let yPos = mousePosition[1];
 
+            let xyrMeasures = [this.xMeasure, this.yMeasure];
+            if (this.rMeasure !== null) {
+                xyrMeasures.push(this.rMeasure);
+            }
+
             this.tooltip.render(this.chartOptions.theme);
             this.tooltip.draw(d, this.chartComponentData, xPos, yPos, this.chartMargins, (text) => {
-                text.append("div")
-                    .attr("class", "title")
-                    .text(self.chartComponentData.displayState[d.aggregateKey].name);  
-                text.append("div")
-                    .attr("class", "value")
-                    .text(d.splitBy);
-
-                // Display datetime if scatter plot is not temporal
-                if(!this.chartOptions.isTemporal){
-                    text.append("div")
-                        .attr("class", "value")
-                        .text(Utils.timeFormat(this.labelFormatUsesSeconds(), this.labelFormatUsesMillis(), this.chartOptions.offset, 
-                            this.chartOptions.is24HourTime, null, null, this.chartOptions.dateLocale)(new Date(d.timestamp)));
-                }
-
-                let valueGroup = text.append('div').classed('valueGroup', true);
-                Object.keys(d.measures).forEach((measureType) => {
-                    if(measureType in this.chartComponentData.extents){
-                        valueGroup.append("div")
-                        .attr("class",  "value")
-                        .text(measureType + ": " + Utils.formatYAxisNumber(d.measures[measureType]));
-                    }
-                });
-            });
+                d.aggregateName = this.chartComponentData.displayState[d.aggregateKey].name;
+                this.tooltipFormat(d, text, TooltipMeasureFormat.Scatter, xyrMeasures);
+            }, null, 20, 20, Utils.colorSplitBy(this.chartComponentData.displayState, d.splitByI, d.aggregateKey, this.chartOptions.keepSplitByColor));
         }
     }
 

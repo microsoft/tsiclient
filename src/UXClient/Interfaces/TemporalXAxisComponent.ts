@@ -9,7 +9,6 @@ class TemporalXAxisComponent extends ChartComponent {
 
     protected xAxis;
     protected x;
-    protected chartWidth;
     protected chartHeight;
     private smartTickFormat;
     private xAxisEntered;

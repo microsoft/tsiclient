@@ -14,8 +14,18 @@
 		stroke: $gray1;
 	}
 
+	&:not(.compact) {
+		border-right: 1px solid $gray4;
+	}
+
 	.tsi-seriesLabel{
-		.tsi-seriesNameLabel, .tsi-splitByContainer .tsi-splitByLabel {
+		.tsi-splitByContainer {
+			.tsi-legendShowMore {
+				color: $gray6;
+				opacity: 1;
+			}
+		}
+		.tsi-seriesNameLabel, .tsi-splitByContainer .tsi-splitByLabel {	
 			fill: $gray1;
 			color: $gray1;
 			select {
@@ -26,15 +36,6 @@
 					background: $gray3;
 				}
 			}			
-		}
-		.tsi-seriesNameLabel {
-			border: none;
-			background-color: transparent;
-			&.shown {
-				background-color: $gray3;
-			}
-		}
-		.tsi-splitByContainer .tsi-splitByLabel, .tsi-seriesNameLabel {
 			&:hover, &.inFocus {
 				color: $gray6;    
 			}
@@ -45,7 +46,14 @@
 					color: $gray6;
 				}
 			}
-		}						
+		}
+		.tsi-seriesNameLabel {
+			border: none;
+			background-color: transparent;
+			&.shown {
+				background-color: $gray3;
+			}
+		}			
 	}
 }
 
@@ -148,9 +156,23 @@
 			display: flex;
 			flex-direction: column;	
 		}
+
+		height: 100%;
 	
 		.tsi-seriesLabel {
+			
 			.tsi-splitByContainer {
+
+				.tsi-legendShowMore {
+					background: none;
+					border: none;
+					visibility: visible;
+					margin: 8px auto;
+					cursor: pointer;
+					&:hover{
+						text-decoration: underline;
+					}
+				}
 				overflow-y: auto;
 				visibility: hidden;
 				min-height: 42px;
@@ -174,7 +196,7 @@
 				position: absolute;
 				height: 100%;
 				width: 16px;
-				left: 124px;
+				right: 16px;
 			}
 			.tsi-eyeIcon {
 				display: inherit;
@@ -235,16 +257,17 @@
 				text-overflow: ellipsis;
 				white-space: nowrap;
 				overflow: hidden;
-				margin-top:2px;
-				margin-bottom:4px;
+				margin-top: 2px;
+				margin-bottom: 4px;
 				font-weight: 400;
-				margin-right: 46px;
+				margin-right: 32px;
 			}
 
 			h4 {
 				cursor: pointer;
 				font-weight: 600;
-				font-size: 14px;
+				font-size: 15px;
+				font-family: "Segoe UI", sans-serif; 
 			}
 
 			.tsi-seriesName {
@@ -255,7 +278,7 @@
 			}
 			select {
 				left: 20px;
-				width: 60px;
+				max-width: calc(100% - 64px);
 				margin: 2px;
 				border: none;
 				position: absolute;
@@ -264,8 +287,12 @@
 				-moz-appearance: none;
 				appearance: none;
 				padding: 2px;
-				background: url(../../Icons/chevron.svg) 90% / 30% no-repeat;
+				background-image: url(../../Icons/chevron.svg);
+				background-repeat: no-repeat;
+				background-position-x: calc(100% - 4px);
 				background-position-y: 7px;
+				background-size: 18px;
+				padding-right: 28px;
 			}
 			select::-ms-expand { 
 				display: none; /* remove default arrow on ie10 and ie11 */
@@ -327,5 +354,4 @@
 			}
 		}
 	}
-	
 }

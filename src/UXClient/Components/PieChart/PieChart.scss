@@ -23,14 +23,19 @@
 
 
 .tsi-pieChart {
-
-    &.tsi-dark{
+    &.tsi-dark {
         $grays: grays('dark');
         @include pcColors($grays);
+        .tsi-resizeGutter {
+            background-image: url(./../../Icons/drag_handle_dark.svg);
+        }
     }
     &.tsi-light{
         $grays: grays('light');
         @include pcColors($grays);
+        .tsi-resizeGutter {
+            background-image: url(./../../Icons/drag_handle_light.svg);
+        }
     }
 
     display: flex;

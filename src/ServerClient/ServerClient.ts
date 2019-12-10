@@ -139,13 +139,13 @@ class ServerClient {
         xhr.send(JSON.stringify(contentObject));
     }
 
-    public getCancellableTsqResults (token: string, uri: string, tsqArray: Array<any>, onProgressChange = () => {}, mergeAccumulatedResults = false, storeType: string = null): Array<Promise<any> | Function> {
+    public getCancellableTsqResults (token: string, uri: string, tsqArray: Array<any>, onProgressChange = () => {}, mergeAccumulatedResults = false, storeType: string = null): Array<any | Function> {
         // getTsqResults() returns either a promise or an array containing a promise + cancel trigger 
         // depending on whether we set the hasCancelTrigger flag. Here we need to set the type of what
         // we get back to 'unknown'. This lets TypeScript know that we have enough information to
         // confidently cast the return value as an Array<Promise<any> | Function>.
         let promiseAndTrigger: unknown = this.getTsqResults(token, uri, tsqArray, onProgressChange, mergeAccumulatedResults, storeType, true);
-        return (promiseAndTrigger as Array<Promise<any> | Function>);
+        return (promiseAndTrigger as Array<any | Function>);
     }
 
     public getTsqResults(token: string, uri: string, tsqArray: Array<any>, onProgressChange = () => {}, mergeAccumulatedResults = false, storeType: string = null, hasCancelTrigger = false) {

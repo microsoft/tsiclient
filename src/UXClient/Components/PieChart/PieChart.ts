@@ -1,6 +1,6 @@
 import * as d3 from 'd3';
 import './PieChart.scss';
-import {Utils} from "./../../Utils";
+import {Utils, TooltipMeasureFormat} from "./../../Utils";
 import {Legend} from './../Legend/Legend';
 import {ContextMenu} from './../ContextMenu/ContextMenu';
 import {ChartComponent} from "./../../Interfaces/ChartComponent";
@@ -14,29 +14,26 @@ import { ChartDataOptions } from '../../Models/ChartDataOptions';
 
 
 class PieChart extends ChartComponent {
-    private svgSelection: any;
-    private legendObject: Legend;
     private contextMenu: ContextMenu;
-    public draw: any;
     chartComponentData = new PieChartData();
     
-    private chartMargins: any = {
-        top: 20,
-        bottom: 28,
-        left: 0, 
-        right: 0
-    };
-
     constructor(renderTarget: Element){
         super(renderTarget);
+        this.chartMargins = {
+            top: 20,
+            bottom: 28,
+            left: 0, 
+            right: 0
+        }
     }
 
     PieChart() { }
+
     public render(data: any, options: any, aggregateExpressionOptions: any) {
         this.chartOptions.setOptions(options);
         this.aggregateExpressionOptions = data.map((d, i) => Object.assign(d, aggregateExpressionOptions && i in aggregateExpressionOptions  ? new ChartDataOptions(aggregateExpressionOptions[i]) : new ChartDataOptions({})));
 
-        this.chartComponentData.mergeDataToDisplayStateAndTimeArrays(data, this.chartOptions.timestamp, aggregateExpressionOptions);
+        this.chartComponentData.mergeDataToDisplayStateAndTimeArrays(data, this.chartOptions.timestamp, this.aggregateExpressionOptions);
         var timestamp = (options && options.timestamp != undefined) ? options.timestamp : this.chartComponentData.allTimestampsArray[0];
  
         var targetElement = d3.select(this.renderTarget)
@@ -51,7 +48,7 @@ class PieChart extends ChartComponent {
             var tooltip = new Tooltip(d3.select(this.renderTarget));
             d3.select(this.renderTarget).append('div').classed('tsi-sliderWrapper', true);
 
-            this.draw = () => {
+            this.draw = (isFromResize = false) => {
                 // Determine the number of timestamps present, add margin for slider
                 if(this.chartComponentData.allTimestampsArray.length > 1)
                     this.chartMargins.bottom = 68;
@@ -61,20 +58,22 @@ class PieChart extends ChartComponent {
                     this.chartMargins.top = 20;
                 }
 
-                var width = +targetElement.node().getBoundingClientRect().width;
+                this.width = this.getWidth();
                 var height = +targetElement.node().getBoundingClientRect().height;
-                var chartWidth = width  - (this.chartOptions.legend == "shown" ? (this.CONTROLSWIDTH + 28) : 0);
+                if (!isFromResize) {
+                    this.chartWidth = this.getChartWidth();
+                }
                 var chartHeight = height;
                 var usableHeight = height - this.chartMargins.bottom - this.chartMargins.top
-                var outerRadius = (Math.min(usableHeight, chartWidth) - 10) / 2;
+                var outerRadius = (Math.min(usableHeight, this.chartWidth) - 10) / 2;
                 var innerRadius = this.chartOptions.arcWidthRatio && 
                                     (this.chartOptions.arcWidthRatio < 1 && this.chartOptions.arcWidthRatio > 0) ? 
                                     outerRadius - (outerRadius * this.chartOptions.arcWidthRatio) :
                                     0;
                 this.svgSelection
-                    .attr("width", chartWidth)
+                    .attr("width", this.chartWidth)
                     .attr("height", chartHeight)
-                this.svgSelection.select("g").attr("transform", "translate(" + (chartWidth / 2)  + "," + (chartHeight / 2) + ")");
+                this.svgSelection.select("g").attr("transform", "translate(" + (this.chartWidth / 2)  + "," + (chartHeight / 2) + ")");
 
                 var timestamp = (this.chartOptions.timestamp != undefined) ? this.chartOptions.timestamp : this.chartComponentData.allTimestampsArray[0];
                 this.chartComponentData.updateFlatValueArray(timestamp);
@@ -117,26 +116,10 @@ class PieChart extends ChartComponent {
                     var xPos = mousePosition[0];
                     var yPos = mousePosition[1];
                     tooltip.render(self.chartOptions.theme);
+                    let color = Utils.colorSplitBy(self.chartComponentData.displayState, d.data.splitByI, d.data.aggKey, self.chartOptions.keepSplitByColor);
                     tooltip.draw(d, self.chartComponentData, xPos, yPos, {...self.chartMargins, top: 0, bottom: 0}, (text) => {
-                        text.text(null); 
-                        text.append("div")
-                            .attr("class", "title")
-                            .text(self.chartComponentData.displayState[d.data.aggKey].name);  
-                        //split by if appropriate
-                        if (d.data.splitBy != "") {
-                            text.append("div")
-                                .attr("class", "value")
-                                .text(d.data.splitBy);
-                        }
-
-                        text.append("div")
-                            .attr("class", "value")
-                            .text(Utils.formatYAxisNumber(d.data.value));
-                        
-                        text.append("div")
-                            .attr("class", "value")
-                            .text((Math.round(1000 * Math.abs(d.data.value) / self.chartComponentData.visibleValuesSum) / 10) + "%");
-                    });
+                        self.tooltipFormat(self.convertToTimeValueFormat(d.data), text, TooltipMeasureFormat.SingleValue);
+                    }, null, 20, 20, color);
                 }
 
                 this.legendObject.draw(this.chartOptions.legend, this.chartComponentData, labelMouseover, 
@@ -144,7 +127,7 @@ class PieChart extends ChartComponent {
                 var pie = d3.pie()
                     .sort(null)
                     .value(function(d: any) { 
-                        return Math.abs(d.value); 
+                        return Math.abs(d.val); 
                     });
                 
                 var path: any = d3.arc()
@@ -237,7 +220,7 @@ class PieChart extends ChartComponent {
                         }
                         return {label: Utils.timeFormat(this.chartComponentData.usesSeconds, this.chartComponentData.usesMillis, 
                             this.chartOptions.offset, this.chartOptions.is24HourTime, null, null, this.chartOptions.dateLocale)(new Date(ts)), action: action};
-                    }), this.chartOptions, chartWidth,  Utils.timeFormat(this.chartComponentData.usesSeconds, this.chartComponentData.usesMillis, 
+                    }), this.chartOptions, this.chartWidth, Utils.timeFormat(this.chartComponentData.usesSeconds, this.chartComponentData.usesMillis, 
                         this.chartOptions.offset, this.chartOptions.is24HourTime, null, null, this.chartOptions.dateLocale)(new Date(this.chartComponentData.timestamp)));
                 }
                 else{
@@ -264,6 +247,11 @@ class PieChart extends ChartComponent {
                 this.ellipsisMenu.setMenuVisibility(false);
             }
         });
+
+        if (this.chartOptions.legend === 'shown') {
+            this.splitLegendAndSVG(this.svgSelection.node());
+            this.setControlsPanelWidth();
+        }
     }
 }
 export {PieChart}

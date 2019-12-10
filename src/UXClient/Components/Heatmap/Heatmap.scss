@@ -43,25 +43,32 @@
     }
 }
 .tsi-heatmapComponent {
-
+    
     svg {
         shape-rendering: crispEdges;
     }
 
+    display: flex;
+    
     &.tsi-dark{
         $grays: grays('dark');
         @include hmColors($grays);
+        .tsi-resizeGutter {
+            background-image: url(./../../Icons/drag_handle_dark.svg);
+        }
     }
     &.tsi-light{
         $grays: grays('light');
         @include hmColors($grays);
+        .tsi-resizeGutter {
+            background-image: url(./../../Icons/drag_handle_light.svg);
+        }
     }
 
 
     .tsi-heatmapWrapper {
-        position: absolute;
-        overflow: visible;
-        right: 0px;
+        position: relative;
+        overflow: hidden;
     
         .tsi-heatmapSVG {
             width: 100%;
