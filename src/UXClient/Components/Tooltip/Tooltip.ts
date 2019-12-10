@@ -81,10 +81,10 @@ class Tooltip extends Component {
             var translateY = this.isTopOffset(tooltipHeight, yPos, chartMargins.bottom) ? yOffset :  (-Math.round(tooltipHeight) - yOffset);
             this.tooltipDiv.style("transform", "translate(" + translateX + "px," + translateY + "px)");
             if (this.borderColor) {
-                this.tooltipDiv.style('border-color', this.borderColor)
-                    .style('border-right-width', '5px');
+                this.tooltipDiv.style('border-left-color', this.borderColor)
+                    .style('border-left-width', '5px');
             } else {
-                this.tooltipDiv.style('border-right-width', '1px');
+                this.tooltipDiv.style('border-left-width', '1px');
             }
         }
     }

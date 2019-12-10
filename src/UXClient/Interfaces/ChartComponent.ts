@@ -207,6 +207,7 @@ class ChartComponent extends Component {
                 let valueGroup = text.append('table')
                     .attr('class', 'tsi-tooltipValues tsi-tooltipTable');
                 Object.keys(d.measures).forEach((measureType, i) => {
+					valueGroup.append('tr').classed('tsi-tableSpacer', true);
                     let tr = valueGroup.append('tr')
                         .classed('tsi-visibleValue', (dataType === DataTypes.Numeric && (measureType === this.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy))))
                         .style('border-left-color', Utils.getColorForValue(cDO, measureType));
