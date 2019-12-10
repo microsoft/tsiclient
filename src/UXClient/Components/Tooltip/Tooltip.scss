@@ -12,7 +12,7 @@
     
     color: $gray1;
     background-color: $gray3;
-    border-color: rgba($gray1, .2);
+    border-color: rgba($gray1, .1);
     @include chartColors($grays);
 
 
@@ -21,10 +21,14 @@
         &:last-of-type {
             border-bottom: none;
         }
-        border-left-width: 4px;
+        border-left-width: 10px;
         border-left-style: solid;
     }
 
+}
+
+.tsi-tooltipTitle, .tsi-tooltipSubtitle, .tsi-tooltipSeriesName, .tsi-tooltipTimeStamp, .tsi-tooltipAttrTitle, .tsi-tooltipAttrValue, .tsi-valueLabel, .tsi-valueCell, .tsi-tooltipMeasureTitle{
+    @extend .tsi-textWrap;
 }
 
 .tsi-tooltip {
@@ -33,7 +37,7 @@
     overflow: hidden;
     border-width: 1px;
     border-style: solid;
-    border-radius: 2px;
+    border-radius: 3px;
     min-width: 108px;
     max-width: 260px;
     padding: 8px 12px;
@@ -47,13 +51,8 @@
         @include tColors($grays);
     }
 
-    .tsi-tooltipTitle {
-        overflow: hidden;
-        white-space: nowrap;
-    }
-
     .tsi-tooltipSubtitle, .tsi-tooltipAttrs, .tsi-tooltipValues {
-        font-size: 12px;
+        font-size: 11px;
     }
 
     .tsi-tooltipSubtitle {
@@ -64,12 +63,9 @@
             padding-top: 2px;
         }
         h4 {
-            white-space: nowrap;
             font-weight: normal;
             margin: 0px;
-            font-size: 12px;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            font-size: 11px;
         }
     }
 
@@ -77,7 +73,7 @@
     .tsi-tooltipFlexyBox {
         display: flex;
         flex-wrap: nowrap;
-        font-size: 12px;
+        font-size: 11px;
         width: 100%;
         &.tsi-tooltipAttributeContainer{
             margin-bottom: 4px;
@@ -91,10 +87,12 @@
             height: 0;          
         }
         .tsi-tooltipFlexyItem {
-            padding-right: 8px;
-            white-space: nowrap;
+            padding-right: 16px;
             flex-grow: 1;
             overflow: hidden;
+            &:last-of-type{
+                padding-right: 4px;
+            }
             .tsi-tooltipAttrTitle {
                 font-weight: 600;
             }
@@ -107,12 +105,8 @@
                 font-weight: bold;
             }
 
-            .tsi-tooltipAttrValue, .tsi-tooltipMeasureValue, .tsi-tooltipAttrTitle, .tsi-tooltipMeasureTitle{
-                overflow: hidden;
-                text-overflow: ellipsis;
-            }
             .tsi-tooltipMeasureValue {
-                font-size: 14px;
+                font-size: 13px;
             }
         }
     }
@@ -122,25 +116,21 @@
         margin: 8px 0 4px;
         width: 236px;
         overflow: hidden;
-        white-space: nowrap;
         table-layout: fixed;
-
-        td {
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
     }
 
     .tsi-tooltipTable tr {
-        padding-left: 16px;
+        &.tsi-tableSpacer{
+            height: 6px;
+            &:first-of-type{
+                height: 0px;
+            }
+        }
         td {
             margin: 0px;
             padding: 4px;
-            white-space: nowrap;
             &.tsi-valueCell {
                 text-align: right;
-                white-space: pre-wrap;
             }
         }
     }
@@ -151,7 +141,7 @@
 
     .tsi-tooltipTitle {
         font-weight: bold;
-        font-size: 14px;
+        font-size: 13px;
     } 
 
     .tsi-tooltipColorBlockCell {

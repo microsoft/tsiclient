@@ -40,10 +40,10 @@
                 }
 
                 var events = {};
-                data.push({[`Factory2`]: events});
+                data.push({[`Factory2asdlkjf;alsdkjf;alskjdf;laks jdf;laskjdf;laksjdf;lkaj;laskdjf;laskdjf`]: events});
                 for(var j = 0; j < 2; j++){
                     var values = {};
-                    events[`Station${j}`] = values;
+                    events[`Station${j}.masd;/flajsd;lfkjas;dlfkjasd;lfkjas;ldkfj;asldkfj a; slkdjf ;laskdjf;laksjdf;alksjdf `] = values;
                     for(var k = 0; k <= 60; k++){
                         if((k%2 === 0 || k%3 === 0)){  // if check is to create some sparseness in the data
                             var to = new Date(from.valueOf() + 1000*60*k);
@@ -77,7 +77,7 @@
                         var val3 = (1 - val1) / 2;
                         var to = new Date(from.valueOf() + 1000*60*k);
                         if(Math.random() < .8)
-                            values[to.toISOString()] = {state1: val1, state2: val2, state3: val3, statasdfasdfasdfasdfasdfasfasdfasdfasdfasdfasdfasdfasdfae4: 0, state5: 0, state6: 0, state7: 0};
+                            values[to.toISOString()] = {state1: val1, state2: val2, 'statasdf asdfasdfasdfasdfasfasdf asdfasdfasdfasdfasdfasdfae4': val3, statasdfasdfasdfasdfasdfasfasdfasdfasdfasdfasdfasdfasdfae4: 0, state5: 0, state6: 0, state7: 0};
                         else
                             values[to.toISOString()] = null;
 
@@ -103,7 +103,7 @@
                     state2: {
                         color: '#FD625E'
                     },
-                    state3: {
+                    'statasdf asdfasdfasdfasdfasfasdf asdfasdfasdfasdfasdfasdfae4': {
                         color:'#3599B8'
                     },
                     statasdfasdfasdfasdfasdfasfasdfasdfasdfasdfasdfasdfasdfae4: {
@@ -130,7 +130,7 @@
                     {},
                     // {dataType: 'events', valueMapping: eventValueMapping, height: 50, eventElementType: 'teardrop', onElementClick: onElementClick},
                     // {dataType: 'categorical', valueMapping: valueMapping, height: 100, onElementClick: onElementClick, rollupCategoricalValues: true}
-                    {tooltipAttributes: [['foo','bar'], ['fizzzlfkjaasdfasdfasdfasdfasdfasdfasdfasdfasfdasfdlkjdalfj', 'buzokjasdflknadf;oihn'], ['fizzzlfkjalkjdaasdfasdflfj', 'buzasdfasdfasdfasdfasdfasdfokjasdflknadf;oihasdfasdfasdfasn']], dataType: 'events', valueMapping: eventValueMapping, height: 50, eventElementType: 'teardrop', onElementClick: onElementClick},
+                    {tooltipAttributes: [['foo','bar'], ['fizzzlfkja asdfasdfasdfasdfasdfasdfasdfasdfasfdasfdlkjdalfj', 'buzokj asdflknadf;oihn'], ['fizzzlfk jalkjdaasdfasdflfj', 'buzasdfasdfasd fasdfasdfasdfokjasdflknadf; ihasdfasdfasdfasn']], dataType: 'events', valueMapping: eventValueMapping, height: 50, eventElementType: 'teardrop', onElementClick: onElementClick},
                     {tooltipAttributes: [['foo','bar'], ['fizzzlfkjalkjdalfj', 'buzokjasdflknadf;oihn']], dataType: 'categorical', valueMapping: valueMapping, height: 100, onElementClick: onElementClick, rollupCategoricalValues: true}
                 ]);
 
