@@ -2,7 +2,7 @@
 <!DOCTYPE html> 
 <html>
     <head>
-        <title>Basic Charts</title>
+        <title>Process Graphic</title>
 
         <!-- styles are only used for styling header and auth elements, where possible -->
         <link rel="stylesheet" type="text/css" href="../styles.css" />
@@ -13,40 +13,40 @@
         <!-- boilerplate auth code is injected with auth.js, check it out for auth setup -->
         <script src="../boilerplate/auth.js"></script>
     </head>
-    <body style="font-family: 'Segoe UI', sans-serif; background-color: white; height: 100vh; width: 100vw;">
-        <div id="process-graphic" style="width: 70%; height: 70%; margin-top: 50px;"></div>
+    <body style="font-family: 'Segoe UI', sans-serif; background-color: white; height: 100vh; width: 100%; overflow: hidden;">
+        <div id="process-graphic" style="margin: 80px; width: calc(100% - 160px); height: calc(100% - 160px);"></div>
         <script type="text/javascript">
           window.onload = () => {
             initAuth('Process Graphic');
             let tsiClient = new TsiClient();
-            let environmentFqdn = '0293bb6f-5d98-4953-be00-e8e9eedf9b88.env.timeseries.azure.com';
+            let environmentFqdn = '10000000-0000-0000-0000-100000000109.env.timeseries.azure.com';
             let container = document.getElementById('process-graphic');
 
             let tsqExpression1 = new tsiClient.ux.TsqExpression(
-              { timeSeriesId: ['Sensor_0'] },
+              { timeSeriesId: ['2da181d7-8346-4cf2-bd94-a17742237429'] },
               {
                 Max: {
                   kind: 'numeric',
-                  value: { tsx: '$event.[Value].Double' },
+                  value: { tsx: '$event.[data].Double' },
                   filter: null,
                   aggregation: { tsx: 'max($value)' }
                 }
               },
               { },
-              { color: '#0C0',
+              { color: 'white',
                 positionX: 20,
                 positionY: 50,
-                alias: 'Sensor_0',
+                alias: 'Temperature',
                 contextMenu: []
               }
             );
 
             let tsqExpression2 = new tsiClient.ux.TsqExpression(
-              { timeSeriesId: ['Sensor_1'] },
+              { timeSeriesId: ['c3695c36-867e-4056-a642-9fb68f2ad583'] },
               {
                 Max: {
                   kind: 'numeric',
-                  value: { tsx: '$event.[Value].Double' },
+                  value: { tsx: '$event.[data].Double' },
                   filter: null,
                   aggregation: { tsx: 'max($value)' }
                 }
@@ -54,11 +54,11 @@
               { },
               { positionX: 85,
                 positionY: 85,
-                alias: 'Sensor_1',
+                alias: 'Pressure',
                 contextMenu: [],
                 color: (x) => {
                   if(typeof(x) !== 'number' || Number.isNaN(x)) { return 'black'; }
-                  return x < 30 ? '#FF0000' : '#00FF00';
+                  return x < 41 ? 'red' : 'green';
                 },
                 onElementClick: ({timeStamp, value, color}) => {
                   console.log(`Time stamp: ${timeStamp}\n value: ${value}\n color: ${color}`);
@@ -67,8 +67,8 @@
             );
 
             let processGraphic = tsiClient.ux.ProcessGraphic(container);
-            let processGraphicOptions = { theme: 'light', throttleSlider: true, xAxisHidden: false, bucketSizeMillis: 1000, updateInterval: 5000, initialValue: new Date('09/29/2019 16:29:01') };
-            let image = '../images/vat.svg';
+            let processGraphicOptions = { theme: 'dark', throttleSlider: true, xAxisHidden: false, bucketSizeMillis: 60000, updateInterval: 200, initialValue: new Date('8/10/2017 16:00:00') };
+            let image = '../images/vat.png';
             processGraphic.render(environmentFqdn, authContext.getTsiToken, image, [tsqExpression1, tsqExpression2], processGraphicOptions);
           }
         </script>
