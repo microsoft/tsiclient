@@ -229,6 +229,7 @@ class GroupedBarChart extends ChartComponent {
                             self.chartOptions.stacked = !self.chartOptions.stacked;
                             self.draw();
                         })
+                        .attr("type", "button")
                         .attr('title', this.getString('Stack/Unstack Bars'));
                 } else  if (this.chartOptions.hideChartControlPanel && this.chartControlsPanel !== null){
                     this.removeControlPanel();
