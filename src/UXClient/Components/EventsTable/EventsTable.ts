@@ -151,7 +151,9 @@ class EventsTable extends ChartComponent{
             d3.select(this).append("div").attr("class", "tsi-columnToggleCheckbox");
             d3.select(this).append("div").attr("class", "tsi-columnTypeIcon")
                 .classed(d.type, true);
-            d3.select(this).select("button").append("span").attr("class", "tsi-onlyLabel").html(self.getString("only"))
+            d3.select(this).select("button").append("div").attr("class", "tsi-onlyLabel").html(self.getString("only"))
+                .attr('tabindex', "0")
+                .attr('role', 'button')
                 .on("click", (d: any) => {
                     d3.event.stopPropagation();
                     columns.forEach((column: any) => {

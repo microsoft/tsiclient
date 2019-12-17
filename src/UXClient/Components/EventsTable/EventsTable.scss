@@ -316,12 +316,6 @@
                     display: inline-block;
                 }
     
-                &:hover{
-                    .tsi-onlyLabel {
-                        display: block;
-                    }
-                }
-    
                 .tsi-columnToggleCheckbox {
                     pointer-events: none;
                     display: inline-block;
@@ -342,21 +336,20 @@
                     z-index: 0;
     
                     .tsi-onlyLabel {
-                        display: none;
-                        opacity: .6;
+                        opacity: 0;
                         right: 4px;
                         position: absolute;
-                        display: none;
                         cursor: pointer;
                         margin-top: -7px;
                         font-size: 14px;
-                        &:hover {
+                        &:hover, &:focus {
                             text-decoration: underline;
+                            opacity: .6;
                         }
                     }
                     &:hover {
                         .tsi-onlyLabel {
-                            display: block !important;
+                            opacity: .6;
                         }
                     }
                     background-color: transparent;
