@@ -65,18 +65,22 @@ class Grid extends Component {
         let rowData = [];
         Object.keys(this.chartComponentData.timeArrays).forEach((aggKey) => {
             Object.keys(this.chartComponentData.timeArrays[aggKey]).forEach((sb,sbI) => {
-                rowData.push([aggKey, sb]);
+                if (this.chartComponentData.getSplitByVisible(aggKey, sb)) {
+                    rowData.push([aggKey, sb]);
+                } 
             })            
         });
         return rowData;
-
     }
 
     private convertSeriesToGridData (allTimeStampMap, currSeries) {
+        Object.keys(allTimeStampMap).forEach(k => allTimeStampMap[k] = {});
+        currSeries = currSeries.filter((d) => {
+            return d.measures !== null;
+        })
         currSeries.map((dataPoint) => {
             allTimeStampMap[dataPoint.dateTime.toISOString()] = dataPoint;
         });
-
         return Object.keys(allTimeStampMap).map((ts) => {
             return allTimeStampMap[ts];
         });
@@ -108,7 +112,7 @@ class Grid extends Component {
         let rowData = this.getRowData();
         let rows = this.table.selectAll('.tsi-gridContentRow').data(rowData);
         let self = this;
-        let allTimeStampMap = self.chartComponentData.allTimestampsArray.reduce((tsMap, ts) => {
+        let allTimeStampMap = this.chartComponentData.allTimestampsArray.reduce((tsMap, ts) => {
             tsMap[ts] = {};
             return tsMap;
         }, {});
@@ -218,7 +222,7 @@ class Grid extends Component {
 			})
 			return p;
         }, {})).sort();
-        
+
         if (!this.table) {
             this.table = grid.append('table').classed('tsi-gridTable', true);
             this.tableHeaderRow = this.table.append('tr').classed('tsi-gridHeaderRow', true);

@@ -10,12 +10,14 @@ import { TsqExpression } from './Models/TsqExpression';
 
 export const NONNUMERICTOPMARGIN = 8;
 export const LINECHARTTOPPADDING = 16;
+export const GRIDCONTAINERCLASS = 'tsi-gridContainer';
 
 // Linechart stack states
 enum StackStates {Stacked = "stacked", Shared = "shared", Overlap = "overlap" };
 export enum DataTypes {Numeric = 'numeric', Categorical = 'categorical', Events = 'events'};
 export enum EventElementTypes {Diamond = 'diamond', Teardrop = 'teardrop'};
 export enum TooltipMeasureFormat {Enveloped = 'Enveloped', SingleValue = 'SingleValue', Scatter = 'Scatter'} 
+
 
 class Utils {
     static formatYAxisNumber (val: number) {
@@ -512,15 +514,15 @@ class Utils {
     }  
 
     static hideGrid (renderTarget: any) {
-        d3.select(renderTarget).selectAll('.tsi-gridContainer').remove();
+        d3.select(renderTarget).selectAll(`.${GRIDCONTAINERCLASS}`).remove();
     }
 
     static showGrid(renderTarget: any, chartOptions: ChartOptions, aggregateExpressionOptions: any, 
             chartComponentData: ChartComponentData) {
         chartOptions.fromChart = true; 
-        d3.selectAll('.tsi-gridContainer').remove();
+        d3.selectAll(`.${GRIDCONTAINERCLASS}`).remove();
         let gridContainer: any = d3.select(renderTarget).append('div')
-                .attr('class', 'tsi-gridContainer')
+                .attr('class', GRIDCONTAINERCLASS)
                 .style('width', '100%')
                 .style('height', '100%');
 

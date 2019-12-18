@@ -1,4 +1,4 @@
-import {Utils, DataTypes, TooltipMeasureFormat } from "./../Utils";
+import {Utils, DataTypes, TooltipMeasureFormat, GRIDCONTAINERCLASS } from "./../Utils";
 import {Component} from "./Component";
 import {ChartComponentData} from './../Models/ChartComponentData'; 
 import {ChartOptions} from './../Models/ChartOptions';
@@ -40,6 +40,10 @@ class ChartComponent extends Component {
 
 	public hideGrid () {
 		Utils.hideGrid(this.renderTarget);
+	}
+
+	public isGridVisible () {
+		return !d3.select(this.renderTarget).selectAll(`.${GRIDCONTAINERCLASS}`).empty();
 	}
 
 	protected drawEllipsisMenu (additionalEllipsisItems = []) {
