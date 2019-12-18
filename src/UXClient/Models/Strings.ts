@@ -76,7 +76,8 @@ class Strings {
         "snap end time to latest": "snap end time to latest",
         "zoom in": "zoom in",
         "zoom out": "zoom out",
-        "select quick time of": "select quick time of"
+        "select quick time of": "select quick time of",
+        "a time selection control dialog.": "a time selection control dialog."
     };
   
     private stringValues: any = {};

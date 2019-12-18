@@ -68,9 +68,11 @@ class EllipsisMenu extends Component {
         this.buttonElement = d3.select(this.renderTarget).insert("button")
             .attr("class", "tsi-ellipsisButton")
             .attr("aria-label", this.getString("Show ellipsis menu"))
+            .attr("title", this.getString("Show ellipsis menu"))
             .attr("type", "button")
             .on("click", function () {
-                d3.select(this).attr("aria-label", self.menuIsVisible ? self.getString("Show ellipsis menu") : self.getString("Hide ellipsis menu"));
+                d3.select(this).attr("aria-label", self.menuIsVisible ? self.getString("Show ellipsis menu") : self.getString("Hide ellipsis menu"))
+                               .attr("title", self.menuIsVisible ? self.getString("Show ellipsis menu") : self.getString("Hide ellipsis menu"));
                 self.setMenuVisibility(!self.menuIsVisible);
                 if(self.menuIsVisible) {
                     self.focusOnMenuItem(0);
