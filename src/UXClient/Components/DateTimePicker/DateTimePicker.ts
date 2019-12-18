@@ -232,7 +232,8 @@ class DateTimePicker extends ChartComponent{
                 this.dateTimeSelectionPanel.select(".tsi-saveButtonContainer").select(".tsi-cancelButton").node().focus();
                 d3.event.preventDefault();
             }
-        });
+        })
+        .attr('aria-label', (d) => `${this.getString('a time selection control dialog')} ${this.getString('select quick time of')} ${d[0]}`);
 
         if (this.chartOptions.dTPIsModal) {
             firstQuickTime.node().focus();

@@ -279,6 +279,19 @@ select::-ms-expand {
                 stroke: $gray1;
             }
         }
+        @media screen and (-ms-high-contrast: white-on-black) { 
+            path{
+                stroke: #fff;
+            }
+            .tick{
+                text{
+                    fill: #fff !important;
+                }
+                line{
+                    stroke: #fff;
+                }
+            }
+        }
     }
     .vHoverBox, .hHoverBox {
         fill: $gray3;

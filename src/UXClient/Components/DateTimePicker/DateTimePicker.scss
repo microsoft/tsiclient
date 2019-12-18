@@ -42,6 +42,10 @@
         color: $gray1;
         background-color: $gray3;
     }
+    .pika-table th{
+        color: $gray1;
+        opacity: .6;
+    }
     .pika-single  {
         .pika-select, .pika-select option, .pika-label, .pika-day, .pika-prev, .pika-next {
             color: $gray1;
