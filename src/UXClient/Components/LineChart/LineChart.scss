@@ -47,6 +47,9 @@
         .xAxisBaseline {
             stroke: $gray1 !important;
             pointer-events: none;
+            @media screen and (-ms-high-contrast: white-on-black) { 
+                stroke: #fff !important;
+            }
         }
     }
 

@@ -29,7 +29,8 @@
 			fill: $gray1;
 			color: $gray1;
 			select {
-				color: #999;
+				color: $gray1;
+				opacity: .6;
 				background-color: transparent;
 				border: 1px solid transparent;
 				option{
