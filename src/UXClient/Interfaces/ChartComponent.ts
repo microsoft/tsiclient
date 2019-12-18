@@ -34,6 +34,14 @@ class ChartComponent extends Component {
 		this.chartComponentData = new ChartComponentData();
 	}
 
+	public showGrid () {
+		Utils.showGrid(this.renderTarget, this.chartOptions, this.aggregateExpressionOptions, this.chartComponentData);
+	}
+
+	public hideGrid () {
+		Utils.hideGrid(this.renderTarget);
+	}
+
 	protected drawEllipsisMenu (additionalEllipsisItems = []) {
 		if (this.chartOptions.canDownload || this.chartOptions.grid || (this.chartOptions.ellipsisItems && this.chartOptions.ellipsisItems.length > 0) || additionalEllipsisItems.length > 0) {
 			if (this.ellipsisContainer === null) {

@@ -511,10 +511,16 @@ class Utils {
         link.click();
     }  
 
+    static hideGrid (renderTarget: any) {
+        d3.select(renderTarget).selectAll('.tsi-gridContainer').remove();
+    }
+
     static showGrid(renderTarget: any, chartOptions: ChartOptions, aggregateExpressionOptions: any, 
             chartComponentData: ChartComponentData) {
         chartOptions.fromChart = true; 
+        d3.selectAll('.tsi-gridContainer').remove();
         let gridContainer: any = d3.select(renderTarget).append('div')
+                .attr('class', 'tsi-gridContainer')
                 .style('width', '100%')
                 .style('height', '100%');
 
