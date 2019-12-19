@@ -140,7 +140,7 @@ class Grid extends Component {
                 let splitBy = d[1];
                 let seriesData = self.convertSeriesToGridData(allTimeStampMap, self.chartComponentData.timeArrays[aggKey][splitBy]);
                 let cells = d3.select(this).selectAll('.tsi-valueCell').data(seriesData);
-                let measuresData = self.chartComponentData.displayState[aggKey].splitBys[splitBy].types;
+                let measuresData = self.chartOptions.spMeasures ? self.chartOptions.spMeasures : self.chartComponentData.displayState[aggKey].splitBys[splitBy].types;
 
                 //Row header with the name of the series
                 let headerCell = d3.select(this).selectAll('tsi-rowHeaderCell').data([d]);
