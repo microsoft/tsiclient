@@ -1749,6 +1749,7 @@ class LineChart extends TemporalXAxisComponent {
 
         this.chartComponentData.mergeDataToDisplayStateAndTimeArrays(this.data, this.aggregateExpressionOptions);
         this.draw();
+        this.gatedShowGrid();
         this.chartOptions.noAnimate = false;  // ensure internal renders are always animated, overriding the users noAnimate option
 
         if (this.chartOptions.markers && this.chartOptions.markers.length > 0) {

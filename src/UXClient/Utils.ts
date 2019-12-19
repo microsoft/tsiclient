@@ -10,12 +10,14 @@ import { TsqExpression } from './Models/TsqExpression';
 
 export const NONNUMERICTOPMARGIN = 8;
 export const LINECHARTTOPPADDING = 16;
+export const GRIDCONTAINERCLASS = 'tsi-gridContainer';
 
 // Linechart stack states
 enum StackStates {Stacked = "stacked", Shared = "shared", Overlap = "overlap" };
 export enum DataTypes {Numeric = 'numeric', Categorical = 'categorical', Events = 'events'};
 export enum EventElementTypes {Diamond = 'diamond', Teardrop = 'teardrop'};
 export enum TooltipMeasureFormat {Enveloped = 'Enveloped', SingleValue = 'SingleValue', Scatter = 'Scatter'} 
+
 
 class Utils {
     static formatYAxisNumber (val: number) {
@@ -511,10 +513,16 @@ class Utils {
         link.click();
     }  
 
+    static hideGrid (renderTarget: any) {
+        d3.select(renderTarget).selectAll(`.${GRIDCONTAINERCLASS}`).remove();
+    }
+
     static showGrid(renderTarget: any, chartOptions: ChartOptions, aggregateExpressionOptions: any, 
             chartComponentData: ChartComponentData) {
         chartOptions.fromChart = true; 
+        d3.select(renderTarget).selectAll(`.${GRIDCONTAINERCLASS}`).remove();
         let gridContainer: any = d3.select(renderTarget).append('div')
+                .attr('class', GRIDCONTAINERCLASS)
                 .style('width', '100%')
                 .style('height', '100%');
 

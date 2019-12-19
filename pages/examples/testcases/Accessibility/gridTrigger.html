@@ -1,0 +1,850 @@
+
+<!DOCTYPE html> 
+<html>
+    <head>
+        <title>Basic Charts</title>
+
+        <!-- boilerplate headers are injected with head.js, grab them from the live example header, or include a link to head.js -->
+        <script src="../../boilerplate/head.js"></script>
+    </head>
+    <body style="font-family: 'Segoe UI', sans-serif;">
+        <div id="chart1" style="width: 100%; height: 600px;"></div>
+        <button id="showGrid">show grid</button>
+        <button id="hideGrid">hide grid</button>
+        <script>
+            window.onload = function() {
+
+                var data = [
+  {
+    "Observations KYKM (Yakima, Yakima Air Terminal)": {
+      "": {
+        "2019-11-30T12:00:00Z": {
+          "avg": null,
+          "min": null,
+          "max": null
+        },
+        "2019-11-30T16:00:00Z": {
+          "avg": null,
+          "min": null,
+          "max": null
+        },
+        "2019-11-30T20:00:00Z": {
+          "avg": null,
+          "min": null,
+          "max": null
+        },
+        "2019-12-01T00:00:00Z": {
+          "avg": null,
+          "min": null,
+          "max": null
+        },
+        "2019-12-01T04:00:00Z": {
+          "avg": null,
+          "min": null,
+          "max": null
+        },
+        "2019-12-01T08:00:00Z": {
+          "avg": 0,
+          "min": 0,
+          "max": 0
+        },
+        "2019-12-01T12:00:00Z": {
+          "avg": 0.00028,
+          "min": 0,
+          "max": 0.0008
+        },
+        "2019-12-01T16:00:00Z": {
+          "avg": 0.00009999999999999999,
+          "min": 0,
+          "max": 0.0003
+        },
+        "2019-12-01T20:00:00Z": {
+          "avg": 0,
+          "min": 0,
+          "max": 0
+        },
+        "2019-12-02T00:00:00Z": {
+          "avg": null,
+          "min": null,
+          "max": null
+        },
+        "2019-12-02T04:00:00Z": {
+          "avg": null,
+          "min": null,
+          "max": null
+        },
+        "2019-12-02T08:00:00Z": {
+          "avg": null,
+          "min": null,
+          "max": null
+        },
+        "2019-12-02T12:00:00Z": {
+          "avg": null,
+          "min": null,
+          "max": null
+        },
+        "2019-12-02T16:00:00Z": {
+          "avg": null,
+          "min": null,
+          "max": null
+        },
+        "2019-12-02T20:00:00Z": {
+          "avg": null,
+          "min": null,
+          "max": null
+        },
+        "2019-12-03T00:00:00Z": {
+          "avg": null,
+          "min": null,
+          "max": null
+        },
+        "2019-12-03T04:00:00Z": {
+          "avg": null,
+          "min": null,
+          "max": null
+        },
+        "2019-12-03T08:00:00Z": {
+          "avg": null,
+          "min": null,
+          "max": null
+        },
+        "2019-12-03T12:00:00Z": {
+          "avg": null,
+          "min": null,
+          "max": null
+        },
+        "2019-12-03T16:00:00Z": {
+          "avg": null,
+          "min": null,
+          "max": null
+        },
+        "2019-12-03T20:00:00Z": {
+          "avg": null,
+          "min": null,
+          "max": null
+        },
+        "2019-12-04T00:00:00Z": {
+          "avg": null,
+          "min": null,
+          "max": null
+        },
+        "2019-12-04T04:00:00Z": {
+          "avg": null,
+          "min": null,
+          "max": null
+        },
+        "2019-12-04T08:00:00Z": {
+          "avg": null,
+          "min": null,
+          "max": null
+        },
+        "2019-12-04T12:00:00Z": {
+          "avg": null,
+          "min": null,
+          "max": null
+        },
+        "2019-12-04T16:00:00Z": {
+          "avg": null,
+          "min": null,
+          "max": null
+        },
+        "2019-12-04T20:00:00Z": {
+          "avg": null,
+          "min": null,
+          "max": null
+        },
+        "2019-12-05T00:00:00Z": {
+          "avg": null,
+          "min": null,
+          "max": null
+        },
+        "2019-12-05T04:00:00Z": {
+          "avg": null,
+          "min": null,
+          "max": null
+        },
+        "2019-12-05T08:00:00Z": {
+          "avg": null,
+          "min": null,
+          "max": null
+        },
+        "2019-12-05T12:00:00Z": {
+          "avg": null,
+          "min": null,
+          "max": null
+        },
+        "2019-12-05T16:00:00Z": {
+          "avg": null,
+          "min": null,
+          "max": null
+        },
+        "2019-12-05T20:00:00Z": {
+          "avg": null,
+          "min": null,
+          "max": null
+        },
+        "2019-12-06T00:00:00Z": {
+          "avg": null,
+          "min": null,
+          "max": null
+        },
+        "2019-12-06T04:00:00Z": {
+          "avg": null,
+          "min": null,
+          "max": null
+        },
+        "2019-12-06T08:00:00Z": {
+          "avg": null,
+          "min": null,
+          "max": null
+        },
+        "2019-12-06T12:00:00Z": {
+          "avg": null,
+          "min": null,
+          "max": null
+        },
+        "2019-12-06T16:00:00Z": {
+          "avg": null,
+          "min": null,
+          "max": null
+        },
+        "2019-12-06T20:00:00Z": {
+          "avg": null,
+          "min": null,
+          "max": null
+        },
+        "2019-12-07T00:00:00Z": {
+          "avg": null,
+          "min": null,
+          "max": null
+        },
+        "2019-12-07T04:00:00Z": {
+          "avg": 0.0002666666666666666,
+          "min": 0,
+          "max": 0.0005
+        },
+        "2019-12-07T08:00:00Z": {
+          "avg": 0.00028571428571428574,
+          "min": 0,
+          "max": 0.0008
+        },
+        "2019-12-07T12:00:00Z": {
+          "avg": 0,
+          "min": 0,
+          "max": 0
+        },
+        "2019-12-07T16:00:00Z": {
+          "avg": 0,
+          "min": 0,
+          "max": 0
+        },
+        "2019-12-07T20:00:00Z": {
+          "avg": 0,
+          "min": 0,
+          "max": 0
+        },
+        "2019-12-08T00:00:00Z": {
+          "avg": 0.00017999999999999998,
+          "min": 0,
+          "max": 0.0003
+        },
+        "2019-12-08T04:00:00Z": {
+          "avg": 0,
+          "min": 0,
+          "max": 0
+        },
+        "2019-12-08T08:00:00Z": {
+          "avg": null,
+          "min": null,
+          "max": null
+        }
+      }
+    },
+    "aggKey": "Observations%20KYKM%20(Yakima%2C%20Yakima%20Air%20Terminal)_0",
+    "interpolationFunction": "",
+    "yExtent": null,
+    "includeEnvelope": true,
+    "includeDots": false,
+    "visibilityState": [
+      true
+    ],
+    "searchSpan": {
+      "from": "2019-11-30T12:17:25.423Z",
+      "to": "2019-12-08T09:26:34.576Z",
+      "bucketSize": "4h"
+    },
+    "measureTypes": [
+      "avg",
+      "min",
+      "max"
+    ],
+    "color": "#3195E3",
+    "alias": "Observations KYKM (Yakima, Yakima Air Terminal)",
+    "contextMenu": [
+      {
+        "name": "Hide this series"
+      },
+      {
+        "name": "Delete this series"
+      },
+      {
+        "name": "Advanced Explore"
+      },
+      {
+        "name": "Settings"
+      }
+    ],
+    "timeShift": "",
+    "dataType": "numeric",
+    "valueMapping": {},
+    "height": 40,
+    "onElementClick": null,
+    "eventElementType": "diamond",
+    "rollupCategoricalValues": false,
+    "tooltipAttributes": [],
+    "positionX": 0,
+    "positionY": 0
+  }
+];
+
+let cdo = [
+  {
+    "hidden": false,
+    "data": {
+      "Observations KYKM (Yakima, Yakima Air Terminal)": {
+        "": {
+          "2019-11-30T12:00:00Z": {
+            "avg": null,
+            "min": null,
+            "max": null
+          },
+          "2019-11-30T16:00:00Z": {
+            "avg": null,
+            "min": null,
+            "max": null
+          },
+          "2019-11-30T20:00:00Z": {
+            "avg": null,
+            "min": null,
+            "max": null
+          },
+          "2019-12-01T00:00:00Z": {
+            "avg": null,
+            "min": null,
+            "max": null
+          },
+          "2019-12-01T04:00:00Z": {
+            "avg": null,
+            "min": null,
+            "max": null
+          },
+          "2019-12-01T08:00:00Z": {
+            "avg": 0,
+            "min": 0,
+            "max": 0
+          },
+          "2019-12-01T12:00:00Z": {
+            "avg": 0.00028,
+            "min": 0,
+            "max": 0.0008
+          },
+          "2019-12-01T16:00:00Z": {
+            "avg": 0.00009999999999999999,
+            "min": 0,
+            "max": 0.0003
+          },
+          "2019-12-01T20:00:00Z": {
+            "avg": 0,
+            "min": 0,
+            "max": 0
+          },
+          "2019-12-02T00:00:00Z": {
+            "avg": null,
+            "min": null,
+            "max": null
+          },
+          "2019-12-02T04:00:00Z": {
+            "avg": null,
+            "min": null,
+            "max": null
+          },
+          "2019-12-02T08:00:00Z": {
+            "avg": null,
+            "min": null,
+            "max": null
+          },
+          "2019-12-02T12:00:00Z": {
+            "avg": null,
+            "min": null,
+            "max": null
+          },
+          "2019-12-02T16:00:00Z": {
+            "avg": null,
+            "min": null,
+            "max": null
+          },
+          "2019-12-02T20:00:00Z": {
+            "avg": null,
+            "min": null,
+            "max": null
+          },
+          "2019-12-03T00:00:00Z": {
+            "avg": null,
+            "min": null,
+            "max": null
+          },
+          "2019-12-03T04:00:00Z": {
+            "avg": null,
+            "min": null,
+            "max": null
+          },
+          "2019-12-03T08:00:00Z": {
+            "avg": null,
+            "min": null,
+            "max": null
+          },
+          "2019-12-03T12:00:00Z": {
+            "avg": null,
+            "min": null,
+            "max": null
+          },
+          "2019-12-03T16:00:00Z": {
+            "avg": null,
+            "min": null,
+            "max": null
+          },
+          "2019-12-03T20:00:00Z": {
+            "avg": null,
+            "min": null,
+            "max": null
+          },
+          "2019-12-04T00:00:00Z": {
+            "avg": null,
+            "min": null,
+            "max": null
+          },
+          "2019-12-04T04:00:00Z": {
+            "avg": null,
+            "min": null,
+            "max": null
+          },
+          "2019-12-04T08:00:00Z": {
+            "avg": null,
+            "min": null,
+            "max": null
+          },
+          "2019-12-04T12:00:00Z": {
+            "avg": null,
+            "min": null,
+            "max": null
+          },
+          "2019-12-04T16:00:00Z": {
+            "avg": null,
+            "min": null,
+            "max": null
+          },
+          "2019-12-04T20:00:00Z": {
+            "avg": null,
+            "min": null,
+            "max": null
+          },
+          "2019-12-05T00:00:00Z": {
+            "avg": null,
+            "min": null,
+            "max": null
+          },
+          "2019-12-05T04:00:00Z": {
+            "avg": null,
+            "min": null,
+            "max": null
+          },
+          "2019-12-05T08:00:00Z": {
+            "avg": null,
+            "min": null,
+            "max": null
+          },
+          "2019-12-05T12:00:00Z": {
+            "avg": null,
+            "min": null,
+            "max": null
+          },
+          "2019-12-05T16:00:00Z": {
+            "avg": null,
+            "min": null,
+            "max": null
+          },
+          "2019-12-05T20:00:00Z": {
+            "avg": null,
+            "min": null,
+            "max": null
+          },
+          "2019-12-06T00:00:00Z": {
+            "avg": null,
+            "min": null,
+            "max": null
+          },
+          "2019-12-06T04:00:00Z": {
+            "avg": null,
+            "min": null,
+            "max": null
+          },
+          "2019-12-06T08:00:00Z": {
+            "avg": null,
+            "min": null,
+            "max": null
+          },
+          "2019-12-06T12:00:00Z": {
+            "avg": null,
+            "min": null,
+            "max": null
+          },
+          "2019-12-06T16:00:00Z": {
+            "avg": null,
+            "min": null,
+            "max": null
+          },
+          "2019-12-06T20:00:00Z": {
+            "avg": null,
+            "min": null,
+            "max": null
+          },
+          "2019-12-07T00:00:00Z": {
+            "avg": null,
+            "min": null,
+            "max": null
+          },
+          "2019-12-07T04:00:00Z": {
+            "avg": 0.0002666666666666666,
+            "min": 0,
+            "max": 0.0005
+          },
+          "2019-12-07T08:00:00Z": {
+            "avg": 0.00028571428571428574,
+            "min": 0,
+            "max": 0.0008
+          },
+          "2019-12-07T12:00:00Z": {
+            "avg": 0,
+            "min": 0,
+            "max": 0
+          },
+          "2019-12-07T16:00:00Z": {
+            "avg": 0,
+            "min": 0,
+            "max": 0
+          },
+          "2019-12-07T20:00:00Z": {
+            "avg": 0,
+            "min": 0,
+            "max": 0
+          },
+          "2019-12-08T00:00:00Z": {
+            "avg": 0.00017999999999999998,
+            "min": 0,
+            "max": 0.0003
+          },
+          "2019-12-08T04:00:00Z": {
+            "avg": 0,
+            "min": 0,
+            "max": 0
+          },
+          "2019-12-08T08:00:00Z": {
+            "avg": null,
+            "min": null,
+            "max": null
+          }
+        }
+      },
+      "aggKey": "Observations%20KYKM%20(Yakima%2C%20Yakima%20Air%20Terminal)_0",
+      "interpolationFunction": "",
+      "yExtent": null,
+      "includeEnvelope": true,
+      "includeDots": false,
+      "visibilityState": [
+        true
+      ],
+      "searchSpan": {
+        "from": "2019-11-30T12:17:25.423Z",
+        "to": "2019-12-08T09:26:34.576Z",
+        "bucketSize": "4h"
+      },
+      "measureTypes": [
+        "avg",
+        "min",
+        "max"
+      ],
+      "color": "#3195E3",
+      "alias": "Observations KYKM (Yakima, Yakima Air Terminal)",
+      "contextMenu": [
+        {
+          "name": "Hide this series"
+        },
+        {
+          "name": "Delete this series"
+        },
+        {
+          "name": "Advanced Explore"
+        },
+        {
+          "name": "Settings"
+        }
+      ],
+      "timeShift": "",
+      "dataType": "numeric",
+      "valueMapping": {},
+      "height": 40,
+      "onElementClick": null,
+      "eventElementType": "diamond",
+      "rollupCategoricalValues": false,
+      "tooltipAttributes": [],
+      "positionX": 0,
+      "positionY": 0
+    },
+    "error": null,
+    "isJustAdded": false,
+    "queryID": "a040bfdf-57a1-10b9-e0f8-f5009dbb2f1b",
+    "dataType": "numeric",
+    "additionalFields": {
+      "timeSeriesName": "Observations KYKM (Yakima, Yakima Air Terminal)",
+      "Variable": "PrecipitationLastHour",
+      "Description": "Weather observations for Yakima, Yakima Air Terminal",
+      "FullName": "Yakima, Yakima Air Terminal",
+      "TimeZone": "America/Los_Angeles",
+      "Country": "United States",
+      "CountrySubdivisionName": "Washington",
+      "CountrySecondarySubdivision": "Yakima",
+      "Municipality": "Yakima",
+      "PostalCode": "98903"
+    },
+    "propsHidden": true,
+    "tsqExpression": {
+      "interpolationFunction": "",
+      "yExtent": null,
+      "includeEnvelope": true,
+      "includeDots": false,
+      "visibilityState": [
+        true
+      ],
+      "searchSpan": {
+        "from": 1575779394915,
+        "to": 1576618500000,
+        "bucketSize": "4h"
+      },
+      "measureTypes": [
+        "avg",
+        "min",
+        "max"
+      ],
+      "color": "#3195E3",
+      "alias": "Observations KYKM (Yakima, Yakima Air Terminal)",
+      "contextMenu": [
+        {
+          "name": "Hide this series"
+        },
+        {
+          "name": "Delete this series"
+        },
+        {
+          "name": "Advanced Explore"
+        },
+        {
+          "name": "Settings"
+        }
+      ],
+      "timeShift": "",
+      "dataType": "numeric",
+      "valueMapping": {},
+      "height": 40,
+      "onElementClick": null,
+      "eventElementType": "diamond",
+      "rollupCategoricalValues": false,
+      "tooltipAttributes": [],
+      "positionX": 0,
+      "positionY": 0,
+      "instanceObject": {
+        "typeId": "cde07f8f-ca64-4843-85d7-97df37b0a21e",
+        "timeSeriesId": [
+          "https://api.weather.gov/stations/KYKM"
+        ],
+        "name": "Observations KYKM (Yakima, Yakima Air Terminal)",
+        "description": "Weather observations for Yakima, Yakima Air Terminal",
+        "hierarchyIds": [
+          "cde07f8f-ca64-4843-85d7-97df37b0a21e"
+        ],
+        "instanceFields": {
+          "FullName": "Yakima, Yakima Air Terminal",
+          "TimeZone": "America/Los_Angeles",
+          "Country": "United States",
+          "CountrySubdivisionName": "Washington",
+          "CountrySecondarySubdivision": "Yakima",
+          "Municipality": "Yakima",
+          "PostalCode": "98903"
+        }
+      },
+      "variableObject": {
+        "avg": {
+          "kind": "numeric",
+          "value": {
+            "tsx": "$event.PrecipitationLastHour_value.Double"
+          },
+          "filter": null,
+          "aggregation": {
+            "tsx": "avg($value)"
+          }
+        },
+        "min": {
+          "kind": "numeric",
+          "value": {
+            "tsx": "$event.PrecipitationLastHour_value.Double"
+          },
+          "filter": null,
+          "aggregation": {
+            "tsx": "min($value)"
+          }
+        },
+        "max": {
+          "kind": "numeric",
+          "value": {
+            "tsx": "$event.PrecipitationLastHour_value.Double"
+          },
+          "filter": null,
+          "aggregation": {
+            "tsx": "max($value)"
+          }
+        }
+      }
+    },
+    "timeShift": "",
+    "color": "#3195E3",
+    "interpolationFunction": "",
+    "includeEnvelope": true,
+    "includeDots": false,
+    "yExtent": null,
+    "visibilityState": [
+      true
+    ],
+    "searchSpan": {
+      "from": "2019-11-30T18:47:55.932Z",
+      "to": "2019-12-08T15:57:05.084Z",
+      "bucketSize": "4h"
+    },
+    "measureTypes": [
+      "avg",
+      "min",
+      "max"
+    ],
+    "alias": "Observations KYKM (Yakima, Yakima Air Terminal)",
+    "contextMenu": [
+      {
+        "name": "Hide this series"
+      },
+      {
+        "name": "Delete this series"
+      },
+      {
+        "name": "Advanced Explore"
+      },
+      {
+        "name": "Settings"
+      }
+    ],
+    "valueMapping": {},
+    "height": 40,
+    "onElementClick": null,
+    "eventElementType": "diamond",
+    "rollupCategoricalValues": false,
+    "tooltipAttributes": [],
+    "positionX": 0,
+    "positionY": 0,
+    "instanceObject": {
+      "typeId": "cde07f8f-ca64-4843-85d7-97df37b0a21e",
+      "timeSeriesId": [
+        "https://api.weather.gov/stations/KYKM"
+      ],
+      "name": "Observations KYKM (Yakima, Yakima Air Terminal)",
+      "description": "Weather observations for Yakima, Yakima Air Terminal",
+      "hierarchyIds": [
+        "cde07f8f-ca64-4843-85d7-97df37b0a21e"
+      ],
+      "instanceFields": {
+        "FullName": "Yakima, Yakima Air Terminal",
+        "TimeZone": "America/Los_Angeles",
+        "Country": "United States",
+        "CountrySubdivisionName": "Washington",
+        "CountrySecondarySubdivision": "Yakima",
+        "Municipality": "Yakima",
+        "PostalCode": "98903"
+      }
+    },
+    "variableObject": {
+      "avg": {
+        "kind": "numeric",
+        "value": {
+          "tsx": "$event.PrecipitationLastHour_value.Double"
+        },
+        "filter": null,
+        "aggregation": {
+          "tsx": "avg($value)"
+        }
+      },
+      "min": {
+        "kind": "numeric",
+        "value": {
+          "tsx": "$event.PrecipitationLastHour_value.Double"
+        },
+        "filter": null,
+        "aggregation": {
+          "tsx": "min($value)"
+        }
+      },
+      "max": {
+        "kind": "numeric",
+        "value": {
+          "tsx": "$event.PrecipitationLastHour_value.Double"
+        },
+        "filter": null,
+        "aggregation": {
+          "tsx": "max($value)"
+        }
+      }
+    }
+  }
+];
+                
+                // create fake data in the shape our charts expect
+                // var data = [];
+                // var from = new Date(Math.floor((new Date()).valueOf() / (1000*60 * 60)) * (1000*60 * 60));
+                // var to;
+                // for(var i = 0; i < 3; i++){
+                //     var lines = {};
+                //     data.push({[`Factory${i}`]: lines});
+                //     for(var j = 0; j < 5; j++){
+                //         var values = {};
+                //         lines[`Station${j}`] = values;
+                //         for(var k = 0; k < 60; k++){
+                //             if(!(k%2 && k%3)){  // if check is to create some sparseness in the data
+                //                 var to = new Date(from.valueOf() + 1000*60*k);
+                //                 var val = Math.random();
+                //                 var val2 = Math.random();
+                //                 var val3 = Math.random();
+                //                 var val4 = Math.random();
+                //                 values[to.toISOString()] = {avg: val, x: val2, y: val3, r: val4};
+                //             }
+                //         } 
+                //     }
+                // }
+
+                // render the data in a chart
+                var tsiClient = new TsiClient();
+                var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart1'));
+                lineChart.render(data, {theme: 'light'}, cdo);
+                document.getElementById('showGrid').addEventListener("click", function () {
+                    lineChart.showGrid();
+                });
+                document.getElementById('hideGrid').addEventListener("click", function () {
+                    lineChart.hideGrid();
+                });
+            };
+        </script>
+    </body>
+</html>

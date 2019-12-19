@@ -1,4 +1,4 @@
-import {Utils, DataTypes, TooltipMeasureFormat } from "./../Utils";
+import {Utils, DataTypes, TooltipMeasureFormat, GRIDCONTAINERCLASS } from "./../Utils";
 import {Component} from "./Component";
 import {ChartComponentData} from './../Models/ChartComponentData'; 
 import {ChartOptions} from './../Models/ChartOptions';
@@ -32,6 +32,24 @@ class ChartComponent extends Component {
 	constructor(renderTarget: Element){
 		super(renderTarget);
 		this.chartComponentData = new ChartComponentData();
+	}
+
+	public showGrid () {
+		Utils.showGrid(this.renderTarget, this.chartOptions, this.aggregateExpressionOptions, this.chartComponentData);
+	}
+
+	public gatedShowGrid () {
+		if (this.isGridVisible()) {
+			this.showGrid();
+		}
+	}
+
+	public hideGrid () {
+		Utils.hideGrid(this.renderTarget);
+	}
+
+	public isGridVisible () {
+		return !d3.select(this.renderTarget).selectAll(`.${GRIDCONTAINERCLASS}`).empty();
 	}
 
 	protected drawEllipsisMenu (additionalEllipsisItems = []) {

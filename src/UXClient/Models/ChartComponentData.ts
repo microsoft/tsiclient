@@ -28,7 +28,7 @@ class ChartComponentData {
             var aeObj = ae[Object.keys(ae)[0]];
             Object.keys(aeObj).forEach(timeseries => {
                 Object.keys(aeObj[timeseries]).forEach(timestamp => {
-                    allTimestamps[timestamp] = true;
+                    allTimestamps[new Date(timestamp).toISOString()] = true;
                 })
             })
         })
