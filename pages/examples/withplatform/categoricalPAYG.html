@@ -1,0 +1,103 @@
+
+<!DOCTYPE html> 
+<html>
+    <head>
+        <title>Categorical PAYG</title>
+
+        <!-- styles are only used for styling header and auth elements, where possible -->
+        <link rel="stylesheet" type="text/css" href="../styles.css" />
+
+        <!-- boilerplate headers are injected with head.js, grab them from the live example header, or include a link to head.js -->
+        <script src="../boilerplate/head.js"></script>
+
+        <!-- boilerplate auth code is injected with auth.js, check it out for auth setup -->
+        <script src="../boilerplate/auth.js"></script>
+    </head>
+    <body style="font-family: 'Segoe UI', sans-serif;">
+
+        <div id="chart1" style="width: 50%; height: 600px; margin-top: 40px; float: left;"></div>
+        <script>
+            window.onload = function() {
+                initAuth('Categorical PAYG');  // initiate auth objects, header, and login modal
+                var tsiClient = new TsiClient();
+
+                var linechartTsqExpressions = [];
+                var startDate = new Date('2019-12-18T03:00:00Z');
+                var endDate = new Date(startDate.valueOf() + 1000*60*60*24);
+
+                // linechartTsqExpressions.push(new tsiClient.ux.TsqExpression(
+                //     {timeSeriesId: ['Sensor_6']}, // instance json
+                //     {Avg: {
+                //         kind: 'numeric',
+                //         value: {tsx: '$event.Value.Double'},
+                //         filter: null,
+                //         aggregation: {tsx: 'avg($value)'}
+                //     }}, // variable json
+                //     { from: startDate, to: endDate, bucketSize: '10m' }, // search span
+                //     '#D869CB', // color
+                //     'AvgValue')); // 
+                
+                linechartTsqExpressions.push(new tsiClient.ux.TsqExpression(
+                    {timeSeriesId: ['Sensor_6']}, // instance json
+                    {
+                        "Event Status": {
+                            "kind": "categorical",
+                            "value": {
+                            "tsx": "$event.[ThreeCategoryField].String"
+                            },
+                            "filter": {
+                            "tsx": "($event.[ThreeCategoryField].String) != null"
+                            },
+                            "interpolation": {
+                            "kind": "step",
+                            "boundary": {
+                                "span": "PT5M"
+                            }
+                            },
+                            "categories": [
+                            {
+                                "label": "Good",
+                                "values": [
+                                "Good"
+                                ]
+                            },
+                            {
+                                "label": "Bad",
+                                "values": [
+                                "Bad"
+                                ]
+                            }
+                            ],
+                            "defaultCategory": {
+                            "label": "Other"
+                            }
+                        }
+                    },
+                    { from: startDate, to: endDate, bucketSize: '10m' }, // search span
+                    {color: '#D869CB', // color
+                     alias: 'Event Status',
+                     dataType: 'categorical',
+                     valueMapping: {
+                        'Event Status[Good]': {
+                            color: 'blue'
+                        }, 
+                        'Event Status[Bad]': {
+                            color: 'green'
+                        },
+                        'Event Status[Other]': {
+                            color:'yellow'
+                        }
+                    }
+                    }));
+
+                authContext.getTsiToken().then(function(token){
+                    tsiClient.server.getTsqResults(token, '0293bb6f-5d98-4953-be00-e8e9eedf9b88.env.timeseries.azure.com', linechartTsqExpressions.map(function(ae){return ae.toTsq()})).then(function(result){
+                        var transformedResult = tsiClient.ux.transformTsqResultsForVisualization(result, linechartTsqExpressions);
+                        var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart1'));
+                        lineChart.render(transformedResult, {theme: 'dark', grid: true, tooltip: true, legend: 'visible'}, linechartTsqExpressions);
+                    });
+                });
+            }
+        </script>
+    </body>
+</html>
