@@ -636,6 +636,7 @@ class GroupedBarChart extends ChartComponent {
 
         this.chartComponentData.mergeDataToDisplayStateAndTimeArrays(data, this.timestamp, this.aggregateExpressionOptions);
         this.draw();
+        this.gatedShowGrid();
 
         if (this.chartOptions.legend === 'shown') {
             this.splitLegendAndSVG(this.svgSelection.node());

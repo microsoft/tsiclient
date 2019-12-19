@@ -181,6 +181,7 @@ class ScatterPlot extends ChartComponent {
 
         // Draw scatter plot
         this.draw();
+        this.gatedShowGrid();
         
         d3.select("html").on("click." + Utils.guid(), () => {
             if (this.ellipsisContainer && d3.event.target != this.ellipsisContainer.select(".tsi-ellipsisButton").node()) {

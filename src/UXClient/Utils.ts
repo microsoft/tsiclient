@@ -520,7 +520,7 @@ class Utils {
     static showGrid(renderTarget: any, chartOptions: ChartOptions, aggregateExpressionOptions: any, 
             chartComponentData: ChartComponentData) {
         chartOptions.fromChart = true; 
-        d3.selectAll(`.${GRIDCONTAINERCLASS}`).remove();
+        d3.select(renderTarget).selectAll(`.${GRIDCONTAINERCLASS}`).remove();
         let gridContainer: any = d3.select(renderTarget).append('div')
                 .attr('class', GRIDCONTAINERCLASS)
                 .style('width', '100%')

@@ -13,6 +13,7 @@ class Grid extends Component {
     private chartComponentData: ChartComponentData = new ChartComponentData();
     private draw;
     private closeButton = null;
+    private filteredTimestamps;
 
     private table;
     private tableHeaderRow;
@@ -51,7 +52,7 @@ class Grid extends Component {
 					row[dt] = c[aeName][sbName][dt];
 				})
 				row[this.rowLabelKey] = (Object.keys(c[aeName]).length == 1 && sbName == "" ? aeName : sbName);
-				if(aggregateExpressionOptions[i].color)
+				if(aggregateExpressionOptions && aggregateExpressionOptions[i].color)
 					row[this.colorKey] = aggregateExpressionOptions[i].color;
 				row[this.aggIndexKey] = i;
 				p.push(row);
@@ -93,10 +94,21 @@ class Grid extends Component {
         return h;
     }
 
+    private setFilteredTimestamps = () => {
+        if (this.chartComponentData.fromMillis === Infinity) {
+            this.filteredTimestamps = this.chartComponentData.allTimestampsArray;
+        } else {
+            this.filteredTimestamps = this.chartComponentData.allTimestampsArray.filter((ts) => {
+                let currMillis = (new Date(ts)).valueOf();
+                return (currMillis >= this.chartComponentData.fromMillis && currMillis < this.chartComponentData.toMillis); 
+            });    
+        }
+    }
+
     private addHeaderCells () {
-        let headerCellData = this.chartComponentData.allTimestampsArray;
+        let headerCellData = this.filteredTimestamps;// this.chartComponentData.allTimestampsArray;
         let headerCells = this.tableHeaderRow.selectAll('.tsi-headerCell').data(headerCellData);
-        headerCells.enter()
+        let headerCellsEntered = headerCells.enter()
             .append('th')
             .attr("tabindex", 1)
             .merge(headerCells)
@@ -106,18 +118,19 @@ class Grid extends Component {
             .attr('aria-label', (h) => {
                 return `${this.getString('column header for date')} ${this.getFormattedDate(h)}`
             });
+        headerCellsEntered.exit().remove();
     }
 
     private addValueCells () {
         let rowData = this.getRowData();
         let rows = this.table.selectAll('.tsi-gridContentRow').data(rowData);
         let self = this;
-        let allTimeStampMap = this.chartComponentData.allTimestampsArray.reduce((tsMap, ts) => {
+        let allTimeStampMap = this.filteredTimestamps.reduce((tsMap, ts) => {
             tsMap[ts] = {};
             return tsMap;
         }, {});
 
-        let headerCellData = this.chartComponentData.allTimestampsArray;
+        let headerCellData = this.filteredTimestamps;
 
         let rowsEntered = rows.enter()
             .append('tr')
@@ -195,10 +208,12 @@ class Grid extends Component {
         this.chartOptions.setOptions(options);
         this.gridComponent = d3.select(this.renderTarget);
         if (chartComponentData) {
-            this.chartComponentData = chartComponentData    
+            this.chartComponentData = chartComponentData;
         } else {
             this.chartComponentData.mergeDataToDisplayStateAndTimeArrays(data, aggregateExpressionOptions);
         }
+
+        this.setFilteredTimestamps();
 
         super.themify(this.gridComponent, this.chartOptions.theme);        
 

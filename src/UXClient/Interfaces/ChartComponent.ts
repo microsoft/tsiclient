@@ -38,6 +38,12 @@ class ChartComponent extends Component {
 		Utils.showGrid(this.renderTarget, this.chartOptions, this.aggregateExpressionOptions, this.chartComponentData);
 	}
 
+	public gatedShowGrid () {
+		if (this.isGridVisible()) {
+			this.showGrid();
+		}
+	}
+
 	public hideGrid () {
 		Utils.hideGrid(this.renderTarget);
 	}

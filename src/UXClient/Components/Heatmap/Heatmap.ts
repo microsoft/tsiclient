@@ -201,6 +201,7 @@ class Heatmap extends TemporalXAxisComponent {
         }
         this.chartComponentData.mergeDataToDisplayStateAndTimeArrays(data, aggregateExpressionOptions);
         this.draw();
+        this.gatedShowGrid();
         this.addTimeLabels();
         window.addEventListener("resize", () => {
             if (!this.chartOptions.suppressResizeListener) {
