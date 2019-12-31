@@ -4,7 +4,7 @@
 
 The Azure Time Series Insights JavaScript SDK (aka **tsiclient**) is a JavaScript library for Microsoft Azure Time Series Insights, featuring components for data visualization and analytics, utilities for making calls directly to the TSI Platform API, and more.  **tsiclient** also ships with an associated CSS file (which you must include using your preferred css linking method), which makes the components look great out of the box.
 
-[![TSI: GA](https://img.shields.io/badge/TSI-GA-blue.svg)](https://docs.microsoft.com/azure/time-series-insights/time-series-insights-overview) [![TSI: Preview](https://img.shields.io/badge/TSI-Preview-blue.svg)](https://docs.microsoft.com/azure/time-series-insights/time-series-insights-update-overview) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Contribute](https://img.shields.io/badge/PR%27s-welcome-brightgreen.svg)](CONTRIBUTING.md)
+[![TSI: GA](https://img.shields.io/badge/TSI-GA-blue.svg)](https://docs.microsoft.com/azure/time-series-insights/time-series-insights-overview) [![TSI: Preview](https://img.shields.io/badge/TSI-Preview-blue.svg)](https://docs.microsoft.com/azure/time-series-insights/time-series-insights-update-overview) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ## Resources
 
