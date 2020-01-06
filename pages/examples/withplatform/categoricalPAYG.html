@@ -25,17 +25,17 @@
                 var startDate = new Date('2019-12-18T03:00:00Z');
                 var endDate = new Date(startDate.valueOf() + 1000*60*60*24);
 
-                // linechartTsqExpressions.push(new tsiClient.ux.TsqExpression(
-                //     {timeSeriesId: ['Sensor_6']}, // instance json
-                //     {Avg: {
-                //         kind: 'numeric',
-                //         value: {tsx: '$event.Value.Double'},
-                //         filter: null,
-                //         aggregation: {tsx: 'avg($value)'}
-                //     }}, // variable json
-                //     { from: startDate, to: endDate, bucketSize: '10m' }, // search span
-                //     '#D869CB', // color
-                //     'AvgValue')); // 
+                linechartTsqExpressions.push(new tsiClient.ux.TsqExpression(
+                    {timeSeriesId: ['Sensor_6']}, // instance json
+                    {Avg: {
+                        kind: 'numeric',
+                        value: {tsx: '$event.Value.Double'},
+                        filter: null,
+                        aggregation: {tsx: 'avg($value)'}
+                    }}, // variable json
+                    { from: startDate, to: endDate, bucketSize: '10m' }, // search span
+                    '#D869CB', // color
+                    'AvgValue')); // 
                 
                 linechartTsqExpressions.push(new tsiClient.ux.TsqExpression(
                     {timeSeriesId: ['Sensor_6']}, // instance json
@@ -91,7 +91,8 @@
                     }));
 
                 authContext.getTsiToken().then(function(token){
-                    tsiClient.server.getTsqResults(token, '0293bb6f-5d98-4953-be00-e8e9eedf9b88.env.timeseries.azure.com', linechartTsqExpressions.map(function(ae){return ae.toTsq()})).then(function(result){
+                    tsiClient.server.getTsqResults(token, '0293bb6f-5d98-4953-be00-e8e9eedf9b88.env.timeseries.azure.com', linechartTsqExpressions.map(function(ae){return ae.toStatsTsq()})).then(function(result){
+                        debugger;
                         var transformedResult = tsiClient.ux.transformTsqResultsForVisualization(result, linechartTsqExpressions);
                         var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart1'));
                         lineChart.render(transformedResult, {theme: 'dark', grid: true, tooltip: true, legend: 'visible'}, linechartTsqExpressions);

@@ -39,9 +39,9 @@ class TsqExpression extends ChartDataOptions {
         let fromMillis = this.searchSpan.from.valueOf() + shiftMillis;
         let toMillis = this.searchSpan.to.valueOf() + shiftMillis;
         let bucketSizeInMillis = Utils.parseTimeInput(this.searchSpan.bucketSize);
-        let roundedFromMillis = Math.floor((fromMillis + 62135596800000) / (bucketSizeInMillis)) * (bucketSizeInMillis) - 62135596800000; 
-        let roundedToMillis = Math.ceil((toMillis + 62135596800000) / (bucketSizeInMillis)) * (bucketSizeInMillis) - 62135596800000;
         if (roundFromTo) {
+            let roundedFromMillis = Math.floor((fromMillis + 62135596800000) / (bucketSizeInMillis)) * (bucketSizeInMillis) - 62135596800000; 
+            let roundedToMillis = Math.ceil((toMillis + 62135596800000) / (bucketSizeInMillis)) * (bucketSizeInMillis) - 62135596800000;
             fromMillis = roundedFromMillis;
             toMillis = roundedToMillis;
         }
@@ -56,6 +56,23 @@ class TsqExpression extends ChartDataOptions {
             tsq['projectedVariables'] = Object.keys(this.variableObject);
             return {aggregateSeries: tsq};
         }
+    }
+
+    public toStatsTsq(){
+        let tsq;
+        if(this.dataType !== 'categorical') {
+            tsq = this.toTsq()
+            tsq.aggregateSeries['interval'] = 'P1000Y';
+            let inlineVariables = {Min: {}, Max: {}, Avg: {}, StDev: {}};
+            let firstVariable = tsq.aggregateSeries['inlineVariables'][Object.keys(tsq.aggregateSeries['inlineVariables'])[0]];
+            Object.keys(inlineVariables).forEach(k => {
+                inlineVariables[k] = JSON.parse(JSON.stringify(firstVariable));
+                inlineVariables[k].aggregation.tsx = `${k}($value)`;
+            })
+            tsq.aggregateSeries['inlineVariables'] = inlineVariables;        
+            tsq.aggregateSeries['projectedVariables'] = Object.keys(inlineVariables);
+        }
+        return tsq;
     }
 }
 export {TsqExpression}
