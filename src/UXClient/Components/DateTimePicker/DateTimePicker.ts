@@ -563,7 +563,7 @@ class DateTimePicker extends ChartComponent{
             if (startOrEnd == 'end') {
                 fromOrToContainer.append("button")
                     .attr("class", "tsi-snapToEndRangeButton")
-                    .html(this.getString("Latest"))
+                    .text(this.getString("Latest"))
                     .attr('aria-label', this.getString('snap end time to latest'))
                     .on("click", () => {
                         if (!this.isSettingStartTime) {
