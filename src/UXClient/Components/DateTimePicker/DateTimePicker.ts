@@ -131,7 +131,7 @@ class DateTimePicker extends ChartComponent{
         this.onCancel = onCancel;
         this.targetElement = d3.select(this.renderTarget)
             .classed("tsi-dateTimePicker", true);
-        this.targetElement.node().innerHTML = "";
+        this.targetElement.html('');
         super.themify(this.targetElement, this.chartOptions.theme);
 
         let group = this.targetElement.append('div')
