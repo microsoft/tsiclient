@@ -195,7 +195,7 @@ class Grid extends Component {
                         measures.enter()
                             .append('div')
                             .attr('class', 'tsi-measureValue')
-                            .text((measure: string) => d.measures ? d.measures[measure] : '&nbsp;');
+                            .text((measure: string) => d.measures ? d.measures[measure] : '');
                         measures.exit().remove(); 
                     });
                 cells.exit().remove();
