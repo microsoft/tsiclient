@@ -76,7 +76,7 @@ class HierarchyNavigation extends Component{
         this.resettingVariablesForEnvChange();
         this.hierarchyNavOptions.setOptions(hierarchyNavOptions);
         let targetElement = d3.select(this.renderTarget);   
-        targetElement.html(''); 
+        targetElement.text(''); 
         let hierarchyNavWrapper = targetElement.append('div').attr('class', 'tsi-hierarchy-nav-wrapper');
         super.themify(hierarchyNavWrapper, this.hierarchyNavOptions.theme);
 
@@ -104,7 +104,7 @@ class HierarchyNavigation extends Component{
                         self.isHierarchySelectionActive = false;
                     }
                     else {
-                        self.hierarchyListElem.html('');
+                        self.hierarchyListElem.text('');
                         self.hierarchyListElem.append('li').classed('selected', HierarchySelectionValues.All === self.selectedHierarchyName)
                                                             .attr("hName", HierarchySelectionValues.All)
                                                             .attr('tabindex', 0)
@@ -240,7 +240,7 @@ class HierarchyNavigation extends Component{
                 // result (hierarchy or flat list)
                 let results = hierarchyNavWrapper.append('div').classed('tsi-hierarchy-or-list-wrapper', true);
                 // no results
-                this.noResultsElem = results.append('div').html(this.getString("No results")).classed('tsi-noResults', true).style('display', 'none');
+                this.noResultsElem = results.append('div').text(this.getString("No results")).classed('tsi-noResults', true).style('display', 'none');
                 // hierarchy
                 this.hierarchyElem = results.append('div').classed('tsi-hierarchy', true).on('scroll', function(){
                     self.closeContextMenu();
@@ -338,7 +338,7 @@ class HierarchyNavigation extends Component{
                 this.setRequestParamsForNavigate();
             }
             if (d3.selectAll('.tsi-hierarchy ul').size() === 0 && applySearch) { // if the tree is empty, pull data
-                this.hierarchyElem.html('');
+                this.hierarchyElem.text('');
                 this.pathSearch(this.getToken, this.environmentFqdn, this.requestPayload(), this.hierarchyElem);
             }
             (this.hierarchyElem.node() as any).style.display = 'block';
@@ -351,7 +351,7 @@ class HierarchyNavigation extends Component{
                 this.hierarchyNavOptions.isInstancesRecursive = false;
             }
             if (d3.selectAll('.tsi-modelResultWrapper').size() === 0 && applySearch) { // if the list is empty, pull data
-                this.instanceListElem.html('');
+                this.instanceListElem.text('');
                 this.lastInstanceContinuationToken = null;
                 this.usedInstanceSearchContinuationTokens = {};
                 this.pathSearch(this.getToken, this.environmentFqdn, this.requestPayload(), this.instanceListElem);
@@ -375,8 +375,8 @@ class HierarchyNavigation extends Component{
 
     // clears both hierarchy tree and flat list for new results
     private clearAndGetResults (applySearch: boolean = true) {
-        this.instanceListElem.html('');
-        this.hierarchyElem.html('');
+        this.instanceListElem.text('');
+        this.hierarchyElem.text('');
         this.lastInstanceContinuationToken = null;
         this.usedInstanceSearchContinuationTokens = {};
         if (this.mode === State.Search) {
@@ -441,43 +441,20 @@ class HierarchyNavigation extends Component{
             }       
 
             if(el === this.getString("Show More Hierarchies")) {
-                li.classed('tsi-show-more tsi-show-more-hierarchy', true).append('span').classed('tsi-markedName', true).attr('tabindex', 0).attr('style', `padding-left: ${(data[el].level) * 18 + 20}px`).html(el).on('click keydown', function () {
+                li.classed('tsi-show-more tsi-show-more-hierarchy', true).append('span').classed('tsi-markedName', true).attr('tabindex', 0).attr('style', `padding-left: ${(data[el].level) * 18 + 20}px`).text(el).on('click keydown', function () {
                     if (Utils.isKeyDownAndNotEnter(d3.event)) {return; }
                     data[el].onClick();    
                 });
             } else if (el === this.getString("Show More Instances")) {
-                li.classed('tsi-show-more tsi-show-more-instance', true).append('span').classed('tsi-markedName', true).attr('tabindex', 0).attr('style', `padding-left: ${(data[el].level) * 18 + 20}px`).html(el).on('click keydown', function () {
+                li.classed('tsi-show-more tsi-show-more-instance', true).append('span').classed('tsi-markedName', true).attr('tabindex', 0).attr('style', `padding-left: ${(data[el].level) * 18 + 20}px`).text(el).on('click keydown', function () {
                     if (Utils.isKeyDownAndNotEnter(d3.event)) {return; }
                     data[el].onClick();
                 });
             } else {
                 li.append('span').classed('tsi-caret-icon', !data[el].isLeaf).attr('style', `left: ${(data[el].level) * 18 + 20}px`);
-                let newListElem;
-                if (!data[el].highlights) {
-                    newListElem = li.append('span');
-                } else {
-                    newListElem = li.append('div');
-                }
-                    
-                newListElem.classed('tsi-markedName', true).attr('style', `padding-left: ${data[el].isLeaf ? data[el].level * 18 + 20 : (data[el].level + 1) * 18 + 20}px`)
-                            .attr('tabindex', 0)
-                            .attr('arialabel', el)
-                            .attr('title', el)
-                            .html(this.getHierarchyItemHtml(data[el], el))
-                            .on('click keydown', function() {
-                    if (Utils.isKeyDownAndNotEnter(d3.event)) {return; }
-                    if (data[el].onClick) { // means it is an instance
-                        d3.event.stopPropagation();
-                        self.closeContextMenu();
-                        self.clickedInstance = data[el]; 
-                        let mouseElt = d3.mouse(this as any);
-                        let target = self.hierarchyElem.select(function() { return this.parentNode});
-                        let mouseWrapper = d3.mouse(target.node());
-                        data[el].onClick(target, mouseWrapper[1], mouseElt[1]);
-                    } else {
-                        data[el].isExpanded ? data[el].collapse() : data[el].expand()
-                    }
-                });
+                let newListElem = this.createHierarchyItemElem(data[el], el);
+                li.node().appendChild(newListElem.node());
+
                 if (!data[el].isLeaf && (self.viewType === ViewType.Hierarchy)) {
                     li.append('div').classed('tsi-pin-icon', true).attr('title', this.getString('Add to Filter Path'))
                         .attr('tabindex', 0)
@@ -486,13 +463,13 @@ class HierarchyNavigation extends Component{
                             if (Utils.isKeyDownAndNotEnter(d3.event)) {return; }
                             self.path = data[el].path;
                             let pathListElem = d3.select('.tsi-path-list');
-                            pathListElem.html('');
+                            pathListElem.text('');
                             let pathToLoop = self.selectedHierarchyName !== HierarchySelectionValues.All ? data[el].path.slice(1) : data[el].path;
                             pathToLoop.forEach((a, i) => {
                                 if (i > 0) {
                                     pathListElem.append('span').text(' / ');
                                 }
-                                let pathName = a ? a : '(' + this.getString("Empty") + ')';
+                                let pathName = a ? a : '(' + self.getString("Empty") + ')';
                                 pathListElem.append('span').classed('tsi-path', true)
                                     .text(pathName)
                                     .attr('title', pathName)
@@ -561,12 +538,15 @@ class HierarchyNavigation extends Component{
             let div;
             if (data[i].name === this.getString("Show More Instances")) {
                 div = target.append('div').classed('tsi-show-more tsi-show-more-instance', true);
-                div.append('span').classed('tsi-markedName', true).attr('tabindex', 0).html(i).on('click keydown', function() {
+                div.append('span').classed('tsi-markedName', true).attr('tabindex', 0).text(i).on('click keydown', function() {
                     if (Utils.isKeyDownAndNotEnter(d3.event)) {return; }
                     data[i].onClick();
                 });
             } else {
-                div = target.append('div').classed('tsi-modelResultWrapper', true).attr('tabindex', 0).html(this.getInstanceHtml(data[i])).on('click keydown', function() {
+                div = target.append('div').classed('tsi-modelResultWrapper', true).attr('tabindex', 0);
+                let instanceElem = this.createInstanceElem(data[i]);
+                div.node().appendChild(instanceElem.node());
+                div.on('click keydown', function() {
                     let clickInstance = () => {
                         d3.event.stopPropagation();
                         self.closeContextMenu();
@@ -679,54 +659,144 @@ class HierarchyNavigation extends Component{
         d3.selectAll('.tsi-modelResultWrapper').classed('tsi-selected', false);
     }
 
-    private stripHits = (str) => {
-        return str.split('<hit>').map(h => h.split('</hit>').map(h2 => Utils.strip(h2)).join('</hit>')).join('<hit>')
+    // returns dom elements of stripped strings including hits and spans
+    private getElemsOfStrippedString = (str) => {
+        let strippedElems = [];
+        str.split('<hit>').map(h => {
+            let strips = h.split('</hit>'); 
+            if (strips.length > 1) {
+                let hitElem = document.createElement('hit'); 
+                hitElem.innerText = strips[0];
+                strippedElems.push(hitElem);
+                let spanElem = document.createElement('span'); 
+                spanElem.innerText = strips[1];
+                strippedElems.push(spanElem);
+            } else {
+                let spanElem = document.createElement('span'); 
+                spanElem.innerText = strips[0];
+                strippedElems.push(spanElem);
+            }
+        });
+        return strippedElems;
     }
 
-    //returns the html of one hierarchy level item for tree rendering
-    private getHierarchyItemHtml(hORi, key) {
+    //returns the dom element of one hierarchy level item for tree rendering
+    private createHierarchyItemElem(hORi, key) {
+        let self = this;
+        let hierarchyItemElem;
+        if (!hORi.highlights) {
+            hierarchyItemElem = d3.create('span');
+        } else {
+            hierarchyItemElem = d3.create('div');
+        }
+
+        hierarchyItemElem.classed('tsi-markedName', true).attr('style', `padding-left: ${hORi.isLeaf ? hORi.level * 18 + 20 : (hORi.level + 1) * 18 + 20}px`)
+                    .attr('tabindex', 0)
+                    .attr('arialabel', key)
+                    .attr('title', key)
+                    .on('click keydown', function() {
+                        if (Utils.isKeyDownAndNotEnter(d3.event)) {return; }
+                        if (hORi.onClick) { // means it is an instance
+                            d3.event.stopPropagation();
+                            self.closeContextMenu();
+                            self.clickedInstance = hORi; 
+                            let mouseElt = d3.mouse(this as any);
+                            let target = self.hierarchyElem.select(function() { return this.parentNode});
+                            let mouseWrapper = d3.mouse(target.node());
+                            hORi.onClick(target, mouseWrapper[1], mouseElt[1]);
+                        } else {
+                            hORi.isExpanded ? hORi.collapse() : hORi.expand()
+                        }
+                    });
+
         if (this.mode !== State.Navigate) {
             if (hORi.highlights) { // means it is an instance not a hierarchy
-                return `<span>
-                            ${hORi.highlights.name ? this.stripHits(hORi.highlights.name) : this.stripHits(this.getTsidFromHighlights(hORi.highlights))}
-                            <br>
-                            ${this.hasHits(hORi.highlights.description) || hORi.highlights.instanceFieldNames.filter(this.hasHits).length > 0 ? 
-                                (`<span class="tsi-highlights-detail">
-                                    ${hORi.highlights.description && hORi.highlights.description.indexOf("<hit>") !== -1 ? this.stripHits(hORi.highlights.description) : ''}
-                                    <table>
-                                        ${hORi.highlights.instanceFieldNames.map((ifn, idx) => {
-                                            var val = hORi.highlights.instanceFieldValues[idx];
-                                            return this.hasHits(ifn) || this.hasHits(val) ? '<tr><td>' + this.stripHits(ifn) + '</td><td>' + this.stripHits(hORi.highlights.instanceFieldValues[idx]) + '</tr>' : '';
-                                        }).join('')}
-                                    </table>
-                                </span>`)
-                            : ''}
-                        </span>`; 
+                let spanElem = hierarchyItemElem.append('span');
+                if (hORi.highlights.name) {
+                    this.getElemsOfStrippedString(hORi.highlights.name).forEach(s => spanElem.node().appendChild(s));
+                } else {
+                    this.getElemsOfStrippedString(this.getTsidFromHighlights(hORi.highlights)).forEach(s => spanElem.node().appendChild(s));
+                }
+                spanElem.append('br');
+                if (this.hasHits(hORi.highlights.description) || hORi.highlights.instanceFieldNames.filter(this.hasHits).length > 0 || hORi.highlights.instanceFieldValues.filter(this.hasHits).length > 0) {
+                    let highlightDetails = spanElem.append('span').classed('tsi-highlights-detail', true);
+                    if (hORi.highlights.description && hORi.highlights.description.indexOf("<hit>") !== -1) {
+                        this.getElemsOfStrippedString(hORi.highlights.description).forEach(s => highlightDetails.node().appendChild(s))
+                    } else {
+                        highlightDetails.append('span');
+                    }
+                    
+                    let hitTuples = [];
+                    hORi.highlights.instanceFieldNames.forEach((ifn, idx) => {
+                        var val = hORi.highlights.instanceFieldValues[idx];
+                        if (this.hasHits(ifn) || this.hasHits(val)) {
+                            hitTuples.push([this.getElemsOfStrippedString(ifn), this.getElemsOfStrippedString(hORi.highlights.instanceFieldValues[idx])])
+                        }
+                    });
+                    let table = highlightDetails.append('table');
+                    hitTuples.forEach(t => {
+                        let row = table.append('tr');
+                        let td = row.append('td');
+                        t[0].forEach(elem => td.node().appendChild(elem));
+                        td = row.append('td');
+                        t[1].forEach(elem => td.node().appendChild(elem));  
+                    });
+                }
             }
-            else return '<span class=\"tsi-name\">'+ key + '</span>' + (hORi.cumulativeInstanceCount ? ' <span class=\"tsi-childCount\">' + hORi.cumulativeInstanceCount + '</span>' : '');
-        } else return '<span class=\"tsi-name\">'+ (key ? key : '(null)') + '</span>' + (hORi.cumulativeInstanceCount ? ' <span class=\"tsi-childCount\">' + hORi.cumulativeInstanceCount + '</span>' : '');
+            else {
+                hierarchyItemElem.append('span').classed('tsi-name', true).text(key);
+                if (hORi.cumulativeInstanceCount) {
+                    hierarchyItemElem.append('span').classed('tsi-childCount', true).text(hORi.cumulativeInstanceCount);
+                }
+            }
+        } else {
+            hierarchyItemElem.append('span').classed('tsi-name', true).text(key ? key : '(null)');
+            if (hORi.cumulativeInstanceCount) {
+                hierarchyItemElem.append('span').classed('tsi-childCount', true).text(hORi.cumulativeInstanceCount);
+            }
+        }
+
+        return hierarchyItemElem;
     }
 
-    //returns the html of one instance item for flat list rendering
-    private getInstanceHtml(i) {
-        return `<div class="tsi-modelResult">
-                    <div class="tsi-modelPK">
-                        ${i.highlights.name ? this.stripHits(i.highlights.name) : this.stripHits(this.getTsidFromHighlights(i.highlights))}
-                    </div>
-                    <div class="tsi-modelHighlights">
-                        ${this.stripHits(i.highlights.description && i.highlights.description.length ? i.highlights.description : 'No description')}
-                        <br/><table>
-                        ${i.highlights.name ? ('<tr><td>Time Series ID</td><td>' + this.stripHits(this.getTsidFromHighlights(i.highlights)) + '</td></tr>') : ''}                        
-                        ${i.highlights.instanceFieldNames.map((ifn, idx) => {
-                            var val = i.highlights.instanceFieldValues[idx];
-                            if (this.searchString)
-                                return this.hasHits(ifn) || this.hasHits(val) ? '<tr><td>' + this.stripHits(ifn) + '</td><td>' + this.stripHits(i.highlights.instanceFieldValues[idx]) + '</tr>' : '' ;
-                            else
-                                return val.length === 0 ? '' :  '<tr><td>' + this.stripHits(ifn) + '</td><td>' + this.stripHits(i.highlights.instanceFieldValues[idx]) + '</tr>';
-                        }).join('')}
-                        </table>
-                    </div>
-                </div>`;
+    //returns the dom elem of one instance item for flat list rendering
+    private createInstanceElem(i) {
+        let instanceElem = d3.create('div').classed('tsi-modelResult', true);
+        let firstLine = instanceElem.append('div').classed('tsi-modelPK', true);
+        (i.highlights.name ? this.getElemsOfStrippedString(i.highlights.name) : this.getElemsOfStrippedString(this.getTsidFromHighlights(i.highlights))).forEach(a => (firstLine.node() as HTMLDivElement).appendChild(a));
+
+        let secondLine = instanceElem.append('div').classed('tsi-modelHighlights', true);
+        this.getElemsOfStrippedString(i.highlights.description && i.highlights.description.length ? i.highlights.description : 'No description').forEach(a => (secondLine.node() as HTMLDivElement).appendChild(a));
+        secondLine.append('br');
+        let table = secondLine.append('table');
+        let row = table.append('tr');
+        let td;
+        if (i.highlights.name) {
+            row.append('td').text(this.getString("Time Series ID"));
+            td = row.append('td');
+            this.getElemsOfStrippedString(this.getTsidFromHighlights(i.highlights)).forEach(a => (td.node() as HTMLTableDataCellElement).appendChild(a));
+        }
+
+        i.highlights.instanceFieldNames.map((ifn, idx) => {
+            var val = i.highlights.instanceFieldValues[idx];
+            if (this.searchString) {
+                if (this.hasHits(ifn) || this.hasHits(val)) {
+                    row = table.append('tr');
+                    td = row.append('td');
+                    this.getElemsOfStrippedString(ifn).forEach(a => (td.node() as HTMLTableDataCellElement).appendChild(a));
+                    td = row.append('td');
+                    this.getElemsOfStrippedString(i.highlights.instanceFieldValues[idx]).forEach(a => (td.node() as HTMLTableDataCellElement).appendChild(a));
+                }
+            } else if (val.length !== 0) {
+                row = table.append('tr');
+                td = row.append('td');
+                this.getElemsOfStrippedString(ifn).forEach(a => (td.node() as HTMLTableDataCellElement).appendChild(a));
+                td = row.append('td');
+                this.getElemsOfStrippedString(i.highlights.instanceFieldValues[idx]).forEach(a => (td.node() as HTMLTableDataCellElement).appendChild(a));
+            }
+        });
+
+        return instanceElem;
     }
 
     private hasHits = (str) => {
@@ -734,7 +804,7 @@ class HierarchyNavigation extends Component{
     }
 
     private clearAndHideFilterPath = () => {
-        d3.select('.tsi-path-list').html('');
+        d3.select('.tsi-path-list').text('');
         d3.select('.tsi-filter-clear').style('display', 'none');
         this.filterPathElem.classed('visible', false);
     }
@@ -808,7 +878,7 @@ function InstanceNode (tsId, name = null, type, hierarchyIds, highlights, contex
                 .attr('tabindex', 0)
                 .attr('arialabel', option)
                 .attr('title', option)
-                .html(option).on('click keydown', () => {
+                .text(option).on('click keydown', () => {
                     if (Utils.isKeyDownAndNotEnter(d3.event)) {return; }
                     a[option]();
                 });
