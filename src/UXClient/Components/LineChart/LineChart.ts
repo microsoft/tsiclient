@@ -149,7 +149,7 @@ class LineChart extends TemporalXAxisComponent {
         this.targetElement.selectAll(".tsi-markerInstructions").remove();
         this.targetElement.append("div")
             .classed("tsi-markerInstructions", true)
-            .html(this.getString("Click to drop marker") + "," + this.getString("drag to reposition") + "."); 
+            .text(this.getString("Click to drop marker") + "," + this.getString("drag to reposition") + "."); 
     }
 
     private destroyMarkerInstructions () {
@@ -619,7 +619,7 @@ class LineChart extends TemporalXAxisComponent {
         var text = dateToTime(firstValue) + " - " + dateToTime(secondValue);
         var timeLabel = scooter.select(".tsi-scooterTimeLabel");
         let self = this;
-        timeLabel.html(text)
+        timeLabel.text(text)
             .append("button")
             .attr("aria-label", this.getString("Delete marker at") + ' ' + text) 
             .classed("tsi-closeButton", true)
@@ -678,7 +678,7 @@ class LineChart extends TemporalXAxisComponent {
                     .append("div")
                     .classed("tsi-scooterValueLabel", true)
                     .merge(valueLabel)
-                    .html(() => Utils.formatYAxisNumber(self.getValueOfVisible(d)))
+                    .text(() => Utils.formatYAxisNumber(self.getValueOfVisible(d)))
                     .style("border-color", () => self.colorMap[d.aggregateKey + "_" + d.splitBy])
                 valueLabel.exit().remove();
 
@@ -1165,7 +1165,7 @@ class LineChart extends TemporalXAxisComponent {
             Math.min(Math.max(0, this.x(this.brushEndTime)), this.x.range()[1]) + svgLeftOffset;
  
         rangeTextContainer
-            .html(rangeText)
+            .text(rangeText)
             .style("left", Math.max(8, Math.round((leftPos + rightPos) / 2)) + "px")
             .style("top", (this.chartMargins.top + this.chartOptions.aggTopMargin) + 'px')
         

@@ -19,15 +19,15 @@ class DateTimeButtonRange extends DateTimeButton {
         let tzAbbr = Utils.createTimezoneAbbreviation(this.chartOptions.offset);
         let toString = this.buttonDateTimeFormat(toMillis) + ' (' + tzAbbr + ')';
         if (!isRelative) {
-            this.dateTimeButton.node().innerHTML = fromString + ' - ' + toString;
+            this.dateTimeButton.text(`${fromString} - ${toString}`);
         }
         else{
             let quickTimeText = this.dateTimePicker.getQuickTimeText(quickTime);
             if(quickTimeText !== null){
-                this.dateTimeButton.node().innerHTML = quickTimeText + ' (' + fromString + ' - ' + toString + ')';
+                this.dateTimeButton.text(`${quickTimeText} (${fromString} - ${toString})`);
             }
             else{
-                this.dateTimeButton.node().innerHTML = fromString + ' - ' + this.getString('Latest') + ' (' + toString + ')';
+                this.dateTimeButton.text(`${fromString} - ${this.getString('Latest')} (${toString})`);
             }
         }
     }

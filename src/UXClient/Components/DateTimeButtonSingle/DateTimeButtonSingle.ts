@@ -14,7 +14,7 @@ class DateTimeButtonSingle extends DateTimeButton {
     }
 
     private sDTPOnSet = (millis) => {
-        this.dateTimeButton.node().innerHTML = this.buttonDateTimeFormat(millis);
+        this.dateTimeButton.text(this.buttonDateTimeFormat(millis));
         this.dateTimePickerContainer.style("display", "none");
         this.selectedMillis = millis;
     }
@@ -23,7 +23,7 @@ class DateTimeButtonSingle extends DateTimeButton {
         super.render(chartOptions, minMillis, maxMillis, onSet);
         this.selectedMillis = selectedMillis;
         d3.select(this.renderTarget).classed('tsi-dateTimeContainerSingle', true);
-        this.dateTimeButton.node().innerHTML = this.buttonDateTimeFormat(selectedMillis);
+        this.dateTimeButton.text(this.buttonDateTimeFormat(selectedMillis));
         if (!this.dateTimePicker) {
             this.dateTimePicker = new SingleDateTimePicker(this.dateTimePickerContainer.node());
         }

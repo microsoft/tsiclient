@@ -100,7 +100,7 @@ class EllipsisMenu extends Component {
                 d3.select(this)
                     .append("div")
                     .classed("tsi-ellipsisMenuLabel", true)
-                    .html((d: any) => d.label);
+                    .text((d: any) => d.label);
                     
                 d3.select(this)
                     .append("div")

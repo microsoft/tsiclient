@@ -171,7 +171,7 @@ class Grid extends Component {
                         measureNames.enter()
                             .append('div')
                             .attr('class', 'tsi-measureName')
-                            .html((d: any) => d);
+                            .text((d: any) => d);
                     })
                 headerCell.exit().remove();
 
@@ -195,7 +195,7 @@ class Grid extends Component {
                         measures.enter()
                             .append('div')
                             .attr('class', 'tsi-measureValue')
-                            .html((measure: string) => d.measures ? d.measures[measure] : '&nbsp;');
+                            .text((measure: string) => d.measures ? d.measures[measure] : '&nbsp;');
                         measures.exit().remove(); 
                     });
                 cells.exit().remove();
