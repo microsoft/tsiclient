@@ -63,7 +63,7 @@ class TsqExpression extends ChartDataOptions {
         if(this.dataType !== 'categorical') {
             tsq = this.toTsq()
             tsq.aggregateSeries['interval'] = 'P1000Y';
-            let inlineVariables = {Min: {}, Max: {}, Avg: {}, StDev: {}};
+            let inlineVariables = {min: {}, max: {}, avg: {}, stDev: {}};
             let firstVariable = tsq.aggregateSeries['inlineVariables'][Object.keys(tsq.aggregateSeries['inlineVariables'])[0]];
             Object.keys(inlineVariables).forEach(k => {
                 inlineVariables[k] = JSON.parse(JSON.stringify(firstVariable));
