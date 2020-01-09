@@ -101,7 +101,7 @@ class Hierarchy extends Component {
                         n.click(n)
                         n.colorify(d3.select(this));
                     });
-                    li.append('span').html(n.name).classed('tsi-markedName', true);
+                    li.append('span').text(n.name).classed('tsi-markedName', true);
                     n.colorify(li);
                 });
                 filter.attr('disabled', true);
@@ -125,12 +125,12 @@ class Hierarchy extends Component {
                     this.clickedNode = el.node();
                     this.contextMenu = this.hierarchyList.append('div');
                     node.children.filter(n => n.name[0] !== '~').forEach(n => {
-                        this.contextMenu.append('div').html(`${n.name}`).on('click', () => n.click(n));
+                        this.contextMenu.append('div').text(`${n.name}`).on('click', () => n.click(n));
                     })
                     this.contextMenu.append('div').classed('tsi-break', true);
                     node.children.filter(n => n.name[0] === '~').forEach(n => {
                         let noTildeName = n.name.slice(1);
-                        this.contextMenu.append('div').html(`${noTildeName}`).on('click', () => n.click(n));
+                        this.contextMenu.append('div').text(`${noTildeName}`).on('click', () => n.click(n));
                     })
                     this.contextMenu.classed('tsi-hierarchyContextMenu', true);
                     let mouseWrapper = d3.mouse(this.hierarchyList.node());
@@ -172,7 +172,7 @@ class Hierarchy extends Component {
                                 .classed('tsi-selected', n.isSelected).on('click', clickMethod)
 
                         li.append('span').classed('tsi-caret', true).attr('style', `left: ${(n.level - 1) * 18}px`);
-                        li.append('span').classed('tsi-markedName', true).html(n.markedName)
+                        li.append('span').classed('tsi-markedName', true).html(n.markedName)  // known unsafe usage of .html
                           .attr('style', `padding-left: ${40 + (n.level - 1) * 18 - (n.isLeafParent && this.withContextMenu ? 16 : 0)}px`)
                           .attr('title', n.isLeafParent && this.withContextMenu ? n.name : '');
                         n.colorify(li);
