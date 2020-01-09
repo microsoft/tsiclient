@@ -720,13 +720,16 @@ class HierarchyNavigation extends Component{
                 spanElem.append('br');
                 if (this.hasHits(hORi.highlights.description) || hORi.highlights.instanceFieldNames.filter(this.hasHits).length > 0 || hORi.highlights.instanceFieldValues.filter(this.hasHits).length > 0) {
                     let highlightDetails = spanElem.append('span').classed('tsi-highlights-detail', true);
-                    if (hORi.highlights.description && hORi.highlights.description.indexOf("<hit>") !== -1) {
+                    if (hORi.highlights.description && this.hasHits(hORi.highlights.description)) {
                         this.getElemsOfStrippedString(hORi.highlights.description).forEach(s => highlightDetails.node().appendChild(s))
                     } else {
                         highlightDetails.append('span');
                     }
                     
                     let hitTuples = [];
+                    if (hORi.highlights.name) {
+                        hitTuples.push([this.getElemsOfStrippedString(this.getString("Time Series ID")), this.getElemsOfStrippedString(this.getTsidFromHighlights(hORi.highlights))])
+                    }
                     hORi.highlights.instanceFieldNames.forEach((ifn, idx) => {
                         var val = hORi.highlights.instanceFieldValues[idx];
                         if (this.hasHits(ifn) || this.hasHits(val)) {
