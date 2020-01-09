@@ -426,13 +426,13 @@ class AvailabilityChart extends ChartComponent{
             leftTimeText = this.timePickerContainer.append('div')
                 .classed('tsi-compactFromTo', true)
                 .style('left', (brushPositions.leftPos != null ? Math.max(brushPositions.leftPos, 5) : 5) + 'px')
-                .html(Utils.timeFormat(false, false, this.chartOptions.offset, this.chartOptions.is24HourTime, null, null, this.chartOptions.dateLocale)(new Date(this.selectedFromMillis)));
+                .text(Utils.timeFormat(false, false, this.chartOptions.offset, this.chartOptions.is24HourTime, null, null, this.chartOptions.dateLocale)(new Date(this.selectedFromMillis)));
             let timezoneAbbreviation = ' (' + Utils.createTimezoneAbbreviation(this.chartOptions.offset) + ')';
             rightTimeText = this.timePickerContainer.append('div')
                 .attr('class', 'tsi-compactFromTo')
                 .style('right', brushPositions.rightPos != null ? 'calc(100% - ' + brushPositions.rightPos + 'px)' : '5px')
                 .style('left', 'auto')
-                .html(Utils.timeFormat(false, false, this.chartOptions.offset, this.chartOptions.is24HourTime, null, null, this.chartOptions.dateLocale)
+                .text(Utils.timeFormat(false, false, this.chartOptions.offset, this.chartOptions.is24HourTime, null, null, this.chartOptions.dateLocale)
                             (new Date(this.selectedToMillis)) + timezoneAbbreviation);
         }
 
@@ -469,7 +469,7 @@ class AvailabilityChart extends ChartComponent{
 
     private buildFromAndToContainer () {
         let dateTimeContainer = this.timePickerTextContainer.append('div').classed('tsi-dateTimeContainer', true);
-        let timeframeLabel = dateTimeContainer.append("label").html(this.getString("Timeframe"));
+        let timeframeLabel = dateTimeContainer.append("label").text(this.getString("Timeframe"));
         let dateTimeButtonContainer = dateTimeContainer.append("div")
             .classed('tsi-dateTimeButtonContainer', true);
         this.dateTimeButton = new DateTimeButtonRange(dateTimeButtonContainer.node());

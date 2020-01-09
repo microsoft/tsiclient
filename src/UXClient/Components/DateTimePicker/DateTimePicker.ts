@@ -131,7 +131,7 @@ class DateTimePicker extends ChartComponent{
         this.onCancel = onCancel;
         this.targetElement = d3.select(this.renderTarget)
             .classed("tsi-dateTimePicker", true);
-        this.targetElement.node().innerHTML = "";
+        this.targetElement.html('');
         super.themify(this.targetElement, this.chartOptions.theme);
 
         let group = this.targetElement.append('div')
@@ -153,7 +153,7 @@ class DateTimePicker extends ChartComponent{
             this.isSettingStartTime = true;
         }
 
-        var saveButton = saveButtonContainer.append("button").classed("tsi-saveButton", true).html(this.getString("Save"))
+        var saveButton = saveButtonContainer.append("button").classed("tsi-saveButton", true).text(this.getString("Save"))
             .on("click", function () {
                 self.onSet(self.fromMillis, self.toMillis, self.chartOptions.offset, self.maxMillis === self.toMillis, self.getCurrentQuickTime());
                 onSaveOrCancel();
@@ -161,7 +161,7 @@ class DateTimePicker extends ChartComponent{
         
         var cancelButton = saveButtonContainer.append('button')
             .attr('class', 'tsi-cancelButton')
-            .html(this.getString('Cancel'))
+            .text(this.getString('Cancel'))
             .on('click', function () {
                 self.onCancel();
                 onSaveOrCancel();
@@ -221,7 +221,7 @@ class DateTimePicker extends ChartComponent{
             .on('click', (d) => {
                 this.setFromQuickTimes(d[1]);
             })
-            .html((d) => d[0])
+            .text((d) => d[0])
             .attr('aria-label', (d) => `${this.getString('select quick time of')} ${d[0]}`);
         // wrap around tab order if dTP in modal form
         let firstQuickTime = enteredQuickTimes.filter((d, i) => {
@@ -271,7 +271,7 @@ class DateTimePicker extends ChartComponent{
                 .attr('aria-label', this.getString('timezone selection'))
                 .attr('id', timezoneSelectionLabelID)
                 .attr('for', timezoneSelectionID)
-                .html(this.getString('timezone'));
+                .text(this.getString('timezone'));
             var timezonePickerContainer = timezoneContainer.append("div").classed("tsi-timezonePickerContainer", true);
             var timezonePicker = new TimezonePicker(timezonePickerContainer.node());
             timezonePicker.render((newOffset) => {
@@ -441,7 +441,7 @@ class DateTimePicker extends ChartComponent{
                 .enter()
                 .append("div")
                 .classed("tsi-errorMessage", true)
-                .html(d => d);
+                .text(d => d);
         }
     }
 
@@ -537,7 +537,7 @@ class DateTimePicker extends ChartComponent{
                 .attr('id', inputLabelID)
                 .attr('for', inputID)
                 .attr('aria-label', `${startOrEnd ? this.getString('Start time input') : this.getString('End time input')}`)
-                .html(this.getString(startOrEnd));
+                .text(this.getString(startOrEnd));
             let inputName = startOrEnd === 'start' ? 'fromInput' : 'toInput'
             this[inputName] = fromOrToContainer.append('input')
                 .attr('class', 'tsi-dateTimeInput', true)
@@ -563,7 +563,7 @@ class DateTimePicker extends ChartComponent{
             if (startOrEnd == 'end') {
                 fromOrToContainer.append("button")
                     .attr("class", "tsi-snapToEndRangeButton")
-                    .html(this.getString("Latest"))
+                    .text(this.getString("Latest"))
                     .attr('aria-label', this.getString('snap end time to latest'))
                     .on("click", () => {
                         if (!this.isSettingStartTime) {

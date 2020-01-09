@@ -1,0 +1,32 @@
+
+<!DOCTYPE html> 
+<html>
+    <head>
+        <title>Date Time Picker Buttons</title>
+        
+        <!-- boilerplate headers are injected with head.js, grab them from the live example header, or include a link to head.js -->
+        <script src="../../boilerplate/head.js"></script>
+        <script src="sanitize.js"></script>
+    </head>
+    <body style="font-family: 'Segoe UI', sans-serif;">
+        <div id="singleButtonContainer" style="width: 100%; height: 60px; position: relative;"></div>
+        <div id="singleButtonContainerDark" style="width: 100%; height: 60px; position: relative;"></div>
+        <div id="rangeButtonContainer" style="width: 100%; height: 60px; position: relative;"></div>
+        <script>
+            window.onload = function() {              
+                var tsiClient = new TsiClient();
+
+                var singleDateTimeButtonComponent = new tsiClient.ux.DateTimeButtonSingle(document.getElementById('singleButtonContainer'));
+                let now = (new Date()).valueOf();
+                singleDateTimeButtonComponent.render({offset: 'Local', theme: 'light', dateLocale: 'en'}, now - (1000 * 60 * 60 * 1000), now, now - (24 * 60 * 60 * 1000), () => {});
+
+                var singleDateTimeButtonComponentDark = new tsiClient.ux.DateTimeButtonSingle(document.getElementById('singleButtonContainerDark'));
+                singleDateTimeButtonComponentDark.render({offset: 'Local', theme: 'dark', dateLocale: 'es'}, now - (1000 * 60 * 60 * 1000), now, now - (24 * 60 * 60 * 1000), () => {});
+
+
+                var rangeDateTimeButtonComponent = new tsiClient.ux.DateTimeButtonRange(document.getElementById('rangeButtonContainer'));
+                rangeDateTimeButtonComponent.render({offset: 'Local', theme: 'light', strings: {'Latest': getBadString()}}, now - (1000 * 60 * 60 * 1000), now, now - (24 * 60 * 60 * 1000), now - (1 * 60 * 60 * 1000), () => {}, () => {});
+            };
+        </script>
+    </body>
+</html>
