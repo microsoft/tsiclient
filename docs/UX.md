@@ -108,7 +108,7 @@ where ``events`` is an array of flat JSON objects, with an example shape like th
 
 AggregateExpressions are used to represent API queries against a Time Series Insights S SKU.  They include a method for transforming the object to query the API called ``toTsx()``, when transformed after an API call they become a data group as described in [Chart Data Shape](#chart-data-shape), and they can be used as [Chart Data Options](#chart-data-options).  Additional Chart Data Options can be specified as the final parameters, with supported properties defined [here](#chart-data-options).  Their usage is shown in [the basic charts example that uses the TSI platform](https://tsiclientsample.azurewebsites.net/withplatform/basiccharts.html), or as follows...
 
-```js
+```JavaScript
 var aggregateExpression = new tsiClient.ux.AggregateExpression(
     {predicateString: "Factory = 'Factory1'"}, // filtering expression for data
     {property: 'Pressure', type: "Double"}, // measure column
@@ -282,7 +282,7 @@ The available parameters for chart data options are as follows...
 
 To take action on a line chart brush action (like in the [Explore events example]('https://tsiclientsample.azurewebsites.net/withplatform/exploreevents.html')), brushContextMenuActions are added in chartOptions, with the following shape...
 
-```js
+```JavaScript
 var brushContextMenuActions = [
     {
         name: "Log From and To Times",
@@ -306,7 +306,7 @@ lineChart.render(data, {brushContextMenuActions: brushContextMenuActions});
 
 To take action on a context menu click of a data group (like in the [Line chart generating bar and pie charts example]('https://tsiclientsample.azurewebsites.net/withplatform/exploreevents.html')), groupContextMenuActions are added to chart data options, with the following shape...
 
-```js
+```JavaScript
 var groupContextMenuActions = [{
         name: "Print parameters to console",
         action: function(dataGroupName, timeSeriesName, timestamp) {
@@ -328,7 +328,7 @@ var groupContextMenuActions = [{
 
 Search span objects define the range and bucket size of the time series of a data group.  Search span objects are useful for showing sparse data in a line chart, like [this example]('https://tsiclientsample.azurewebsites.net/withplatform/basicCharts.html')They have the following shape...
 
-```js
+```JavaScript
 var searchSpanObject = {
     from: '2017-04-20T12:00:00Z', // a js date isostring
     to: '2017-05-20T12:00:00Z',
@@ -341,7 +341,7 @@ var searchSpanObject = {
 Used for event and categorial data types in the line chart, this object specifies the relationship between measure values and
 colors in the plot, with the following shape...
 
-```js
+```JavaScript
 var valueMapping = {
     state1: {
         color: '#F2C80F'
