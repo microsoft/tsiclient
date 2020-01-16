@@ -240,7 +240,7 @@ This section documents configuration settings and options used to initialize **t
 
 ### Chart Data Shape
 
-Chart data is generally represented as a set of **groups** that each contain **time series**. Data for line, pie, bar, and heatmap charts follow the following shape convention:
+Chart data is generally represented as a set of **groups** that each contain **time series**. Data for line, pie, bar, and heat map charts follow the following shape convention:
 
 ```JavaScript
 [
@@ -272,7 +272,7 @@ Chart data is generally represented as a set of **groups** that each contain **t
 
 ### Chart Options
 
-Chart options are generally passed as the second parameter to a component's `render()` method. They allow users to change view properties for the chart (theme, legend layout, etc.).
+**Chart Options** are generally passed as the second parameter to a component's `render()` method. They allow users to change view properties for the chart (theme, legend layout, etc.).
 
 ***Note**: hosted chart options examples are provided at [https://tsiclientsample.azurewebsites.net/noauth/chartOptions.html](https://tsiclientsample.azurewebsites.net/noauth/chartOptions.html).*
 
@@ -283,63 +283,71 @@ lineChart.render(data, {theme: 'light', tooltip: true});
 
 The most common available parameters for chart options are provided below:
 
+(***Note** that default values will be used whenever no values are explicitly supplied*)
+
 | Property name | Type | Value options | Default | Description |
 | - | - | - | - | - |
 | `brushContextMenuActions` | **Arrayy&lt;any&gt;** | `null`, `Array<brushContextMenuAction>` | `null` | A [brushContextMenuAction](#brush-context-menu-actions) array defining brush actions |
-|`grid`| **boolean** | `false`, `true` | `false` | If `true`, add accessible grid button to the ellipsis menu |
-|`includeDots`| **boolean** | `false`, `true` | `false` | If `true`, the line chart plots dots for values |
-|`includeEnvelope`| **boolean** | `false`, `true` | `false` | If `true`, include an area showing min/max boundaries in the line chart |
+|`grid`| **boolean** | `true`, `false` | `false` | If `true`, add accessible grid button to the ellipsis menu |
+|`includeDots`| **boolean** | `true`, `false` | `false` | If `true`, the line chart plots dots for values |
+|`includeEnvelope`| **boolean** | `true`, `false` | `false` | If `true`, include an area showing min/max boundaries in the line chart |
 |`interpolationFunction`| **string** | `''`, `curveLinear` | `''` | Name for interpolation function used for line chart lines|
 |`legend`| **string** |`shown`,`compact`,`hidden` |  `shown` | Legend layout|
-|`noAnimate`| **boolean** |`false`, `true`| `false` | Deterimines whether animations happen on state change|
+|`noAnimate`| **boolean** |`true`, `false`| `false` | Deterimines whether animations happen on state change|
 |`offset`|**any**| `0`, `-120`, `America/Los_Angeles` | `0` | Offset for all timestamps in minutes from UTC, or a timezone supported by *moment.js*|
 |`spMeasures`| **Array&lt;string&gt;** | `Array<string>` |  `Array<string>` | X, Y, and Radius (optional) measures passed into Scatter Plot. *(**Note**: this is a scatter plot specific chart option)* |
-|`isTemporal`| **boolean** | `false`, `true` | `false` | `true`: scatter plot has temporal slider to slide through time slices </br> `false*` scatter plot renders all timestamps. *(**Note**: this is a scatter plot specific chart option)*|
+|`isTemporal`| **boolean** | `true`, `false` | `false` | `true`: scatter plot has temporal slider to slide through time slices </br> `false*` scatter plot renders all timestamps. *(**Note**: this is a scatter plot specific chart option)*|
 |`spAxisLabels`| **Array&lt;string&gt;** | `null`, `Array<string>` | `null` | If given array, first element of array is used as X axis label.  Second element of array is used as Y axis label. *(**Note**: this is a scatter plot specific chart option)*|
-|`stacked`|**boolean** | `false` | `false` | If `true`, stack bars in bar chart|
+|`stacked`|**boolean** |`true`, `false` | `false` | If `true`, stack bars in bar chart|
 |`theme`|**string** |`dark`, `light` | `dark` | Component color scheme|
 |`timestamp`|**string**| `null`,`2017-04-19T13:00:00Z` | `null` | If an ISO string, sets the slider in the bar or pie chart to the specified timestamp|
-|`tooltip`|**boolean**| `false`,`true` | `false` |If `true`, display tooltip on hover over a value element|
+|`tooltip`|**boolean**| `true`, `false` | `false` |If `true`, display tooltip on hover over a value element|
 |`yAxisState`|**string**| `stacked`, `shared`, `overlap` | `stacked` | State of the y axis in line chart|
 |`yExtent`|**[number, number]**| `null`, `[minValue, maxValue]` | `null` | A minimum and maximum for the extent of the yAxis for this line chart, when the yAxisState is set to shared|
 
-All chart options can be viewed [in the source code](https://github.com/microsoft/tsiclient/blob/master/src/UXClient/Models/ChartOptions.ts).
+All chart options can be viewed [in the source code](../src/UXClient/Models/ChartOptions.ts).
 
 ### Chart Data Options
 
-Chart data options are generally the final parameter for an AggregateExpression(#aggregateexpression) or TsqExpression(#tsqexpression), or third parameter to a component ``render`` method.  In render, chartDataOptions is an array that allows users to define specific properties of the **groups** of data in the chart, like alias, color, etc.
+**Chart Data Options** are generally supplied as the final parameter for [AggregateExpressions](#aggregateexpression) and [TsqExpressions](#tsqexpression).
 
-```js
+**Chart Data Options** are also passed into a component's `render()` method as the third parameter. A `render()` method's `chartDataOptions` parameter is an array that allows users to define specific properties for **groups** of data in the chart such as **alias**, **color**, etc.
+
+```JavaScript
 // data is an array of length 2
 lineChart.render(data, chartOptions, [{alias: 'myFaveLines', color: 'red'}, {alias: 'worseLines', color: 'green'}]);
 ```
 
-The available parameters for chart data options are as follows...
+Available **Chart Data Options** include:
 
-|Property Name|Type|Value Options|Description|
-|-|-|-|-|
-|color|string|'#4286f4'|The color of this group in a component|
-|alias|string|'Factory1'|The display name for this group|
-|dataType|string| **numeric**, categorical, events|specifies the visual representation of the data - numeric creates a line plot, categrocial a series of rectangles, and events a diamond or teardrop at each timestamp with data
-|contextMenu|Array&lt;[groupContextMenuAction](#group-context-menu-actions)&gt;|[]|Actions to take on context menu click on a group, or time series|
-|searchSpan|[searchSpanObject](#search-span-object)|null|Specifies search span for this group|
-|measureTypes|Array&lt;string>|['min', 'avg', max']|The measure properties specified in the time series of this group|
-|interpolationFunction|string|'curveStep'|If 'curveStep' is set, step interpolation is used|
-|includeEnvelope|boolean|true|If true, and a data group has measure types ['min', 'avg', max'], a shadow will be drawn to show the range of values|
-|includeDots|boolean|true|If true, draw circles for each value in the group|
-|yExtent|[number, number]|[0,400]|A minimum and maximum for the extent of the yAxis for this group|
-|visibilityState|[boolean, [string]?]|[true,['sb1', 'sb7']]|The first element specifies whether the data group is visible, the second is an optional array of visible time series names. If omitted, the data group reverts to default visibility state for each time series|
-|height|number|**40**|For non-numeric dataTypes; the vertical space this group consumes in the chart|
-|valueMapping|[valueMapping](#value-mapping)|{}|Defines the relationship between measures and their colors in non-numeric plots in the line chart|
-|onElementClick|(dataGroupName: string, timeSeriesName: string, timestamp: string, measures: Array<any>) => void|**null**|handler for when an element in a non-numeric plot in the linechart is clicked. the paramters are: data group, series name, timestamp, and measures at that timestamp| 
-|rollupCategoricalValues|boolean|**false**|for categorical plots in line charts, this specifies that adjacent measures with the same values should be rolled into the first with those values|
-|eventElementType|string|**'diamond'**, teardrop|specifies the svg icon for an event in the line chart, either a diamond or a teardrop|
+(***Note**: Some parameters are present in both Chart Options and Chart Data Options. **Also note** that default values will be used whenever no values are explicitly supplied*)
 
-***Note**: Some parameters are present in both chart options and chart data options. For boolean values, the property will evaluate to true if either value is true. For other types of values, the chart data option value will take precendence over the chart option value.* 
+| Property name | Type | Value options | Default value | Description |
+|-|-|-|-|-|
+| `color` |**string**|`#4286f4`| | The color of this group in a component|
+|`alias`|**string**|`Factory1`| | The display name for this group|
+|`dataType`|**string**| `numeric`, `categorical`, `events`| `numeric`| Specifies the visual representation of the data: `numeric` creates a line plot, `categorical` a series of rectangles, and events a diamond or teardrop at each timestamp with data
+|`contextMenu`|**Array&lt;[groupContextMenuAction](#group-context-menu-actions)&gt;**|`[]`||Actions to take on context menu click on a group, or time series|
+|`searchSpan`|**[searchSpanObject](#search-span-object)**|`null`||Specifies search span for this group|
+|`measureTypes`|**Array&lt;string&gt;**|`['min', 'avg', max']`||The measure properties specified in the time series of this group|
+|`interpolationFunction`|**string**|`curveStep`| |If `curveStep` is set, step interpolation is used|
+|`includeEnvelope`|**boolean**|`true`, `false`| |If `true`, and a data group has measure types `['min', 'avg', max']`, a shadow will be drawn to show the range of values|
+|`includeDots`|**boolean**|`true`, `false`| |If `true`, draw circles for each value in the group|
+|`yExtent`|**[number, number]**|`[0,400]`| |A minimum and maximum for the extent of the yAxis for this group|
+|`visibilityState`|**[boolean, [string]?]**|`[true,['sb1', 'sb7']]`||The first element specifies whether the data group is visible, the second is an optional array of visible time series names. If omitted, the data group reverts to default visibility state for each time series|
+|`height`|**number**|`40`|`40` | For non-numeric data types the vertical space this group consumes in the chart|
+|`valueMapping`|**[valueMapping](#value-mapping)**|`{}`||Defines the relationship between measures and their colors in non-numeric plots in the line chart|
+|`onElementClick`|**(dataGroupName: string, </br> timeSeriesName: string,  </br> timestamp: string,  </br> measures: Array&lt;any&gt;) => void**|`null`|`null` |Handler for when an element in a non-numeric plot in the line chart is clicked. the parameters are: data group, series name, timestamp, and measures at that timestamp|
+|`rollupCategoricalValues`|**boolean**| `true`, `false` | `false`|For categorical plots in line charts, this specifies that adjacent measures with the same values should be rolled into the first with those values|
+|`eventElementType`|**string**|`diamond`, `teardrop`| `diamond` | Specifies the svg icon for an event in the line chart, either a `diamond` or a `teardrop`|
+
+***Note**: For boolean values, the property will evaluate to `true` if either value is `true`. For other types of values, the chart data option value will take precedence over the chart option value.*
+
+All chart options can be viewed [in the source code](../src/UXClient/Models/ChartDataOptions.ts).
 
 ### Brush Context Menu Actions
 
-To take action on a line chart brush action (like in the [Explore events example]('https://tsiclientsample.azurewebsites.net/withplatform/exploreevents.html')), brushContextMenuActions are added in chartOptions, with the following shape...
+To take action on a line chart brush action, `brushContextMenuActions` are added in `chartOptions`:
 
 ```JavaScript
 var brushContextMenuActions = [
@@ -361,9 +369,11 @@ var brushContextMenuActions = [
 lineChart.render(data, {brushContextMenuActions: brushContextMenuActions});
 ```
 
+***Note**: a hosted Brush Context Menu Actions sample is provided at: [https://tsiclientsample.azurewebsites.net/withplatform/exploreevents.html](https://tsiclientsample.azurewebsites.net/withplatform/exploreevents.html)*
+
 ### Group Context Menu Actions
 
-To take action on a context menu click of a data group (like in the [Line chart generating bar and pie charts example]('https://tsiclientsample.azurewebsites.net/withplatform/exploreevents.html')), groupContextMenuActions are added to chart data options, with the following shape...
+To take action on a context menu click of a data group, `groupContextMenuActions` are added to [chart data options](#chart-data-options):
 
 ```JavaScript
 var groupContextMenuActions = [{
@@ -383,9 +393,11 @@ var groupContextMenuActions = [{
     ];
 ```
 
+***Note**: a hosted Group Context Menu Actions sample is provided at: [https://tsiclientsample.azurewebsites.net/withplatform/exploreevents.html](https://tsiclientsample.azurewebsites.net/withplatform/exploreevents.html)*
+
 ### Search Span Object
 
-Search span objects define the range and bucket size of the time series of a data group.  Search span objects are useful for showing sparse data in a line chart, like [this example]('https://tsiclientsample.azurewebsites.net/withplatform/basicCharts.html')They have the following shape...
+**Search Span Objects** define the range and bucket size of the time series of a data group. Search span objects are useful for showing sparse data in a [line chart](#line-chart):
 
 ```JavaScript
 var searchSpanObject = {
@@ -395,10 +407,11 @@ var searchSpanObject = {
 }
 ```
 
+***Note**: a hosted Group Context Menu Actions sample is provided at: [https://tsiclientsample.azurewebsites.net/withplatform/basicCharts.html](https://tsiclientsample.azurewebsites.net/withplatform/basicCharts.html)*
+
 ### Value Mapping
 
-Used for event and categorial data types in the line chart, this object specifies the relationship between measure values and
-colors in the plot, with the following shape...
+A **Value Mapping** object is used for **event** and **categorical** data types in a [line chart](#line-chart). It specifies the relationship between `measure` values and `colors` in the plot:
 
 ```JavaScript
 var valueMapping = {
@@ -416,53 +429,59 @@ var valueMapping = {
 
 ## Appendix
 
+This section provides supplemental reference information.
+
 ### Additional Chart Options
 
-Some less common chart options that can be used for very specific user interactions are...
+**Chart Options** that are useful for specific kinds of interactions are detailed below:
 
-|Property Name|Type|Value Options|Description|
-|-|-|-|-|
-|aggTopMargin|number|**12**|Margin on top of each aggregate line(s) in pixels|
-|arcWidthRatio|number| **0**|Ratio of the outer and inner circle in a pie chart, from 0 to 1|
-|autoTriggerBrushContextMenu|boolean|**false**, true|If true, opens a menu defined by brushContextMenuActions on brush mouseup|
-|availabilityLeftMargin|number|**60**|Left margin of the availability chart in pixels|
-|brushClearable|boolean|**true**|If true, maintain brush selected region upon clear and non-selection of a new region|
-|brushHandlesVisible|boolean|**false**|If true, draw handles on the line chart brush|
-|brushMoveAction|(from:DateTime, to:DateTime) => any |**() => {}**|Action fired when the brush moves|
-|brushMoveEndAction|(from:DateTime, to:DateTime) => any|**() => {}**|Action fired at the end of a mouse movement involving the brush|
-|canDownload|boolean|**true**|If true, chart's ellipsis menu contains a download button to download the chart's data|
-|color|string|**null**, 'purple', '#404040'|Color of the time selection ghost in availability chart|
-|dateLocale|string|**'en'**, 'de'|Date locale name for the formatting of dates as well as the language of days and months in the calendar picker|
-|focusHidden|boolean|**false**|If true, hide focus element|
-|fromChart|boolean|**false**|If true, a component is a subcomponent of another component|
-|hideChartControlPanel|boolean|**false**|If true, hide panel with chart control buttons|
-|includeTimezones|boolean|**true**|If true, include timezone dropdown in dateTimePicker|
-|isArea|boolean|**false**|If true, lines in LineChart are also areas|
-|isCompact|boolean|**false**|If true, availability chart is in compact mode (expanded mode if false)|
-|is24HourTime|boolean|**true**|If true, display time in 24 hour format, (12 hour time with am/pm if false|
-|keepBrush|boolean|**false**|If true, maintain brush selected region upon render|
-|keepSplitByColor|boolean|**false**|If true, maintain split by colors when state updated|
-|maxBuckets|number|**500**|Max number of buckets in availability chart|
-|minBrushWidth|number|**0**|Minimum possible width of brush in a linechart in pixels|
-|minutesForTimeLabels|boolean|**false**|If true, force time labels to minute granularity|
-|onInstanceClick|(instance: any) => any|**() => {return {}}**|For model search: takes an instance and returns an object of context menu actions|
-|onMouseout|() => void|**() => {}**|Action fired when the mouse leaves a chart value element (ex: line, bar, pie chart segment, etc.)|
-|onMouseover|(aggKey: string, splitBy: string) => void|**() => {}**|Action fired when the mouse enters a chart value element|
-|onSticky|(aggKey: string, splitBy: string) => void|**() => {}**|Action fired when a chart value element is stickied|
-|onUnsticky|(aggKey: string, splitBy: string) => void|**() => {}**|Action fired when a chart value element is stickied|
-|onKeydown|(d3Event: any, awesompleteObject: any) => void  |**() => {}**|Action fired when keydown action performed in ModelAutocomplete|
-|onInput|(searchText: string) => void |**() => {}**|Action fired on input actions in ModelAutocomplete|
-|preserveAvailabilityState|boolean|**false**|If true, save availability chart state on render|
-|scaledToCurrentTime|boolean|**false**|If true,  base slider base component's scale on current time's values (all values if false)|
-|singleLineXAxisLabel|boolean|**false**|If true, display x axis time labels on a single line (split into two lines if false)|
-|snapBrush|boolean|**false**|If true, snap linechart brush to closest value|
-|suppressResizeListener|boolean|**false**|If true, ignore components' resize function. This applies to components which draw an SVG|
-|timeFrame|any|**null**|From and to to specify range of an event or state series
-|withContextMenu|boolean|**false**|If true, the hierarchy uses a context menu when you click on a parent of leaf nodes
-|xAxisHidden|boolean|**false**|If true, hide xAxis in chart
-|xAxisTimeFormat|(dateString: string, i: number, isFirst: boolean, isLast: boolean) => string|**null**|A function called on each x axis tick which takes the tick's timestamp, index, and if it's the first or last string, and returns a [moment date format string](https://devhints.io/moment#formatting-1)
-|yAxisHidden|boolean|**false**|If true, hide yAxis in chart
-|zeroYAxis|boolean|**true**|If true, set bar chart's bar's bottom (or top if negative) to zero
+(***Note** that default values will be used whenever no values are explicitly supplied*)
+
+| Property name | Type | Value options | Default value| Description|
+|-|-|-|-|-|-|
+| `aggTopMargin` |**number**|`12` | `12` | Margin on top of each aggregate line(s) in pixels|
+|`arcWidthRatio`|**number**| `0`| `0`| Ratio of the outer and inner circle in a pie chart, from 0 to 1|
+|`autoTriggerBrushContextMenu`|**boolean**| `true`, `false` | `false` |If `true`, opens a menu defined by `brushContextMenuActions` on brush mouseup|
+|`availabilityLeftMargin`|**number**| `60` | `60` |Left margin of the availability chart in pixels|
+|`brushClearable`| **boolean** |`true`, `false`| `true` |If `true`, maintain brush selected region upon clear and non-selection of a new region|
+|`brushHandlesVisible`|**boolean** | `true`, `false` | `false` |If `true`, draw handles on the line chart brush|
+|`brushMoveAction`| **(from:DateTime, to:DateTime) => any** | `() => {}` |`() => {}` |Action fired when the brush moves|
+|`brushMoveEndAction`|**(from:DateTime, to:DateTime) => any**| `() => {}` |`() => {}` |Action fired at the end of a mouse movement involving the brush|
+|`canDownload`|**boolean**|`true`, `false` | `true` |If `true`, chart's ellipsis menu contains a download button to download the chart's data|
+|`color`| **string**|`null`, `purple`, `#404040` | `null` |Color of the time selection ghost in availability chart|
+|`dateLocale`|**string**| `en`, `de`| `en` |Date locale name for the formatting of dates as well as the language of days and months in the calendar picker|
+|`focusHidden`|**boolean**|`true`, `false` |`false`|If `true`, hide focus element|
+|`fromChart`|**boolean**|`true`, `false` |`false`|If `true`, a component is a subcomponent of another component|
+|`hideChartControlPanel`|**boolean**|`true`, `false` |`false`|If `true`, hide panel with chart control buttons|
+|`includeTimezones`|**boolean**|`true`, `false` |`true`|If `true`, include timezone dropdown in dateTimePicker|
+|`isArea`|**boolean**|`true`, `false` |`false`|If `true`, lines in LineChart are also areas|
+|`isCompact`|**boolean**|`true`, `false` |`false`|If `true`, availability chart is in compact mode (expanded mode if false)|
+|`is24HourTime`|**boolean**|`true`, `false` |`true`|If `true`, display time in 24 hour format, (12 hour time with am/pm if false|
+|`keepBrush`|**boolean**|`true`, `false` |`false`|If `true`, maintain brush selected region upon render|
+|`keepSplitByColor`|**boolean**|`true`, `false` |`false`|If `true`, maintain split by colors when state updated|
+|`maxBuckets`|number|**500**|Max number of buckets in availability chart|
+|`minBrushWidth`|number|**0**|Minimum possible width of brush in a line chart in pixels|
+|`minutesForTimeLabels`|**boolean**|`true`, `false` |`false`|If `true`, force time labels to minute granularity|
+|`onInstanceClick`|(instance: any) => any|**() => {return {}}**|For model search: takes an instance and returns an object of context menu actions|
+|`onMouseout`|() => void|**() => {}**|Action fired when the mouse leaves a chart value element (ex: line, bar, pie chart segment, etc.)|
+|`onMouseover`|(aggKey: string, splitBy: string) => void|**() => {}**|Action fired when the mouse enters a chart value element|
+|`onSticky`|(aggKey: string, splitBy: string) => void|**() => {}**|Action fired when a chart value element is stickied|
+|`onUnsticky`|(aggKey: string, splitBy: string) => void|**() => {}**|Action fired when a chart value element is stickied|
+|`onKeydown`|(d3Event: any, awesompleteObject: any) => void  |**() => {}**|Action fired when keydown action performed in ModelAutocomplete|
+|`onInput`|(searchText: string) => void |**() => {}**|Action fired on input actions in ModelAutocomplete|
+|`preserveAvailabilityState`|**boolean**|`true`, `false` |`false`|If `true`, save availability chart state on render|
+|`scaledToCurrentTime`|**boolean**|`true`, `false` |`false`|If `true`, base slider base component's scale on current time's values (all values if false)|
+|`singleLineXAxisLabel`|**boolean**|`true`, `false` |`false`|If `true`, display x axis time labels on a single line (split into two lines if false)|
+|`snapBrush`|**boolean**|`true`, `false` |`false`|If `true`, snap linechart brush to closest value|
+|`suppressResizeListener`|**boolean**|`true`, `false` |`false`|If `true`, ignore components' resize function. This applies to components which draw an SVG|
+|`timeFrame`|**any**|`null` | `null` |From and to to specify range of an event or state series
+|`withContextMenu`|**boolean**|`true`, `false` | `false`|If `true`, the hierarchy uses a context menu when you click on a parent of leaf nodes
+|`xAxisHidden`|**boolean**|`true`, `false` | `false`|If `true`, hide xAxis in chart
+|`xAxisTimeFormat`| **(dateString: string, i: number, isFirst: boolean, isLast: boolean) => string**| `null` | `null`|A function called on each x axis tick which takes the tick's timestamp, index, and if it's the first or last string, and returns a [moment date format string](https://devhints.io/moment#formatting-1)
+|`yAxisHidden`| **boolean** | `true`, `false` | `false` | If `true`, hide yAxis in chart
+|`zeroYAxis`|**boolean** | `true`, `false` | `true` |If `true`, set bar chart's bar's bottom (or top if negative) to zero
+
+All chart options can be viewed [in the source code](../src/UXClient/Models/ChartOptions.ts).
 
 ## See also
 
