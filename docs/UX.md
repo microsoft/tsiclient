@@ -1,10 +1,22 @@
 # TsiClient.ux Reference
 
+**TsiClient.ux** is a standalone module for data visualization and analytics. It can be used to build graphs and charts using generic JSON as well as JSON returned from the Azure Time Series Insights APIs directly.
+
+**TsiClient.ux** is formally composed of the following items:
+
+* [Components](#components) for visualizing data and building a variety of charts
+
+* [Classes](#classes) for abstracting common operations, queries, and common objects
+
+* [Functions](#functions) for transforming data into a suitable chartable shape
+
 ## Components
+
+Components are used to build a variety of charts and define visualizations using JSON data.
 
 ### Line Chart
 
-The line chart is used for rendering groups of time series.  A line chart can be created as follows...
+The **line chart** is used for rendering groups of time series.  A line chart can be created in the following way:
 
 ```JavaScript
 var tsiClient = new TsiClient();
@@ -12,12 +24,24 @@ var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart'));
 lineChart.render(data, chartOptions, chartDataOptionsArray);
 ```
 
-where the parameter ``data`` follows the shape definied in [Chart Data Shape](#chart-data-shape), ``chartOptions`` contain some subset of the properties defined in [Chart Options](#chart-options), and ``chartDataOptionsArray`` is an array of objects that contain a subset of properties definied in [Chart Data Options](#chart-data-options).
+Above:
 
-A line chart can hold three different types of plots - a line plot, an event plot, and a categorical plot. The type of plot for each data group is specified
-with the [dataType](#chart-data-options) Chart Data Option, and multiple types are possible concurrently in one line chart. An example of all three types in one chart can be 
-found in [this example](https://tsiclientsample.azurewebsites.net/noauth/multipleseriestypes.html). Special Chart Data Options are used when dataType is non-numeric: height,
-[valueMapping](#value-mapping), and onElementClick. rollupCategoricalValues is unique to groups with datType of categorical.
+| Parameter name | Description |
+|--- | --- |
+| `data` | conforms to the shape definition in [Chart Data Shape](#chart-data-shape) |
+| `chartOptions` | contains some subset of the properties defined in [Chart Options](#chart-options) 
+|  `chartDataOptionsArray` | is an array of objects that contain a subset of properties defined in [Chart Data Options](#chart-data-options) |
+
+A line chart can hold three different types of plots:
+
+1. A line plot
+1. An event plot
+1. A categorical plot
+
+The type of plot for each data group is specified with the [dataType](#chart-data-options) Chart Data Option, and multiple types are possible concurrently in one line chart. An example of all three types in one chart can be
+found in [this example](https://tsiclientsample.azurewebsites.net/noauth/multipleseriestypes.html).
+
+Special Chart Data Options are used when dataType is non-numeric: height, [valueMapping](#value-mapping), and onElementClick. rollupCategoricalValues is unique to groups with datType of categorical.
 
 ### Bar Chart
 
@@ -404,3 +428,9 @@ Some less common chart options that can be used for very specific user interacti
 |xAxisTimeFormat|(dateString: string, i: number, isFirst: boolean, isLast: boolean) => string|**null**|A function called on each x axis tick which takes the tick's timestamp, index, and if it's the first or last string, and returns a [moment date format string](https://devhints.io/moment#formatting-1)
 |yAxisHidden|boolean|**false**|If true, hide yAxis in chart
 |zeroYAxis|boolean|**true**|If true, set bar chart's bar's bottom (or top if negative) to zero
+
+## See also
+
+* The [Azure Time Series Insights product documentation](https://docs.microsoft.com/azure/time-series-insights/)
+
+* The Azure Time Series Insights [Query API reference documentation](https://docs.microsoft.com/rest/api/time-series-insights/ga-query)
