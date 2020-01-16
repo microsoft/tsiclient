@@ -38,7 +38,7 @@ A line chart can hold three different types of plots:
 1. An event plot
 1. A categorical plot
 
-***Note**: hosted examples of all three are provided at [https://tsiclientsample.azurewebsites.net/noauth/multipleseriestypes.html](https://tsiclientsample.azurewebsites.net/noauth/multipleseriestypes.html)*.
+***Note**: hosted examples of all three are provided at [https://tsiclientsample.azurewebsites.net](https://tsiclientsample.azurewebsites.net/)*.
 
 The type of plot for each data group is specified with the `dataType` [Chart Data Option](#chart-data-options). Multiple types are concurrently possible within one line chart.
 
@@ -153,7 +153,7 @@ Classes abstract common operations, queries, and common objects.
 
 Additional [Chart Data Options](#chart-data-options) can be specified as the final parameters, with supported properties defined.
 
-***Note**: hosted AggregateExpressions examples are provided at [https://tsiclientsample.azurewebsites.net/noauth/multipleseriestypes.html](https://tsiclientsample.azurewebsites.net/noauth/multipleseriestypes.html)*.
+***Note**: hosted AggregateExpressions examples are provided at [https://tsiclientsample.azurewebsites.net](https://tsiclientsample.azurewebsites.net/)*.
 
 ```JavaScript
 var aggregateExpression = new tsiClient.ux.AggregateExpression(
@@ -179,7 +179,7 @@ tsiClient.server.getAggregates(token, '10000000-0000-0000-0000-100000000108.env.
 
 **TsqExpressions** include the `toTsq()` method for transforming supplied query objects into a format suitable to query the APIs. Objects so-transformed after an API call become a data group as described in [Chart Data Shape](#chart-data-shape) and  can be used as [Chart Data Options](#chart-data-options).  
 
-***Note**: hosted TsqExpressions examples are provided at [https://tsiclientsample.azurewebsites.net/noauth/multipleseriestypes.html](https://tsiclientsample.azurewebsites.net/noauth/multipleseriestypes.html)*.
+***Note**: hosted TsqExpressions examples are provided at [https://tsiclientsample.azurewebsites.net](https://tsiclientsample.azurewebsites.net/)*.
 
 ```JavaScript
 var tsqExpression = new tsiClient.ux.TsqExpression(
@@ -204,9 +204,13 @@ tsiClient.server.getTsqResults(token, '10000000-0000-0000-0000-100000000109.env.
 
 ## Functions
 
+Functions are used to transform data into suitable shapes for charting.
+
 ### transformAggregatesForVisualization
 
-The shape of results returned by the Time Series Insights do not generally match [Chart Data Shape](#chart-data-shape).  To transform API results from the aggregates API of an S SKU, we use transformAggregatesForVisualization as follows...
+The shape of results returned by the Time Series Insights APIs do not generally match [Chart Data Shape](#chart-data-shape).
+
+The method `transformAggregatesForVisualization()` is used to transform response from **S SKU** environments (specifically, from the [Get Environment Aggregates API](https://docs.microsoft.com/rest/api/time-series-insights/ga-query-api#get-environment-aggregates-api)):
 
 ```JavaScript
 tsiClient.server.getAggregates(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com', [aggregateExpression.toTsx())
@@ -219,7 +223,7 @@ tsiClient.server.getAggregates(token, '10000000-0000-0000-0000-100000000108.env.
 
 ### transformTsqResultsForVisualization
 
-To transform API results from the timeseries API of a PAYG SKU, we use transformTsqResultsForVisualization as follows...
+To transform API results from the Time Series Insights APIs of a **PAYG SKU**, use the `transformTsqResultsForVisualization()` method:
 
 ```JavaScript
 tsiClient.server.getTsqResults(token, '10000000-0000-0000-0000-100000000109.env.timeseries.azure.com', [tsqExpression.toTsq()])
@@ -232,9 +236,11 @@ tsiClient.server.getTsqResults(token, '10000000-0000-0000-0000-100000000109.env.
 
 ## Additional References
 
+This section documents configuration settings and options used to initialize **tsiclient** charts.
+
 ### Chart Data Shape
 
-Chart data is generally represented as a set of **groups** that each contain **time series**. Data for the Line, Pie, Bar, and Heatmap charts follows the following shape convention
+Chart data is generally represented as a set of **groups** that each contain **time series**. Data for line, pie, bar, and heatmap charts follow the following shape convention:
 
 ```JavaScript
 [
@@ -262,40 +268,42 @@ Chart data is generally represented as a set of **groups** that each contain **t
 ]
 ```
 
-The above structure is shown in the [Basic Charts Example](https://tsiclientsample.azurewebsites.net/noauth/basiccharts.html), and the associated [Code](../pages/examples/noauth/basiccharts.html).
+***Note**: hosted configuration examples are provided at [https://tsiclientsample.azurewebsites.net/noauth/chartOptions.html](https://tsiclientsample.azurewebsites.net/noauth/chartOptions.html). Code samples demonstrating correct [configuration settings are also provided](../pages/examples/noauth/basiccharts.html).*
 
 ### Chart Options
 
-Chart options are generally the second parameter to a component ``render`` method.  They allow users to change view properties for the chart, like theme, legend layout, etc, and can be explored in the [Chart Options Example](https://tsiclientsample.azurewebsites.net/noauth/chartOptions.html).
+Chart options are generally passed as the second parameter to a component's `render()` method. They allow users to change view properties for the chart (theme, legend layout, etc.).
+
+***Note**: hosted chart options examples are provided at [https://tsiclientsample.azurewebsites.net/noauth/chartOptions.html](https://tsiclientsample.azurewebsites.net/noauth/chartOptions.html).*
 
 ```JavaScript
 lineChart.render(data, {theme: 'light', tooltip: true});
 //                     ^this parameter is chartOptions
 ```
 
-The most common available parameters for chart options are as follows (bold options represent default values if the option is not provided)...
+The most common available parameters for chart options are provided below:
 
-|Property Name|Type|Value Options|Description|
-|-|-|-|-|
-|brushContextMenuActions|Array<any>|**null**, Array&lt;[brushContextMenuAction](#brush-context-menu-actions)&gt;|An array of objects defining brush actions
-|grid|boolean|**false**, true|If true, add accessible grid button to the ellipsis menu|
-|includeDots|boolean|**false**, true|If true, the linechart plots dots for values|
-|includeEnvelope|boolean|**false**, true|If true, include an area showing min/max boundaries in the line chart|
-|interpolationFunction|string|**''**, 'curveLinear'|Name for interpolation function used for line chart lines|
-|legend|string|**'shown'**,'compact','hidden'|Legend layout|
-|noAnimate|boolean|**false**, true|If true, uppresses animated chart transitions|
-|offset|any|**0**, -120, 'America/Los_Angeles'|Offset for all timestamps in minutes from UTC, or a timezone supported by moment.js|
-|spMeasures| Array&lt;string&gt; | Array&lt;string&gt; | X, Y, and Radius (optional) measures passed into Scatter Plot. *(Note: this is a scatter plot specific chart option)* |
-|isTemporal| boolean| **false**, true | **true**: scatter plot has temporal slider to slide through time slices **false**: scatter plot renders all timestamps. *(Note: this is a scatter plot specific chart option)*|
-|spAxisLabels| Array&lt;string&gt; | **null**, Array&lt;string&gt; | If given array, first element of array is used as X axis label.  Second element of array is used as Y axis label. *(Note: this is a scatter plot specific chart option)*|
-|stacked|boolean|**false**|If true, stack bars in barchart|
-|theme|string|**'dark'**, 'light'|Component color scheme|
-|timestamp|string|**null**,'2017-04-19T13:00:00Z'|If an ISO string, sets the slider in the bar or pie chart to the specified timestamp|
-|tooltip|boolean|**false**,true|If true, display tooltip on hover over a value element|
-|yAxisState|string|**'stacked'**, 'shared', 'overlap|State of the y axis in line chart|
-|yExtent|[number, number]|**null**, [minValue, maxValue]|A minimum and maximum for the extent of the yAxis for this line chart, when the yAxisState is set to shared|
+| Property name | Type | Value options | Default | Description |
+| - | - | - | - | - |
+| `brushContextMenuActions` | **Arrayy&lt;any&gt;** | `null`, `Array<brushContextMenuAction>` | `null` | A [brushContextMenuAction](#brush-context-menu-actions) array defining brush actions |
+|`grid`| **boolean** | `false`, `true` | `false` | If `true`, add accessible grid button to the ellipsis menu |
+|`includeDots`| **boolean** | `false`, `true` | `false` | If `true`, the line chart plots dots for values |
+|`includeEnvelope`| **boolean** | `false`, `true` | `false` | If `true`, include an area showing min/max boundaries in the line chart |
+|`interpolationFunction`| **string** | `''`, `curveLinear` | `''` | Name for interpolation function used for line chart lines|
+|`legend`| **string** |`shown`,`compact`,`hidden` |  `shown` | Legend layout|
+|`noAnimate`| **boolean** |`false`, `true`| `false` | Deterimines whether animations happen on state change|
+|`offset`|**any**| `0`, `-120`, `America/Los_Angeles` | `0` | Offset for all timestamps in minutes from UTC, or a timezone supported by *moment.js*|
+|`spMeasures`| **Array&lt;string&gt;** | `Array<string>` |  `Array<string>` | X, Y, and Radius (optional) measures passed into Scatter Plot. *(**Note**: this is a scatter plot specific chart option)* |
+|`isTemporal`| **boolean** | `false`, `true` | `false` | `true`: scatter plot has temporal slider to slide through time slices </br> `false*` scatter plot renders all timestamps. *(**Note**: this is a scatter plot specific chart option)*|
+|`spAxisLabels`| **Array&lt;string&gt;** | `null`, `Array<string>` | `null` | If given array, first element of array is used as X axis label.  Second element of array is used as Y axis label. *(**Note**: this is a scatter plot specific chart option)*|
+|`stacked`|**boolean** | `false` | `false` | If `true`, stack bars in bar chart|
+|`theme`|**string** |`dark`, `light` | `dark` | Component color scheme|
+|`timestamp`|**string**| `null`,`2017-04-19T13:00:00Z` | `null` | If an ISO string, sets the slider in the bar or pie chart to the specified timestamp|
+|`tooltip`|**boolean**| `false`,`true` | `false` |If `true`, display tooltip on hover over a value element|
+|`yAxisState`|**string**| `stacked`, `shared`, `overlap` | `stacked` | State of the y axis in line chart|
+|`yExtent`|**[number, number]**| `null`, `[minValue, maxValue]` | `null` | A minimum and maximum for the extent of the yAxis for this line chart, when the yAxisState is set to shared|
 
-For very specific user interactions, check out [additional chart options](#additional-chart-options)
+All chart options can be viewed [in the source code](https://github.com/microsoft/tsiclient/blob/master/src/UXClient/Models/ChartOptions.ts).
 
 ### Chart Data Options
 
