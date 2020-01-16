@@ -147,7 +147,13 @@ Classes abstract common operations, queries, and common objects.
 
 ### AggregateExpression
 
-AggregateExpressions are used to represent API queries against a Time Series Insights S SKU.  They include a method for transforming the object to query the API called ``toTsx()``, when transformed after an API call they become a data group as described in [Chart Data Shape](#chart-data-shape), and they can be used as [Chart Data Options](#chart-data-options).  Additional Chart Data Options can be specified as the final parameters, with supported properties defined [here](#chart-data-options).  Their usage is shown in [the basic charts example that uses the TSI platform](https://tsiclientsample.azurewebsites.net/withplatform/basiccharts.html), or as follows...
+**AggregateExpressions** are used to represent API queries made against **S SKU** environments.
+
+**AggregateExpressions** include the `toTsx()` method for transforming supplied query objects into a format conforming to [the Query Syntax](https://docs.microsoft.com/rest/api/time-series-insights/ga-query-syntax). Objects so-transformed after an API call become a data group as described in [Chart Data Shape](#chart-data-shape) and  can be used as [Chart Data Options](#chart-data-options).  
+
+Additional [Chart Data Options](#chart-data-options) can be specified as the final parameters, with supported properties defined.
+
+***Note**: hosted AggregateExpressions examples are provided at [https://tsiclientsample.azurewebsites.net/noauth/multipleseriestypes.html](https://tsiclientsample.azurewebsites.net/noauth/multipleseriestypes.html)*.
 
 ```JavaScript
 var aggregateExpression = new tsiClient.ux.AggregateExpression(
@@ -169,7 +175,11 @@ tsiClient.server.getAggregates(token, '10000000-0000-0000-0000-100000000108.env.
 
 ### TsqExpression
 
-TsqExpressions are used to represent API queries against a Time Series Insights PAYG SKU.  They include a method for transforming the object to query the API called ``toTsq()``, when transformed after an API call they become a data group as described in [Chart Data Shape](#chart-data-shape), and they can be used as [Chart Data Options](#chart-data-options). An example of TsqExpressions in use can be found [here](https://tsiclientsample.azurewebsites.net/withplatform/PAYG.html). They are used as follows...
+**TsqExpressions** are used to represent queries made against **PAYG SKU** environments.
+
+**TsqExpressions** include the `toTsq()` method for transforming supplied query objects into a format suitable to query the APIs. Objects so-transformed after an API call become a data group as described in [Chart Data Shape](#chart-data-shape) and  can be used as [Chart Data Options](#chart-data-options).  
+
+***Note**: hosted TsqExpressions examples are provided at [https://tsiclientsample.azurewebsites.net/noauth/multipleseriestypes.html](https://tsiclientsample.azurewebsites.net/noauth/multipleseriestypes.html)*.
 
 ```JavaScript
 var tsqExpression = new tsiClient.ux.TsqExpression(
