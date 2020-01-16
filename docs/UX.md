@@ -6,7 +6,7 @@
 
 The line chart is used for rendering groups of time series.  A line chart can be created as follows...
 
-```js
+```JavaScript
 var tsiClient = new TsiClient();
 var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart'));
 lineChart.render(data, chartOptions, chartDataOptionsArray);
@@ -23,7 +23,7 @@ found in [this example](https://tsiclientsample.azurewebsites.net/noauth/multipl
 
 Bar charts are created in the same way as the line chart, and they take the same options and data shapes.  
 
-```js
+```JavaScript
 var tsiClient = new TsiClient();
 var barChart = new tsiClient.ux.BarChart(document.getElementById('chart'));
 barChart.render(data, chartOptions, chartDataOptionsArray);
@@ -35,7 +35,7 @@ Bar charts have a slider to step through the timestamps of time series.
 
 Pie charts are created in the same way as bar charts, and also have a slider for stepping through time.
 
-```js
+```JavaScript
 var tsiClient = new TsiClient();
 var pieChart = new tsiClient.ux.PieChart(document.getElementById('chart'));
 pieChart.render(data, chartOptions, chartDataOptionsArray);
@@ -45,7 +45,7 @@ pieChart.render(data, chartOptions, chartDataOptionsArray);
 
 Heatmaps are created using the same pattern as line charts, however, [searchSpan](#search-span-object) *must* be supplied for each element of chartDataOptionsArray.
 
-```js
+```JavaScript
 var tsiClient = new TsiClient();
 var heatmap = new tsiClient.ux.Heatmap(document.getElementById('chart'));
 heatmap.render(data, chartOptions, chartDataOptionsArray);
@@ -55,17 +55,17 @@ heatmap.render(data, chartOptions, chartDataOptionsArray);
 
 Scatter plots are created in the same way as the line chart, and they take the same options and data shapes.  For Scatter plots however, [spMeasures](#chart-options) **must** be specified as an array of strings in the chartOptions object.  Scatter plots also have the following optional chartOptions:  [isTemporal](#chart-options) toggles the temporal slider on or off; [spAxisLabels](#chart-options) creates axis labels for X and Y axis.
 
-```js
+```JavaScript
 var tsiClient = new TsiClient();
 var scatterPlot = new tsiClient.ux.ScatterPlot(document.getElementById('chart'))
 scatterPlot.render(data, chartOptions, chartDataOptionsArray);
 ```
 
-The following code snippet shows an example of the scatter plot specific chart options: [spMeasures](#chart-options), [isTemporal](#chart-options), and [spAxisLabels](#chart-options).  The first string in the spMeasures array is the X axis measure.  The second string is the Y axis measure, and the third (optional) string is the data point radius measure.  The isTemporal chartOption defaults to **false** if not set, but can be set to **true** as shown below.  The spAxisLabels chartOption takes an array where the first element is used as the X axis label and the second element is used as the Y axis label.   
+The following code snippet shows an example of the scatter plot specific chart options: [spMeasures](#chart-options), [isTemporal](#chart-options), and [spAxisLabels](#chart-options).  The first string in the spMeasures array is the X axis measure.  The second string is the Y axis measure, and the third (optional) string is the data point radius measure.  The isTemporal chartOption defaults to **false** if not set, but can be set to **true** as shown below.  The spAxisLabels chartOption takes an array where the first element is used as the X axis label and the second element is used as the Y axis label.
 
-```js
+```JavaScript
 scatterPlot.render(data, {
-    spMeasures:['temp', 'press', 'vol'], 
+    spMeasures:['temp', 'press', 'vol'],
     //          ^ X     ^ Y      ^ R (optional)
     isTemporal: true,
     //          ^ Turn on temporal slider
@@ -80,7 +80,7 @@ scatterPlot.render(data, {
 
 A grid of events can be used to show a generic array of JSON in a scalable way.  Usage is as follows...
 
-```js
+```JavaScript
 var tsiClient = new TsiClient();
 var eventsTable = tsiClient.ux.EventsTable(document.getElementById('chart'));
 eventsTable.render(events, chartOptions)
@@ -88,7 +88,7 @@ eventsTable.render(events, chartOptions)
 
 where ``events`` is an array of flat JSON objects, with an example shape like this...
 
-```js
+```JavaScript
 [
     {
         timestamp: '2017-04-14T13:00:00Z',
@@ -130,7 +130,7 @@ tsiClient.server.getAggregates(token, '10000000-0000-0000-0000-100000000108.env.
 
 TsqExpressions are used to represent API queries against a Time Series Insights PAYG SKU.  They include a method for transforming the object to query the API called ``toTsq()``, when transformed after an API call they become a data group as described in [Chart Data Shape](#chart-data-shape), and they can be used as [Chart Data Options](#chart-data-options). An example of TsqExpressions in use can be found [here](https://tsiclientsample.azurewebsites.net/withplatform/PAYG.html). They are used as follows...
 
-```js
+```JavaScript
 var tsqExpression = new tsiClient.ux.TsqExpression(
     {timeSeriesId: ['df4412c4-dba2-4a52-87af-780e78ff156b']}, // time series instance json
     {AvgTemp: {
@@ -139,7 +139,7 @@ var tsqExpression = new tsiClient.ux.TsqExpression(
         filter: null,
         aggregation: {tsx: 'avg($value)'}
     }}, // variable json
-    { from: startDate, to: endDate, bucketSize: '6h' }, // search span object
+    {from: startDate, to: endDate, bucketSize: '6h'}, // search span object
     {color: '#60B9AE', alias: 'AvgTemp'} // ChartDataOptions
     );
 
@@ -157,7 +157,7 @@ tsiClient.server.getTsqResults(token, '10000000-0000-0000-0000-100000000109.env.
 
 The shape of results returned by the Time Series Insights do not generally match [Chart Data Shape](#chart-data-shape).  To transform API results from the aggregates API of an S SKU, we use transformAggregatesForVisualization as follows...
 
-```js
+```JavaScript
 tsiClient.server.getAggregates(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com', [aggregateExpression.toTsx())
     .then(function(result){
         var transformedResult = tsiClient.ux.transformAggregatesForVisualization(result, [aggregateExpression]);
@@ -170,7 +170,7 @@ tsiClient.server.getAggregates(token, '10000000-0000-0000-0000-100000000108.env.
 
 To transform API results from the timeseries API of a PAYG SKU, we use transformTsqResultsForVisualization as follows...
 
-```js
+```JavaScript
 tsiClient.server.getTsqResults(token, '10000000-0000-0000-0000-100000000109.env.timeseries.azure.com', [tsqExpression.toTsq()])
     .then(function(result){
         var transformedResult = tsiClient.ux.transformTsqResultsForVisualization(result, [tsqExpression]);
@@ -185,7 +185,7 @@ tsiClient.server.getTsqResults(token, '10000000-0000-0000-0000-100000000109.env.
 
 Chart data is generally represented as a set of **groups** that each contain **time series**. Data for the Line, Pie, Bar, and Heatmap charts follows the following shape convention
 
-```js
+```JavaScript
 [
     {
         Factory1: // a name for this group
@@ -217,7 +217,7 @@ The above structure is shown in the [Basic Charts Example](https://tsiclientsamp
 
 Chart options are generally the second parameter to a component ``render`` method.  They allow users to change view properties for the chart, like theme, legend layout, etc, and can be explored in the [Chart Options Example](https://tsiclientsample.azurewebsites.net/noauth/chartOptions.html). 
 
-```js
+```JavaScript
 lineChart.render(data, {theme: 'light', tooltip: true});
 //                     ^this parameter is chartOptions
 ```
