@@ -1,6 +1,10 @@
 # TSIClient API Reference
 
-**tsiclient** is a collection of components for data visualization and analytics [TsiClient.ux](UX.md) that work with generic JSON, utililties for querying the TSI platform API directly from the browser [TsiClient.server](Server.md), and helper classes that simplify usage.
+**tsiclient** is a collection of components for data visualization and analytics:
+
+* [TsiClient.ux](UX.md) that work with generic JSON to render visual analytics using charts and graphs
+* [TsiClient.server](Server.md) which comprises a set of utilities for querying the TSI platform API directly from the browser
+* Helper classes that simplify usage throughout
 
 ## TsiClient.ux
 
