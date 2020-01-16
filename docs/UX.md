@@ -100,7 +100,7 @@ scatterPlot.render(data, chartOptions, chartDataOptionsArray);
 The following code snippet demonstrates scatter plot-specific chart options:
 
 * [spMeasures](#chart-options) - the first string in the `spMeasures` array is the X axis measure, the second, is the Y axis measure, and the third (optional) string is the data point radius measure.
-* [isTemporal](#chart-options) - defaults to **false** if not set, but can be set to **true** as shown belo
+* [isTemporal](#chart-options) - defaults to **false** if not set, but can be set to **true** as shown below.
 * [spAxisLabels](#chart-options) - takes an array where the first element is used as the X axis label and the second element is used as the Y axis label.
 
 ```JavaScript
@@ -287,7 +287,7 @@ The most common available parameters for chart options are provided below:
 
 | Property name | Type | Value options | Default | Description |
 | - | - | - | - | - |
-| `brushContextMenuActions` | **Arrayy&lt;any&gt;** | `null`, `Array<brushContextMenuAction>` | `null` | A [brushContextMenuAction](#brush-context-menu-actions) array defining brush actions |
+| `brushContextMenuActions` | **Array&lt;any&gt;** | `null`, `Array<brushContextMenuAction>` | `null` | A [brushContextMenuAction](#brush-context-menu-actions) array defining brush actions |
 |`grid`| **boolean** | `true`, `false` | `false` | If `true`, add accessible grid button to the ellipsis menu |
 |`includeDots`| **boolean** | `true`, `false` | `false` | If `true`, the line chart plots dots for values |
 |`includeEnvelope`| **boolean** | `true`, `false` | `false` | If `true`, include an area showing min/max boundaries in the line chart |
