@@ -322,7 +322,7 @@ Available **Chart Data Options** include:
 
 (***Note**: Some parameters are present in both Chart Options and Chart Data Options. **Also note** that default values will be used whenever no values are explicitly supplied*)
 
-| Property name | Type | Value options | Default value | Description |
+| Property name | Type | Value options | Default | Description |
 |-|-|-|-|-|
 | `color` |**string**|`#4286f4`| | The color of this group in a component|
 |`alias`|**string**|`Factory1`| | The display name for this group|
@@ -437,8 +437,8 @@ This section provides supplemental reference information.
 
 (***Note** that default values will be used whenever no values are explicitly supplied*)
 
-| Property name | Type | Value options | Default value| Description|
-|-|-|-|-|-|-|
+| Property name | Type | Value options | Default | Description|
+|-|-|-|-|-|
 | `aggTopMargin` |**number**|`12` | `12` | Margin on top of each aggregate line(s) in pixels|
 |`arcWidthRatio`|**number**| `0`| `0`| Ratio of the outer and inner circle in a pie chart, from 0 to 1|
 |`autoTriggerBrushContextMenu`|**boolean**| `true`, `false` | `false` |If `true`, opens a menu defined by `brushContextMenuActions` on brush mouseup|
@@ -459,16 +459,16 @@ This section provides supplemental reference information.
 |`is24HourTime`|**boolean**|`true`, `false` |`true`|If `true`, display time in 24 hour format, (12 hour time with am/pm if false|
 |`keepBrush`|**boolean**|`true`, `false` |`false`|If `true`, maintain brush selected region upon render|
 |`keepSplitByColor`|**boolean**|`true`, `false` |`false`|If `true`, maintain split by colors when state updated|
-|`maxBuckets`|number|**500**|Max number of buckets in availability chart|
-|`minBrushWidth`|number|**0**|Minimum possible width of brush in a line chart in pixels|
+|`maxBuckets`|**number**|`500`|`500`|Max number of buckets in availability chart|
+|`minBrushWidth`|**number**| `0`|`0`|Minimum possible width of brush in a line chart in pixels|
 |`minutesForTimeLabels`|**boolean**|`true`, `false` |`false`|If `true`, force time labels to minute granularity|
-|`onInstanceClick`|(instance: any) => any|**() => {return {}}**|For model search: takes an instance and returns an object of context menu actions|
-|`onMouseout`|() => void|**() => {}**|Action fired when the mouse leaves a chart value element (ex: line, bar, pie chart segment, etc.)|
-|`onMouseover`|(aggKey: string, splitBy: string) => void|**() => {}**|Action fired when the mouse enters a chart value element|
-|`onSticky`|(aggKey: string, splitBy: string) => void|**() => {}**|Action fired when a chart value element is stickied|
-|`onUnsticky`|(aggKey: string, splitBy: string) => void|**() => {}**|Action fired when a chart value element is stickied|
-|`onKeydown`|(d3Event: any, awesompleteObject: any) => void  |**() => {}**|Action fired when keydown action performed in ModelAutocomplete|
-|`onInput`|(searchText: string) => void |**() => {}**|Action fired on input actions in ModelAutocomplete|
+|`onInstanceClick`|**(instance: any) => any**|`() => {return {}}` | `() => {return {}}`|For model search: takes an instance and returns an object of context menu actions|
+|`onMouseout`|**() => void**|`() => {return {}}` | `() => {return {}}`|Action fired when the mouse leaves a chart value element (ex: line, bar, pie chart segment, etc.)|
+|`onMouseover`|**(aggKey: string, splitBy: string) => void**|`() => {return {}}` | `() => {return {}}`|Action fired when the mouse enters a chart value element|
+|`onSticky`|**(aggKey: string, splitBy: string) => void**|`() => {return {}}` | `() => {return {}}`|Action fired when a chart value element is stickied|
+|`onUnsticky`|**(aggKey: string, splitBy: string) => void**|`() => {return {}}` | `() => {return {}}`|Action fired when a chart value element is stickied|
+|`onKeydown`| **(d3Event: any, awesompleteObject: any) => void** |`() => {return {}}` | `() => {return {}}`| Action fired when keydown action performed in ModelAutocomplete|
+|`onInput`|**(searchText: string) => void** |`() => {return {}}` | `() => {return {}}`| Action fired on input actions in ModelAutocomplete|
 |`preserveAvailabilityState`|**boolean**|`true`, `false` |`false`|If `true`, save availability chart state on render|
 |`scaledToCurrentTime`|**boolean**|`true`, `false` |`false`|If `true`, base slider base component's scale on current time's values (all values if false)|
 |`singleLineXAxisLabel`|**boolean**|`true`, `false` |`false`|If `true`, display x axis time labels on a single line (split into two lines if false)|
