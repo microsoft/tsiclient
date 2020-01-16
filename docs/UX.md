@@ -16,7 +16,7 @@ Components are used to build a variety of charts and define visualizations using
 
 ### Line Chart
 
-The **line chart** is used for rendering groups of time series.  A line chart can be created in the following way:
+The **Line Chart** is used for rendering groups of time series.  A line chart can be created in the following way:
 
 ```JavaScript
 var tsiClient = new TsiClient();
@@ -38,26 +38,32 @@ A line chart can hold three different types of plots:
 1. An event plot
 1. A categorical plot
 
-The type of plot for each data group is specified with the [dataType](#chart-data-options) Chart Data Option, and multiple types are possible concurrently in one line chart. An example of all three types in one chart can be
-found in [this example](https://tsiclientsample.azurewebsites.net/noauth/multipleseriestypes.html).
+***Note**: hosted examples of all three are provided at [https://tsiclientsample.azurewebsites.net/noauth/multipleseriestypes.html](https://tsiclientsample.azurewebsites.net/noauth/multipleseriestypes.html)*.
 
-Special Chart Data Options are used when dataType is non-numeric: height, [valueMapping](#value-mapping), and onElementClick. rollupCategoricalValues is unique to groups with datType of categorical.
+The type of plot for each data group is specified with the `dataType` [Chart Data Option](#chart-data-options). Multiple types are concurrently possible within one line chart.
+
+Specific chart options are used when `dataType` is non-numeric:
+
+* `height`
+* [valueMapping](#value-mapping)
+* `onElementClick`
+
+`rollupCategoricalValues` is unique to groups with the categorical `dataType`.
 
 ### Bar Chart
 
-Bar charts are created in the same way as the line chart, and they take the same options and data shapes.  
-
+**Bar Charts** are created in the same way as [line charts](#line-chart), and they take the same options and data shapes.  
 ```JavaScript
 var tsiClient = new TsiClient();
 var barChart = new tsiClient.ux.BarChart(document.getElementById('chart'));
 barChart.render(data, chartOptions, chartDataOptionsArray);
 ```
 
-Bar charts have a slider to step through the timestamps of time series.
+Bar charts have a slider to step through the timestamps of the supplied time series.
 
 ### Pie Chart
 
-Pie charts are created in the same way as bar charts, and also have a slider for stepping through time.
+**Pie Charts** are created in the same way as [bar charts](#bar-chart), and also have a slider for stepping through time series.
 
 ```JavaScript
 var tsiClient = new TsiClient();
@@ -67,7 +73,7 @@ pieChart.render(data, chartOptions, chartDataOptionsArray);
 
 ### Heatmap
 
-Heatmaps are created using the same pattern as line charts, however, [searchSpan](#search-span-object) *must* be supplied for each element of chartDataOptionsArray.
+**Heatmaps** are created using the same pattern as [line charts](#line-chart). However, [searchSpan](#search-span-object) *must* be supplied for each element of the `chartDataOptionsArray` configuration array.
 
 ```JavaScript
 var tsiClient = new TsiClient();
@@ -77,7 +83,13 @@ heatmap.render(data, chartOptions, chartDataOptionsArray);
 
 ### Scatter Plot
 
-Scatter plots are created in the same way as the line chart, and they take the same options and data shapes.  For Scatter plots however, [spMeasures](#chart-options) **must** be specified as an array of strings in the chartOptions object.  Scatter plots also have the following optional chartOptions:  [isTemporal](#chart-options) toggles the temporal slider on or off; [spAxisLabels](#chart-options) creates axis labels for X and Y axis.
+**Scatter Plots** are created in the same way as [line charts](#line-chart) and take the same options and data shapes.
+ However, [spMeasures](#chart-options) **must** be specified as an array of strings in the `chartOptions` object for scatter plots.  
+
+Scatter plots also have the following optional `chartOptions`:
+
+* [isTemporal](#chart-options) toggles the temporal slider on or off
+* [spAxisLabels](#chart-options) creates axis labels for X and Y axis.
 
 ```JavaScript
 var tsiClient = new TsiClient();
@@ -85,7 +97,11 @@ var scatterPlot = new tsiClient.ux.ScatterPlot(document.getElementById('chart'))
 scatterPlot.render(data, chartOptions, chartDataOptionsArray);
 ```
 
-The following code snippet shows an example of the scatter plot specific chart options: [spMeasures](#chart-options), [isTemporal](#chart-options), and [spAxisLabels](#chart-options).  The first string in the spMeasures array is the X axis measure.  The second string is the Y axis measure, and the third (optional) string is the data point radius measure.  The isTemporal chartOption defaults to **false** if not set, but can be set to **true** as shown below.  The spAxisLabels chartOption takes an array where the first element is used as the X axis label and the second element is used as the Y axis label.
+The following code snippet demonstrates scatter plot-specific chart options:
+
+* [spMeasures](#chart-options) - the first string in the `spMeasures` array is the X axis measure, the second, is the Y axis measure, and the third (optional) string is the data point radius measure.
+* [isTemporal](#chart-options) - defaults to **false** if not set, but can be set to **true** as shown belo
+* [spAxisLabels](#chart-options) - takes an array where the first element is used as the X axis label and the second element is used as the Y axis label.
 
 ```JavaScript
 scatterPlot.render(data, {
@@ -98,11 +114,11 @@ scatterPlot.render(data, {
     });
 ```
 
-*Scatter Plot will not render if spMeasures is not specified or **any** of the measures are not found in the [data](#chart-data-shape) as value keys*
+**Note**: *scatter plots will not render if `spMeasures` is not specified or **any** of the measures are not found in the [data](#chart-data-shape) as value keys*
 
 ### Events Grid
 
-A grid of events can be used to show a generic array of JSON in a scalable way.  Usage is as follows...
+A grid of events (**Events Grid**) can be used to show a generic array of JSON data in a scalable way:
 
 ```JavaScript
 var tsiClient = new TsiClient();
@@ -110,7 +126,7 @@ var eventsTable = tsiClient.ux.EventsTable(document.getElementById('chart'));
 eventsTable.render(events, chartOptions)
 ```
 
-where ``events`` is an array of flat JSON objects, with an example shape like this...
+Above, `events` is an array of flat JSON objects with the following kind of shape:
 
 ```JavaScript
 [
@@ -125,8 +141,9 @@ where ``events`` is an array of flat JSON objects, with an example shape like th
 ]
 ```
 
-
 ## Classes
+
+Classes abstract common operations, queries, and common objects.
 
 ### AggregateExpression
 
@@ -218,7 +235,7 @@ Chart data is generally represented as a set of **groups** that each contain **t
             {
                 '2019-02-07T21:00:00.000Z': {'temperature': 26.5}, // an object with keys representing ISO strings for time
                 '2019-02-07T21:00:01.000Z': {'temperature': 24.3}, // with a value of a javascript object, whose keys represent value names
-                ... 
+                ...
             },
             Station2: {...},
             ...
@@ -239,7 +256,7 @@ The above structure is shown in the [Basic Charts Example](https://tsiclientsamp
 
 ### Chart Options
 
-Chart options are generally the second parameter to a component ``render`` method.  They allow users to change view properties for the chart, like theme, legend layout, etc, and can be explored in the [Chart Options Example](https://tsiclientsample.azurewebsites.net/noauth/chartOptions.html). 
+Chart options are generally the second parameter to a component ``render`` method.  They allow users to change view properties for the chart, like theme, legend layout, etc, and can be explored in the [Chart Options Example](https://tsiclientsample.azurewebsites.net/noauth/chartOptions.html).
 
 ```JavaScript
 lineChart.render(data, {theme: 'light', tooltip: true});
