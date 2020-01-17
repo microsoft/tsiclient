@@ -59,14 +59,13 @@ class TsqExpression extends ChartDataOptions {
     }
 
     public toStatsTsq(fromMillis, toMillis){
-        let tsq;
-        if(this.dataType !== 'categorical') {
-            tsq = this.toTsq()
-            let shiftMillis = Utils.parseShift(this.timeShift);
-            fromMillis += shiftMillis;
-            toMillis += shiftMillis;
-            tsq.aggregateSeries['searchSpan'] = {from: (new Date(fromMillis)).toISOString(), to: (new Date(toMillis)).toISOString()}; 
-            tsq.aggregateSeries['interval'] = 'P1000Y';
+        let tsq = this.toTsq()
+        let shiftMillis = Utils.parseShift(this.timeShift);
+        fromMillis += shiftMillis;
+        toMillis += shiftMillis;
+        tsq.aggregateSeries['searchSpan'] = {from: (new Date(fromMillis)).toISOString(), to: (new Date(toMillis)).toISOString()}; 
+        tsq.aggregateSeries['interval'] = 'P1000Y';
+        if(this.dataType === 'numeric') {
             let inlineVariables = {min: {}, max: {}, avg: {}, stDev: {}};
             let firstVariable = tsq.aggregateSeries['inlineVariables'][Object.keys(tsq.aggregateSeries['inlineVariables'])[0]];
             Object.keys(inlineVariables).forEach(k => {
