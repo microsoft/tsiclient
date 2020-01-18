@@ -78,7 +78,7 @@ class ContextMenu extends Component {
             .style('left', left + 'px')
             .style('top', top + 'px');
 
-        actionElementsEntered.exit().remove();
+        actionElements.exit().remove();
     }
     public hide () {
         this.contextMenuElement.style("display", "none");
