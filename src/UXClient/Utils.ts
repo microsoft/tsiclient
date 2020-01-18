@@ -13,7 +13,7 @@ export const LINECHARTTOPPADDING = 16;
 export const GRIDCONTAINERCLASS = 'tsi-gridContainer';
 
 // Linechart stack states
-enum StackStates {Stacked = "stacked", Shared = "shared", Overlap = "overlap" };
+export enum YAxisStates {Stacked = "stacked", Shared = "shared", Overlap = "overlap" };
 export enum DataTypes {Numeric = 'numeric', Categorical = 'categorical', Events = 'events'};
 export enum EventElementTypes {Diamond = 'diamond', Teardrop = 'teardrop'};
 export enum TooltipMeasureFormat {Enveloped = 'Enveloped', SingleValue = 'SingleValue', Scatter = 'Scatter'} 
@@ -47,7 +47,7 @@ class Utils {
     }
 
     static getStackStates() {
-        return StackStates;
+        return YAxisStates;
     }
     
     // format [0-9]+[ms|s|m|h|d], convert to millis

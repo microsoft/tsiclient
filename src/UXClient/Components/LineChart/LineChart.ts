@@ -1,7 +1,7 @@
 import * as d3 from 'd3';
 import { interpolatePath } from 'd3-interpolate-path';
 import './LineChart.scss';
-import {Utils, DataTypes, LINECHARTTOPPADDING, TooltipMeasureFormat} from "./../../Utils";
+import {Utils, DataTypes, YAxisStates, LINECHARTTOPPADDING, TooltipMeasureFormat} from "./../../Utils";
 import {Legend} from "./../Legend/Legend";
 import {TemporalXAxisComponent} from "./../../Interfaces/TemporalXAxisComponent";
 import {LineChartData} from "./../../Models/LineChartData";
@@ -13,6 +13,7 @@ import { ChartDataOptions } from '../../Models/ChartDataOptions';
 import { LinePlot } from '../LinePlot/LinePlot';
 import { CategoricalPlot } from '../CategoricalPlot/CategoricalPlot';
 import { EventsPlot } from '../EventsPlot/EventsPlot';
+import { AxisState } from '../../Models/AxisState';
 
 class LineChart extends TemporalXAxisComponent {
     private targetElement: any;
@@ -66,6 +67,8 @@ class LineChart extends TemporalXAxisComponent {
 
     private isFirstMarkerDrop = true;
     private xOffset = 8;
+
+    private swimlaneYExtents = {}; // mapping of swimlanes to the y extents of that swimlane
 
     constructor(renderTarget: Element){
         super(renderTarget);
@@ -134,7 +137,7 @@ class LineChart extends TemporalXAxisComponent {
             .style("opacity", 1);
 
         /** Update y Axis */
-        if (this.chartOptions.yAxisState == "overlap") {
+        if (this.chartOptions.yAxisState == YAxisStates.Overlap) {
             this.svgSelection.selectAll(".yAxis")
                 .selectAll("text")
                 .style("fill-opacity", 1)
@@ -336,7 +339,7 @@ class LineChart extends TemporalXAxisComponent {
         this.legendObject.triggerSplitByFocus(d.aggregateKey, d.splitBy);
 
         /** update the y axis for in focus aggregate */
-        if (this.chartOptions.yAxisState == "overlap") {
+        if (this.chartOptions.yAxisState === YAxisStates.Overlap) {
             this.svgSelection.selectAll(".yAxis")
                 .selectAll("text")
                 .style("fill-opacity", .5)
@@ -408,7 +411,7 @@ class LineChart extends TemporalXAxisComponent {
 
     private getFilteredValues (aggValues) {
         return aggValues.filter((d: any) => {
-            return (d.measures && this.getValueOfVisible(d) != null);
+            return (d.measures && this.getValueOfVisible(d) !== null);
         });
     }
 
@@ -1188,9 +1191,9 @@ class LineChart extends TemporalXAxisComponent {
     }
 
     private nextStackedState = () => {
-        if (this.chartOptions.yAxisState == "stacked") 
+        if (this.chartOptions.yAxisState === YAxisStates.Stacked) 
             return "shared";
-        else if (this.chartOptions.yAxisState == "shared")
+        else if (this.chartOptions.yAxisState === YAxisStates.Shared)
             return "overlap";
         else  
             return "stacked";
@@ -1212,18 +1215,82 @@ class LineChart extends TemporalXAxisComponent {
         }).length;
     }
 
-    //returns an array of tuples of y offset and height for each 
-    private createYOffsets () {
-        //right now a lane is constrained to an aggregate - eventually this will support swim lanes
+    private getSwimlaneOffsets (linechartTopPadding, visibleGroups, visibleCDOs, heightPerNumeric, swimLaneSet) {
+        let cumulativeOffset = 0;
+        //initialize to null and set while going through swimLanes
+        let visibleGroupEndValues = visibleGroups.map(() => null);
 
+        Object.keys(swimLaneSet).sort((a, b) => (Number(a) <= Number(b) ? -1 : 1)).forEach((swimLane) => {
+            // find all numerics and set to cumulative offset/height per non numeric
+            let hasNumeric = false;
+            visibleGroups.forEach((aggGroup, i) => {
+                if (aggGroup.swimLane === Number(swimLane) && aggGroup.dataType === DataTypes.Numeric) {
+                    hasNumeric = true;
+                    visibleGroupEndValues[i] = [cumulativeOffset, heightPerNumeric];
+                }
+            });
+
+            // find all non-numerics and set their offset/heights
+            let swimLaneOffset = hasNumeric ? heightPerNumeric : 0;
+            visibleGroups.forEach((aggGroup, i) => {
+                if (aggGroup.swimLane === Number(swimLane) && aggGroup.dataType !== DataTypes.Numeric) {
+                    let currGroupsHeight = Utils.getNonNumericHeight(aggGroup.height);
+                    visibleGroupEndValues[i] = [swimLaneOffset + cumulativeOffset, currGroupsHeight]
+                    swimLaneOffset += currGroupsHeight;
+                }
+            });
+            cumulativeOffset += swimLaneOffset; 
+        });
+        return visibleGroupEndValues;
+    }
+
+    private setSwimLaneYExtents (visibleGroups, visibleCDOs, swimLanes) {
+        let extents = {};
+        swimLanes.forEach((lane) => {
+            let extent = [];
+            visibleGroups.forEach((aggGroup) => {
+                if (aggGroup.dataType !== DataTypes.Numeric) {
+                    return;
+                }
+                let aggValues = [];
+                if (String(aggGroup.swimLane) === String(lane)) {
+                    let aggKey = aggGroup.aggKey;
+                    Object.keys(this.chartComponentData.visibleTAs[aggKey]).forEach((splitBy) => {
+                        aggValues = aggValues.concat(this.chartComponentData.visibleTAs[aggKey][splitBy]);
+                    });    
+                    let yExtent = this.getYExtent(aggValues, 
+                        this.chartComponentData.displayState[aggKey].includeEnvelope ? 
+                            this.chartComponentData.displayState[aggKey].includeEnvelope : 
+                            this.chartOptions.includeEnvelope, null);
+                    extent = d3.extent(yExtent.concat(extent));
+                    extents[String(lane)] = extent;
+                }
+            });
+        });
+        this.swimlaneYExtents = extents;
+    }
+
+    //returns an array of tuples of y offset and height for each visible aggregate group 
+    private createYOffsets () {
         let visibleGroups = this.chartComponentData.data.filter((agg) => this.chartComponentData.displayState[agg.aggKey]["visible"]);
         let visibleCDOs = this.aggregateExpressionOptions.filter((cDO) => this.chartComponentData.displayState[cDO.aggKey]["visible"]);
 
+        let allShared = this.chartOptions.yAxisState === YAxisStates.Shared || this.chartOptions.yAxisState === YAxisStates.Overlap;
 
-        let allShared = this.chartOptions.yAxisState === 'shared' || this.chartOptions.yAxisState === 'overlap';
-        let visibleNumericCount = visibleGroups.filter((aggKey, i) => {
-            return visibleCDOs[i].dataType === DataTypes.Numeric;
-        }).length;
+        let visibleNumericCount;
+        let swimLaneSet = {};
+        if (this.chartOptions.usesSwimLanes) {
+            visibleCDOs.forEach((cDO) => {
+                swimLaneSet[cDO.swimLane] = swimLaneSet[cDO.swimLane] || (cDO.dataType === DataTypes.Numeric);
+            });    
+            visibleNumericCount = Object.keys(swimLaneSet).reduce((visibleCount, swimLane) => {
+                return visibleCount + (swimLaneSet[swimLane] ? 1 : 0);
+            }, 0);
+        } else {
+            visibleNumericCount = visibleGroups.filter((aggKey, i) => {
+                return visibleCDOs[i].dataType === DataTypes.Numeric;
+            }).length;
+        }
 
         let countNumericLanes = allShared ? (visibleNumericCount > 0 ? 1 : 0) : visibleNumericCount;
 
@@ -1248,18 +1315,24 @@ class LineChart extends TemporalXAxisComponent {
             });
         } else {
             let heightPerNumeric = (useableHeight - heightNonNumeric) / countNumericLanes;
-            let cumulativeOffset = linechartTopPadding;            
-            return visibleGroups.map((aggGroup) => {
-                let previousOffset = cumulativeOffset;
-                let height;
-                if (aggGroup.dataType === DataTypes.Numeric) {
-                    height = heightPerNumeric;
-                } else {
-                    height = Utils.getNonNumericHeight(aggGroup.height);
-                }
-                cumulativeOffset += height;
-                return [previousOffset, height]
-            });
+
+            if (this.chartOptions.usesSwimLanes) {
+                this.setSwimLaneYExtents(visibleGroups, visibleCDOs, Object.keys(swimLaneSet).filter((lane) => swimLaneSet[lane]));
+                return this.getSwimlaneOffsets(linechartTopPadding, visibleGroups, visibleCDOs, heightPerNumeric, swimLaneSet);
+            } else {
+                let cumulativeOffset = linechartTopPadding;            
+                return visibleGroups.map((aggGroup) => {
+                    let previousOffset = cumulativeOffset;
+                    let height;
+                    if (aggGroup.dataType === DataTypes.Numeric) {
+                        height = heightPerNumeric;
+                    } else {
+                        height = Utils.getNonNumericHeight(aggGroup.height);
+                    }
+                    cumulativeOffset += height;
+                    return [previousOffset, height];
+                });    
+            }
         }
     }
 
@@ -1268,6 +1341,31 @@ class LineChart extends TemporalXAxisComponent {
         return visibleGroups.reduce((sumPrevious, currGroup) => {
             return sumPrevious + (currGroup.dataType !== DataTypes.Numeric ? Utils.getNonNumericHeight(currGroup.height) : 0);
         }, 0);
+    }
+
+    private getGroupYExtent () {
+        //TODO consolidate logic for determining the y extent of a group inot this method
+        
+        // let
+        // if ((this.chartOptions.yAxisState == "shared") || (Object.keys(this.chartComponentData.timeArrays)).length < 2 || !aggVisible) {
+        //     yExtent = self.getYExtent(self.chartComponentData.allValues, self.chartComponentData.displayState[aggKey].includeEnvelope ? self.chartComponentData.displayState[aggKey].includeEnvelope : self.chartOptions.includeEnvelope, null);
+        // } else if (self.chartComponentData.aggHasVisibleSplitBys(aggKey)) {
+        //     yExtent = self.getYExtent(aggValues, self.chartComponentData.displayState[aggKey].includeEnvelope ? self.chartComponentData.displayState[aggKey].includeEnvelope : self.chartOptions.includeEnvelope, aggKey);
+        // } else {
+        //     yExtent = [0,1];
+        // }
+
+    }
+
+    private getAggAxisType (agg) {
+        if (this.chartOptions.usesSwimLanes) {
+            if (this.chartOptions.swimLaneAxisTypes && this.chartOptions.swimLaneAxisTypes[agg.swimLane]) {
+                return this.chartOptions.swimLaneAxisTypes[agg.swimLane];
+            } else {
+                return YAxisStates.Shared;
+            }
+        }
+        return this.chartOptions.yAxisState;
     }
 
     public render (data: any, options: any, aggregateExpressionOptions: any) {
@@ -1612,7 +1710,7 @@ class LineChart extends TemporalXAxisComponent {
                                 aggValues = aggValues.concat(self.chartComponentData.visibleTAs[aggKey][splitBy]);
                             });
 
-                            if ((self.chartOptions.yAxisState == "shared") || (Object.keys(self.chartComponentData.timeArrays)).length < 2 || !aggVisible) {
+                            if ((self.chartOptions.yAxisState === YAxisStates.Shared) || (Object.keys(self.chartComponentData.timeArrays)).length < 2 || !aggVisible) {
                                 yExtent = self.getYExtent(self.chartComponentData.allValues, self.chartComponentData.displayState[aggKey].includeEnvelope ? self.chartComponentData.displayState[aggKey].includeEnvelope : self.chartOptions.includeEnvelope, null);
                             } else if (self.chartComponentData.aggHasVisibleSplitBys(aggKey)) {
                                 yExtent = self.getYExtent(aggValues, self.chartComponentData.displayState[aggKey].includeEnvelope ? self.chartComponentData.displayState[aggKey].includeEnvelope : self.chartOptions.includeEnvelope, aggKey);
@@ -1629,10 +1727,18 @@ class LineChart extends TemporalXAxisComponent {
 
                             let mouseoverFunction = self.getMouseoverFunction(visibleCDOs[i].dataType);
                             let mouseoutFunction = self.getMouseoutFunction(visibleCDOs[i].dataType);
-                            self.plotComponents[aggKey].render(self.chartOptions, visibleNumericI, agg, true, d3.select(this), self.chartComponentData, yExtent, 
+                            if (self.swimlaneYExtents && self.swimlaneYExtents.hasOwnProperty(String(agg.swimLane))) {
+                                yExtent = self.swimlaneYExtents[String(agg.swimLane)];
+                            }
+                            console.log(yExtent)
+
+                            let axisState = new AxisState(self.getAggAxisType(agg), yExtent, 0);
+                            debugger;
+
+                            self.plotComponents[aggKey].render(self.chartOptions, visibleNumericI, agg, true, d3.select(this), self.chartComponentData, axisState, 
                                 self.chartHeight, self.visibleAggCount, self.colorMap, self.previousAggregateData, 
                                 self.x, self.areaPath, self.strokeOpacity, self.y, self.yMap, defs, visibleCDOs[i], self.previousIncludeDots, offsetsAndHeights[i], 
-                                g, mouseoverFunction, mouseoutFunction);
+                                g, mouseoverFunction, mouseoutFunction, );
                             
                             //increment index of visible numerics if appropriate
                             visibleNumericI += (visibleCDOs[i].dataType === DataTypes.Numeric ? 1 : 0);
@@ -1709,8 +1815,8 @@ class LineChart extends TemporalXAxisComponent {
                 /******************** Stack/Unstack button ************************/
                 if (this.hasStackedButton) {
                     this.stackedButton.style("opacity",  () => {
-                        if (this.chartOptions.yAxisState == "stacked") return 1;
-                        if (this.chartOptions.yAxisState == "shared") return .6;
+                        if (this.chartOptions.yAxisState === YAxisStates.Stacked) return 1;
+                        if (this.chartOptions.yAxisState === YAxisStates.Shared) return .6;
                         return .3;
                     })
                     .style("display", this.visibleAggCount < 2 ? "none" : "block")

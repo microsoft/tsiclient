@@ -2,7 +2,8 @@ import * as d3 from 'd3';
 import { interpolatePath } from 'd3-interpolate-path';
 import './LinePlot.scss';
 import { Plot } from '../../Interfaces/Plot';
-import { Utils, DataTypes } from '../../Utils';
+import { Utils, DataTypes, YAxisStates } from '../../Utils';
+import { AxisState } from '../../Models/AxisState';
 
 class LinePlot extends Plot {
     private defs;
@@ -12,6 +13,7 @@ class LinePlot extends Plot {
     private strokeOpacity;
     private previousIncludeDots;
     private areaPath;
+    private yAxisState: AxisState;
 
     constructor (svgSelection) {
         super(svgSelection);
@@ -26,7 +28,7 @@ class LinePlot extends Plot {
     }
 
    // returns the next visibleAggI
-    public render (chartOptions, visibleAggI, agg, aggVisible: boolean, aggregateGroup, chartComponentData, yExtent,  
+    public render (chartOptions, visibleAggI, agg, aggVisible: boolean, aggregateGroup, chartComponentData, yAxisState: AxisState,  
         chartHeight, visibleAggCount, colorMap, previousAggregateData, x, areaPath, strokeOpacity, y, yMap, defs, chartDataOptions,
         previousIncludeDots, yTopAndHeight, svgSelection, categoricalMouseover, categoricalMouseout) {
         this.previousIncludeDots = previousIncludeDots;
@@ -49,8 +51,12 @@ class LinePlot extends Plot {
         let aggEnvelope;
         let aggGapLine;
 
+        this.yAxisState = yAxisState;
+        let yExtent = this.yAxisState.yExtent;
+        
+
         let overwriteYRange = null;
-        if ((this.chartOptions.yAxisState === "shared") || (Object.keys(this.chartComponentData.timeArrays)).length < 2 || !aggVisible) {
+        if ((this.yAxisState.axisType === YAxisStates.Shared) || (Object.keys(this.chartComponentData.timeArrays)).length < 2 || !aggVisible) {
             var yRange = (yExtent[1] - yExtent[0]) > 0 ? yExtent[1] - yExtent[0] : 1;
             var yOffsetPercentage = this.chartOptions.isArea ? (1.5 / this.chartHeight) : (10 / this.chartHeight);
             this.y.domain([yExtent[0] - (yRange * yOffsetPercentage), yExtent[1] + (yRange * (10 / this.chartHeight))]);
@@ -91,7 +97,7 @@ class LinePlot extends Plot {
 
             if (this.chartComponentData.aggHasVisibleSplitBys(aggKey)) {
                 var yRange = (yExtent[1] - yExtent[0]) > 0 ? yExtent[1] - yExtent[0] : 1;
-                var yOffsetPercentage = 10 / (this.chartHeight / ((this.chartOptions.yAxisState == "overlap") ? 1 : this.visibleAggCount));
+                var yOffsetPercentage = 10 / (this.chartHeight / ((this.yAxisState.axisType === YAxisStates.Overlap) ? 1 : this.visibleAggCount));
                 aggY.domain([yExtent[0] - (yRange * yOffsetPercentage), yExtent[1] + (yRange * (10 / this.chartHeight))]);
             } else {
                 aggY.domain([0,1]);
@@ -124,14 +130,14 @@ class LinePlot extends Plot {
         
         var yAxis: any = this.aggregateGroup.selectAll(".yAxis")
                         .data([aggKey]);
-        var visibleYAxis = (aggVisible && (this.chartOptions.yAxisState != "shared" || visibleAggI === 0));
+        var visibleYAxis = (aggVisible && (this.yAxisState.axisType !== YAxisStates.Shared || visibleAggI === 0));
         
         yAxis = yAxis.enter()
             .append("g")
             .attr("class", "yAxis")
             .merge(yAxis)
             .style("visibility", ((visibleYAxis && !this.chartOptions.yAxisHidden) ? "visible" : "hidden"));
-        if (this.chartOptions.yAxisState == "overlap" && this.visibleAggCount > 1) {
+        if (this.yAxisState.axisType === YAxisStates.Overlap && this.visibleAggCount > 1) {
             yAxis.call(d3.axisLeft(aggY).tickFormat(Utils.formatYAxisNumber).tickValues(yExtent))
                 .selectAll("text")
                 .attr("y", (d, j) => {return (j == 0) ? (-visibleAggI * 16) : (visibleAggI * 16) })
@@ -139,7 +145,7 @@ class LinePlot extends Plot {
         }
         else {
             yAxis.call(d3.axisLeft(aggY).tickFormat(Utils.formatYAxisNumber)
-                .ticks(Math.max(2, Math.ceil(this.chartHeight/(this.chartOptions.yAxisState == 'stacked' ? this.visibleAggCount : 1)/90))))
+                .ticks(Math.max(2, Math.ceil(this.chartHeight/(this.yAxisState.axisType === YAxisStates.Stacked ? this.visibleAggCount : 1)/90))))
                 .selectAll("text").classed("standardYAxisText", true)
         }
         yAxis.exit().remove();

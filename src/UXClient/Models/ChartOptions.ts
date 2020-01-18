@@ -62,11 +62,13 @@ class ChartOptions {
     public snapBrush: boolean; // whether to snap linechart brush to closest value
     public stacked: boolean; //whether bars in barchart are stacked
     public suppressResizeListener: boolean; // whether a component's resize function is ignored. Applies to components which draw an SVG
+    public swimLaneAxisTypes: any; // mapping of swim lanes to the axis for that swim lane
     public theme: string; // theme for styling chart, light or dark
     public timeFrame: any; // from and to to specify range of an event or state series
     public timestamp: any; //For components with a slider, this is the selected timestamp
     public tooltip: boolean; // whether tooltip is visible
     public throttleSlider: boolean; // whether slider is throttled to only fire on mouseup vs slider move
+    public usesSwimLanes: boolean; // whether grouping of groups is by swim lanes passed into chart data options
     public warmStoreRange: Array<string>; //start and optional end timestamp representing the availability chart region within warm store. If no second value, endTime is assumed to be end of warm range
     public xAxisHidden: boolean; // whether xAxis is hidden in chart
     public xAxisTimeFormat: (d, i, isFirst, isLast) => {}; //takes in a date string, tick index, isFirst, and isLast, outputs a moment.js style date format string
@@ -174,6 +176,8 @@ class ChartOptions {
         this.warmStoreRange = this.mergeValue(chartOptionsObj, 'warmStoreRange', null);
         this.initialValue = this.mergeValue(chartOptionsObj, 'initialValue', null);
         this.dTPIsModal = this.mergeValue(chartOptionsObj, 'dTPIsModal', false);
+        this.usesSwimLanes = this.mergeValue(chartOptionsObj, 'usesSwimLanes', false);
+        this.swimLaneAxisTypes = this.mergeValue(chartOptionsObj, 'swimLaneAxisTypes', {});
     }
 
     private mergeStrings (strings) {
@@ -260,7 +264,9 @@ class ChartOptions {
             initialValue: this.initialValue,
             bucketSizeMillis: this.bucketSizeMillis,
             updateInterval: this.updateInterval,
-            dTPIsModal: this.dTPIsModal
+            dTPIsModal: this.dTPIsModal,
+            usesSwimLanes: this.usesSwimLanes,
+            swimLaneAxisTypes: this.swimLaneAxisTypes
         }
     }
 }
