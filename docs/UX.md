@@ -163,14 +163,14 @@ var aggregateExpression = new tsiClient.ux.AggregateExpression(
     { from: startDate, to: endDate, bucketSize: '2m' }, // search span object
     {property: 'Station', type: 'String'},  // split by column
     {color: '#FF8C00', alias: 'Factory1Pressure') // ChartDataOptions
-    );
+);
 
 // later, to call the API and visualize the result
 tsiClient.server.getAggregates(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com', [aggregateExpression.toTsx())
     .then(function(result){
         var transformedResult = tsiClient.ux.transformAggregatesForVisualization(result, [aggregateExpression]);
         lineChart.render(transformedResult, null, [aggregateExpression]);
-    })
+    });
 ```
 
 ### TsqExpression
@@ -192,7 +192,7 @@ var tsqExpression = new tsiClient.ux.TsqExpression(
     }}, // variable json
     {from: startDate, to: endDate, bucketSize: '6h'}, // search span object
     {color: '#60B9AE', alias: 'AvgTemp'} // ChartDataOptions
-    );
+);
 
 // later, to call the API and visualize the result
 tsiClient.server.getTsqResults(token, '10000000-0000-0000-0000-100000000109.env.timeseries.azure.com', [tsqExpression.toTsq()])
@@ -218,7 +218,7 @@ tsiClient.server.getAggregates(token, '10000000-0000-0000-0000-100000000108.env.
         var transformedResult = tsiClient.ux.transformAggregatesForVisualization(result, [aggregateExpression]);
         // transformedResult is an array of data groups with time series and is suitable for visualization
         lineChart.render(transformedResult, null, [aggregateExpression]);  
-    })
+    });
 ```
 
 ### transformTsqResultsForVisualization
@@ -389,8 +389,7 @@ var groupContextMenuActions = [{
         action: function(dataGroupName, timeSeriesName, timestamp) {
             // left as an exercise
         }
-    }
-    ];
+    }];
 ```
 
 ***Note**: a hosted Group Context Menu Actions sample is provided at: [https://tsiclientsample.azurewebsites.net/withplatform/exploreevents.html](https://tsiclientsample.azurewebsites.net/withplatform/exploreevents.html)*
