@@ -86,17 +86,10 @@ class HierarchyNavigation extends Component{
                     r.hierarchyNodes.hits.forEach(hn => {
                         this.envHierarchies[hn.name] = hn;
                     });
-                    this.selectedHierarchyName = r.hierarchyNodes.hits[0].name;
-                    this.path = [this.selectedHierarchyName];
                 }
 
                 // hierarchy selection button
                 let hierarchySelectionWrapper = hierarchyNavWrapper.append('div').classed('tsi-hierarchy-selection-wrapper', true);
-                if (Object.keys(this.envHierarchies).length) {
-                    this.path = [this.envHierarchies[Object.keys(this.envHierarchies)[0]].name];
-                } else {
-                    this.selectedHierarchyName = HierarchySelectionValues.Unparented;
-                }
                 this.hierarchySelectorElem = hierarchySelectionWrapper.append('button').classed('tsi-hierarchy-select', true).on('click keydown', function () {
                     if (Utils.isKeyDownAndNotEnter(d3.event)) {return; }
                     if (self.isHierarchySelectionActive) {
@@ -105,7 +98,7 @@ class HierarchyNavigation extends Component{
                     }
                     else {
                         self.hierarchyListElem.text('');
-                        self.hierarchyListElem.append('li').classed('selected', HierarchySelectionValues.All === self.selectedHierarchyName)
+                        self.hierarchyListElem.append('li').classed('selected', true)
                                                             .attr("hName", HierarchySelectionValues.All)
                                                             .attr('tabindex', 0)
                                                             .attr('arialabel', self.getString("All"))
@@ -129,8 +122,7 @@ class HierarchyNavigation extends Component{
                                                                 (self.searchGloballyElem.node() as any).style.display = 'none';
                                                             });
                         Object.keys(self.envHierarchies).forEach((hName) => {
-                            self.hierarchyListElem.append('li').classed('selected', hName === self.selectedHierarchyName)
-                                                                .attr("hName", hName).text(hName)
+                            self.hierarchyListElem.append('li').attr("hName", hName).text(hName)
                                                                 .attr('tabindex', 0)
                                                                 .attr('arialabel', hName)
                                                                 .attr('title', hName)
@@ -151,8 +143,7 @@ class HierarchyNavigation extends Component{
                                                                     self.selectHierarchy(hName);
                                                                 });
                         });
-                        self.hierarchyListElem.append('li').classed('selected', HierarchySelectionValues.Unparented === self.selectedHierarchyName)
-                                                            .attr("hName", HierarchySelectionValues.Unparented)
+                        self.hierarchyListElem.append('li').attr("hName", HierarchySelectionValues.Unparented)
                                                             .attr('tabindex', 0)
                                                             .attr('arialabel', self.getString("Unassigned Time Series Instances"))
                                                             .attr('title', self.getString("Unassigned Time Series Instances"))
@@ -176,7 +167,7 @@ class HierarchyNavigation extends Component{
                         self.isHierarchySelectionActive = true;
                     }
                 });
-                this.hierarchySelectorElem.append('span').classed('tsi-hierarchy-name', true).text(Object.keys(this.envHierarchies).length ? this.envHierarchies[Object.keys(this.envHierarchies)[0]].name : this.getString("Unassigned Time Series Instances"));
+                this.hierarchySelectorElem.append('span').classed('tsi-hierarchy-name', true).text(self.getString("All"));
                 this.hierarchySelectorElem.append('i').classed('tsi-down-caret-icon', true);
                 // hierarchy flyout list
                 this.hierarchyListWrapperElem = hierarchySelectionWrapper.append('div').classed('tsi-hierarchy-list-wrapper', true);
