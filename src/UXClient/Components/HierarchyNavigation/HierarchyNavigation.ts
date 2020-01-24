@@ -819,6 +819,7 @@ class HierarchyNavigation extends Component{
 
     private resettingVariablesForEnvChange = () => {
         this.path = [];
+        this.selectedHierarchyName = HierarchySelectionValues.All;
         this.searchString = '';
         this.lastInstanceContinuationToken = null;
         this.usedInstanceSearchContinuationTokens = {};
