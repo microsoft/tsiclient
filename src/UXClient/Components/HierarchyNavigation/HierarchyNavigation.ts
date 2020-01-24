@@ -98,7 +98,7 @@ class HierarchyNavigation extends Component{
                     }
                     else {
                         self.hierarchyListElem.text('');
-                        self.hierarchyListElem.append('li').classed('selected', true)
+                        self.hierarchyListElem.append('li').classed('selected', HierarchySelectionValues.All === self.selectedHierarchyName)
                                                             .attr("hName", HierarchySelectionValues.All)
                                                             .attr('tabindex', 0)
                                                             .attr('arialabel', self.getString("All"))
@@ -122,7 +122,8 @@ class HierarchyNavigation extends Component{
                                                                 (self.searchGloballyElem.node() as any).style.display = 'none';
                                                             });
                         Object.keys(self.envHierarchies).forEach((hName) => {
-                            self.hierarchyListElem.append('li').attr("hName", hName).text(hName)
+                            self.hierarchyListElem.append('li').classed('selected', hName === self.selectedHierarchyName)
+                                                                .attr("hName", hName).text(hName)
                                                                 .attr('tabindex', 0)
                                                                 .attr('arialabel', hName)
                                                                 .attr('title', hName)
@@ -143,7 +144,8 @@ class HierarchyNavigation extends Component{
                                                                     self.selectHierarchy(hName);
                                                                 });
                         });
-                        self.hierarchyListElem.append('li').attr("hName", HierarchySelectionValues.Unparented)
+                        self.hierarchyListElem.append('li').classed('selected', HierarchySelectionValues.Unparented === self.selectedHierarchyName)
+                                                            .attr("hName", HierarchySelectionValues.Unparented)
                                                             .attr('tabindex', 0)
                                                             .attr('arialabel', self.getString("Unassigned Time Series Instances"))
                                                             .attr('title', self.getString("Unassigned Time Series Instances"))
