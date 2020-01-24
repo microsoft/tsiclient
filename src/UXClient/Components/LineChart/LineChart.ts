@@ -69,6 +69,7 @@ class LineChart extends TemporalXAxisComponent {
     private xOffset = 8;
 
     private swimlaneYExtents = {}; // mapping of swimlanes to the y extents of that swimlane
+    private swimLaneContents = {}; 
 
     constructor(renderTarget: Element){
         super(renderTarget);
@@ -1216,7 +1217,7 @@ class LineChart extends TemporalXAxisComponent {
     }
 
     private getSwimlaneOffsets (linechartTopPadding, visibleGroups, visibleCDOs, heightPerNumeric, swimLaneSet) {
-        let cumulativeOffset = 0;
+        let cumulativeOffset = LINECHARTTOPPADDING;
         //initialize to null and set while going through swimLanes
         let visibleGroupEndValues = visibleGroups.map(() => null);
 
@@ -1316,7 +1317,7 @@ class LineChart extends TemporalXAxisComponent {
         } else {
             let heightPerNumeric = (useableHeight - heightNonNumeric) / countNumericLanes;
 
-            if (this.chartOptions.usesSwimLanes) {
+            if (this.isSwimLanes()) {
                 this.setSwimLaneYExtents(visibleGroups, visibleCDOs, Object.keys(swimLaneSet).filter((lane) => swimLaneSet[lane]));
                 return this.getSwimlaneOffsets(linechartTopPadding, visibleGroups, visibleCDOs, heightPerNumeric, swimLaneSet);
             } else {
@@ -1343,6 +1344,10 @@ class LineChart extends TemporalXAxisComponent {
         }, 0);
     }
 
+    private isSwimLanes () {
+        return this.chartOptions.usesSwimLanes && (this.chartOptions.yAxisState === YAxisStates.Stacked);
+    }
+
     private getGroupYExtent () {
         //TODO consolidate logic for determining the y extent of a group inot this method
         
@@ -1358,7 +1363,7 @@ class LineChart extends TemporalXAxisComponent {
     }
 
     private getAggAxisType (agg) {
-        if (this.chartOptions.usesSwimLanes) {
+        if (this.chartOptions.usesSwimLanes && this.chartOptions.yAxisState === YAxisStates.Stacked) {
             if (this.chartOptions.swimLaneAxisTypes && this.chartOptions.swimLaneAxisTypes[agg.swimLane]) {
                 return this.chartOptions.swimLaneAxisTypes[agg.swimLane];
             } else {
@@ -1686,6 +1691,9 @@ class LineChart extends TemporalXAxisComponent {
                     return this.chartComponentData.displayState[cDO.aggKey]["visible"];
                 });
                 let offsetsAndHeights = this.createYOffsets();
+
+                let swimLaneCounts = {};
+
                 let aggregateGroups = this.svgSelection.select('.svgGroup').selectAll('.tsi-aggGroup')
                     .data(visibleGroupData, (agg) => agg.aggKey);
                     var self = this;
@@ -1711,7 +1719,7 @@ class LineChart extends TemporalXAxisComponent {
                             });
 
                             if ((self.chartOptions.yAxisState === YAxisStates.Shared) || (Object.keys(self.chartComponentData.timeArrays)).length < 2 || !aggVisible) {
-                                yExtent = self.getYExtent(self.chartComponentData.allValues, self.chartComponentData.displayState[aggKey].includeEnvelope ? self.chartComponentData.displayState[aggKey].includeEnvelope : self.chartOptions.includeEnvelope, null);
+                                yExtent = self.getYExtent(self.chartComponentData.allNumericValues, self.chartComponentData.displayState[aggKey].includeEnvelope ? self.chartComponentData.displayState[aggKey].includeEnvelope : self.chartOptions.includeEnvelope, null);
                             } else if (self.chartComponentData.aggHasVisibleSplitBys(aggKey)) {
                                 yExtent = self.getYExtent(aggValues, self.chartComponentData.displayState[aggKey].includeEnvelope ? self.chartComponentData.displayState[aggKey].includeEnvelope : self.chartOptions.includeEnvelope, aggKey);
                             } else {
@@ -1727,18 +1735,30 @@ class LineChart extends TemporalXAxisComponent {
 
                             let mouseoverFunction = self.getMouseoverFunction(visibleCDOs[i].dataType);
                             let mouseoutFunction = self.getMouseoutFunction(visibleCDOs[i].dataType);
-                            if (self.swimlaneYExtents && self.swimlaneYExtents.hasOwnProperty(String(agg.swimLane))) {
-                                yExtent = self.swimlaneYExtents[String(agg.swimLane)];
+                            let positionInGroup = visibleNumericI;
+                            if (self.swimlaneYExtents && self.swimlaneYExtents.hasOwnProperty(String(agg.swimLane)) && self.isSwimLanes()) {
+                                if (self.getAggAxisType(agg) === YAxisStates.Shared) {
+                                    yExtent = self.swimlaneYExtents[String(agg.swimLane)];
+                                }
                             }
-                            console.log(yExtent)
 
-                            let axisState = new AxisState(self.getAggAxisType(agg), yExtent, 0);
-                            debugger;
+                            //should count all as same swim lane when not in stacked.
+                            let swimLane = self.isSwimLanes() ? String(agg.swimLane) : "0";
+                            let offsetImpact = (agg.dataType === DataTypes.Numeric) ? 1 : 0;
+                            if (swimLaneCounts[swimLane]) {
+                                positionInGroup = swimLaneCounts[swimLane];
+                                swimLaneCounts[swimLane] += offsetImpact;
+                            } else {
+                                positionInGroup = 0;
+                                swimLaneCounts[swimLane] = offsetImpact;
+                            }
+
+                            let axisState = new AxisState(self.getAggAxisType(agg), yExtent, positionInGroup);
 
                             self.plotComponents[aggKey].render(self.chartOptions, visibleNumericI, agg, true, d3.select(this), self.chartComponentData, axisState, 
                                 self.chartHeight, self.visibleAggCount, self.colorMap, self.previousAggregateData, 
                                 self.x, self.areaPath, self.strokeOpacity, self.y, self.yMap, defs, visibleCDOs[i], self.previousIncludeDots, offsetsAndHeights[i], 
-                                g, mouseoverFunction, mouseoutFunction, );
+                                g, mouseoverFunction, mouseoutFunction);
                             
                             //increment index of visible numerics if appropriate
                             visibleNumericI += (visibleCDOs[i].dataType === DataTypes.Numeric ? 1 : 0);

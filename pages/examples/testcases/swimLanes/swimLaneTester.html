@@ -178,16 +178,16 @@
 
                 var chartDataOptions = [{dataType: 'numeric', searchSpan: searchSpan, swimLane: 1}, 
                             {dataType: 'numeric', searchSpan: searchSpan, swimLane: 2}, 
-                            {dataType: 'numeric', searchSpan: searchSpan, onElementClick: onElementClick, swimLane: 3}, 
+                            {dataType: 'categorical', valueMapping: valueMapping, height: 50, searchSpan: searchSpan, onElementClick: onElementClick, swimLane: 3},
                             {dataType: 'events', valueMapping: eventValueMapping, height: 30, eventElementType: 'teardrop', onElementClick: onElementClick, swimLane: 4},
-                            {dataType: 'categorical', valueMapping: valueMapping, height: 50, searchSpan: searchSpan, onElementClick: onElementClick, swimLane: 5}]; 
+                            {dataType: 'numeric', searchSpan: searchSpan, onElementClick: onElementClick, swimLane: 5}]; 
                 
                 var swimLaneAxisTypes = {
-                    1: 'stacked',
-                    2: 'stacked',
-                    3: 'stacked', 
-                    4: 'stacked',
-                    5: 'stacked'
+                    1: 'overlap',
+                    2: 'shared',
+                    3: 'overlap', 
+                    4: 'overlap',
+                    5: 'overlap'
                 }            
 
                 var renderLinechart = function () {

@@ -9,6 +9,7 @@ class ChartComponentData {
     public visibleTSCount: number = 0;
     public visibleTAs: any = [];
     public allValues: any = [];
+    public allNumericValues: any = [];
     public filteredAggregates: any;
     public usesSeconds: boolean = false;
     public usesMillis: boolean = false;
@@ -77,6 +78,7 @@ class ChartComponentData {
         this.timeArrays = {};
         this.visibleTAs = {};
         this.allValues = [];
+        this.allNumericValues = [];
         this.visibleTSCount = 0;
         this.fromMillis = Infinity;
         this.toMillis = 0;
@@ -205,6 +207,9 @@ class ChartComponentData {
                 //add to visible display states if splitby is visible
                 if (newDisplayState[aggKey]["splitBys"][splitBy]["visible"] && aggregateVisible) {
                     this.allValues = this.allValues.concat(this.timeArrays[aggKey][splitBy]);
+                    if (newDisplayState[aggKey].dataType === DataTypes.Numeric) {
+                        this.allNumericValues = this.allNumericValues.concat(this.timeArrays[aggKey][splitBy]);
+                    }
                     this.usesSeconds = this.usesSeconds || this.doesTimeArrayUseSeconds(this.timeArrays[aggKey][splitBy]);
                     this.usesMillis = this.usesMillis || this.doesTimeArrayUseMillis(this.timeArrays[aggKey][splitBy]);
                     this.visibleTAs[aggKey][splitBy] = this.timeArrays[aggKey][splitBy];
@@ -271,6 +276,7 @@ class ChartComponentData {
         var toMillis = 0;
         var fromMillis = Infinity;
         this.allValues = [];
+        this.allNumericValues = [];
         this.visibleTAs = [];
         this.visibleTSCount = 0;
         Object.keys(this.timeArrays).forEach((aggKey: string) => {
@@ -279,6 +285,9 @@ class ChartComponentData {
                 Object.keys(this.timeArrays[aggKey]).forEach((splitBy) => {
                     if (this.getSplitByVisible(aggKey, splitBy)) {
                         this.allValues = this.allValues.concat(this.timeArrays[aggKey][splitBy]);
+                        if (this.displayState[aggKey].dataType === DataTypes.Numeric) {
+                            this.allNumericValues = this.allNumericValues.concat(this.timeArrays[aggKey][splitBy]);
+                        }
                         this.visibleTAs[aggKey][splitBy] = this.timeArrays[aggKey][splitBy];
                         this.visibleTSCount += 1;
 

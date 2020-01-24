@@ -43,6 +43,8 @@ class LinePlot extends Plot {
         let aggKey = agg.aggKey;
         this.aggregateGroup = aggregateGroup;
 
+        visibleAggI = yAxisState.positionInGroup;
+
         this.yTop = yTopAndHeight[0];
         this.height = yTopAndHeight[1];
         
@@ -53,9 +55,7 @@ class LinePlot extends Plot {
 
         this.yAxisState = yAxisState;
         let yExtent = this.yAxisState.yExtent;
-        
 
-        let overwriteYRange = null;
         if ((this.yAxisState.axisType === YAxisStates.Shared) || (Object.keys(this.chartComponentData.timeArrays)).length < 2 || !aggVisible) {
             var yRange = (yExtent[1] - yExtent[0]) > 0 ? yExtent[1] - yExtent[0] : 1;
             var yOffsetPercentage = this.chartOptions.isArea ? (1.5 / this.chartHeight) : (10 / this.chartHeight);
@@ -88,11 +88,9 @@ class LinePlot extends Plot {
                         .y1((d: any) => { 
                             return d.measures ? this.y(d.measures['min']) : 0;
                         });
+            aggY.range([this.height, this.chartOptions.aggTopMargin]);
         } else {
             aggY = d3.scaleLinear();
-            overwriteYRange = [this.yTop + this.height, this.yTop + this.chartOptions.aggTopMargin];
-
-            aggY.range([(this.chartHeight / this.visibleAggCount), this.chartOptions.aggTopMargin]);
             aggY.range([this.height, this.chartOptions.aggTopMargin]);
 
             if (this.chartComponentData.aggHasVisibleSplitBys(aggKey)) {
@@ -202,7 +200,7 @@ class LinePlot extends Plot {
                     })   
                     .transition()
                     .duration(durationFunction)
-                    .ease(d3.easeExp)                                         
+                    .ease(d3.easeExp)
                     .attr("stroke-dasharray","5,5")      
                     .attr("stroke", splitByColors[j])
                     .attrTween('d', function (d) {
