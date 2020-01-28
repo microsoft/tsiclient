@@ -117,7 +117,7 @@
                 }
                 li {
                     display: block;
-                    li:hover{
+                    &:hover{
                         cursor: pointer;
                     }
                 }
