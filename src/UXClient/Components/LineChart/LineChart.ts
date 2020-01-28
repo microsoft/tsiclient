@@ -1348,18 +1348,19 @@ class LineChart extends TemporalXAxisComponent {
         return this.chartOptions.usesSwimLanes && (this.chartOptions.yAxisState === YAxisStates.Stacked);
     }
 
-    private getGroupYExtent () {
-        //TODO consolidate logic for determining the y extent of a group inot this method
-        
-        // let
-        // if ((this.chartOptions.yAxisState == "shared") || (Object.keys(this.chartComponentData.timeArrays)).length < 2 || !aggVisible) {
-        //     yExtent = self.getYExtent(self.chartComponentData.allValues, self.chartComponentData.displayState[aggKey].includeEnvelope ? self.chartComponentData.displayState[aggKey].includeEnvelope : self.chartOptions.includeEnvelope, null);
-        // } else if (self.chartComponentData.aggHasVisibleSplitBys(aggKey)) {
-        //     yExtent = self.getYExtent(aggValues, self.chartComponentData.displayState[aggKey].includeEnvelope ? self.chartComponentData.displayState[aggKey].includeEnvelope : self.chartOptions.includeEnvelope, aggKey);
-        // } else {
-        //     yExtent = [0,1];
-        // }
-
+    private getGroupYExtent (aggKey, aggVisible, aggValues, yExtent) {        
+        if ((this.chartOptions.yAxisState == "shared") || (Object.keys(this.chartComponentData.timeArrays)).length < 2 || !aggVisible) {
+            yExtent = this.getYExtent(this.chartComponentData.allNumericValues, this.chartComponentData.displayState[aggKey].includeEnvelope ? 
+                        this.chartComponentData.displayState[aggKey].includeEnvelope : 
+                        this.chartOptions.includeEnvelope, null);
+        } else if (this.chartComponentData.aggHasVisibleSplitBys(aggKey)) {
+            yExtent = this.getYExtent(aggValues, this.chartComponentData.displayState[aggKey].includeEnvelope ? 
+                this.chartComponentData.displayState[aggKey].includeEnvelope : 
+                this.chartOptions.includeEnvelope, aggKey);
+        } else {
+            yExtent = [0,1];
+        }
+        return yExtent;
     }
 
     private getAggAxisType (agg) {
@@ -1718,13 +1719,7 @@ class LineChart extends TemporalXAxisComponent {
                                 aggValues = aggValues.concat(self.chartComponentData.visibleTAs[aggKey][splitBy]);
                             });
 
-                            if ((self.chartOptions.yAxisState === YAxisStates.Shared) || (Object.keys(self.chartComponentData.timeArrays)).length < 2 || !aggVisible) {
-                                yExtent = self.getYExtent(self.chartComponentData.allNumericValues, self.chartComponentData.displayState[aggKey].includeEnvelope ? self.chartComponentData.displayState[aggKey].includeEnvelope : self.chartOptions.includeEnvelope, null);
-                            } else if (self.chartComponentData.aggHasVisibleSplitBys(aggKey)) {
-                                yExtent = self.getYExtent(aggValues, self.chartComponentData.displayState[aggKey].includeEnvelope ? self.chartComponentData.displayState[aggKey].includeEnvelope : self.chartOptions.includeEnvelope, aggKey);
-                            } else {
-                                yExtent = [0,1];
-                            }
+                            yExtent = self.getGroupYExtent(aggKey, aggVisible, aggValues, yExtent);
 
                             if (self.plotComponents[aggKey] === undefined || self.mismatchingChartType(aggKey)) {
                                 let g = d3.select(this);
