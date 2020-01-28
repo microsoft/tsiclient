@@ -71,7 +71,7 @@ class EventsTable extends ChartComponent{
             .attr("aria-label", this.getString("Download as CSV"))
             .on("click", () => Utils.downloadCSV(this.eventsTableData.generateCSVString(true, 0), "Events"));
         downloadButton.append("div").attr("class", "tsi-downloadEventsIcon");
-        downloadButton.append("div").attr("class", "tsi-downloadEventsText").html(this.getString("Download as CSV"));
+        downloadButton.append("div").attr("class", "tsi-downloadEventsText").text(this.getString("Download as CSV"));
 
 
          //listen for table scroll and adjust the headers accordingly
@@ -130,7 +130,7 @@ class EventsTable extends ChartComponent{
             selectAllColumns.append("span").attr("class", "tsi-columnToggleCheckbox");
             selectAllColumns.append("span").attr("class", "tsi-selectAllSomeState");
             selectAllColumns.append("span").attr("class", "tsi-columnToggleName")
-                .html(this.getString("All Columns"));
+                .text(this.getString("All Columns"));
         }
         var toggleableColumnLis = this.eventsLegend.select("ul").selectAll(".tsi-columnToggle")
             .data(columns);
@@ -151,7 +151,7 @@ class EventsTable extends ChartComponent{
             d3.select(this).append("div").attr("class", "tsi-columnToggleCheckbox");
             d3.select(this).append("div").attr("class", "tsi-columnTypeIcon")
                 .classed(d.type, true);
-            d3.select(this).select("button").append("div").attr("class", "tsi-onlyLabel").html(self.getString("only"))
+            d3.select(this).select("button").append("div").attr("class", "tsi-onlyLabel").text(self.getString("only"))
                 .attr('tabindex', "0")
                 .attr('role', 'button')
                 .on("click", (d: any) => {
@@ -165,7 +165,7 @@ class EventsTable extends ChartComponent{
                     self.setLegendColumnStates();
                     self.buildTable();
                 })
-            d3.select(this).append("div").attr("class", "tsi-columnToggleName").html((d: any) => d.name);
+            d3.select(this).append("div").attr("class", "tsi-columnToggleName").text((d: any) => d.name);
         });
         this.setLegendColumnStates();
         toggleableColumnLis.exit().remove();
@@ -226,7 +226,7 @@ class EventsTable extends ChartComponent{
             .each( function(d: string) {
                 d3.select(this).append("span")
                     .classed("tsi-columnHeaderName", true)
-                    .html(self.eventsTableData.columns[d].name);
+                    .text(self.eventsTableData.columns[d].name);
                 d3.select(this).append("span").attr("class", "tsi-columnSortIcon")
                     .classed("up", (self.sortColumn == d && self.isAscending))
                     .classed("down", (self.sortColumn == d && !self.isAscending));
@@ -298,7 +298,7 @@ class EventsTable extends ChartComponent{
         firstRowCells.enter()
             .append("td")
             .classed("tsi-eventCell", true)
-            .html(d => this.eventsTableData.columns[d].name);
+            .text(d => this.eventsTableData.columns[d].name);
         var rows = this.eventsTable.select("table").selectAll("tsi-eventRow").data(rowsData);
         var rowsEntered = rows.enter()
             .append("tr")
@@ -320,7 +320,7 @@ class EventsTable extends ChartComponent{
                         else
                             return "none";
                     })
-                    .html((d: TimeSeriesEventCell) => {
+                    .text((d: TimeSeriesEventCell) => {
                         return self.formatValue(d.value, d.type);
                     });
                 valueCells.exit().remove();

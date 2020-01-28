@@ -50,13 +50,13 @@ class SingleDateTimePicker extends ChartComponent{
         this.onSet = onSet;
         this.targetElement = d3.select(this.renderTarget)
             .classed("tsi-singleDateTimePicker", true);
-        this.targetElement.node().innerHTML = "";
+        this.targetElement.html('');
         super.themify(this.targetElement, this.chartOptions.theme);
         this.timeControls = this.targetElement.append("div").classed("tsi-timeControlsContainer", true);
         this.calendar = this.targetElement.append("div").classed("tsi-calendarPicker", true);
         var saveButtonContainer = this.targetElement.append("div").classed("tsi-saveButtonContainer", true);
         var self = this;
-        var saveButton = saveButtonContainer.append("button").classed("tsi-saveButton", true).html(this.getString("Save"))
+        var saveButton = saveButtonContainer.append("button").classed("tsi-saveButton", true).text(this.getString("Save"))
             .on("click", () =>  {
                 if (this.isValid) {
                     self.onSet(this.millis);
@@ -141,7 +141,7 @@ class SingleDateTimePicker extends ChartComponent{
                 .enter()
                 .append("div")
                 .classed("tsi-errorMessage", true)
-                .html(d => d);
+                .text(d => d);
         }
     }
 
@@ -200,7 +200,7 @@ class SingleDateTimePicker extends ChartComponent{
 
     private createTimePicker () {
         var self = this;
-        let timeLabel = this.timeControls.append("h4").classed("tsi-timeLabel", true).html(this.getString('date and time'));
+        let timeLabel = this.timeControls.append("h4").classed("tsi-timeLabel", true).text(this.getString('date and time'));
         this.timeInput = this.timeControls.append('input').attr('class', 'tsi-dateTimeInput tsi-input')
             .on('input', () => {
                 this.checkDateTimeValidity();
