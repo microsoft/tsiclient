@@ -1,0 +1,94 @@
+@import "../../styles";
+
+@mixin colorPickerColors($grays){
+    $gray1: nth($grays, 1); // text
+    $gray2: nth($grays, 2); // hover
+    $gray3: nth($grays, 3); // element
+    $gray4: nth($grays, 4); // background
+	$gray5: nth($grays, 5); // alt element
+    $gray6: nth($grays, 6);
+    color: $gray1;
+    background: $gray3;
+
+    .tsi-colorPickerButton {
+        background: $gray3;
+        border: 1px solid $gray5;
+        color: $gray1;
+        &:hover{
+            background-color: $gray4;
+            cursor: pointer;
+        }
+
+        &:focus {
+            box-shadow: 0px 4px 4px $gray5;
+        }
+    }
+
+}
+
+.tsi-colorPicker {
+    max-width: 204px;
+
+    &.tsi-light{
+		$grays: grays('light');
+        @include colorPickerColors($grays);
+    }
+
+    &.tsi-dark{
+		$grays: grays('dark');
+        @include colorPickerColors($grays);
+    }
+
+    .tsi-colorPickerButton {
+        width: 100%;
+        height: 32px;
+        padding: 4px auto 4px 8px;
+        display: flex;
+        align-items: center;
+
+        .tsi-selectedColor {
+            width: 24px;
+            height: 24px;
+        }
+
+        .tsi-selectedColorValue {
+            padding-left: 4px;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            white-space: nowrap;
+
+            &.hidden {
+                display: none;
+            }
+        }
+    }
+
+    .tsi-colorGrid {
+        width: 204px;
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        display: none;
+        padding: 12px;
+        box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.16), 0px 4px 8px rgba(0, 0, 0, 0.12);
+        border-radius: 2px;
+
+        .tsi-colorItem {
+            width: 32px;
+            height: 32px;
+            margin-right: 4px;
+            margin-bottom: 4px;
+
+            &:hover {
+                cursor: pointer;
+            }
+
+            &.selected {
+                background-image: url(../../Icons/Check.svg) !important;
+                background-size: 70%;
+                background-repeat: no-repeat;
+                background-position: center;
+            }
+        }
+    }
+}

@@ -1,0 +1,28 @@
+<!DOCTYPE html> 
+<html>
+    <head>
+        <title>Standalone Color Picker</title>
+
+        <!-- boilerplate headers are injected with head.js, grab them from the live example header, or include a link to head.js -->
+        <script src="../../boilerplate/head.js"></script>
+    </head>
+    <body style="font-family: 'Segoe UI', sans-serif;">
+        <div id="cp"></div>
+        <script>
+            var colorPickerOptions = {
+                theme: 'light',
+                numberOfColors: 30
+            }
+            onColorClick = function(colorHex) {
+                console.log(colorHex);
+            }
+            window.onload = function() {
+                var tsiClient = new TsiClient();
+                cp = new tsiClient.ux.ColorPicker(cpElement);
+                cp.render(Object.assign({}, colorPickerOptions, {onColorClick: colorHex => this.onColorClick(colorHex)}));
+            };
+
+            var cpElement = document.getElementById('cp');
+        </script>
+    </body>
+</html>
