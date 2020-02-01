@@ -1,6 +1,6 @@
 import * as d3 from 'd3';
 import './Legend.scss';
-import {Utils, DataTypes} from "./../../Utils";
+import {Utils, DataTypes, EventElementTypes} from "./../../Utils";
 import {Component} from "./../../Interfaces/Component";
 import { ChartOptions } from '../../Models/ChartOptions';
 import { ChartComponentData } from '../../Models/ChartComponentData';
@@ -83,6 +83,97 @@ class Legend extends Component {
         return (this.chartComponentData.displayState[aggKey].dataType === DataTypes.Numeric ? NUMERICSPLITBYHEIGHT : NONNUMERICSPLITBYHEIGHT);
     }
 
+    private createGradient (gradientKey, svg, values) {
+        let gradient = svg.append('defs').append('linearGradient')
+            .attr('id', gradientKey).attr('x1', '0%').attr('x2', '0%').attr('y1', '0%').attr('y2', '100%');
+        let catCount = Object.keys(values).length; 
+            Object.keys(values).forEach((category, i) => {
+                let currentStop = i / catCount * 100;
+                let nextStop = (i + 1) / catCount * 100;
+                let color = values[category].color;
+                
+                gradient.append('stop')
+                    .attr("offset", currentStop + "%")
+                    .attr("stop-color",  color)
+                    .attr("stop-opacity", 1);
+    
+                gradient.append('stop')
+                    .attr("offset", nextStop + "%")
+                    .attr("stop-color",  color)
+                    .attr("stop-opacity", 1);
+            });
+            
+            gradient.append('stop').attr('offset', '0%').attr('style', () =>{return 'stop-color:' + 'grey' + ';stop-opacity:.2'});
+            gradient.append('stop').attr('offset', '100%').attr('style', () =>{return 'stop-color:' + 'grey' + ';stop-opacity:.03'});
+    }
+
+    private createCategoricalColorKey (colorKey, aggKey) {
+        let categories = this.chartComponentData.displayState[aggKey].aggregateExpression.valueMapping;
+        colorKey.classed('tsi-categoricalColorKey', true);
+        colorKey.selectAll('*').remove();
+        let svg = colorKey.append('svg')
+            .attr('width', '16px')
+            .attr('height', '16px');
+        let rect = svg.append('rect')
+            .attr('width', '100%')
+            .attr('height', '100%')
+            .attr('fill', 'black');
+        let gradientKey = Utils.guid();
+        this.createGradient(gradientKey, svg, categories);
+        rect.attr('fill', "url(#" + gradientKey + ")");
+    }
+
+    private createEventsColorKey (colorKey, aggKey) {
+        let categories = this.chartComponentData.displayState[aggKey].aggregateExpression.valueMapping;
+        let eventElementType = this.chartComponentData.displayState[aggKey].aggregateExpression.eventElementType;
+        colorKey.classed('tsi-eventsColorKey', true);
+        colorKey.selectAll('*').remove();
+        let svg = colorKey.append('svg')
+            .attr('width', '16px')
+            .attr('height', '16px');
+        let rect = svg.append('rect')
+            .attr('width', '11')
+            .attr('height', '11')
+            .attr('transform', 'translate(8,0)rotate(45)')
+            .attr('fill', 'black');
+        let gradientKey = Utils.guid();
+        this.createGradient(gradientKey, svg, categories);
+        rect.attr('fill', "url(#" + gradientKey + ")");
+
+        //WORK IN PROGRESS BELOW - change the shape of the event to match the event element type, aka add support of teardrops
+
+        // let teardropD = (width, height) => {
+        //     return `M${width / 2} ${height / 14} 
+        //             Q${width / 1.818} ${height / 6.17} ${width / 1.2} ${height / 2.33}
+        //             A${width / 2.35} ${width / 2.35} 0 1 1 ${width / 6} ${width / 2.33}
+        //             Q${width / 2.22} ${height / 6.18} ${width / 2} ${height / 14}z`;
+        // }
+
+        // let eventHeight = 16;
+        // switch(eventElementType) {
+        //     case EventElementTypes.Teardrop:
+        //         svg.append('path')
+        //             .attr('class', 'tsi-discreteEvent tsi-discreteEventTeardrop')
+        //             .attr('transform', (d: any) => {
+        //                 return 'translate(' + (eventHeight / 2) + ',' + (eventHeight * 1.4) + ') rotate(180)';
+        //             })
+        //             .attr('d', teardropD(eventHeight, eventHeight))
+        //             .attr('stroke-width', Math.min(eventHeight / 2.25, 8))
+        //             // .attr('stroke', colorFunction);
+        //         break;
+        //     case EventElementTypes.Diamond:
+        //         enteredEvents = discreteEvents.enter().append('rect')
+        //             .attr('class', 'tsi-discreteEvent')
+        //             .merge(discreteEvents)
+        //             .attr('transform', (d: any) => {
+        //                 return 'translate(' + self.x(new Date(d.dateTime)) + ',0) rotate(45)';
+        //             })
+        //             .attr('fill', colorFunction);
+        //         break;
+        // }
+
+    }
+
     private renderSplitBys = (aggKey, aggSelection, dataType, noSplitBys) => {
         var splitByLabelData = Object.keys(this.chartComponentData.timeArrays[aggKey]);
         var firstSplitBy = this.chartComponentData.displayState[aggKey].splitBys
@@ -158,15 +249,21 @@ class Legend extends Component {
 
         splitByLabelsEntered.each(function (splitBy, j) {
             let color = (self.chartComponentData.isFromHeatmap) ? self.chartComponentData.displayState[aggKey].color : colors[j];
-            if (dataType === DataTypes.Numeric) {
+            if (dataType === DataTypes.Numeric || noSplitBys){
                 let colorKey = d3.select(this).selectAll('.tsi-colorKey').data([color]);
-                colorKey.enter()
+                let colorKeyEntered = colorKey.enter()
                     .append("div")
                     .attr("class", 'tsi-colorKey')
-                    .merge(colorKey)
-                    .style('background-color', (d) => {
+                    .merge(colorKey);
+                if (dataType === DataTypes.Numeric) {
+                    colorKeyEntered.style('background-color', (d) => {
                         return d;
                     });
+                } else if (dataType === DataTypes.Events) {
+                    self.createEventsColorKey(colorKeyEntered, aggKey);
+                } else if (dataType === DataTypes.Categorical) {
+                    self.createCategoricalColorKey(colorKeyEntered, aggKey);
+                }
                 colorKey.exit().remove();    
             } else {
                 d3.select(this).selectAll('.tsi-colorKey').remove();
