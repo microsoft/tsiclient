@@ -7,22 +7,52 @@
         <script src="../../boilerplate/head.js"></script>
     </head>
     <body style="font-family: 'Segoe UI', sans-serif;">
+        <div style="padding-bottom: 20px;">
+            <h3>Options</h3>
+            <div>
+                <label>Theme</label>
+                <select onchange="toggleHierarchyNavigationOption('theme', event.target.value)" aria-label="Select theme">
+                    <option selected>light</option>
+                    <option>dark</option>
+                </select>
+            </div>
+            <div>
+                <label>Number of Colors</label>
+                <input style="width:50px;" type="number" value=15 onchange="toggleHierarchyNavigationOption('numberOfColors', event.target.value)"></input>
+            </div>
+            <div>
+                <label>Default Color</label>
+                <input type="text" value="#008272" onchange="toggleHierarchyNavigationOption('defaultColor', event.target.value)"></input>
+            </div>
+            <div>
+                <label>Is Color Value Hidden</label>
+                <input type="checkbox" onchange="toggleHierarchyNavigationOption('isColorValueHidden', event.target.checked)"></input>
+            </div>
+        </div>
+
         <div id="cp"></div>
         <script>
+            var colorPicker;
+            var cpElement = document.getElementById('cp');
             var colorPickerOptions = {
                 theme: 'light',
-                numberOfColors: 30
+                numberOfColors: 15,
+                defaultColor: "#008272",
+                isColorValueHidden: false
             }
+
             onColorClick = function(colorHex) {
                 console.log(colorHex);
             }
             window.onload = function() {
                 var tsiClient = new TsiClient();
-                cp = new tsiClient.ux.ColorPicker(cpElement);
-                cp.render(Object.assign({}, colorPickerOptions, {onColorClick: colorHex => this.onColorClick(colorHex)}));
+                colorPicker = new tsiClient.ux.ColorPicker(cpElement);
+                colorPicker.render(Object.assign({}, colorPickerOptions, {onColorClick: colorHex => this.onColorClick(colorHex)}));
             };
-
-            var cpElement = document.getElementById('cp');
+            toggleHierarchyNavigationOption = function(property, value = null) {
+                colorPickerOptions[property] = (value === null) ? !colorPickerOptions[property] : value; 
+                colorPicker.render(Object.assign({}, colorPickerOptions, {onColorClick: colorHex => this.onColorClick(colorHex)}));
+            }
         </script>
     </body>
 </html>
