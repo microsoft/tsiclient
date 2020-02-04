@@ -21,8 +21,16 @@
                     var lines = {};
                     data.push({[`Factory${i}`]: lines});
                     for(var j = 0; j < 150; j++){
+                        if (i === 0 && j !== 0) {
+                            continue;
+                        } 
+                        
                         var values = {};
-                        lines[`Station${j}`] = values;
+                        let seriesName = `Station${j}`; 
+                        if (i === 0 && j === 0) {
+                            seriesName = '';
+                        }
+                        lines[seriesName] = values;
                         for(var k = 0; k < numberOfBuckets; k++){
                             if (i % 2 === 0) {
                                 // if(!(k%2 && k%3)){  // if check is to create some sparseness in the data
@@ -145,7 +153,7 @@
                             [{dataType: 'numeric', searchSpan: searchSpan}, 
                             {dataType: 'categorical', valueMapping: valueMapping, height: 100, searchSpan: searchSpan}, 
                             {dataType: 'numeric', searchSpan: searchSpan, onElementClick: onElementClick}, 
-                            {dataType: 'events', valueMapping: eventValueMapping, height: 30 * renderCounter,  onElementClick: onElementClick},
+                            {dataType: 'events', valueMapping: eventValueMapping, height: 30 * renderCounter, onElementClick: onElementClick},
                             {dataType: 'categorical', valueMapping: valueMapping, height: 50, searchSpan: searchSpan, onElementClick: onElementClick}]);
                 }
 

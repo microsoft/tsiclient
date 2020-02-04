@@ -107,6 +107,15 @@ class Legend extends Component {
             gradient.append('stop').attr('offset', '100%').attr('style', () =>{return 'stop-color:' + 'grey' + ';stop-opacity:.03'});
     }
 
+    private createNonNumericColorKey (dataType, colorKey, aggKey) {
+        if (dataType === DataTypes.Categorical) {
+            this.createCategoricalColorKey(colorKey, aggKey);
+        }
+        if (dataType === DataTypes.Events) {
+            this.createEventsColorKey(colorKey, aggKey);
+        }
+    }
+
     private createCategoricalColorKey (colorKey, aggKey) {
         let categories = this.chartComponentData.displayState[aggKey].aggregateExpression.valueMapping;
         colorKey.classed('tsi-categoricalColorKey', true);
@@ -259,11 +268,11 @@ class Legend extends Component {
                     colorKeyEntered.style('background-color', (d) => {
                         return d;
                     });
-                } else if (dataType === DataTypes.Events) {
-                    self.createEventsColorKey(colorKeyEntered, aggKey);
-                } else if (dataType === DataTypes.Categorical) {
-                    self.createCategoricalColorKey(colorKeyEntered, aggKey);
-                }
+                } else {
+                    self.createNonNumericColorKey(dataType, colorKeyEntered, aggKey);
+                } 
+                d3.select(this).classed('tsi-nonCompactNonNumeric', 
+                    (dataType === DataTypes.Categorical || dataType === DataTypes.Events) && this.legendState !== 'compact');
                 colorKey.exit().remove();    
             } else {
                 d3.select(this).selectAll('.tsi-colorKey').remove();
@@ -450,6 +459,17 @@ class Legend extends Component {
                 .on("mouseout", (d) => {
                     this.labelMouseout(svgSelection, d);
                 });
+            let dataType = self.chartComponentData.displayState[aggKey].dataType;
+            if (self.legendState !== 'compact' && dataType === DataTypes.Categorical || dataType === DataTypes.Events) {
+                enteredSeriesNameLabel.classed('tsi-nonCompactNonNumeric', true);
+                let colorKey = enteredSeriesNameLabel.selectAll('.tsi-colorKey').data(['']);
+                let colorKeyEntered = colorKey.enter()
+                    .append("div")
+                    .attr("class", 'tsi-colorKey')
+                    .merge(colorKey);
+                self.createNonNumericColorKey(dataType, colorKeyEntered, aggKey);
+                colorKey.exit().remove();
+            }
 
             var seriesNameLabelText = enteredSeriesNameLabel.selectAll("h4").data([aggKey]);
             var seriesNameLabelTextEntered = seriesNameLabelText.enter()
@@ -485,7 +505,6 @@ class Legend extends Component {
 
             let aggSelection = d3.select(this);
             
-            let dataType = self.chartComponentData.displayState[aggKey].dataType;
             var sBs = self.renderSplitBys(aggKey, aggSelection, dataType, noSplitBys);
             splitByContainerEntered.on("scroll", function () {
                 if (self.chartOptions.legend == "shown") {

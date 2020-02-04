@@ -253,7 +253,11 @@
 			}
 		}
 		.tsi-seriesNameLabel, .tsi-splitByContainer .tsi-splitByLabel {
-			display:flex;
+			display: flex;
+			&.tsi-nonCompactNonNumeric {
+				flex-direction: row;
+				align-items: center;	
+			}
 			h4, .tsi-seriesName {
 				text-overflow: ellipsis;
 				white-space: nowrap;
@@ -332,7 +336,9 @@
 				display: none;
 				padding: 0;
 			}
-			
+		}
+
+		.tsi-seriesNameLabel, .tsi-splitByContainer .tsi-splitByLabel {
 			.tsi-colorKey {
 				flex-shrink: 0;
 				width: 12px;
@@ -342,8 +348,15 @@
 				border-radius: 6px;
 				position: relative;
 				top: -2px;
+				&.tsi-eventsColorKey, &.tsi-categoricalColorKey {
+					height: 16px;
+					width: 16px;
+					margin-top: unset;
+				}
+	
 			}
 		}
+
 		.tsi-seriesTypeLabel {
 			margin: 0;
 			cursor: pointer;
