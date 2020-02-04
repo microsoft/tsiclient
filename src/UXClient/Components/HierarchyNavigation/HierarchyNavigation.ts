@@ -86,17 +86,10 @@ class HierarchyNavigation extends Component{
                     r.hierarchyNodes.hits.forEach(hn => {
                         this.envHierarchies[hn.name] = hn;
                     });
-                    this.selectedHierarchyName = r.hierarchyNodes.hits[0].name;
-                    this.path = [this.selectedHierarchyName];
                 }
 
                 // hierarchy selection button
                 let hierarchySelectionWrapper = hierarchyNavWrapper.append('div').classed('tsi-hierarchy-selection-wrapper', true);
-                if (Object.keys(this.envHierarchies).length) {
-                    this.path = [this.envHierarchies[Object.keys(this.envHierarchies)[0]].name];
-                } else {
-                    this.selectedHierarchyName = HierarchySelectionValues.Unparented;
-                }
                 this.hierarchySelectorElem = hierarchySelectionWrapper.append('button').classed('tsi-hierarchy-select', true).on('click keydown', function () {
                     if (Utils.isKeyDownAndNotEnter(d3.event)) {return; }
                     if (self.isHierarchySelectionActive) {
@@ -176,7 +169,7 @@ class HierarchyNavigation extends Component{
                         self.isHierarchySelectionActive = true;
                     }
                 });
-                this.hierarchySelectorElem.append('span').classed('tsi-hierarchy-name', true).text(Object.keys(this.envHierarchies).length ? this.envHierarchies[Object.keys(this.envHierarchies)[0]].name : this.getString("Unassigned Time Series Instances"));
+                this.hierarchySelectorElem.append('span').classed('tsi-hierarchy-name', true).text(self.getString("All"));
                 this.hierarchySelectorElem.append('i').classed('tsi-down-caret-icon', true);
                 // hierarchy flyout list
                 this.hierarchyListWrapperElem = hierarchySelectionWrapper.append('div').classed('tsi-hierarchy-list-wrapper', true);
@@ -826,6 +819,7 @@ class HierarchyNavigation extends Component{
 
     private resettingVariablesForEnvChange = () => {
         this.path = [];
+        this.selectedHierarchyName = HierarchySelectionValues.All;
         this.searchString = '';
         this.lastInstanceContinuationToken = null;
         this.usedInstanceSearchContinuationTokens = {};
