@@ -78,10 +78,10 @@ class ModelSearch extends Component{
                     searchInstances(searchText, continuationToken);
                 }
             })
-        let noResults = results.append('div').html(this.getString('No results')).classed('tsi-noResults', true).style('display', 'none');
+        let noResults = results.append('div').text(this.getString('No results')).classed('tsi-noResults', true).style('display', 'none');
         let instanceResultsWrapper = results.append('div').attr('class', 'tsi-modelSearchInstancesWrapper')
         this.instanceResults = instanceResultsWrapper.append('div').attr('class', 'tsi-modelSearchInstances');
-        let showMore = instanceResultsWrapper.append('div').attr('class', 'tsi-showMore').html(this.getString('Show more') + '...').on('click', () => searchInstances(searchText, continuationToken)).style('display', 'none');
+        let showMore = instanceResultsWrapper.append('div').attr('class', 'tsi-showMore').text(this.getString('Show more') + '...').on('click', () => searchInstances(searchText, continuationToken)).style('display', 'none');
 
         let hierarchyElement = this.wrapper.append('div')
             .attr("class", "tsi-hierarchyWrapper");
@@ -136,7 +136,7 @@ class ModelSearch extends Component{
                                     contextMenuActions.forEach((cma, cmaGroupIdx) => {
                                         Object.keys(cma).forEach((k, kIdx, kArray) => {
                                             let localActionIndex = currentActionIndex;
-                                            self.contextMenu.append('div').html(k).on('click', cma[k]).on('keydown', function(){
+                                            self.contextMenu.append('div').text(k).on('click', cma[k]).on('keydown', function(){
                                                 let evt = d3.event;
                                                 if(evt.keyCode === 13){
                                                     this.click();
@@ -168,7 +168,8 @@ class ModelSearch extends Component{
                                     self.clickedInstance = null;
                                 }
                             }
-                            this.instanceResults.append('div').html(self.getInstanceHtml(i)).on('click', function() {
+                            this.instanceResults.append('div').html(self.getInstanceHtml(i)) // known unsafe usage of .html
+                            .on('click', function() {
                                 let mouseWrapper = d3.mouse(self.wrapper.node());
                                 let mouseElt = d3.mouse(this as any);
                                 handleClick(this, mouseWrapper[1], mouseElt[1]);

@@ -115,8 +115,11 @@
                 &:before{
                     display: none;
                 }
-                li:hover{
-                    cursor: pointer;
+                li {
+                    display: block;
+                    &:hover{
+                        cursor: pointer;
+                    }
                 }
             }
 

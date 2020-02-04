@@ -46,7 +46,7 @@ class ContextMenu extends Component {
             .append("div")
             .attr("class", "tsi-actionElement")
             .merge(actionElements)
-            .html(d => d.name)
+            .text(d => d.name)
             .on("click", (d) => {
                 if (this.endTime) { // if endTime is present, this is a brush action
                     var startTime = this.startTime ?  this.startTime.toISOString().slice(0,-5)+"Z" : null;
