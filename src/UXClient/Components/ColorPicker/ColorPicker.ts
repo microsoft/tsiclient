@@ -23,7 +23,7 @@ class ColorPicker extends Component{
 
         // color selection button
         let colorPickerButton =  this.colorPickerElem.append('button').classed("tsi-colorPickerButton", true)
-                    .on('click', this.showColorGrid);
+                    .on('click', () => {this.colorPickerOptions.onColorPickerClicked(); this.showColorGrid()});
         colorPickerButton.append('div').classed("tsi-selectedColor", true).style("background-color", this.selectedColor);
         colorPickerButton.append('span').classed("tsi-selectedColorValue", true).classed("hidden", this.colorPickerOptions.isColorValueHidden).text(this.selectedColor);
 
@@ -32,7 +32,7 @@ class ColorPicker extends Component{
         colors.forEach(c => {
             let gridItem = colorGridElem.append('div').classed("tsi-colorItem", true).classed("selected", c === this.selectedColor)
                     .style("background-color", c)
-                    .on('click', () => {this.colorPickerOptions.onColorClick(c); this.hideColorGrid(); this.setSelectedColor(c, gridItem)});
+                    .on('click', () => {this.colorPickerOptions.onColorSelect(c); this.hideColorGrid(); this.setSelectedColor(c, gridItem)});
         });
 
         d3.select("html").on("click." + Utils.guid(), () => {
@@ -70,15 +70,19 @@ class ColorPickerOptions {
     public defaultColor = "#008272";
     public theme = Theme.light;
     public isColorValueHidden = false;
-    public onColorClick = colorHex => {};
+    public onColorSelect = colorHex => {};
+    public onColorPickerClicked = () => {};
 
     public setOptions = (options) => {
         this.numberOfColors = options.hasOwnProperty('numberOfColors') ? options.numberOfColors : this.numberOfColors;
         this.defaultColor = options.hasOwnProperty('defaultColor') ? options.defaultColor : this.defaultColor;
         this.theme = options.hasOwnProperty('theme') && options.theme in Theme ? options.theme : this.theme;
         this.isColorValueHidden = options.hasOwnProperty('isColorValueHidden') ? options.isColorValueHidden : this.isColorValueHidden;
-        if (options.hasOwnProperty('onColorClick')) {
-            this.onColorClick = options.onColorClick;
+        if (options.hasOwnProperty('onColorSelect')) {
+            this.onColorSelect = options.onColorSelect;
+        }
+        if (options.hasOwnProperty('onColorPickerClicked')) {
+            this.onColorPickerClicked = options.onColorPickerClicked;
         } 
     }
 }

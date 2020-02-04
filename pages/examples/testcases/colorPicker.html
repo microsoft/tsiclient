@@ -41,17 +41,17 @@
                 isColorValueHidden: false
             }
 
-            onColorClick = function(colorHex) {
+            onColorSelect = function(colorHex) {
                 console.log(colorHex);
             }
             window.onload = function() {
                 var tsiClient = new TsiClient();
                 colorPicker = new tsiClient.ux.ColorPicker(cpElement);
-                colorPicker.render(Object.assign({}, colorPickerOptions, {onColorClick: colorHex => this.onColorClick(colorHex)}));
+                colorPicker.render(Object.assign({}, colorPickerOptions, {onColorSelect: colorHex => this.onColorSelect(colorHex)}));
             };
             toggleHierarchyNavigationOption = function(property, value = null) {
                 colorPickerOptions[property] = (value === null) ? !colorPickerOptions[property] : value; 
-                colorPicker.render(Object.assign({}, colorPickerOptions, {onColorClick: colorHex => this.onColorClick(colorHex)}));
+                colorPicker.render(Object.assign({}, colorPickerOptions, {onColorSelect: colorHex => this.onColorSelect(colorHex)}));
             }
         </script>
     </body>
