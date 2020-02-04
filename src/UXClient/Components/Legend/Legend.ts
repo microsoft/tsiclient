@@ -102,9 +102,6 @@ class Legend extends Component {
                     .attr("stop-color",  color)
                     .attr("stop-opacity", 1);
             });
-            
-            gradient.append('stop').attr('offset', '0%').attr('style', () =>{return 'stop-color:' + 'grey' + ';stop-opacity:.2'});
-            gradient.append('stop').attr('offset', '100%').attr('style', () =>{return 'stop-color:' + 'grey' + ';stop-opacity:.03'});
     }
 
     private createNonNumericColorKey (dataType, colorKey, aggKey) {
@@ -148,39 +145,6 @@ class Legend extends Component {
         let gradientKey = Utils.guid();
         this.createGradient(gradientKey, svg, categories);
         rect.attr('fill', "url(#" + gradientKey + ")");
-
-        //WORK IN PROGRESS BELOW - change the shape of the event to match the event element type, aka add support of teardrops
-
-        // let teardropD = (width, height) => {
-        //     return `M${width / 2} ${height / 14} 
-        //             Q${width / 1.818} ${height / 6.17} ${width / 1.2} ${height / 2.33}
-        //             A${width / 2.35} ${width / 2.35} 0 1 1 ${width / 6} ${width / 2.33}
-        //             Q${width / 2.22} ${height / 6.18} ${width / 2} ${height / 14}z`;
-        // }
-
-        // let eventHeight = 16;
-        // switch(eventElementType) {
-        //     case EventElementTypes.Teardrop:
-        //         svg.append('path')
-        //             .attr('class', 'tsi-discreteEvent tsi-discreteEventTeardrop')
-        //             .attr('transform', (d: any) => {
-        //                 return 'translate(' + (eventHeight / 2) + ',' + (eventHeight * 1.4) + ') rotate(180)';
-        //             })
-        //             .attr('d', teardropD(eventHeight, eventHeight))
-        //             .attr('stroke-width', Math.min(eventHeight / 2.25, 8))
-        //             // .attr('stroke', colorFunction);
-        //         break;
-        //     case EventElementTypes.Diamond:
-        //         enteredEvents = discreteEvents.enter().append('rect')
-        //             .attr('class', 'tsi-discreteEvent')
-        //             .merge(discreteEvents)
-        //             .attr('transform', (d: any) => {
-        //                 return 'translate(' + self.x(new Date(d.dateTime)) + ',0) rotate(45)';
-        //             })
-        //             .attr('fill', colorFunction);
-        //         break;
-        // }
-
     }
 
     private renderSplitBys = (aggKey, aggSelection, dataType, noSplitBys) => {
