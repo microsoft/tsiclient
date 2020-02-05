@@ -769,17 +769,29 @@ class Utils {
         }
         return false;
     }
-    
-    static mergeAvailabilities (warmAvailability, coldAvailability, retentionString = null) {
-        let retentionPeriod = retentionString !== null ? Utils.parseTimeInput(retentionString) : null;
 
-        let warmStoreRange = warmAvailability.range;
-        let filteredColdDistribution = {};
-        let minWarmTime = new Date(warmStoreRange.from);
-        let maxWarmTime = new Date(warmStoreRange.to);
+    static getMinWarmTime (warmStoreFrom, retentionString) {
+        let minWarmTime = new Date(warmStoreFrom);
         if (retentionString !== null) {
+            let retentionPeriod = Utils.parseTimeInput(retentionString);
             minWarmTime = new Date(Math.max(minWarmTime.valueOf(), (Date.now() - retentionPeriod)));
         }
+        return minWarmTime;
+    }
+    
+    static mergeAvailabilities (warmAvailability, coldAvailability, retentionString = null) {
+        let warmStoreRange = warmAvailability.range;
+        let filteredColdDistribution = {};
+        let filteredWarmDistribution = {};
+        let minWarmTime = this.getMinWarmTime(warmStoreRange.from, retentionString);
+        let maxWarmTime = new Date(warmStoreRange.to);
+
+        Object.keys(warmAvailability.distribution).forEach((ts) => {
+            let tsDate = new Date(ts);
+            if (tsDate >= minWarmTime) {
+                filteredWarmDistribution[ts] = warmAvailability.distribution[ts];
+            }
+        });
 
         Object.keys(coldAvailability.distribution).forEach((ts) => {
             let tsDate = new Date(ts);
@@ -787,7 +799,7 @@ class Utils {
                 filteredColdDistribution[ts] = coldAvailability.distribution[ts];
             }
         });
-        let mergedDistribution = Object.assign(filteredColdDistribution, warmAvailability.distribution) 
+        let mergedDistribution = Object.assign(filteredColdDistribution, filteredWarmDistribution); 
         let mergedAvailabilities = Object.assign(coldAvailability, {distribution: mergedDistribution});
         mergedAvailabilities.warmStoreRange = [minWarmTime.toISOString(), maxWarmTime.toISOString()];
         if (retentionString !== null) {
