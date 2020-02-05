@@ -62,7 +62,7 @@ class ChartOptions {
     public snapBrush: boolean; // whether to snap linechart brush to closest value
     public stacked: boolean; //whether bars in barchart are stacked
     public suppressResizeListener: boolean; // whether a component's resize function is ignored. Applies to components which draw an SVG
-    public swimLaneAxisTypes: any; // mapping of swim lanes to the axis for that swim lane
+    public swimLaneOptions: Map<number, any>;  // mapping of swim lane number to information about that swimlane, including axis type
     public theme: string; // theme for styling chart, light or dark
     public timeFrame: any; // from and to to specify range of an event or state series
     public timestamp: any; //For components with a slider, this is the selected timestamp
@@ -177,7 +177,7 @@ class ChartOptions {
         this.initialValue = this.mergeValue(chartOptionsObj, 'initialValue', null);
         this.dTPIsModal = this.mergeValue(chartOptionsObj, 'dTPIsModal', false);
         this.usesSwimLanes = this.mergeValue(chartOptionsObj, 'usesSwimLanes', false);
-        this.swimLaneAxisTypes = this.mergeValue(chartOptionsObj, 'swimLaneAxisTypes', {});
+        this.swimLaneOptions = this.mergeValue(chartOptionsObj, 'swimLaneOptions', new Map());
     }
 
     private mergeStrings (strings) {
@@ -266,7 +266,7 @@ class ChartOptions {
             updateInterval: this.updateInterval,
             dTPIsModal: this.dTPIsModal,
             usesSwimLanes: this.usesSwimLanes,
-            swimLaneAxisTypes: this.swimLaneAxisTypes
+            swimLaneOptions: this.swimLaneOptions
         }
     }
 }

@@ -1216,7 +1216,7 @@ class LineChart extends TemporalXAxisComponent {
         }).length;
     }
 
-    private getSwimlaneOffsets (linechartTopPadding, visibleGroups, visibleCDOs, heightPerNumeric, swimLaneSet) {
+    private getSwimlaneOffsets (linechartTopPadding: number, visibleGroups: Array<ChartDataOptions>, visibleCDOs: Array<ChartDataOptions>, heightPerNumeric: number, swimLaneSet: any) {
         let cumulativeOffset = LINECHARTTOPPADDING;
         //initialize to null and set while going through swimLanes
         let visibleGroupEndValues = visibleGroups.map(() => null);
@@ -1349,7 +1349,7 @@ class LineChart extends TemporalXAxisComponent {
     }
 
     private getGroupYExtent (aggKey, aggVisible, aggValues, yExtent) {        
-        if ((this.chartOptions.yAxisState == "shared") || (Object.keys(this.chartComponentData.timeArrays)).length < 2 || !aggVisible) {
+        if ((this.chartOptions.yAxisState === YAxisStates.Shared) || (Object.keys(this.chartComponentData.timeArrays)).length < 2 || !aggVisible) {
             yExtent = this.getYExtent(this.chartComponentData.allNumericValues, this.chartComponentData.displayState[aggKey].includeEnvelope ? 
                         this.chartComponentData.displayState[aggKey].includeEnvelope : 
                         this.chartOptions.includeEnvelope, null);
@@ -1365,8 +1365,8 @@ class LineChart extends TemporalXAxisComponent {
 
     private getAggAxisType (agg) {
         if (this.chartOptions.usesSwimLanes && this.chartOptions.yAxisState === YAxisStates.Stacked) {
-            if (this.chartOptions.swimLaneAxisTypes && this.chartOptions.swimLaneAxisTypes[agg.swimLane]) {
-                return this.chartOptions.swimLaneAxisTypes[agg.swimLane];
+            if (this.chartOptions.swimLaneOptions && this.chartOptions.swimLaneOptions.get(agg.swimLane) && this.chartOptions.swimLaneOptions.get(agg.swimLane).yAxisType) {
+                return this.chartOptions.swimLaneOptions.get(agg.swimLane).yAxisType;
             } else {
                 return YAxisStates.Shared;
             }

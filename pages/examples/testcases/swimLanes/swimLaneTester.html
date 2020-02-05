@@ -189,9 +189,16 @@
                     4: 'overlap',
                     5: 'overlap'
                 }            
+                var swimLaneOptions = new Map([
+                    [1, {yAxisType: 'overlap'}],
+                    [2, {yAxisType: 'shared'}],
+                    [3, {yAxisType: 'overlap'}], 
+                    [4, {yAxisType: 'overlap'}],
+                    [5, {yAxisType: 'overlap'}]
+            ]);
 
                 var renderLinechart = function () {
-                    lineChart.render(data, {theme: 'light', tooltip: 'true', usesSwimLanes: true, swimLaneAxisTypes: swimLaneAxisTypes}, chartDataOptions);
+                    lineChart.render(data, {theme: 'light', tooltip: 'true', usesSwimLanes: true, swimLaneOptions: swimLaneOptions}, chartDataOptions);
                 }
 
                 renderLinechart();
