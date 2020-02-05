@@ -138,6 +138,13 @@
 						height: 10px;
 						width: 10px;
 						top: -3px;
+						&.tsi-eventsColorKey, &.tsi-categoricalColorKey {
+							height: 12px;
+							width: 12px;
+							top: unset;
+							margin-top: 4px;
+							margin-left: 0px;
+						}
 					}
 					.tsi-seriesName {
 						max-width: 100px;
@@ -353,7 +360,6 @@
 					width: 16px;
 					margin-top: unset;
 				}
-	
 			}
 		}
 

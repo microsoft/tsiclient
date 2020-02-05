@@ -104,6 +104,11 @@ class Legend extends Component {
             });
     }
 
+    private isNonNumeric (aggKey) {
+        let dataType = this.chartComponentData.displayState[aggKey].dataType;
+        return (dataType === DataTypes.Categorical || dataType === DataTypes.Events); 
+    }
+
     private createNonNumericColorKey (dataType, colorKey, aggKey) {
         if (dataType === DataTypes.Categorical) {
             this.createCategoricalColorKey(colorKey, aggKey);
@@ -118,8 +123,8 @@ class Legend extends Component {
         colorKey.classed('tsi-categoricalColorKey', true);
         colorKey.selectAll('*').remove();
         let svg = colorKey.append('svg')
-            .attr('width', '16px')
-            .attr('height', '16px');
+            .attr('width', colorKey.style('width'))
+            .attr('height', colorKey.style('height'));
         let rect = svg.append('rect')
             .attr('width', '100%')
             .attr('height', '100%')
@@ -134,13 +139,16 @@ class Legend extends Component {
         let eventElementType = this.chartComponentData.displayState[aggKey].aggregateExpression.eventElementType;
         colorKey.classed('tsi-eventsColorKey', true);
         colorKey.selectAll('*').remove();
+
+        let colorKeyWidth = colorKey.node().getBoundingClientRect().width;
+        let colorKeyHeight = colorKey.node().getBoundingClientRect().height;
         let svg = colorKey.append('svg')
-            .attr('width', '16px')
-            .attr('height', '16px');
+            .attr('width', `${colorKeyWidth}px`)
+            .attr('height', `${colorKeyHeight}px`);
         let rect = svg.append('rect')
-            .attr('width', '11')
-            .attr('height', '11')
-            .attr('transform', 'translate(8,0)rotate(45)')
+            .attr('width', Math.floor(colorKeyWidth/ Math.sqrt(2)))
+            .attr('height', Math.floor(colorKeyHeight / Math.sqrt(2)))
+            .attr('transform', `translate(${(colorKeyWidth/2)},0)rotate(45)`)
             .attr('fill', 'black');
         let gradientKey = Utils.guid();
         this.createGradient(gradientKey, svg, categories);
@@ -222,7 +230,7 @@ class Legend extends Component {
 
         splitByLabelsEntered.each(function (splitBy, j) {
             let color = (self.chartComponentData.isFromHeatmap) ? self.chartComponentData.displayState[aggKey].color : colors[j];
-            if (dataType === DataTypes.Numeric || noSplitBys){
+            if (dataType === DataTypes.Numeric || noSplitBys || self.legendState === 'compact'){
                 let colorKey = d3.select(this).selectAll('.tsi-colorKey').data([color]);
                 let colorKeyEntered = colorKey.enter()
                     .append("div")
@@ -424,7 +432,7 @@ class Legend extends Component {
                     this.labelMouseout(svgSelection, d);
                 });
             let dataType = self.chartComponentData.displayState[aggKey].dataType;
-            if (self.legendState !== 'compact' && dataType === DataTypes.Categorical || dataType === DataTypes.Events) {
+            if (dataType === DataTypes.Categorical || dataType === DataTypes.Events) {
                 enteredSeriesNameLabel.classed('tsi-nonCompactNonNumeric', true);
                 let colorKey = enteredSeriesNameLabel.selectAll('.tsi-colorKey').data(['']);
                 let colorKeyEntered = colorKey.enter()
