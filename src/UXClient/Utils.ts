@@ -790,7 +790,7 @@ class Utils {
 
         Object.keys(warmAvailability.distribution).forEach((ts) => {
             let tsDate = new Date(ts);
-            if (tsDate >= minWarmTime && tsDate <= maxWarmTime) {
+            if (tsDate >= minWarmTime) {
                 filteredWarmDistribution[ts] = warmAvailability.distribution[ts];
             }
         });
