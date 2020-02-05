@@ -181,21 +181,14 @@
                             {dataType: 'categorical', valueMapping: valueMapping, height: 50, searchSpan: searchSpan, onElementClick: onElementClick, swimLane: 3},
                             {dataType: 'events', valueMapping: eventValueMapping, height: 30, eventElementType: 'teardrop', onElementClick: onElementClick, swimLane: 4},
                             {dataType: 'numeric', searchSpan: searchSpan, onElementClick: onElementClick, swimLane: 5}]; 
-                
-                var swimLaneAxisTypes = {
-                    1: 'overlap',
-                    2: 'shared',
-                    3: 'overlap', 
-                    4: 'overlap',
-                    5: 'overlap'
-                }            
+                          
                 var swimLaneOptions = new Map([
                     [1, {yAxisType: 'overlap'}],
                     [2, {yAxisType: 'shared'}],
                     [3, {yAxisType: 'overlap'}], 
                     [4, {yAxisType: 'overlap'}],
                     [5, {yAxisType: 'overlap'}]
-            ]);
+                ]);
 
                 var renderLinechart = function () {
                     lineChart.render(data, {theme: 'light', tooltip: 'true', usesSwimLanes: true, swimLaneOptions: swimLaneOptions}, chartDataOptions);
