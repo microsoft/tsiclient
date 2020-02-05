@@ -773,15 +773,13 @@ class Utils {
     static getMinWarmTime (warmStoreFrom, retentionString) {
         let minWarmTime = new Date(warmStoreFrom);
         if (retentionString !== null) {
-            let retentionPeriod = retentionString !== null ? Utils.parseTimeInput(retentionString) : null;
+            let retentionPeriod = Utils.parseTimeInput(retentionString);
             minWarmTime = new Date(Math.max(minWarmTime.valueOf(), (Date.now() - retentionPeriod)));
         }
         return minWarmTime;
     }
     
     static mergeAvailabilities (warmAvailability, coldAvailability, retentionString = null) {
-        let retentionPeriod = retentionString !== null ? Utils.parseTimeInput(retentionString) : null;
-
         let warmStoreRange = warmAvailability.range;
         let filteredColdDistribution = {};
         let filteredWarmDistribution = {};
