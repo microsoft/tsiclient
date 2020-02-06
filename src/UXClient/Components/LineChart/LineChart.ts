@@ -1368,7 +1368,6 @@ class LineChart extends TemporalXAxisComponent {
         this.originalSwimLanes = aggregateExpressionOptions.map((aEO) => {
             return aEO.swimLane;
         });
-        console.log(this.originalSwimLanes);
         this.originalSwimLaneOptions = options.swimLaneOptions;
 
         this.hasBrush = options && (options.brushMoveAction || options.brushMoveEndAction || options.brushContextMenuActions);
