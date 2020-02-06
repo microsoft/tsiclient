@@ -68,7 +68,6 @@ class ChartOptions {
     public timestamp: any; //For components with a slider, this is the selected timestamp
     public tooltip: boolean; // whether tooltip is visible
     public throttleSlider: boolean; // whether slider is throttled to only fire on mouseup vs slider move
-    public usesSwimLanes: boolean; // whether grouping of groups is by swim lanes passed into chart data options
     public warmStoreRange: Array<string>; //start and optional end timestamp representing the availability chart region within warm store. If no second value, endTime is assumed to be end of warm range
     public xAxisHidden: boolean; // whether xAxis is hidden in chart
     public xAxisTimeFormat: (d, i, isFirst, isLast) => {}; //takes in a date string, tick index, isFirst, and isLast, outputs a moment.js style date format string
@@ -176,7 +175,6 @@ class ChartOptions {
         this.warmStoreRange = this.mergeValue(chartOptionsObj, 'warmStoreRange', null);
         this.initialValue = this.mergeValue(chartOptionsObj, 'initialValue', null);
         this.dTPIsModal = this.mergeValue(chartOptionsObj, 'dTPIsModal', false);
-        this.usesSwimLanes = this.mergeValue(chartOptionsObj, 'usesSwimLanes', false);
         this.swimLaneOptions = this.mergeValue(chartOptionsObj, 'swimLaneOptions', new Map());
     }
 
@@ -265,7 +263,6 @@ class ChartOptions {
             bucketSizeMillis: this.bucketSizeMillis,
             updateInterval: this.updateInterval,
             dTPIsModal: this.dTPIsModal,
-            usesSwimLanes: this.usesSwimLanes,
             swimLaneOptions: this.swimLaneOptions
         }
     }

@@ -178,7 +178,7 @@
 
                 var chartDataOptions = [{dataType: 'numeric', searchSpan: searchSpan, swimLane: 1}, 
                             {dataType: 'numeric', searchSpan: searchSpan, swimLane: 2}, 
-                            {dataType: 'categorical', valueMapping: valueMapping, height: 50, searchSpan: searchSpan, onElementClick: onElementClick, swimLane: 3},
+                            {dataType: 'categorical', valueMapping: valueMapping, height: 50, searchSpan: searchSpan, onElementClick: onElementClick},
                             {dataType: 'events', valueMapping: eventValueMapping, height: 30, eventElementType: 'teardrop', onElementClick: onElementClick, swimLane: 4},
                             {dataType: 'numeric', searchSpan: searchSpan, onElementClick: onElementClick, swimLane: 5}]; 
                           
@@ -186,12 +186,12 @@
                     [1, {yAxisType: 'overlap'}],
                     [2, {yAxisType: 'shared'}],
                     [3, {yAxisType: 'overlap'}], 
-                    [4, {yAxisType: 'overlap'}],
-                    [5, {yAxisType: 'overlap'}]
+                    // [4, {yAxisType: 'overlap'}],
+                    // [5, {yAxisType: 'overlap'}]
                 ]);
 
                 var renderLinechart = function () {
-                    lineChart.render(data, {theme: 'light', tooltip: 'true', usesSwimLanes: true, swimLaneOptions: swimLaneOptions}, chartDataOptions);
+                    lineChart.render(data, {theme: 'light', tooltip: 'true', swimLaneOptions: swimLaneOptions}, chartDataOptions);
                 }
 
                 renderLinechart();

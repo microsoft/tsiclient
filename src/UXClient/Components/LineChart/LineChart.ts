@@ -71,6 +71,9 @@ class LineChart extends TemporalXAxisComponent {
     private swimlaneYExtents = {}; // mapping of swimlanes to the y extents of that swimlane
     private swimLaneContents = {}; 
 
+    private originalSwimLanes: Array<number>;
+    private originalSwimLaneOptions: any;
+
     constructor(renderTarget: Element){
         super(renderTarget);
         this.MINHEIGHT = 26;
@@ -1276,24 +1279,16 @@ class LineChart extends TemporalXAxisComponent {
         let visibleGroups = this.chartComponentData.data.filter((agg) => this.chartComponentData.displayState[agg.aggKey]["visible"]);
         let visibleCDOs = this.aggregateExpressionOptions.filter((cDO) => this.chartComponentData.displayState[cDO.aggKey]["visible"]);
 
-        let allShared = this.chartOptions.yAxisState === YAxisStates.Shared || this.chartOptions.yAxisState === YAxisStates.Overlap;
-
         let visibleNumericCount;
         let swimLaneSet = {};
-        if (this.chartOptions.usesSwimLanes) {
-            visibleCDOs.forEach((cDO) => {
-                swimLaneSet[cDO.swimLane] = swimLaneSet[cDO.swimLane] || (cDO.dataType === DataTypes.Numeric);
-            });    
-            visibleNumericCount = Object.keys(swimLaneSet).reduce((visibleCount, swimLane) => {
-                return visibleCount + (swimLaneSet[swimLane] ? 1 : 0);
-            }, 0);
-        } else {
-            visibleNumericCount = visibleGroups.filter((aggKey, i) => {
-                return visibleCDOs[i].dataType === DataTypes.Numeric;
-            }).length;
-        }
+        visibleCDOs.forEach((cDO) => {
+            swimLaneSet[cDO.swimLane] = swimLaneSet[cDO.swimLane] || (cDO.dataType === DataTypes.Numeric);
+        });    
+        visibleNumericCount = Object.keys(swimLaneSet).reduce((visibleCount, swimLane) => {
+            return visibleCount + (swimLaneSet[swimLane] ? 1 : 0);
+        }, 0);
 
-        let countNumericLanes = allShared ? (visibleNumericCount > 0 ? 1 : 0) : visibleNumericCount;
+        let countNumericLanes = visibleNumericCount;
 
         let linechartTopPadding = this.chartOptions.isArea ? 0 : LINECHARTTOPPADDING;
         let useableHeight = this.chartHeight - linechartTopPadding;
@@ -1302,39 +1297,11 @@ class LineChart extends TemporalXAxisComponent {
             return sumPrevious + (currGroup.dataType !== DataTypes.Numeric ? Utils.getNonNumericHeight(currGroup.height) : 0);
         }, 0);
         
-        if (allShared) {
-            let heightPerNumeric = useableHeight - heightNonNumeric;
-            let runningOffset = heightPerNumeric + linechartTopPadding;
-            return visibleGroups.map((aggGroup) => {
-                if (aggGroup.dataType === DataTypes.Numeric) {
-                    return [linechartTopPadding, heightPerNumeric];
-                } else {
-                    let oldOffset = runningOffset;
-                    runningOffset += Utils.getNonNumericHeight(aggGroup.height)
-                    return [oldOffset, Utils.getNonNumericHeight(aggGroup.height)];
-                }
-            });
-        } else {
-            let heightPerNumeric = (useableHeight - heightNonNumeric) / countNumericLanes;
+        let heightPerNumeric = (useableHeight - heightNonNumeric) / countNumericLanes;
 
-            if (this.isSwimLanes()) {
-                this.setSwimLaneYExtents(visibleGroups, visibleCDOs, Object.keys(swimLaneSet).filter((lane) => swimLaneSet[lane]));
-                return this.getSwimlaneOffsets(linechartTopPadding, visibleGroups, visibleCDOs, heightPerNumeric, swimLaneSet);
-            } else {
-                let cumulativeOffset = linechartTopPadding;            
-                return visibleGroups.map((aggGroup) => {
-                    let previousOffset = cumulativeOffset;
-                    let height;
-                    if (aggGroup.dataType === DataTypes.Numeric) {
-                        height = heightPerNumeric;
-                    } else {
-                        height = Utils.getNonNumericHeight(aggGroup.height);
-                    }
-                    cumulativeOffset += height;
-                    return [previousOffset, height];
-                });    
-            }
-        }
+        this.setSwimLaneYExtents(visibleGroups, visibleCDOs, Object.keys(swimLaneSet).filter((lane) => swimLaneSet[lane]).map((stringLane) => Number(stringLane)));
+        return this.getSwimlaneOffsets(linechartTopPadding, visibleGroups, visibleCDOs, heightPerNumeric, swimLaneSet);
+
     }
 
     private heightNonNumeric () {
@@ -1342,10 +1309,6 @@ class LineChart extends TemporalXAxisComponent {
         return visibleGroups.reduce((sumPrevious, currGroup) => {
             return sumPrevious + (currGroup.dataType !== DataTypes.Numeric ? Utils.getNonNumericHeight(currGroup.height) : 0);
         }, 0);
-    }
-
-    private isSwimLanes () {
-        return this.chartOptions.usesSwimLanes && (this.chartOptions.yAxisState === YAxisStates.Stacked);
     }
 
     private getGroupYExtent (aggKey, aggVisible, aggValues, yExtent) {        
@@ -1364,7 +1327,7 @@ class LineChart extends TemporalXAxisComponent {
     }
 
     private getAggAxisType (agg) {
-        if (this.chartOptions.usesSwimLanes && this.chartOptions.yAxisState === YAxisStates.Stacked) {
+        if (this.chartOptions.yAxisState === YAxisStates.Stacked) {
             if (this.chartOptions.swimLaneOptions && this.chartOptions.swimLaneOptions.get(agg.swimLane) && this.chartOptions.swimLaneOptions.get(agg.swimLane).yAxisType) {
                 return this.chartOptions.swimLaneOptions.get(agg.swimLane).yAxisType;
             } else {
@@ -1374,8 +1337,40 @@ class LineChart extends TemporalXAxisComponent {
         return this.chartOptions.yAxisState;
     }
 
+    private adjustSwimLanes () {
+        if (this.chartOptions.yAxisState === YAxisStates.Shared || this.chartOptions.yAxisState === YAxisStates.Overlap) {
+            this.aggregateExpressionOptions.forEach((aEO) => {
+                aEO.swimLane = 0;
+            });
+            this.chartOptions.swimLaneOptions = new Map([[0, {yAxisType: this.chartOptions.yAxisState}]]);
+        } else {
+            let minimumPresentSwimLane = this.aggregateExpressionOptions.reduce((currMin, aEO) => {
+                return Math.max(aEO.swimLane, currMin); 
+            }, 0);
+            this.aggregateExpressionOptions.forEach((aEO) => {
+                if (aEO.swimLane === null) {
+                    aEO.swimLane = ++minimumPresentSwimLane;
+                }
+            }); 
+        }
+    }
+
+    private overwriteSwimLanes () {
+        this.aggregateExpressionOptions.forEach((aEO, i) => {
+            this.aggregateExpressionOptions[i].swimLane = this.originalSwimLanes[i];
+        });
+        this.chartOptions.swimLaneOptions = this.originalSwimLaneOptions;
+    }
+
     public render (data: any, options: any, aggregateExpressionOptions: any) {
         this.data = data;
+
+        this.originalSwimLanes = aggregateExpressionOptions.map((aEO) => {
+            return aEO.swimLane;
+        });
+        console.log(this.originalSwimLanes);
+        this.originalSwimLaneOptions = options.swimLaneOptions;
+
         this.hasBrush = options && (options.brushMoveAction || options.brushMoveEndAction || options.brushContextMenuActions);
         this.chartOptions.setOptions(options);
         this.aggregateExpressionOptions = data.map((d, i) => Object.assign(d, aggregateExpressionOptions && i in aggregateExpressionOptions  ? new ChartDataOptions(aggregateExpressionOptions[i]) : new ChartDataOptions({})));
@@ -1424,9 +1419,9 @@ class LineChart extends TemporalXAxisComponent {
                 .attr("aria-label", () => this.getString("set axis state to") + ' ' + this.nextStackedState())
                 .attr("type", "button")
                 .on("click", function () {
-                    self.chartOptions.yAxisState = self.nextStackedState();
+                    self.overwriteSwimLanes();
+                    self.render(self.data, {...self.chartOptions, yAxisState: self.nextStackedState()}, self.aggregateExpressionOptions);
                     d3.select(this).attr("aria-label", () => self.getString("set axis state to") + ' ' + self.nextStackedState());
-                    self.draw();
                     setTimeout (() => (d3.select(this).node() as any).focus(), 200);
                 });
         } else if (this.chartOptions.hideChartControlPanel && this.chartControlsPanel !== null){
@@ -1443,6 +1438,8 @@ class LineChart extends TemporalXAxisComponent {
             }]);
             this.chartControlsPanel.style("top", Math.max((this.chartMargins.top - 24), 0) + 'px');
         }
+
+        this.adjustSwimLanes();
         
         if(this.svgSelection == null){
             
@@ -1731,14 +1728,12 @@ class LineChart extends TemporalXAxisComponent {
                             let mouseoverFunction = self.getMouseoverFunction(visibleCDOs[i].dataType);
                             let mouseoutFunction = self.getMouseoutFunction(visibleCDOs[i].dataType);
                             let positionInGroup = visibleNumericI;
-                            if (self.swimlaneYExtents && self.swimlaneYExtents.hasOwnProperty(String(agg.swimLane)) && self.isSwimLanes()) {
-                                if (self.getAggAxisType(agg) === YAxisStates.Shared) {
-                                    yExtent = self.swimlaneYExtents[String(agg.swimLane)];
-                                }
+                            if (self.getAggAxisType(agg) === YAxisStates.Shared) {
+                                yExtent = self.swimlaneYExtents[String(agg.swimLane)];
                             }
 
                             //should count all as same swim lane when not in stacked.
-                            let swimLane = self.isSwimLanes() ? String(agg.swimLane) : "0";
+                            let swimLane = agg.swimLane;
                             let offsetImpact = (agg.dataType === DataTypes.Numeric) ? 1 : 0;
                             if (swimLaneCounts[swimLane]) {
                                 positionInGroup = swimLaneCounts[swimLane];
