@@ -1,0 +1,59 @@
+
+<!DOCTYPE html> 
+<html>
+    <head>
+        <title>PAYG Stats</title>
+
+        <!-- styles are only used for styling header and auth elements, where possible -->
+        <link rel="stylesheet" type="text/css" href="../styles.css" />
+
+        <!-- boilerplate headers are injected with head.js, grab them from the live example header, or include a link to head.js -->
+        <script src="../boilerplate/head.js"></script>
+
+        <!-- boilerplate auth code is injected with auth.js, check it out for auth setup -->
+        <script src="../boilerplate/auth.js"></script>
+    </head>
+    <body style="font-family: 'Segoe UI', sans-serif;">
+
+        <script>
+            window.onload = function() {
+                initAuth('PAYG Stats');  // initiate auth objects, header, and login modal
+                var tsiClient = new TsiClient();
+
+                var linechartTsqExpressions = [];
+                var startDate = new Date('2017-04-20T20:00:00Z');
+                var endDate = new Date(startDate.valueOf() + 1000*60*60*24*30);
+    
+                linechartTsqExpressions.push(new tsiClient.ux.TsqExpression(
+                    {timeSeriesId: ['df4412c4-dba2-4a52-87af-780e78ff156b']}, // instance json
+                    {Max: {
+                        kind: 'numeric',
+                        value: {tsx: '$event.value.Double'},
+                        filter: null,
+                        aggregation: {tsx: 'max($value)'}
+                    }}, // variable json
+                    { from: startDate, to: endDate, bucketSize: '6h' }, // search span
+                    '#60B9AE', // color
+                    'MaxValue')); // alias
+
+                linechartTsqExpressions.push(new tsiClient.ux.TsqExpression(
+                    {timeSeriesId: ['df4412c4-dba2-4a52-87af-780e78ff156b']}, // instance json
+                    {Avg: {
+                        kind: 'numeric',
+                        value: {tsx: '$event.value.Double'},
+                        filter: null,
+                        aggregation: {tsx: 'avg($value)'}
+                    }}, // variable json
+                    { from: startDate, to: endDate, bucketSize: '6h' }, // search span
+                    '#D869CB', // color
+                    'AvgValue')); // 
+
+                authContext.getTsiToken().then(function(token){
+                    tsiClient.server.getTsqResults(token, '10000000-0000-0000-0000-100000000109.env.timeseries.azure.com', linechartTsqExpressions.map(function(ae){return ae.toStatsTsq()})).then(function(result){
+                        debugger;
+                    });
+                });
+            }
+        </script>
+    </body>
+</html>

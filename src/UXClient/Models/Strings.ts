@@ -27,7 +27,7 @@ class Strings {
         "Stack bars": "Stack bars",
         "Unstack bars": "Unstack bars",
         "No filter results": "No filter results",
-        "All": "All",
+        "All hierarchies": "All hierarchies",
         "Selected": "Selected",
         "toggle visibility for": "toggle visibility for",
         "Series type selection for": "Series type selection for",

@@ -2,7 +2,7 @@
 <!DOCTYPE html> 
 <html>
     <head>
-        <title>Categorical PAYG</title>
+        <title>toStatsTSQ</title>
 
         <!-- styles are only used for styling header and auth elements, where possible -->
         <link rel="stylesheet" type="text/css" href="../styles.css" />
@@ -18,7 +18,7 @@
         <div id="chart1" style="width: 50%; height: 600px; margin-top: 40px; float: left;"></div>
         <script>
             window.onload = function() {
-                initAuth('Categorical PAYG');  // initiate auth objects, header, and login modal
+                initAuth('toStatsTSQ PAYG');  // initiate auth objects, header, and login modal
                 var tsiClient = new TsiClient();
 
                 var linechartTsqExpressions = [];
@@ -91,10 +91,8 @@
                     }));
 
                 authContext.getTsiToken().then(function(token){
-                    tsiClient.server.getTsqResults(token, '0293bb6f-5d98-4953-be00-e8e9eedf9b88.env.timeseries.azure.com', linechartTsqExpressions.map(function(ae){return ae.toTsq()})).then(function(result){
-                        var transformedResult = tsiClient.ux.transformTsqResultsForVisualization(result, linechartTsqExpressions);
-                        var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart1'));
-                        lineChart.render(transformedResult, {theme: 'dark', grid: true, tooltip: true, legend: 'visible'}, linechartTsqExpressions);
+                    tsiClient.server.getTsqResults(token, '0293bb6f-5d98-4953-be00-e8e9eedf9b88.env.timeseries.azure.com', linechartTsqExpressions.map(function(ae){return ae.toStatsTsq(startDate.valueOf(), endDate.valueOf())})).then(function(result){
+                        debugger;
                     });
                 });
             }
