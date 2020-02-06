@@ -21,8 +21,16 @@
                     var lines = {};
                     data.push({[`Factory${i}`]: lines});
                     for(var j = 0; j < 150; j++){
+                        if (i === 0 && j !== 0) {
+                            continue;
+                        } 
+                        
                         var values = {};
-                        lines[`Station${j}`] = values;
+                        let seriesName = `Station${j}`; 
+                        if (i === 0 && j === 0) {
+                            seriesName = '';
+                        }
+                        lines[seriesName] = values;
                         for(var k = 0; k < numberOfBuckets; k++){
                             if (i % 2 === 0) {
                                 // if(!(k%2 && k%3)){  // if check is to create some sparseness in the data
@@ -59,10 +67,10 @@
                 data.push({[`Factory 4`]: lines})
                 for(var j = 0; j < 1; j++){
                     var values = {};
-                    for(var j = 0; j < 2; j++){
+                    for(var j = 0; j < 1; j++){
                         var values = {};
-                        lines[`Station${j}`] = values;
-                        events[`Station${j}`] = {};
+                        lines[``] = values;
+                        events[``] = {};
                         for(var k = 0; k < numberOfBuckets; k++){
                             var val1 = Math.random(); 
                             var val2 = 1- val1;
@@ -89,7 +97,7 @@
                                 let goodOrBad = Math.random() > .5;
                                 let goodAndBad = Math.random() > .8;
                                 let localEvent = {};
-                                events[`Station${j}`][toLocal.toISOString()] = localEvent;
+                                events[``][toLocal.toISOString()] = localEvent;
                                 localEvent[goodOrBad ? 'goodEvent' : 'badEvent'] = (goodOrBad ? random1Through10() : random1Through10());
                                 if (goodAndBad) {
                                     localEvent[goodOrBad ? 'badEvent' : 'goodEvent'] = (!goodOrBad ? random1Through10() : random1Through10());                                    
@@ -145,7 +153,7 @@
                             [{dataType: 'numeric', searchSpan: searchSpan}, 
                             {dataType: 'categorical', valueMapping: valueMapping, height: 100, searchSpan: searchSpan}, 
                             {dataType: 'numeric', searchSpan: searchSpan, onElementClick: onElementClick}, 
-                            {dataType: 'events', valueMapping: eventValueMapping, height: 30 * renderCounter, eventElementType: 'teardrop', onElementClick: onElementClick},
+                            {dataType: 'events', valueMapping: eventValueMapping, height: 30 * renderCounter, onElementClick: onElementClick},
                             {dataType: 'categorical', valueMapping: valueMapping, height: 50, searchSpan: searchSpan, onElementClick: onElementClick}]);
                 }
 
