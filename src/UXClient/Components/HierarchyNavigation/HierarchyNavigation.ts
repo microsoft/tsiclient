@@ -101,9 +101,9 @@ class HierarchyNavigation extends Component{
                         self.hierarchyListElem.append('li').classed('selected', HierarchySelectionValues.All === self.selectedHierarchyName)
                                                             .attr("hName", HierarchySelectionValues.All)
                                                             .attr('tabindex', 0)
-                                                            .attr('arialabel', self.getString("All"))
-                                                            .attr('title', self.getString("All"))
-                                                            .text(self.getString("All")).on('click keydown', function () {
+                                                            .attr('arialabel', self.getString("All hierarchies"))
+                                                            .attr('title', self.getString("All hierarchies"))
+                                                            .text(self.getString("All hierarchies")).on('click keydown', function () {
                                                                 if (d3.event && d3.event.type && d3.event.type === 'keydown') {
                                                                     let key = d3.event.which || d3.event.keyCode;
                                                                     if (key === 40) { // pressed down
@@ -169,7 +169,7 @@ class HierarchyNavigation extends Component{
                         self.isHierarchySelectionActive = true;
                     }
                 });
-                this.hierarchySelectorElem.append('span').classed('tsi-hierarchy-name', true).text(self.getString("All"));
+                this.hierarchySelectorElem.append('span').classed('tsi-hierarchy-name', true).text(self.getString("All hierarchies"));
                 this.hierarchySelectorElem.append('i').classed('tsi-down-caret-icon', true);
                 // hierarchy flyout list
                 this.hierarchyListWrapperElem = hierarchySelectionWrapper.append('div').classed('tsi-hierarchy-list-wrapper', true);
@@ -809,7 +809,7 @@ class HierarchyNavigation extends Component{
     private selectHierarchy = (pathName, applySearch: boolean = true) => {
         this.path = pathName === HierarchySelectionValues.All || pathName === HierarchySelectionValues.Unparented ? [] : [pathName];
         this.selectedHierarchyName = pathName;
-        let pathText = pathName === HierarchySelectionValues.All ? this.getString("All") : pathName === HierarchySelectionValues.Unparented ? this.getString("Unassigned Time Series Instances") : pathName;
+        let pathText = pathName === HierarchySelectionValues.All ? this.getString("All hierarchies") : pathName === HierarchySelectionValues.Unparented ? this.getString("Unassigned Time Series Instances") : pathName;
         d3.select('.tsi-hierarchy-name').text(pathText).attr('title', pathText);
         this.clearAndGetResults(applySearch);
         this.clearAndHideFilterPath();
