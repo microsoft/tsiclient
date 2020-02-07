@@ -190,6 +190,12 @@
                     // [5, {yAxisType: 'overlap'}]
                 ]);
 
+                var swimLaneOptions = {
+                    1: {yAxisType: 'overlap'},
+                    2: {yAxisType: 'shared'},
+                    3: {yAxisType: 'overlap'} 
+                }
+
                 var renderLinechart = function () {
                     lineChart.render(data, {theme: 'light', tooltip: 'true', swimLaneOptions: swimLaneOptions}, chartDataOptions);
                 }

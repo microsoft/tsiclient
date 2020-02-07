@@ -1328,8 +1328,8 @@ class LineChart extends TemporalXAxisComponent {
 
     private getAggAxisType (agg) {
         if (this.chartOptions.yAxisState === YAxisStates.Stacked) {
-            if (this.chartOptions.swimLaneOptions && this.chartOptions.swimLaneOptions.get(agg.swimLane) && this.chartOptions.swimLaneOptions.get(agg.swimLane).yAxisType) {
-                return this.chartOptions.swimLaneOptions.get(agg.swimLane).yAxisType;
+            if (this.chartOptions.swimLaneOptions && this.chartOptions.swimLaneOptions[agg.swimLane] && this.chartOptions.swimLaneOptions[agg.swimLane].yAxisType) {
+                return this.chartOptions.swimLaneOptions[agg.swimLane].yAxisType;
             } else {
                 return YAxisStates.Shared;
             }
@@ -1342,7 +1342,7 @@ class LineChart extends TemporalXAxisComponent {
             this.aggregateExpressionOptions.forEach((aEO) => {
                 aEO.swimLane = 0;
             });
-            this.chartOptions.swimLaneOptions = new Map([[0, {yAxisType: this.chartOptions.yAxisState}]]);
+            this.chartOptions.swimLaneOptions = {0: {yAxisType: this.chartOptions.yAxisState}};
         } else {
             let minimumPresentSwimLane = this.aggregateExpressionOptions.reduce((currMin, aEO) => {
                 return Math.max(aEO.swimLane, currMin); 
