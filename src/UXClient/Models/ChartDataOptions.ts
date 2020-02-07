@@ -47,7 +47,7 @@ class ChartDataOptions {
         this.tooltipAttributes = Utils.getValueOrDefault(optionsObject, 'tooltipAttributes', []);
         this.positionX = Utils.getValueOrDefault(optionsObject, 'positionX', 0);
         this.positionY = Utils.getValueOrDefault(optionsObject, 'positionY', 0);
-        this.swimLane = Utils.getValueOrDefault(optionsObject, 'swimLane', 0);
+        this.swimLane = Utils.getValueOrDefault(optionsObject, 'swimLane', null);
     }
 }
 export {ChartDataOptions}

@@ -55,41 +55,7 @@ class LinePlot extends Plot {
 
         this.yAxisState = yAxisState;
         let yExtent = this.yAxisState.yExtent;
-
-        if ((this.yAxisState.axisType === YAxisStates.Shared) || (Object.keys(this.chartComponentData.timeArrays)).length < 2 || !aggVisible) {
-            var yRange = (yExtent[1] - yExtent[0]) > 0 ? yExtent[1] - yExtent[0] : 1;
-            var yOffsetPercentage = this.chartOptions.isArea ? (1.5 / this.chartHeight) : (10 / this.chartHeight);
-            this.y.domain([yExtent[0] - (yRange * yOffsetPercentage), yExtent[1] + (yRange * (10 / this.chartHeight))]);
-            aggY = this.y;
-            aggLine = d3.line()
-                    .curve(this.chartComponentData.displayState[aggKey].interpolationFunction ? d3[this.chartComponentData.displayState[aggKey].interpolationFunction] : this.chartOptions.interpolationFunction)
-                    .defined( (d: any) => { 
-                        return (d.measures !== null) && 
-                                (d.measures[this.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy)] !== null);
-                    })
-                    .x((d: any) => {
-                        return this.getXPosition(d, this.x);
-                    })
-                    .y((d: any) => { 
-                        return d.measures ? this.y(d.measures[this.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy)]) : 0;
-                    });
-            aggGapLine = null;
-            aggEnvelope = d3.area()
-                        .curve(this.chartComponentData.displayState[aggKey].interpolationFunction ? d3[this.chartComponentData.displayState[aggKey].interpolationFunction] : this.chartOptions.interpolationFunction)
-                        .defined( (d: any) => { 
-                            return (d.measures !== null) && (d.measures['min'] !== null) && (d.measures['max'] !== null);
-                        })
-                        .x((d: any) => {
-                            return this.getXPosition(d, this.x);
-                        })
-                        .y0((d: any) => { 
-                            return d.measures ? this.y(d.measures['max']) : 0;
-                        })
-                        .y1((d: any) => { 
-                            return d.measures ? this.y(d.measures['min']) : 0;
-                        });
-            aggY.range([this.height, this.chartOptions.aggTopMargin]);
-        } else {
+       
             aggY = d3.scaleLinear();
             aggY.range([this.height, this.chartOptions.aggTopMargin]);
 
@@ -120,7 +86,6 @@ class LinePlot extends Plot {
                 .y1((d: any) => d.measures ? aggY(d.measures['min']) : 0);
 
             aggGapLine = aggLine;
-        }
 
         let localY = aggY.copy();
         localY.range([this.yTop + this.height, this.yTop + this.chartOptions.aggTopMargin]);
