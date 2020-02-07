@@ -1257,7 +1257,7 @@ class LineChart extends TemporalXAxisComponent {
                     return;
                 }
                 let aggValues = [];
-                if (String(aggGroup.swimLane) === String(lane)) {
+                if (aggGroup.swimLane === lane) {
                     let aggKey = aggGroup.aggKey;
                     Object.keys(this.chartComponentData.visibleTAs[aggKey]).forEach((splitBy) => {
                         aggValues = aggValues.concat(this.chartComponentData.visibleTAs[aggKey][splitBy]);
@@ -1267,7 +1267,7 @@ class LineChart extends TemporalXAxisComponent {
                             this.chartComponentData.displayState[aggKey].includeEnvelope : 
                             this.chartOptions.includeEnvelope, null);
                     extent = d3.extent(yExtent.concat(extent));
-                    extents[String(lane)] = extent;
+                    extents[lane] = extent;
                 }
             });
         });
@@ -1728,7 +1728,7 @@ class LineChart extends TemporalXAxisComponent {
                             let mouseoutFunction = self.getMouseoutFunction(visibleCDOs[i].dataType);
                             let positionInGroup = visibleNumericI;
                             if (self.getAggAxisType(agg) === YAxisStates.Shared) {
-                                yExtent = self.swimlaneYExtents[String(agg.swimLane)];
+                                yExtent = self.swimlaneYExtents[agg.swimLane];
                             }
 
                             //should count all as same swim lane when not in stacked.
