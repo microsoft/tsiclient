@@ -27,7 +27,7 @@
 }
 
 .tsi-colorPicker {
-    max-width: 204px;
+    max-width: 200px;
 
     &.tsi-light{
 		$grays: grays('light');
@@ -63,12 +63,12 @@
     }
 
     .tsi-colorGrid {
-        width: 204px;
+        width: 200px;
         display: flex;
         flex-direction: row;
         flex-wrap: wrap;
         display: none;
-        padding: 12px;
+        padding: 12px 8px 12px 12px;
         box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.16), 0px 4px 8px rgba(0, 0, 0, 0.12);
         border-radius: 2px;
 
