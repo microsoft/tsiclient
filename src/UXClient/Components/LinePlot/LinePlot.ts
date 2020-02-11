@@ -27,6 +27,22 @@ class LinePlot extends Plot {
         return x(d.dateTime);
     }
 
+    private createAreaPath (y) {
+        this.areaPath = d3.area()
+        .curve(this.chartOptions.interpolationFunction)
+        .defined( (d: any) => { 
+            return (d.measures !== null) && 
+                    (d.measures[this.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy)] !== null);
+        })
+        .x((d: any) => {
+            return this.getXPosition(d, this.x);
+        })
+        .y0((d: any) => { 
+            return d.measures ? y(d.measures[this.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy)]) : 0;
+        })
+        .y1(this.chartHeight);
+    }
+
    // returns the next visibleAggI
     public render (chartOptions, visibleAggI, agg, aggVisible: boolean, aggregateGroup, chartComponentData, yAxisState: AxisState,  
         chartHeight, visibleAggCount, colorMap, previousAggregateData, x, areaPath, strokeOpacity, y, yMap, defs, chartDataOptions,
@@ -39,7 +55,6 @@ class LinePlot extends Plot {
         this.chartComponentData = chartComponentData;
         this.x = x;
         this.y = y;
-        this.areaPath = areaPath;
         let aggKey = agg.aggKey;
         this.aggregateGroup = aggregateGroup;
 
@@ -62,7 +77,10 @@ class LinePlot extends Plot {
             if (this.chartComponentData.aggHasVisibleSplitBys(aggKey)) {
                 var yRange = (yExtent[1] - yExtent[0]) > 0 ? yExtent[1] - yExtent[0] : 1;
                 var yOffsetPercentage = 10 / (this.chartHeight / ((this.yAxisState.axisType === YAxisStates.Overlap) ? 1 : this.visibleAggCount));
-                aggY.domain([yExtent[0] - (yRange * yOffsetPercentage), yExtent[1] + (yRange * (10 / this.chartHeight))]);
+                let yDomainMin = this.chartOptions.isArea ? 
+                    (Math.max(yExtent[0] - (yRange * yOffsetPercentage), 0)) : 
+                    (yExtent[0] - (yRange * yOffsetPercentage));
+                aggY.domain([yDomainMin, yExtent[1] + (yRange * (10 / this.chartHeight))]);
             } else {
                 aggY.domain([0,1]);
                 yExtent = [0, 1];
@@ -251,6 +269,7 @@ class LinePlot extends Plot {
                 }
 
                 if (self.chartOptions.isArea) {
+                    self.createAreaPath(aggY);
                     var area = d3.select(this).selectAll(".valueArea")
                         .data([self.chartComponentData.timeArrays[aggKey][splitBy]]);
 
