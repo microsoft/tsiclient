@@ -58,6 +58,8 @@ class TsqExpression extends ChartDataOptions {
         }
     }
 
+    // This method will create an API query payload for the variable statistics of the first inline variable
+    // of this object, for numeric dataTypes. Categorical types work as expected.
     public toStatsTsq(fromMillis, toMillis){
         let tsq = this.toTsq()
         let shiftMillis = Utils.parseShift(this.timeShift);

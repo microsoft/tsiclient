@@ -1573,7 +1573,7 @@ class LineChart extends TemporalXAxisComponent {
                             .rangeRound([this.xOffset, Math.max(this.xOffset, this.chartWidth - (2 * this.xOffset))]);
         
                 this.y = d3.scaleLinear()
-                        .range([Math.max(this.chartHeight - this.heightNonNumeric(), this.chartOptions.aggTopMargin) - (this.chartOptions.isArea ? 0 : LINECHARTTOPPADDING), this.chartOptions.aggTopMargin]);
+                        .range([Math.max(this.chartHeight - this.heightNonNumeric(), this.chartOptions.aggTopMargin) - LINECHARTTOPPADDING, this.chartOptions.aggTopMargin]);
 
                 var fromAndTo: any = this.chartComponentData.setAllValuesAndVisibleTAs();
                 var xExtent: any = (this.chartComponentData.allValues.length != 0) ? d3.extent(this.chartComponentData.allValues, (d: any) => d.dateTime) : [0,1];
@@ -1704,7 +1704,7 @@ class LineChart extends TemporalXAxisComponent {
                         .duration((this.chartOptions.noAnimate) ? 0 : self.TRANSDURATION)            
                         .ease(d3.easeExp)                                         
                         .attr('transform', (agg, i) => {
-                            return 'translate(0,' + offsetsAndHeights[i][0] + ')';
+                            return self.chartOptions.isArea ? 'none' : 'translate(0,' + offsetsAndHeights[i][0] + ')';
                         })
                         .each(function (agg, i) {
                             let yExtent ;
