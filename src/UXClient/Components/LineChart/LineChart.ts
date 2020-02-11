@@ -14,7 +14,6 @@ import { LinePlot } from '../LinePlot/LinePlot';
 import { CategoricalPlot } from '../CategoricalPlot/CategoricalPlot';
 import { EventsPlot } from '../EventsPlot/EventsPlot';
 import { AxisState } from '../../Models/AxisState';
-import { setFlagsFromString } from 'v8';
 
 class LineChart extends TemporalXAxisComponent {
     private targetElement: any;
