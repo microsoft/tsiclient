@@ -17,8 +17,10 @@ class ChartOptions {
     public brushRangeVisible: boolean; // whether the brush duration label is visible
     public canDownload: boolean; // whether chart's ellipsis menu contains download button
     public color: string; // color of the time selection ghost in availability chart
+    public colors: Array<string>; // array of colors to select in the color picker
     public dateLocale: string; //moment locale specifying the location specific format for dates, along with translations for month and day names
     public defaultAvailabilityZoomRangeMillis: number; // default max period of time shown in the zoomed region of the availability chart
+    public defaultColor: any; //default initial color for the color picker - can be null
     public dTPIsModal: boolean; //whether date time picker should behave like a modal
     public ellipsisItems: Array<any>; //objects reprenting options in the ellipsis menu 
     public focusHidden: boolean; // whether focus element is hidden in chart
@@ -31,6 +33,7 @@ class ChartOptions {
     public initialValue: any; // a value used to hydrate the initial state of the chart
     public interpolationFunction: any; //which interpolation function used for line chart lines
     public isArea: boolean; // whether lines in LineChart are also areas
+    public isColorValueHidden: boolean; // switch to show/hide hex value of the color right next to the color in the color picker button 
     public isCompact: boolean; // whether availability chart is in compact or expanded mode
     public isTemporal: boolean; // whether scatter plot has temporal slider
     public is24HourTime: boolean; // whether time is displayed in 24, or 12 hour time with am/pm
@@ -42,16 +45,19 @@ class ChartOptions {
     public minBrushWidth: number // minimum possible width of brush in linechart
     public minutesForTimeLabels: boolean; // whether time labels forced to minute granularity
     public noAnimate: boolean; // whether animations happen on state change
+    public numberOfColors: number; // number of colors to show in the color picker grid
     public updateInterval: number; // frequency with which the component should trigger updates
     public offset: any; // offset for all timestamps in minutes from UTC
+    public onClick: (d3Event: any) => void; // for handling click, e.g. clicking on color picker
+    public onInput: (searchText: string, event) => void; // for handling after input actions in ModelAutocomplete
     public onInstanceClick: (instance: any) => any;  // for model search, takes an instance and returns an object of context menu actions
+    public onKeydown: (d3Event: any, awesompleteObject: any) => void;  // for handling keydown actions in ModelAutocomplete
     public onMarkersChange: (markers: Array<number>) => any; //triggered when a marker is either added or removed in the linechart
     public onMouseout: () => void;
     public onMouseover: (aggKey: string, splitBy: string) => void;
+    public onSelect: (value: any) => void; // for handling selection action with a parameter passed in a component, e.g. to pass color value string while color selection with color picker component
     public onSticky: (aggKey: string, splitBy: string) => void;
     public onUnsticky: (aggKey: string, splitBy: string) => void;
-    public onKeydown: (d3Event: any, awesompleteObject: any) => void;  // for handling keydown actions in ModelAutocomplete
-    public onInput: (searchText: string, event) => void; // for handling after input actions in ModelAutocomplete
     public preserveAvailabilityState: boolean; // whether state in availability chart is saved or blown away on render
     public persistDateTimeButtonRange: boolean; // whether the date time button range component is persisted in compact availability chart
     public scaledToCurrentTime: boolean; //whether slider base component's scale is based on current time's values (or all values)
@@ -61,6 +67,7 @@ class ChartOptions {
     public singleLineXAxisLabel: boolean; // whether x axis time labels are on a single line (else split into two lines)
     public snapBrush: boolean; // whether to snap linechart brush to closest value
     public stacked: boolean; //whether bars in barchart are stacked
+    public strings: any; // passed in key value pairs of strings -> strings
     public suppressResizeListener: boolean; // whether a component's resize function is ignored. Applies to components which draw an SVG
     public theme: string; // theme for styling chart, light or dark
     public timeFrame: any; // from and to to specify range of an event or state series
@@ -75,7 +82,6 @@ class ChartOptions {
     public yExtent: any; // [min, max] of range of y values in chart
     public zeroYAxis: boolean; // whether bar chart's bar's bottom (or top if negative) is zero
     public withContextMenu: boolean; // whether the hierarchy uses a context menu when you click on a parent of leaf nodes
-    public strings: any; // passed in key value pairs of strings -> strings
 
     public stringsInstance: Strings = new Strings(); 
 
@@ -174,6 +180,12 @@ class ChartOptions {
         this.warmStoreRange = this.mergeValue(chartOptionsObj, 'warmStoreRange', null);
         this.initialValue = this.mergeValue(chartOptionsObj, 'initialValue', null);
         this.dTPIsModal = this.mergeValue(chartOptionsObj, 'dTPIsModal', false);
+        this.defaultColor = this.mergeValue(chartOptionsObj, 'defaultColor', null);
+        this.numberOfColors = this.mergeValue(chartOptionsObj, 'numberOfColors', 15);
+        this.colors = Utils.getValueOrDefault(chartOptionsObj, 'colors', Utils.generateColors(this.numberOfColors, [this.defaultColor]));
+        this.isColorValueHidden = this.mergeValue(chartOptionsObj, 'isColorValueHidden', false);
+        this.onClick = this.mergeValue(chartOptionsObj, 'onClick', () => {});
+        this.onSelect = this.mergeValue(chartOptionsObj, 'onSelect', () => {});
     }
 
     private mergeStrings (strings) {
@@ -260,7 +272,13 @@ class ChartOptions {
             initialValue: this.initialValue,
             bucketSizeMillis: this.bucketSizeMillis,
             updateInterval: this.updateInterval,
-            dTPIsModal: this.dTPIsModal
+            dTPIsModal: this.dTPIsModal,
+            numberOfColors: this.numberOfColors,
+            defaultColor: this.defaultColor,
+            isColorValueHidden: this.isColorValueHidden,
+            onClick: this.onClick,
+            onSelect: this.onSelect,
+            colors: this.colors
         }
     }
 }

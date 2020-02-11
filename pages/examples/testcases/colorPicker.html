@@ -8,7 +8,7 @@
     </head>
     <body style="font-family: 'Segoe UI', sans-serif;">
         <div style="padding-bottom: 20px;">
-            <h3>Options</h3>
+            <h3>Color Picker Options</h3>
             <div>
                 <label>Theme</label>
                 <select onchange="toggleHierarchyNavigationOption('theme', event.target.value)" aria-label="Select theme">
@@ -18,11 +18,11 @@
             </div>
             <div>
                 <label>Number of Colors</label>
-                <input style="width:50px;" type="number" value=15 onchange="toggleHierarchyNavigationOption('numberOfColors', event.target.value)"></input>
+                <input style="width:50px;" type="number" onchange="toggleHierarchyNavigationOption('numberOfColors', parseInt(event.target.value))"></input>
             </div>
             <div>
                 <label>Default Color</label>
-                <input type="text" value="#008272" onchange="toggleHierarchyNavigationOption('defaultColor', event.target.value)"></input>
+                <input type="text" onchange="toggleHierarchyNavigationOption('defaultColor', event.target.value)"></input>
             </div>
             <div>
                 <label>Is Color Value Hidden</label>
@@ -36,23 +36,23 @@
             var cpElement = document.getElementById('cp');
             var colorPickerOptions = {
                 theme: 'light',
-                numberOfColors: 15,
-                defaultColor: "#008272",
-                isColorValueHidden: false
-            }
-
-            onColorSelect = function(colorHex) {
-                console.log(colorHex);
-            }
+                numberOfColors: 12,
+                isColorValueHidden: false,
+                onSelect: colorHex => {
+                    console.log(colorHex);
+                }
+            };
+            
             window.onload = function() {
                 var tsiClient = new TsiClient();
                 colorPicker = new tsiClient.ux.ColorPicker(cpElement);
-                colorPicker.render(Object.assign({}, colorPickerOptions, {onColorSelect: colorHex => this.onColorSelect(colorHex)}));
+                colorPicker.render(colorPickerOptions);
             };
+
             toggleHierarchyNavigationOption = function(property, value = null) {
                 colorPickerOptions[property] = (value === null) ? !colorPickerOptions[property] : value; 
-                colorPicker.render(Object.assign({}, colorPickerOptions, {onColorSelect: colorHex => this.onColorSelect(colorHex)}));
-            }
+                colorPicker.render(colorPickerOptions);
+            };
         </script>
     </body>
 </html>

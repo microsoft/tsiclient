@@ -32,11 +32,19 @@
     &.tsi-light{
 		$grays: grays('light');
         @include colorPickerColors($grays);
+
+        .tsi-noColor {
+            background-image: url(../../Icons/ColorPicker_Light.svg) !important;
+        }
     }
 
     &.tsi-dark{
 		$grays: grays('dark');
         @include colorPickerColors($grays);
+
+        .tsi-noColor {
+            background-image: url(../../Icons/ColorPicker_Dark.svg) !important;
+        }
     }
 
     .tsi-colorPickerButton {
@@ -48,6 +56,11 @@
         .tsi-selectedColor {
             width: 24px;
             height: 24px;
+
+            &.tsi-noColor {
+                background-repeat: no-repeat;
+                background-position: center;
+            }
         }
 
         .tsi-selectedColorValue {
@@ -70,6 +83,7 @@
         display: none;
         padding: 12px 8px 12px 12px;
         box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.16), 0px 4px 8px rgba(0, 0, 0, 0.12);
+        animation: tsi-slideIn 0.367s cubic-bezier(0.1, 0.9, 0.2, 1) forwards;
         border-radius: 2px;
 
         .tsi-colorItem {

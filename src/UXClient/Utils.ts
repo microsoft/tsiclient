@@ -361,7 +361,7 @@ class Utils {
         return text;
     }
 
-    static generateColors (numColors: number) {
+    static generateColors (numColors: number, includeColors: string[] = null) {
         let defaultColors = ['#008272', '#D869CB', '#FF8C00', '#8FE6D7', '#3195E3', '#F7727E', '#E0349E', '#C8E139', '#60B9AE', 
                              '#93CFFB', '#854CC7', '#258225', '#0078D7', '#FF2828', '#FFF100'];
         var postDefaultColors = d3.scaleSequential(d3.interpolateCubehelixDefault).domain([defaultColors.length -.5, numColors - .5]);
@@ -371,6 +371,13 @@ class Utils {
                 colors.push(defaultColors[i])
             else
                 colors.push(postDefaultColors(i));
+        }
+        if (includeColors) {
+            includeColors.forEach((c, idx) => {
+                if (colors.indexOf(c) === -1) {
+                    colors.push(includeColors[idx]);
+                }
+            });
         }
         return colors;
     }

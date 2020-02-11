@@ -4,35 +4,45 @@ import { Utils } from '../../Utils';
 import './ColorPicker.scss';
 
 class ColorPicker extends Component{
-    private colorPickerOptions = new ColorPickerOptions();
     private colorPickerElem;
     private selectedColor;
+    private isColorGridVisible;
 
     constructor(renderTarget: Element){
         super(renderTarget);
     }
 
-    public render (colorPickerOptions: any) {
-        this.colorPickerOptions.setOptions(colorPickerOptions);
-        let colors = Utils.generateColors(this.colorPickerOptions.numberOfColors);
-        this.selectedColor = this.colorPickerOptions.defaultColor ? this.colorPickerOptions.defaultColor : colors[0];
+    public render (options: any = {}) {
+        this.chartOptions.setOptions(options);
+        this.selectedColor = this.chartOptions.defaultColor;
 
         this.colorPickerElem = d3.select(this.renderTarget).classed("tsi-colorPicker", true);
         this.colorPickerElem.text(''); 
-        super.themify( this.colorPickerElem, this.colorPickerOptions.theme);
+        super.themify( this.colorPickerElem, this.chartOptions.theme);
 
         // color selection button
-        let colorPickerButton =  this.colorPickerElem.append('button').classed("tsi-colorPickerButton", true)
-                    .on('click', () => {this.colorPickerOptions.onColorPickerClicked(); this.showColorGrid()});
-        colorPickerButton.append('div').classed("tsi-selectedColor", true).style("background-color", this.selectedColor);
-        colorPickerButton.append('span').classed("tsi-selectedColorValue", true).classed("hidden", this.colorPickerOptions.isColorValueHidden).text(this.selectedColor);
+        let colorPickerButton = this.colorPickerElem.append('button').classed("tsi-colorPickerButton", true)
+                    .on('click', (e) => {
+                        if (this.isColorGridVisible) {
+                            this.hideColorGrid();
+                        } else {
+                            this.chartOptions.onClick(e); this.showColorGrid();
+                        }
+                    });
+        if (this.selectedColor) {
+            colorPickerButton.append('div').classed("tsi-selectedColor", true).style("background-color", this.selectedColor);
+        } else {
+            colorPickerButton.append('div').classed("tsi-selectedColor", true).classed("tsi-noColor", true);
+        }
+
+        colorPickerButton.append('span').classed("tsi-selectedColorValue", true).classed("hidden", this.chartOptions.isColorValueHidden).text(this.selectedColor ? this.selectedColor : this.getString('No color'));
 
         // color grid
         let colorGridElem =  this.colorPickerElem.append('div').classed("tsi-colorGrid", true);
-        colors.forEach(c => {
+        this.chartOptions.colors.forEach(c => {
             let gridItem = colorGridElem.append('div').classed("tsi-colorItem", true).classed("selected", c === this.selectedColor)
                     .style("background-color", c)
-                    .on('click', () => {this.colorPickerOptions.onColorSelect(c); this.hideColorGrid(); this.setSelectedColor(c, gridItem)});
+                    .on('click', () => {this.chartOptions.onSelect(c); this.hideColorGrid(); this.setSelectedColor(c, gridItem)});
         });
 
         d3.select("html").on("click." + Utils.guid(), () => {
@@ -50,13 +60,16 @@ class ColorPicker extends Component{
 
     private showColorGrid = () => {
         this.colorPickerElem.select(".tsi-colorGrid").style("display", "flex");
+        this.isColorGridVisible = true;
     }
 
     private hideColorGrid = () => {
         this.colorPickerElem.select(".tsi-colorGrid").style("display", "none");
+        this.isColorGridVisible = false;
     }
 
     private setSelectedColor = (cStr, gridItem) => {
+        this.colorPickerElem.select(".tsi-selectedColor").classed("tsi-noColor", false);
         this.colorPickerElem.select(".tsi-selectedColor").style("background-color", cStr);
         this.colorPickerElem.select(".tsi-selectedColorValue").text(cStr);
         this.colorPickerElem.select(".tsi-colorItem.selected").classed("selected", false);
@@ -64,29 +77,5 @@ class ColorPicker extends Component{
         this.selectedColor = cStr;
     }
 }
-
-class ColorPickerOptions {
-    public numberOfColors = 10;
-    public defaultColor = "#008272";
-    public theme = Theme.light;
-    public isColorValueHidden = false;
-    public onColorSelect = colorHex => {};
-    public onColorPickerClicked = () => {};
-
-    public setOptions = (options) => {
-        this.numberOfColors = options.hasOwnProperty('numberOfColors') ? options.numberOfColors : this.numberOfColors;
-        this.defaultColor = options.hasOwnProperty('defaultColor') ? options.defaultColor : this.defaultColor;
-        this.theme = options.hasOwnProperty('theme') && options.theme in Theme ? options.theme : this.theme;
-        this.isColorValueHidden = options.hasOwnProperty('isColorValueHidden') ? options.isColorValueHidden : this.isColorValueHidden;
-        if (options.hasOwnProperty('onColorSelect')) {
-            this.onColorSelect = options.onColorSelect;
-        }
-        if (options.hasOwnProperty('onColorPickerClicked')) {
-            this.onColorPickerClicked = options.onColorPickerClicked;
-        } 
-    }
-}
-
-export enum Theme {light = "light", dark = "dark"};
 
 export {ColorPicker};
