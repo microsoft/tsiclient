@@ -118,7 +118,7 @@ class LinePlot extends Plot {
             .attr("class", "yAxis")
             .merge(yAxis)
             .style("visibility", ((visibleYAxis && !this.chartOptions.yAxisHidden) ? "visible" : "hidden"));
-        if (this.yAxisState.axisType === YAxisStates.Overlap && this.visibleAggCount > 1) {
+        if (this.yAxisState.axisType === YAxisStates.Overlap) {
             yAxis.call(d3.axisLeft(aggY).tickFormat(Utils.formatYAxisNumber).tickValues(yExtent))
                 .selectAll("text")
                 .attr("y", (d, j) => {return (j == 0) ? (-visibleAggI * 16) : (visibleAggI * 16) })
