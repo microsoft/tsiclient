@@ -63,7 +63,7 @@ class ColorPicker extends Component{
         this.isColorGridVisible = true;
     }
 
-    private hideColorGrid = () => {
+    public hideColorGrid = () => {
         this.colorPickerElem.select(".tsi-colorGrid").style("display", "none");
         this.isColorGridVisible = false;
     }
