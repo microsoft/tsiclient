@@ -1704,7 +1704,7 @@ class LineChart extends TemporalXAxisComponent {
                         .duration((this.chartOptions.noAnimate) ? 0 : self.TRANSDURATION)            
                         .ease(d3.easeExp)                                         
                         .attr('transform', (agg, i) => {
-                            return self.chartOptions.isArea ? 'none' : 'translate(0,' + offsetsAndHeights[i][0] + ')';
+                            return self.chartOptions.isArea ? null : 'translate(0,' + offsetsAndHeights[i][0] + ')';
                         })
                         .each(function (agg, i) {
                             let yExtent ;

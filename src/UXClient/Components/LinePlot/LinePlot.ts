@@ -126,7 +126,7 @@ class LinePlot extends Plot {
         }
         else {
             yAxis.call(d3.axisLeft(aggY).tickFormat(Utils.formatYAxisNumber)
-                .ticks(Math.max(2, Math.ceil(this.chartHeight/(this.yAxisState.axisType === YAxisStates.Stacked ? this.visibleAggCount : 1)/90))))
+                .ticks(Math.max(2, Math.ceil(this.height/(this.yAxisState.axisType === YAxisStates.Stacked ? this.visibleAggCount : 1)/90))))
                 .selectAll("text").classed("standardYAxisText", true)
         }
         yAxis.exit().remove();
