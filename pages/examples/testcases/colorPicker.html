@@ -1,0 +1,59 @@
+<!DOCTYPE html> 
+<html>
+    <head>
+        <title>Standalone Color Picker</title>
+
+        <!-- boilerplate headers are injected with head.js, grab them from the live example header, or include a link to head.js -->
+        <script src="../../boilerplate/head.js"></script>
+    </head>
+    <body style="font-family: 'Segoe UI', sans-serif;">
+        <div style="padding-bottom: 20px;">
+            <h3>Color Picker Options</h3>
+            <div>
+                <label>Theme</label>
+                <select onchange="toggleColorPickerOption('theme', event.target.value)" aria-label="Select theme">
+                    <option selected>light</option>
+                    <option>dark</option>
+                </select>
+            </div>
+            <div>
+                <label>Number of Colors</label>
+                <input style="width:50px;" type="number" onchange="toggleColorPickerOption('numberOfColors', parseInt(event.target.value))"></input>
+            </div>
+            <div>
+                <label>Default Color</label>
+                <input type="text" onchange="toggleColorPickerOption('defaultColor', event.target.value)"></input>
+            </div>
+            <div>
+                <label>Is Color Value Hidden</label>
+                <input type="checkbox" onchange="toggleColorPickerOption('isColorValueHidden', event.target.checked)"></input>
+            </div>
+        </div>
+
+        <div id="cp"></div>
+        <script>
+            var colorPicker;
+            var cpElement = document.getElementById('cp');
+            var colorPickerOptions = {
+                theme: 'light',
+                numberOfColors: 15,
+                defaultColor: null,
+                isColorValueHidden: false,
+                onSelect: colorHex => {
+                    console.log(colorHex);
+                }
+            };
+            
+            window.onload = function() {
+                var tsiClient = new TsiClient();
+                colorPicker = new tsiClient.ux.ColorPicker(cpElement);
+                colorPicker.render(colorPickerOptions);
+            };
+
+            toggleColorPickerOption = function(property, value = null) {
+                colorPickerOptions[property] = (value === null) ? !colorPickerOptions[property] : value; 
+                colorPicker.render(colorPickerOptions);
+            };
+        </script>
+    </body>
+</html>

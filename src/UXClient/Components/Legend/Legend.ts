@@ -258,6 +258,7 @@ class Legend extends Component {
                         return `${showOrHide} ${splitBy} ${self.getString('in group')} ${self.chartComponentData.displayState[aggKey].name}`;
 
                     })
+                    .attr('title', () => self.getString('Show/Hide values'))
                     .on("click", function (data: any, i: number) {
                         d3.event.stopPropagation();
                         self.toggleSplitByVisible(aggKey, splitBy);
