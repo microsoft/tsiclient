@@ -40,7 +40,7 @@ class ColorPicker extends Component{
         // color grid
         let colorGridElem =  this.colorPickerElem.append('div').classed("tsi-colorGrid", true);
         this.chartOptions.colors.forEach(c => {
-            let gridItem = colorGridElem.append('div').classed("tsi-colorItem", true).classed("selected", c === this.selectedColor)
+            let gridItem = colorGridElem.append('div').classed("tsi-colorItem", true).classed("tsi-selected", c === this.selectedColor)
                     .style("background-color", c)
                     .on('click', () => {this.chartOptions.onSelect(c); this.hideColorGrid(); this.setSelectedColor(c, gridItem)});
         });
@@ -72,8 +72,8 @@ class ColorPicker extends Component{
         this.colorPickerElem.select(".tsi-selectedColor").classed("tsi-noColor", false);
         this.colorPickerElem.select(".tsi-selectedColor").style("background-color", cStr);
         this.colorPickerElem.select(".tsi-selectedColorValue").text(cStr);
-        this.colorPickerElem.select(".tsi-colorItem.selected").classed("selected", false);
-        gridItem.classed("selected", true);
+        this.colorPickerElem.select(".tsi-colorItem.tsi-selected").classed("tsi-selected", false);
+        gridItem.classed("tsi-selected", true);
         this.selectedColor = cStr;
     }
 }

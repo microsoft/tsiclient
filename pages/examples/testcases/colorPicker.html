@@ -11,22 +11,22 @@
             <h3>Color Picker Options</h3>
             <div>
                 <label>Theme</label>
-                <select onchange="toggleHierarchyNavigationOption('theme', event.target.value)" aria-label="Select theme">
+                <select onchange="toggleColorPickerOption('theme', event.target.value)" aria-label="Select theme">
                     <option selected>light</option>
                     <option>dark</option>
                 </select>
             </div>
             <div>
                 <label>Number of Colors</label>
-                <input style="width:50px;" type="number" onchange="toggleHierarchyNavigationOption('numberOfColors', parseInt(event.target.value))"></input>
+                <input style="width:50px;" type="number" onchange="toggleColorPickerOption('numberOfColors', parseInt(event.target.value))"></input>
             </div>
             <div>
                 <label>Default Color</label>
-                <input type="text" onchange="toggleHierarchyNavigationOption('defaultColor', event.target.value)"></input>
+                <input type="text" onchange="toggleColorPickerOption('defaultColor', event.target.value)"></input>
             </div>
             <div>
                 <label>Is Color Value Hidden</label>
-                <input type="checkbox" onchange="toggleHierarchyNavigationOption('isColorValueHidden', event.target.checked)"></input>
+                <input type="checkbox" onchange="toggleColorPickerOption('isColorValueHidden', event.target.checked)"></input>
             </div>
         </div>
 
@@ -50,7 +50,7 @@
                 colorPicker.render(colorPickerOptions);
             };
 
-            toggleHierarchyNavigationOption = function(property, value = null) {
+            toggleColorPickerOption = function(property, value = null) {
                 colorPickerOptions[property] = (value === null) ? !colorPickerOptions[property] : value; 
                 colorPicker.render(colorPickerOptions);
             };
