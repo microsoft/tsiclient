@@ -2,7 +2,8 @@ import * as d3 from 'd3';
 import { interpolatePath } from 'd3-interpolate-path';
 import './LinePlot.scss';
 import { Plot } from '../../Interfaces/Plot';
-import { Utils, DataTypes } from '../../Utils';
+import { Utils, DataTypes, YAxisStates } from '../../Utils';
+import { AxisState } from '../../Models/AxisState';
 
 class LinePlot extends Plot {
     private defs;
@@ -12,6 +13,7 @@ class LinePlot extends Plot {
     private strokeOpacity;
     private previousIncludeDots;
     private areaPath;
+    private yAxisState: AxisState;
 
     constructor (svgSelection) {
         super(svgSelection);
@@ -25,8 +27,24 @@ class LinePlot extends Plot {
         return x(d.dateTime);
     }
 
+    private createAreaPath (y) {
+        this.areaPath = d3.area()
+        .curve(this.chartOptions.interpolationFunction)
+        .defined( (d: any) => { 
+            return (d.measures !== null) && 
+                    (d.measures[this.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy)] !== null);
+        })
+        .x((d: any) => {
+            return this.getXPosition(d, this.x);
+        })
+        .y0((d: any) => { 
+            return d.measures ? y(d.measures[this.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy)]) : 0;
+        })
+        .y1(this.chartHeight);
+    }
+
    // returns the next visibleAggI
-    public render (chartOptions, visibleAggI, agg, aggVisible: boolean, aggregateGroup, chartComponentData, yExtent,  
+    public render (chartOptions, visibleAggI, agg, aggVisible: boolean, aggregateGroup, chartComponentData, yAxisState: AxisState,  
         chartHeight, visibleAggCount, colorMap, previousAggregateData, x, areaPath, strokeOpacity, y, yMap, defs, chartDataOptions,
         previousIncludeDots, yTopAndHeight, svgSelection, categoricalMouseover, categoricalMouseout) {
         this.previousIncludeDots = previousIncludeDots;
@@ -37,9 +55,10 @@ class LinePlot extends Plot {
         this.chartComponentData = chartComponentData;
         this.x = x;
         this.y = y;
-        this.areaPath = areaPath;
         let aggKey = agg.aggKey;
         this.aggregateGroup = aggregateGroup;
+
+        visibleAggI = yAxisState.positionInGroup;
 
         this.yTop = yTopAndHeight[0];
         this.height = yTopAndHeight[1];
@@ -49,50 +68,19 @@ class LinePlot extends Plot {
         let aggEnvelope;
         let aggGapLine;
 
-        let overwriteYRange = null;
-        if ((this.chartOptions.yAxisState === "shared") || (Object.keys(this.chartComponentData.timeArrays)).length < 2 || !aggVisible) {
-            var yRange = (yExtent[1] - yExtent[0]) > 0 ? yExtent[1] - yExtent[0] : 1;
-            var yOffsetPercentage = this.chartOptions.isArea ? (1.5 / this.chartHeight) : (10 / this.chartHeight);
-            this.y.domain([yExtent[0] - (yRange * yOffsetPercentage), yExtent[1] + (yRange * (10 / this.chartHeight))]);
-            aggY = this.y;
-            aggLine = d3.line()
-                    .curve(this.chartComponentData.displayState[aggKey].interpolationFunction ? d3[this.chartComponentData.displayState[aggKey].interpolationFunction] : this.chartOptions.interpolationFunction)
-                    .defined( (d: any) => { 
-                        return (d.measures !== null) && 
-                                (d.measures[this.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy)] !== null);
-                    })
-                    .x((d: any) => {
-                        return this.getXPosition(d, this.x);
-                    })
-                    .y((d: any) => { 
-                        return d.measures ? this.y(d.measures[this.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy)]) : 0;
-                    });
-            aggGapLine = null;
-            aggEnvelope = d3.area()
-                        .curve(this.chartComponentData.displayState[aggKey].interpolationFunction ? d3[this.chartComponentData.displayState[aggKey].interpolationFunction] : this.chartOptions.interpolationFunction)
-                        .defined( (d: any) => { 
-                            return (d.measures !== null) && (d.measures['min'] !== null) && (d.measures['max'] !== null);
-                        })
-                        .x((d: any) => {
-                            return this.getXPosition(d, this.x);
-                        })
-                        .y0((d: any) => { 
-                            return d.measures ? this.y(d.measures['max']) : 0;
-                        })
-                        .y1((d: any) => { 
-                            return d.measures ? this.y(d.measures['min']) : 0;
-                        });
-        } else {
+        this.yAxisState = yAxisState;
+        let yExtent = this.yAxisState.yExtent;
+       
             aggY = d3.scaleLinear();
-            overwriteYRange = [this.yTop + this.height, this.yTop + this.chartOptions.aggTopMargin];
-
-            aggY.range([(this.chartHeight / this.visibleAggCount), this.chartOptions.aggTopMargin]);
             aggY.range([this.height, this.chartOptions.aggTopMargin]);
 
             if (this.chartComponentData.aggHasVisibleSplitBys(aggKey)) {
                 var yRange = (yExtent[1] - yExtent[0]) > 0 ? yExtent[1] - yExtent[0] : 1;
-                var yOffsetPercentage = 10 / (this.chartHeight / ((this.chartOptions.yAxisState == "overlap") ? 1 : this.visibleAggCount));
-                aggY.domain([yExtent[0] - (yRange * yOffsetPercentage), yExtent[1] + (yRange * (10 / this.chartHeight))]);
+                var yOffsetPercentage = 10 / (this.chartHeight / ((this.yAxisState.axisType === YAxisStates.Overlap) ? 1 : this.visibleAggCount));
+                let yDomainMin = this.chartOptions.isArea ? 
+                    (Math.max(yExtent[0] - (yRange * yOffsetPercentage), 0)) : 
+                    (yExtent[0] - (yRange * yOffsetPercentage));
+                aggY.domain([yDomainMin, yExtent[1] + (yRange * (10 / this.chartHeight))]);
             } else {
                 aggY.domain([0,1]);
                 yExtent = [0, 1];
@@ -116,7 +104,6 @@ class LinePlot extends Plot {
                 .y1((d: any) => d.measures ? aggY(d.measures['min']) : 0);
 
             aggGapLine = aggLine;
-        }
 
         let localY = aggY.copy();
         localY.range([this.yTop + this.height, this.yTop + this.chartOptions.aggTopMargin]);
@@ -124,14 +111,14 @@ class LinePlot extends Plot {
         
         var yAxis: any = this.aggregateGroup.selectAll(".yAxis")
                         .data([aggKey]);
-        var visibleYAxis = (aggVisible && (this.chartOptions.yAxisState != "shared" || visibleAggI === 0));
+        var visibleYAxis = (aggVisible && (this.yAxisState.axisType !== YAxisStates.Shared || visibleAggI === 0));
         
         yAxis = yAxis.enter()
             .append("g")
             .attr("class", "yAxis")
             .merge(yAxis)
             .style("visibility", ((visibleYAxis && !this.chartOptions.yAxisHidden) ? "visible" : "hidden"));
-        if (this.chartOptions.yAxisState == "overlap" && this.visibleAggCount > 1) {
+        if (this.yAxisState.axisType === YAxisStates.Overlap && this.visibleAggCount > 1) {
             yAxis.call(d3.axisLeft(aggY).tickFormat(Utils.formatYAxisNumber).tickValues(yExtent))
                 .selectAll("text")
                 .attr("y", (d, j) => {return (j == 0) ? (-visibleAggI * 16) : (visibleAggI * 16) })
@@ -139,7 +126,7 @@ class LinePlot extends Plot {
         }
         else {
             yAxis.call(d3.axisLeft(aggY).tickFormat(Utils.formatYAxisNumber)
-                .ticks(Math.max(2, Math.ceil(this.chartHeight/(this.chartOptions.yAxisState == 'stacked' ? this.visibleAggCount : 1)/90))))
+                .ticks(Math.max(2, Math.ceil(this.chartHeight/(this.yAxisState.axisType === YAxisStates.Stacked ? this.visibleAggCount : 1)/90))))
                 .selectAll("text").classed("standardYAxisText", true)
         }
         yAxis.exit().remove();
@@ -196,7 +183,7 @@ class LinePlot extends Plot {
                     })   
                     .transition()
                     .duration(durationFunction)
-                    .ease(d3.easeExp)                                         
+                    .ease(d3.easeExp)
                     .attr("stroke-dasharray","5,5")      
                     .attr("stroke", splitByColors[j])
                     .attrTween('d', function (d) {
@@ -282,6 +269,7 @@ class LinePlot extends Plot {
                 }
 
                 if (self.chartOptions.isArea) {
+                    self.createAreaPath(aggY);
                     var area = d3.select(this).selectAll(".valueArea")
                         .data([self.chartComponentData.timeArrays[aggKey][splitBy]]);
 

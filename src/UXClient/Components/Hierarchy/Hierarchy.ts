@@ -71,7 +71,7 @@ class Hierarchy extends Component {
         });
 
         var navTabs = targetElement.append('div').classed('tsi-navTabWrapper', true);
-        var allTab = navTabs.append('div').classed('tsi-navTab tsi-selected', true).text(this.getString('All'));
+        var allTab = navTabs.append('div').classed('tsi-navTab tsi-selected', true).text(this.getString('All hierarchies'));
         var selectedTab = navTabs.append('div').classed('tsi-navTab', true).text(this.getString('Selected'));
         
         var list = targetElement.append('div').classed('tsi-hierarchyList', true);

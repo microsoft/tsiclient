@@ -39,9 +39,9 @@ class TsqExpression extends ChartDataOptions {
         let fromMillis = this.searchSpan.from.valueOf() + shiftMillis;
         let toMillis = this.searchSpan.to.valueOf() + shiftMillis;
         let bucketSizeInMillis = Utils.parseTimeInput(this.searchSpan.bucketSize);
-        let roundedFromMillis = Math.floor((fromMillis + 62135596800000) / (bucketSizeInMillis)) * (bucketSizeInMillis) - 62135596800000; 
-        let roundedToMillis = Math.ceil((toMillis + 62135596800000) / (bucketSizeInMillis)) * (bucketSizeInMillis) - 62135596800000;
         if (roundFromTo) {
+            let roundedFromMillis = Math.floor((fromMillis + 62135596800000) / (bucketSizeInMillis)) * (bucketSizeInMillis) - 62135596800000; 
+            let roundedToMillis = Math.ceil((toMillis + 62135596800000) / (bucketSizeInMillis)) * (bucketSizeInMillis) - 62135596800000;
             fromMillis = roundedFromMillis;
             toMillis = roundedToMillis;
         }
@@ -56,6 +56,28 @@ class TsqExpression extends ChartDataOptions {
             tsq['projectedVariables'] = Object.keys(this.variableObject);
             return {aggregateSeries: tsq};
         }
+    }
+
+    // This method will create an API query payload for the variable statistics of the first inline variable
+    // of this object, for numeric dataTypes. Categorical types work as expected.
+    public toStatsTsq(fromMillis, toMillis){
+        let tsq = this.toTsq()
+        let shiftMillis = Utils.parseShift(this.timeShift);
+        fromMillis += shiftMillis;
+        toMillis += shiftMillis;
+        tsq.aggregateSeries['searchSpan'] = {from: (new Date(fromMillis)).toISOString(), to: (new Date(toMillis)).toISOString()}; 
+        tsq.aggregateSeries['interval'] = 'P1000Y';
+        if(this.dataType === 'numeric') {
+            let inlineVariables = {min: {}, max: {}, avg: {}, stDev: {}};
+            let firstVariable = tsq.aggregateSeries['inlineVariables'][Object.keys(tsq.aggregateSeries['inlineVariables'])[0]];
+            Object.keys(inlineVariables).forEach(k => {
+                inlineVariables[k] = JSON.parse(JSON.stringify(firstVariable));
+                inlineVariables[k].aggregation.tsx = `${k}($value)`;
+            })
+            tsq.aggregateSeries['inlineVariables'] = inlineVariables;        
+            tsq.aggregateSeries['projectedVariables'] = Object.keys(inlineVariables);
+        }
+        return tsq;
     }
 }
 export {TsqExpression}

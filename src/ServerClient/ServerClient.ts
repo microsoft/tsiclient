@@ -35,6 +35,8 @@ class ServerClient {
                 }
                 xhr.open(httpMethod, uri);
                 xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+                if(httpMethod == 'POST')
+                    xhr.setRequestHeader('Content-Type', 'application/json');
                 if (continuationToken)
                     xhr.setRequestHeader('x-ms-continuation', continuationToken);
                 xhr.send(payload);
@@ -105,6 +107,7 @@ class ServerClient {
                     xhr.onreadystatechange = onreadystatechange;
                     xhr.open('POST', uri);
                     xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+                    xhr.setRequestHeader('Content-Type', 'application/json');
                     continuationToken = message.continuationToken;
                     xhr.setRequestHeader('x-ms-continuation', continuationToken);
                     xhr.send(JSON.stringify(contentObject));
@@ -115,6 +118,7 @@ class ServerClient {
                 retryTimeout = this.retryWithDelay(retryCount, () => {
                     xhr.open('POST', uri);
                     xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+                    xhr.setRequestHeader('Content-Type', 'application/json');
                     if(continuationToken)
                         xhr.setRequestHeader('x-ms-continuation', continuationToken);
                     xhr.send(JSON.stringify(contentObject));
@@ -136,6 +140,7 @@ class ServerClient {
         }
         xhr.open('POST', uri);
         xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+        xhr.setRequestHeader('Content-Type', 'application/json');
         xhr.send(JSON.stringify(contentObject));
     }
 
@@ -333,6 +338,8 @@ class ServerClient {
         sendRequest = () => {
             xhr.open(verb, url);
             xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+            if(verb === 'POST')
+                xhr.setRequestHeader('Content-Type', 'application/json');
             if (continuationToken)
                 xhr.setRequestHeader('x-ms-continuation', continuationToken);
             xhr.send(JSON.stringify({take: 100000}));

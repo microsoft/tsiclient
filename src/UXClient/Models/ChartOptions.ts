@@ -69,6 +69,7 @@ class ChartOptions {
     public stacked: boolean; //whether bars in barchart are stacked
     public strings: any; // passed in key value pairs of strings -> strings
     public suppressResizeListener: boolean; // whether a component's resize function is ignored. Applies to components which draw an SVG
+    public swimLaneOptions: any;  // mapping of swim lane number to information about that swimlane, including axis type
     public theme: string; // theme for styling chart, light or dark
     public timeFrame: any; // from and to to specify range of an event or state series
     public timestamp: any; //For components with a slider, this is the selected timestamp
@@ -186,6 +187,7 @@ class ChartOptions {
         this.isColorValueHidden = this.mergeValue(chartOptionsObj, 'isColorValueHidden', false);
         this.onClick = this.mergeValue(chartOptionsObj, 'onClick', () => {});
         this.onSelect = this.mergeValue(chartOptionsObj, 'onSelect', () => {});
+        this.swimLaneOptions = this.mergeValue(chartOptionsObj, 'swimLaneOptions', {});
     }
 
     private mergeStrings (strings) {
@@ -278,7 +280,8 @@ class ChartOptions {
             isColorValueHidden: this.isColorValueHidden,
             onClick: this.onClick,
             onSelect: this.onSelect,
-            colors: this.colors
+            colors: this.colors,
+            swimLaneOptions: this.swimLaneOptions
         }
     }
 }
