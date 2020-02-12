@@ -78,7 +78,9 @@ class Strings {
         "zoom out": "zoom out",
         "select quick time of": "select quick time of",
         "a time selection control dialog.": "a time selection control dialog.",
-        "No color": "No color"
+        "No color": "No color",
+        "Change y-axis type": "Change y-axis type",
+        "Show/Hide values": "Show/Hide values"
     };
   
     private stringValues: any = {};

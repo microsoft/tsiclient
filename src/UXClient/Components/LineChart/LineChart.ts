@@ -1416,6 +1416,7 @@ class LineChart extends TemporalXAxisComponent {
                 .style("left", "60px")
                 .attr("class", "tsi-stackedButton")
                 .attr("aria-label", () => this.getString("set axis state to") + ' ' + this.nextStackedState())
+                .attr("title", () => this.getString("Change y-axis type"))
                 .attr("type", "button")
                 .on("click", function () {
                     self.overwriteSwimLanes();

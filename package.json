@@ -12,10 +12,10 @@
         "start": "webpack-dev-server --contentBase pages/examples --mode development --public insights-local.timeseries.azure.com:443 --host insights-local.timeseries.azure.com --port 443 --https"
     },
     "devDependencies": {
-        "css-loader": "^0.28.11",
+        "css-loader": "^3.4.2",
         "file-loader": "^1.1.11",
         "mini-css-extract-plugin": "^0.4.4",
-        "node-sass": "^4.9.3",
+        "node-sass": "^4.13.1",
         "sass-loader": "^6.0.7",
         "style-loader": "^0.19.1",
         "svg-inline-loader": "^0.8.0",
@@ -34,7 +34,7 @@
         "d3": "^4.13.0",
         "d3-interpolate-path": "^1.1.1",
         "moment-timezone": "^0.5.21",
-        "npm": "^6.4.0",
+        "npm": "^6.13.7",
         "promise-polyfill": "^7.1.0",
         "split.js": "^1.5.11"
     }
