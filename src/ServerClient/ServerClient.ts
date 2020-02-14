@@ -72,7 +72,7 @@ class ServerClient {
         return events;
     }
 
-    private getQueryApiResult = (token, results, contentObject, index, uri, resolve, messageProperty, onProgressChange = (percentComplete) => {}, mergeAccumulatedResults = false, xhr = null) => {
+    private getQueryApiResult = (token, results, contentObject, index, uri, resolve, messageProperty, onProgressChange: (...args: any[]) => void = (percentComplete) => {}, mergeAccumulatedResults = false, xhr = null) => {
         if (xhr === null) {
             xhr = new XMLHttpRequest();
         }
@@ -144,7 +144,7 @@ class ServerClient {
         xhr.send(JSON.stringify(contentObject));
     }
 
-    public getCancellableTsqResults (token: string, uri: string, tsqArray: Array<any>, onProgressChange = () => {}, mergeAccumulatedResults = false, storeType: string = null): Array<any | Function> {
+    public getCancellableTsqResults (token: string, uri: string, tsqArray: Array<any>, onProgressChange: (...args: any[]) => void = () => {}, mergeAccumulatedResults = false, storeType: string = null): Array<any | Function> {
         // getTsqResults() returns either a promise or an array containing a promise + cancel trigger 
         // depending on whether we set the hasCancelTrigger flag. Here we need to set the type of what
         // we get back to 'unknown'. This lets TypeScript know that we have enough information to
@@ -153,7 +153,7 @@ class ServerClient {
         return (promiseAndTrigger as Array<any | Function>);
     }
 
-    public getTsqResults(token: string, uri: string, tsqArray: Array<any>, onProgressChange = () => {}, mergeAccumulatedResults = false, storeType: string = null, hasCancelTrigger = false) {
+    public getTsqResults(token: string, uri: string, tsqArray: Array<any>, onProgressChange: (...args: any[]) => void = () => {}, mergeAccumulatedResults = false, storeType: string = null, hasCancelTrigger = false) {
         var tsqResults = [];
         tsqArray.forEach(tsq => {
             tsqResults.push({progress: 0});
@@ -183,7 +183,7 @@ class ServerClient {
         return promise;
     }
 
-    public getAggregates(token: string, uri: string, tsxArray: Array<any>, onProgressChange = () => {}) {
+    public getAggregates(token: string, uri: string, tsxArray: Array<any>, onProgressChange: (...args: any[]) => void = () => {}) {
         var aggregateResults = [];
         tsxArray.forEach(ae => {
             aggregateResults.push({progress: 0});

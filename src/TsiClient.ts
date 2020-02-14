@@ -1,6 +1,5 @@
-import {ServerClient} from "./ServerClient/ServerClient";
-import {UXClient} from "./UXClient/UXClient";
-import * as d3 from 'd3';
+import { ServerClient } from "./ServerClient/ServerClient";
+import { UXClient } from "./UXClient/UXClient";
 import { Utils } from "./UXClient/Utils";
 
 class TsiClient {
@@ -8,6 +7,7 @@ class TsiClient {
     public ux = new UXClient();
     public utils = Utils;
 }
+
 export default TsiClient;
 
 (<any>window).TsiClient = TsiClient;

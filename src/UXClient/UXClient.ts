@@ -12,8 +12,6 @@ import {EventsTable} from "./Components/EventsTable/EventsTable";
 import {ModelSearch} from "./Components/ModelSearch/ModelSearch"; 
 import {DateTimePicker} from "./Components/DateTimePicker/DateTimePicker";
 import {TimezonePicker} from "./Components/TimezonePicker/TimezonePicker";
-import {Utils} from "./Utils";
-import './styles.scss'
 import { EllipsisMenu } from "./Components/EllipsisMenu/EllipsisMenu";
 import { TsqExpression } from "./Models/TsqExpression";
 import { ModelAutocomplete } from "./Components/ModelAutocomplete/ModelAutocomplete";
@@ -23,106 +21,36 @@ import { DateTimeButtonSingle } from "./Components/DateTimeButtonSingle/DateTime
 import { DateTimeButtonRange } from "./Components/DateTimeButtonRange/DateTimeButtonRange";
 import { ProcessGraphic } from './Components/ProcessGraphic/ProcessGraphic';
 import { ColorPicker } from "./Components/ColorPicker/ColorPicker";
+import {Utils} from "./Utils";
+import './styles.scss'
 
 class UXClient {
     UXClient () {
     }
 
-    public DateTimePicker(renderTarget) {
-        return new DateTimePicker(renderTarget);
-    }
-
-    public PieChart(renderTarget) {
-        return new PieChart(renderTarget);
-    }
-
-    public ScatterPlot(renderTarget) {
-        return new ScatterPlot(renderTarget);
-    }
-    
-    public BarChart(renderTarget){
-        return new GroupedBarChart(renderTarget);
-    }
-
-    public LineChart(renderTarget){
-        return new LineChart(renderTarget);
-    }
-
-    public AvailabilityChart(renderTarget){
-        return new AvailabilityChart(renderTarget);
-    }
-    
-    public Grid(renderTarget){
-        return new Grid(renderTarget);
-    }
-    
-    public Slider(renderTarget){
-        return new Slider(renderTarget);
-    }
-
-    public Hierarchy(renderTarget) {
-        return new Hierarchy(renderTarget);
-    }
-
-    public AggregateExpression(predicateObject: any, measureObject: any, measureTypes: Array<string>, searchSpan: any, 
-                                        splitByObject: any = null, colorOrOptionsObject: any, alias: string = '', 
-                                        contextMenu: Array<any> = []): any {
-        return new AggregateExpression(predicateObject, measureObject, measureTypes, searchSpan, splitByObject, colorOrOptionsObject, 
-                                        alias, contextMenu);
-    }
-
-    public TsqExpression(instanceObject: any, variableObject: any, searchSpan: any, 
-        colorOrOptionsObject: any, alias: string = '', contextMenu: Array<any> = []){
-            return new TsqExpression(instanceObject, variableObject, searchSpan, colorOrOptionsObject, alias, contextMenu);
-    }
-
-    public Heatmap(renderTarget) {
-        return new Heatmap(renderTarget);
-    }
-
-    public EventsTable(renderTarget) {
-        return new EventsTable(renderTarget);
-    }
-
-    public ModelSearch(renderTarget) {
-        return new ModelSearch(renderTarget);
-    }
-
-    public ModelAutocomplete(renderTarget) {
-        return new ModelAutocomplete(renderTarget);
-    }
-
-    public HierarchyNavigation(renderTarget) {
-        return new HierarchyNavigation(renderTarget);
-    }
-
-    public TimezonePicker(renderTarget) {
-        return new TimezonePicker(renderTarget);
-    }
-
-    public EllipsisMenu(renderTarget) {
-        return new EllipsisMenu(renderTarget);
-    }
-
-    public SingleDateTimePicker(renderTarget) {
-        return new SingleDateTimePicker(renderTarget);
-    }
-
-    public DateTimeButtonSingle (renderTarget) {
-        return new DateTimeButtonSingle(renderTarget);
-    } 
-
-    public DateTimeButtonRange (renderTarget) {
-        return new DateTimeButtonRange(renderTarget);
-    }
-
-    public ProcessGraphic(renderTarget) {
-        return new ProcessGraphic(renderTarget);
-    }
-
-    public ColorPicker(renderTarget) {
-        return new ColorPicker(renderTarget);
-    }
+    public AggregateExpression: typeof AggregateExpression = AggregateExpression;
+    public AvailabilityChart: typeof AvailabilityChart = AvailabilityChart;
+    public BarChart: typeof GroupedBarChart = GroupedBarChart;
+    public ColorPicker: typeof ColorPicker = ColorPicker;
+    public DateTimeButtonRange: typeof DateTimeButtonRange = DateTimeButtonRange;
+    public DateTimeButtonSingle: typeof DateTimeButtonSingle = DateTimeButtonSingle;
+    public DateTimePicker: typeof DateTimePicker = DateTimePicker;
+    public EllipsisMenu: typeof EllipsisMenu = EllipsisMenu;
+    public EventsTable: typeof EventsTable = EventsTable;
+    public Grid: typeof Grid = Grid;
+    public Heatmap: typeof Heatmap = Heatmap;
+    public Hierarchy: typeof Hierarchy = Hierarchy;
+    public HierarchyNavigation: typeof HierarchyNavigation = HierarchyNavigation;
+    public LineChart: typeof LineChart = LineChart;
+    public ModelAutocomplete: typeof ModelAutocomplete = ModelAutocomplete;
+    public ModelSearch: typeof ModelSearch = ModelSearch;
+    public PieChart: typeof PieChart = PieChart;
+    public ProcessGraphic: typeof ProcessGraphic = ProcessGraphic;
+    public ScatterPlot: typeof ScatterPlot = ScatterPlot;
+    public SingleDateTimePicker: typeof SingleDateTimePicker = SingleDateTimePicker;
+    public Slider: typeof Slider = Slider;
+    public TimezonePicker: typeof TimezonePicker = TimezonePicker;
+    public TsqExpression: typeof TsqExpression = TsqExpression;
 
     public transformTsxToEventsArray (events, options) {
         var timezoneOffset = options.timezoneOffset ? options.timezoneOffset : 0;
