@@ -529,14 +529,13 @@ class DateTimePicker extends ChartComponent{
         var timeInputContainer = this.timeControls.append("div").attr("class", "tsi-timeInputContainer");
         var createTimePicker = (startOrEnd) => {
             var fromOrToContainer = timeInputContainer.append("div").classed("tsi-" + startOrEnd + "Container", true);
-            let startOrEndText = startOrEnd ? 'Start' : 'End';
             let inputLabelID = Utils.guid();
             let inputID = inputLabelID + 'Input';
             let timeLabel = fromOrToContainer.append("label")
                 .classed("tsi-timeLabel", true)
                 .attr('id', inputLabelID)
                 .attr('for', inputID)
-                .attr('aria-label', `${startOrEnd ? this.getString('Start time input') : this.getString('End time input')}`)
+                .attr('aria-label', `${startOrEnd === 'start' ? this.getString('Start time input') : this.getString('End time input')}`)
                 .text(this.getString(startOrEnd));
             let inputName = startOrEnd === 'start' ? 'fromInput' : 'toInput'
             this[inputName] = fromOrToContainer.append('input')
