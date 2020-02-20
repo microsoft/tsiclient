@@ -1281,6 +1281,13 @@ class LineChart extends TemporalXAxisComponent {
 
         let visibleNumericCount;
         let swimLaneSet = {};
+
+        visibleCDOs.forEach((aEO, i) => {
+            if (aEO.swimLane === null) {
+                aEO.swimLane = i + 1;
+            }
+        });
+
         visibleCDOs.forEach((cDO) => {
             swimLaneSet[cDO.swimLane] = swimLaneSet[cDO.swimLane] || (cDO.dataType === DataTypes.Numeric);
         });    
