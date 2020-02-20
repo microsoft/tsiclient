@@ -108,6 +108,10 @@ class DateTimePicker extends ChartComponent{
         this.displayRangeErrors(rangeErrorCheck.errors);
     }
 
+    private onSaveOrCancel = () => {
+        this.isSettingStartTime = true;
+    }
+
     public render (chartOptions: any = {}, minMillis: number, maxMillis: number, 
                    fromMillis: number = null, toMillis: number = null, onSet = null, onCancel = null) {
         this.isSettingStartTime = true;
@@ -128,20 +132,30 @@ class DateTimePicker extends ChartComponent{
         this.fromMillis = fromMillis;
         this.toMillis = toMillis;
         this.onSet = onSet;
-        this.onCancel = onCancel;
+        this.onCancel = onCancel;   
         this.targetElement = d3.select(this.renderTarget)
             .classed("tsi-dateTimePicker", true);
         this.targetElement.html('');
         super.themify(this.targetElement, this.chartOptions.theme);
 
         let group = this.targetElement.append('div')
-            .classed('tsi-dateTimeGroup', true);
+            .classed('tsi-dateTimeGroup', true)
+            .on('keydown', (e) => {
+                if (d3.event.keyCode <= 40 && d3.event.keyCode >= 37) { //arrow key
+                    d3.event.stopPropagation();
+                }
+                if (d3.event.keyCode === 27 && this.chartOptions.dTPIsModal) { //escape
+                    this.onCancel();
+                    this.onSaveOrCancel();
+                }
+            });
+
         this.quickTimesPanel = group.append('div')
             .classed('tsi-quickTimesPanel', true);
         this.buildQuickTimesPanel();
 
         this.dateTimeSelectionPanel = group.append('div')
-            .classed('tsi-dateTimeSelectionPanel', true)
+            .classed('tsi-dateTimeSelectionPanel', true);
 
         this.timeControls = this.dateTimeSelectionPanel.append("div").classed("tsi-timeControlsContainer", true);
         this.calendar = this.dateTimeSelectionPanel.append("div").classed("tsi-calendarPicker", true);
@@ -149,22 +163,19 @@ class DateTimePicker extends ChartComponent{
         var saveButtonContainer = this.dateTimeSelectionPanel.append("div").classed("tsi-saveButtonContainer", true);
         var self = this;
 
-        var onSaveOrCancel = () => {
-            this.isSettingStartTime = true;
-        }
 
         var saveButton = saveButtonContainer.append("button").classed("tsi-saveButton", true).text(this.getString("Save"))
             .on("click", function () {
                 self.onSet(self.fromMillis, self.toMillis, self.chartOptions.offset, self.maxMillis === self.toMillis, self.getCurrentQuickTime());
-                onSaveOrCancel();
+                self.onSaveOrCancel();
             });
         
         var cancelButton = saveButtonContainer.append('button')
             .attr('class', 'tsi-cancelButton')
             .text(this.getString('Cancel'))
-            .on('click', function () {
-                self.onCancel();
-                onSaveOrCancel();
+            .on('click', () => {
+                this.onCancel();
+                this.onSaveOrCancel();
             })
             .on('keydown', () => {
                 if (d3.event.keyCode === 9 && !d3.event.shiftKey && this.chartOptions.dTPIsModal) { // tab
