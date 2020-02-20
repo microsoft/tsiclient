@@ -1364,15 +1364,15 @@ class LineChart extends TemporalXAxisComponent {
 
     public render (data: any, options: any, aggregateExpressionOptions: any) {
         this.data = data;
+        this.aggregateExpressionOptions = data.map((d, i) => Object.assign(d, aggregateExpressionOptions && i in aggregateExpressionOptions  ? new ChartDataOptions(aggregateExpressionOptions[i]) : new ChartDataOptions({})));
 
-        this.originalSwimLanes = aggregateExpressionOptions.map((aEO) => {
+        this.originalSwimLanes = this.aggregateExpressionOptions.map((aEO) => {
             return aEO.swimLane;
         });
         this.originalSwimLaneOptions = options.swimLaneOptions;
 
         this.hasBrush = options && (options.brushMoveAction || options.brushMoveEndAction || options.brushContextMenuActions);
         this.chartOptions.setOptions(options);
-        this.aggregateExpressionOptions = data.map((d, i) => Object.assign(d, aggregateExpressionOptions && i in aggregateExpressionOptions  ? new ChartDataOptions(aggregateExpressionOptions[i]) : new ChartDataOptions({})));
         this.width = this.getWidth();
         this.height = Math.max((<any>d3.select(this.renderTarget).node()).clientHeight, this.MINHEIGHT);
         if (this.chartOptions.legend == "compact")
