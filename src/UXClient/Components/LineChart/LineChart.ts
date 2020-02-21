@@ -540,7 +540,8 @@ class LineChart extends TemporalXAxisComponent {
 
     private getScooterMarginLeft () {
         var legendWidth = this.legendObject.legendElement.node().getBoundingClientRect().width;
-        return this.chartMargins.left + (this.chartOptions.legend == "shown" || this.chartOptions.legend == "hidden" ? legendWidth : 0);
+        return this.chartMargins.left + (this.chartOptions.legend === "shown" || this.chartOptions.legend === "hidden" ? legendWidth : 0) + 
+            (this.chartOptions.legend === "shown" ? this.GUTTERWIDTH : 0);
     }
 
     // when re-rendering, scooters need to be repositioned - this function takes in a scooter and outputs the time on the timemap which 
