@@ -540,7 +540,8 @@ class LineChart extends TemporalXAxisComponent {
 
     private getScooterMarginLeft () {
         var legendWidth = this.legendObject.legendElement.node().getBoundingClientRect().width;
-        return this.chartMargins.left + (this.chartOptions.legend == "shown" || this.chartOptions.legend == "hidden" ? legendWidth : 0);
+        return this.chartMargins.left + (this.chartOptions.legend === "shown" || this.chartOptions.legend === "hidden" ? legendWidth : 0) + 
+            (this.chartOptions.legend === "shown" ? this.GUTTERWIDTH : 0);
     }
 
     // when re-rendering, scooters need to be repositioned - this function takes in a scooter and outputs the time on the timemap which 
@@ -1281,6 +1282,13 @@ class LineChart extends TemporalXAxisComponent {
 
         let visibleNumericCount;
         let swimLaneSet = {};
+
+        visibleCDOs.forEach((aEO, i) => {
+            if (aEO.swimLane === null) {
+                aEO.swimLane = i + 1;
+            }
+        });
+
         visibleCDOs.forEach((cDO) => {
             swimLaneSet[cDO.swimLane] = swimLaneSet[cDO.swimLane] || (cDO.dataType === DataTypes.Numeric);
         });    
@@ -1364,15 +1372,15 @@ class LineChart extends TemporalXAxisComponent {
 
     public render (data: any, options: any, aggregateExpressionOptions: any) {
         this.data = data;
+        this.aggregateExpressionOptions = data.map((d, i) => Object.assign(d, aggregateExpressionOptions && i in aggregateExpressionOptions  ? new ChartDataOptions(aggregateExpressionOptions[i]) : new ChartDataOptions({})));
 
-        this.originalSwimLanes = aggregateExpressionOptions.map((aEO) => {
+        this.originalSwimLanes = this.aggregateExpressionOptions.map((aEO) => {
             return aEO.swimLane;
         });
         this.originalSwimLaneOptions = options.swimLaneOptions;
 
         this.hasBrush = options && (options.brushMoveAction || options.brushMoveEndAction || options.brushContextMenuActions);
         this.chartOptions.setOptions(options);
-        this.aggregateExpressionOptions = data.map((d, i) => Object.assign(d, aggregateExpressionOptions && i in aggregateExpressionOptions  ? new ChartDataOptions(aggregateExpressionOptions[i]) : new ChartDataOptions({})));
         this.width = this.getWidth();
         this.height = Math.max((<any>d3.select(this.renderTarget).node()).clientHeight, this.MINHEIGHT);
         if (this.chartOptions.legend == "compact")
