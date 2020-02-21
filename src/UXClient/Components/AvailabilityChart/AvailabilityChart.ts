@@ -537,7 +537,8 @@ class AvailabilityChart extends ChartComponent{
             },
             brushClearable: false,
             hideChartControlPanel: true,
-            brushRangeVisible: false
+            brushRangeVisible: false,
+            isArea: true
         };
     }
 }

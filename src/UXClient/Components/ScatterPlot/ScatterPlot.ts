@@ -93,6 +93,7 @@ class ScatterPlot extends ChartComponent {
            
             this.svgSelection = this.targetElement.append("svg")
                 .attr("class", "tsi-scatterPlotSVG tsi-chartSVG")
+                .attr('title', this.getString('Scatter plot'))
                 .attr("height", this.height)
 
             this.g = this.svgSelection.append("g")

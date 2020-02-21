@@ -51,7 +51,8 @@ class Heatmap extends TemporalXAxisComponent {
     private addTimeLabels () {
         if (this.timeLabels === null || this.svgSelection === null) {
             this.svgSelection = this.heatmapWrapper.append('svg')
-                .attr('class', 'tsi-heatmapSVG');
+                .attr('class', 'tsi-heatmapSVG')
+                .attr('title', this.getString('Heatmap'));
             this.timeLabels = this.svgSelection.append('g').attr("class", "tsi-heatmapTimeLabels")
                 .attr('transform', 'translate(' + this.chartMargins.left + ',0)');
         }

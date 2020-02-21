@@ -635,7 +635,12 @@ class LineChart extends TemporalXAxisComponent {
                 delete self.scooterGuidMap[markerGuid];
                 d3.select(d3.select(this).node().parentNode.parentNode).remove();
                 self.setIsDroppingScooter(false);
-                self.focusOnEllipsis();
+                // if there are more markers left, focus on one
+                if (d3.select(self.renderTarget).selectAll('.tsi-scooterContainer').size()) {
+                    (d3.select(d3.select(self.renderTarget).selectAll('.tsi-scooterContainer').nodes()[0]).select('.tsi-closeButton') as any).node().focus();
+                } else {
+                    self.focusOnEllipsis();
+                }
                 self.chartOptions.onMarkersChange(self.exportMarkers());
             });
 
@@ -899,6 +904,7 @@ class LineChart extends TemporalXAxisComponent {
         }
         if (this.activeScooter != null) {
             this.activeScooter.style("pointer-events", "all");
+            this.activeScooter.select('.tsi-closeButton').node().focus();
             this.activeScooter = null;
             this.chartOptions.onMarkersChange(this.exportMarkers());
         }
@@ -1455,6 +1461,7 @@ class LineChart extends TemporalXAxisComponent {
                                 .classed("tsi-lineChart", true)
             this.svgSelection = this.targetElement.append("svg")
                                             .attr("class", "tsi-lineChartSVG tsi-chartSVG")
+                                            .attr('title', this.getString('Line chart'))
                                             .attr("height", this.height);
              
             var g = this.svgSelection.append("g")
