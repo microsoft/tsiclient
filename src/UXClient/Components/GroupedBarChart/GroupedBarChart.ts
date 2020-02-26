@@ -3,7 +3,6 @@ import './GroupedBarChart.scss';
 import {Utils, TooltipMeasureFormat} from "./../../Utils";
 import {Legend} from './../Legend/Legend';
 import {Slider} from './../Slider/Slider';
-import {ChartComponent} from "./../../Interfaces/ChartComponent";
 import { ChartComponentData } from '../../Models/ChartComponentData';
 import { GroupedBarChartData } from '../../Models/GroupedBarChartData';
 import { ContextMenu } from './../ContextMenu/ContextMenu';
@@ -12,8 +11,9 @@ import { ChartOptions } from '../../Models/ChartOptions';
 import { EllipsisMenu } from '../EllipsisMenu/EllipsisMenu';
 import { Grid } from '../Grid/Grid';
 import { ChartDataOptions } from '../../Models/ChartDataOptions';
+import { ChartVisualizationComponent } from '../../Interfaces/ChartVisualizationComponent';
 
-class GroupedBarChart extends ChartComponent {
+class GroupedBarChart extends ChartVisualizationComponent {
     private contextMenu: ContextMenu;
     private setStateFromData: any;
     private timestamp: any;
@@ -33,15 +33,13 @@ class GroupedBarChart extends ChartComponent {
 
     GroupedBarChart() { }
     public render(data: any, options: any, aggregateExpressionOptions: any) {
-        data = Utils.standardizeTSStrings(data);
-        this.chartOptions.setOptions(options);
+        super.render(data, options, aggregateExpressionOptions);
         if (options && options.stacked || this.isStacked == null) {
             this.isStacked = this.chartOptions.stacked;
         } 
 
         this.chartMargins.top = (this.chartOptions.legend === 'compact') ? 84 : 52;
 
-        this.aggregateExpressionOptions = data.map((d, i) => Object.assign(d, aggregateExpressionOptions && i in aggregateExpressionOptions  ? new ChartDataOptions(aggregateExpressionOptions[i]) : new ChartDataOptions({})));
         this.width = Math.max((<any>d3.select(this.renderTarget).node()).clientWidth, this.MINWIDTH);
         var height = Math.max((<any>d3.select(this.renderTarget).node()).clientHeight, this.MINHEIGHT);
 

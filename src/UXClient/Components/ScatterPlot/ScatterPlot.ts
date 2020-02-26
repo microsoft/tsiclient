@@ -1,6 +1,6 @@
 import * as d3 from 'd3';
 import './ScatterPlot.scss';
-import { ChartComponent } from './../../Interfaces/ChartComponent';
+import { ChartVisualizationComponent } from './../../Interfaces/ChartVisualizationComponent';
 import { ChartDataOptions } from '../../Models/ChartDataOptions';
 import { Legend } from './../Legend/Legend';
 import { ScatterPlotData } from '../../Models/ScatterPlotData';
@@ -8,7 +8,7 @@ import {Slider} from './../Slider/Slider';
 import { Tooltip } from '../Tooltip/Tooltip';
 import { Utils, TooltipMeasureFormat } from './../../Utils';
 
-class ScatterPlot extends ChartComponent {
+class ScatterPlot extends ChartVisualizationComponent {
     private activeDot: any = null;
     private chartHeight: number;
     private controlsOffset: number;
@@ -59,8 +59,7 @@ class ScatterPlot extends ChartComponent {
 
     ScatterPlot(){}
     public render(data: any, options: any, aggregateExpressionOptions: any, fromSlider: boolean = false) {
-        data = Utils.standardizeTSStrings(data);
-        this.chartOptions.setOptions(options);
+        super.render(data, options, aggregateExpressionOptions);
         // If measure options not set, or less than 2, return
         if(this.chartOptions["spMeasures"] == null || (this.chartOptions["spMeasures"] != null && this.chartOptions["spMeasures"].length < 2)){
             let invalidMessage = "spMeasures not correctly specified or has length < 2: " + this.chartOptions["spMeasures"] + 
@@ -74,9 +73,8 @@ class ScatterPlot extends ChartComponent {
         if(!this.chartOptions.hideChartControlPanel)
             this.chartMargins.top += 20;
         this.chartMargins.left = (this.chartOptions.spAxisLabels != null && this.chartOptions.spAxisLabels.length >= 2) ? 120 : 70;
-        this.aggregateExpressionOptions = data.map((d, i) => Object.assign(d, aggregateExpressionOptions && i in aggregateExpressionOptions  ? new ChartDataOptions(aggregateExpressionOptions[i]) : new ChartDataOptions({})));
 
-        this.chartComponentData.mergeDataToDisplayStateAndTimeArrays(data, this.chartOptions.timestamp, this.aggregateExpressionOptions);
+        this.chartComponentData.mergeDataToDisplayStateAndTimeArrays(this.data, this.chartOptions.timestamp, this.aggregateExpressionOptions);
         this.chartComponentData.setExtents(this.chartOptions.spMeasures, !fromSlider);
         
         // Check measure validity

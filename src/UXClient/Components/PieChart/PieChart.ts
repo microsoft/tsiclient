@@ -3,7 +3,6 @@ import './PieChart.scss';
 import {Utils, TooltipMeasureFormat} from "./../../Utils";
 import {Legend} from './../Legend/Legend';
 import {ContextMenu} from './../ContextMenu/ContextMenu';
-import {ChartComponent} from "./../../Interfaces/ChartComponent";
 import { ChartComponentData } from '../../Models/ChartComponentData';
 import { PieChartData } from '../../Models/PieChartData';
 import { Slider } from '../Slider/Slider';
@@ -11,9 +10,10 @@ import { Tooltip } from '../Tooltip/Tooltip';
 import { ChartOptions } from '../../Models/ChartOptions';
 import { EllipsisMenu } from '../EllipsisMenu/EllipsisMenu';
 import { ChartDataOptions } from '../../Models/ChartDataOptions';
+import { ChartVisualizationComponent } from '../../Interfaces/ChartVisualizationComponent';
 
 
-class PieChart extends ChartComponent {
+class PieChart extends ChartVisualizationComponent {
     private contextMenu: ContextMenu;
     chartComponentData = new PieChartData();
     
@@ -30,9 +30,7 @@ class PieChart extends ChartComponent {
     PieChart() { }
 
     public render(data: any, options: any, aggregateExpressionOptions: any) {
-        data = Utils.standardizeTSStrings(data);
-        this.chartOptions.setOptions(options);
-        this.aggregateExpressionOptions = data.map((d, i) => Object.assign(d, aggregateExpressionOptions && i in aggregateExpressionOptions  ? new ChartDataOptions(aggregateExpressionOptions[i]) : new ChartDataOptions({})));
+        super.render(data, options, aggregateExpressionOptions);
 
         this.chartComponentData.mergeDataToDisplayStateAndTimeArrays(data, this.chartOptions.timestamp, this.aggregateExpressionOptions);
         var timestamp = (options && options.timestamp != undefined) ? options.timestamp : this.chartComponentData.allTimestampsArray[0];
