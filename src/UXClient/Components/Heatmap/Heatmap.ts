@@ -89,6 +89,7 @@ class Heatmap extends TemporalXAxisComponent {
     }
 
     public render (data, chartOptions, aggregateExpressionOptions) {
+        data = Utils.standardizeTSStrings(data);
         aggregateExpressionOptions = data.map((d, i) => Object.assign(d, aggregateExpressionOptions && i in aggregateExpressionOptions  ? new ChartDataOptions(aggregateExpressionOptions[i]) : new ChartDataOptions({})));
         // override visibleSplitByCap
         aggregateExpressionOptions = aggregateExpressionOptions.map((aE: AggregateExpression) => {

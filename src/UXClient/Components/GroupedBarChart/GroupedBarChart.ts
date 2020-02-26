@@ -33,6 +33,7 @@ class GroupedBarChart extends ChartComponent {
 
     GroupedBarChart() { }
     public render(data: any, options: any, aggregateExpressionOptions: any) {
+        data = Utils.standardizeTSStrings(data);
         this.chartOptions.setOptions(options);
         if (options && options.stacked || this.isStacked == null) {
             this.isStacked = this.chartOptions.stacked;

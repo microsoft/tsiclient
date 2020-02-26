@@ -205,6 +205,7 @@ class Grid extends Component {
     }
 	
 	public render(data: any, options: any, aggregateExpressionOptions: any, chartComponentData: ChartComponentData = null) {
+        data = Utils.standardizeTSStrings(data);
         this.chartOptions.setOptions(options);
         this.gridComponent = d3.select(this.renderTarget);
         if (chartComponentData) {

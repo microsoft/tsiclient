@@ -30,6 +30,7 @@ class PieChart extends ChartComponent {
     PieChart() { }
 
     public render(data: any, options: any, aggregateExpressionOptions: any) {
+        data = Utils.standardizeTSStrings(data);
         this.chartOptions.setOptions(options);
         this.aggregateExpressionOptions = data.map((d, i) => Object.assign(d, aggregateExpressionOptions && i in aggregateExpressionOptions  ? new ChartDataOptions(aggregateExpressionOptions[i]) : new ChartDataOptions({})));
 
