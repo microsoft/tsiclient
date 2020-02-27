@@ -99,7 +99,7 @@ class Heatmap extends TemporalXAxisComponent {
 		if(targetElement.style("position") == "static")
             targetElement.style("position", "relative");
 
-        this.chartComponentData.mergeDataToDisplayStateAndTimeArrays(data, this.aggregateExpressionOptions);
+        this.chartComponentData.mergeDataToDisplayStateAndTimeArrays(this.data, this.aggregateExpressionOptions);
 
 
         if (this.chartControlsExist() && this.chartControlsPanel === null) {
@@ -199,7 +199,7 @@ class Heatmap extends TemporalXAxisComponent {
 
            
         }
-        this.chartComponentData.mergeDataToDisplayStateAndTimeArrays(data, this.aggregateExpressionOptions);
+        this.chartComponentData.mergeDataToDisplayStateAndTimeArrays(this.data, this.aggregateExpressionOptions);
         this.draw();
         this.gatedShowGrid();
         this.addTimeLabels();
