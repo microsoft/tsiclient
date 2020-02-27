@@ -785,6 +785,31 @@ class Utils {
         }
         return minWarmTime;
     }
+
+    static standardizeTSStrings (rawData) {
+        let convertedData = [];
+        rawData.forEach((dG, i) => {
+            let dGName = Object.keys(dG)[0];
+            let dataGroup = dG[dGName];
+            let convertedDataGroup = {};
+            let dataGroupKeyedObject = {};
+            dataGroupKeyedObject[dGName] = convertedDataGroup;
+            convertedData.push(dataGroupKeyedObject);
+            Object.keys(dataGroup).forEach((seriesName) => {
+                convertedDataGroup[seriesName] = {};
+                Object.keys(dataGroup[seriesName]).forEach((rawTS: string) => {
+                    let isoString: string;
+                    try {
+                        isoString = (new Date(rawTS)).toISOString();
+                        convertedDataGroup[seriesName][isoString] = dataGroup[seriesName][rawTS]; 
+                    } catch(RangeError) {
+                        console.log(`${rawTS} is not a valid ISO time`);
+                    }
+                });
+            });
+        });
+        return convertedData;
+    }
     
     static mergeAvailabilities (warmAvailability, coldAvailability, retentionString = null) {
         let warmStoreRange = warmAvailability.range;

@@ -1,11 +1,11 @@
 import * as d3 from 'd3';
 import {Utils} from "./../Utils";
-import {ChartComponent} from "./ChartComponent";
 import {ChartComponentData} from './../Models/ChartComponentData'; 
 import {ChartOptions} from './../Models/ChartOptions';
 import { EllipsisMenu } from "../Components/EllipsisMenu/EllipsisMenu";
+import { ChartVisualizationComponent } from './ChartVisualizationComponent';
 
-class TemporalXAxisComponent extends ChartComponent {
+class TemporalXAxisComponent extends ChartVisualizationComponent {
 
     protected xAxis;
     protected x;
