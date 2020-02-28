@@ -43,7 +43,7 @@ class GroupedBarChart extends ChartVisualizationComponent {
         this.width = Math.max((<any>d3.select(this.renderTarget).node()).clientWidth, this.MINWIDTH);
         var height = Math.max((<any>d3.select(this.renderTarget).node()).clientHeight, this.MINHEIGHT);
 
-        this.chartComponentData.mergeDataToDisplayStateAndTimeArrays(data, this.timestamp, this.aggregateExpressionOptions);
+        this.chartComponentData.mergeDataToDisplayStateAndTimeArrays(this.data, this.timestamp, this.aggregateExpressionOptions);
         this.timestamp = (options && options.timestamp != undefined) ? options.timestamp : this.chartComponentData.allTimestampsArray[0]; 
 
         var chartHeight = height - this.chartMargins.bottom - this.chartMargins.top; 
@@ -633,7 +633,7 @@ class GroupedBarChart extends ChartVisualizationComponent {
             }
         });
 
-        this.chartComponentData.mergeDataToDisplayStateAndTimeArrays(data, this.timestamp, this.aggregateExpressionOptions);
+        this.chartComponentData.mergeDataToDisplayStateAndTimeArrays(this.data, this.timestamp, this.aggregateExpressionOptions);
         this.draw();
         this.gatedShowGrid();
 

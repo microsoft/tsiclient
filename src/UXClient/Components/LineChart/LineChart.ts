@@ -1213,7 +1213,7 @@ class LineChart extends TemporalXAxisComponent {
     }
 
     private getVisibleNumerics () {
-        let visibleGroups = this.chartComponentData.data.filter((agg) => this.chartComponentData.displayState[agg.aggKey]["visible"]);
+        let visibleGroups = this.data.filter((agg) => this.chartComponentData.displayState[agg.aggKey]["visible"]);
         let visibleCDOs = this.aggregateExpressionOptions.filter((cDO) => this.chartComponentData.displayState[cDO.aggKey]["visible"]);
         return visibleGroups.filter((aggKey, i) => {
             return visibleCDOs[i].dataType === DataTypes.Numeric;
@@ -1228,7 +1228,7 @@ class LineChart extends TemporalXAxisComponent {
         Object.keys(swimLaneSet).sort((a, b) => (Number(a) <= Number(b) ? -1 : 1)).forEach((swimLane) => {
             // find all numerics and set to cumulative offset/height per non numeric
             let hasNumeric = false;
-            visibleGroups.forEach((aggGroup, i) => {
+            visibleCDOs.forEach((aggGroup, i) => {
                 if (aggGroup.swimLane === Number(swimLane) && aggGroup.dataType === DataTypes.Numeric) {
                     hasNumeric = true;
                     visibleGroupEndValues[i] = [cumulativeOffset, heightPerNumeric];
@@ -1237,7 +1237,7 @@ class LineChart extends TemporalXAxisComponent {
 
             // find all non-numerics and set their offset/heights
             let swimLaneOffset = hasNumeric ? heightPerNumeric : 0;
-            visibleGroups.forEach((aggGroup, i) => {
+            visibleCDOs.forEach((aggGroup, i) => {
                 if (aggGroup.swimLane === Number(swimLane) && aggGroup.dataType !== DataTypes.Numeric) {
                     let currGroupsHeight = Utils.getNonNumericHeight(aggGroup.height);
                     visibleGroupEndValues[i] = [swimLaneOffset + cumulativeOffset, currGroupsHeight]
@@ -1253,13 +1253,14 @@ class LineChart extends TemporalXAxisComponent {
         let extents = {};
         swimLanes.forEach((lane) => {
             let extent = [];
-            visibleGroups.forEach((aggGroup) => {
-                if (aggGroup.dataType !== DataTypes.Numeric) {
+            visibleGroups.forEach((aggGroup, i) => {
+                let cDO = visibleCDOs[i];
+                if (cDO.dataType !== DataTypes.Numeric) {
                     return;
                 }
                 let aggValues = [];
-                if (aggGroup.swimLane === lane) {
-                    let aggKey = aggGroup.aggKey;
+                if (cDO.swimLane === lane) {
+                    let aggKey = cDO.aggKey;
                     Object.keys(this.chartComponentData.visibleTAs[aggKey]).forEach((splitBy) => {
                         aggValues = aggValues.concat(this.chartComponentData.visibleTAs[aggKey][splitBy]);
                     });    
@@ -1277,7 +1278,7 @@ class LineChart extends TemporalXAxisComponent {
 
     //returns an array of tuples of y offset and height for each visible aggregate group 
     private createYOffsets () {
-        let visibleGroups = this.chartComponentData.data.filter((agg) => this.chartComponentData.displayState[agg.aggKey]["visible"]);
+        let visibleGroups = this.data.filter((agg) => this.chartComponentData.displayState[agg.aggKey]["visible"]);
         let visibleCDOs = this.aggregateExpressionOptions.filter((cDO) => this.chartComponentData.displayState[cDO.aggKey]["visible"]);
 
         let visibleNumericCount;
@@ -1301,7 +1302,7 @@ class LineChart extends TemporalXAxisComponent {
         let linechartTopPadding = this.chartOptions.isArea ? 0 : LINECHARTTOPPADDING;
         let useableHeight = this.chartHeight - linechartTopPadding;
 
-        let heightNonNumeric = visibleGroups.reduce((sumPrevious, currGroup) => {
+        let heightNonNumeric = visibleCDOs.reduce((sumPrevious, currGroup, i) => {
             return sumPrevious + (currGroup.dataType !== DataTypes.Numeric ? Utils.getNonNumericHeight(currGroup.height) : 0);
         }, 0);
         
@@ -1313,8 +1314,8 @@ class LineChart extends TemporalXAxisComponent {
     }
 
     private heightNonNumeric () {
-        let visibleGroups = this.chartComponentData.data.filter((agg) => this.chartComponentData.displayState[agg.aggKey]["visible"]);
-        return visibleGroups.reduce((sumPrevious, currGroup) => {
+        let visibleCDOs = this.aggregateExpressionOptions.filter((agg) => this.chartComponentData.displayState[agg.aggKey]["visible"]);
+        return visibleCDOs.reduce((sumPrevious, currGroup) => {
             return sumPrevious + (currGroup.dataType !== DataTypes.Numeric ? Utils.getNonNumericHeight(currGroup.height) : 0);
         }, 0);
     }
@@ -1399,7 +1400,10 @@ class LineChart extends TemporalXAxisComponent {
         this.nonFocusStrokeOpactiy = this.chartOptions.isArea ? .55 : .3;
 
 
-        this.chartComponentData.mergeDataToDisplayStateAndTimeArrays(data, aggregateExpressionOptions);
+        this.chartComponentData.mergeDataToDisplayStateAndTimeArrays(this.data, this.aggregateExpressionOptions);
+        this.chartComponentData.data.forEach((d, i) => {
+            this.aggregateExpressionOptions[i].aggKey = d.aggKey;
+        });
         if (this.chartOptions.xAxisHidden && this.chartOptions.focusHidden) {
             this.chartMargins.bottom = 5;
         }
@@ -1700,7 +1704,7 @@ class LineChart extends TemporalXAxisComponent {
                 let swimLaneCounts = {};
 
                 let aggregateGroups = this.svgSelection.select('.svgGroup').selectAll('.tsi-aggGroup')
-                    .data(visibleGroupData, (agg) => agg.aggKey);
+                    .data(visibleCDOs, (agg) => agg.aggKey);
                     var self = this;
 
                     let visibleNumericI = 0;
