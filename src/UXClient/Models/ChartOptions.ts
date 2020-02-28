@@ -187,7 +187,7 @@ class ChartOptions {
         this.isColorValueHidden = this.mergeValue(chartOptionsObj, 'isColorValueHidden', false);
         this.onClick = this.mergeValue(chartOptionsObj, 'onClick', () => {});
         this.onSelect = this.mergeValue(chartOptionsObj, 'onSelect', () => {});
-        this.swimLaneOptions = this.mergeValue(chartOptionsObj, 'swimLaneOptions', {});
+        this.swimLaneOptions = this.mergeValue(chartOptionsObj, 'swimLaneOptions', null);
     }
 
     private mergeStrings (strings) {
