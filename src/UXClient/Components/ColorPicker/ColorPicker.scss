@@ -24,6 +24,11 @@
         }
     }
 
+    .tsi-colorItem {
+        &:hover {
+            box-shadow: 0px 0px 5px -1px $gray1;
+        }
+    }
 }
 
 .tsi-colorPicker {
@@ -86,21 +91,22 @@
         animation: tsi-slideIn 0.367s cubic-bezier(0.1, 0.9, 0.2, 1) forwards;
         border-radius: 2px;
 
-        .tsi-colorItem {
-            width: 32px;
-            height: 32px;
-            margin-right: 4px;
-            margin-bottom: 4px;
-
-            &:hover {
+        .tsi-colorGridRow {
+            display: contents;
+            
+            .tsi-colorItem {
+                width: 32px;
+                height: 32px;
+                margin-right: 4px;
+                margin-bottom: 4px;
                 cursor: pointer;
-            }
-
-            &.tsi-selected {
-                background-image: url(../../Icons/Check.svg) !important;
-                background-size: 70%;
-                background-repeat: no-repeat;
-                background-position: center;
+    
+                &.tsi-selected {
+                    background-image: url(../../Icons/Check.svg) !important;
+                    background-size: 70%;
+                    background-repeat: no-repeat;
+                    background-position: center;
+                }
             }
         }
     }

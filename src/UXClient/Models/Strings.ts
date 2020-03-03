@@ -80,7 +80,8 @@ class Strings {
         "a time selection control dialog.": "a time selection control dialog.",
         "No color": "No color",
         "Change y-axis type": "Change y-axis type",
-        "Show/Hide values": "Show/Hide values"
+        "Show/Hide values": "Show/Hide values",
+        "Select color": "Select color"
     };
   
     private stringValues: any = {};
