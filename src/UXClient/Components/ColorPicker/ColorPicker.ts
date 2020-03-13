@@ -27,8 +27,6 @@ class ColorPicker extends Component{
                     .attr("aria-label", this.getString('Select color'))
                     .attr("aria-describedby", "tsi-selectedColorValue")
                     .attr("aria-controls", "tsi-colorGrid")
-                    // .attr("aria-expanded", this.isColorGridVisible)
-                    // .attr("aria-haspopup", true)
                     .on('click', (e) => {
                         if (this.isColorGridVisible) {
                             this.hideColorGrid(true);

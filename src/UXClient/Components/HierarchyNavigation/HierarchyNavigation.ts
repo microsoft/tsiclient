@@ -92,11 +92,6 @@ class HierarchyNavigation extends Component{
                 // hierarchy selection button
                 let hierarchySelectionWrapper = hierarchyNavWrapper.append('div').classed('tsi-hierarchy-selection-wrapper', true);
                 this.hierarchySelectorElem = hierarchySelectionWrapper.append('button').classed('tsi-hierarchy-select', true)
-                    // .attr('aria-label', this.getString('Hierarchy list'))
-                    // .attr('aria-controls', 'tsi-hierarchy-listbox')
-                    // .attr("role", "combobox")
-                    // .attr("aria-expanded", false)
-                    // .attr("aria-owns", "tsi-hierarchy-list")
                     .attr("aria-haspopup", "listbox")
                     .on('click keydown', () => {
                         if (Utils.isKeyDownAndNotEnter(d3.event)) {return; }
