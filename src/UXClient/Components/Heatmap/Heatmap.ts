@@ -89,9 +89,9 @@ class Heatmap extends TemporalXAxisComponent {
     }
 
     public render (data, chartOptions, aggregateExpressionOptions) {
-        aggregateExpressionOptions = data.map((d, i) => Object.assign(d, aggregateExpressionOptions && i in aggregateExpressionOptions  ? new ChartDataOptions(aggregateExpressionOptions[i]) : new ChartDataOptions({})));
+        super.render(data, chartOptions, aggregateExpressionOptions);
         // override visibleSplitByCap
-        aggregateExpressionOptions = aggregateExpressionOptions.map((aE: AggregateExpression) => {
+        this.aggregateExpressionOptions = this.aggregateExpressionOptions.map((aE: AggregateExpression) => {
             return {...aE, visibleSplitByCap : 10000 };
         });
         this.chartOptions.setOptions(chartOptions);
@@ -99,7 +99,7 @@ class Heatmap extends TemporalXAxisComponent {
 		if(targetElement.style("position") == "static")
             targetElement.style("position", "relative");
 
-        this.chartComponentData.mergeDataToDisplayStateAndTimeArrays(data, aggregateExpressionOptions);
+        this.chartComponentData.mergeDataToDisplayStateAndTimeArrays(this.data, this.aggregateExpressionOptions);
 
 
         if (this.chartControlsExist() && this.chartControlsPanel === null) {
@@ -199,7 +199,7 @@ class Heatmap extends TemporalXAxisComponent {
 
            
         }
-        this.chartComponentData.mergeDataToDisplayStateAndTimeArrays(data, aggregateExpressionOptions);
+        this.chartComponentData.mergeDataToDisplayStateAndTimeArrays(this.data, this.aggregateExpressionOptions);
         this.draw();
         this.gatedShowGrid();
         this.addTimeLabels();

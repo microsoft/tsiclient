@@ -29,10 +29,10 @@ class ChartComponentData {
             var aeObj = ae[Object.keys(ae)[0]];
             Object.keys(aeObj).forEach(timeseries => {
                 Object.keys(aeObj[timeseries]).forEach(timestamp => {
-                    allTimestamps[new Date(timestamp).toISOString()] = true;
+                    allTimestamps[timestamp] = true;
                 })
             })
-        })
+        });
         this.allTimestampsArray = Object.keys(allTimestamps).sort();
     }
 
