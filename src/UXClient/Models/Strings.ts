@@ -81,7 +81,10 @@ class Strings {
         "No color": "No color",
         "Change y-axis type": "Change y-axis type",
         "Show/Hide values": "Show/Hide values",
-        "Select color": "Select color"
+        "Select color": "Select color",
+        "Search suggestion instruction": "When autocomplete results are available use up and down arrows to review and enter to select",
+        "Search suggestions available": " results available, keyboard users, use up and down arrows to review and enter to select.",
+        "Hierarchy list": "Hierarchy list"
     };
   
     private stringValues: any = {};
