@@ -223,9 +223,6 @@ class UXClient {
 
         //set end time value
         var lastBucket = Math.round(Math.floor(to.valueOf() / rawBucketSize) * rawBucketSize);
-        buckets[this.toISONoMillis(to)] = (buckets[this.toISONoMillis(new Date(lastBucket))] != undefined) ? 
-                                            buckets[this.toISONoMillis(new Date(lastBucket))] : 
-                                            {count : 0};
 
         // pad out if range is less than one bucket;
         if (startBucket == lastBucket) {

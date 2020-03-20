@@ -12,16 +12,16 @@
     background: $gray3;
     color: $gray1;
     @include baseContextMenuColors($grays);
-    :global{
+
         .awesomplete > ul {
             background: $gray4;
             color: $gray1;
             border: 1px solid $gray1;
-            li[aria-selected="true"], li:hover{
+            li[aria-selected="true"], li:hover, li:focus{
                 background: $gray2;
             }
         }
-    }
+    
     .tsi-clear{
         background-color: $gray3;
         &:hover{
@@ -75,57 +75,68 @@
         .tsi-modelAutocompleteInput::-ms-clear{
             display: none;
         }
-        :global{
-            .awesomplete [hidden] {
+        
+        .awesomplete [hidden] {
+            display: none;
+        }
+
+        .awesomplete .visually-hidden {
+            position: absolute;
+            clip: rect(0, 0, 0, 0);
+        }
+
+        .awesomplete {
+            display: inline-block;
+            position: relative;
+            width: 100%;
+        }
+
+        .awesomplete > input {
+            display: block;
+            z-index: 2;
+            position: relative;
+            width: calc(100% - 40px);
+            margin: 8px 20px;
+        }
+
+        .awesomplete > ul {
+            @extend .tsi-baseContextMenu;
+            animation: tsi-slideIn 0.367s cubic-bezier(0.1, 0.9, 0.2, 1) forwards;
+            position: absolute;
+            left: 0;
+            z-index: 1;
+            list-style: none;
+            padding: 0;
+            border-radius: 0px;
+            margin: 8px 20px;
+            font-size: 13px;
+            width: calc(100% - 40px);
+            margin-top: -8px;
+            &:before{
                 display: none;
             }
-
-            .awesomplete .visually-hidden {
-                position: absolute;
-                clip: rect(0, 0, 0, 0);
-            }
-
-            .awesomplete {
-                display: inline-block;
-                position: relative;
-                width: 100%;
-            }
-
-            .awesomplete > input {
+            li {
                 display: block;
-                z-index: 2;
-                position: relative;
-                width: calc(100% - 40px);
-                margin: 8px 20px;
+                line-height: 20px;
+                cursor: pointer;
             }
+        }
 
-            .awesomplete > ul {
-                @extend .tsi-baseContextMenu;
-                animation: tsi-slideIn 0.367s cubic-bezier(0.1, 0.9, 0.2, 1) forwards;
-                position: absolute;
-                left: 0;
-                z-index: 1;
-                list-style: none;
-                padding: 0;
-                border-radius: 0px;
-                margin: 8px 20px;
-                font-size: 13px;
-                width: calc(100% - 40px);
-                margin-top: -8px;
-                &:before{
-                    display: none;
-                }
-                li {
-                    display: block;
-                    &:hover{
-                        cursor: pointer;
-                    }
-                }
-            }
+        .awesomplete > ul:empty {
+            display: none;
+        }
 
-            .awesomplete > ul:empty {
-                display: none;
-            }
+        .tsi-search-results-info {
+            position: absolute !important;
+            display: block;
+            visibility: visible;
+            overflow: hidden;
+            width: 1px;
+            height: 1px;
+            margin: -1px;
+            border: 0;
+            padding: 0;
+            white-space: nowrap;
         }
     }
 }

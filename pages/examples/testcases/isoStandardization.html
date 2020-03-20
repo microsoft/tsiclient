@@ -1,0 +1,66 @@
+
+<!DOCTYPE html> 
+<html>
+    <head>
+        <title>Basic Charts</title>
+
+        <!-- boilerplate headers are injected with head.js, grab them from the live example header, or include a link to head.js -->
+        <script src="../boilerplate/head.js"></script>
+    </head>
+    <body style="font-family: 'Segoe UI', sans-serif;">
+        <div id="chart1" style="width: 100%; height: 600px;"></div>
+        <div id="chart2" style="width: 50%; height: 400px; float: left;"></div>
+        <div id="chart3" style="width: 50%; height: 400px; float: right;"></div>
+        <div id="chart4" style="width: 100%; height: 500px; float: left;"></div>
+        <div id="chart5" style="width: 100%; height: 500px; float: reft;"></div>
+        
+        <script>
+            window.onload = function() {
+                
+                // create fake data in the shape our charts expect
+                var data = [];
+                var from = new Date('2020-02-24T22:00:00Z');
+                var to;
+                for(var i = 0; i < 3; i++){
+                    var lines = {};
+                    data.push({[`Factory${i}`]: lines});
+                    for(var j = 0; j < 100; j++){
+                        var values = {};
+                        lines[`Station${j}`] = values;
+                        for(var k = 0; k < 60; k++){
+                            let minutes = k < 10 ? `0${k}` : `${k}`; 
+                            let toString = `2020-02-24T22:${minutes}:00Z`;
+                            if (k === 4) {
+                                toString = 'BAD';
+                            }
+                            var to = new Date(from.valueOf() + 1000*60*k);
+                            var val = Math.random();
+                            var val2 = Math.random();
+                            var val3 = Math.random();
+                            var val4 = Math.random();
+                            values[toString] = {avg: val, x: val2, y: val3, r: val4};
+                        } 
+                    }
+                }
+
+                // render the data in a chart
+                var tsiClient = new TsiClient();
+                var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart1'));
+                lineChart.render(data, {theme: 'light'});
+
+                var barChart = new tsiClient.ux.BarChart(document.getElementById('chart2'));
+                barChart.render(data, {theme: 'dark', grid: true, tooltip: true, legend: 'compact'});
+
+
+                var pieChart = new tsiClient.ux.PieChart(document.getElementById('chart3'));
+                pieChart.render(data, {theme: 'light', grid: true, tooltip: true, legend: 'compact'});
+
+                var heatmap = new tsiClient.ux.Heatmap(document.getElementById('chart4'));
+                heatmap.render(data, {theme: 'dark'}, data.map(d => {return {measureTypes: ['avg'], searchSpan: {from: from.toISOString(), to: to.toISOString(), bucketSize: '1m'}}}));
+
+                var scatterplot = new tsiClient.ux.ScatterPlot(document.getElementById('chart5'));
+                scatterplot.render(data, {theme: 'light', legend: 'compact', tooltip: true, spMeasures: ['x', 'y', 'r']})
+            };
+        </script>
+    </body>
+</html>

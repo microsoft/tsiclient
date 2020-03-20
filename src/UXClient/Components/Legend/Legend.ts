@@ -430,7 +430,7 @@ class Legend extends Component {
                     labelMouseover(d);
                 })
                 .on("mouseout", (d) => {
-                    this.labelMouseout(svgSelection, d);
+                    self.labelMouseout(svgSelection, d);
                 });
             let dataType = self.chartComponentData.displayState[aggKey].dataType;
             if (dataType === DataTypes.Categorical || dataType === DataTypes.Events) {

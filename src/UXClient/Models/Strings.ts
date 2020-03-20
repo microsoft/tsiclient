@@ -85,8 +85,11 @@ class Strings {
         "Bar chart": "Bar chart",
         "Heatmap": "Heatmap",
         "Pie chart": "Pie chart",
-        "Scatter plot": "Scatter plot"
-
+        "Scatter plot": "Scatter plot",
+        "Select color": "Select color",
+        "Search suggestion instruction": "When autocomplete results are available use up and down arrows to review and enter to select",
+        "Search suggestions available": " results available, keyboard users, use up and down arrows to review and enter to select.",
+        "Hierarchy list": "Hierarchy list"
     };
   
     private stringValues: any = {};
