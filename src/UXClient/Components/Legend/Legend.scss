@@ -41,11 +41,7 @@
 				color: $gray6;    
 			}
 			&.stickied {
-				color: $gray4;
-				background-color: $gray1;
-				&:hover, &.inFocus {
-					color: $gray6;
-				}
+				background-color: rgba($gray2, .4);
 			}
 		}
 		.tsi-seriesNameLabel {
@@ -220,10 +216,6 @@
 				.tsi-seriesNameLabel .tsi-eyeIcon, .tsi-splitByContainer .tsi-splitByLabel .tsi-eyeIcon {
 					background-image: url(../../Icons/Eye_light_theme.svg);
 				}
-
-				.tsi-seriesNameLabel.stickied .tsi-eyeIcon, .tsi-splitByContainer .tsi-splitByLabel.stickied .tsi-eyeIcon {
-					background-image: url(../../Icons/Eye_dark_theme.svg);
-				}
 			}
 		}
 
@@ -231,10 +223,6 @@
 			.tsi-seriesLabel {
 				.tsi-seriesNameLabel .tsi-eyeIcon, .tsi-splitByContainer .tsi-splitByLabel .tsi-eyeIcon {
 					background-image: url(../../Icons/Eye_dark_theme.svg);
-				}
-
-				.tsi-seriesNameLabel.stickied .tsi-eyeIcon, .tsi-splitByContainer .tsi-splitByLabel.stickied .tsi-eyeIcon {
-					background-image: url(../../Icons/Eye_light_theme.svg);
 				}
 			}
 		}
