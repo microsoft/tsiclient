@@ -8,6 +8,7 @@ class Tooltip extends Component {
 
     public renderTarget;
     private tooltipDiv;
+    private tooltipDivInner;
     private tooltipText;
     public draw;
     private borderColor;
@@ -54,21 +55,23 @@ class Tooltip extends Component {
 
         this.tooltipDiv = this.renderTarget.append("div")
             .attr("class", "tsi-tooltip");
-        this.tooltipDiv.text(d => d);
+        this.tooltipDivInner = this.tooltipDiv.append("div")
+            .attr("class", "tsi-tooltipInner");
+        this.tooltipDivInner.text(d => d);
 
         super.themify(this.tooltipDiv, theme);
         
         //  element width is an optional parameter which ensurea that the tooltip doesn't interfere with the element
         //when positioning to the right
         this.draw = (d: any, chartComponentData: ChartComponentData, xPos, yPos, chartMargins, addText, elementWidth: number = null, xOffset = 20, yOffset = 20, borderColor: string = null) => {
-            this.tooltipDiv.style("display", "block")
-                .text(null);
+            this.tooltipDiv.style("display", "block")    
+            this.tooltipDivInner.text(null);
 
             this.borderColor = borderColor;
 
             var leftOffset = this.getLeftOffset(chartMargins);
             var topOffset = this.getTopOffset(chartMargins)
-            addText(this.tooltipDiv);
+            addText(this.tooltipDivInner);
 
             this.tooltipDiv.style("left", Math.round(xPos + leftOffset) + "px")
                 .style("top", Math.round(yPos) + topOffset + "px");
@@ -81,10 +84,10 @@ class Tooltip extends Component {
             var translateY = this.isTopOffset(tooltipHeight, yPos, chartMargins.bottom) ? yOffset :  (-Math.round(tooltipHeight) - yOffset);
             this.tooltipDiv.style("transform", "translate(" + translateX + "px," + translateY + "px)");
             if (this.borderColor) {
-                this.tooltipDiv.style('border-left-color', this.borderColor)
+                this.tooltipDivInner.style('border-left-color', this.borderColor)
                     .style('border-left-width', '5px');
             } else {
-                this.tooltipDiv.style('border-left-width', '1px');
+                this.tooltipDivInner.style('border-left-width', '0');
             }
         }
     }
