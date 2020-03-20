@@ -40,9 +40,9 @@ class PieChart extends ChartVisualizationComponent {
 
         if (this.svgSelection == null) {
             
-            this.svgSelection = targetElement.append("svg");
-            this.svgSelection
+            this.svgSelection = targetElement.append("svg")
                 .attr("class", "tsi-pieChartSVG tsi-chartSVG")
+                .attr('title', this.getString('Pie chart'));
             var g = this.svgSelection.append("g");
             var tooltip = new Tooltip(d3.select(this.renderTarget));
             d3.select(this.renderTarget).append('div').classed('tsi-sliderWrapper', true);

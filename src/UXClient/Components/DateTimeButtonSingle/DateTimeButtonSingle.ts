@@ -13,10 +13,13 @@ class DateTimeButtonSingle extends DateTimeButton {
         super(renderTarget);
     }
 
-    private sDTPOnSet = (millis) => {
-        this.dateTimeButton.text(this.buttonDateTimeFormat(millis));
+    private sDTPOnSet = (millis: number = null) => {
+        if (millis !== null) {
+            this.dateTimeButton.text(this.buttonDateTimeFormat(millis));
+            this.selectedMillis = millis;
+        }
         this.dateTimePickerContainer.style("display", "none");
-        this.selectedMillis = millis;
+        this.dateTimeButton.node().focus();
     }
 
     public render (chartOptions: any = {}, minMillis: number, maxMillis: number, selectedMillis: number = null, onSet = null) {
@@ -43,6 +46,7 @@ class DateTimeButtonSingle extends DateTimeButton {
         });
 
         this.dateTimeButton.on("click", () => {
+                this.chartOptions.dTPIsModal = true;
                 this.dateTimePickerContainer.style("display", "block");
                 this.dateTimePicker.render(this.chartOptions, this.minMillis, this.maxMillis, this.selectedMillis, this.sDTPOnSet);
             });       

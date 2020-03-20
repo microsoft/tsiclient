@@ -54,6 +54,7 @@ class GroupedBarChart extends ChartVisualizationComponent {
                 .classed("tsi-barChart", true);
             var svgSelection = targetElement.append("svg")
                 .attr("class", "tsi-barChartSVG tsi-chartSVG")
+                .attr('title', this.getString('Bar chart'))
                 .style("height", height)
                 .style("width", this.getSVGWidth()  + 'px');
             this.svgSelection = svgSelection;

@@ -23,6 +23,7 @@ class SingleDateTimePicker extends ChartComponent{
     private offsetName: string;
     private date: Date;
     private timeInput: any;
+    private saveButton: any;
 
     constructor(renderTarget: Element){
         super(renderTarget);
@@ -40,7 +41,7 @@ class SingleDateTimePicker extends ChartComponent{
             this.offsetName = chartOptions.offset;
         }
 
-        if (millis == null) {
+        if (millis === null) {
             millis = this.maxMillis;
         }
       
@@ -49,19 +50,34 @@ class SingleDateTimePicker extends ChartComponent{
         this.millis = millis;
         this.onSet = onSet;
         this.targetElement = d3.select(this.renderTarget)
-            .classed("tsi-singleDateTimePicker", true);
+            .classed("tsi-singleDateTimePicker", true)
         this.targetElement.html('');
         super.themify(this.targetElement, this.chartOptions.theme);
+
+        this.targetElement.on('keydown', (e) => {
+            if (d3.event.keyCode <= 40 && d3.event.keyCode >= 37) { //arrow key
+                d3.event.stopPropagation();
+            }
+            if (d3.event.keyCode === 27 && this.chartOptions.dTPIsModal) { //escape
+                this.onSet();
+            }
+        });
         this.timeControls = this.targetElement.append("div").classed("tsi-timeControlsContainer", true);
         this.calendar = this.targetElement.append("div").classed("tsi-calendarPicker", true);
         var saveButtonContainer = this.targetElement.append("div").classed("tsi-saveButtonContainer", true);
         var self = this;
-        var saveButton = saveButtonContainer.append("button").classed("tsi-saveButton", true).text(this.getString("Save"))
+        this.saveButton = saveButtonContainer.append("button").classed("tsi-saveButton", true).text(this.getString("Save"))
             .on("click", () =>  {
                 if (this.isValid) {
                     self.onSet(this.millis);
                 }
-            });
+            })
+            .on('keydown', () => {
+                if (d3.event.keyCode === 9 && !d3.event.shiftKey && this.chartOptions.dTPIsModal) { // tab
+                    this.timeInput.node().focus();
+                    d3.event.preventDefault();
+                }    
+            })
         
         this.targetElement.append("div").classed("tsi-errorMessageContainer", true);
         this.createCalendar();
@@ -72,6 +88,9 @@ class SingleDateTimePicker extends ChartComponent{
 
         this.date = new Date(this.millis);
         this.calendarPicker.draw();
+        if (this.chartOptions.dTPIsModal) {
+            this.timeInput.node().focus();
+        }
         return;
     }
 
@@ -109,6 +128,7 @@ class SingleDateTimePicker extends ChartComponent{
             },
             onDraw: (d) => {
                 var self = this;
+                this.calendar.select(".pika-single").selectAll('button').attr('tabindex', -1);
             },
             minDate: this.convertToLocal(Utils.offsetFromUTC(new Date(this.minMillis), this.chartOptions.offset)),
             maxDate: this.convertToLocal(Utils.offsetFromUTC(new Date(this.maxMillis), this.chartOptions.offset)),
@@ -209,6 +229,12 @@ class SingleDateTimePicker extends ChartComponent{
                     this.setMillis(parsedMillis, false);
                     this.calendarPicker.setDate(Utils.offsetFromUTC(new Date(this.millis)), true);
                 }
+            })
+            .on('keydown', () => {
+                if (d3.event.keyCode === 9 && d3.event.shiftKey && this.chartOptions.dTPIsModal) { // tab
+                    this.saveButton.node().focus();
+                    d3.event.preventDefault();
+                }        
             });
     }
 }
