@@ -9,12 +9,13 @@
     $gray6: nth($grays, 6); // hover
 
     box-shadow: 0 1px 3px 0 rgba($gray1, .16);
-    
-    color: $gray1;
-    background-color: $gray3;
     border-color: rgba($gray1, .1);
     @include chartColors($grays);
 
+    .tsi-tooltipInner{
+        color: $gray1;
+        background-color: $gray3;
+    }
 
     .tsi-tooltipTable tr {
         border-bottom: 1px solid rgba($gray1, .1);
@@ -34,13 +35,22 @@
 .tsi-tooltip {
     pointer-events: none;
     position: absolute;
-    overflow: hidden;
     border-width: 1px;
     border-style: solid;
     border-radius: 3px;
-    min-width: 108px;
-    max-width: 260px;
-    padding: 8px 12px;
+    
+    .tsi-tooltipInner{
+        position: relative;
+        overflow: hidden;
+        border-radius: 3px;
+        min-width: 108px;
+        max-width: 260px;
+        border-style: solid;
+        border-top-width: 0;
+        border-right-width: 0;
+        border-bottom-width: 0;
+        padding: 8px 12px;
+    }
 
     &.tsi-dark{
         $grays: grays('dark');
