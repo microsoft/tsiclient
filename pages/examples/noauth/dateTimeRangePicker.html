@@ -17,7 +17,8 @@
             var dtp;
             var dtpElement = document.getElementById('dtp');
             var onSet = (fromMillis, toMillis) => {
-                console.log(from, to);
+                console.log(new Date(fromMillis));
+                console.log(new Date(toMillis));
             }
             window.onload = function() {
                 var tsiClient = new TsiClient();
