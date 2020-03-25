@@ -69,6 +69,12 @@ class EventsPlot extends Plot {
         this.eventHeight = Math.floor((useableHeight / visibleSeriesCount) / Math.sqrt(2)); 
     }
 
+    private eventOnClick = (d: any) => {
+        if (this.chartDataOptions.onElementClick) {
+            this.chartDataOptions.onElementClick(d.aggregateKey, d.splitBy, d.dateTime.toISOString(), d.measures);
+        }
+    }
+
     public render (chartOptions, visibleAggI, agg, aggVisible: boolean, aggregateGroup, chartComponentData, yExtent,  
         chartHeight, visibleAggCount, colorMap, previousAggregateData, x, areaPath, strokeOpacity, y, yMap, defs, 
         chartDataOptions, previousIncludeDots, yTopAndHeight, chartGroup, discreteEventsMouseover, discreteEventsMouseout) {
@@ -155,7 +161,7 @@ class EventsPlot extends Plot {
                 .attr('x', 0)
                 .attr('width', self.eventHeight)
                 .attr('height', self.eventHeight);
-
+                
         }
 
         let enteredSplitByGroups = splitByGroups.enter()
@@ -177,11 +183,13 @@ class EventsPlot extends Plot {
                     .on('mouseout', () => {
                         self.onMouseout();
                     })
-                    .on('click', (d: any) => {
-                        if (self.chartDataOptions.onElementClick) {
-                            self.chartDataOptions.onElementClick(d.aggregateKey, d.splitBy, d.dateTime.toISOString(), d.measures);
+                    .on('click', self.eventOnClick)
+                    .on('keydown',(d: any) => {
+                        if(d3.event.keyCode === 32 || d3.event.keyCode === 13){
+                            self.eventOnClick(d)
                         }
                     })
+                    .attr('tabindex', '0')
                     .attr('cursor', (self.chartDataOptions.onElementClick ? 'pointer' : 'inherit'))
                     .each(function (d: any, i) {
                         if (Object.keys(d.measures).length > 1) {
