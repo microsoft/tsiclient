@@ -1,4 +1,5 @@
 import * as d3 from 'd3';
+import './EventsPlot.scss';
 import { Plot } from '../../Interfaces/Plot';
 import { Utils, NONNUMERICTOPMARGIN, EventElementTypes, DataTypes, LINECHARTTOPPADDING } from '../../Utils';
 
@@ -161,12 +162,12 @@ class EventsPlot extends Plot {
                 .attr('x', 0)
                 .attr('width', self.eventHeight)
                 .attr('height', self.eventHeight);
-                
+
         }
 
         let enteredSplitByGroups = splitByGroups.enter()
             .append("g")
-            .attr("class", "tsi-splitByGroup " + agg.aggKey)
+            .attr("class", "tsi-eventsGroup tsi-splitByGroup " + agg.aggKey)
             .merge(splitByGroups)
             .attr('transform', (d, i) => {
                 return 'translate(0,' + (  + (i * (this.chartDataOptions.height / series.length))) + ')';
@@ -186,10 +187,10 @@ class EventsPlot extends Plot {
                     .on('click', self.eventOnClick)
                     .on('keydown',(d: any) => {
                         if(d3.event.keyCode === 32 || d3.event.keyCode === 13){
-                            self.eventOnClick(d)
+                            self.eventOnClick(d);
                         }
                     })
-                    .attr('tabindex', '0')
+                    .attr('tabindex', self.chartDataOptions.onElementClick ? '0' : null)
                     .attr('cursor', (self.chartDataOptions.onElementClick ? 'pointer' : 'inherit'))
                     .each(function (d: any, i) {
                         if (Object.keys(d.measures).length > 1) {
@@ -200,7 +201,10 @@ class EventsPlot extends Plot {
                         }
                     });
                 discreteEvents.exit().remove();
-                });
+                })
+                .each(function() {
+                    self.themify(d3.select(this), self.chartOptions.theme);
+                })
             splitByGroups.exit().remove();
 
         let gradients = this.defs.selectAll('linearGradient')
