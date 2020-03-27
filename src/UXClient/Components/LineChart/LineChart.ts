@@ -1231,11 +1231,12 @@ class LineChart extends TemporalXAxisComponent {
         //initialize to null and set while going through swimLanes
         let visibleGroupEndValues = visibleGroups.map(() => null);
 
-        Object.keys(swimLaneSet).sort((a, b) => (Number(a) <= Number(b) ? -1 : 1)).forEach((swimLane) => {
+        Object.keys(swimLaneSet).sort((a, b) => (Number(a) <= Number(b) ? -1 : 1)).forEach((swimLaneStr) => {
             // find all numerics and set to cumulative offset/height per non numeric
+            let swimlane = Number(swimLaneStr);
             let hasNumeric = false;
             visibleCDOs.forEach((aggGroup, i) => {
-                if (aggGroup.swimLane === Number(swimLane) && aggGroup.dataType === DataTypes.Numeric) {
+                if (aggGroup.swimLane === swimlane && aggGroup.dataType === DataTypes.Numeric) {
                     hasNumeric = true;
                     visibleGroupEndValues[i] = [cumulativeOffset, heightPerNumeric];
                 }
@@ -1243,13 +1244,24 @@ class LineChart extends TemporalXAxisComponent {
 
             // find all non-numerics and set their offset/heights
             let swimLaneOffset = hasNumeric ? heightPerNumeric : 0;
-            visibleCDOs.forEach((aggGroup, i) => {
-                if (aggGroup.swimLane === Number(swimLane) && aggGroup.dataType !== DataTypes.Numeric) {
-                    let currGroupsHeight = Utils.getNonNumericHeight(aggGroup.height);
-                    visibleGroupEndValues[i] = [swimLaneOffset + cumulativeOffset, currGroupsHeight]
-                    swimLaneOffset += currGroupsHeight;
-                }
-            });
+
+            let currGroupsHeight = 0;
+            if (this.chartOptions.swimLaneOptions && this.chartOptions.swimLaneOptions[swimlane] && this.chartOptions.swimLaneOptions[swimlane].collapseEvents) {
+                swimLaneOffset += this.getEventsCollapsedSwimlaneHeight(visibleCDOs, swimlane);
+                visibleCDOs.forEach((aggGroup, i) => {
+                    if (aggGroup.swimLane === swimlane) {
+                        visibleGroupEndValues[i] = [cumulativeOffset, this.getEventsCollapsedSwimlaneHeight(visibleCDOs, swimlane)]
+                    }
+                });    
+            } else {
+                visibleCDOs.forEach((aggGroup, i) => {
+                    if (aggGroup.swimLane === swimlane && aggGroup.dataType !== DataTypes.Numeric) {
+                        let currGroupsHeight = Utils.getNonNumericHeight(aggGroup.height);
+                        visibleGroupEndValues[i] = [cumulativeOffset, currGroupsHeight]
+                        swimLaneOffset += currGroupsHeight;
+                    }
+                });    
+            }
             cumulativeOffset += swimLaneOffset; 
         });
         return visibleGroupEndValues;
@@ -1282,6 +1294,17 @@ class LineChart extends TemporalXAxisComponent {
         this.swimlaneYExtents = extents;
     }
 
+    private getEventsCollapsedSwimlaneHeight (visibleCDOs, swimlane) {
+        // if a swimlane has collapsed events, the events height impact is the largest height of a visible events group in the swimlane
+        let rawHeight = visibleCDOs.reduce((tallest, currGroup) => {
+            if (currGroup.dataType === DataTypes.Events && currGroup.swimLane === swimlane) {
+                return Math.max(tallest, currGroup.height);
+            } 
+            return tallest;
+        }, 0);
+        return rawHeight !== 0 ? Utils.getNonNumericHeight(rawHeight) : 0;
+    }
+
     //returns an array of tuples of y offset and height for each visible aggregate group 
     private createYOffsets () {
         let visibleGroups = this.data.filter((agg) => this.chartComponentData.displayState[agg.aggKey]["visible"]);
@@ -1308,9 +1331,24 @@ class LineChart extends TemporalXAxisComponent {
         let linechartTopPadding = this.chartOptions.isArea ? 0 : LINECHARTTOPPADDING;
         let useableHeight = this.chartHeight - linechartTopPadding;
 
+        let fixedEventsHeight = 0;
+        if (this.chartOptions.swimLaneOptions) {
+            Object.keys(this.chartOptions.swimLaneOptions).forEach((swimlaneKey) => {
+                let swimlane = Number(swimlaneKey)
+                let sLO = this.chartOptions.swimLaneOptions[swimlane];
+                if (sLO.collapseEvents) {
+                    let swimlaneHeight = this.getEventsCollapsedSwimlaneHeight(visibleCDOs, swimlane);
+                    fixedEventsHeight += swimlaneHeight;
+                }    
+            });
+        }
         let heightNonNumeric = visibleCDOs.reduce((sumPrevious, currGroup, i) => {
+            if (currGroup.dataType === DataTypes.Events && this.chartOptions.swimLaneOptions[currGroup.swimLane] && this.chartOptions.swimLaneOptions[currGroup.swimLane].collapseEvents) {
+                return sumPrevious;
+            }
             return sumPrevious + (currGroup.dataType !== DataTypes.Numeric ? Utils.getNonNumericHeight(currGroup.height) : 0);
         }, 0);
+        heightNonNumeric += fixedEventsHeight;
         
         let heightPerNumeric = (useableHeight - heightNonNumeric) / countNumericLanes;
 
