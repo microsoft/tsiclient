@@ -126,11 +126,6 @@
                 var onElementClick = function (aggKey, sb, ts, measures) { console.log(aggKey, sb, ts, measures); }
                 var tsiClient = new TsiClient();
                 var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart1'));
-                // lineChart.render(data, {theme: 'light', legend: 'shown', grid: true, tooltip: true, brushMoveEndAction: () => {}}, [{}, {}, 
-                // {dataType: 'events', valueMapping: eventValueMapping, height: 50, eventElementType: 'diamond', onElementClick: onElementClick},
-                // {dataType: 'events', valueMapping: eventValueMapping, height: 50, eventElementType: 'diamond', onElementClick: onEleme, swimLane: 3},
-
-                // {dataType: 'categorical', valueMapping: valueMapping, height: 100, onElementClick: onElementClick, rollupCategoricalValues: true}]);
 
                 var swimLaneOptions = {
                     1: {},
@@ -141,11 +136,11 @@
                 renderChart = function() {
                     swimLaneOptions['3'].collapseEvents = document.getElementById('collapseState').value === 'collapse';
                     var shapeState = document.getElementById('shapeState').value;
-                    var clickFunction = document.getElementById('clickState').value === 'click function present' ? clickFunction : null;
+                    var clickFunction = document.getElementById('clickState').value === 'click function present' ? onElementClick : null;
 
                     lineChart.render(data, {theme: 'light', legend: 'shown', grid: true, tooltip: true, brushMoveEndAction: () => {}, swimLaneOptions: swimLaneOptions}, [{swimLane: 1}, {swimLane: 2}, 
                         {dataType: 'events', valueMapping: eventValueMapping, height: 20, eventElementType: shapeState, onElementClick: clickFunction, swimLane: 3},
-                        {dataType: 'events', valueMapping: eventValueMapping, height: 50, eventElementType: shapeState, onElementClick: clickFunction, swimLane: 3},
+                        {dataType: 'events', valueMapping: eventValueMapping, height: 30, eventElementType: shapeState, onElementClick: clickFunction, swimLane: 3},
                         {dataType: 'categorical', valueMapping: valueMapping, height: 100, onElementClick: onElementClick, rollupCategoricalValues: true, swimLane: 4}]);
 
                 }

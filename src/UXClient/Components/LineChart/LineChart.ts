@@ -1257,7 +1257,7 @@ class LineChart extends TemporalXAxisComponent {
                 visibleCDOs.forEach((aggGroup, i) => {
                     if (aggGroup.swimLane === swimlane && aggGroup.dataType !== DataTypes.Numeric) {
                         let currGroupsHeight = Utils.getNonNumericHeight(aggGroup.height);
-                        visibleGroupEndValues[i] = [cumulativeOffset, currGroupsHeight]
+                        visibleGroupEndValues[i] = [swimLaneOffset + cumulativeOffset, currGroupsHeight]
                         swimLaneOffset += currGroupsHeight;
                     }
                 });    
