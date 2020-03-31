@@ -76,6 +76,10 @@ class EventsPlot extends Plot {
         }
     }
 
+    private artificialTabHandler = (enteredEvents, isForward) => {
+
+    }
+
     public render (chartOptions, visibleAggI, agg, aggVisible: boolean, aggregateGroup, chartComponentData, yExtent,  
         chartHeight, visibleAggCount, colorMap, previousAggregateData, x, areaPath, strokeOpacity, y, yMap, defs, 
         chartDataOptions, previousIncludeDots, yTopAndHeight, chartGroup, discreteEventsMouseover, discreteEventsMouseout) {
@@ -175,7 +179,19 @@ class EventsPlot extends Plot {
             .each(function (splitBy, j) {
                 let data = self.chartComponentData.timeArrays[aggKey][splitBy];
                 var discreteEvents = d3.select(this).selectAll(".tsi-discreteEvent")
-                    .data(data);
+                    .data(data, (d: any) => d.dateTime);
+                
+                var sortEvents = () => {
+                    enteredEvents.sort((a, b) => {
+                        if (a.dateTime < b.dateTime) {
+                            return -1;
+                        } else if (a.dateTime > b.dateTime) {
+                            return 1;
+                        }
+                        return 0;
+                    });
+                }
+
                 let enteredEvents = enterEventElements(discreteEvents)
                     .on('mouseover', function (d) {
                         d3.select(this).raise();
@@ -184,8 +200,14 @@ class EventsPlot extends Plot {
                     .on('mouseout', () => {
                         self.onMouseout();
                     })
-                    .on('click', self.eventOnClick)
-                    .on('keydown',(d: any) => {
+                    .on('click', (d) => {
+                        self.eventOnClick(d);
+                    })
+                    .on('keydown', function (d: any)  {
+                        if (d3.event.keyCode === 9) {
+                            sortEvents();
+                            d3.select(this).node().focus();
+                        }
                         if(d3.event.keyCode === 32 || d3.event.keyCode === 13){
                             self.eventOnClick(d);
                         }
