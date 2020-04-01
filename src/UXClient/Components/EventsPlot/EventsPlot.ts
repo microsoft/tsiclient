@@ -178,6 +178,9 @@ class EventsPlot extends Plot {
             .on('click', (d) => {
                 this.eventOnClick(d);
             })
+            .on('touchstart', (d) => {
+                this.eventOnClick(d);
+            })
             .on('keydown', function (d: any)  {
                 if (d3.event.keyCode === 9) {
                     sortEvents();
