@@ -52,28 +52,40 @@
                     }
                 }
 
-                var events = {};
-                for(var j = 0; j < 2; j++){
-                    var values = {};
-                    events[`Station${j}`] = values;
+                var majorEvents = {};
+                for(var j = 0; j < 1; j++){
                     for(var k = 0; k <= 60; k++){
                         if((k%2 === 0 || k%3 === 0)){  // if check is to create some sparseness in the data
                             var to = new Date(from.valueOf() + 1000*60*k);
                             let measures = {};
-                            if (k % 2 === 0 && Math.random() > .7) {
+                            if (k % 2 === 0 && Math.random() > .4) {
                                 measures['badEvent'] = 'something bad happened';
                             }
-                            if (k % 3 === 0 && Math.random() > .4) {
-                                measures['goodEvent'] = 'something good happened';
-                            }
                             if (Object.keys(measures).length > 0) {
-                                values[to.toISOString()] = measures
+                                majorEvents[to.toISOString()] = measures;
                             }
                         }
                     }
                 }
-                data.push({[`Factory2`]: {'Station0': events['Station0']}});
-                data.push({[`Factory2.5`]: {'Station1': events['Station1']}});
+
+                var minorEvents = {};
+                for(var j = 0; j < 1; j++){
+                    for(var k = 0; k <= 60; k++){
+                        if((k%2 === 0 || k%3 === 0)){  // if check is to create some sparseness in the data
+                            var to = new Date(from.valueOf() + 1000*60*k);
+                            let measures = {};
+                            if (k % 3 === 0 && Math.random() > .8) {
+                                measures['minorInconvenience'] = 'Something not that bad happened';
+                            }
+                            if (Object.keys(measures).length > 0) {
+                                minorEvents[to.toISOString()] = measures;
+                            }
+                        }
+                    }
+                }
+
+                data.push({[`Factory2 Minor Events`]: {'': minorEvents}});
+                data.push({[`Factory2 Major Events`]: {'': majorEvents}});
 
                 var states = {};
                 data.push({[`Factory3`]: states});
@@ -101,12 +113,15 @@
 
                 states[`Station3`] = values4;
 
-                var eventValueMapping = {
+                var majorEventValueMapping = {
                     badEvent: {
                         color: '#FD625E'
                     },
-                    goodEvent: {
-                        color: '#3599B8'
+                }
+
+                var minorEventValueMapping = {
+                    minorInconvenience: {
+                        color: '#F2C80F'
                     }
                 }
 
@@ -139,8 +154,8 @@
                     var clickFunction = document.getElementById('clickState').value === 'click function present' ? onElementClick : null;
 
                     lineChart.render(data, {theme: 'light', legend: 'shown', grid: true, tooltip: true, brushMoveEndAction: () => {}, swimLaneOptions: swimLaneOptions}, [{swimLane: 1}, {swimLane: 2}, 
-                        {dataType: 'events', valueMapping: eventValueMapping, height: 20, eventElementType: shapeState, onElementClick: clickFunction, swimLane: 3},
-                        {dataType: 'events', valueMapping: eventValueMapping, height: 30, eventElementType: shapeState, onElementClick: clickFunction, swimLane: 3},
+                        {dataType: 'events', valueMapping: minorEventValueMapping, height: 15, eventElementType: shapeState, onElementClick: clickFunction, swimLane: 3},
+                        {dataType: 'events', valueMapping: majorEventValueMapping, height: 30, eventElementType: shapeState, onElementClick: clickFunction, swimLane: 3},
                         {dataType: 'categorical', valueMapping: valueMapping, height: 100, onElementClick: onElementClick, rollupCategoricalValues: true, swimLane: 4}]);
 
                 }
