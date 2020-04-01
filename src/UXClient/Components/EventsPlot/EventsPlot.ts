@@ -14,6 +14,7 @@ class EventsPlot extends Plot {
     private splitBysGroup;
     private eventHeight;
     private gradientData;
+    private aggKey;
 
     private gradientArray = {};
 
@@ -95,8 +96,12 @@ class EventsPlot extends Plot {
                 Q${width / 2.22} ${height / 6.18} ${width / 2} ${height / 14}z`;
     }
 
-    private createEventElements = (aggKey, splitBy, g, splitByIndex) => {
+    private createDateStringFunction = (shiftMillis: number) => {
+        return Utils.timeFormat(this.chartComponentData.usesSeconds, this.chartComponentData.usesMillis, 
+            this.chartOptions.offset, this.chartOptions.is24HourTime, shiftMillis, null, this.chartOptions.dateLocale);
+    }
 
+    private createEventElements = (splitBy, g, splitByIndex) => {
         let sortEvents = () => {
             enteredEvents.sort((a, b) => {
                 if (a.dateTime < b.dateTime) {
@@ -108,12 +113,14 @@ class EventsPlot extends Plot {
             });
         }
 
-        let data = this.chartComponentData.timeArrays[aggKey][splitBy];
+        let data = this.chartComponentData.timeArrays[this.aggKey][splitBy];
         var discreteEvents = g.selectAll(".tsi-discreteEvent")
             .data(data, (d: any) => d.dateTime);
 
         let self = this;
         let enteredEvents;
+        let shiftMillis = this.chartComponentData.getTemporalShiftMillis(this.aggKey);
+        let dateStringFn = this.createDateStringFunction(shiftMillis)
 
         switch(this.chartDataOptions.eventElementType) {
             case EventElementTypes.Teardrop:
@@ -180,8 +187,20 @@ class EventsPlot extends Plot {
                     self.eventOnClick(d);
                 }
             })
+            .attr('role', this.chartDataOptions.onElementClick ? 'button' : null)
             .attr('tabindex', this.chartDataOptions.onElementClick ? '0' : null)
-            .attr('cursor', (this.chartDataOptions.onElementClick ? 'pointer' : 'inherit'))
+            .attr('cursor', this.chartDataOptions.onElementClick ? 'pointer' : 'inherit')
+            .attr('aria-label', (d) => {
+               if (this.chartDataOptions.onElementClick) {
+                   let dateString = dateStringFn(d);
+                   let retString = `${this.getString('event in series')} ${d.aggregateName} ${this.getString('at time')} ${dateString}.`;
+                    Object.keys(d.measures).forEach((mKey) => {
+                        retString += ` ${this.getString('measure with key')} ${mKey} ${this.getString('and value')} ${d.measures[mKey]}.`
+                    });
+                   return retString;
+               }
+               return null;
+            })
             .each(function (d: any, i) {
                 if (Object.keys(d.measures).length > 1) {
                     let gradientKey = self.createGradientKey(d, splitByIndex, i);
@@ -193,6 +212,19 @@ class EventsPlot extends Plot {
         discreteEvents.exit().remove();
     }
 
+    private shouldDrawBackdrop = () => {
+        //check to see if this is the first aggregate within a collapsed swimlane. 
+        let lane = this.chartComponentData.getSwimlane(this.aggKey)
+        if (!this.chartOptions.swimLaneOptions || !this.chartOptions.swimLaneOptions[lane] || 
+            !this.chartOptions.swimLaneOptions[lane].collapseEvents) {
+            return true;
+        }
+        let eventSeriesInLane = Object.keys(this.chartComponentData.displayState).filter((aggKey) => {
+            return this.chartComponentData.getSwimlane(aggKey) === lane;
+        });
+        return eventSeriesInLane.indexOf(this.aggKey) === 0;
+    }
+
     public render (chartOptions, visibleAggI, agg, aggVisible: boolean, aggregateGroup, chartComponentData, yExtent,  
         chartHeight, visibleAggCount, colorMap, previousAggregateData, x, areaPath, strokeOpacity, y, yMap, defs, 
         chartDataOptions, previousIncludeDots, yTopAndHeight, chartGroup, discreteEventsMouseover, discreteEventsMouseout) {
@@ -201,7 +233,7 @@ class EventsPlot extends Plot {
         this.height = yTopAndHeight[1];
         this.x = x;
         this.chartComponentData = chartComponentData;
-        let aggKey = agg.aggKey;
+        this.aggKey = agg.aggKey;
         this.chartDataOptions = chartDataOptions;
         this.chartHeight = chartHeight;
         this.chartGroup = chartGroup;
@@ -209,7 +241,12 @@ class EventsPlot extends Plot {
         this.discreteEventsMouseover = discreteEventsMouseover;
         this.discreteEventsMouseout = discreteEventsMouseout;
 
-        this.createBackdropRect();
+        if (this.shouldDrawBackdrop()) {
+            this.createBackdropRect();
+        } else {
+            this.aggregateGroup.selectAll('.tsi-backdropRect').remove();
+        }
+
         if (this.aggregateGroup.selectAll('defs').empty()) {
             this.defs = this.aggregateGroup.append('defs');
         }
@@ -234,13 +271,13 @@ class EventsPlot extends Plot {
 
         let enteredSplitByGroups = splitByGroups.enter()
             .append("g")
-            .attr("class", "tsi-eventsGroup tsi-splitByGroup " + agg.aggKey)
+            .attr("class", "tsi-eventsGroup tsi-splitByGroup " + this.aggKey)
             .merge(splitByGroups)
             .attr('transform', (d, i) => {
                 return 'translate(0,' + (  + (i * (this.chartDataOptions.height / series.length))) + ')';
             })
             .each(function (splitBy, j) {
-                self.createEventElements(aggKey, splitBy, d3.select(this), j);
+                self.createEventElements(splitBy, d3.select(this), j);
             }).each(function() {
                 self.themify(d3.select(this), self.chartOptions.theme);
             })

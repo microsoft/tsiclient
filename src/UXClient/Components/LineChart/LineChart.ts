@@ -1343,7 +1343,7 @@ class LineChart extends TemporalXAxisComponent {
             });
         }
         let heightNonNumeric = visibleCDOs.reduce((sumPrevious, currGroup, i) => {
-            if (currGroup.dataType === DataTypes.Events && this.chartOptions.swimLaneOptions[currGroup.swimLane] && this.chartOptions.swimLaneOptions[currGroup.swimLane].collapseEvents) {
+            if (currGroup.dataType === DataTypes.Events && this.chartOptions.swimLaneOptions && this.chartOptions.swimLaneOptions[currGroup.swimLane] && this.chartOptions.swimLaneOptions[currGroup.swimLane].collapseEvents) {
                 return sumPrevious;
             }
             return sumPrevious + (currGroup.dataType !== DataTypes.Numeric ? Utils.getNonNumericHeight(currGroup.height) : 0);
