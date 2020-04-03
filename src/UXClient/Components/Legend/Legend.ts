@@ -4,7 +4,6 @@ import {Utils, DataTypes, EventElementTypes} from "./../../Utils";
 import {Component} from "./../../Interfaces/Component";
 import { ChartOptions } from '../../Models/ChartOptions';
 import { ChartComponentData } from '../../Models/ChartComponentData';
-import { color } from 'd3';
 
 const NUMERICSPLITBYHEIGHT = 44;
 const NONNUMERICSPLITBYHEIGHT = 24; 
