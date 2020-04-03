@@ -283,6 +283,17 @@ class ChartComponent extends Component {
 		}
 	}
 
+	protected legendPostRenderProcess (legendState: string, chartElement: any, shouldSetControlsWidth: boolean, splitLegendOnDrag: any = undefined) {
+		if (legendState === 'shown') {
+			this.splitLegendAndSVG(chartElement.node(), splitLegendOnDrag);
+			if (shouldSetControlsWidth) {
+				this.setControlsPanelWidth();
+			}	
+		} else {
+			d3.select(this.renderTarget).select('.tsi-resizeGutter').remove();
+		}
+	}
+
 	protected splitLegendAndSVG (chartElement, onDrag = () => {}) {
         let svgWidth = this.getSVGWidth();
 		let legendWidth = this.width - svgWidth;
