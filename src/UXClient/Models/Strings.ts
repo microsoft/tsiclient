@@ -89,7 +89,11 @@ class Strings {
         "Select color": "Select color",
         "Search suggestion instruction": "When autocomplete results are available use up and down arrows to review and enter to select",
         "Search suggestions available": " results available, keyboard users, use up and down arrows to review and enter to select.",
-        "Hierarchy list": "Hierarchy list"
+        "Hierarchy list": "Hierarchy list",
+        "event in series": "Event in series",
+        "at time": "at time",
+        "measure with key": "measure with key",
+        "and value": "and value"
     };
   
     private stringValues: any = {};
