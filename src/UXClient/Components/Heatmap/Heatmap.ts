@@ -210,11 +210,7 @@ class Heatmap extends TemporalXAxisComponent {
                 this.addTimeLabels();
             }
         });
-
-        if (this.chartOptions.legend === 'shown') {
-            this.splitLegendAndSVG(this.heatmapWrapper.node());
-            this.setControlsPanelWidth();
-        }
+        this.legendPostRenderProcess(this.chartOptions.legend, this.heatmapWrapper, true);
     }
 
     public renderTimeLabels = (focusStartTime, focusEndTime, focusX1, focusX2, focusY, yOffset, shiftMillis) => {
