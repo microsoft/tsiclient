@@ -4,6 +4,7 @@ import {Utils, DataTypes, EventElementTypes} from "./../../Utils";
 import {Component} from "./../../Interfaces/Component";
 import { ChartOptions } from '../../Models/ChartOptions';
 import { ChartComponentData } from '../../Models/ChartComponentData';
+import { color } from 'd3';
 
 const NUMERICSPLITBYHEIGHT = 44;
 const NONNUMERICSPLITBYHEIGHT = 24; 
@@ -142,17 +143,33 @@ class Legend extends Component {
 
         let colorKeyWidth = colorKey.node().getBoundingClientRect().width;
         let colorKeyHeight = colorKey.node().getBoundingClientRect().height;
+        let colorKeyUnitLength = Math.floor(colorKeyHeight / Math.sqrt(2));
+        
         let svg = colorKey.append('svg')
             .attr('width', `${colorKeyWidth}px`)
             .attr('height', `${colorKeyHeight}px`);
-        let rect = svg.append('rect')
-            .attr('width', Math.floor(colorKeyWidth/ Math.sqrt(2)))
-            .attr('height', Math.floor(colorKeyHeight / Math.sqrt(2)))
-            .attr('transform', `translate(${(colorKeyWidth/2)},0)rotate(45)`)
-            .attr('fill', 'black');
+
         let gradientKey = Utils.guid();
         this.createGradient(gradientKey, svg, categories);
-        rect.attr('fill', "url(#" + gradientKey + ")");
+
+        if (eventElementType === EventElementTypes.Teardrop) {
+            svg.append('path')
+                .attr('transform', (d: any) => {
+                    return 'translate(' + (colorKeyWidth * .75) + ',' + (colorKeyHeight * .75) + ') rotate(180)';
+                })
+                .attr('d', this.teardropD(colorKeyWidth / 2, colorKeyHeight / 2))
+                .attr('stroke-width', Math.min(colorKeyUnitLength / 2.25, 8))
+                .style('fill', 'none')
+                .style('stroke', "url(#" + gradientKey + ")");
+
+        } else {
+            let rect = svg.append('rect')
+                .attr('width', colorKeyUnitLength)
+                .attr('height', colorKeyUnitLength)
+                .attr('transform', `translate(${(colorKeyWidth/2)},0)rotate(45)`)
+                .attr('fill', 'black');
+            rect.attr('fill', "url(#" + gradientKey + ")");
+        }
     }
 
     private renderSplitBys = (aggKey, aggSelection, dataType, noSplitBys) => {

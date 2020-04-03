@@ -88,14 +88,7 @@ class EventsPlot extends Plot {
         }
         return 'none';
     }
-
-    private teardropD = (width, height) => {
-        return `M${width / 2} ${height / 14} 
-                Q${width / 1.818} ${height / 6.17} ${width / 1.2} ${height / 2.33}
-                A${width / 2.35} ${width / 2.35} 0 1 1 ${width / 6} ${width / 2.33}
-                Q${width / 2.22} ${height / 6.18} ${width / 2} ${height / 14}z`;
-    }
-
+    
     private createDateStringFunction = (shiftMillis: number) => {
         return Utils.timeFormat(this.chartComponentData.usesSeconds, this.chartComponentData.usesMillis, 
             this.chartOptions.offset, this.chartOptions.is24HourTime, shiftMillis, null, this.chartOptions.dateLocale);
