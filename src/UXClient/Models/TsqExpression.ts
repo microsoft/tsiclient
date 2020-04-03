@@ -73,6 +73,9 @@ class TsqExpression extends ChartDataOptions {
             Object.keys(inlineVariables).forEach(k => {
                 inlineVariables[k] = JSON.parse(JSON.stringify(firstVariable));
                 inlineVariables[k].aggregation.tsx = `${k}($value)`;
+                if(k === 'stDev'){
+                    delete inlineVariables[k]['interpolation'];
+                }
             })
             tsq.aggregateSeries['inlineVariables'] = inlineVariables;        
             tsq.aggregateSeries['projectedVariables'] = Object.keys(inlineVariables);
