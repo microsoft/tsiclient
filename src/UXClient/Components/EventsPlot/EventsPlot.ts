@@ -1,4 +1,5 @@
 import * as d3 from 'd3';
+import './EventsPlot.scss';
 import { Plot } from '../../Interfaces/Plot';
 import { Utils, NONNUMERICTOPMARGIN, EventElementTypes, DataTypes, LINECHARTTOPPADDING } from '../../Utils';
 
@@ -12,6 +13,8 @@ class EventsPlot extends Plot {
     private discreteEventsMouseout;
     private splitBysGroup;
     private eventHeight;
+    private gradientData;
+    private aggKey;
 
     private gradientArray = {};
 
@@ -69,6 +72,162 @@ class EventsPlot extends Plot {
         this.eventHeight = Math.floor((useableHeight / visibleSeriesCount) / Math.sqrt(2)); 
     }
 
+    private eventOnClick = (d: any) => {
+        if (this.chartDataOptions.onElementClick) {
+            this.chartDataOptions.onElementClick(d.aggregateKey, d.splitBy, d.dateTime.toISOString(), d.measures);
+        }
+    }
+
+    private colorFunction = (d) => {
+        if (d.measures) {
+            if (Object.keys(d.measures).length === 1) {
+                return this.getColorForValue(Object.keys(d.measures)[0]);                            
+            } else {
+                return 'grey';
+            }
+        }
+        return 'none';
+    }
+
+    private teardropD = (width, height) => {
+        return `M${width / 2} ${height / 14} 
+                Q${width / 1.818} ${height / 6.17} ${width / 1.2} ${height / 2.33}
+                A${width / 2.35} ${width / 2.35} 0 1 1 ${width / 6} ${width / 2.33}
+                Q${width / 2.22} ${height / 6.18} ${width / 2} ${height / 14}z`;
+    }
+
+    private createDateStringFunction = (shiftMillis: number) => {
+        return Utils.timeFormat(this.chartComponentData.usesSeconds, this.chartComponentData.usesMillis, 
+            this.chartOptions.offset, this.chartOptions.is24HourTime, shiftMillis, null, this.chartOptions.dateLocale);
+    }
+
+    private createEventElements = (splitBy, g, splitByIndex) => {
+        let sortEvents = () => {
+            enteredEvents.sort((a, b) => {
+                if (a.dateTime < b.dateTime) {
+                    return -1;
+                } else if (a.dateTime > b.dateTime) {
+                    return 1;
+                }
+                return 0;
+            });
+        }
+
+        let data = this.chartComponentData.timeArrays[this.aggKey][splitBy];
+        var discreteEvents = g.selectAll(".tsi-discreteEvent")
+            .data(data, (d: any) => d.dateTime);
+
+        let self = this;
+        let enteredEvents;
+        let shiftMillis = this.chartComponentData.getTemporalShiftMillis(this.aggKey);
+        let dateStringFn = this.createDateStringFunction(shiftMillis)
+
+        switch(this.chartDataOptions.eventElementType) {
+            case EventElementTypes.Teardrop:
+                if (discreteEvents.size() && discreteEvents.classed('tsi-discreteEventDiamond')) {
+                    g.selectAll('.tsi-discreteEvent').remove();
+                    discreteEvents = g.selectAll(".tsi-discreteEvent")
+                        .data(data, (d: any) => d.dateTime);
+                }
+                enteredEvents = discreteEvents.enter()
+                    .append('path')
+                    .attr('class', 'tsi-discreteEvent')
+                    .merge(discreteEvents)
+                    .classed('tsi-discreteEventDiamond', false)
+                    .classed('tsi-discreteEventTeardrop', true)
+                    .attr('transform', (d: any) => {
+                        return 'translate(' + (this.x(new Date(d.dateTime)) + this.eventHeight / 2) + ',' + (this.eventHeight * 1.4) + ') rotate(180)';
+                    })
+                    .attr('d', this.teardropD(this.eventHeight, this.eventHeight))
+                    .attr('stroke-width', Math.min(this.eventHeight / 2.25, 8))
+                    .attr('stroke', this.colorFunction)
+                    .attr('fill', 'none');
+                break;
+            case EventElementTypes.Diamond:
+                if (discreteEvents.size() && discreteEvents.classed('tsi-discreteEventTeardrop')) {
+                    g.selectAll('.tsi-discreteEvent').remove();
+                    discreteEvents = g.selectAll(".tsi-discreteEvent")
+                        .data(data, (d: any) => d.dateTime);
+                }
+                enteredEvents = discreteEvents.enter()
+                    .append('rect')
+                    .attr('class', 'tsi-discreteEvent')
+                    .merge(discreteEvents)
+                    .classed('tsi-discreteEventTeardrop', false)
+                    .classed('tsi-discreteEventDiamond', true)
+                    .attr('d', 'none')
+                    .attr('transform', (d: any) => {
+                        return 'translate(' + this.x(new Date(d.dateTime)) + ',0) rotate(45)';
+                    })
+                    .attr('fill', this.colorFunction)
+                    .attr('stroke', 'none');
+                break;
+        }
+        enteredEvents
+            .attr('y', 0)
+            .attr('x', 0)
+            .attr('width', this.eventHeight)
+            .attr('height', this.eventHeight)
+            .on('mouseover', function (d) {
+                d3.select(this).raise();
+                self.onMouseover(d, splitByIndex);
+            })
+            .on('mouseout', () => {
+                this.onMouseout();
+            })
+            .on('click', (d) => {
+                this.eventOnClick(d);
+            })
+            .on('touchstart', (d) => {
+                this.eventOnClick(d);
+            })
+            .on('keydown', function (d: any)  {
+                if (d3.event.keyCode === 9) {
+                    sortEvents();
+                    d3.select(this).node().focus();
+                }
+                if(d3.event.keyCode === 32 || d3.event.keyCode === 13){
+                    self.eventOnClick(d);
+                }
+            })
+            .attr('role', this.chartDataOptions.onElementClick ? 'button' : null)
+            .attr('tabindex', this.chartDataOptions.onElementClick ? '0' : null)
+            .attr('cursor', this.chartDataOptions.onElementClick ? 'pointer' : 'inherit')
+            .attr('aria-label', (d) => {
+               if (this.chartDataOptions.onElementClick) {
+                   let dateString = dateStringFn(d);
+                   let retString = `${this.getString('event in series')} ${d.aggregateName} ${this.getString('at time')} ${dateString}.`;
+                    Object.keys(d.measures).forEach((mKey) => {
+                        retString += ` ${this.getString('measure with key')} ${mKey} ${this.getString('and value')} ${d.measures[mKey]}.`
+                    });
+                   return retString;
+               }
+               return null;
+            })
+            .each(function (d: any, i) {
+                if (Object.keys(d.measures).length > 1) {
+                    let gradientKey = self.createGradientKey(d, splitByIndex, i);
+                    self.gradientData.push([gradientKey, d]);
+                    d3.select(this)
+                        .attr(self.chartDataOptions.eventElementType === EventElementTypes.Teardrop ? 'stroke' : 'fill', "url(#" + gradientKey + ")");    
+                }
+            });
+        discreteEvents.exit().remove();
+    }
+
+    private shouldDrawBackdrop = () => {
+        //check to see if this is the first aggregate within a collapsed swimlane. 
+        let lane = this.chartComponentData.getSwimlane(this.aggKey)
+        if (!this.chartOptions.swimLaneOptions || !this.chartOptions.swimLaneOptions[lane] || 
+            !this.chartOptions.swimLaneOptions[lane].collapseEvents) {
+            return true;
+        }
+        let eventSeriesInLane = Object.keys(this.chartComponentData.displayState).filter((aggKey) => {
+            return this.chartComponentData.getSwimlane(aggKey) === lane;
+        });
+        return eventSeriesInLane.indexOf(this.aggKey) === 0;
+    }
+
     public render (chartOptions, visibleAggI, agg, aggVisible: boolean, aggregateGroup, chartComponentData, yExtent,  
         chartHeight, visibleAggCount, colorMap, previousAggregateData, x, areaPath, strokeOpacity, y, yMap, defs, 
         chartDataOptions, previousIncludeDots, yTopAndHeight, chartGroup, discreteEventsMouseover, discreteEventsMouseout) {
@@ -77,7 +236,7 @@ class EventsPlot extends Plot {
         this.height = yTopAndHeight[1];
         this.x = x;
         this.chartComponentData = chartComponentData;
-        let aggKey = agg.aggKey;
+        this.aggKey = agg.aggKey;
         this.chartDataOptions = chartDataOptions;
         this.chartHeight = chartHeight;
         this.chartGroup = chartGroup;
@@ -85,7 +244,12 @@ class EventsPlot extends Plot {
         this.discreteEventsMouseover = discreteEventsMouseover;
         this.discreteEventsMouseout = discreteEventsMouseout;
 
-        this.createBackdropRect();
+        if (this.shouldDrawBackdrop()) {
+            this.createBackdropRect();
+        } else {
+            this.aggregateGroup.selectAll('.tsi-backdropRect').remove();
+        }
+
         if (this.aggregateGroup.selectAll('defs').empty()) {
             this.defs = this.aggregateGroup.append('defs');
         }
@@ -106,97 +270,24 @@ class EventsPlot extends Plot {
                 return d.splitBy;
             });
 
-        let gradientData = [];
-
-        let teardropD = (width, height) => {
-            return `M${width / 2} ${height / 14} 
-                    Q${width / 1.818} ${height / 6.17} ${width / 1.2} ${height / 2.33}
-                    A${width / 2.35} ${width / 2.35} 0 1 1 ${width / 6} ${width / 2.33}
-                    Q${width / 2.22} ${height / 6.18} ${width / 2} ${height / 14}z`;
-        }
-
-        let enterEventElements = (discreteEvents) => {
-            let enteredEvents;
-
-            let colorFunction = (d) => {
-                if (d.measures) {
-                    if (Object.keys(d.measures).length === 1) {
-                        return self.getColorForValue(Object.keys(d.measures)[0]);                            
-                    } else {
-                        return 'grey';
-                    }
-                }
-                return 'none';
-            }
-            switch(this.chartDataOptions.eventElementType) {
-                case EventElementTypes.Teardrop:
-                    enteredEvents = discreteEvents.enter().append('path')
-                        .attr('class', 'tsi-discreteEvent tsi-discreteEventTeardrop')
-                        .merge(discreteEvents)
-                        .attr('transform', (d: any) => {
-                            return 'translate(' + (self.x(new Date(d.dateTime)) + self.eventHeight / 2) + ',' + (self.eventHeight * 1.4) + ') rotate(180)';
-                        })
-                        .attr('d', teardropD(self.eventHeight, self.eventHeight))
-                        .attr('stroke-width', Math.min(self.eventHeight / 2.25, 8))
-                        .attr('stroke', colorFunction);
-                    break;
-                case EventElementTypes.Diamond:
-                    enteredEvents = discreteEvents.enter().append('rect')
-                        .attr('class', 'tsi-discreteEvent')
-                        .merge(discreteEvents)
-                        .attr('transform', (d: any) => {
-                            return 'translate(' + self.x(new Date(d.dateTime)) + ',0) rotate(45)';
-                        })
-                        .attr('fill', colorFunction);
-                    break;
-            }
-            return enteredEvents
-                .attr('y', 0)
-                .attr('x', 0)
-                .attr('width', self.eventHeight)
-                .attr('height', self.eventHeight);
-
-        }
+        this.gradientData = [];
 
         let enteredSplitByGroups = splitByGroups.enter()
             .append("g")
-            .attr("class", "tsi-splitByGroup " + agg.aggKey)
+            .attr("class", "tsi-eventsGroup tsi-splitByGroup " + this.aggKey)
             .merge(splitByGroups)
             .attr('transform', (d, i) => {
                 return 'translate(0,' + (  + (i * (this.chartDataOptions.height / series.length))) + ')';
             })
             .each(function (splitBy, j) {
-                let data = self.chartComponentData.timeArrays[aggKey][splitBy];
-                var discreteEvents = d3.select(this).selectAll(".tsi-discreteEvent")
-                    .data(data);
-                let enteredEvents = enterEventElements(discreteEvents)
-                    .on('mouseover', function (d) {
-                        d3.select(this).raise();
-                        self.onMouseover(d, j);
-                    })
-                    .on('mouseout', () => {
-                        self.onMouseout();
-                    })
-                    .on('click', (d: any) => {
-                        if (self.chartDataOptions.onElementClick) {
-                            self.chartDataOptions.onElementClick(d.aggregateKey, d.splitBy, d.dateTime.toISOString(), d.measures);
-                        }
-                    })
-                    .attr('cursor', (self.chartDataOptions.onElementClick ? 'pointer' : 'inherit'))
-                    .each(function (d: any, i) {
-                        if (Object.keys(d.measures).length > 1) {
-                            let gradientKey = self.createGradientKey(d, j, i);
-                            gradientData.push([gradientKey, d]);
-                            d3.select(this)
-                                .attr(self.chartDataOptions.eventElementType === EventElementTypes.Teardrop ? 'stroke' : 'fill', "url(#" + gradientKey + ")");    
-                        }
-                    });
-                discreteEvents.exit().remove();
-                });
+                self.createEventElements(splitBy, d3.select(this), j);
+            }).each(function() {
+                self.themify(d3.select(this), self.chartOptions.theme);
+            })
             splitByGroups.exit().remove();
 
         let gradients = this.defs.selectAll('linearGradient')
-        .data(gradientData, (d) => {
+        .data(this.gradientData, (d) => {
             return d[1].splitBy;
         });
         let enteredGradients = gradients.enter()
