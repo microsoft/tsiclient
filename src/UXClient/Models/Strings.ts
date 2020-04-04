@@ -78,6 +78,7 @@ class Strings {
         "zoom out": "zoom out",
         "select quick time of": "select quick time of",
         "a time selection control dialog.": "a time selection control dialog.",
+        "a button to launch a time selection dialog. current selected time is ": "a button to launch a time selection dialog. current selected time is ",
         "No color": "No color",
         "Change y-axis type": "Change y-axis type",
         "Show/Hide values": "Show/Hide values",

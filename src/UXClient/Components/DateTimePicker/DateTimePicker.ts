@@ -387,10 +387,12 @@ class DateTimePicker extends ChartComponent{
     }
 
     private setSelectedQuickTimes () {
-        this.quickTimesPanel.selectAll('.tsi-quickTime')
-        .classed('tsi-isSelected', d => {
+        let isSelected = d => {
             return (this.toMillis === this.maxMillis && (this.toMillis - this.fromMillis === d[1]));
-        });
+        }
+        this.quickTimesPanel.selectAll('.tsi-quickTime')
+        .classed('tsi-isSelected', isSelected)
+        .attr('aria-pressed', isSelected);
     }
 
     private setFromDate (calendarDate: Date) {
