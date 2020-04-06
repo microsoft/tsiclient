@@ -195,6 +195,70 @@ class ScatterPlot extends ChartVisualizationComponent {
         return this.chartWidth + this.chartMargins.left + this.chartMargins.right - 16;
     }
 
+    private linearRegression(y,x){ 
+        var lr: any = {}; 
+        var n = y.length; 
+        var sum_x = 0; 
+        var sum_y = 0; 
+        var sum_xy = 0; 
+        var sum_xx = 0; 
+        var sum_yy = 0;
+        
+        for (var i = 0; i < y.length; i++) {
+            sum_x += x[i];
+            sum_y += y[i];
+            sum_xy += (x[i]*y[i]);
+            sum_xx += (x[i]*x[i]);
+            sum_yy += (y[i]*y[i]);
+        }
+    
+        lr.slope = (n * sum_xy - sum_x * sum_y) / (n*sum_xx - sum_x * sum_x);
+        lr.intercept = (sum_y - lr.slope * sum_x)/n;
+        lr.r2 = Math.pow((n*sum_xy - sum_x*sum_y)/Math.sqrt((n*sum_xx-sum_x*sum_x)*(n*sum_yy-sum_y*sum_y)),2);
+    
+        return lr;
+    }
+
+    private calculateState () {
+        let xValues = [];
+        let yValues = [];
+        this.chartComponentData.temporalDataArray.forEach(d => {
+            if (d.measures && d.measures[this.xMeasure] !== undefined && d.measures[this.yMeasure] !== undefined) {
+                xValues.push(d.measures[this.xMeasure]);
+                yValues.push(d.measures[this.yMeasure]);
+            }
+        });
+        let lr = this.linearRegression(yValues, xValues);
+        if (!isNaN(lr.intercept) && !isNaN(lr.slope))
+            this.drawLRLine(lr.slope, lr.intercept, lr.r2);
+    }
+
+    private drawLRLine (slope, yIntercept, r2) {
+        console.log("r-squared: " + r2);
+        let pt2X = this.xScale.domain()[1];
+        let lrData = {
+            pt1X: 0,
+            pt1Y: yIntercept,
+            pt2X: pt2X,
+            pt2Y: yIntercept + slope * pt2X
+        }
+
+        let lrLine = this.g.selectAll('.tsi-lRLine')
+            .data([lrData]);
+        lrLine.enter()
+            .append('line')
+            .attr("class", "tsi-lRLine")
+            .merge(lrLine)
+            .attr("x1", d => this.xScale(d.pt1X))
+            .attr("x2", d => this.xScale(d.pt2X))
+            .attr("y1", d => this.yScale(d.pt1Y))
+            .attr("y2", d => this.yScale(d.pt2Y))
+            .attr('stroke', `rgba(200,0,0,${r2 + .2})`)
+            .attr('stroke-width', 2);
+        lrLine.exit().remove();
+    }
+
+
     /******** DRAW UPDATE FUNCTION ********/   
     public draw = (isFromResize = false) => {
         this.activeDot = null;
@@ -360,6 +424,10 @@ class ScatterPlot extends ChartVisualizationComponent {
 
         this.sliderWrapper
             .style("width", `${this.svgSelection.node().getBoundingClientRect().width + 10}px`);
+
+        this.calculateState();
+
+
     }
 
     /******** CHECK VALIDITY OF EXTENTS ********/

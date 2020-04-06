@@ -1,0 +1,69 @@
+
+<!DOCTYPE html> 
+<html>
+    <head>
+        <title>Basic Charts</title>
+        <script src="../../../dist/tsiclient.js"></script>
+        <link rel="stylesheet" type="text/css" href="../../../dist/tsiclient.css"></link>
+        <meta name='viewport' content='width=device-width,initial-scale=1'>
+    </head>
+    <body style="font-family: 'Segoe UI', sans-serif;">
+        <h1 style='text-align:center; font-weight:light; color:rgba(0,0,0,.85)'>The effect of density on COVID-19 at the county level</h1>
+        <div id="chart1" style="width: 100%; height: 600px;"></div>     
+        <div class="controls">
+            <label>Y-variable: </label>
+            <select id='yVar'>
+                <option>deaths per 100,000</option>
+                <option>confirmed per 100,000</option>
+                <option>confirmed</option>
+            </select>
+            <label>Exclude counties with less than (x) people: </label>
+
+            <select id='populationCutoff'>
+                <option>0</option>
+                <option value='100000'>100,000</option>
+                <option value='250000' selected='true'>250,000</option>
+                <option value='500000'>500,000</option>
+                <option value='1000000'>1,000,000</option>
+            </select>
+            <button onclick='rerender()'>re-render</button>
+        </div>   
+        <script>
+            var rerender;
+            window.onload = function() {        
+                var tsiClient = new TsiClient();
+                var scatterplot = new tsiClient.ux.ScatterPlot(document.getElementById('chart1'));
+        
+                fetch('data.json').then(function(response) {
+                    return response.json();
+                }).then(function (data) {
+                    let renderChart = (minPop, yVar) => {
+                        let filteredDeathsData = data.filter((d) => {
+                            let aggName = Object.keys(d)[0];
+                            return d[aggName][''][Object.keys(d[aggName][''])[0]].population > minPop
+                        });
+                        let cDOs = filteredDeathsData.map((agg) => {
+                            let color = 'grey';
+                            let aggName = Object.keys(agg)[0];
+                            if (aggName === 'New York - New York City') {
+                                color = 'green';
+                            }
+                            return {color: 'grey'};
+                        });
+                        let xVarAxisLabel = 'population density (people/sq. mile)';
+                        let yVarAxisLabel = yVar;
+                        scatterplot.render(filteredDeathsData, {theme: 'light', legend: 'hidden', isTemporal: true, tooltip: true, spMeasures: ['population density', yVar, 'population'], spAxisLabels: [xVarAxisLabel, yVarAxisLabel], scatterPlotRadius: [1, 30]}, cDOs);
+                    }
+
+                    renderChart(250000, 'deaths per 100,000');
+
+                    rerender = function () {
+                        let popCuttoff = Number(document.getElementById('populationCutoff').value);
+                        let yVar = document.getElementById('yVar').value;
+                        renderChart(popCuttoff, yVar);
+                    }
+                });
+            };
+        </script>
+    </body>
+</html>
