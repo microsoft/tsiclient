@@ -70,19 +70,22 @@ class DateTimeButtonRange extends DateTimeButton {
             else{
                 this.chartOptions.dTPIsModal = true;
                 this.dateTimePickerContainer.style("display", "block");
-                this.dateTimePicker.render(this.chartOptions, minMillis, maxMillis, this.fromMillis, this.toMillis, (fromMillis, toMillis, offset, isRelative, currentQuickTime) => {
-                    this.chartOptions.offset = offset;
+                this.dateTimePicker.render(this.chartOptions, minMillis, maxMillis, this.fromMillis, this.toMillis, 
+                    (fromMillis, toMillis, offset, isRelative, currentQuickTime) => {
+                        this.chartOptions.offset = offset;
 
-                    this.fromMillis = fromMillis;
-                    this.toMillis = toMillis;
+                        this.fromMillis = fromMillis;
+                        this.toMillis = toMillis;
 
-                    this.setButtonText(fromMillis, toMillis, isRelative, currentQuickTime);
-                    this.onSet(fromMillis, toMillis, offset);
-                    this.onClose();
-                }, () => {
-                    this.onClose();
-                    this.onCancel();
-                });
+                        this.setButtonText(fromMillis, toMillis, isRelative, currentQuickTime);
+                        this.onSet(fromMillis, toMillis, offset);
+                        this.onClose();
+                    }, 
+                    () => {
+                        this.onClose();
+                        this.onCancel();
+                    }
+                );
             }
         });
     }
