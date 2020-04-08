@@ -25,6 +25,7 @@ class ChartDataOptions {
     public positionX: number;
     public positionY: number;
     public swimLane: number;
+    public additionalFields: any;
 
     constructor (optionsObject: Object){
         this.searchSpan = Utils.getValueOrDefault(optionsObject, 'searchSpan');
@@ -48,6 +49,7 @@ class ChartDataOptions {
         this.positionX = Utils.getValueOrDefault(optionsObject, 'positionX', 0);
         this.positionY = Utils.getValueOrDefault(optionsObject, 'positionY', 0);
         this.swimLane = Utils.getValueOrDefault(optionsObject, 'swimLane', null);
+        this.additionalFields = Utils.getValueOrDefault(optionsObject, 'additionalFields', {});
     }
 }
 export {ChartDataOptions}
