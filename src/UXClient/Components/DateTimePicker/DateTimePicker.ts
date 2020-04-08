@@ -359,7 +359,6 @@ class DateTimePicker extends ChartComponent{
                 this.calendarPicker.draw();
             },
             onDraw: (d) => {
-                this.calendar.select(".pika-single").selectAll('button').attr('tabindex', -1);
                 if (this.isSettingStartTime)
                     return; 
                 var self = this;

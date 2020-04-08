@@ -22,6 +22,9 @@ class ChartComponentData {
 	constructor(){
     }
 
+    protected getSwimlane = (aggKey) => {
+        return (this.displayState[aggKey].aggregateExpression ? this.displayState[aggKey].aggregateExpression.swimLane : null);
+    }
 
     protected setAllTimestampsArray () {
         var allTimestamps = {};

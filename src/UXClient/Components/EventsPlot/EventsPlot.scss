@@ -1,0 +1,30 @@
+@import "../../styles";
+
+@mixin epColors($grays){
+    $gray1: nth($grays, 1);
+    $gray2: nth($grays, 2); 
+    $gray3: nth($grays, 3); 
+    $gray4: nth($grays, 4); 
+    
+    .tsi-discreteEvent:focus {
+        outline: 1px solid rgba($gray1, .8);
+        outline-offset: 2px;
+        &.tsi-discreteEventTeardrop {
+            outline-offset: -4px;
+        }
+    }
+    @include chartColors($grays);
+}
+
+.tsi-eventsGroup {
+    
+    &.tsi-dark{
+        $grays: grays('dark');
+        @include epColors($grays);
+    }
+
+    &.tsi-light{
+        $grays: grays('light');
+        @include epColors($grays);
+    }
+}
