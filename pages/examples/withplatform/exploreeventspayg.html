@@ -152,7 +152,8 @@
                         availabilityChart.render(tsiClient.ux.transformAvailabilityForVisualization(result, 500), 
                                 {theme: 'light', color: '#136BFB', legend: 'hidden', brushMoveEndAction: (from, to) => {getResults(from, to)}}, 
                                 result);
-                        var toDate = new Date(result.range.to);
+                        endDate = new Date(result.range.to);
+                        startDate = new Date(endDate.valueOf() - 1000*60*60*24);
                         var hierarchy = new tsiClient.ux.HierarchyNavigation(document.getElementById('hierarchy'));
                         hierarchy.render('10000000-0000-0000-0000-100000000109.env.timeseries.azure.com', window.authContext.getTsiToken, {theme: 'light', onInstanceClick: instance => onInstanceClick(instance)})
                     })
