@@ -1,0 +1,324 @@
+
+<!DOCTYPE html> 
+<html style="height: 100%;">
+    <head>
+        <title>Explore Events PAYG</title>
+
+        <!-- styles are only used for styling header and auth elements, where possible -->
+        <link rel="stylesheet" type="text/css" href="../styles.css" />
+        
+        <!-- boilerplate headers are injected with head.js, grab them from the live example header, or include a link to head.js -->
+        <script src="../boilerplate/head.js"></script>
+
+        <!-- boilerplate auth code is injected with auth.js, check it out for auth setup -->
+        <script src="../boilerplate/auth.js"></script>
+    </head>
+    <body style="font-family: 'Segoe UI', sans-serif; height: 100%; position: relative; overflow: hidden;">
+
+        <div id="availability" style="width: 100%; height: 200px; margin-top: 40px; background: #fff"></div>
+        <div id="intervalSliderWrapper" style="width: 300px; height: 40px; position: absolute; margin-top: -40px; font-size: 12px; margin-left: 50px;">
+            Interval Size
+            <div style="position: relative; top: 22px; left: 20px;" id="intervalSlider"></div>
+        </div>
+        <div id="hierarchy" style="width: 300px; height: calc(100% - 240px);background: #fff; border-top: 1px solid #ccc;"></div>
+        <div id="chart1" style="width: calc(100% - 300px); height: calc(100% - 240px);position: absolute; left: 300px; top: 200px; background: #fff; border: 1px solid #ccc;"></div>
+        <div id="eventsWrapper" style="position: absolute; top: 0; right: 0; width: 80%; height: calc(100% - 40px); transform: translateX(100%); transition: .4s all ease; background: white; border: 1px solid silver; z-index: 10; box-shadow: -4px 0px 4px 0px rgba(0,0,0,0.2);">
+            <div style="position: absolute; top: 8px; left: 20px;">Events</div>
+            <div id="modalClose" onclick="hideEvents()" style="z-index: 11;">&times;</div>
+            <div id="events" style="width: 100%; height: calc(100% - 40px); margin-top: 40px; position: absolute; padding: 20px;"></div>
+        </div>
+        <script>
+
+            window.onload = function() {
+                initAuth('Line chart with events exploration.  Drag a region and select "Explore Events"');  // initiate auth objects, header, and login modal
+                var tsiClient = new TsiClient(), lineChart;
+                            
+                // create tsq expressions, they are PAYG SKU query objects
+                var startDate = new Date('2017-04-14T13:00:00Z');
+                var endDate = new Date(startDate.valueOf() + 1000*60*60*24);
+                var tsqExpressions = [];
+                var colors = ['#3195E3', '#D869CB', '#FF8C00', '#8FE6D7', '#008272', '#F7727E', '#E0349E', '#C8E139', '#60B9AE', 
+    '#93CFFB', '#854CC7', '#258225', '#0078D7', '#FF2828', '#FFF100'];
+                var currentTsqECount = 0;
+                
+                var brushActions = [
+                    {  
+                        name: "Zoom",
+                        action: (from, to) => {
+                            getResults(new Date(from), new Date(to));
+                            availabilityChart.setBrush(new Date(from), new Date(to));
+                        }
+                    },
+                    {  
+                        name: "Explore Events",
+                        action: (fromTime, toTime) => {
+                            let visibilityState = lineChart.getVisibilityState();
+                            visibleTsqEs = [];
+                            tsqExpressions.forEach((tsqE, idx) => {
+                                let visibilityStateForQuery = visibilityState[idx][Object.keys(visibilityState[idx])[0]];
+                                if (visibilityStateForQuery[0]) {
+                                    visibleTsqEs.push(tsqE);
+                                }
+                            });
+                            authContext.getTsiToken().then(function(token){
+                                document.getElementById('eventsWrapper').style.transform = 'translateX(0)';
+                                tsiClient.server.getTsqResults(token, '10000000-0000-0000-0000-100000000109.env.timeseries.azure.com', getLtsExploreEventsPayload(visibleTsqEs)).then(function (events) {
+                                    var transformedEvents = tsiClient.ux.transformTsqResultsToEventsArray(events, {});
+                                    var eventsTable = tsiClient.ux.EventsTable(document.getElementById('events'));
+                                    eventsTable.render(transformedEvents, {theme: 'light', offset: "Local"}, true);
+                                });
+                            });
+                        }
+                    }
+                ];
+
+                var availabilityChart = new tsiClient.ux.AvailabilityChart(document.getElementById('availability'));
+                var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart1'));
+                
+                // get results from server and render them in a line chart
+                var getResults = (from, to, bs) => {
+                    if(!from && !to){
+                        from = startDate;
+                        to = endDate;
+                    }
+                    if(from && to && !bs){
+                        var newBucketSizes = getValidBucketSizes(from.valueOf(), to.valueOf());
+                        var newBucketSize = getNewBucketSize(validBucketSizes, newBucketSizes, bucketSize);
+                        tsqExpressions.forEach(tsqe => {tsqe.searchSpan.from = from; tsqe.searchSpan.to = to, tsqe.searchSpan.bucketSize = newBucketSize});
+                        tsqExpressions.forEach((tsqe, i) => {
+                            tsqe.contextMenu = [{
+                                name: 'Remove this series',
+                                action: () => {
+                                    tsqExpressions.splice(i, 1);
+                                    getResults();
+                                }
+                            }]
+                        })
+                        renderIntervalSlider(from, to, newBucketSizes, newBucketSize);
+                    }
+                    else{
+                        tsqExpressions.forEach(tsqe => {tsqe.searchSpan.bucketSize = bs});
+                        bucketSize = bs;
+                    }
+                    authContext.getTsiToken().then(function(token){
+                        tsiClient.server.getTsqResults(token, '10000000-0000-0000-0000-100000000109.env.timeseries.azure.com', tsqExpressions.map(function(tsqe){return tsqe.toTsq(true)})).then(function(result){
+                            var transformedResult = tsiClient.ux.transformTsqResultsForVisualization(result, tsqExpressions);
+                            lineChart.render(transformedResult, {theme: 'light', grid: true, tooltip: true, brushContextMenuActions: brushActions, autoTriggerBrushContextMenu: true, offset: 'Local', color: '#136BFB'}, tsqExpressions);
+                        });
+                    });
+                    startDate = from; 
+                    endDate = to;
+                }
+
+                // interval slider
+                var intervalSlider = new tsiClient.ux.Slider(document.getElementById('intervalSlider'));
+                var renderIntervalSlider = (from, to, newValidBucketSizes, newBucketSize) => {
+                    validBucketSizes = newValidBucketSizes;
+                    bucketSize = newBucketSize;
+                    intervalSlider.render(validBucketSizes.map(n => ({label: n.toString(), action: () => getResults(null, null, n) })), {theme: 'light', throttleSlider: true}, 300, bucketSize);
+                }
+                var validBucketSizes = getValidBucketSizes(startDate.valueOf(), endDate.valueOf());
+                var bucketSize = getDimensionAndIntegerForRangeAndBuckets(startDate.valueOf(), endDate.valueOf(), 100);
+                renderIntervalSlider(startDate, endDate, validBucketSizes, bucketSize);
+
+                var onInstanceClick = function(instance) {                
+                    let contextMenuActions = [];
+                    authContext.getTsiToken().then(token => { 
+                        tsiClient.server.getTimeseriesTypes(token, '10000000-0000-0000-0000-100000000109.env.timeseries.azure.com', [instance.type.id]).then(r => {
+                            if (r.get && Array.isArray(r.get)) {
+                                r.get.forEach((t) => {
+                                    let type = t.timeSeriesType;
+                                    Object.keys(type.variables).forEach((vName) => {
+                                        let option = {};
+                                        if (type.variables[vName].aggregation.tsx === 'avg($value)') {
+                                            let newType = this.getTsmTypeFromVariable(type.variables[vName]);
+                                            option['Show ' + vName] = () => addInstanceAction(newType, vName, instance);
+                                        } else {
+                                            option['Show ' + vName] = () => addInstanceAction(instance.type, vName, instance);
+                                        }
+                                        contextMenuActions.push(option);
+                                    });
+                                });
+                                instance.drawContextMenu(contextMenuActions);
+                            }
+                        })
+                    });
+                }
+
+                // get availability, then get results
+                authContext.getTsiToken().then(function(token){
+                    tsiClient.server.getAvailability(token, '10000000-0000-0000-0000-100000000109.env.timeseries.azure.com', "?api-version=2018-11-01-preview").then(function(result){
+                        var result = result['availability']
+                        availabilityChart.render(tsiClient.ux.transformAvailabilityForVisualization(result, 500), 
+                                {theme: 'light', color: '#136BFB', legend: 'hidden', brushMoveEndAction: (from, to) => {getResults(from, to)}}, 
+                                result);
+                        endDate = new Date(result.range.to);
+                        startDate = new Date(endDate.valueOf() - 1000*60*60*24);
+                        var hierarchy = new tsiClient.ux.HierarchyNavigation(document.getElementById('hierarchy'));
+                        hierarchy.render('10000000-0000-0000-0000-100000000109.env.timeseries.azure.com', window.authContext.getTsiToken, {theme: 'light', onInstanceClick: instance => onInstanceClick(instance)})
+                    })
+                })
+
+                var addInstanceAction = (type, vName, instance) => {
+                    let stripHits = s => s.split('<hit>').join('').split('</hit>').join('');
+                    if (instance.highlights) {
+                        instance.instanceFields = instance.highlights.instanceFieldNames.reduce((p, c, i) => {
+                            if (i in instance.highlights.instanceFieldValues) {
+                                p[stripHits(c)] = stripHits(instance.highlights.instanceFieldValues[i]); 
+                            }
+                            return p; }, 
+                        {});
+                    }
+                    instance.description = stripHits(instance.highlights.description);
+                    instance.name = stripHits(instance.highlights.name);
+                    addInstanceAsQuery(instance, type, instance.name, vName);
+                };
+
+                var addInstanceAsQuery = (instance, type, nodeName, variableName) => {
+                    let tsq, variableObject, chartDataOptions = {};
+                    if (type.variables.avg && type.variables.avg.aggregation && type.variables.avg.aggregation.tsx === 'avg($value)') {
+                        variableObject = type.variables;
+                    } else {
+                        variableObject = {[variableName]: type.variables[variableName]};
+                    }
+                    let alias = instance.name ? instance.name : instance.timeSeriesId.join(',');
+                    chartDataOptions['alias'] = alias;
+                    chartDataOptions['color'] = colors[currentTsqECount];
+                    chartDataOptions['includeEnvelope'] = true;
+                    currentTsqECount++;
+                    var tsqExp = new tsiClient.ux.TsqExpression(instance, variableObject, {}, chartDataOptions);
+                    tsqExpressions.push(tsqExp);
+                    getResults();
+                }
+
+                var getLtsExploreEventsPayload = (queries) => {
+                    var fromTime = startDate;
+                    var toTime = endDate;
+                    var maxEvents = 5000;
+                    let tsqArray = queries.map(q => q.toTsq(true, true));
+                    tsqArray.forEach((tsq, i) => {tsq.getEvents.searchSpan.from = fromTime; tsq.getEvents.searchSpan.to = toTime; tsq.getEvents.take = (Math.floor(maxEvents / tsqArray.length) + (i < maxEvents % tsqArray.length ? 1 : 0)) });
+                    return tsqArray;
+                }
+        }
+
+        function hideEvents() {
+            document.getElementById('eventsWrapper').style.transform = 'translateX(100%)';
+            setTimeout(function(){
+                document.getElementById('events').innerHTML = '';
+            }, 400);
+        }
+
+        // Utility functions for determining bucket size when you adjust the timeframe
+        var validTimeIntervals = (() => {
+            let validTimeIntervals = [];
+            for (let i = 1; i < 1000; i++) {
+                if (1000 % i === 0) {
+                    validTimeIntervals.push(i + 'ms');
+                }
+            }
+            for (let i = 1; i < 60; i++) {
+                if (60 % i === 0) {
+                    validTimeIntervals.push(i + 's');
+                }
+            }
+            for (let i = 1; i < 60; i++) {
+                if (60 % i === 0) {
+                    validTimeIntervals.push(i + 'm');
+                }
+            }
+            for (let i = 1; i < 24; i++) {
+                if (24 % i === 0) {
+                    validTimeIntervals.push(i + 'h');
+                }
+            }
+            for (let i = 1; i < 8; i++) {
+                validTimeIntervals.push(i + 'd');
+            }
+            return validTimeIntervals;
+        })();
+
+        var getDimensionAndIntegerForRangeAndBuckets = (zoomMin, zoomMax, targetBuckets) => {
+            let timeRangeInMillis = Math.max(zoomMax - zoomMin, 1);
+            let bucketSizeInMillis = Math.ceil(timeRangeInMillis / targetBuckets);
+            let int, dim;
+            if (bucketSizeInMillis < 1000) {
+                dim = 'ms';
+                int = bucketSizeInMillis;
+            }
+            else if (bucketSizeInMillis < 1000 * 60) {
+                dim = 's';
+                int = Math.ceil(bucketSizeInMillis / 1000);
+            }
+            else if (bucketSizeInMillis < 1000 * 60 * 60) {
+                dim = 'm';
+                int = Math.ceil(bucketSizeInMillis / (1000 * 60));
+            }
+            else if (bucketSizeInMillis < 1000 * 60 * 60 * 24) {
+                dim = 'h';
+                int = Math.ceil(bucketSizeInMillis / (1000 * 60 * 60));
+            }
+            else {
+                dim = 'd';
+                int = Math.ceil(bucketSizeInMillis / (1000 * 60 * 60 * 24));
+            }
+
+            // round to next smallest interval that is a valid interval
+            let idx = -1;
+            while (idx === -1) {
+                idx = validTimeIntervals.indexOf(int + dim);
+                if (idx === -1) {
+                    int--;
+                }
+            }
+
+            return validTimeIntervals[idx];
+        }
+
+        var getValidBucketSizes = (fromMillis, toMillis) => {
+            let minIntAndDim = getDimensionAndIntegerForRangeAndBuckets(fromMillis, toMillis, 1000);
+            let maxIntAndDim = getDimensionAndIntegerForRangeAndBuckets(fromMillis, toMillis, 1);
+            let minIdx = validTimeIntervals.indexOf(minIntAndDim);
+            let maxIdx = validTimeIntervals.indexOf(maxIntAndDim);
+            return validTimeIntervals.slice(minIdx, maxIdx + 1);            
+        }
+
+        var getNewBucketSize = (oldValidBucketSizes, newValidBucketSizes, oldBucketSize) => {
+            let prevPercentile = (oldBucketSize && oldValidBucketSizes.indexOf(oldBucketSize) !== -1) ? (oldValidBucketSizes.indexOf(oldBucketSize)) / oldValidBucketSizes.length : .1;
+            let newBucketIndex = Math.max(Math.min(Math.round(prevPercentile * newValidBucketSizes.length), newValidBucketSizes.length - 1), 0);
+            return newValidBucketSizes[newBucketIndex];
+        }
+
+        var getTsmTypeFromVariable = (v) => {
+                let type = {variables: {
+                    avg: 
+                        {kind: 'numeric', 
+                        value: v.value, 
+                        filter: v.filter ? v.filter : null, 
+                        aggregation: {
+                            tsx: 'avg($value)'
+                            }
+                        }
+                    ,
+                    min: 
+                        {kind: 'numeric', 
+                        value: v.value, 
+                        filter: v.filter ? v.filter : null, 
+                        aggregation: {
+                            tsx: 'min($value)'
+                            }
+                        }
+                    ,
+                    max: 
+                        {kind: 'numeric', 
+                        value: v.value, 
+                        filter: v.filter ? v.filter : null,
+                        aggregation: {
+                            tsx: 'max($value)'
+                            }
+                        }
+                }};
+                return type;
+            }
+        </script>
+    </body>
+</html>

@@ -248,10 +248,7 @@ class PieChart extends ChartVisualizationComponent {
             }
         });
 
-        if (this.chartOptions.legend === 'shown') {
-            this.splitLegendAndSVG(this.svgSelection.node());
-            this.setControlsPanelWidth();
-        }
+        this.legendPostRenderProcess(this.chartOptions.legend, this.svgSelection, true);
     }
 }
 export {PieChart}

@@ -638,10 +638,7 @@ class GroupedBarChart extends ChartVisualizationComponent {
         this.draw();
         this.gatedShowGrid();
 
-        if (this.chartOptions.legend === 'shown') {
-            this.splitLegendAndSVG(this.svgSelection.node());
-            this.setControlsPanelWidth();
-        }
+        this.legendPostRenderProcess(this.chartOptions.legend, this.svgSelection, true);
     }
 }
 export {GroupedBarChart}

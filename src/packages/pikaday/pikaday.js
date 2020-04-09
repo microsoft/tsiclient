@@ -381,7 +381,7 @@
             opts = instance._o,
             isMinYear = year === opts.minYear,
             isMaxYear = year === opts.maxYear,
-            html = '<div id="' + randId + '" class="pika-title" role="heading" aria-live="assertive" aria-level="5">',
+            html = '<div id="' + randId + '" class="pika-title">',
             monthHtml,
             yearHtml,
             prev = true,

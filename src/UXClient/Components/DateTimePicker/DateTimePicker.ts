@@ -243,8 +243,7 @@ class DateTimePicker extends ChartComponent{
                 this.dateTimeSelectionPanel.select(".tsi-saveButtonContainer").select(".tsi-cancelButton").node().focus();
                 d3.event.preventDefault();
             }
-        })
-        .attr('aria-label', (d) => `${this.getString('a time selection control dialog')} ${this.getString('select quick time of')} ${d[0]}`);
+        });
 
         if (this.chartOptions.dTPIsModal) {
             firstQuickTime.node().focus();
@@ -388,10 +387,12 @@ class DateTimePicker extends ChartComponent{
     }
 
     private setSelectedQuickTimes () {
-        this.quickTimesPanel.selectAll('.tsi-quickTime')
-        .classed('tsi-isSelected', d => {
+        let isSelected = d => {
             return (this.toMillis === this.maxMillis && (this.toMillis - this.fromMillis === d[1]));
-        });
+        }
+        this.quickTimesPanel.selectAll('.tsi-quickTime')
+        .classed('tsi-isSelected', isSelected)
+        .attr('aria-pressed', isSelected);
     }
 
     private setFromDate (calendarDate: Date) {

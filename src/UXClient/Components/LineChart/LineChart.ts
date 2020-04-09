@@ -1934,12 +1934,9 @@ class LineChart extends TemporalXAxisComponent {
             }
         });
 
-        if (this.chartOptions.legend === 'shown') {
-            this.splitLegendAndSVG(this.svgSelection.node(), () => {                
-                this.updateBrushRange();
-            });
-            this.setControlsPanelWidth();
-        }
+        this.legendPostRenderProcess(this.chartOptions.legend, this.svgSelection, true, () => {                
+            this.updateBrushRange();
+        });
     }
 
     private createPlot (svgGroup, i, cDO) {

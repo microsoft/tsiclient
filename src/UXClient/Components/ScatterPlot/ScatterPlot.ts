@@ -188,10 +188,8 @@ class ScatterPlot extends ChartVisualizationComponent {
                 this.ellipsisMenu.setMenuVisibility(false);
             }
         });
-
-        if (this.chartOptions.legend === 'shown') {
-            this.splitLegendAndSVG(this.svgSelection.node());
-        }
+        
+        this.legendPostRenderProcess(this.chartOptions.legend, this.svgSelection, false);
     }
     private getSliderWidth () {
         return this.chartWidth + this.chartMargins.left + this.chartMargins.right - 16;
