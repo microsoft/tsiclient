@@ -162,7 +162,7 @@ class ChartComponent extends Component {
 	protected tooltipFormat (d, text, measureFormat: TooltipMeasureFormat, xyrMeasures = null) {
         let dataType = this.getDataType(d.aggregateKey);
         var title = d.aggregateName;   
-        let cDO = this.getCDOFromAggKey(d.aggregateKey);
+		let cDO = this.getCDOFromAggKey(d.aggregateKey);
 
         let shiftMillis = this.chartComponentData.getTemporalShiftMillis(d.aggregateKey);
 
@@ -182,7 +182,13 @@ class ChartComponent extends Component {
             subtitle.append('h4')
                 .text(d.splitBy)
                 .attr('class', 'tsi-tooltipSeriesName');
-        }
+		}
+		
+        if (cDO.variableAlias){
+            subtitle.append('h4')
+                .text(cDO.variableAlias)
+                .attr('class', 'tsi-tooltipSeriesName');
+		}
 
         if (dataType === DataTypes.Categorical) {
             subtitle.append('h4')
