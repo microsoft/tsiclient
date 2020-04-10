@@ -28,7 +28,7 @@
 
 }
 
-.tsi-tooltipTitle, .tsi-tooltipSubtitle, .tsi-tooltipSeriesName, .tsi-tooltipTimeStamp, .tsi-tooltipAttrTitle, .tsi-tooltipAttrValue, .tsi-valueLabel, .tsi-valueCell, .tsi-tooltipMeasureTitle{
+.tsi-tooltipTitle, .tsi-tooltipSubtitle, .tsi-tooltipAttrTitle, .tsi-tooltipAttrValue, .tsi-valueLabel, .tsi-valueCell, .tsi-tooltipMeasureTitle{
     @extend .tsi-textWrap;
 }
 
@@ -65,19 +65,6 @@
         font-size: 11px;
     }
 
-    .tsi-tooltipSubtitle {
-        opacity: .7;
-        display: block;
-        padding-bottom: 8px;
-        .tsi-tooltipTimeStamp{
-            padding-top: 2px;
-        }
-        h4 {
-            font-weight: normal;
-            margin: 0px;
-            font-size: 11px;
-        }
-    }
 
 
     .tsi-tooltipFlexyBox {
@@ -86,7 +73,7 @@
         font-size: 11px;
         width: 100%;
         &.tsi-tooltipAttributeContainer{
-            margin-bottom: 4px;
+            margin-bottom: 8px;
             flex-wrap: wrap;
             .tsi-tooltipFlexyItem {
                 padding-bottom: 4px;
@@ -149,10 +136,23 @@
         font-weight: bold;
     }
 
-    .tsi-tooltipTitle {
-        font-weight: bold;
-        font-size: 13px;
-    } 
+    .tsi-tooltipTitleGroup {
+        .tsi-tooltipTitle {
+            font-weight: bold;
+            font-size: 13px;
+        } 
+
+        .tsi-tooltipSubtitle {
+            font-weight: normal;
+            opacity: .7;
+            font-size: 11px;
+        }
+
+        .tsi-tooltipTitle, .tsi-tooltipSubtitle {
+            margin: 0;
+        }
+        margin-bottom: 8px;
+    }
 
     .tsi-tooltipColorBlockCell {
         width: 12px;
