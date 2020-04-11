@@ -500,6 +500,8 @@ class ChartComponentData {
                     splitByString += "/" + splitByObject.property + "/" + splitBy;
                 } else if (splitBy !== ''){
                     splitByString += '/' + splitBy;
+                } else if (this.displayState[aggKey].aggregateExpression.variableAlias){
+                    splitByString += '/' + this.displayState[aggKey].aggregateExpression.variableAlias;
                 }
 
                 let types = spMeasures ? spMeasures : this.displayState[aggKey].splitBys[splitBy].types;

@@ -162,7 +162,7 @@ class ChartComponent extends Component {
 	protected tooltipFormat (d, text, measureFormat: TooltipMeasureFormat, xyrMeasures = null) {
         let dataType = this.getDataType(d.aggregateKey);
         var title = d.aggregateName;   
-        let cDO = this.getCDOFromAggKey(d.aggregateKey);
+		let cDO = this.getCDOFromAggKey(d.aggregateKey);
 
         let shiftMillis = this.chartComponentData.getTemporalShiftMillis(d.aggregateKey);
 
@@ -171,28 +171,34 @@ class ChartComponent extends Component {
                 this.chartOptions.offset, this.chartOptions.is24HourTime, shiftMillis, null, this.chartOptions.dateLocale)(date);
         }
 
-        text.append("div")
-            .attr("class", "tsi-tooltipTitle")
+        let titleGroup = text.append("div")
+			.attr("class", "tsi-tooltipTitleGroup");
+		
+		titleGroup.append('h2')
+			.attr('class', 'tsi-tooltipGroupName tsi-tooltipTitle')
             .text(d.aggregateName);
 
-        let subtitle = text.append("div")
-            .attr("class", "tsi-tooltipSubtitle")
-
         if (d.splitBy && d.splitBy != ""){
-            subtitle.append('h4')
+            titleGroup.append('h4')
                 .text(d.splitBy)
-                .attr('class', 'tsi-tooltipSeriesName');
-        }
+                .attr('class', 'tsi-tooltipSeriesName tsi-tooltipSubtitle');
+		}
+		
+        if (cDO.variableAlias){
+            titleGroup.append('h4')
+                .text(cDO.variableAlias)
+                .attr('class', 'tsi-tooltipVariableAlias tsi-tooltipSubtitle');
+		}
 
         if (dataType === DataTypes.Categorical) {
-            subtitle.append('h4')
-                .attr('class', 'tsi-tooltipTimeStamp')
+            titleGroup.append('h4')
+                .attr('class', 'tsi-tooltipSubtitle tsi-tooltipTimeStamp')
                 .text(formatDate(d.dateTime) + ' - ' + formatDate(d.endDate));
         }
 
         if (dataType === DataTypes.Events) {
-            subtitle.append('h4')
-                .attr('class', 'tsi-tooltipTimeStamp')
+        	titleGroup.append('h4')
+                .attr('class', 'tsi-tooltipSubtitle tsi-tooltipTimeStamp')
                 .text(formatDate(d.dateTime));
         }
 
@@ -216,7 +222,6 @@ class ChartComponent extends Component {
             })
         }
 
-        let formatValue = (dataType === DataTypes.Events ? (d) => d : Utils.formatYAxisNumber)
 
         if (d.measures && Object.keys(d.measures).length) {
             let formatValue = (dataType === DataTypes.Events ? (d) => d : Utils.formatYAxisNumber)
