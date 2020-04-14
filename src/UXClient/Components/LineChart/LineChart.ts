@@ -115,6 +115,24 @@ class LineChart extends TemporalXAxisComponent {
         };
     }
 
+    private resetValueElementsFocus = () => {
+        this.svgSelection.selectAll(".tsi-valueElement")
+                    .attr("stroke-opacity", this.strokeOpacity)
+                    .filter(function () {
+                        return !d3.select(this).classed("tsi-valueEnvelope");
+                    })
+                    .attr("fill-opacity", 1);
+
+        this.svgSelection.selectAll(".tsi-valueEnvelope")
+            .attr("fill-opacity", .2);
+            
+        d3.select(this.renderTarget).selectAll(".tsi-scooterValue")
+            .style("opacity", 1);
+
+        this.focusedAggKey = null;
+        this.focusedSplitby = null;
+    }
+
     private voronoiMouseout (d: any)  {
         //supress if the context menu is visible
         if (this.contextMenu && this.contextMenu.contextMenuVisible)
@@ -127,18 +145,7 @@ class LineChart extends TemporalXAxisComponent {
             d3.event.stopPropagation();
         }
 
-        this.svgSelection.selectAll(".valueElement")
-                    .attr("stroke-opacity", this.strokeOpacity)
-                    .filter(function () {
-                        return !d3.select(this).classed("valueEnvelope");
-                    })
-                    .attr("fill-opacity", 1);
-
-        this.svgSelection.selectAll(".valueEnvelope")
-            .attr("fill-opacity", .2);
-            
-        d3.select(this.renderTarget).selectAll(".tsi-scooterValue")
-            .style("opacity", 1);
+        this.resetValueElementsFocus();
 
         /** Update y Axis */
         if (this.chartOptions.yAxisState == YAxisStates.Overlap) {
@@ -148,8 +155,6 @@ class LineChart extends TemporalXAxisComponent {
                 .classed("standardYAxisText", false)
                 .style("font-weight", "normal");
         }
-        this.focusedAggKey = null;
-        this.focusedSplitby = null;
     }
 
     private createMarkerInstructions () {
@@ -164,24 +169,9 @@ class LineChart extends TemporalXAxisComponent {
     }   
 
     public triggerLineFocus = (aggKey: string, splitBy: string) => {
-        this.svgSelection.selectAll(".valueElement")
-            .attr("stroke-opacity", this.nonFocusStrokeOpactiy)
-            .attr("fill-opacity", .3);
-        this.svgSelection.selectAll(".valueEnvelope")
-            .attr("fill-opacity", .1);
-
-        let selectedFilter = this.createValueFilter(aggKey, splitBy);
-        
-        this.svgSelection.selectAll(".valueElement")
-            .filter(selectedFilter)
-            .attr("stroke-opacity", this.strokeOpacity)
-            .attr("fill-opacity", 1);
-        this.svgSelection.selectAll(".valueEnvelope")
-            .filter(selectedFilter)
-            .attr("fill-opacity", .3);
-
-        this.focusedAggKey = aggKey;
-        this.focusedSplitby = splitBy;
+        this.focusedAggKey = null;
+        this.focusedSplitby = null;
+        this.focusOnlyHoveredSeries(aggKey, splitBy, true);
     }
 
     private getMouseoverFunction (chartType =DataTypes.Numeric) {
@@ -206,11 +196,39 @@ class LineChart extends TemporalXAxisComponent {
         }
     }
 
+    private focusOnlyHoveredSeries = (aggKey, splitBy, shouldSetFocusedValues: boolean) => {
+        if (aggKey !== this.focusedAggKey || splitBy !== this.focusedSplitby) {
+            let selectedFilter = Utils.createValueFilter(aggKey, splitBy);
+
+            this.focusScooterLabel(selectedFilter, aggKey, splitBy);
+
+            this.svgSelection.selectAll(".tsi-valueElement")
+                .attr("stroke-opacity", this.nonFocusStrokeOpactiy)
+                .attr("fill-opacity", .3);
+            this.svgSelection.selectAll(".tsi-valueEnvelope")
+                .attr("fill-opacity", .1);
+
+            this.svgSelection.selectAll(".tsi-valueElement")
+                .filter(selectedFilter)
+                .attr("stroke-opacity", this.strokeOpacity)
+                .attr("fill-opacity", 1);
+            this.svgSelection.selectAll(".tsi-valueEnvelope")
+                .filter(selectedFilter)
+                .attr("fill-opacity", .3);
+
+            if (shouldSetFocusedValues) {
+                this.focusedAggKey = aggKey;
+                this.focusedSplitby = splitBy;
+            }
+        }
+    }
+
     private discreteEventsMouseover = (d, x, y, width) => {
         if (this.isDroppingScooter) {
             return false;
         }
         this.legendObject.triggerSplitByFocus(d.aggregateKey, d.splitBy);
+        this.focusOnlyHoveredSeries(d.aggregateKey, d.splitBy, true);
 
         let xPos = x;
         let yPos = y + this.chartMargins.top;
@@ -230,6 +248,7 @@ class LineChart extends TemporalXAxisComponent {
 
     private discreteEventsMouseout = () => {
         (<any>this.legendObject.legendElement.selectAll('.tsi-splitByLabel')).classed("inFocus", false);
+        this.resetValueElementsFocus();
         this.tooltip.hide();
     }
     private mismatchingChartType (aggKey) {
@@ -246,6 +265,7 @@ class LineChart extends TemporalXAxisComponent {
             return false;
         }
         this.legendObject.triggerSplitByFocus(d.aggregateKey, d.splitBy);
+        this.focusOnlyHoveredSeries(d.aggregateKey, d.splitBy, true);
 
         let xPos = x;
         let yPos = y + this.chartMargins.top;
@@ -266,6 +286,7 @@ class LineChart extends TemporalXAxisComponent {
 
     private categoricalMouseout = () => {
         (<any>this.legendObject.legendElement.selectAll('.tsi-splitByLabel')).classed("inFocus", false);
+        this.resetValueElementsFocus();
         this.tooltip.hide();
     }
 
@@ -283,8 +304,8 @@ class LineChart extends TemporalXAxisComponent {
 
         this.focus.style("display", "block");
         this.focus.attr("transform", "translate(" + xPos + "," + yPos + ")");
-        this.focus.select('.hLine').attr("transform", "translate(" + (-xPos) + ",0)");
-        this.focus.select('.vLine').attr("transform", "translate(0," + (-yPos) + ")");
+        this.focus.select('.tsi-hLine').attr("transform", "translate(" + (-xPos) + ",0)");
+        this.focus.select('.tsi-vLine').attr("transform", "translate(0," + (-yPos) + ")");
         
         this.focus.select('.hHoverG')
             .attr("transform", "translate(0," + (this.chartHeight - yPos) + ")");
@@ -787,22 +808,6 @@ class LineChart extends TemporalXAxisComponent {
         Utils.focusOnEllipsisButton(this.renderTarget);
     }
 
-    private createValueFilter (aggregateKey, splitBy) {
-        return (d: any, j: number ) => {
-            var currAggKey: string;
-            var currSplitBy: string;
-            if (d.aggregateKey) {
-                currAggKey = d.aggregateKey;
-                currSplitBy = d.splitBy;
-            } else  if (d && d.length){
-                currAggKey = d[0].aggregateKey;
-                currSplitBy = d[0].splitBy
-            } else 
-                return true;
-            return (currAggKey == aggregateKey && (splitBy == null || splitBy == currSplitBy));
-        }     
-    } 
-
     private voronoiExists (): boolean {
         return (this.getVisibleNumerics() !== 0); 
     }
@@ -824,30 +829,10 @@ class LineChart extends TemporalXAxisComponent {
         }
 
         if (site.data.aggregateKey !== this.focusedAggKey || site.data.splitBy !== this.focusedSplitby) {
-            let selectedFilter = this.createValueFilter(site.data.aggregateKey, site.data.splitBy);
-            let oldFilter = this.createValueFilter(this.focusedAggKey, this.focusedSplitby);
+            let selectedFilter = Utils.createValueFilter(site.data.aggregateKey, site.data.splitBy);
 
             this.focusScooterLabel(selectedFilter, site.data.aggregateKey, site.data.splitBy);
-
-            this.svgSelection.selectAll(".valueElement")
-                .filter(selectedFilter)
-                .attr("stroke-opacity", this.strokeOpacity)
-                .attr("fill-opacity", 1);
-            this.svgSelection.selectAll(".valueEnvelope")
-                .filter(selectedFilter)
-                .attr("fill-opacity", .3);
-
-            this.svgSelection.selectAll(".valueElement")
-                .filter(oldFilter)
-                .attr("stroke-opacity", this.nonFocusStrokeOpactiy)
-                .attr("fill-opacity", .3);
-            this.svgSelection.selectAll(".valueEnvelope")
-                .filter(oldFilter)
-                .attr("fill-opacity", .1);
-
-
-            this.focusedAggKey = site.data.aggregateKey;
-            this.focusedSplitby = site.data.splitBy;
+            this.focusOnlyHoveredSeries(site.data.aggregateKey, site.data.splitBy, true);
         }
     } 
 
@@ -1114,42 +1099,21 @@ class LineChart extends TemporalXAxisComponent {
             d3.select(this.renderTarget).selectAll(".tsi-scooterValue")
                 .style("opacity", 1);
         
-            this.svgSelection.selectAll(".valueElement")
-                .filter(function () { return !d3.select(this).classed("valueEnvelope"); })
+            this.svgSelection.selectAll(".tsi-valueElement")
+                .filter(function () { return !d3.select(this).classed("tsi-valueEnvelope"); })
                 .attr("stroke-opacity", 1)
                 .attr("fill-opacity", 1);
-            this.svgSelection.selectAll(".valueEnvelope")
+            this.svgSelection.selectAll(".tsi-valueEnvelope")
                 .attr("fill-opacity", .3);
         }
     }
 
-    public labelMouseover = (aggregateKey: string, splitBy: string = null) => {
-        //filter out the selected timeseries/splitby
-        var selectedFilter = (d: any, j: number ) => {
-            var currAggKey: string;
-            var currSplitBy: string;
-            if (d.aggregateKey) {
-                currAggKey = d.aggregateKey;
-                currSplitBy = d.splitBy;
-            } else  if (d && d.length){
-                currAggKey = d[0].aggregateKey;
-                currSplitBy = d[0].splitBy
-            } else 
-                return true;
-            return !(currAggKey == aggregateKey && (splitBy == null || splitBy == currSplitBy));
-        }
-        if (this.svgSelection) {
-            this.svgSelection.selectAll(".valueElement")
-                .filter(selectedFilter)
-                .attr("stroke-opacity", this.nonFocusStrokeOpactiy)
-                .attr("fill-opacity", .3);
+    
 
-            this.svgSelection.selectAll(".valueEnvelope")
-                .filter(selectedFilter)
-                .attr("fill-opacity", .1);
-                
-            this.focusScooterLabel(this.createValueFilter(aggregateKey, splitBy), aggregateKey, splitBy);
-        }
+
+
+    public labelMouseover = (aggregateKey: string, splitBy: string = null) => {
+        this.focusOnlyHoveredSeries(aggregateKey, splitBy, false);
     }
 
     private drawBrushRange () {
@@ -1524,16 +1488,16 @@ class LineChart extends TemporalXAxisComponent {
     
             this.focus = g.append("g")
                 .attr("transform", "translate(-100,-100)")
-                .attr("class", "focus");
+                .attr("class", "tsi-focus");
             
             this.focus.append("line")
-                .attr("class", "focusLine vLine")
+                .attr("class", "tsi-focusLine tsi-vLine")
                 .attr("x1", 0)
                 .attr("x2", 0)
                 .attr("y1", this.chartOptions.aggTopMargin)
                 .attr("y2", this.chartHeight);
             this.focus.append("line")
-                .attr("class", "focusLine hLine")
+                .attr("class", "tsi-focusLine tsi-hLine")
                 .attr("x1", 0)
                 .attr("x2", this.chartWidth)
                 .attr("y1", 0)
@@ -1606,8 +1570,8 @@ class LineChart extends TemporalXAxisComponent {
                     this.brushElem.classed("hideBrushHandles", !this.chartOptions.brushHandlesVisible);
                 }
 
-                this.focus.select('.hLine').attr("x2", this.chartWidth);
-                this.focus.select('.vLine').attr("y2", this.chartHeight);
+                this.focus.select('.tsi-hLine').attr("x2", this.chartWidth);
+                this.focus.select('.tsi-vLine').attr("y2", this.chartHeight);
                 this.svgSelection
                     .style("width", this.getSVGWidth() + "px")
                     .style("height", this.height + "px");
@@ -1623,7 +1587,6 @@ class LineChart extends TemporalXAxisComponent {
                     }, this.stickySeries);
                 }        
 
-                this.svgSelection.selectAll('.valueElement').style("visibility", "hidden");
                 this.svgSelection.selectAll(".yAxis").style("visibility", "hidden");    
 
                 this.x = d3.scaleTime()
@@ -1829,18 +1792,6 @@ class LineChart extends TemporalXAxisComponent {
                     voronoiSelection.on("mousemove", function () {
                         let mouseEvent = d3.mouse(this);
                         self.voronoiMousemove(mouseEvent);
-                    })
-                    .on("mouseover", function () {
-                        if (!self.isDroppingScooter) {
-                            self.svgSelection.selectAll(".valueElement")
-                                .filter(function () {
-                                    return !d3.select(this).classed('tsi-categoricalBucket');
-                                })
-                                .attr("stroke-opacity", self.nonFocusStrokeOpactiy)
-                                .attr("fill-opacity", .3);
-                            self.svgSelection.selectAll(".valueEnvelope")
-                                .attr("fill-opacity", .1);
-                        }
                     })
                     .on("mouseout", function (d)  {
                         if (!self.filteredValueExist() || !self.voronoiExists()) return;

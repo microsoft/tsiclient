@@ -79,8 +79,7 @@ class CategoricalPlot extends Plot {
         this.categoricalMouseover = categoricalMouseover;
         this.aggregateGroup = aggregateGroup;
         this.categoricalMouseout = categoricalMouseout;
-        
-        this.createBackdropRect();
+        this.createBackdropRect(true);
         if (this.aggregateGroup.selectAll('defs').empty()) {
             this.defs = this.aggregateGroup.append('defs');
         }
@@ -126,7 +125,7 @@ class CategoricalPlot extends Plot {
 
                 categoricalBuckets.enter()
                     .append("rect")
-                    .attr("class", "valueElement tsi-categoricalBucket")
+                    .attr("class", "tsi-valueElement tsi-categoricalBucket")
                     .merge(categoricalBuckets)
                     .style("visibility", (d: any) => { 
                         return (self.chartComponentData.isSplitByVisible(aggKey, splitBy) && self.hasData(d)) ? "visible" : "hidden";

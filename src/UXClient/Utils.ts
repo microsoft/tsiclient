@@ -508,6 +508,22 @@ class Utils {
                s4() + '-' + s4() + s4() + s4();
     }
 
+    static createValueFilter (aggregateKey, splitBy) {
+        return (d: any, j: number ) => {
+            var currAggKey: string;
+            var currSplitBy: string;
+            if (d.aggregateKey) {
+                currAggKey = d.aggregateKey;
+                currSplitBy = d.splitBy;
+            } else  if (d && d.length){
+                currAggKey = d[0].aggregateKey;
+                currSplitBy = d[0].splitBy
+            } else 
+                return true;
+            return (currAggKey == aggregateKey && (splitBy == null || splitBy == currSplitBy));
+        }     
+    } 
+
     static downloadCSV (csvString: string, csvName: string = "Table") {
         var blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
         var blobURL = window.URL.createObjectURL(blob);
