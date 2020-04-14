@@ -119,11 +119,11 @@ class LineChart extends TemporalXAxisComponent {
         this.svgSelection.selectAll(".tsi-valueElement")
                     .attr("stroke-opacity", this.strokeOpacity)
                     .filter(function () {
-                        return !d3.select(this).classed("valueEnvelope");
+                        return !d3.select(this).classed("tsi-valueEnvelope");
                     })
                     .attr("fill-opacity", 1);
 
-        this.svgSelection.selectAll(".valueEnvelope")
+        this.svgSelection.selectAll(".tsi-valueEnvelope")
             .attr("fill-opacity", .2);
             
         d3.select(this.renderTarget).selectAll(".tsi-scooterValue")
@@ -205,14 +205,14 @@ class LineChart extends TemporalXAxisComponent {
             this.svgSelection.selectAll(".tsi-valueElement")
                 .attr("stroke-opacity", this.nonFocusStrokeOpactiy)
                 .attr("fill-opacity", .3);
-            this.svgSelection.selectAll(".valueEnvelope")
+            this.svgSelection.selectAll(".tsi-valueEnvelope")
                 .attr("fill-opacity", .1);
 
             this.svgSelection.selectAll(".tsi-valueElement")
                 .filter(selectedFilter)
                 .attr("stroke-opacity", this.strokeOpacity)
                 .attr("fill-opacity", 1);
-            this.svgSelection.selectAll(".valueEnvelope")
+            this.svgSelection.selectAll(".tsi-valueEnvelope")
                 .filter(selectedFilter)
                 .attr("fill-opacity", .3);
 
@@ -1100,10 +1100,10 @@ class LineChart extends TemporalXAxisComponent {
                 .style("opacity", 1);
         
             this.svgSelection.selectAll(".tsi-valueElement")
-                .filter(function () { return !d3.select(this).classed("valueEnvelope"); })
+                .filter(function () { return !d3.select(this).classed("tsi-valueEnvelope"); })
                 .attr("stroke-opacity", 1)
                 .attr("fill-opacity", 1);
-            this.svgSelection.selectAll(".valueEnvelope")
+            this.svgSelection.selectAll(".tsi-valueEnvelope")
                 .attr("fill-opacity", .3);
         }
     }
@@ -1488,16 +1488,16 @@ class LineChart extends TemporalXAxisComponent {
     
             this.focus = g.append("g")
                 .attr("transform", "translate(-100,-100)")
-                .attr("class", "focus");
+                .attr("class", "tsi-focus");
             
             this.focus.append("line")
-                .attr("class", "focusLine vLine")
+                .attr("class", "tsi-focusLine vLine")
                 .attr("x1", 0)
                 .attr("x2", 0)
                 .attr("y1", this.chartOptions.aggTopMargin)
                 .attr("y2", this.chartHeight);
             this.focus.append("line")
-                .attr("class", "focusLine hLine")
+                .attr("class", "tsi-focusLine hLine")
                 .attr("x1", 0)
                 .attr("x2", this.chartWidth)
                 .attr("y1", 0)

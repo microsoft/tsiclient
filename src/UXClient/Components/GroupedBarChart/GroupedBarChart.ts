@@ -69,9 +69,9 @@ class GroupedBarChart extends ChartVisualizationComponent {
 
             var focus = g.append("g")
                 .attr("transform", "translate(-100,-100)")
-                .attr("class", "focus");
+                .attr("class", "tsi-focus");
             focus.append("line")
-                .attr("class", "focusLine")
+                .attr("class", "tsi-focusLine")
                 .attr("x1", 0)
                 .attr("x2", this.chartWidth)
                 .attr("y1", 0)

@@ -15,7 +15,7 @@
         .tsi-baseLine{
             stroke: $gray1;
         }
-        .focusLine {
+        .tsi-focusLine {
             stroke: $gray2;
         }
         .aggregateLabelBox{
@@ -52,7 +52,7 @@
             cursor: pointer;
             stroke: none;
         }
-        .focusLine {
+        .tsi-focusLine {
             stroke-width: 1px;
             pointer-events: none;
         }

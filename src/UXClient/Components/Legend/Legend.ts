@@ -33,10 +33,10 @@ class Legend extends Component {
         return (svgSelection, aggKey) => {
             d3.event.stopPropagation();
             svgSelection.selectAll(".tsi-valueElement")
-                        .filter(function () { return !d3.select(this).classed("valueEnvelope"); })
+                        .filter(function () { return !d3.select(this).classed("tsi-valueEnvelope"); })
                         .attr("stroke-opacity", 1)
                         .attr("fill-opacity", 1);
-            svgSelection.selectAll(".valueEnvelope")
+            svgSelection.selectAll(".tsi-valueEnvelope")
                         .attr("fill-opacity", .2);
             labelMouseout(svgSelection, aggKey);
         }

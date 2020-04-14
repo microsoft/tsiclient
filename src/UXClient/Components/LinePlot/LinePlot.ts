@@ -172,11 +172,11 @@ class LinePlot extends Plot {
                     return (self.chartOptions.noAnimate || previousUndefined) ? 0 : self.TRANSDURATION
                 }
 
-                var gapPath = d3.select(this).selectAll(".gapLine")
+                var gapPath = d3.select(this).selectAll(".tsi-gapLine")
                     .data(segments);
                 gapPath.enter()
                     .append("path")
-                    .attr("class", "tsi-valueElement gapLine")
+                    .attr("class", "tsi-valueElement tsi-gapLine")
                     .merge(gapPath)
                     .style("visibility", (d: any) => { 
                         return (self.chartComponentData.isSplitByVisible(aggKey, splitBy)) ? "visible" : "hidden";
@@ -192,12 +192,12 @@ class LinePlot extends Plot {
                         return interpolatePath(previous, current);
                     });
 
-                var path = d3.select(this).selectAll(".valueLine")
+                var path = d3.select(this).selectAll(".tsi-valueLine")
                     .data([self.chartComponentData.timeArrays[aggKey][splitBy]]);
 
                 path.enter()
                     .append("path")
-                    .attr("class", "tsi-valueElement valueLine")
+                    .attr("class", "tsi-valueElement tsi-valueLine")
                     .merge(path)
                     .style("visibility", (d: any) => { 
                         return (self.chartComponentData.isSplitByVisible(aggKey, splitBy)) ? "visible" : "hidden";
@@ -214,7 +214,7 @@ class LinePlot extends Plot {
                     });
 
                 if (self.chartOptions.includeDots || self.chartComponentData.displayState[aggKey].includeDots) {
-                    let dots = d3.select(this).selectAll(".valueDot")
+                    let dots = d3.select(this).selectAll(".tsi-valueDot")
                         .data(self.chartComponentData.timeArrays[aggKey][splitBy].filter((d) => {
                             return d && d.measures && d.measures[self.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy)] !== null;
                         }), (d: any, i) => {
@@ -223,7 +223,7 @@ class LinePlot extends Plot {
 
                     dots.enter()
                         .append('circle')
-                        .attr('class', 'tsi-valueElement valueDot')
+                        .attr('class', 'tsi-valueElement tsi-valueDot')
                         .attr('r', 3)
                         .merge(dots)
                         .style("visibility", (d: any) => { 
@@ -245,17 +245,17 @@ class LinePlot extends Plot {
                     
                     dots.exit().remove();
                 } else {
-                    d3.select(this).selectAll(".valueDot").remove();
+                    d3.select(this).selectAll(".tsi-valueDot").remove();
                 }
                 
                 if ((self.chartComponentData.displayState[aggKey].includeEnvelope || self.chartOptions.includeEnvelope) && self.chartComponentData.isPossibleEnvelope(aggKey, splitBy)) {
                     var envelopeData = self.chartComponentData.timeArrays[aggKey][splitBy].map((d: any) => ({...d, isEnvelope: true}));
-                    var envelope = d3.select(this).selectAll(".valueEnvelope")
+                    var envelope = d3.select(this).selectAll(".tsi-valueEnvelope")
                         .data([envelopeData]);
                     
                     envelope.enter()
                         .append("path")
-                        .attr("class", "tsi-valueElement valueEnvelope")
+                        .attr("class", "tsi-valueElement tsi-valueEnvelope")
                         .merge(envelope)
                         .style("visibility", (d: any) => { 
                             return (self.chartComponentData.isSplitByVisible(aggKey, splitBy)) ? "visible" : "hidden";
@@ -270,7 +270,7 @@ class LinePlot extends Plot {
 
                 if (self.chartOptions.isArea) {
                     self.createAreaPath(aggY);
-                    var area = d3.select(this).selectAll(".valueArea")
+                    var area = d3.select(this).selectAll(".tsi-valueArea")
                         .data([self.chartComponentData.timeArrays[aggKey][splitBy]]);
 
                     // logic for shiny gradient fill via url()
@@ -287,7 +287,7 @@ class LinePlot extends Plot {
 
                     area.enter()
                         .append("path")
-                        .attr("class", "valueArea")
+                        .attr("class", "tsi-valueArea")
                         .merge(area)
                         .style("fill", 'url(#' + (svgId) + ')')
                         .style("visibility", (d: any) => { 
