@@ -176,7 +176,7 @@ class LinePlot extends Plot {
                     .data(segments);
                 gapPath.enter()
                     .append("path")
-                    .attr("class", "valueElement gapLine")
+                    .attr("class", "tsi-valueElement gapLine")
                     .merge(gapPath)
                     .style("visibility", (d: any) => { 
                         return (self.chartComponentData.isSplitByVisible(aggKey, splitBy)) ? "visible" : "hidden";
@@ -197,7 +197,7 @@ class LinePlot extends Plot {
 
                 path.enter()
                     .append("path")
-                    .attr("class", "valueElement valueLine")
+                    .attr("class", "tsi-valueElement valueLine")
                     .merge(path)
                     .style("visibility", (d: any) => { 
                         return (self.chartComponentData.isSplitByVisible(aggKey, splitBy)) ? "visible" : "hidden";
@@ -223,7 +223,7 @@ class LinePlot extends Plot {
 
                     dots.enter()
                         .append('circle')
-                        .attr('class', 'valueElement valueDot')
+                        .attr('class', 'tsi-valueElement valueDot')
                         .attr('r', 3)
                         .merge(dots)
                         .style("visibility", (d: any) => { 
@@ -255,7 +255,7 @@ class LinePlot extends Plot {
                     
                     envelope.enter()
                         .append("path")
-                        .attr("class", "valueElement valueEnvelope")
+                        .attr("class", "tsi-valueElement valueEnvelope")
                         .merge(envelope)
                         .style("visibility", (d: any) => { 
                             return (self.chartComponentData.isSplitByVisible(aggKey, splitBy)) ? "visible" : "hidden";

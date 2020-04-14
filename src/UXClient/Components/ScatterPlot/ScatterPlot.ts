@@ -501,8 +501,8 @@ class ScatterPlot extends ChartVisualizationComponent {
     /******** EFFICIENTLY SWAP NEW FOCUSED GROUP WITH OLD FOCUSED GROUP ********/   
     private labelMouseMove(aggKey: string, splitBy: string){
         if (aggKey !== this.focusedAggKey || splitBy !== this.focusedSplitBy) {
-            let selectedFilter = this.createValueFilter(aggKey, splitBy);
-            let oldFilter = this.createValueFilter(this.focusedAggKey, this.focusedSplitBy);
+            let selectedFilter = Utils.createValueFilter(aggKey, splitBy);
+            let oldFilter = Utils.createValueFilter(this.focusedAggKey, this.focusedSplitBy);
 
             this.svgSelection.selectAll(".tsi-dot")
                 .filter(selectedFilter)
@@ -527,23 +527,6 @@ class ScatterPlot extends ChartVisualizationComponent {
         (this.legendObject.legendElement.selectAll('.tsi-splitByLabel').filter(function (filteredSplitBy: string) {
             return (d3.select(this.parentNode).datum() == aggKey) && (filteredSplitBy == splitBy);
         })).classed("inFocus", true);
-    }
-
-    /******** HELPER TO CREATE SELECTION FILTER BASED ON AGGKEY AND SPLITBY ********/
-    private createValueFilter (aggregateKey, splitBy) {
-        return (d: any) => {
-            var currAggKey: string;
-            var currSplitBy: string;
-            if (d.aggregateKey) {
-                currAggKey = d.aggregateKey;
-                currSplitBy = d.splitBy;
-            } else  if (d && d.length){
-                currAggKey = d[0].aggregateKey;
-                currSplitBy = d[0].splitBy
-            } else 
-                return true;
-            return (currAggKey == aggregateKey && (splitBy == null || splitBy == currSplitBy));
-        }     
     }
 
     /******** DRAW CROSSHAIRS, TOOLTIP, AND LEGEND FOCUS ********/

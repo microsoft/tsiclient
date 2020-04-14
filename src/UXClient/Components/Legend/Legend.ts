@@ -32,7 +32,7 @@ class Legend extends Component {
     private labelMouseoutWrapper (labelMouseout, svgSelection) {
         return (svgSelection, aggKey) => {
             d3.event.stopPropagation();
-            svgSelection.selectAll(".valueElement")
+            svgSelection.selectAll(".tsi-valueElement")
                         .filter(function () { return !d3.select(this).classed("valueEnvelope"); })
                         .attr("stroke-opacity", 1)
                         .attr("fill-opacity", 1);
@@ -226,7 +226,7 @@ class Legend extends Component {
             })
             .on("mouseout", function(splitBy: string, i: number) {
                 d3.event.stopPropagation();
-                self.svgSelection.selectAll(".valueElement")
+                self.svgSelection.selectAll(".tsi-valueElement")
                             .attr("stroke-opacity", 1)
                             .attr("fill-opacity", 1);
                 self.labelMouseout(self.svgSelection, aggKey);
