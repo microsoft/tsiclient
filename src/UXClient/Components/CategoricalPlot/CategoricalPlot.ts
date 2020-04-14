@@ -79,8 +79,7 @@ class CategoricalPlot extends Plot {
         this.categoricalMouseover = categoricalMouseover;
         this.aggregateGroup = aggregateGroup;
         this.categoricalMouseout = categoricalMouseout;
-        
-        this.createBackdropRect();
+        this.createBackdropRect(true);
         if (this.aggregateGroup.selectAll('defs').empty()) {
             this.defs = this.aggregateGroup.append('defs');
         }

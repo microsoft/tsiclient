@@ -304,8 +304,8 @@ class LineChart extends TemporalXAxisComponent {
 
         this.focus.style("display", "block");
         this.focus.attr("transform", "translate(" + xPos + "," + yPos + ")");
-        this.focus.select('.hLine').attr("transform", "translate(" + (-xPos) + ",0)");
-        this.focus.select('.vLine').attr("transform", "translate(0," + (-yPos) + ")");
+        this.focus.select('.tsi-hLine').attr("transform", "translate(" + (-xPos) + ",0)");
+        this.focus.select('.tsi-vLine').attr("transform", "translate(0," + (-yPos) + ")");
         
         this.focus.select('.hHoverG')
             .attr("transform", "translate(0," + (this.chartHeight - yPos) + ")");
@@ -1491,13 +1491,13 @@ class LineChart extends TemporalXAxisComponent {
                 .attr("class", "tsi-focus");
             
             this.focus.append("line")
-                .attr("class", "tsi-focusLine vLine")
+                .attr("class", "tsi-focusLine tsi-vLine")
                 .attr("x1", 0)
                 .attr("x2", 0)
                 .attr("y1", this.chartOptions.aggTopMargin)
                 .attr("y2", this.chartHeight);
             this.focus.append("line")
-                .attr("class", "tsi-focusLine hLine")
+                .attr("class", "tsi-focusLine tsi-hLine")
                 .attr("x1", 0)
                 .attr("x2", this.chartWidth)
                 .attr("y1", 0)
@@ -1570,8 +1570,8 @@ class LineChart extends TemporalXAxisComponent {
                     this.brushElem.classed("hideBrushHandles", !this.chartOptions.brushHandlesVisible);
                 }
 
-                this.focus.select('.hLine').attr("x2", this.chartWidth);
-                this.focus.select('.vLine').attr("y2", this.chartHeight);
+                this.focus.select('.tsi-hLine').attr("x2", this.chartWidth);
+                this.focus.select('.tsi-vLine').attr("y2", this.chartHeight);
                 this.svgSelection
                     .style("width", this.getSVGWidth() + "px")
                     .style("height", this.height + "px");

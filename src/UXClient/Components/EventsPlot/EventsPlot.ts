@@ -241,11 +241,7 @@ class EventsPlot extends Plot {
         this.discreteEventsMouseover = discreteEventsMouseover;
         this.discreteEventsMouseout = discreteEventsMouseout;
 
-        if (this.shouldDrawBackdrop()) {
-            this.createBackdropRect();
-        } else {
-            this.aggregateGroup.selectAll('.tsi-backdropRect').remove();
-        }
+        this.createBackdropRect(this.shouldDrawBackdrop());
 
         if (this.aggregateGroup.selectAll('defs').empty()) {
             this.defs = this.aggregateGroup.append('defs');
@@ -298,7 +294,6 @@ class EventsPlot extends Plot {
                 self.addGradientStops(d[1], d3.select(this));
             });
         gradients.exit().remove();
-
     }
 }
 export {EventsPlot}

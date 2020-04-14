@@ -70,16 +70,19 @@ class Plot extends Component {
     }
 
 
-    protected createBackdropRect () {
-        if (this.backdropRect === null) {
-            this.backdropRect = this.aggregateGroup.append('rect')
-                .attr('class', 'tsi-backdropRect')
-                .attr('x', 0)
-                .attr('y', 0);
-        }
-        this.backdropRect
+
+    protected createBackdropRect (isVisible) {
+        this.backdropRect = this.aggregateGroup.selectAll('.tsi-backdropRect')
+            .data([isVisible]);
+        this.backdropRect.enter().append('rect')
+            .attr('class', 'tsi-backdropRect')
+            .attr('x', 0)
+            .attr('y', 0)
+            .merge(this.backdropRect)
+            .attr('visibility', d => d ? 'visible' : 'hidden')
             .attr('width', this.x.range()[1])
             .attr('height', this.height);
+        this.backdropRect.exit().remove();
     }
 
 
