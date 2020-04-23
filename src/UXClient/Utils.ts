@@ -11,6 +11,12 @@ import { TsqExpression } from './Models/TsqExpression';
 export const NONNUMERICTOPMARGIN = 8;
 export const LINECHARTTOPPADDING = 16;
 export const GRIDCONTAINERCLASS = 'tsi-gridContainer';
+export const LINECHARTCHARTMARGINS = {
+    top: 40,
+    bottom: 40,
+    left: 70, 
+    right: 60
+}
 
 // Linechart stack states
 export enum YAxisStates {Stacked = "stacked", Shared = "shared", Overlap = "overlap" };
@@ -73,6 +79,28 @@ class Utils {
             return getNumber(inputString, 1) * 24 * 60 * 60 * 1000;
         }
         return -1;
+    }
+
+    static findClosestTime (prevMillis: number, timeMap: any): number {
+        var minDistance = Infinity;
+        var closestValue = null;
+        Object.keys(timeMap).forEach((intervalCenterString) => {
+            var intervalCenter = Number(intervalCenterString);
+            if (Math.abs(intervalCenter - prevMillis) < minDistance) {
+                minDistance = Math.abs(intervalCenter - prevMillis);
+                closestValue = intervalCenter;
+            }
+        });
+        return closestValue;
+    }
+
+
+    static getValueOfVisible (d: any, visibleMeasure: string) {
+        if (d.measures) {
+            if (d.measures[visibleMeasure] != null || d.measures[visibleMeasure] != undefined)
+                return d.measures[visibleMeasure];
+        } 
+        return null;
     }
     
     static parseShift (inputString: string) {

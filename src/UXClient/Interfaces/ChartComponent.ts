@@ -112,7 +112,7 @@ class ChartComponent extends Component {
 	}
 
 	protected getDataType (aggKey) {
-        return this.chartComponentData.displayState[aggKey] ? this.chartComponentData.displayState[aggKey].dataType : DataTypes.Numeric;
+		return this.chartComponentData.getDataType(aggKey);
 	} 
 	
 	protected getCDOFromAggKey (aggKey) {
