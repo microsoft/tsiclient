@@ -581,11 +581,18 @@ class LineChart extends TemporalXAxisComponent {
 
             } 
             this.exportMarkers();
+            this.sortMarkers();
         }
     }
 
     private renderMarker (marker: any, millis: number, onChange: any = null) {
         marker.render(millis, this.chartOptions, this.chartMargins, this.chartComponentData, this.x, this.height, this.getMarkerMarginLeft(), this.colorMap, this.yMap, onChange, false);
+    }
+
+    private sortMarkers () {
+        d3.select(this.renderTarget).selectAll(".tsi-markerContainer").sort((a: any, b: any) =>  {
+            return (a.timestamp < b.timestamp) ? 1 : -1;
+        });
     }
 
     private importMarkers () {
@@ -606,6 +613,7 @@ class LineChart extends TemporalXAxisComponent {
                 this.renderMarker(marker, markerMillis, onChange);
                 this.markerGuidMap[markerUID] = marker;
             });
+            this.sortMarkers();
         }
     }
 

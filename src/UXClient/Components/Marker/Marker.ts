@@ -22,75 +22,77 @@ class Marker extends Component {
     private yMap: any;
     private onChange: any;
     private tooltipMap: any = {};
+    private guid: string;
 
     readonly ADDITIONALRIGHTSIDEOVERHANG = 12;
 
 	constructor(renderTarget) {
         super(renderTarget);
+        this.guid = Utils.guid();
     }
 
     public getMillis () {
         return this.timestampMillis;
     }
 
-    private createMarker () {
-        this.markerContainer = d3.select(this.renderTarget)
-            .append('div')
-            .attr('class', 'tsi-markerContainer');
-
-        this.markerContainer.append("div")
-            .attr("class", "tsi-markerLine");
-
-        this.markerContainer.append("div")
-            .attr("class", "tsi-markerDragger")
-            .on("mouseover", function () {
-                d3.select(this).classed("tsi-isHover", true);
-            })
-            .on("mouseout", function () {
-                d3.select(this).classed("tsi-isHover", false);
-            })
-            .on("contextmenu", function () {
-                d3.select(d3.select(this).node().parentNode).remove();
-                d3.event.preventDefault();
-            });
-
-        this.timeLabel = this.markerContainer.append("div")
-            .attr("class", "tsi-markerTimeLabel");
-
+    private renderMarker () {
         let self = this;
-        this.markerContainer.selectAll(".tsi-markerDragger,.tsi-markerTimeLabel,.tsi-markerLine")
-            .call(d3.drag()
-                .on("drag", function (d) {
-                    if (d3.select(d3.event.sourceEvent.target).classed("tsi-closeButton")) {
-                        return;
-                    }
-                    let marker = d3.select(<any>d3.select(this).node().parentNode);
-                    let startPosition = self.x(new Date(self.timestampMillis));
-                    let newPosition = startPosition + d3.event.x;
+        let marker = d3.select(this.renderTarget).selectAll(`.tsi-markerContainer`)
+            .filter((d: any) => d.guid === this.guid)
+            .data([{guid: this.guid, timestamp: this.timestampMillis}]);
+        this.markerContainer = marker.enter()
+            .append('div')
+            .attr('class', 'tsi-markerContainer')
+            .merge(marker)
+            .style('top', `${this.chartMargins.top + this.chartOptions.aggTopMargin}px`)
+            .style('height', `${this.chartHeight - (this.chartMargins.top + this.chartMargins.bottom + this.chartOptions.aggTopMargin)}px`)
+            .style('left', (d: any) => {
+                return `${Math.round(this.x(d.timestamp) + this.marginLeft)}px`;
+            })
+            .each(function() {
+                if (d3.select(this).selectAll('.tsi-markerLine').empty()) {
+                    d3.select(this).append('div')
+                        .attr('class', 'tsi-markerLine');
 
-                    self.timestampMillis = Utils.findClosestTime(self.x.invert(newPosition).valueOf(), self.chartComponentData.timeMap);
-                    self.setPositionsAndLabels(self.timestampMillis);
-                })
-                .on("end", function (d) {
-                    if (!d3.select(d3.event.sourceEvent.target).classed("tsi-closeButton")) {
-                        self.onChange(false, false);
-                    }
-                })
-            );
+                    d3.select(this).append('div')
+                        .attr('class', 'tsi-markerDragger')
+                        .on('mouseover', function () {
+                            d3.select(this).classed('tsi-isHover', true);
+                        })
+                        .on('mouseout', function () {
+                            d3.select(this).classed('tsi-isHover', false);
+                        })
+                        .on('contextmenu', function () {
+                            d3.select((d3.select(this).node() as any).parentNode).remove();
+                            d3.event.preventDefault();
+                        });
 
-    }
+                    self.timeLabel = d3.select(this).append("div")
+                        .attr('class', 'tsi-markerTimeLabel');
 
-    private setMarkerPosition (closestTime: number) {
-        this.markerContainer
-            .style('top', this.chartMargins.top + this.chartOptions.aggTopMargin + "px")
-            .style("height", this.chartHeight - (this.chartMargins.top + this.chartMargins.bottom + this.chartOptions.aggTopMargin) + "px");
-        this.setMarkerXPosition(closestTime);
-    }
+                    d3.select(this).selectAll('.tsi-markerDragger,.tsi-markerTimeLabel,.tsi-markerLine')
+                        .call(d3.drag()
+                            .on('drag', function (d) {
+                                if (d3.select(d3.event.sourceEvent.target).classed('tsi-closeButton')) {
+                                    return;
+                                }
+                                let marker = d3.select(<any>d3.select(this).node().parentNode);
+                                let startPosition = self.x(new Date(self.timestampMillis));
+                                let newPosition = startPosition + d3.event.x;
 
-    private setMarkerXPosition (millis: number) {
-        this.markerContainer.style("left", (d) => {
-            return (Math.round(this.x(millis) + this.marginLeft) + "px");
-        });
+                                self.timestampMillis = Utils.findClosestTime(self.x.invert(newPosition).valueOf(), self.chartComponentData.timeMap);
+                                self.setPositionsAndLabels(self.timestampMillis);
+                            })
+                            .on('end', function (d) {
+                                if (!d3.select(d3.event.sourceEvent.target).classed('tsi-closeButton')) {
+                                    self.onChange(false, false);
+                                }
+                            })
+                        );
+
+                }
+            });
+        marker.exit().remove();
     }
 
     private getValueOfVisible (d: any) {
@@ -241,9 +243,8 @@ class Marker extends Component {
             this.destroyMarker();
             return;
         }
-        if (!this.markerContainer) {
-            this.createMarker();
-        }
+
+        this.renderMarker();
 
         let closestTime = Utils.findClosestTime(this.timestampMillis, this.chartComponentData.timeMap);
         this.setPositionsAndLabels(closestTime);
@@ -255,12 +256,7 @@ class Marker extends Component {
             this.destroyMarker();
             return;
         }
-
-        if (!this.markerContainer) {
-            this.createMarker();
-        }
-
-        this.setMarkerPosition(millis);
+        this.renderMarker();
         this.setTimeLabel(millis);
         this.setValueLabels(millis);
     }
