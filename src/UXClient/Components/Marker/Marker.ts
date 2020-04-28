@@ -128,7 +128,7 @@ class Marker extends Component {
                 }
                 tooltip.render(self.chartOptions.theme);
                 let tooltipHeight = MARKERVALUENUMERICHEIGHT;
-                tooltip.draw(d, self.chartComponentData, 0, tooltipHeight/2 + 1, {right:0, left:0, top:0, bottom:0}, (tooltipTextElement) => {
+                tooltip.draw(d, self.chartComponentData, 0, tooltipHeight/2, {right:0, left:0, top:0, bottom:0}, (tooltipTextElement) => {
 
                     tooltipTextElement.text(Utils.formatYAxisNumber(self.getValueOfVisible(d)))
                         .classed('tsi-markerValueTooltipInner', true)
