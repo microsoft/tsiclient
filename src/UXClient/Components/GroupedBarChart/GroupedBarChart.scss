@@ -15,7 +15,7 @@
         .tsi-baseLine{
             stroke: $gray1;
         }
-        .focusLine {
+        .tsi-focusLine {
             stroke: $gray2;
         }
         .aggregateLabelBox{
@@ -48,11 +48,11 @@
     display: flex;
     position: relative;
     .tsi-barChartSVG {
-        .valueElement {
+        .tsi-valueElement {
             cursor: pointer;
             stroke: none;
         }
-        .focusLine {
+        .tsi-focusLine {
             stroke-width: 1px;
             pointer-events: none;
         }

@@ -69,9 +69,9 @@ class GroupedBarChart extends ChartVisualizationComponent {
 
             var focus = g.append("g")
                 .attr("transform", "translate(-100,-100)")
-                .attr("class", "focus");
+                .attr("class", "tsi-focus");
             focus.append("line")
-                .attr("class", "focusLine")
+                .attr("class", "tsi-focusLine")
                 .attr("x1", 0)
                 .attr("x2", this.chartWidth)
                 .attr("y1", 0)
@@ -101,7 +101,7 @@ class GroupedBarChart extends ChartVisualizationComponent {
             });
 
             var labelMouseover = (aggKey: string, splitBy: string = null) => {
-                svgSelection.selectAll(".valueElement")
+                svgSelection.selectAll(".tsi-valueElement")
                     .attr("stroke-opacity", 1)
                     .attr("fill-opacity", 1);
                 //filter out the selected timeseries/splitby
@@ -119,7 +119,7 @@ class GroupedBarChart extends ChartVisualizationComponent {
                     return !(aggKey == currAggKey && (splitBy == null || splitBy == currSplitBy))
                 }
 
-                svgSelection.selectAll(".valueElement")
+                svgSelection.selectAll(".tsi-valueElement")
                             .filter(selectedFilter)
                             .attr("stroke-opacity", .3)
                             .attr("fill-opacity", .3);
@@ -326,7 +326,7 @@ class GroupedBarChart extends ChartVisualizationComponent {
                     var splitByCount = filteredSplitBys.length;
                     var barWidth = spacePerAggregate / splitByCount;
 
-                    var valueElements = d3.select(this).selectAll('.valueElement').data(self.chartComponentData.getValueContainerData(aggKey));
+                    var valueElements = d3.select(this).selectAll('.tsi-valueElement').data(self.chartComponentData.getValueContainerData(aggKey));
 
                     var labelGroup = d3.select(this).selectAll(".labelGroup").data([aggKey]);
                     var labelGroupEntered = labelGroup.enter()
@@ -410,7 +410,7 @@ class GroupedBarChart extends ChartVisualizationComponent {
 
                     var valueElementsEntered = valueElements.enter()
                         .append("g")
-                        .attr("class", "valueElement");
+                        .attr("class", "tsi-valueElement");
                     valueElementsEntered.append("rect");
                     valueElementsEntered.append("line");
 
@@ -423,7 +423,7 @@ class GroupedBarChart extends ChartVisualizationComponent {
                             return (d3.select(this.parentNode).datum() == d.aggKey) && (filteredSplitBy == d.splitBy);
                         })).classed("inFocus", false);
                         d3.event.stopPropagation();
-                        svgSelection.selectAll(".valueElement")
+                        svgSelection.selectAll(".tsi-valueElement")
                                     .attr("stroke-opacity", 1)
                                     .attr("fill-opacity", 1);
                         labelMouseout(svgSelection, d.aggKey);

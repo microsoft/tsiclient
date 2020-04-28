@@ -124,7 +124,7 @@ class EventsPlot extends Plot {
                 }
                 enteredEvents = discreteEvents.enter()
                     .append('path')
-                    .attr('class', 'tsi-discreteEvent')
+                    .attr('class', 'tsi-discreteEvent tsi-valueElement')
                     .merge(discreteEvents)
                     .classed('tsi-discreteEventDiamond', false)
                     .classed('tsi-discreteEventTeardrop', true)
@@ -144,7 +144,7 @@ class EventsPlot extends Plot {
                 }
                 enteredEvents = discreteEvents.enter()
                     .append('rect')
-                    .attr('class', 'tsi-discreteEvent')
+                    .attr('class', 'tsi-discreteEvent tsi-valueElement')
                     .merge(discreteEvents)
                     .classed('tsi-discreteEventTeardrop', false)
                     .classed('tsi-discreteEventDiamond', true)
@@ -197,6 +197,10 @@ class EventsPlot extends Plot {
                }
                return null;
             })
+            .style('visibility', (d: any) => { 
+                return (self.chartComponentData.isSplitByVisible(this.aggKey, splitBy) && self.hasData(d)) ? 'visible' : 'hidden';
+            })
+
             .each(function (d: any, i) {
                 if (Object.keys(d.measures).length > 1) {
                     let gradientKey = self.createGradientKey(d, splitByIndex, i);
@@ -237,11 +241,7 @@ class EventsPlot extends Plot {
         this.discreteEventsMouseover = discreteEventsMouseover;
         this.discreteEventsMouseout = discreteEventsMouseout;
 
-        if (this.shouldDrawBackdrop()) {
-            this.createBackdropRect();
-        } else {
-            this.aggregateGroup.selectAll('.tsi-backdropRect').remove();
-        }
+        this.createBackdropRect(this.shouldDrawBackdrop());
 
         if (this.aggregateGroup.selectAll('defs').empty()) {
             this.defs = this.aggregateGroup.append('defs');
@@ -294,7 +294,6 @@ class EventsPlot extends Plot {
                 self.addGradientStops(d[1], d3.select(this));
             });
         gradients.exit().remove();
-
     }
 }
 export {EventsPlot}

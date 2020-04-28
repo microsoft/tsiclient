@@ -27,12 +27,12 @@
         text{
             fill: $gray1;
         }
-        .focus {
+        .tsi-focus {
             circle{
                 fill: $gray1;
             }    
         }
-        .focusLine{
+        .tsi-focusLine{
             stroke: $gray2;
         }
         .guideLine{
@@ -302,18 +302,18 @@
             fill: none;   
         }
 
-        .focus {
+        .tsi-focus {
             circle {
                 stroke-width: 1px;
                 pointer-events: none;
             }    
         }
-        .focusLine {
+        .tsi-focusLine {
             stroke-width: 1px !important;
             pointer-events: none;
         }
 
-        .valueLine {
+        .tsi-valueLine {
             stroke-width: 2px;
             will-change: stroke-opacity;
             stroke-width: 2px;
@@ -323,21 +323,21 @@
             transition: stroke-opacity .2s ease;
         }
 
-        .valueEnvelope {
+        .tsi-valueEnvelope {
             pointer-events: none;
         }
 
-        .valueArea {
+        .tsi-valueArea {
             stroke: none;
             will-change: fill-opacity;
         }
 
-        .valueDot {
+        .tsi-valueDot {
             stroke: none;
             pointer-events: none;
         }
 
-        .gapLine {
+        .tsi-gapLine {
             stroke-width: 1px !important;
         }
     }
