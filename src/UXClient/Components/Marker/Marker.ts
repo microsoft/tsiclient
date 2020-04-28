@@ -1,9 +1,10 @@
 import * as d3 from 'd3';
 import './Marker.scss';
-import {Utils, LINECHARTCHARTMARGINS, DataTypes} from "./../../Utils";
+import {Utils, LINECHARTCHARTMARGINS, DataTypes, MARKERVALUENUMERICHEIGHT} from "./../../Utils";
 import {Component} from "./../../Interfaces/Component";
 import { ChartOptions } from '../../Models/ChartOptions';
 import { LineChartData } from '../../Models/LineChartData';
+import { Tooltip } from '../Tooltip/Tooltip';
 
 class Marker extends Component {
     //DOM components
@@ -20,6 +21,7 @@ class Marker extends Component {
     private colorMap: any;
     private yMap: any;
     private onChange: any;
+    private tooltipMap: any = {};
 
 	constructor(renderTarget) {
         super(renderTarget);
@@ -93,6 +95,10 @@ class Marker extends Component {
         return Utils.getValueOfVisible(d, this.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy))
     }
 
+    private getTooltipKey (d: any) {
+        return d.aggregateKey + '_' + d.splitBy;
+    }
+
     private setValueLabels (closestTime) {
         let values = this.chartComponentData.timeMap[closestTime] != undefined ? this.chartComponentData.timeMap[closestTime] : [];
 
@@ -109,34 +115,47 @@ class Marker extends Component {
             .append("div")
             .classed("tsi-markerValue", true)
             .merge(valueLabels)
+            .style('top', (d) => this.calcTopOfValueLabel(d) + 'px')
             .each(function (d: any) {
-                let valueLabel = d3.select(this).selectAll(".tsi-markerValueLabel").data([d]);
-                valueLabel.enter()
-                    .append("div")
-                    .classed("tsi-markerValueLabel", true)
-                    .merge(valueLabel)
-                    .text(() => Utils.formatYAxisNumber(self.getValueOfVisible(d)))
-                    .style("border-color", () => self.colorMap[d.aggregateKey + "_" + d.splitBy])
-                valueLabel.exit().remove();
+                let tooltipKey = self.getTooltipKey(d);
+                let tooltip;
+                
+                if (self.tooltipMap[tooltipKey]) {
+                    tooltip = self.tooltipMap[tooltipKey];
+                } else {
+                    tooltip = new Tooltip(d3.select(this));
+                    self.tooltipMap[tooltipKey] = tooltip;
+                }
+                tooltip.render(self.chartOptions.theme);
+                let tooltipHeight = MARKERVALUENUMERICHEIGHT;
+                tooltip.draw(d, self.chartComponentData, 0, tooltipHeight/2 + 1, {right:0, left:0, top:0, bottom:0}, (tooltipTextElement) => {
 
-                let valueCaret = d3.select(this).selectAll(".tsi-markerValueCaret").data([d])
-                valueCaret.enter()
-                    .append("div")
-                    .classed("tsi-markerValueCaret", true)
-                    .merge(valueCaret)
+                    tooltipTextElement.text(Utils.formatYAxisNumber(self.getValueOfVisible(d)))
+                        .classed('tsi-markerValueTooltipInner', true)
+                        .style('height', tooltipHeight + 'px')
+                        .style('border-color', self.colorMap[d.aggregateKey + "_" + d.splitBy]);                
+                        
+                }, null, 0, 0, self.colorMap[d.aggregateKey + "_" + d.splitBy]);
+
+                let markerValueCaret = d3.select(this).selectAll('.tsi-markerValueCaret')
+                    .data([d]);
+                markerValueCaret.enter().append('div')
+                    .attr('class', 'tsi-markerValueCaret')
+                    .merge(markerValueCaret)
                     .style("border-right-color", () => self.colorMap[d.aggregateKey + "_" + d.splitBy]);
-                valueCaret.exit().remove();
-            })
-            .transition()
-            .duration(self.chartOptions.noAnimate ? 0 : self.TRANSDURATION)
-            .style('top', (d) => this.calcTopOfValueLabel(d));
+                markerValueCaret.exit().remove();
+            });
 
-        valueLabels.exit().remove();
+        let valueLabelsExit = valueLabels.exit();
+        valueLabelsExit.each((d) => {
+            delete this.tooltipMap[this.getTooltipKey(d)];
+        })
+        valueLabelsExit.remove();
     }
 
     private calcTopOfValueLabel (d: any) {
         let yScale = this.yMap[d.aggregateKey];
-        return Math.round(yScale(this.getValueOfVisible(d)) - this.chartOptions.aggTopMargin) + "px";
+        return Math.round(yScale(this.getValueOfVisible(d)) - this.chartOptions.aggTopMargin);
     }
 
 

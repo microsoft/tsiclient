@@ -113,7 +113,7 @@ class LineChart extends TemporalXAxisComponent {
             return;
         
         this.focus.style("display", "none");
-        d3.select(this.renderTarget).select(".tooltip").style("display", "none");
+        this.tooltip.hide();
         (<any>this.legendObject.legendElement.selectAll('.tsi-splitByLabel')).classed("inFocus", false);
         if (d3.event && d3.event.type != 'end') {
             d3.event.stopPropagation();
@@ -1270,8 +1270,6 @@ class LineChart extends TemporalXAxisComponent {
             this.clearBrush();
         }
         
-        d3.select(this.renderTarget).select(".tsi-tooltip").remove();
-
         if (!this.chartOptions.hideChartControlPanel && this.chartControlsPanel === null) {
             this.chartControlsPanel = Utils.createControlPanel(this.renderTarget, this.legendWidth + (this.GUTTERWIDTH / 2), Math.max((this.chartMargins.top + 12), 0), this.chartOptions);
             var self = this;
@@ -1393,7 +1391,9 @@ class LineChart extends TemporalXAxisComponent {
                 .attr("x", -10)
                 .text(d => d);
     
-            this.tooltip = new Tooltip(d3.select(this.renderTarget));                        
+            if (!this.tooltip) {
+                this.tooltip = new Tooltip(d3.select(this.renderTarget));                        
+            }
 
             this.draw = (isFromResize = false) => {  
                 this.minBrushWidth = (this.chartOptions.minBrushWidth) ? this.chartOptions.minBrushWidth : this.minBrushWidth;

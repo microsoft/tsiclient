@@ -25,7 +25,14 @@
     }
     .tsi-markerLine, .tsi-markerDragger {
         background-color: $gray6;
-    
+    }
+
+    .tsi-markerValue {
+        .tsi-tooltip {
+            .tsi-markerValueTooltipInner {
+                background-color: rgba($gray3, .9);
+            }
+        }
     }
     @include chartColors($grays);
 }
@@ -68,15 +75,30 @@
 
     .tsi-markerValue {
         position:absolute;
-        .tsi-markerValueLabel {
-            position: absolute;
-            left: 10px;
-            border-width: 1px;
-            border-style: solid;
-            padding: 2px 4px;
-            font-size: 12px;
-            transform: translateY(-50%);
-            -webkit-transform: translateY(-50%);
+        .tsi-tooltip {
+            box-shadow: none;
+            border: none;
+            .tsi-markerValueTooltipInner {
+                padding: 0px 8px 0px 8px;
+                border-width: 1px !important;
+                border-style: solid;
+                font-size: 12px;
+                min-width: unset;
+                transform: translateX(8px);
+            }    
+
+            .tsi-markerValueCaret {
+                left: 2px;
+                width: 0; 
+                height: 0; 
+                border-top: 12px solid transparent;
+                border-bottom: 8px solid transparent;
+                border-right-width: 8px;
+                border-right-style: solid;
+                position: absolute;
+                transform: translateY(-50%);
+                -webkit-transform: translateY(-50%);
+            }        
         }
 
         .tsi-markerValueCaret {
@@ -123,9 +145,6 @@
     &.tsi-dark{
         $grays: grays('dark');
         @include markerColors($grays);
-        .tsi-markerValueLabel {
-            background-color: rgba(0, 0, 0, .9);
-        }
         .tsi-markerTimeLabel {
             .tsi-closeButton {
                 background-image: url(../../Icons/Close_Icon_Dark_Theme.svg);
@@ -135,9 +154,6 @@
     &.tsi-light{
         $grays: grays('light');
         @include markerColors($grays);
-        .tsi-markerValueLabel {
-            background-color: rgba(255, 255, 255, .9);
-        }
         .tsi-markerTimeLabel {
             .tsi-closeButton {
                 background-image: url(../../Icons/Close_Icon_Light_Theme.svg);
