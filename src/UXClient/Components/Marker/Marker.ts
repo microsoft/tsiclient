@@ -1,6 +1,6 @@
 import * as d3 from 'd3';
 import './Marker.scss';
-import {Utils, LINECHARTCHARTMARGINS, DataTypes, MARKERVALUENUMERICHEIGHT} from "./../../Utils";
+import {Utils, LINECHARTCHARTMARGINS, DataTypes, MARKERVALUENUMERICHEIGHT, LINECHARTXOFFSET} from "./../../Utils";
 import {Component} from "./../../Interfaces/Component";
 import { ChartOptions } from '../../Models/ChartOptions';
 import { LineChartData } from '../../Models/LineChartData';
@@ -22,6 +22,8 @@ class Marker extends Component {
     private yMap: any;
     private onChange: any;
     private tooltipMap: any = {};
+
+    readonly ADDITIONALRIGHTSIDEOVERHANG = 12;
 
 	constructor(renderTarget) {
         super(renderTarget);
@@ -133,6 +135,7 @@ class Marker extends Component {
                     tooltipTextElement.text(Utils.formatYAxisNumber(self.getValueOfVisible(d)))
                         .classed('tsi-markerValueTooltipInner', true)
                         .style('height', tooltipHeight + 'px')
+                        .style('line-height', ((tooltipHeight - 2) + 'px')) // - 2 to account for border height
                         .style('border-color', self.colorMap[d.aggregateKey + "_" + d.splitBy]);                
                         
                 }, null, 0, 0, self.colorMap[d.aggregateKey + "_" + d.splitBy]);
@@ -184,9 +187,9 @@ class Marker extends Component {
 
         let markerLeft: number = Number(this.markerContainer.style("left").replace("px", ""));
         let timeLabelWidth: number = Math.round(this.timeLabel.node().getBoundingClientRect().width);
-        let minLeftPosition = this.marginLeft + 20;
+        let minLeftPosition = this.marginLeft + LINECHARTXOFFSET;
         let width = this.x.range()[1] - this.x.range()[0];
-        let maxRightPosition = width + this.marginLeft; // TODO this needs work
+        let maxRightPosition = width + this.marginLeft + LINECHARTXOFFSET + this.ADDITIONALRIGHTSIDEOVERHANG;
         let calculatedLeftPosition = markerLeft - (timeLabelWidth / 2);
         let calculatedRightPosition = markerLeft + (timeLabelWidth / 2);
         let translate = "translateX(calc(-50% + 1px))";

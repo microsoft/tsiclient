@@ -17,7 +17,7 @@ export const LINECHARTCHARTMARGINS = {
     left: 70, 
     right: 60
 }
-
+export const LINECHARTXOFFSET = 8;
 export const MARKERVALUENUMERICHEIGHT = 20;
 
 // Linechart stack states
