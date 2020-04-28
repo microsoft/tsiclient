@@ -1605,18 +1605,6 @@ class LineChart extends TemporalXAxisComponent {
                         let mouseEvent = d3.mouse(this);
                         self.voronoiMousemove(mouseEvent);
                     })
-                    // .on("mouseover", function () {
-                    //     if (!self.isDroppingMarker) {
-                    //         self.svgSelection.selectAll(".valueElement")
-                    //             .filter(function () {
-                    //                 return !d3.select(this).classed('tsi-categoricalBucket');
-                    //             })
-                    //             .attr("stroke-opacity", self.nonFocusStrokeOpactiy)
-                    //             .attr("fill-opacity", .3);
-                    //         self.svgSelection.selectAll(".valueEnvelope")
-                    //             .attr("fill-opacity", .1);
-                    //     }
-                    // })
                     .on("mouseout", function (d)  {
                         if (!self.filteredValueExist() || !self.voronoiExists()) return;
                         const [mx, my] = d3.mouse(this);
