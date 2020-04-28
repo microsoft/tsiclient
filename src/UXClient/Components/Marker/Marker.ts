@@ -49,7 +49,7 @@ class Marker extends Component {
             .style('left', (d: any) => {
                 return `${Math.round(this.x(d.timestamp) + this.marginLeft)}px`;
             })
-            .each(function() {
+            .each(function(markerD) {
                 if (d3.select(this).selectAll('.tsi-markerLine').empty()) {
                     d3.select(this).append('div')
                         .attr('class', 'tsi-markerLine');
@@ -69,28 +69,36 @@ class Marker extends Component {
 
                     self.timeLabel = d3.select(this).append("div")
                         .attr('class', 'tsi-markerTimeLabel');
-
-                    d3.select(this).selectAll('.tsi-markerDragger,.tsi-markerTimeLabel,.tsi-markerLine')
-                        .call(d3.drag()
-                            .on('drag', function (d) {
-                                if (d3.select(d3.event.sourceEvent.target).classed('tsi-closeButton')) {
-                                    return;
-                                }
-                                let marker = d3.select(<any>d3.select(this).node().parentNode);
-                                let startPosition = self.x(new Date(self.timestampMillis));
-                                let newPosition = startPosition + d3.event.x;
-
-                                self.timestampMillis = Utils.findClosestTime(self.x.invert(newPosition).valueOf(), self.chartComponentData.timeMap);
-                                self.setPositionsAndLabels(self.timestampMillis);
-                            })
-                            .on('end', function (d) {
-                                if (!d3.select(d3.event.sourceEvent.target).classed('tsi-closeButton')) {
-                                    self.onChange(false, false);
-                                }
-                            })
-                        );
-
                 }
+                d3.select(this).selectAll('.tsi-markerDragger,.tsi-markerTimeLabel,.tsi-markerLine')
+                    .call(d3.drag()
+                        .on('start', function(d: any) {
+                            // put the marker being dragged on top
+                            d3.select(self.renderTarget).selectAll('.tsi-markerContainer').sort((a: any, b: any) => {  
+                                if (a.timestamp === markerD.timestamp)
+                                    return 1;
+                                if (b.timestamp === markerD.timestamp)
+                                    return -1;
+                                return a.timestamp < b.timestamp ? 1 : -1;
+                            });
+                        })
+                        .on('drag', function (d) {
+                            if (d3.select(d3.event.sourceEvent.target).classed('tsi-closeButton')) {
+                                return;
+                            }
+                            let marker = d3.select(<any>d3.select(this).node().parentNode);
+                            let startPosition = self.x(new Date(self.timestampMillis));
+                            let newPosition = startPosition + d3.event.x;
+
+                            self.timestampMillis = Utils.findClosestTime(self.x.invert(newPosition).valueOf(), self.chartComponentData.timeMap);
+                            self.setPositionsAndLabels(self.timestampMillis);
+                        })
+                        .on('end', function (d) {
+                            if (!d3.select(d3.event.sourceEvent.target).classed('tsi-closeButton')) {
+                                self.onChange(false, false);
+                            }
+                        })
+                    );
             });
         marker.exit().remove();
     }
