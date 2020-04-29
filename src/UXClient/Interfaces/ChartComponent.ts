@@ -159,17 +159,18 @@ class ChartComponent extends Component {
 		}
 	}
 
+	protected formatDate (date, shiftMillis) {
+		return Utils.timeFormat(this.chartComponentData.usesSeconds, this.chartComponentData.usesMillis, 
+			this.chartOptions.offset, this.chartOptions.is24HourTime, shiftMillis, null, this.chartOptions.dateLocale)(date);
+	}
+
 	protected tooltipFormat (d, text, measureFormat: TooltipMeasureFormat, xyrMeasures = null) {
         let dataType = this.getDataType(d.aggregateKey);
         var title = d.aggregateName;   
 		let cDO = this.getCDOFromAggKey(d.aggregateKey);
 
-        let shiftMillis = this.chartComponentData.getTemporalShiftMillis(d.aggregateKey);
-
-        let formatDate = (date) => {
-            return Utils.timeFormat(this.chartComponentData.usesSeconds, this.chartComponentData.usesMillis, 
-                this.chartOptions.offset, this.chartOptions.is24HourTime, shiftMillis, null, this.chartOptions.dateLocale)(date);
-        }
+		let shiftMillis = this.chartComponentData.getTemporalShiftMillis(d.aggregateKey);
+		let formatDate = (date) => this.formatDate(date, shiftMillis);
 
         let titleGroup = text.append("div")
 			.attr("class", "tsi-tooltipTitleGroup");
@@ -200,7 +201,7 @@ class ChartComponent extends Component {
         	titleGroup.append('h4')
                 .attr('class', 'tsi-tooltipSubtitle tsi-tooltipTimeStamp')
                 .text(formatDate(d.dateTime));
-        }
+		}		
 
         let tooltipAttrs = cDO.tooltipAttributes;
         if (shiftMillis !== 0 && tooltipAttrs) {

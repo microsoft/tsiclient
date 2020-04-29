@@ -1,6 +1,6 @@
 import * as d3 from 'd3';
 import './Marker.scss';
-import {Utils, LINECHARTCHARTMARGINS, DataTypes, MARKERVALUENUMERICHEIGHT, LINECHARTXOFFSET} from "./../../Utils";
+import {Utils, LINECHARTCHARTMARGINS, DataTypes, MARKERVALUENUMERICHEIGHT, LINECHARTXOFFSET, TooltipMeasureFormat} from "./../../Utils";
 import {Component} from "./../../Interfaces/Component";
 import { ChartOptions } from '../../Models/ChartOptions';
 import { LineChartData } from '../../Models/LineChartData';
@@ -34,6 +34,15 @@ class Marker extends Component {
 
     public getMillis () {
         return this.timestampMillis;
+    }
+
+	protected tooltipFormat (d, text, measureFormat: TooltipMeasureFormat, xyrMeasures = null) {
+        let tooltipHeight = MARKERVALUENUMERICHEIGHT;
+        text.text(Utils.formatYAxisNumber(this.getValueOfVisible(d)))
+            .classed('tsi-markerValueTooltipInner', true)
+            .style('height', tooltipHeight + 'px')
+            .style('line-height', ((tooltipHeight - 2) + 'px')) // - 2 to account for border height
+            .style('border-color', this.colorMap[d.aggregateKey + "_" + d.splitBy]);                
     }
 
     private renderMarker () {
@@ -141,14 +150,8 @@ class Marker extends Component {
                 }
                 tooltip.render(self.chartOptions.theme);
                 let tooltipHeight = MARKERVALUENUMERICHEIGHT;
-                tooltip.draw(d, self.chartComponentData, 0, tooltipHeight/2, {right:0, left:0, top:0, bottom:0}, (tooltipTextElement) => {
-
-                    tooltipTextElement.text(Utils.formatYAxisNumber(self.getValueOfVisible(d)))
-                        .classed('tsi-markerValueTooltipInner', true)
-                        .style('height', tooltipHeight + 'px')
-                        .style('line-height', ((tooltipHeight - 2) + 'px')) // - 2 to account for border height
-                        .style('border-color', self.colorMap[d.aggregateKey + "_" + d.splitBy]);                
-                        
+                tooltip.draw(d, self.chartComponentData, 0, MARKERVALUENUMERICHEIGHT/2, {right:0, left:0, top:0, bottom:0}, (tooltipTextElement) => {
+                    self.tooltipFormat(d, tooltipTextElement, null, null);
                 }, null, 0, 0, self.colorMap[d.aggregateKey + "_" + d.splitBy]);
 
                 let markerValueCaret = d3.select(this).selectAll('.tsi-markerValueCaret')
