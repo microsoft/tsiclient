@@ -558,7 +558,6 @@ class LineChart extends TemporalXAxisComponent {
     }
 
     public exportMarkers () {
-
         this.chartOptions.markers = Object.keys(this.markerGuidMap).map((markerGuid) => this.markerGuidMap[markerGuid].getMillis());
         this.chartOptions.onMarkersChange(this.chartOptions.markers);
     }
@@ -585,8 +584,17 @@ class LineChart extends TemporalXAxisComponent {
         }
     }
 
-    private renderMarker (marker: any, millis: number, onChange: any = null) {
-        marker.render(millis, this.chartOptions, this.chartMargins, this.chartComponentData, this.x, this.height, this.getMarkerMarginLeft(), this.colorMap, this.yMap, onChange, false);
+    private renderMarker (marker: Marker, millis: number, onChange: any = null) {
+        marker.render(millis, this.chartOptions, this.chartComponentData, {
+            chartMargins: this.chartMargins,
+            x: this.x,
+            marginLeft: this.getMarkerMarginLeft(),
+            colorMap: this.colorMap,
+            yMap: this.yMap,
+            onChange: onChange,
+            chartHeight: this.height,
+            isDropping: false
+        });
     }
 
     private sortMarkers () {

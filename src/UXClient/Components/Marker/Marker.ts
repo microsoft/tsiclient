@@ -5,6 +5,7 @@ import {Component} from "./../../Interfaces/Component";
 import { ChartOptions } from '../../Models/ChartOptions';
 import { LineChartData } from '../../Models/LineChartData';
 import { Tooltip } from '../Tooltip/Tooltip';
+import { ChartComponentData } from '../../Models/ChartComponentData';
 
 class Marker extends Component {
     //DOM components
@@ -231,20 +232,20 @@ class Marker extends Component {
         this.markerContainer = null;
     }
 
-    public render (timestampMillis: number, chartOptions: ChartOptions, chartMargins: any, chartComponentData: any, x: any, chartHeight: number, marginLeft: number, 
-                    colorMap: any, yMap: any, onChange: any, isDropping: boolean = false) {
-        this.chartMargins = Object.assign({}, chartMargins);
-        this.chartHeight = chartHeight;
+
+    public render (timestampMillis: number, chartOptions: ChartOptions, chartComponentData: any, additionalMarkerFields: {chartMargins: any, x: any, marginLeft: number, colorMap: any, yMap: any, onChange: any, isDropping: boolean, chartHeight: number}) {
+        this.chartMargins = Object.assign({}, additionalMarkerFields.chartMargins);
+        this.chartHeight = additionalMarkerFields.chartHeight;
         this.timestampMillis = timestampMillis;
         this.chartOptions = chartOptions;
-        this.x = x;
+        this.x = additionalMarkerFields.x;
         this.chartComponentData = chartComponentData;
-        this.marginLeft = marginLeft;
-        this.colorMap = colorMap;
+        this.marginLeft = additionalMarkerFields.marginLeft;
+        this.colorMap = additionalMarkerFields.colorMap;
 
-        this.yMap = yMap;
-        if (onChange) { // only update onChange if passed in, otherwise maintain previous
-            this.onChange = onChange;
+        this.yMap = additionalMarkerFields.yMap;
+        if (additionalMarkerFields.onChange) { // only update onChange if passed in, otherwise maintain previous
+            this.onChange = additionalMarkerFields.onChange;
         }
 
         if (!this.isMarkerInRange(this.timestampMillis)) {
