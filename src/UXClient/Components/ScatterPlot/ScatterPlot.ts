@@ -195,11 +195,11 @@ class ScatterPlot extends ChartVisualizationComponent {
         return this.chartWidth + this.chartMargins.left + this.chartMargins.right - 16;
     }
 
-    protected tooltipFormat(d: any, text: any, measureFormat: TooltipMeasureFormat, xyrMeasures: any) {
+    protected tooltipFormat (d: any, text: any, measureFormat: TooltipMeasureFormat, xyrMeasures: any) {
         super.tooltipFormat(d, text, measureFormat, xyrMeasures);
         if (!this.chartOptions.isTemporal) {
             let titleGroup = text.select('.tsi-tooltipTitleGroup');
-            if (measureFormat === TooltipMeasureFormat.Scatter && d.timestamp) {
+            if (d.timestamp) {
                 titleGroup.append('h4')
                     .attr('class', 'tsi-tooltipSubtitle tsi-tooltipTimeStamp')
                     .text(this.formatDate(d.timestamp, this.chartComponentData.getTemporalShiftMillis(d.aggregateKey)));
