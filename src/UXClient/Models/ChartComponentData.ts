@@ -39,6 +39,10 @@ class ChartComponentData {
         this.allTimestampsArray = Object.keys(allTimestamps).sort();
     }
 
+    public getDataType (aggKey) {
+        return this.displayState[aggKey] ? this.displayState[aggKey].dataType : DataTypes.Numeric;
+    }
+
     //add colors if none present
     private fillColors (aggregateExpressionOptions) {
         if (aggregateExpressionOptions == null)

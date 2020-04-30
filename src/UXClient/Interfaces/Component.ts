@@ -1,4 +1,4 @@
-import {Utils} from "./../Utils";
+import {Utils, TooltipMeasureFormat} from "./../Utils";
 import { ChartOptions } from "../Models/ChartOptions";
 
 class Component {
@@ -33,7 +33,11 @@ class Component {
                 Q${width / 1.818} ${height / 6.17} ${width / 1.2} ${height / 2.33}
                 A${width / 2.35} ${width / 2.35} 0 1 1 ${width / 6} ${width / 2.33}
                 Q${width / 2.22} ${height / 6.18} ${width / 2} ${height / 14}z`;
-    }
+	}
+	
+	protected tooltipFormat (d, text, measureFormat: TooltipMeasureFormat, xyrMeasures = null) {
+
+	}
 	
 }
 export {Component}
