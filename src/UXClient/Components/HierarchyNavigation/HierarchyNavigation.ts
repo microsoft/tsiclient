@@ -81,14 +81,26 @@ class HierarchyNavigation extends Component{
         let hierarchyNavWrapper = targetElement.append('div').attr('class', 'tsi-hierarchy-nav-wrapper');
         super.themify(hierarchyNavWrapper, this.hierarchyNavOptions.theme);
 
+        //get the most recent types to show in the context menu on instance click
+        getToken().then(token => {
+            this.server.getTimeseriesTypes(token, environmentFqdn).then(r => {
+                r.types.forEach(t => {
+                    this.envTypes[t.id] = t;
+                });
+            })
+        });
+
+        //get the most recent hierarchies for reverse lookup
+        getToken().then(token => {
+            this.server.getTimeseriesHierarchies(token, environmentFqdn).then(r => {
+                r.hierarchies.forEach(h => {
+                    this.envHierarchies[h.name] = h;
+                });
+            })
+        });
+
         getToken().then(token => {
             self.server.getTimeseriesInstancesPathSearch(token, environmentFqdn, {searchString: '', path: [], hierarchies: {sort: {by: HierarchiesSort.CumulativeInstanceCount}, expand: {kind: HierarchiesExpand.OneLevel}, pageSize: 100}}).then(r => {
-                if(r.hierarchyNodes && r.hierarchyNodes.hits && r.hierarchyNodes.hits.length > 0){
-                    r.hierarchyNodes.hits.forEach(hn => {
-                        this.envHierarchies[hn.name] = hn;
-                    });
-                }
-
                 // hierarchy selection button
                 let hierarchySelectionWrapper = hierarchyNavWrapper.append('div').classed('tsi-hierarchy-selection-wrapper', true);
                 this.hierarchySelectorElem = hierarchySelectionWrapper.append('button').classed('tsi-hierarchy-select', true)
@@ -195,15 +207,6 @@ class HierarchyNavigation extends Component{
                 this.thenablePathSearchAndRenderResult({search: {payload: self.requestPayload()}, render: {target: this.hierarchyElem}});
             });
         });
-
-        //get the most recent types to show in the context menu on instance click
-        getToken().then(token => {
-            this.server.getTimeseriesTypes(token, environmentFqdn).then(r => {
-                r.types.forEach(t => {
-                    this.envTypes[t.id] = t;
-                });
-            })
-        })
 
         let autocompleteOnInput = (st, event) => {
             if(st.length === 0){
@@ -374,9 +377,11 @@ class HierarchyNavigation extends Component{
 
     public showInstance (timeSeriesID: Array<string>, hierarchyIds: Array<string> = null) {
         let isHierarchySelected = this.selectedHierarchyName !== HierarchySelectionValues.All && this.selectedHierarchyName !== HierarchySelectionValues.Unparented;
-        let hNames = hierarchyIds ? Object.keys(this.envHierarchies).filter(n => this.envHierarchies[n].id === hierarchyIds) : isHierarchySelected ? [this.selectedHierarchyName] : Object.keys(this.envHierarchies);
+        debugger;
+        let hierarchyNamesFromParam = hierarchyIds ? hierarchyIds.map(hId => Object.keys(this.envHierarchies).find(n => this.envHierarchies[n].id === hId)) : null;
+        let hNames = hierarchyNamesFromParam ? hierarchyNamesFromParam : isHierarchySelected ? [this.selectedHierarchyName] : Object.keys(this.envHierarchies);
 
-        let getFullPathsofInstance = (hierarchyIds: Array<string> = null) => {
+        let getFullPathsofInstance = () => {
             this.setModeAndRequestParamsForFilter();
             this.searchString = '"' + timeSeriesID + '"';
 
@@ -391,7 +396,7 @@ class HierarchyNavigation extends Component{
             let lastSpanParent;
             for (let idx = 0; idx < path.length; idx++){
                 let p = path[idx];
-                if ((hierarchyIds || isHierarchySelected) && idx === 0) {continue;};
+                if (isHierarchySelected && idx === 0) {continue;};
                 let spanToExpand;
                 let searchName = p === "" ? '(' + this.getString("Empty") + ')' : p;
                 if (!lastSpanParent) {
@@ -429,7 +434,7 @@ class HierarchyNavigation extends Component{
             }
         }
 
-        getFullPathsofInstance(hierarchyIds).then(async results => {
+        getFullPathsofInstance().then(async results => {
             let paths = [];
             results.forEach((r, idx) => {
                 let path: Array<string> = [hNames[idx]];
