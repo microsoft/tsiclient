@@ -456,13 +456,15 @@
                             border-spacing: 0;
                             margin-top: 2px;
                             tr{
-                                td:first-of-type{
+                                td {
                                     padding: 0;
-                                    opacity: .6;
-                                }
-                                td:nth-of-type(2){
-                                    padding: 0;
-                                    padding-left: 8px;
+                                    vertical-align: top;
+                                    &:first-of-type{
+                                        opacity: .6;
+                                    }
+                                    &:nth-of-type(2){
+                                        padding-left: 8px;
+                                    }
                                 }
                             }
                         }
@@ -579,13 +581,15 @@
                 table {
                     margin-top: 2px;
                     tr {
-                        td:first-of-type{
+                        td {
                             padding: 0;
-                            opacity: .6;
-                        }
-                        td:nth-of-type(2){
-                            padding: 0;
-                            padding-left: 8px;
+                            vertical-align: top;
+                            &:first-of-type{
+                                opacity: .6;
+                            }
+                            &:nth-of-type(2){
+                                padding-left: 8px;
+                            }
                         }
                     }
                 }
