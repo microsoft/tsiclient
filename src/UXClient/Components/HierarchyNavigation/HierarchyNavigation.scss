@@ -398,7 +398,7 @@
     .tsi-instance-lookup-loading {
         display: none;
         animation: fade-in .2s ease-in-out;
-        padding: 20px 20px 8px;
+        padding: 12px 18px 8px;
         position: absolute;
         top: 92px;
         align-items: center;
@@ -409,6 +409,7 @@
             height: 12px;
             display: inline-block;
             margin-right: 8px;
+            animation: rotating 2s linear infinite;
         }
 
         .tsi-lookup-instance {
@@ -668,5 +669,14 @@
     @keyframes fade-in {
         0% { opacity: 0; }
         100% { opacity: 1; }
+    }
+
+    @keyframes rotating {
+        from {
+          transform: rotate(0deg);
+        }
+        to {
+          transform: rotate(360deg);
+        }
     }
 }
