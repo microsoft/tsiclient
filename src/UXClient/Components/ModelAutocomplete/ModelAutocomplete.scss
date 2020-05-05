@@ -16,7 +16,8 @@
         .awesomplete > ul {
             background: $gray4;
             color: $gray1;
-            border: 1px solid $gray1;
+            // border: 1px solid $gray5 !important;
+
             li[aria-selected="true"], li:hover, li:focus{
                 background: $gray2;
             }
@@ -28,14 +29,32 @@
             background-color: $gray4;
         }
     }
+
+    input {
+        background-color: $gray3;
+        color: $gray1;
+    }
+
+
+    .tsi-modelAutocompleteInputWrapper {
+        border: 1px solid $gray5;
+
+        &.focused {
+            border-color: $gray6;
+        }
+    }
 }
 
 .tsi-modelAutocompleteWrapper{
+    padding: 4px 0;
     &.tsi-dark{
         $grays: grays('dark');
         @include modelAutocompleteColors($grays);
         .tsi-clear{
             background-image: url(../../Icons/Close_Icon_Dark_Theme.svg);                    
+        }
+        .tsi-search-icon {
+            background-image: url(../../Icons/Search_Dark.svg);
         }
     }
     &.tsi-light{
@@ -44,14 +63,26 @@
         .tsi-clear{
             background-image: url(../../Icons/Close_Icon_Light_Theme.svg);                    
         }
+        .tsi-search-icon {
+            background-image: url(../../Icons/Search_Light.svg);
+        }
     }
 
     .tsi-modelAutocompleteInputWrapper{
-        height: 48px;
+        height: 32px;
         width: 100%;
         display: flex;
         flex-shrink: 0;
         align-items: center;
+        padding: 4px 0 4px 4px;
+
+        .tsi-search-icon {
+            width: 20px;
+            height: 17px;
+            background-repeat: no-repeat;
+            margin-right: 4px;
+        }
+
         .tsi-clear{
             width: 20px;
             height: 20px;
@@ -68,9 +99,11 @@
             }
         }
         .tsi-modelAutocompleteInput{
-            margin: 8px;
-            padding: 4px;
-            padding-right: 32px;
+            border: none;
+
+            &:focus {
+                outline: none;
+            }
         }
         .tsi-modelAutocompleteInput::-ms-clear{
             display: none;
@@ -95,23 +128,21 @@
             display: block;
             z-index: 2;
             position: relative;
-            width: calc(100% - 40px);
-            margin: 8px 20px;
+            width: calc(100% - 28px);
+            height: 29px;
         }
 
         .awesomplete > ul {
             @extend .tsi-baseContextMenu;
             animation: tsi-slideIn 0.367s cubic-bezier(0.1, 0.9, 0.2, 1) forwards;
             position: absolute;
-            left: 0;
+            left: 1px;
             z-index: 1;
             list-style: none;
             padding: 0;
             border-radius: 0px;
-            margin: 8px 20px;
             font-size: 13px;
             width: calc(100% - 40px);
-            margin-top: -8px;
             &:before{
                 display: none;
             }
