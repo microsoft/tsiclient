@@ -23,25 +23,30 @@ class Tooltip extends Component {
         }
     }
 
+    private getSVGWidth () {
+        return !this.renderTarget.select('.tsi-chartSVG').empty() ? this.renderTarget.select('.tsi-chartSVG').node().getBoundingClientRect().width : 0;
+    }
+
+    private getSVGHeight () {
+        return !this.renderTarget.select('.tsi-chartSVG').empty() ? this.renderTarget.select('.tsi-chartSVG').node().getBoundingClientRect().height : 0;
+    }
+
     private getLeftOffset (chartMargins) {
         //NOTE - this assumes that the svg's right border is the same as the render target's
         var renderTargetWidth = this.renderTarget.node().getBoundingClientRect().width;
-        var svgWidth = this.renderTarget.select('.tsi-chartSVG').node().getBoundingClientRect().width;
-        return (renderTargetWidth - svgWidth + chartMargins.left);
+        return (renderTargetWidth - this.getSVGWidth() + chartMargins.left);
     }
 
     private getTopOffset(chartMargins) {
         //NOTE - this assumes that the svg's bottom border is the same as the render target's
         var renderTargetHeight = this.renderTarget.node().getBoundingClientRect().height;
-        var svgHeight = this.renderTarget.select('.tsi-chartSVG').node().getBoundingClientRect().height;
-        return (renderTargetHeight - svgHeight + chartMargins.top);
+        return (renderTargetHeight - this.getSVGHeight() + chartMargins.top);
     }
 
     private isRightOffset (tooltipWidth, xPos, chartMarginLeft) {
         //NOTE - this assumes that the svg's right border is the same as the render target's
         var renderTargetWidth = this.renderTarget.node().getBoundingClientRect().width;
-        var svgWidth = this.renderTarget.select('.tsi-chartSVG').node().getBoundingClientRect().width;
-        return svgWidth > (xPos + tooltipWidth + 20 + chartMarginLeft);
+        return this.getSVGWidth() > (xPos + tooltipWidth + 20 + chartMarginLeft);
     }
 
     private isTopOffset (tooltipHeight, yPos, chartMarginBottom) {
@@ -50,21 +55,28 @@ class Tooltip extends Component {
         return renderTargetHeight > (yPos + tooltipHeight + 20 + chartMarginBottom);
     }
 
+
     public render(theme) {
-        this.renderTarget.selectAll(".tsi-tooltip").remove();
+        let self = this;
+        let tooltip = this.renderTarget.selectAll('.tsi-tooltip').filter(function () {
+            return (this.parentNode === self.renderTarget.node());
+        }).data([theme]);
 
-        this.tooltipDiv = this.renderTarget.append("div")
-            .attr("class", "tsi-tooltip");
-        this.tooltipDivInner = this.tooltipDiv.append("div")
-            .attr("class", "tsi-tooltipInner");
-        this.tooltipDivInner.text(d => d);
-
+        this.tooltipDiv = tooltip.enter().append('div')
+            .attr('class', 'tsi-tooltip')
+            .merge(tooltip)
+            .each(function (d) {
+                d3.select(this).selectAll("*").remove();
+                self.tooltipDivInner = d3.select(this).append('div')
+                    .attr('class', 'tsi-tooltipInner');
+            });
+        tooltip.exit().remove();
         super.themify(this.tooltipDiv, theme);
         
         //  element width is an optional parameter which ensurea that the tooltip doesn't interfere with the element
         //when positioning to the right
         this.draw = (d: any, chartComponentData: ChartComponentData, xPos, yPos, chartMargins, addText, elementWidth: number = null, xOffset = 20, yOffset = 20, borderColor: string = null) => {
-            this.tooltipDiv.style("display", "block")    
+            this.tooltipDiv.style("display", "block"); 
             this.tooltipDivInner.text(null);
 
             this.borderColor = borderColor;

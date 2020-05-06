@@ -1,7 +1,7 @@
 import * as d3 from 'd3';
 import { interpolatePath } from 'd3-interpolate-path';
 import './LineChart.scss';
-import {Utils, DataTypes, YAxisStates, LINECHARTTOPPADDING, TooltipMeasureFormat} from "./../../Utils";
+import {Utils, DataTypes, YAxisStates, LINECHARTTOPPADDING, TooltipMeasureFormat, LINECHARTCHARTMARGINS} from "./../../Utils";
 import {Legend} from "./../Legend/Legend";
 import {TemporalXAxisComponent} from "./../../Interfaces/TemporalXAxisComponent";
 import {LineChartData} from "./../../Models/LineChartData";
@@ -14,6 +14,7 @@ import { LinePlot } from '../LinePlot/LinePlot';
 import { CategoricalPlot } from '../CategoricalPlot/CategoricalPlot';
 import { EventsPlot } from '../EventsPlot/EventsPlot';
 import { AxisState } from '../../Models/AxisState';
+import { Marker } from '../Marker/Marker';
 
 class LineChart extends TemporalXAxisComponent {
     private targetElement: any;
@@ -28,7 +29,6 @@ class LineChart extends TemporalXAxisComponent {
     private surpressBrushTimeSet: boolean = false;
     private hasStackedButton: boolean = false;
     private stackedButton: any = null;
-    private scooterButton: any = null;
     private visibleAggCount: number;
 
     private tooltip: Tooltip;
@@ -43,8 +43,12 @@ class LineChart extends TemporalXAxisComponent {
     private voronoi: any;
     private possibleTimesArray: any;
     private colorMap: any;
-    private activeScooter: any;
-    private scooterGuidMap: any = {};
+
+    private markers = {};
+
+    private markerGuidMap: any = {};
+    private isDroppingMarker: boolean = false;
+    private activeMarker: Marker;
     private brush: any;
     private brushElem: any;
     public brushStartTime: Date;
@@ -52,7 +56,6 @@ class LineChart extends TemporalXAxisComponent {
     private brushStartPosition: number;
     private brushEndPosition: number;
     private hasBrush: boolean = false;
-    private isDroppingScooter: boolean = false;
     private isClearingBrush: boolean = false;
     private previousAggregateData: any = d3.local();
     private previousIncludeDots: any = d3.local();
@@ -77,23 +80,12 @@ class LineChart extends TemporalXAxisComponent {
     constructor(renderTarget: Element){
         super(renderTarget);
         this.MINHEIGHT = 26;
-        this.chartMargins = {        
-            top: 40,
-            bottom: 40,
-            left: 70, 
-            right: 60
-        };
+        this.chartMargins = Object.assign({}, LINECHARTCHARTMARGINS);
     }
 
     LineChart() { 
     }
 
-    private setIsDroppingScooter (isDropping: boolean) {
-        this.isDroppingScooter = isDropping;
-        if (this.scooterButton) {
-            this.scooterButton.style("border-color", this.isDroppingScooter ? "grey" : "transparent");
-        }
-    }
 
     //get the left and right positions of the brush
     public getBrushPositions () {
@@ -126,7 +118,7 @@ class LineChart extends TemporalXAxisComponent {
         this.svgSelection.selectAll(".tsi-valueEnvelope")
             .attr("fill-opacity", .2);
             
-        d3.select(this.renderTarget).selectAll(".tsi-scooterValue")
+        d3.select(this.renderTarget).selectAll(".tsi-markerValue")
             .style("opacity", 1);
 
         this.focusedAggKey = null;
@@ -139,7 +131,7 @@ class LineChart extends TemporalXAxisComponent {
             return;
         
         this.focus.style("display", "none");
-        d3.select(this.renderTarget).select(".tooltip").style("display", "none");
+        this.tooltip.hide();
         (<any>this.legendObject.legendElement.selectAll('.tsi-splitByLabel')).classed("inFocus", false);
         if (d3.event && d3.event.type != 'end') {
             d3.event.stopPropagation();
@@ -200,7 +192,7 @@ class LineChart extends TemporalXAxisComponent {
         if (aggKey !== this.focusedAggKey || splitBy !== this.focusedSplitby) {
             let selectedFilter = Utils.createValueFilter(aggKey, splitBy);
 
-            this.focusScooterLabel(selectedFilter, aggKey, splitBy);
+            this.focusMarkerLabel(selectedFilter, aggKey, splitBy);
 
             this.svgSelection.selectAll(".tsi-valueElement")
                 .attr("stroke-opacity", this.nonFocusStrokeOpactiy)
@@ -224,7 +216,7 @@ class LineChart extends TemporalXAxisComponent {
     }
 
     private discreteEventsMouseover = (d, x, y, width) => {
-        if (this.isDroppingScooter) {
+        if (this.isDroppingMarker) {
             return false;
         }
         this.legendObject.triggerSplitByFocus(d.aggregateKey, d.splitBy);
@@ -259,9 +251,9 @@ class LineChart extends TemporalXAxisComponent {
         return typeOfPlot !== this.getDataType(aggKey);
     }
 
-    //returns false if supressed via isDroppingScooter, true otherwise
+    //returns false if supressed via isDroppingMarker, true otherwise
     private categoricalMouseover = (d, x, y, endDate, width) => {
-        if (this.isDroppingScooter) {
+        if (this.isDroppingMarker) {
             return false;
         }
         this.legendObject.triggerSplitByFocus(d.aggregateKey, d.splitBy);
@@ -559,73 +551,86 @@ class LineChart extends TemporalXAxisComponent {
         }, Infinity);
     }
 
-    private getScooterMarginLeft () {
+    private getMarkerMarginLeft () {
         var legendWidth = this.legendObject.legendElement.node().getBoundingClientRect().width;
         return this.chartMargins.left + (this.chartOptions.legend === "shown" || this.chartOptions.legend === "hidden" ? legendWidth : 0) + 
             (this.chartOptions.legend === "shown" ? this.GUTTERWIDTH : 0);
     }
 
-    // when re-rendering, scooters need to be repositioned - this function takes in a scooter and outputs the time on the timemap which 
-    private findClosestScooterTime (prevMillis: number): number {
-        var minDistance = Infinity;
-        var closestValue = null;
-        Object.keys(this.chartComponentData.timeMap).forEach((intervalCenterString) => {
-            var intervalCenter = Number(intervalCenterString);
-            if (Math.abs(intervalCenter - prevMillis) < minDistance) {
-                minDistance = Math.abs(intervalCenter - prevMillis);
-                closestValue = intervalCenter;
-            }
-        });
-        return closestValue;
-    }
-
-    private setScooterPosition (scooter, rawMillis: number = null) {
-        if (!scooter) {
-            return;
-        }
-        var closestTime;
-        if (rawMillis != null) {
-            closestTime = this.findClosestValidTime(rawMillis);
-            this.scooterGuidMap[scooter.datum()] = closestTime;    
-        }
-        closestTime = this.scooterGuidMap[scooter.datum()];
-        if (closestTime < this.chartComponentData.fromMillis || closestTime > this.chartComponentData.toMillis) {
-            scooter.style("display", "none");
-        } else {
-            scooter.style("display", "block")
-                .style("left", (d) => {
-                    var closestTime = this.scooterGuidMap[d];
-                    return (Math.round(this.x(closestTime) + this.getScooterMarginLeft()) + "px");
-                })
-                .style("top", this.chartMargins.top + this.chartOptions.aggTopMargin + "px")
-                .style("height", this.height - (this.chartMargins.top + this.chartMargins.bottom + this.chartOptions.aggTopMargin) + "px");
-        }
-
-        d3.select(this.renderTarget).selectAll(".tsi-scooterContainer").sort((a: string, b: string) =>  { 
-            return (this.scooterGuidMap[a] < this.scooterGuidMap[b]) ? 1 : -1;            
-        });
-    }
-
     public exportMarkers () {
-        return Object.keys(this.scooterGuidMap)
-        .map((guid) => this.scooterGuidMap[guid]);
+        this.chartOptions.markers = Object.keys(this.markerGuidMap).map((markerGuid) => this.markerGuidMap[markerGuid].getMillis());
+        this.chartOptions.onMarkersChange(this.chartOptions.markers);
+    }
+
+    private createOnMarkerChange (markerGuid: string, marker: any) {
+        return (isDeleting, droppedMarker) => {
+            if (droppedMarker) {
+                this.markerGuidMap[markerGuid] = marker;
+                this.isDroppingMarker = false;
+            }
+            else if (isDeleting) {
+                delete this.markerGuidMap[markerGuid];
+
+                //set focus to first marker if markers exist on delete
+                if (Object.keys(this.markerGuidMap).length !== 0) {
+                    this.markerGuidMap[Object.keys(this.markerGuidMap)[0]].focusCloseButton();
+                } else {
+                    this.focusOnEllipsis();
+                }
+
+            } 
+            this.exportMarkers();
+            this.sortMarkers();
+        }
+    }
+
+    private renderMarker (marker: Marker, millis: number, onChange: any = null) {
+        marker.render(millis, this.chartOptions, this.chartComponentData, {
+            chartMargins: this.chartMargins,
+            x: this.x,
+            marginLeft: this.getMarkerMarginLeft(),
+            colorMap: this.colorMap,
+            yMap: this.yMap,
+            onChange: onChange,
+            chartHeight: this.height,
+            isDropping: false
+        });
+    }
+
+    private sortMarkers () {
+        d3.select(this.renderTarget).selectAll(".tsi-markerContainer").sort((a: any, b: any) =>  {
+            return (a.timestamp < b.timestamp) ? 1 : -1;
+        });
     }
 
     private importMarkers () {
+
         if (this.chartOptions.markers && this.chartOptions.markers.length > 0) {
-            this.scooterGuidMap = {};
-            d3.select(this.renderTarget).selectAll(".tsi-scooterContainer").remove();
-            
+            // delete all the old markers
+            if (Object.keys(this.markerGuidMap).length) {
+                Object.keys(this.markerGuidMap).forEach((guid) => {
+                    this.markerGuidMap[guid].destroyMarker();
+                    delete this.markerGuidMap[guid];
+                });
+            }
+            this.markerGuidMap = {};            
             this.chartOptions.markers.forEach((markerMillis) => {
-                let scooterUID = Utils.guid();
-                this.scooterGuidMap[scooterUID] = markerMillis;
-                let millis = (markerMillis < this.chartComponentData.fromMillis || markerMillis > this.chartComponentData.toMillis) ? null : markerMillis;
-                let scooter = this.createScooter(scooterUID);
-                this.setScooterPosition(scooter, millis);
-                this.setScooterLabels(scooter);
-                this.setScooterTimeLabel(scooter);
+                let marker = new Marker(this.renderTarget);
+                let markerUID = Utils.guid();
+                let onChange = this.createOnMarkerChange(markerUID, marker);
+                this.renderMarker(marker, markerMillis, onChange);
+                this.markerGuidMap[markerUID] = marker;
             });
+            this.sortMarkers();
         }
+    }
+
+    private renderAllMarkers () {
+        Object.keys(this.markerGuidMap).forEach((guid) => {
+            let marker = this.markerGuidMap[guid];
+            let onChange = this.createOnMarkerChange(guid, marker);
+            this.renderMarker(marker, marker.getMillis(), onChange)
+        });
     }
 
     private focusOnEllipsis () {
@@ -634,178 +639,31 @@ class LineChart extends TemporalXAxisComponent {
         }
     }
 
-    private setScooterTimeLabel (scooter) {
-        var millis = this.scooterGuidMap[scooter.datum()];
-        var values: Array<any> = this.chartComponentData.timeMap[millis];
-        if (values == undefined || values.length == 0) {
-            return;
-        }
-        var firstValue = values[0].dateTime;
-        var secondValue = new Date(values[0].dateTime.valueOf() + (values[0].bucketSize != null ? values[0].bucketSize : 0));
-        var timeFormat = Utils.timeFormat(this.chartComponentData.usesSeconds, this.chartComponentData.usesMillis, 
-            this.chartOptions.offset, this.chartOptions.is24HourTime, null, null, this.chartOptions.dateLocale);
-        var dateToTime = (t) => ((timeFormat(t).split(" ") && timeFormat(t).split(" ").length > 1) ? timeFormat(t).split(" ")[1] : '');
-        var text = dateToTime(firstValue) + " - " + dateToTime(secondValue);
-        var timeLabel = scooter.select(".tsi-scooterTimeLabel");
-        let self = this;
-        timeLabel.text(text)
-            .append("button")
-            .attr("aria-label", this.getString("Delete marker at") + ' ' + text) 
-            .classed("tsi-closeButton", true)
-            .on("click", function () {
-                let markerGuid: string = String(d3.select(d3.select(this).node().parentNode.parentNode).datum());
-                delete self.scooterGuidMap[markerGuid];
-                d3.select(d3.select(this).node().parentNode.parentNode).remove();
-                self.setIsDroppingScooter(false);
-                // if there are more markers left, focus on one
-                if (d3.select(self.renderTarget).selectAll('.tsi-scooterContainer').size()) {
-                    (d3.select(d3.select(self.renderTarget).selectAll('.tsi-scooterContainer').nodes()[0]).select('.tsi-closeButton') as any).node().focus();
-                } else {
-                    self.focusOnEllipsis();
-                }
-                self.chartOptions.onMarkersChange(self.exportMarkers());
-            });
-
-        var scooterLeft: number = Number(scooter.style("left").replace("px", ""));
-        var timeLabelWidth: number = Math.round(timeLabel.node().getBoundingClientRect().width);
-        var minLeftPosition = this.getScooterMarginLeft() + 20;
-        var maxRightPosition = this.width - this.chartMargins.right;
-        var calculatedLeftPosition = scooterLeft - (timeLabelWidth / 2);
-        var calculatedRightPosition = scooterLeft + (timeLabelWidth / 2);
-        var translate = "translateX(calc(-50% + 1px))";
-        if (calculatedLeftPosition < minLeftPosition) {
-            translate = "translateX(-" + Math.max(0, scooterLeft - minLeftPosition) + "px)";
-        }
-        if (calculatedRightPosition > maxRightPosition) {
-            translate = "translateX(calc(-50% + " + (maxRightPosition - calculatedRightPosition) + "px))";
-        }
-
-        scooter.select(".tsi-scooterTimeLabel")
-            .style("-webkit-tranform", translate)
-            .style("transform", translate);
-    }
-
-    private calcTopOfScooterValueLabel (d) {
-        var yScale = this.yMap[d.aggregateKey];
-        return Math.round(yScale(this.getValueOfVisible(d)) - this.chartOptions.aggTopMargin) + "px";
-    }
-
-    private setScooterLabels (scooter, includeTransition = false) {
-        var millis = this.scooterGuidMap[scooter.datum()];
-        var values = this.chartComponentData.timeMap[millis] != undefined ? this.chartComponentData.timeMap[millis] : [];
-        values = values.filter((d) => {
-            return (this.getValueOfVisible(d) !== null) && this.getDataType(d.aggregateKey) === DataTypes.Numeric; 
-        });
-        var self = this;
-
-        var valueLabels = scooter.selectAll(".tsi-scooterValue").data(values, (d) => {
-            return d.aggregateKey + "_" + d.splitBy;
-        });
-
-        valueLabels.enter()
-            .append("div")
-            .classed("tsi-scooterValue", true)
-            .merge(valueLabels)
-            .each(function (d: any) {
-                var valueLabel = d3.select(this).selectAll(".tsi-scooterValueLabel").data([d]);
-                valueLabel.enter()
-                    .append("div")
-                    .classed("tsi-scooterValueLabel", true)
-                    .merge(valueLabel)
-                    .text(() => Utils.formatYAxisNumber(self.getValueOfVisible(d)))
-                    .style("border-color", () => self.colorMap[d.aggregateKey + "_" + d.splitBy])
-                valueLabel.exit().remove();
-
-                var valueCaret = d3.select(this).selectAll(".tsi-scooterValueCaret").data([d])
-                valueCaret.enter()
-                    .append("div")
-                    .classed("tsi-scooterValueCaret", true)
-                    .merge(valueCaret)
-                    .style("border-right-color", () => self.colorMap[d.aggregateKey + "_" + d.splitBy]);
-                valueCaret.exit().remove();
-            })
-            .transition()
-            .duration((self.chartOptions.noAnimate || !includeTransition) ? 0 : self.TRANSDURATION)
-            .style("top", (d) => this.calcTopOfScooterValueLabel(d));
-
-        valueLabels.exit().remove();
-    }
-
     private filteredValueExist = () => {
         var filteredValues = this.getFilteredAndSticky(this.chartComponentData.allValues);
         return !(filteredValues == null || filteredValues.length == 0)
     }
 
-    private createScooter = (scooterUID) => {
-        let scooter: any = d3.select(this.renderTarget).append("div")
-            .datum(scooterUID)
-            .attr("class", "tsi-scooterContainer")
-            .style("top", this.chartMargins.top + this.chartOptions.aggTopMargin + "px")
-            .style("height", this.height - (this.chartMargins.top + this.chartMargins.bottom + this.chartOptions.aggTopMargin) + "px")
-            .style("display", "none");
-        
-        scooter.append("div")
-            .attr("class", "tsi-scooterLine");
-
-        var self = this;
-        scooter.append("div")
-            .attr("class", "tsi-scooterDragger")
-            .on("mouseover", function () {
-                d3.select(this).classed("tsi-isHover", true);
-            })
-            .on("mouseout", function () {
-                d3.select(this).classed("tsi-isHover", false);
-            })
-            .on("contextmenu", function () {
-                d3.select(d3.select(this).node().parentNode).remove();
-                d3.event.preventDefault();
-            });
-        var timeLabel = scooter.append("div")
-            .attr("class", "tsi-scooterTimeLabel");
-        
-        scooter.selectAll(".tsi-scooterDragger,.tsi-scooterTimeLabel,.tsi-scooterLine")
-            .call(d3.drag()
-                .on("drag", function (d) {
-                    if (d3.select(d3.event.sourceEvent.target).classed("tsi-closeButton")) {
-                        return;
-                    }
-                    var scooter = d3.select(<any>d3.select(this).node().parentNode);
-                    var currMillis: number = Number(self.scooterGuidMap[String(scooter.datum())]);
-                    var startPosition = self.x(new Date(currMillis));
-                    var newPosition = startPosition + d3.event.x;
-                    self.setScooterPosition(scooter, self.x.invert(newPosition).valueOf());
-                    self.setScooterLabels(scooter);
-                    self.setScooterTimeLabel(scooter);
-                    self.chartOptions.onMarkersChange(self.exportMarkers());
-                })
-                .on("end", function (d) {
-                    if (!d3.select(d3.event.sourceEvent.target).classed("tsi-closeButton")) {
-                        self.chartOptions.onMarkersChange(self.exportMarkers());
-                    }
-                })
-            );
-            
-        scooter.style("pointer-events", "none");
-        return scooter;
-    }
 
     public addMarker = () => {
         if (this.isFirstMarkerDrop) {
             this.isFirstMarkerDrop = false;
             this.createMarkerInstructions();
         }
-        this.setIsDroppingScooter(!this.isDroppingScooter); 
-        if (!this.isDroppingScooter) {
-            this.activeScooter.remove();
+        this.isDroppingMarker = !this.isDroppingMarker;
+        if (!this.isDroppingMarker) {
             this.destroyMarkerInstructions();
             return;
         }
 
-        var scooterUID = Utils.guid();
-        this.scooterGuidMap[scooterUID] = 0;
-
-        this.activeScooter = this.createScooter(scooterUID);
         Utils.focusOnEllipsisButton(this.renderTarget);
+        
+        let marker = new Marker(this.renderTarget);
+        let markerUID = Utils.guid();
+        let onChange = this.createOnMarkerChange(markerUID, marker);
+        this.renderMarker(marker, Infinity, onChange);
+        this.activeMarker = marker;
+        this.markerGuidMap[markerUID] = marker;
     }
 
     private voronoiExists (): boolean {
@@ -818,20 +676,18 @@ class LineChart extends TemporalXAxisComponent {
         this.my = mouseEvent[1];
         const [mx, my] = mouseEvent;      
         var site: any = this.voronoiDiagram.find(this.mx, this.my);
-        if (!this.isDroppingScooter) {
+        if (!this.isDroppingMarker) {
             this.voronoiMouseover(site.data);  
         } else {
-            var rawTime = this.x.invert(mx);
-            this.setScooterPosition(this.activeScooter, rawTime.valueOf());
-            this.setScooterLabels(this.activeScooter);
-            this.setScooterTimeLabel(this.activeScooter);
+            let rawTime = this.x.invert(mx);
+            let closestTime = Utils.findClosestTime(rawTime.valueOf(), this.chartComponentData.timeMap);
+            this.renderMarker(this.activeMarker, closestTime);
             return;
         }
 
         if (site.data.aggregateKey !== this.focusedAggKey || site.data.splitBy !== this.focusedSplitby) {
             let selectedFilter = Utils.createValueFilter(site.data.aggregateKey, site.data.splitBy);
-
-            this.focusScooterLabel(selectedFilter, site.data.aggregateKey, site.data.splitBy);
+            this.focusMarkerLabel(selectedFilter, site.data.aggregateKey, site.data.splitBy);
             this.focusOnlyHoveredSeries(site.data.aggregateKey, site.data.splitBy, true);
         }
     } 
@@ -866,11 +722,11 @@ class LineChart extends TemporalXAxisComponent {
 
     private voronoiClick (mouseEvent) {
         if (!this.filteredValueExist() || !this.voronoiExists()) return;
-        if (this.brushElem && !this.isDroppingScooter) return;
+        if (this.brushElem && !this.isDroppingMarker) return;
         const [mx, my] = d3.mouse(mouseEvent);
         var site: any = this.voronoiDiagram.find(mx, my);
         let cDO = this.getCDOFromAggKey(site.data.aggregateKey);
-        if (!this.isDroppingScooter) {
+        if (!this.isDroppingMarker) {
             if (site.data && cDO.onElementClick !== null) {
                 cDO.onElementClick(site.data.aggregateKey, site.data.splitBy, site.data.dateTime.toISOString(), site.data.measures);
             } else {
@@ -886,23 +742,16 @@ class LineChart extends TemporalXAxisComponent {
 
         this.destroyMarkerInstructions();
         if (!this.hasBrush) {
-            this.setIsDroppingScooter(false);
+            this.isDroppingMarker = false;
         }
-        if (this.activeScooter != null) {
-            this.activeScooter.style("pointer-events", "all");
-            this.activeScooter.select('.tsi-closeButton').node().focus();
-            this.activeScooter = null;
-            this.chartOptions.onMarkersChange(this.exportMarkers());
+        if (this.activeMarker !== null) {
+            this.exportMarkers();
+            this.activeMarker = null;
         }
     }
 
     private getValueOfVisible (d) {
-        if (d.measures) {
-            var visibleMeasure = this.chartComponentData.getVisibleMeasure( d.aggregateKey, d.splitBy);
-            if (d.measures[visibleMeasure] != null || d.measures[visibleMeasure] != undefined)
-                return d.measures[visibleMeasure];
-        } 
-        return null;
+        return Utils.getValueOfVisible(d, this.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy));
     }
 
     private brushBrush () {
@@ -965,7 +814,7 @@ class LineChart extends TemporalXAxisComponent {
             const [mx, my] = d3.mouse(mouseEvent);
             var site: any = this.voronoiDiagram.find(mx, my);
             let isClearingBrush = (this.brushStartPosition !== null) && (this.brushEndPosition !== null);
-            if (this.chartComponentData.stickiedKey != null && !this.isDroppingScooter && !isClearingBrush) {
+            if (this.chartComponentData.stickiedKey != null && !this.isDroppingMarker && !isClearingBrush) {
                 this.chartComponentData.stickiedKey = null;
                 (<any>this.legendObject.legendElement.selectAll('.tsi-splitByLabel')).classed("stickied", false);
                 // recompute voronoi with no sticky
@@ -981,10 +830,10 @@ class LineChart extends TemporalXAxisComponent {
             this.brushStartPosition = null;
             this.brushEndPosition = null;
 
-            if (!this.isDroppingScooter && !isClearingBrush) {
+            if (!this.isDroppingMarker && !isClearingBrush) {
                 this.stickySeries(site.data.aggregateKey, site.data.splitBy);
             } else {
-                this.setIsDroppingScooter(false);
+                this.isDroppingMarker = false;
             }
             return;
         }
@@ -1055,40 +904,15 @@ class LineChart extends TemporalXAxisComponent {
         }
     }
 
-    // updates the display of scooters but not their underlying data. Updates all if no scooter is passed in
-    private updateScooterPresentation (scooter = null) {
-        var scooterSelection;
-        if (scooter != null) {
-            scooterSelection = scooter;
-        } else {
-            scooterSelection = d3.select(this.renderTarget).selectAll(".tsi-scooterContainer");
-        }
-        var self = this;
-        scooterSelection.each(function () {
-            var currScooter = d3.select(this);
-            var millis = Number(self.scooterGuidMap[String(currScooter.datum())]);
+    private focusMarkerLabel (filterFunction, aggKey, splitBy) {
+        d3.select(this.renderTarget).selectAll(".tsi-markerValue").style("opacity", .2);
 
-            if (self.chartComponentData.timeMap[millis] == undefined && millis >= self.chartComponentData.fromMillis && millis <= self.chartComponentData.toMillis) {
-                self.scooterGuidMap[String(currScooter.datum())] = self.findClosestScooterTime(millis);
-            }
-            self.setScooterLabels(currScooter, true);
-            self.setScooterPosition(currScooter);
-            self.setScooterTimeLabel(currScooter);
-            currScooter.transition()
-                .duration(self.chartOptions.noAnimate ? 0 : self.TRANSDURATION)
-                .style("left", (d) => (Math.round(self.x(d) + self.getScooterMarginLeft()) + "px"));
-        });
-    } 
-
-    private focusScooterLabel (filterFunction, aggKey, splitBy) {
-        d3.select(this.renderTarget).selectAll(".tsi-scooterValue").style("opacity", .2);
-
-        d3.select(this.renderTarget).selectAll(".tsi-scooterValue")
+        d3.select(this.renderTarget).selectAll(".tsi-markerValue")
             .filter(filterFunction)
             .style("opacity", 1);
         
-        d3.select(this.renderTarget).selectAll(".tsi-scooterContainer").each(function () {
-            d3.select(this).selectAll(".tsi-scooterValue").sort(function (a: any, b: any) { 
+        d3.select(this.renderTarget).selectAll(".tsi-markerContainer").each(function () {
+            d3.select(this).selectAll(".tsi-markerValue").sort(function (a: any, b: any) { 
                 return (a.aggregateKey == aggKey && (splitBy == null || splitBy == a.splitBy)) ? 1 : -1;            
             });
         });
@@ -1096,7 +920,7 @@ class LineChart extends TemporalXAxisComponent {
 
     public labelMouseout = () =>{
         if (this.svgSelection) {
-            d3.select(this.renderTarget).selectAll(".tsi-scooterValue")
+            d3.select(this.renderTarget).selectAll(".tsi-markerValue")
                 .style("opacity", 1);
         
             this.svgSelection.selectAll(".tsi-valueElement")
@@ -1107,10 +931,6 @@ class LineChart extends TemporalXAxisComponent {
                 .attr("fill-opacity", .3);
         }
     }
-
-    
-
-
 
     public labelMouseover = (aggregateKey: string, splitBy: string = null) => {
         this.focusOnlyHoveredSeries(aggregateKey, splitBy, false);
@@ -1425,8 +1245,6 @@ class LineChart extends TemporalXAxisComponent {
             this.clearBrush();
         }
         
-        d3.select(this.renderTarget).select(".tsi-tooltip").remove();
-
         if (!this.chartOptions.hideChartControlPanel && this.chartControlsPanel === null) {
             this.chartControlsPanel = Utils.createControlPanel(this.renderTarget, this.legendWidth + (this.GUTTERWIDTH / 2), Math.max((this.chartMargins.top + 12), 0), this.chartOptions);
             var self = this;
@@ -1548,7 +1366,9 @@ class LineChart extends TemporalXAxisComponent {
                 .attr("x", -10)
                 .text(d => d);
     
-            this.tooltip = new Tooltip(d3.select(this.renderTarget));                        
+            if (!this.tooltip) {
+                this.tooltip = new Tooltip(d3.select(this.renderTarget));                        
+            }
 
             this.draw = (isFromResize = false) => {  
                 this.minBrushWidth = (this.chartOptions.minBrushWidth) ? this.chartOptions.minBrushWidth : this.minBrushWidth;
@@ -1582,7 +1402,7 @@ class LineChart extends TemporalXAxisComponent {
                 if (!isFromResize) {
                     this.legendObject.draw(this.chartOptions.legend, this.chartComponentData, (aggKey, splitBy) => { this.labelMouseover(aggKey, splitBy); }, 
                     this.svgSelection, this.chartOptions, () => {
-                     d3.select(this.renderTarget).selectAll(".tsi-scooterValue")
+                     d3.select(this.renderTarget).selectAll(".tsi-markerValue")
                          .style("opacity", 1);
                     }, this.stickySeries);
                 }        
@@ -1631,7 +1451,7 @@ class LineChart extends TemporalXAxisComponent {
                     .extent([[this.xLowerBound, this.chartOptions.aggTopMargin],
                              [this.xUpperBound, this.chartHeight]])
                     .on("start", function() {
-                        if (self.activeScooter != null && self.isDroppingScooter) {
+                        if (self.activeMarker != null && self.isDroppingMarker) {
                             self.voronoiClick(this);
                         }
                         var handleHeight = self.getHandleHeight();
@@ -1847,12 +1667,7 @@ class LineChart extends TemporalXAxisComponent {
                     this.chartControlsPanel.style("width", this.calcSVGWidth() + "px")
                 }
 
-                if (Object.keys(this.chartComponentData.timeMap).length == 0) {
-                    d3.select(this.renderTarget).selectAll(".tsi-scooterContainer").style("display", "none");
-                } else {
-                    d3.select(this.renderTarget).selectAll(".tsi-scooterContainer").style("display", "block");
-                }
-                this.updateScooterPresentation();
+                this.renderAllMarkers();
                 this.voronoiDiagram = this.voronoi(this.getFilteredAndSticky(this.chartComponentData.allValues));
             }
 
@@ -1863,9 +1678,7 @@ class LineChart extends TemporalXAxisComponent {
                 var self = this;
                 if (!this.chartOptions.suppressResizeListener) {
                     this.draw();
-                    d3.select(this.renderTarget).selectAll(".tsi-scooterContainer").each(function () {
-                        self.setScooterPosition(d3.select(this));
-                    });
+                    this.renderAllMarkers();
                 }
             });
         }

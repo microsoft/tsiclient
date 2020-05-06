@@ -1,0 +1,163 @@
+@import "../../styles";
+
+@mixin markerColors($grays){
+    $gray1: nth($grays, 1); // text
+    $gray2: nth($grays, 2); // hover
+    $gray3: nth($grays, 3); // element
+    $gray4: nth($grays, 4); // background
+    $gray5: nth($grays, 5);
+    $gray6: nth($grays, 6); // hover
+
+    color: $gray1;
+    background: $gray3;
+
+    .tsi-markerTimeLabel {
+        background-color: $gray3;
+        border-color: $gray6;
+        .tsi-closeButton {
+            background-color: transparent;
+            border: none;
+            margin: 0;
+            &:hover {
+                background-color: $gray2;
+            }
+        }
+    }
+    .tsi-markerLine, .tsi-markerDragger {
+        background-color: $gray6;
+    }
+
+    .tsi-markerValue {
+        .tsi-tooltip {
+            .tsi-markerValueTooltipInner {
+                background-color: rgba($gray3, .9);
+            }
+        }
+    }
+    @include chartColors($grays);
+}
+
+.tsi-markerContainer {
+
+    position: absolute;
+    pointer-events: none;
+    width: 2px;
+    transform: translateX(-1px);
+    z-index: 1;
+
+    .tsi-markerDragger, .tsi-markerTimeLabel {
+        pointer-events: all;
+    }
+
+    .tsi-markerDragger {
+        -webkit-transform: translateX(calc(-50% + 1px));
+        transform: translateX(calc(-50% + 1px));
+    }
+
+    .tsi-markerLine {
+        position: absolute;
+        height: 100%;
+        width: 2px;
+        left: 0px;
+        top: 0px;
+        cursor: move;
+    } 
+
+    .tsi-markerDragger {
+        top: 100%;
+        position: absolute;
+        border-radius: 5px;
+        left: 0px;
+        width: 10px;
+        height: 10px;
+        cursor: move;
+    }
+
+    .tsi-markerValue {
+        position:absolute;
+        .tsi-tooltip {
+            box-shadow: none;
+            border: none;
+            .tsi-markerValueTooltipInner {
+                padding: 0px 4px 0px 4px;
+                border-width: 1px !important;
+                border-style: solid;
+                font-size: 11px;
+                min-width: unset;
+                transform: translateX(8px);
+            }    
+
+            .tsi-markerValueCaret {
+                left: 2px;
+                width: 0; 
+                height: 0; 
+                border-top: 12px solid transparent;
+                border-bottom: 8px solid transparent;
+                border-right-width: 8px;
+                border-right-style: solid;
+                position: absolute;
+                transform: translateY(-50%);
+                -webkit-transform: translateY(-50%);
+            }        
+        }
+
+        .tsi-markerValueCaret {
+            left: 2px;
+            width: 0; 
+            height: 0; 
+            border-top: 8px solid transparent;
+            border-bottom: 8px solid transparent;
+            border-right-width: 8px;
+            border-right-style: solid;
+            position: absolute;
+            transform: translateY(-50%);
+            -webkit-transform: translateY(-50%);
+        }    
+    }
+    .tsi-markerTimeLabel {
+        cursor: move;
+        bottom: 100%;
+        position: absolute;
+        left: 0px;
+        white-space: nowrap;
+        font-size: 12px;
+        height: 24px;
+        padding-left: 8px;
+        padding-right: 24px;
+        line-height: 20px;
+        border-width: 1px;
+        border-style: solid;
+        box-shadow: 0px 0px 2px 0px rgba(0, 0, 0, 0.3);	
+        .tsi-closeButton {
+            border-radius: 3px;
+            position: absolute;
+            right: 4px;
+            top: 3px;
+            width: 15px;
+            height: 15px;
+            background-size: 12px 12px;
+            background-position: 2px 2px;
+            background-repeat: no-repeat;
+            cursor: pointer;
+        }
+    }
+    
+    &.tsi-dark{
+        $grays: grays('dark');
+        @include markerColors($grays);
+        .tsi-markerTimeLabel {
+            .tsi-closeButton {
+                background-image: url(../../Icons/Close_Icon_Dark_Theme.svg);
+            }
+        }
+    }
+    &.tsi-light{
+        $grays: grays('light');
+        @include markerColors($grays);
+        .tsi-markerTimeLabel {
+            .tsi-closeButton {
+                background-image: url(../../Icons/Close_Icon_Light_Theme.svg);
+            }
+        }
+    }
+}
