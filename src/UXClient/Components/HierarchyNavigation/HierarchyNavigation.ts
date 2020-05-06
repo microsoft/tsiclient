@@ -203,14 +203,14 @@ class HierarchyNavigation extends Component{
                             if(that.scrollTop + that.clientHeight + 50 > (self.instanceListElem.node() as any).clientHeight){
                                 if (self.lastInstanceContinuationToken === null || !self.usedInstanceSearchContinuationTokens[self.lastInstanceContinuationToken]) {
                                     self.usedInstanceSearchContinuationTokens[self.lastInstanceContinuationToken] = true;
-                                    self.thenablePathSearchAndRenderResult({search: {payload: self.requestPayload(), instancesContinuationToken: self.lastInstanceContinuationToken}, render: {target: self.instanceListElem}});
+                                    self.pathSearchAndRenderResult({search: {payload: self.requestPayload(), instancesContinuationToken: self.lastInstanceContinuationToken}, render: {target: self.instanceListElem}});
                                 }
                             }
                         }
                     }
                 });
                 this.instanceListElem = this.instanceListWrapperElem.append('div').classed('tsi-search-results', true);
-                this.thenablePathSearchAndRenderResult({search: {payload: self.requestPayload()}, render: {target: this.hierarchyElem}});
+                this.pathSearchAndRenderResult({search: {payload: self.requestPayload()}, render: {target: this.hierarchyElem}});
             });
         });
 
@@ -329,7 +329,7 @@ class HierarchyNavigation extends Component{
             }
             if (d3.selectAll('.tsi-hierarchy ul').size() === 0 && applySearch) { // if the tree is empty, pull data
                 this.hierarchyElem.text('');
-                this.thenablePathSearchAndRenderResult({search: {payload: this.requestPayload()}, render: {target: this.hierarchyElem}});
+                this.pathSearchAndRenderResult({search: {payload: this.requestPayload()}, render: {target: this.hierarchyElem}});
             }
             (this.hierarchyElem.node() as any).style.display = 'block';
             (this.instanceListWrapperElem.node() as any).style.display = 'none';
@@ -343,7 +343,7 @@ class HierarchyNavigation extends Component{
                 this.instanceListElem.text('');
                 this.lastInstanceContinuationToken = null;
                 this.usedInstanceSearchContinuationTokens = {};
-                this.thenablePathSearchAndRenderResult({search: {payload: this.requestPayload()}, render: {target: this.instanceListElem}});
+                this.pathSearchAndRenderResult({search: {payload: this.requestPayload()}, render: {target: this.instanceListElem}});
             }
             (this.hierarchyElem.node() as any).style.display = 'none';
             (this.instanceListWrapperElem.node() as any).style.display = 'block';
@@ -373,10 +373,10 @@ class HierarchyNavigation extends Component{
         }
         if (applySearch) {
             if (this.viewType === ViewType.Hierarchy) {
-                return this.asyncPathSearchAndRenderResult({search: {payload: this.requestPayload()}, render: {target: this.hierarchyElem}});
+                return this.pathSearchAndRenderResult({search: {payload: this.requestPayload()}, render: {target: this.hierarchyElem}});
             }
             else {
-                return this.asyncPathSearchAndRenderResult({search: {payload: this.requestPayload()}, render: {target: this.instanceListElem}});
+                return this.pathSearchAndRenderResult({search: {payload: this.requestPayload()}, render: {target: this.instanceListElem}});
             }
         }
     }
@@ -436,7 +436,7 @@ class HierarchyNavigation extends Component{
                 if (!nameSpan) { // if the hierarchy node we are looking is not there, add it manually to prevent possible show more calls and dom insertions
                     let hierarchyNode = new HierarchyNode(pathNodeName, path.slice(0, idx), isHierarchySelected || hierarchyNamesFromParam ? idx - 1 : idx, '');
                     hierarchyNode.expand = async () => {
-                        const r = await this.asyncPathSearchAndRenderResult({search: {payload: this.requestPayload(hierarchyNode.path)}, render: {target: hierarchyNode.node}})
+                        const r = await this.pathSearchAndRenderResult({search: {payload: this.requestPayload(hierarchyNode.path)}, render: {target: hierarchyNode.node}})
                         
                         hierarchyNode.isExpanded = true; 
                         hierarchyNode.node.classed('tsi-expanded', true);
@@ -686,15 +686,10 @@ class HierarchyNavigation extends Component{
         });
     }
 
-    private thenablePathSearchAndRenderResult = ({search: {payload, instancesContinuationToken = null, hierarchiesContinuationToken = null}, render: {target, locInTarget = null, skipLevels = null}}) => {
-        this.pathSearch(payload, instancesContinuationToken, hierarchiesContinuationToken).then(r => {
+    private pathSearchAndRenderResult = ({search: {payload, instancesContinuationToken = null, hierarchiesContinuationToken = null}, render: {target, locInTarget = null, skipLevels = null}}) => {
+        return this.pathSearch(payload, instancesContinuationToken, hierarchiesContinuationToken).then(r => {
             this.renderSearchResult(r, payload, target, locInTarget, skipLevels);
         })
-    }
-
-    private asyncPathSearchAndRenderResult = async ({search: {payload, instancesContinuationToken = null, hierarchiesContinuationToken = null}, render: {target, locInTarget = null, skipLevels = null}}) => {
-        const r = await this.pathSearch(payload, instancesContinuationToken, hierarchiesContinuationToken);
-        this.renderSearchResult(r, payload, target, locInTarget, skipLevels);
     }
 
     private pathSearch = (payload, instancesContinuationToken = null, hierarchiesContinuationToken = null) => {
@@ -756,8 +751,8 @@ class HierarchyNavigation extends Component{
             let hierarchy = new HierarchyNode(h.name, payload.path, payload.path.length - this.path.length, h.cumulativeInstanceCount);
             hierarchy.expand = async () => {
                 const r = await this.mode === State.Search ? 
-                    this.asyncPathSearchAndRenderResult({search: {payload: this.requestPayload(hierarchy.path)}, render: {target: this.instanceListElem}}) : 
-                    this.asyncPathSearchAndRenderResult({search: {payload: this.requestPayload(hierarchy.path)}, render: {target: hierarchy.node}})
+                    this.pathSearchAndRenderResult({search: {payload: this.requestPayload(hierarchy.path)}, render: {target: this.instanceListElem}}) : 
+                    this.pathSearchAndRenderResult({search: {payload: this.requestPayload(hierarchy.path)}, render: {target: hierarchy.node}})
                 
                 hierarchy.isExpanded = true; 
                 hierarchy.node.classed('tsi-expanded', true);
@@ -773,7 +768,7 @@ class HierarchyNavigation extends Component{
         if (hierarchyNodes.continuationToken && hierarchyNodes.continuationToken !== 'END') {
             let showMorehierarchy = new HierarchyNode(this.getString("Show More Hierarchies"), payload.path, payload.path.length - this.path.length);
             showMorehierarchy.onClick = () => {
-                return this.asyncPathSearchAndRenderResult({search: {payload: (payloadForContinuation ? payloadForContinuation : payload), hierarchiesContinuationToken: hierarchyNodes.continuationToken}, render: {target: showMorehierarchy.node.select(function() { return this.parentNode; }), locInTarget: '.tsi-show-more.tsi-show-more-hierarchy', skipLevels: payloadForContinuation ? payload.path.length - payloadForContinuation.path.length : null}})
+                return this.pathSearchAndRenderResult({search: {payload: (payloadForContinuation ? payloadForContinuation : payload), hierarchiesContinuationToken: hierarchyNodes.continuationToken}, render: {target: showMorehierarchy.node.select(function() { return this.parentNode; }), locInTarget: '.tsi-show-more.tsi-show-more-hierarchy', skipLevels: payloadForContinuation ? payload.path.length - payloadForContinuation.path.length : null}})
             }
             data[showMorehierarchy.name] = showMorehierarchy;
         }
