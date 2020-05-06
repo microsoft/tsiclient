@@ -515,7 +515,6 @@ class HierarchyNavigation extends Component{
                     });
                     // go back to default navigate mode without exact search
                     this.searchString = "";
-                    console.log(paths);
                     this.setModeAndRequestParamsForNavigate();
                     this.viewType = ViewType.Hierarchy;
                     await this.clearAndGetResults(); // get a fresh hierarchy with defaulf settings for navigation, ready to expand and locate
