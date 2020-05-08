@@ -594,6 +594,7 @@ class HierarchyNavigation extends Component{
                 this.hierarchyElem.style('display', 'block');
             }
         } catch (err) { // errors are already catched by inner functions
+            this.prepareComponentForAfterLookup();
             this.hierarchyElem.style('display', 'block');
             this.instanceLookupLoadingElem.style('display', 'none');
         }
