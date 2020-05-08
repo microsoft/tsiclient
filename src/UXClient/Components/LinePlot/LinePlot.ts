@@ -173,7 +173,10 @@ class LinePlot extends Plot {
                 }
 
                 var gapPath = d3.select(this).selectAll(".tsi-gapLine")
-                    .data(segments);
+                    .data(segments.map((d) => {
+                        d.inTransition = true;
+                        return d;
+                    }));
                 gapPath.enter()
                     .append("path")
                     .attr("class", "tsi-valueElement tsi-gapLine")
@@ -190,10 +193,16 @@ class LinePlot extends Plot {
                         var previous = d3.select(this).attr('d');
                         var current = aggLine(d);
                         return interpolatePath(previous, current);
+                    })
+                    .on('end', (d: any) => {
+                        d.inTransition = false;
                     });
 
                 var path = d3.select(this).selectAll(".tsi-valueLine")
-                    .data([self.chartComponentData.timeArrays[aggKey][splitBy]]);
+                    .data([self.chartComponentData.timeArrays[aggKey][splitBy]].map(d => {
+                        d.inTransition = true;
+                        return d;
+                    }));
 
                 path.enter()
                     .append("path")
@@ -211,6 +220,9 @@ class LinePlot extends Plot {
                         var previous = d3.select(this).attr('d');
                         var current = aggLine(d);
                         return interpolatePath(previous, current);
+                    })
+                    .on('end', (d: any) => {
+                        d.inTransition = false;
                     });
 
                 if (self.chartOptions.includeDots || self.chartComponentData.displayState[aggKey].includeDots) {

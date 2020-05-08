@@ -558,7 +558,10 @@ class LineChart extends TemporalXAxisComponent {
     }
 
     public exportMarkers () {
-        this.chartOptions.markers = Object.keys(this.markerGuidMap).map((markerGuid) => this.markerGuidMap[markerGuid].getMillis());
+
+        this.chartOptions.markers = Object.keys(this.markerGuidMap)
+            .filter((markerGuid) => !this.activeMarker || this.activeMarker.getGuid() !== markerGuid)
+            .map((markerGuid) => this.markerGuidMap[markerGuid].getMillis());
         this.chartOptions.onMarkersChange(this.chartOptions.markers);
     }
 
@@ -577,7 +580,6 @@ class LineChart extends TemporalXAxisComponent {
                 } else {
                     this.focusOnEllipsis();
                 }
-
             } 
             this.exportMarkers();
             this.sortMarkers();
@@ -603,8 +605,33 @@ class LineChart extends TemporalXAxisComponent {
         });
     }
 
-    private importMarkers () {
+    private getAllLinesTransitionsComplete () {
+        return new Promise ((resolve, reject) => {
+            let checkAllLines = (numberOfAttempts: number = 0) => {
+                if (numberOfAttempts < 5) {
+                    setTimeout(() => {
+                        let allOutOfTransition = true;
+                        d3.select(this.renderTarget).selectAll('.tsi-gapLine').data().forEach((d: any) => {
+                            allOutOfTransition = allOutOfTransition && !d.inTransition;
+                        });
+                        d3.select(this.renderTarget).selectAll('.tsi-valueLine').data().forEach((d: any) => {
+                            allOutOfTransition = allOutOfTransition && !d.inTransition;
+                        });
+                        if (allOutOfTransition){
+                            resolve();
+                        } else {
+                            checkAllLines(numberOfAttempts + 1);
+                        }
+                    }, Math.max(this.TRANSDURATION, 250));
+                } else {
+                    reject();
+                }
+            }
+            checkAllLines(0);
+        });
+    }
 
+    private importMarkers () {
         if (this.chartOptions.markers && this.chartOptions.markers.length > 0) {
             // delete all the old markers
             if (Object.keys(this.markerGuidMap).length) {
@@ -617,19 +644,21 @@ class LineChart extends TemporalXAxisComponent {
             this.chartOptions.markers.forEach((markerMillis) => {
                 let marker = new Marker(this.renderTarget);
                 let markerUID = Utils.guid();
-                let onChange = this.createOnMarkerChange(markerUID, marker);
-                this.renderMarker(marker, markerMillis, onChange);
+                marker.setMillis(markerMillis);
                 this.markerGuidMap[markerUID] = marker;
             });
+            this.renderAllMarkers();
             this.sortMarkers();
         }
     }
 
     private renderAllMarkers () {
-        Object.keys(this.markerGuidMap).forEach((guid) => {
-            let marker = this.markerGuidMap[guid];
-            let onChange = this.createOnMarkerChange(guid, marker);
-            this.renderMarker(marker, marker.getMillis(), onChange)
+        this.getAllLinesTransitionsComplete().then(() => {
+            Object.keys(this.markerGuidMap).forEach((guid) => {
+                let marker = this.markerGuidMap[guid];
+                let onChange = this.createOnMarkerChange(guid, marker);
+                this.renderMarker(marker, marker.getMillis(), onChange)
+            });
         });
     }
 
@@ -741,10 +770,8 @@ class LineChart extends TemporalXAxisComponent {
         } 
 
         this.destroyMarkerInstructions();
-        if (!this.hasBrush) {
-            this.isDroppingMarker = false;
-        }
         if (this.activeMarker !== null) {
+            this.activeMarker.onChange(false, true);
             this.exportMarkers();
             this.activeMarker = null;
         }
