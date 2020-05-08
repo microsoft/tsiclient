@@ -89,40 +89,40 @@ class HierarchyNavigation extends Component{
             this.server.getTimeseriesTypes(token, environmentFqdn).then(r => {
                 try {
                     if (r.error) {
-                        throw new Error();
+                        throw r.error;
                     } else {
                         r.types.forEach(t => {
                             this.envTypes[t.id] = t;
                         });
                     }
                 } catch (err) {
-                    throw new Error();
+                    throw err;
                 }
-            }).catch(xhr => this.chartOptions.onError(this.getString("hierarchyNav_error_title"), this.getString("hierarchyNav_type_load_error"), xhr));
-        }).catch(xhr => this.chartOptions.onError(this.getString("hierarchyNav_error_title"), this.getString("hierarchyNav_auth_error"), xhr));
+            }).catch(err => this.chartOptions.onError(this.getString("hierarchyNav_error_title"), this.getString("hierarchyNav_type_load_error"), err instanceof XMLHttpRequest ? err : null));
+        }).catch(err => this.chartOptions.onError(this.getString("hierarchyNav_error_title"), this.getString("hierarchyNav_auth_error"), err instanceof XMLHttpRequest ? err : null));
 
         //get the most recent hierarchies for reverse lookup
         getToken().then(token => {
             this.server.getTimeseriesHierarchies(token, environmentFqdn).then(r => {
                 try {
                     if (r.error) {
-                        throw new Error();
+                        throw r.error;
                     } else {
                         r.hierarchies.forEach(h => {
                             this.envHierarchies[h.name] = h;
                         });
                     }
                 } catch (err) {
-                    throw new Error();
+                    throw err;
                 }
-            }).catch(xhr => this.chartOptions.onError(this.getString("hierarchyNav_error_title"), this.getString("hierarchyNav_hierarchy_load_error"), xhr));
-        }).catch(xhr => this.chartOptions.onError(this.getString("hierarchyNav_error_title"), this.getString("hierarchyNav_auth_error"), xhr));
+            }).catch(err => this.chartOptions.onError(this.getString("hierarchyNav_error_title"), this.getString("hierarchyNav_hierarchy_load_error"), err instanceof XMLHttpRequest ? err : null));
+        }).catch(err => this.chartOptions.onError(this.getString("hierarchyNav_error_title"), this.getString("hierarchyNav_auth_error"), err instanceof XMLHttpRequest ? err : null));
 
         getToken().then(token => {
             self.server.getTimeseriesInstancesPathSearch(token, environmentFqdn, {searchString: '', path: [], hierarchies: {sort: {by: HierarchiesSort.CumulativeInstanceCount}, expand: {kind: HierarchiesExpand.OneLevel}, pageSize: 100}}).then(r => {
                 try {
                     if (r.error) {
-                        throw new Error();
+                        throw r.error;
                     } else {
                         // hierarchy selection button
                         let hierarchySelectionWrapper = hierarchyNavWrapper.append('div').classed('tsi-hierarchy-selection-wrapper', true);
@@ -234,10 +234,10 @@ class HierarchyNavigation extends Component{
                         this.pathSearchAndRenderResult({search: {payload: self.requestPayload()}, render: {target: this.hierarchyElem}});
                     }
                 } catch (err) {
-                    throw new Error();
+                    throw err;
                 }
-            }).catch(xhr => this.chartOptions.onError(this.getString("hierarchyNav_error_title"), this.getString("hierarchyNav_search_error"), xhr));
-        }).catch(xhr => this.chartOptions.onError(this.getString("hierarchyNav_error_title"), this.getString("hierarchyNav_auth_error"), xhr));
+            }).catch(err => this.chartOptions.onError(this.getString("hierarchyNav_error_title"), this.getString("hierarchyNav_search_error"), err instanceof XMLHttpRequest ? err : null));
+        }).catch(err => this.chartOptions.onError(this.getString("hierarchyNav_error_title"), this.getString("hierarchyNav_auth_error"), err instanceof XMLHttpRequest ? err : null));
 
         let autocompleteOnInput = (st, event) => {
             if(st.length === 0){
@@ -424,9 +424,9 @@ class HierarchyNavigation extends Component{
             let payload = hName ? this.requestPayload([hName]) : this.requestPayload(null);
             return this.getToken().then(token => 
                         this.server.getTimeseriesInstancesPathSearch(token, this.environmentFqdn, payload, null, null)
-                        .catch(xhr => {throw new Error(xhr);}))
-                    .catch(xhr => {throw new Error(xhr);});
-        })).catch(xhr => this.chartOptions.onError(this.getString("hierarchyNav_error_title"), this.getString("hierarchyNav_search_error"), xhr));
+                        .catch(err => {throw err}))
+                    .catch(err => {throw err});
+        })).catch(err => this.chartOptions.onError(this.getString("hierarchyNav_error_title"), this.getString("hierarchyNav_search_error"), err instanceof XMLHttpRequest ? err : null));
     }
 
     // clear dom and reset some variables for fresh navigation experience 
@@ -448,9 +448,9 @@ class HierarchyNavigation extends Component{
     private getInstance = timeSeriesID => {
         return this.getToken()
                 .then(token => {
-                    return this.server.getTimeseriesInstances(token, this.environmentFqdn, 1, [timeSeriesID]).catch(xhr => this.chartOptions.onError(this.getString("hierarchyNav_error_title"), this.getString("hierarchyNav_instance_error"), xhr));;
+                    return this.server.getTimeseriesInstances(token, this.environmentFqdn, 1, [timeSeriesID]).catch(err => this.chartOptions.onError(this.getString("hierarchyNav_error_title"), this.getString("hierarchyNav_instance_error"), err instanceof XMLHttpRequest ? err : null));;
                 })
-                .catch(xhr => this.chartOptions.onError(this.getString("hierarchyNav_error_title"), this.getString("hierarchyNav_auth_error"), xhr));
+                .catch(err => this.chartOptions.onError(this.getString("hierarchyNav_error_title"), this.getString("hierarchyNav_auth_error"), err instanceof XMLHttpRequest ? err : null));
     }
 
     // simulate expand operation for each hierarchy node in a full path until the instance and then locate the instance
@@ -554,7 +554,7 @@ class HierarchyNavigation extends Component{
                     response = await this.doExactSearchWithPossiblePaths(timeSeriesID, hNames);
                     response.forEach((r, idx) => {// get full paths
                         if (r.error) {
-                            throw new Error();
+                            throw r.error;
                         }
                         if (idx === 0) { // if instance is direct instance of the top root
                             if (r.instances && r.instances.hitCount) {
@@ -584,8 +584,8 @@ class HierarchyNavigation extends Component{
                     }
                     this.hierarchyElem.style('display', 'block');
                     this.instanceLookupLoadingElem.style('display', 'none');
-                } catch (xhr) {// errors are already catched by inner functions
-                    throw new Error(); // throw to be catched by parent try/catch block
+                } catch (err) {// errors are already catched by inner functions
+                    throw err; // throw to be catched by parent try/catch block
                 }
             } else {
                 this.prepareComponentForAfterLookup();
@@ -593,7 +593,7 @@ class HierarchyNavigation extends Component{
                 this.noResultsElem.style('display', 'block');
                 this.hierarchyElem.style('display', 'block');
             }
-        } catch (xhr) { // errors are already catched by inner functions
+        } catch (err) { // errors are already catched by inner functions
             this.hierarchyElem.style('display', 'block');
             this.instanceLookupLoadingElem.style('display', 'none');
         }
@@ -757,23 +757,23 @@ class HierarchyNavigation extends Component{
         return this.pathSearch(payload, instancesContinuationToken, hierarchiesContinuationToken).then(r => {
             try {
                 if (r.error) {
-                    throw new Error();
+                    throw r.error;
                 } else {
                     this.renderSearchResult(r, payload, target, locInTarget, skipLevels);
                 }
             } catch (err) {
-                throw new Error();
+                throw err;
             }
-        }).catch(xhr => {
-            this.chartOptions.onError(this.getString("hierarchyNav_error_title"), this.getString("hierarchyNav_search_error"), xhr);
-            if (bubbleUpReject) {throw new Error();}
+        }).catch(err => {
+            this.chartOptions.onError(this.getString("hierarchyNav_error_title"), this.getString("hierarchyNav_search_error"), err instanceof XMLHttpRequest ? err : null);
+            if (bubbleUpReject) {throw err}
         });
     }
 
     private pathSearch = (payload, instancesContinuationToken = null, hierarchiesContinuationToken = null) => {
         return this.getToken().then(token => {
             return this.server.getTimeseriesInstancesPathSearch(token, this.environmentFqdn, payload, instancesContinuationToken, hierarchiesContinuationToken);
-        }).catch(err => {throw new Error();});
+        }).catch(err => {throw err});
     }
 
     private renderSearchResult = (r, payload, target: any, locInTarget = null, skipLevels = null) => {
