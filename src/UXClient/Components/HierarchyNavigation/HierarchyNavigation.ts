@@ -657,7 +657,7 @@ class HierarchyNavigation extends Component{
                         .classed('tsi-hierarchyItem', true)
                         .attr('tabindex', 0)
                         .attr("role", "treeitem").attr('aria-expanded', false)
-                        .attr('style', `padding-left: ${(data[el].level) * 18 + 20}px`).text(el).on('click keydown', function () {
+                        .attr('style', `padding-left: ${(data[el].level) * 18 + 20}px`).text(this.getString("Show more")).on('click keydown', function () {
                     if (Utils.isKeyDownAndNotEnter(d3.event)) {return; }
                     return data[el].onClick();    
                 });
@@ -667,7 +667,7 @@ class HierarchyNavigation extends Component{
                         .classed('tsi-hierarchyItem', true)
                         .attr('tabindex', 0)
                         .attr("role", "treeitem").attr('aria-expanded', false)
-                        .attr('style', `padding-left: ${(data[el].level) * 18 + 20}px`).text(el).on('click keydown', function () {
+                        .attr('style', `padding-left: ${(data[el].level) * 18 + 20}px`).text(this.getString("Show more")).on('click keydown', function () {
                     if (Utils.isKeyDownAndNotEnter(d3.event)) {return; }
                     data[el].onClick();
                 });
