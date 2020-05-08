@@ -142,13 +142,15 @@
 
             var hierarchyNavOptions = {
                 theme: 'light',
-                instancesPageSize: 10,
-                hierarchiesPageSize: 10,
-                isInstancesRecursive: false,
-                isInstancesHighlighted: true,
-                instancesSort: "DisplayName",
-                hierarchiesExpand: "OneLevel",
-                hierarchiesSort: "Name"
+                hierarchyOptions: {
+                    instancesPageSize: 10,
+                    hierarchiesPageSize: 10,
+                    isInstancesRecursive: false,
+                    isInstancesHighlighted: true,
+                    instancesSort: "DisplayName",
+                    hierarchiesExpand: "OneLevel",
+                    hierarchiesSort: "Name"
+                }
             }
 
             toggleHierarchyNavigationOption = function(property, value = null) {

@@ -74,10 +74,10 @@ class HierarchyNavigation extends Component{
     
     public render(environmentFqdn: string, getToken: any, hierarchyNavOptions: any = {}){
         let self = this;
+        this.chartOptions.setOptions(hierarchyNavOptions);
         this.getToken = getToken;
         this.environmentFqdn = environmentFqdn;
         this.resettingVariablesForEnvChange();
-        this.chartOptions.setOptions(hierarchyNavOptions);
 
         let targetElement = d3.select(this.renderTarget);   
         targetElement.text(''); 
@@ -265,37 +265,31 @@ class HierarchyNavigation extends Component{
     private setModeAndRequestParamsForSearch () {
         this.mode = State.Search;
         const options = this.chartOptions.hierarchyOptions;
-        if (options) {
-            options.isInstancesRecursive = true;
-            options.isInstancesHighlighted = true;
-            options.instancesSort = InstancesSort.Rank;
-            options.hierarchiesExpand = HierarchiesExpand.UntilChildren;
-            options.hierarchiesSort = HierarchiesSort.CumulativeInstanceCount;
-        }
+        options.isInstancesRecursive = true;
+        options.isInstancesHighlighted = true;
+        options.instancesSort = InstancesSort.Rank;
+        options.hierarchiesExpand = HierarchiesExpand.UntilChildren;
+        options.hierarchiesSort = HierarchiesSort.CumulativeInstanceCount;
     }
 
     private setModeAndRequestParamsForNavigate () {
         this.mode = State.Navigate;
         let options = this.chartOptions.hierarchyOptions;
-        if (options) {
-            options.isInstancesRecursive = false;
-            options.isInstancesHighlighted = true;
-            options.instancesSort = InstancesSort.DisplayName;
-            options.hierarchiesExpand = HierarchiesExpand.OneLevel;
-            options.hierarchiesSort = HierarchiesSort.Name;
-        }
+        options.isInstancesRecursive = false;
+        options.isInstancesHighlighted = true;
+        options.instancesSort = InstancesSort.DisplayName;
+        options.hierarchiesExpand = HierarchiesExpand.OneLevel;
+        options.hierarchiesSort = HierarchiesSort.Name;
     }
 
     private setModeAndRequestParamsForFilter () {
         this.mode = State.Filter;
         let options = this.chartOptions.hierarchyOptions;
-        if (options) {
-            options.isInstancesRecursive = false;
-            options.isInstancesHighlighted = true;
-            options.instancesSort = InstancesSort.DisplayName;
-            options.hierarchiesExpand = HierarchiesExpand.UntilChildren;
-            options.hierarchiesSort = HierarchiesSort.CumulativeInstanceCount;
-        }
+        options.isInstancesRecursive = false;
+        options.isInstancesHighlighted = true;
+        options.instancesSort = InstancesSort.DisplayName;
+        options.hierarchiesExpand = HierarchiesExpand.UntilChildren;
+        options.hierarchiesSort = HierarchiesSort.CumulativeInstanceCount;
     }
 
     private renderHierarchySelection = () => {
