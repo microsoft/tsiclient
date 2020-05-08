@@ -2,6 +2,7 @@ import * as d3 from 'd3';
 import { quadtree } from 'd3';
 import { Utils } from '../Utils';
 import { Strings } from './Strings';
+import { DefaultHierarchyNavigationOptions } from '../Constants/Constants';
 
 class ChartOptions {
     public aggTopMargin: number; // margin on top of each aggregate line(s)
@@ -83,6 +84,8 @@ class ChartOptions {
     public yExtent: any; // [min, max] of range of y values in chart
     public zeroYAxis: boolean; // whether bar chart's bar's bottom (or top if negative) is zero
     public withContextMenu: boolean; // whether the hierarchy uses a context menu when you click on a parent of leaf nodes
+    public hierarchyOptions: any; // hierarchy navigation related options for search api
+    public onError: (title, message, xhr) => any;
 
     public stringsInstance: Strings = new Strings(); 
 
@@ -188,6 +191,8 @@ class ChartOptions {
         this.onClick = this.mergeValue(chartOptionsObj, 'onClick', () => {});
         this.onSelect = this.mergeValue(chartOptionsObj, 'onSelect', () => {});
         this.swimLaneOptions = this.mergeValue(chartOptionsObj, 'swimLaneOptions', null);
+        this.hierarchyOptions = this.mergeValue(chartOptionsObj, 'hierarchyOptions', Object.assign({}, DefaultHierarchyNavigationOptions));
+        this.onError = this.mergeValue(chartOptionsObj, 'onError', (title, message, xhr) => {});
     }
 
     private mergeStrings (strings) {
@@ -281,7 +286,9 @@ class ChartOptions {
             onClick: this.onClick,
             onSelect: this.onSelect,
             colors: this.colors,
-            swimLaneOptions: this.swimLaneOptions
+            swimLaneOptions: this.swimLaneOptions,
+            hierarchyOptions: this.hierarchyOptions,
+            onError: this.onError
         }
     }
 }
