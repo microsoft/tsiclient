@@ -25,13 +25,20 @@ class ModelAutocomplete extends Component{
         super.themify(wrapper, this.chartOptions.theme);
         let inputWrapper = wrapper.append("div")
             .attr("class", "tsi-modelAutocompleteInputWrapper");
+        inputWrapper.append('i').classed('tsi-search-icon', true);
         let input = inputWrapper.append("input")
             .attr("class", "tsi-modelAutocompleteInput")
             .attr("aria-label", this.getString("Search Time Series Instances"))
             .attr("aria-describedby", "tsi-search-desc")
             .attr("aria-owns", "tsi-search-results")
             .attr("aria-expanded", "false")
-            .attr("placeholder", this.getString("Search Time Series Instances") + '...');
+            .attr("placeholder", this.getString("Search Time Series Instances") + '...')
+            .on("focus", function() {
+                ((this as HTMLElement).parentNode.parentNode as HTMLElement).classList.add("focused");
+            })
+            .on("blur", function() {
+                ((this as HTMLElement).parentNode.parentNode as HTMLElement).classList.remove("focused");
+            });
         let clear = inputWrapper.append('div').attr('class', 'tsi-clear')
                     .attr("tabindex", "0").attr("role", "button")
                     .attr("aria-label", "Clear Search")
@@ -80,7 +87,7 @@ class ModelAutocomplete extends Component{
                         self.ap.ul.setAttribute("id", "tsi-search-results");
                         self.ap.ul.querySelectorAll("li").forEach(li => {li.setAttribute("role", "option"); li.setAttribute("tabindex", "-1")});
                         let liveAria = (document.getElementsByClassName("tsi-search-results-info")[0] as HTMLDivElement);
-                        liveAria.innerText = self.ap.suggestions.length ? self.ap.suggestions.length + self.getString("Search suggestions available") : self.getString("No results");
+                        liveAria.innerText = self.ap.suggestions && self.ap.suggestions.length ? self.ap.suggestions.length + self.getString("Search suggestions available") : self.getString("No results");
                         setTimeout(function () {
                             liveAria.innerText = '';
                         }, 1000);

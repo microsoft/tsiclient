@@ -22,7 +22,7 @@
 
     .tsi-hierarchy-or-list-wrapper {
         li{                     
-            .tsi-markedName{
+            .tsi-hierarchyItem{
                 &:hover{
                     cursor: default;
                     background: $gray4;
@@ -34,7 +34,7 @@
             }
             &.tsi-resultSelected{
                 background-color: transparent;
-                .tsi-markedName{
+                .tsi-hierarchyItem{
                     background: $gray2;
                 }
             }
@@ -72,12 +72,9 @@
         }
     }
     .tsi-leaf {
-        .tsi-markedName{
-            cursor: pointer !important;
-        }
         &.tsi-selected {
             background: $gray2;
-            .tsi-markedName{
+            .tsi-hierarchyItem{
                 &:hover{
                     background: $gray2;
                 }
@@ -151,12 +148,6 @@
         }
     }
 
-    input {
-        border: 1px solid $gray5;
-        background-color: $gray3;
-        color: $gray1;
-    }
-
     @include baseContextMenuColors($grays);
 }   
 
@@ -190,6 +181,10 @@
         .tsi-filter-icon {
             background-image: url(../../Icons/Filter_Icon_Dark_Theme.svg);
         }
+
+        .tsi-spinner-icon {
+            background-image: url(../../Icons/Spinner.svg);
+        }
     }
     &.tsi-light{
         $grays: grays('light');
@@ -216,6 +211,10 @@
         .tsi-filter-icon {
             background-image: url(../../Icons/Filter_Icon_Light_Theme.svg);
         }
+
+        .tsi-spinner-icon {
+            background-image: url(../../Icons/Spinner.svg);
+        }
     }
 
     .tsi-hierarchy-selection-wrapper {
@@ -233,6 +232,7 @@
             box-sizing: border-box;
             border-radius: 2px;
             height: 32px;
+            cursor: pointer;
 
             .tsi-hierarchy-name {
                 font-size: 14px;
@@ -242,10 +242,6 @@
                 width: calc(100% - 10px);
                 padding-right: 8px;
                 text-align: left;
-            }
-
-            &:hover{
-                cursor: pointer;
             }
         }
 
@@ -277,20 +273,11 @@
         display: flex;
         align-items: center;
         padding: 0px 20px;
-        margin-top: -8px;
+        margin-top: -4px;
         flex-direction: row;
 
         ul {
             z-index: 2 !important;
-            width: 100% !important;
-            margin: -8px 0 !important; 
-        }
-
-        input {
-            width: 100% !important;
-            margin: 8px 32px 8px 0px !important;
-            padding: 8px 32px 8px 8px !important;
-            height: 32px;
         }
 
         .tsi-view-types {
@@ -407,6 +394,32 @@
         }
     }
 
+    .tsi-instance-lookup-loading {
+        display: none;
+        animation: fade-in .2s ease-in-out;
+        padding: 12px 18px 8px;
+        position: absolute;
+        top: 92px;
+        align-items: center;
+        width: 100%;
+
+        .tsi-spinner-icon {
+            width: 12px;
+            height: 12px;
+            display: inline-block;
+            margin-right: 8px;
+            animation: rotating 2s linear infinite;
+        }
+
+        .tsi-lookup-instance {
+            width: 100%;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            font-size: 13px;
+            white-space: nowrap;
+        }
+    }
+
     .tsi-hierarchy-or-list-wrapper {
         width: 100%;
         display: flex;
@@ -456,13 +469,15 @@
                             border-spacing: 0;
                             margin-top: 2px;
                             tr{
-                                td:first-of-type{
+                                td {
                                     padding: 0;
-                                    opacity: .6;
-                                }
-                                td:nth-of-type(2){
-                                    padding: 0;
-                                    padding-left: 8px;
+                                    vertical-align: top;
+                                    &:first-of-type{
+                                        opacity: .6;
+                                    }
+                                    &:nth-of-type(2){
+                                        padding-left: 8px;
+                                    }
                                 }
                             }
                         }
@@ -545,22 +560,25 @@
             pointer-events: none;
             transform: rotate(0deg);
         }
-        .tsi-markedName{
+        .tsi-hierarchyItem{
             display: flex;
+            flex-wrap: wrap;
             position: relative;
             margin: 0;
             min-height: 28px;
             font-size: 14px;
             align-items: center;
             padding-right: 40px;
+            cursor: pointer !important;
 
             .tsi-name {
                 text-overflow: ellipsis;
                 overflow: hidden;
                 white-space: nowrap;
+                max-width: calc(100% - 24px);
             }
 
-            .tsi-childCount {
+            .tsi-instanceCount {
                 opacity: .6;
                 padding-left: 8px;
                 font-size: 11px;
@@ -574,25 +592,35 @@
                 padding-top: 2px;
                 padding-left: 8px;
                 padding-bottom: 2px;
-                display: block;
+                display: none;
+                width: 100%;
             
                 table {
-                    margin-top: 2px;
+                    margin: 2px;
+                    table-layout: fixed;
+                    width: 100%;
+
                     tr {
-                        td:first-of-type{
+                        td {
                             padding: 0;
-                            opacity: .6;
-                        }
-                        td:nth-of-type(2){
-                            padding: 0;
-                            padding-left: 8px;
+                            vertical-align: top;
+                            white-space: nowrap;
+                            text-overflow: ellipsis;
+                            overflow: hidden;
+
+                            &:first-of-type{
+                                opacity: .6;
+                            }
+                            &:nth-of-type(2){
+                                padding-left: 8px;
+                            }
                         }
                     }
                 }
             }
         }
         &.tsi-expanded{
-            > .tsi-caret-icon{
+            > .tsi-hierarchyItem > .tsi-caret-icon{
                 content: '';
                 cursor: pointer;
                 transform: rotate(90deg);
@@ -633,8 +661,21 @@
         }
     }
 
+    .tsi-hitCount { 
+        display: none;
+    }
+
     @keyframes fade-in {
         0% { opacity: 0; }
         100% { opacity: 1; }
+    }
+
+    @keyframes rotating {
+        from {
+          transform: rotate(0deg);
+        }
+        to {
+          transform: rotate(360deg);
+        }
     }
 }
