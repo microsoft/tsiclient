@@ -75,6 +75,14 @@
 
     .tsi-markerValue {
         position:absolute;
+
+        &.tsi-isInterpolated {
+            .tsi-tooltip {
+                .tsi-markerValueTooltipInner {
+                    font-style: italic;
+                }    
+            }
+        }
         .tsi-tooltip {
             box-shadow: none;
             border: none;

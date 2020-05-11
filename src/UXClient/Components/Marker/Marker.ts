@@ -21,7 +21,7 @@ class Marker extends Component {
     private marginLeft: number;
     private colorMap: any;
     private yMap: any;
-    private onChange: any;
+    public onChange: any;
     private tooltipMap: any = {};
     private guid: string;
 
@@ -30,6 +30,14 @@ class Marker extends Component {
 	constructor(renderTarget) {
         super(renderTarget);
         this.guid = Utils.guid();
+    }
+
+    public getGuid () {
+        return this.guid;
+    }
+
+    public setMillis (millis: number) {
+        this.timestampMillis = millis;
     }
 
     public getMillis () {
@@ -45,6 +53,10 @@ class Marker extends Component {
             .style('border-color', this.colorMap[d.aggregateKey + "_" + d.splitBy]);                
     }
 
+    private getLeft (d) {
+        return Math.round(this.x(d.timestamp) + this.marginLeft);
+    }
+
     private renderMarker () {
         let self = this;
         let marker = d3.select(this.renderTarget).selectAll(`.tsi-markerContainer`)
@@ -57,7 +69,7 @@ class Marker extends Component {
             .style('top', `${this.chartMargins.top + this.chartOptions.aggTopMargin}px`)
             .style('height', `${this.chartHeight - (this.chartMargins.top + this.chartMargins.bottom + this.chartOptions.aggTopMargin)}px`)
             .style('left', (d: any) => {
-                return `${Math.round(this.x(d.timestamp) + this.marginLeft)}px`;
+                return `${this.getLeft(d)}px`;
             })
             .each(function(markerD) {
                 if (d3.select(this).selectAll('.tsi-markerLine').empty()) {
@@ -114,18 +126,140 @@ class Marker extends Component {
     }
 
     private getValueOfVisible (d: any) {
-        return Utils.getValueOfVisible(d, this.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy))
+        return Utils.getValueOfVisible(d, this.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy));
     }
 
     private getTooltipKey (d: any) {
         return d.aggregateKey + '_' + d.splitBy;
     }
 
-    private setValueLabels (closestTime) {
-        let values = this.chartComponentData.timeMap[closestTime] != undefined ? this.chartComponentData.timeMap[closestTime] : [];
+    private findYatX (x, path) {
+        let pathParent = path.parentNode;
+        let length_end = path.getTotalLength();
+        let length_start = 0;
+        let point = path.getPointAtLength((length_end + length_start) / 2);
+        let bisection_iterations_max = 100;
+        let bisection_iterations = 0;
 
+        let error = 0.01;
+
+        while (x < point.x - error || x > point.x + error) {
+            point = path.getPointAtLength((length_end + length_start) / 2)
+            if (x < point.x) {
+                length_end = (length_start + length_end)/2
+            } else {
+                length_start = (length_start + length_end)/2
+            }
+            if(bisection_iterations_max < ++ bisection_iterations) {
+                break;
+            }
+        }
+        let offset = path.parentNode.parentNode.transform.baseVal[0].matrix.f;  // roundabout way of getting the y transform of the agg group
+        return point.y + offset;
+   }
+
+    private positionToValue (yPos: number, aggKey: string) {
+        let yScale = this.yMap[aggKey]; 
+        return yScale.invert(yPos);   
+    }
+
+    private bisectionInterpolateValue (millis: number, aggKey: string, splitBy: string, path: any) {
+        if (path === null) {
+            return null;
+        }
+        let yPosition = this.findYatX(this.x(millis), path);
+        let interpolatedValue = this.positionToValue(yPosition, aggKey);
+        let newDatum = this.createNewDatum(aggKey, splitBy, interpolatedValue);
+        newDatum.isInterpolated = true;
+        return newDatum;
+    }
+
+    private getPath (aggKey: string, splitBy: string) {
+        let selectedPaths = d3.select(this.renderTarget).selectAll('.tsi-valueLine').filter((d: any) => {
+            if (d.length) {
+                return d[0].aggregateKey === aggKey && d[0].splitBy === splitBy;
+            }
+            return false;
+        });
+        if (selectedPaths.size() === 0) {
+            return null;
+        }
+        return selectedPaths.nodes()[0];
+    }
+
+    private createNewDatum (aggKey, splitBy, valueOfVisible) {
+        let newDatum: any = {};
+        newDatum.aggregateKey = aggKey;
+        newDatum.splitBy = splitBy;
+        newDatum.measures = {}
+        newDatum.measures[this.chartComponentData.getVisibleMeasure(aggKey, splitBy)] = valueOfVisible;
+        return newDatum;
+    }
+
+    private findGapPath (aggKey, splitBy, millis) {
+        let gapPath = d3.select(this.renderTarget).selectAll('.tsi-gapLine')
+            .filter((d: any) => {
+                if (d.length === 2 && aggKey === d[0].aggregateKey && splitBy === d[0].splitBy) {
+                    return (millis >= d[0].dateTime.valueOf() && millis <= d[1].dateTime.valueOf());
+                }
+                return false;
+            });
+        if (gapPath.size() === 0) {
+            return null;
+        }
+        return gapPath.nodes()[0];
+    }
+
+    //check if a value is within the time constrained bounds of a path
+    private inBounds (path: any, millis: number) {
+        if (path.data().length > 0) {
+            let lowerBound = path.data()[0][0].dateTime.valueOf();
+            let upperBound = path.data()[0][path.data()[0].length - 1].dateTime.valueOf();
+            return millis >= lowerBound && millis <= upperBound;
+        }
+        return false;
+    }
+
+    private getIntersectingPath (aggKey: string, splitBy: string, millis: number) {
+        let gapPath = this.findGapPath(aggKey, splitBy, millis);
+        if (gapPath) {
+            return gapPath;
+        } else {
+            return this.inBounds(d3.select(this.getPath(aggKey, splitBy)), millis) ? this.getPath(aggKey, splitBy) : null;
+        }
+    }
+
+    private interpolateValue (millis, aggKey, splitBy) {
+        let timeArray: Array<any> = this.chartComponentData.timeArrays[aggKey][splitBy];
+        let path = this.getIntersectingPath(aggKey, splitBy, millis);
+        if (path === null) {
+            return null;
+        }
+        return this.bisectionInterpolateValue(millis, aggKey, splitBy, path);
+    }
+
+    private getValuesAtTime (closestTime) {
+        let valueArray = [];
+        let values = this.chartComponentData.timeMap[closestTime] != undefined ? this.chartComponentData.timeMap[closestTime] : [];
+        Object.keys(this.chartComponentData.visibleTAs).forEach((aggKey) => {
+            Object.keys(this.chartComponentData.visibleTAs[aggKey]).forEach((splitBy) => {
+                let filteredValues = values.filter((v) => {
+                    return (v.aggregateKey === aggKey && v.splitBy === splitBy && this.getValueOfVisible(v) !== null);
+                });
+                if (filteredValues.length === 1) {
+                    valueArray.push(filteredValues[0]);
+                } else {
+                    valueArray.push(this.interpolateValue(closestTime, aggKey, splitBy));
+                }
+            });
+        });
+        return valueArray;
+    }
+
+    private setValueLabels (closestTime) {
+        let values = this.getValuesAtTime(closestTime);
         values = values.filter((d) => {
-            return (this.getValueOfVisible(d) !== null) && this.chartComponentData.getDataType(d.aggregateKey) === DataTypes.Numeric; 
+            return d && this.chartComponentData.getDataType(d.aggregateKey) === DataTypes.Numeric; 
         });
         let self = this;
 
@@ -137,6 +271,9 @@ class Marker extends Component {
             .append("div")
             .classed("tsi-markerValue", true)
             .merge(valueLabels)
+            .classed('tsi-isInterpolated', d => {
+                return d.isInterpolated;
+            })
             .style('top', (d) => this.calcTopOfValueLabel(d) + 'px')
             .each(function (d: any) {
                 let tooltipKey = self.getTooltipKey(d);
@@ -174,7 +311,6 @@ class Marker extends Component {
         let yScale = this.yMap[d.aggregateKey];
         return Math.round(yScale(this.getValueOfVisible(d)) - this.chartOptions.aggTopMargin);
     }
-
 
     private setTimeLabel (closestTime: number) {
         let values: Array<any> = this.chartComponentData.timeMap[closestTime];
@@ -232,6 +368,7 @@ class Marker extends Component {
         if (this.markerContainer) {
             this.markerContainer.remove();
         }
+        this.tooltipMap = {};
         this.markerContainer = null;
     }
 
@@ -272,7 +409,6 @@ class Marker extends Component {
         this.setTimeLabel(millis);
         this.setValueLabels(millis);
     }
-
 }
 
 export {Marker}
