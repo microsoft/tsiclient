@@ -3,76 +3,38 @@
     <head>
         <!-- styles are only used for styling header and auth elements, where possible -->
         <link rel="stylesheet" type="text/css" href="../styles.css" />
-        <title>Hierarchy Navigation (Path Search)</title>
+        <title>Show Instance in Hierarchy</title>
     </head>
     <body style="font-family: 'Segoe UI', sans-serif;">
 
-        <div style="width:350px; overflow-y: auto; padding: 20px; background: grey;">
-            <h3>Options</h3>
-            <p>Note: Options are customizable for navigate only, refresh after search.</p>
+        <div style="width: 308px;
+            overflow-y: auto;
+            padding: 20px;
+            background: grey;
+            margin-top: 20px;">
             <div>
-                <label>Theme</label>
-                <select onchange="toggleHierarchyNavigationOption('theme', event.target.value)" aria-label="Select theme">
-                    <option selected>light</option>
-                    <option>dark</option>
-                </select>
-            </div>
-            <div>
-                <label>Instances Page Size</label>
-                <input style="width:50px;" type="number" value=10 onchange="toggleHierarchyNavigationOption('instancesPageSize', event.target.value)" aria-label="Select instances page size"></input>
-            </div>
-            <div>
-                <label>Instances Recursive</label>
-                <select onchange="toggleHierarchyNavigationOption('isInstancesRecursive', event.target.value)" aria-label="Select instances recursion">
-                    <option selected>false</option>
-                    <option>true</option>
-                </select>
-            </div>
-            <div>
-                <label>Instances Highlighted</label>
-                <select onchange="toggleHierarchyNavigationOption('isInstancesHighlighted', event.target.value)" aria-label="Select instances hihglighting">
-                    <option selected>false</option>
-                    <option>true</option>
-                </select>
-            </div>
-            <div>
-                <label>Instances Sort</label>
-                <select onchange="toggleHierarchyNavigationOption('instancesSort', event.target.value)" aria-label="Select instances sorting">
-                    <option selected>DisplayName</option>
-                    <option>Rank</option>
-                </select>
-            </div>
-            <div>
-                <label>Hierarchies Page Size</label>
-                <input style="width:50px;" type="number" value=10 onchange="toggleHierarchyNavigationOption('hierarchiesPageSize', event.target.value)" aria-label="Select hierarchy page size"></input>
-            </div>
-            <div>
-                <label>Hierarchies Expand</label>
-                <select onchange="toggleHierarchyNavigationOption('hierarchiesExpand', event.target.value)" aria-label="Select hierarchy expansion">
-                    <option selected>OneLevel</option>
-                    <option>UntilChildren</option>
-                </select>
-            </div>
-            <div>
-                <label>Hierarchies Sort</label>
-                <select onchange="toggleHierarchyNavigationOption('hierarchiesSort', event.target.value)" aria-label="Select hierarchy sorting">
-                    <option selected>Name</option>
-                    <option>CumulativeInstanceCount</option>
-                </select>
+                <label>Time Series ID</label>
+                <p style="font-size: 12px;">- Use commas without space for composite tsid.</p>
+                <p style="font-size: 12px;">- Enter nothing for null tsid.</p>
+                <input id="timeSeriesId" type="text"/>
+                <button onclick="lookup()">Show</button>
             </div>
         </div>
         <div id="hierarchyNav" style="
                 width: 308px;
-                height: calc(100% - 338px);
+                height: calc(100% - 173px);
                 position: fixed;">
         </div>
         <script>
-            var hierarchy;
-            var environmentFqdn = 'c3657b0f-7f56-4a45-932b-68aba4d34b6d.env.timeseries.azure.com'; //'c3657b0f-7f56-4a45-932b-68aba4d34b6d.env.timeseries.azure.com';//'a8061fa4-53ff-41cf-9ad5-3f56bd9883cf.env.crystal-dev.windows-int.net' //'dcbba382-10bd-40ea-ba06-454094aee00a.env.timeseries.azure.com'; //'bf43f133-3f68-4ec0-bcb4-fd64530e4256.env.crystal-dev.windows-int.net'
+            var hierarchy = null;
+            var environmentFqdn = '0293bb6f-5d98-4953-be00-e8e9eedf9b88.env.timeseries.azure.com'; //'c3657b0f-7f56-4a45-932b-68aba4d34b6d.env.timeseries.azure.com'; //'c3657b0f-7f56-4a45-932b-68aba4d34b6d.env.timeseries.azure.com';//'a8061fa4-53ff-41cf-9ad5-3f56bd9883cf.env.crystal-dev.windows-int.net' //'dcbba382-10bd-40ea-ba06-454094aee00a.env.timeseries.azure.com'; //'bf43f133-3f68-4ec0-bcb4-fd64530e4256.env.crystal-dev.windows-int.net'
             var tsiClient;
+            onError = (title, message, xhr) => {
+                console.log(title + ": " + message);
+            }
             onInstanceClick = function(instance) {
                 let contextMenuActions = [];
-                authContext.getTsiToken().then(token => { //TODO: change this to Observable with Observable.from with .takeUntil(Observable.of(true).delay(2000)) to return default type variables, or maybe move this onclick into HierarchyNavigation component using rxjs lib
+                authContext.getTsiToken().then(token => {
                     tsiClient.server.getTimeseriesTypes(token, environmentFqdn, [instance.type.id]).then(r => {
                         if (r.get && Array.isArray(r.get)) {
                             r.get.forEach((t) => {
@@ -143,8 +105,8 @@
             var hierarchyNavOptions = {
                 theme: 'light',
                 hierarchyOptions: {
-                    instancesPageSize: 10,
-                    hierarchiesPageSize: 10,
+                    instancesPageSize: 2,
+                    hierarchiesPageSize: 2,
                     isInstancesRecursive: false,
                     isInstancesHighlighted: true,
                     instancesSort: "DisplayName",
@@ -153,18 +115,23 @@
                 }
             }
 
-            toggleHierarchyNavigationOption = function(property, value = null) {
-                hierarchyNavOptions[property] = (value === null) ? !hierarchyNavOptions[property] : value; 
-                hierarchy.render(environmentFqdn, authContext.getTsiToken, Object.assign({}, hierarchyNavOptions, {onInstanceClick: instance => this.onInstanceClick(instance)}));
-            }
-
             window.onload = function() {
                 initAuth('Hierarchy Navigation Test');  // initiate auth objects, header, and login modal
                 tsiClient = new TsiClient();
-                
-                hierarchy = new tsiClient.ux.HierarchyNavigation(document.getElementById('hierarchyNav'));
-                hierarchy.render(environmentFqdn, authContext.getTsiToken, Object.assign({}, hierarchyNavOptions, {onInstanceClick: instance => this.onInstanceClick(instance)}));
 
+                hierarchy = new tsiClient.ux.HierarchyNavigation(document.getElementById('hierarchyNav'));
+                hierarchy.render(
+                    environmentFqdn, 
+                    authContext.getTsiToken, 
+                    Object.assign({}, hierarchyNavOptions, {onInstanceClick: instance => this.onInstanceClick(instance), onError: (title, message, xhr) => this.onError(title, message, xhr)}),
+                );
+
+            }
+
+            lookup = function() {
+                let value = document.getElementById("timeSeriesId").value;
+                let timeSeriesIdArray = value.split(",").map(id => {return id === "" ? null : id}); // use , for composite tsid's
+                hierarchy.showInstance(timeSeriesIdArray, /*["f25720a3-82ca-4cfe-a242-e047ac7d1de2", "c282f60a-d257-440b-836b-6dc275e9971b"]*/);
             }
         </script>
     </body>

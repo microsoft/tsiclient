@@ -51,8 +51,8 @@ class Strings {
         "Next Month": "Next Month",
         "Unassigned Time Series Instances": "Unassigned Time Series Instances",
         "Search Globally": "Search Globally",
-        "Show More Instances": "Show More Instances",
-        "Show More Hierarchies": "Show More Hierarchies",
+        "Show More Instances": "Show more instances",
+        "Show More Hierarchies": "Show more hierarchies",
         "Add to Filter Path": "Add to Filter Path",
         "Empty": "Empty",
         "date and time": "date and time",
@@ -94,7 +94,15 @@ class Strings {
         "event in series": "Event in series",
         "at time": "at time",
         "measure with key": "measure with key",
-        "and value": "and value"
+        "and value": "and value",
+        "Looking for": "Looking for",
+        "Hierarchy error": "Error occured! Refreshing hierarchy...",
+        "hierarchyNav_auth_error": "Failed to get token",
+        "hierarchyNav_error_title": "Error in hierarchy navigation",
+        "hierarchyNav_type_load_error": "Failed to load types for navigation",
+        "hierarchyNav_hierarchy_load_error": "Failed to load hierarchies for navigation",
+        "hierarchyNav_search_error": "Failed to complete search",
+        "hierarchyNav_instance_error": "Failed to get instance details"
     };
   
     private stringValues: any = {};

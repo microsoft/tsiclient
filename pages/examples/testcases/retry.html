@@ -74,13 +74,15 @@
                 var environmentFqdn = '3b34abe6-a990-4c07-8b1b-2e527bfc1cb5.env.timeseries.azure.com';
                 var hierarchyNavOptions = {
                     theme: 'light',
-                    instancesPageSize: 10,
-                    hierarchiesPageSize: 10,
-                    isInstancesRecursive: false,
-                    isInstancesHighlighted: true,
-                    instancesSort: "DisplayName",
-                    hierarchiesExpand: "OneLevel",
-                    hierarchiesSort: "Name"
+                    hierarchyOptions: {
+                        instancesPageSize: 10,
+                        hierarchiesPageSize: 10,
+                        isInstancesRecursive: false,
+                        isInstancesHighlighted: true,
+                        instancesSort: "DisplayName",
+                        hierarchiesExpand: "OneLevel",
+                        hierarchiesSort: "Name"
+                    }
                 }
                 authContext.getTsiToken().then(function(token){
                     tsiClient.server.getTsqResults(token, environmentFqdn, linechartTsqExpressions.map(function(ae){return ae.toTsq()})).then(function(result){
