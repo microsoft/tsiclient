@@ -24,10 +24,10 @@ class ModelAutocomplete extends Component{
         let wrapper = targetElement.append('div').attr('class', 'tsi-modelAutocompleteWrapper');
         super.themify(wrapper, this.chartOptions.theme);
         let inputWrapper = wrapper.append("div")
-            .attr("class", "tsi-modelAutocompleteInputWrapper");
+            .attr("class", "tsi-search");
         inputWrapper.append('i').classed('tsi-search-icon', true);
         let input = inputWrapper.append("input")
-            .attr("class", "tsi-modelAutocompleteInput")
+            .attr("class", "tsi-searchInput")
             .attr("aria-label", this.getString("Search Time Series Instances"))
             .attr("aria-describedby", "tsi-search-desc")
             .attr("aria-owns", "tsi-search-results")

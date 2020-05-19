@@ -132,7 +132,7 @@ class EventsTableData {
         }
         let columnKeys = this.sortColumnKeys();
         var csvString = endLine(columnKeys.reduce((headerString, columnKey) => {
-            return headerString + this.columns[columnKey].name + ",";
+            return headerString + columnKey + ",";
         }, ""));
 
         this.events.forEach((event: TimeSeriesEvent) => {

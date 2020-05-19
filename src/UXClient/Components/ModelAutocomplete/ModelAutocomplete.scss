@@ -69,20 +69,8 @@
         }
     }
 
-    .tsi-modelAutocompleteInputWrapper{
-        height: 32px;
+    .tsi-search{
         width: 100%;
-        display: flex;
-        flex-shrink: 0;
-        align-items: center;
-        padding: 4px 0 4px 4px;
-
-        .tsi-search-icon {
-            width: 20px;
-            height: 17px;
-            background-repeat: no-repeat;
-            margin-right: 4px;
-        }
 
         .tsi-clear{
             width: 20px;
@@ -99,14 +87,7 @@
                 display: block;
             }
         }
-        .tsi-modelAutocompleteInput{
-            border: none !important;
-
-            &:focus {
-                outline: none;
-            }
-        }
-        .tsi-modelAutocompleteInput::-ms-clear{
+        .tsi-searchInput::-ms-clear{
             display: none;
         }
         
@@ -142,8 +123,8 @@
             padding: 0;
             border-radius: 0px;
             font-size: 13px;
-            width: calc(100% + 28px);
-            margin-left: -27px;
+            width: calc(100% + 37px);
+            margin-left: -32px;
 
             &:before{
                 display: none;

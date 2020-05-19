@@ -71,6 +71,19 @@ div[class^='tsi-']{
         }  
         box-shadow: 0 1px 3px 0 rgba($gray1, .16);
     }
+
+    .tsi-search {
+        border: 1px solid $gray5;
+
+        &.focused {
+            border-color: $gray6;
+        }
+
+        input {
+            background-color: $gray3;
+            color: $gray1;
+        }
+    }
 }
 
 .tsi-resizeGutter {
@@ -255,6 +268,34 @@ select::-ms-expand {
                 text-align: center;
             }
         }
+    }
+}
+
+.tsi-search {
+    height: 32px;
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    padding: 4px;
+
+    .tsi-search-icon {
+        width: 21px;
+        height: 17px;
+        background-repeat: no-repeat;
+        margin: 0 4px;
+        background-size: 14px;
+        background-position-y: 2px;
+    }
+
+    .tsi-searchInput{
+        border: none !important;
+
+        &:focus {
+            outline: none;
+        }
+    }
+    &:focus, &:hover {
+        background-color: unset !important;
     }
 }
 

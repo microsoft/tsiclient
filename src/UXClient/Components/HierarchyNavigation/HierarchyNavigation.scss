@@ -149,6 +149,13 @@
     }
 
     @include baseContextMenuColors($grays);
+
+    .tsi-hierarchyCheckbox{
+        &.tsi-notSelected{
+            background: $gray3 !important;
+            border: 1px solid rgba($gray1, .2);
+        }
+    }
 }   
 
 .tsi-hierarchy-nav-wrapper{
@@ -185,6 +192,10 @@
         .tsi-spinner-icon {
             background-image: url(../../Icons/Spinner.svg);
         }
+
+        .tsi-search-icon {
+            background-image: url(../../Icons/Search_Dark.svg);
+        }
     }
     &.tsi-light{
         $grays: grays('light');
@@ -214,6 +225,10 @@
 
         .tsi-spinner-icon {
             background-image: url(../../Icons/Spinner.svg);
+        }
+        
+        .tsi-search-icon {
+            background-image: url(../../Icons/Search_Light.svg);
         }
     }
 
@@ -328,7 +343,6 @@
             height: 24px;
             transform: scaleY(1);
             padding: 0px 20px;
-            margin-top: -4px;
         }
 
         .tsi-filter-path {
@@ -497,7 +511,7 @@
         }
     }
 
-    .tsi-pin-icon {
+    .tsi-filter-icon {
         z-index: 3 !important;
         right: 20px;
         position: absolute;
@@ -505,10 +519,10 @@
         height: 16px;
         width: 16px;
         cursor: pointer;
-        background-size: 10px;
         background-repeat: no-repeat;
+        background-size: 11px;
+        background-position: center;
         top: 6px;
-        background-position: 50%;
     }
 
     .tsi-down-caret-icon {
@@ -519,12 +533,12 @@
         transform: rotate(90deg);
     }
 
-    .tsi-close-icon, .tsi-list-icon, .tsi-tree-icon, .tsi-filter-icon {
+    .tsi-close-icon, .tsi-list-icon, .tsi-tree-icon {
         cursor: pointer;
         height: 16px;
         width: 16px;
         background-repeat: no-repeat;
-        background-size: cover;
+        background-size: contain;
     }
 
     ul{
@@ -575,7 +589,7 @@
                 text-overflow: ellipsis;
                 overflow: hidden;
                 white-space: nowrap;
-                max-width: calc(100% - 24px);
+                max-width: calc(100% - 26px);
             }
 
             .tsi-instanceCount {
@@ -641,13 +655,25 @@
         left: calc(100% - 32px);
         top: 0px;
         z-index: 4;
-        transition: top .2 ease-in-out;
-        max-height: 240px;
-        overflow: auto;
+        transition: top .2s ease-in-out;
+        display: flex;
+        flex-direction: column;
+
+        .tsi-search {
+            margin: 4px 8px 12px;
+            padding: 4px;
+
+            .tsi-searchInput {
+                max-width: 140px;
+            }
+        }
 
         ul {
             padding: 0;
             margin: 0;
+            overflow-y: auto;
+            max-width: 200px;
+            max-height: 240px;
         }
 
         li {
@@ -658,6 +684,51 @@
             display: flex;
             align-items: center;
             overflow: hidden;
+        }
+
+        button {
+            text-align: center;
+            margin: 12px 8px 4px;
+            display: block;
+            min-height: 28px;
+        }
+
+        .tsi-selectionItemWrapper {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            cursor: pointer;
+
+            .tsi-hierarchyCheckbox {
+                display: inline-block;
+                width: 16px;
+                height: 16px;
+                margin: 0;
+                background-image: url('../../Icons/checkboxes.svg');
+            }
+
+            .tsi-selectionItemKind {
+                margin: 0 8px;
+                width: 16px;
+                height: 16px;
+                pointer-events: none;
+                &.categorical {
+                    background-image: url('../../Icons/categorical.svg');
+                }
+                &.aggregate {
+                    background-image: url('../../Icons/aggregate.svg');
+                }
+                &.numeric {
+                    background-image: url('../../Icons/number.svg');
+                }
+            }
+
+            .tsi-selectionItem {
+                text-overflow: ellipsis;
+                overflow: hidden;
+                white-space: nowrap;
+                width: calc(100% - 40px);
+            }
         }
     }
 
