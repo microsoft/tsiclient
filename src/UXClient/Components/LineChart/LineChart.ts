@@ -643,6 +643,9 @@ class LineChart extends TemporalXAxisComponent {
             }
             this.markerGuidMap = {};            
             this.chartOptions.markers.forEach((markerValueTuples, markerIndex) => {
+                if (markerValueTuples === null || markerValueTuples === undefined) {
+                    return;
+                }
                 let marker = new Marker(this.renderTarget);
                 let markerUID = Utils.guid();
 
