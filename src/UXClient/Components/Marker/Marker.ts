@@ -119,16 +119,15 @@ class Marker extends Component {
                     d3.select(this).append('div')
                         .attr('class', 'tsi-markerLine');
                     self.markerLabel = d3.select(this).append('div')
-                        .attr('class', 'tsi-markerLabel')
+                        .attr('class', 'tsi-markerLabel');
 
                     self.markerLabel.append('div')
-                        .attr('class', 'tsi-markerGrabber')
+                        .attr('class', 'tsi-markerGrabber');
 
                     self.markerLabel.append('div')
                         .attr('class', 'tsi-markerLabelText')
                         .attr('contenteditable', 'true')
                         .text(self.labelText)
-                        .attr('placeholder', 'test')
                         .on('input', function () {
                             let didTrim = self.setLabelText(d3.select(this).text());
                             if (didTrim) {
@@ -169,7 +168,6 @@ class Marker extends Component {
                 d3.select(this).selectAll('.tsi-markerTimeLabel,.tsi-markerLine,.tsi-markerLabel')
                     .call(d3.drag()
                         .on('start', function(d: any) {
-                            // put the marker being dragged on top
                             d.isDragging = true;
                             self.markerIsDragging = true;
                             self.bumpMarker();
