@@ -28,24 +28,10 @@
             background-color: $gray4;
         }
     }
-
-    input {
-        background-color: $gray3;
-        color: $gray1;
-    }
-
-
-    .tsi-modelAutocompleteInputWrapper {
-        border: 1px solid $gray5;
-
-        &.focused {
-            border-color: $gray6;
-        }
-    }
 }
 
 .tsi-modelAutocompleteWrapper{
-    padding: 4px 0;
+    height: 32px;
     position: relative;
 
     &.tsi-dark{
@@ -70,8 +56,6 @@
     }
 
     .tsi-search{
-        width: 100%;
-
         .tsi-clear{
             width: 20px;
             height: 20px;
@@ -101,17 +85,13 @@
         }
 
         .awesomplete {
-            display: inline-block;
-            position: relative;
+            height: 100%;
             width: 100%;
+            position: absolute;
         }
 
         .awesomplete > input {
-            display: block;
-            z-index: 2;
-            position: relative;
-            width: calc(100% - 28px);
-            height: 29px;
+            padding-right: 28px;
         }
 
         .awesomplete > ul {
@@ -123,8 +103,8 @@
             padding: 0;
             border-radius: 0px;
             font-size: 13px;
-            width: calc(100% + 37px);
-            margin-left: -32px;
+            width: 100%;
+            margin-top: 30px;
 
             &:before{
                 display: none;

@@ -875,7 +875,7 @@ class HierarchyNavigation extends Component{
         instanceObj.node.classed('tsi-selected', true);
     }
 
-    public drawContextMenu = (contextMenuItems, contextMenuOptions: ContextMenuOptions) => {
+    public drawContextMenu = (contextMenuItems: Array<ContextMenuItems>, contextMenuOptions: ContextMenuOptions) => {
         let itemList = [];
         let contextMenuList;
         this.contextMenu = this.contextMenuProps['target'].append('div').classed('tsi-hierarchyNavigationContextMenu', true).attr('style', () => `top: ${this.contextMenuProps['wrapperMousePos'] - this.contextMenuProps['eltMousePos']}px`);
@@ -912,8 +912,8 @@ class HierarchyNavigation extends Component{
                     })
                     let div = li.append('div').classed('tsi-selectionItemWrapper', true);
                     div.append('span').classed('tsi-hierarchyCheckbox tsi-notSelected', true);
-                    div.append('span').classed('tsi-selectionItemKind', true).classed(item.kind, true);
                     div.append('span').classed('tsi-selectionItem', true).text(option);
+                    div.append('span').classed('tsi-selectionItemKind', true).classed(item.kind, true).attr('title', item.kind.charAt(0).toUpperCase() + item.kind.slice(1));
                 }
             });
         }
@@ -927,11 +927,6 @@ class HierarchyNavigation extends Component{
                     let regex = new RegExp(this.value, 'gi');
                     renderList(contextMenuItems.filter(varObj => varObj.name.match(regex)));
                     itemList = [];
-                }).on("focus", function() {
-                    ((this as HTMLElement).parentNode as HTMLElement).classList.add("focused");
-                })
-                .on("blur", function() {
-                    ((this as HTMLElement).parentNode as HTMLElement).classList.remove("focused");
                 })
         }
 
@@ -1222,6 +1217,12 @@ function InstanceNode (tsId, name = null, type, hierarchyIds, highlights, level)
     this.level = level;
     this.node = null;
 }
+
+interface ContextMenuItems {
+    name: string,
+    kind: string,
+    action: any
+};
 
 interface ContextMenuOptions {
     isSelectionEnabled: boolean,

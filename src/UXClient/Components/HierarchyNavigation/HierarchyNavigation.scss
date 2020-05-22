@@ -288,7 +288,6 @@
         display: flex;
         align-items: center;
         padding: 0px 20px;
-        margin-top: -4px;
         flex-direction: row;
 
         ul {
@@ -529,7 +528,7 @@
         height: 14px;
         width: 14px;
         background-repeat: no-repeat;
-        background-size: cover;
+        background-size: contain;
         transform: rotate(90deg);
     }
 
@@ -652,6 +651,7 @@
     .tsi-hierarchyNavigationContextMenu{
         @extend .tsi-baseContextMenu;
         position: absolute;
+        width: 172px;
         left: calc(100% - 32px);
         top: 0px;
         z-index: 4;
@@ -660,11 +660,13 @@
         flex-direction: column;
 
         .tsi-search {
-            margin: 4px 8px 12px;
-            padding: 4px;
+            height: 32px;
+            padding: 0;
+            margin: 4px 8px 8px;
+            width: calc(100% - 16px);
 
-            .tsi-searchInput {
-                max-width: 140px;
+            &:focus, &:hover {
+                background-color: unset !important;
             }
         }
 
@@ -705,13 +707,15 @@
                 height: 16px;
                 margin: 0;
                 background-image: url('../../Icons/checkboxes.svg');
+                background-size: contain;
+                background-repeat: no-repeat;
             }
 
             .tsi-selectionItemKind {
-                margin: 0 8px;
                 width: 16px;
                 height: 16px;
-                pointer-events: none;
+                background-size: contain;
+                background-repeat: no-repeat;
                 &.categorical {
                     background-image: url('../../Icons/categorical.svg');
                 }
@@ -719,7 +723,7 @@
                     background-image: url('../../Icons/aggregate.svg');
                 }
                 &.numeric {
-                    background-image: url('../../Icons/number.svg');
+                    background-image: url('../../Icons/numeric.svg');
                 }
             }
 
@@ -728,6 +732,8 @@
                 overflow: hidden;
                 white-space: nowrap;
                 width: calc(100% - 40px);
+                margin: 0 8px;
+                padding-left: 2px;
             }
         }
     }

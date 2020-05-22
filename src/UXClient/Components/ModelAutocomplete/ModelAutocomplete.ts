@@ -33,12 +33,6 @@ class ModelAutocomplete extends Component{
             .attr("aria-owns", "tsi-search-results")
             .attr("aria-expanded", "false")
             .attr("placeholder", this.getString("Search Time Series Instances") + '...')
-            .on("focus", function() {
-                ((this as HTMLElement).parentNode.parentNode as HTMLElement).classList.add("focused");
-            })
-            .on("blur", function() {
-                ((this as HTMLElement).parentNode.parentNode as HTMLElement).classList.remove("focused");
-            });
         let clear = inputWrapper.append('div').attr('class', 'tsi-clear')
                     .attr("tabindex", "0").attr("role", "button")
                     .attr("aria-label", "Clear Search")
