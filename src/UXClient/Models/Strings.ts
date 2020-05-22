@@ -102,7 +102,8 @@ class Strings {
         "hierarchyNav_type_load_error": "Failed to load types for navigation",
         "hierarchyNav_hierarchy_load_error": "Failed to load hierarchies for navigation",
         "hierarchyNav_search_error": "Failed to complete search",
-        "hierarchyNav_instance_error": "Failed to get instance details"
+        "hierarchyNav_instance_error": "Failed to get instance details",
+        "Marker": "Marker"
     };
   
     private stringValues: any = {};

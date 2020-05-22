@@ -41,7 +41,7 @@ class ChartOptions {
     public keepBrush: boolean; // whether to keep the brush selected region upon re render
     public keepSplitByColor: boolean; //whether to keep the split By colors when state is updated
     public legend: string; //state of the legend: shown, hidden, or compact
-    public markers: Array<number>; // millisecond timestamps of the location of markers loaded into the linechart 
+    public markers: Array<any>; // tuple of millisecond timestamps and labels per marker, listed as any to support back compatibility with when these were just timestamp millis
     public maxBuckets: number // max number of buckets in availability chart
     public minBrushWidth: number // minimum possible width of brush in linechart
     public minutesForTimeLabels: boolean; // whether time labels forced to minute granularity

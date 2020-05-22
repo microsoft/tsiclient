@@ -14,6 +14,16 @@
     .tsi-markerTimeLabel {
         background-color: $gray3;
         border-color: $gray6;
+    }
+    .tsi-markerLine{
+        background-color: $gray6;
+    }
+
+    .tsi-markerLabel {
+        background-color: $gray3;
+        .tsi-markerGrabber {
+            background-color: $gray2;
+        }
         .tsi-closeButton {
             background-color: transparent;
             border: none;
@@ -22,9 +32,18 @@
                 background-color: $gray2;
             }
         }
-    }
-    .tsi-markerLine, .tsi-markerDragger {
-        background-color: $gray6;
+        &.tsi-markerLabelHovered, &.tsi-markerLabelTextFocused {
+            .tsi-markerLabelText {
+                border-color: $gray6;
+            }
+            .tsi-markerGrabber {
+                background-color: $gray6;
+            }
+        }
+        .tsi-markerLabelText {
+            outline: none;
+            border-color: $gray2;
+        }
     }
 
     .tsi-markerValue {
@@ -44,14 +63,10 @@
     width: 2px;
     transform: translateX(-1px);
     z-index: 1;
+    animation: tsi-slideIn 0.367s cubic-bezier(0.1, 0.9, 0.2, 1) forwards;
 
-    .tsi-markerDragger, .tsi-markerTimeLabel {
+    .tsi-markerDragger, .tsi-markerTimeLabel, .tsi-markerLabel {
         pointer-events: all;
-    }
-
-    .tsi-markerDragger {
-        -webkit-transform: translateX(calc(-50% + 1px));
-        transform: translateX(calc(-50% + 1px));
     }
 
     .tsi-markerLine {
@@ -63,14 +78,74 @@
         cursor: move;
     } 
 
-    .tsi-markerDragger {
-        top: 100%;
-        position: absolute;
-        border-radius: 5px;
-        left: 0px;
-        width: 10px;
-        height: 10px;
+    .tsi-markerLabel {
+        z-index: 3;
+        font-size: 12px;
+        top: -20px;
         cursor: move;
+        position: absolute;
+        left: 0px;
+        -webkit-transform: translateX(calc(-50% + 1px));
+        transform: translateX(calc(-50% + 1px));
+        min-width: 32px;
+        max-width: 124px;
+        height: 20px;
+        border-radius: 3px;
+
+        -webkit-transition: min-width .367s ease-in-out;
+        -moz-transition: min-width .367s ease-in-out;
+        -o-transition: min-width .367s ease-in-out;
+        transition: min-width .367s ease-in-out;
+
+        .tsi-markerGrabber {
+            width: 20px;
+            height: 10px;
+            border-bottom-right-radius: 10px;
+            border-bottom-left-radius: 10px;
+            position: absolute;
+            left: calc(50% - 10px);
+            top: 100%;
+        }
+
+        .tsi-markerLabelText {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: 100%;
+            height: 100%;
+            border-radius: 3px;
+            line-height: 18px;
+            white-space: nowrap;
+            cursor: text;
+            padding: 0px 4px;
+            padding-right: 24px;
+            border-width: 1px; 
+            border-style: solid; 
+        }
+
+        &.tsi-markerLabelHovered, &.tsi-markerLabelTextFocused {
+            width: 124px;
+            min-width: 124px;
+            height: fit-content;
+            .tsi-markerLabelText {
+                overflow: wrap;
+                white-space: normal;
+                text-overflow: normal;
+            }
+        }
+        
+        .tsi-closeButton {
+            border-radius: 3px;
+            position: absolute;
+            right: 2px;
+            top: 2px;
+            width: 16px;
+            height: 16px;
+            background-size: 12px 12px;
+            background-position: 2px 2px;
+            background-repeat: no-repeat;
+            cursor: pointer;
+        }
+
     }
 
     .tsi-markerValue {
@@ -124,36 +199,26 @@
     }
     .tsi-markerTimeLabel {
         cursor: move;
-        bottom: 100%;
+        top: calc(100% + 3px);
         position: absolute;
         left: 0px;
         white-space: nowrap;
-        font-size: 12px;
-        height: 24px;
-        padding-left: 8px;
-        padding-right: 24px;
-        line-height: 20px;
+        font-size: 11px;
+        padding: 1px 4px;
         border-width: 1px;
         border-style: solid;
         box-shadow: 0px 0px 2px 0px rgba(0, 0, 0, 0.3);	
-        .tsi-closeButton {
-            border-radius: 3px;
-            position: absolute;
-            right: 4px;
-            top: 3px;
-            width: 15px;
-            height: 15px;
-            background-size: 12px 12px;
-            background-position: 2px 2px;
-            background-repeat: no-repeat;
-            cursor: pointer;
+
+        .tsi-markerTimeLine {
+            line-height: 16px;
         }
+       
     }
     
     &.tsi-dark{
         $grays: grays('dark');
         @include markerColors($grays);
-        .tsi-markerTimeLabel {
+        .tsi-markerLabel {
             .tsi-closeButton {
                 background-image: url(../../Icons/Close_Icon_Dark_Theme.svg);
             }
@@ -162,7 +227,7 @@
     &.tsi-light{
         $grays: grays('light');
         @include markerColors($grays);
-        .tsi-markerTimeLabel {
+        .tsi-markerLabel {
             .tsi-closeButton {
                 background-image: url(../../Icons/Close_Icon_Light_Theme.svg);
             }
