@@ -72,7 +72,7 @@ class HierarchyNavigation extends Component{
     HierarchyNavigation(){
     }
     
-    public render(environmentFqdn: string, getToken: any, hierarchyNavOptions: any = {}){
+    public async render(environmentFqdn: string, getToken: any, hierarchyNavOptions: any = {}){
         let self = this;
         this.chartOptions.setOptions(hierarchyNavOptions);
         this.getToken = getToken;
@@ -85,8 +85,8 @@ class HierarchyNavigation extends Component{
         super.themify(hierarchyNavWrapper, this.chartOptions.theme);
 
         //get the most recent types to show in the context menu on instance click
-        getToken().then(token => {
-            this.server.getTimeseriesTypes(token, environmentFqdn).then(r => {
+        await getToken().then(token => {
+            return this.server.getTimeseriesTypes(token, environmentFqdn).then(r => {
                 try {
                     if (r.error) {
                         throw r.error;
@@ -102,8 +102,8 @@ class HierarchyNavigation extends Component{
         }).catch(err => this.chartOptions.onError(this.getString("hierarchyNav_error_title"), this.getString("hierarchyNav_auth_error"), err instanceof XMLHttpRequest ? err : null));
 
         //get the most recent hierarchies for reverse lookup
-        getToken().then(token => {
-            this.server.getTimeseriesHierarchies(token, environmentFqdn).then(r => {
+        await getToken().then(token => {
+            return this.server.getTimeseriesHierarchies(token, environmentFqdn).then(r => {
                 try {
                     if (r.error) {
                         throw r.error;
@@ -118,28 +118,40 @@ class HierarchyNavigation extends Component{
             }).catch(err => this.chartOptions.onError(this.getString("hierarchyNav_error_title"), this.getString("hierarchyNav_hierarchy_load_error"), err instanceof XMLHttpRequest ? err : null));
         }).catch(err => this.chartOptions.onError(this.getString("hierarchyNav_error_title"), this.getString("hierarchyNav_auth_error"), err instanceof XMLHttpRequest ? err : null));
 
+        if (hierarchyNavOptions.selectedHierarchyId) {
+            this.selectedHierarchyName = hierarchyNavOptions.selectedHierarchyId === HierarchySelectionValues.All || hierarchyNavOptions.selectedHierarchyId === HierarchySelectionValues.Unparented ? 
+                                hierarchyNavOptions.selectedHierarchyId
+                                : Object.values(this.envHierarchies).find(h => h["id"] === hierarchyNavOptions.selectedHierarchyId)["name"];
+            this.path = this.selectedHierarchyName === HierarchySelectionValues.All || this.selectedHierarchyName === HierarchySelectionValues.Unparented ? [] : [this.selectedHierarchyName]
+        }
+        
         getToken().then(token => {
-            self.server.getTimeseriesInstancesPathSearch(token, environmentFqdn, {searchString: '', path: [], hierarchies: {sort: {by: HierarchiesSort.CumulativeInstanceCount}, expand: {kind: HierarchiesExpand.OneLevel}, pageSize: 100}}).then(r => {
+            self.server.getTimeseriesInstancesPathSearch(token, environmentFqdn, {searchString: '', path: this.path, hierarchies: {sort: {by: HierarchiesSort.CumulativeInstanceCount}, expand: {kind: HierarchiesExpand.OneLevel}, pageSize: 100}}).then(r => {
                 try {
                     if (r.error) {
                         throw r.error;
                     } else {
                         // hierarchy selection button
+                        if (hierarchyNavOptions.selectedHierarchyId) {
+                            
+                        }
                         let hierarchySelectionWrapper = hierarchyNavWrapper.append('div').classed('tsi-hierarchy-selection-wrapper', true);
                         this.hierarchySelectorElem = hierarchySelectionWrapper.append('button').classed('tsi-hierarchy-select', true)
                             .attr("aria-haspopup", "listbox")
                             .on('click keydown', () => {
                                 if (Utils.isKeyDownAndNotEnter(d3.event)) {return; }
                                 if (this.isHierarchySelectionActive) {
-                                this.hierarchyListWrapperElem.style('display', 'none');
-                                this.isHierarchySelectionActive = false;
+                                    this.hierarchyListWrapperElem.style('display', 'none');
+                                    this.isHierarchySelectionActive = false;
                                 }
                                 else {
-                                this.renderHierarchySelection();
-                                this.isHierarchySelectionActive = true;
+                                    this.renderHierarchySelection();
+                                    this.isHierarchySelectionActive = true;
                                 }
                             });
-                        this.hierarchySelectorElem.append('span').classed('tsi-hierarchy-name', true).text(self.getString("All hierarchies"));
+                        this.hierarchySelectorElem.append('span').classed('tsi-hierarchy-name', true).text(this.selectedHierarchyName === HierarchySelectionValues.All ? this.getString("All hierarchies") 
+                                                                                                            : this.selectedHierarchyName === HierarchySelectionValues.Unparented ? this.getString("Unassigned Time Series Instances") 
+                                                                                                            : this.selectedHierarchyName);
                         this.hierarchySelectorElem.append('i').classed('tsi-down-caret-icon', true);
                         // hierarchy flyout list
                         this.hierarchyListWrapperElem = hierarchySelectionWrapper.append('div').classed('tsi-hierarchy-list-wrapper', true);
@@ -1079,6 +1091,8 @@ class HierarchyNavigation extends Component{
     private selectHierarchy = (pathName, applySearch: boolean = true) => {
         this.path = pathName === HierarchySelectionValues.All || pathName === HierarchySelectionValues.Unparented ? [] : [pathName];
         this.selectedHierarchyName = pathName;
+        let selectedhierarchyId = pathName === HierarchySelectionValues.All || pathName === HierarchySelectionValues.Unparented ? pathName : this.envHierarchies[this.selectedHierarchyName].id;
+        this.chartOptions.onSelect(selectedhierarchyId);
         let pathText = pathName === HierarchySelectionValues.All ? this.getString("All hierarchies") : pathName === HierarchySelectionValues.Unparented ? this.getString("Unassigned Time Series Instances") : pathName;
         d3.select('.tsi-hierarchy-name').text(pathText).attr('title', pathText);
         this.clearAndGetResults(applySearch);
