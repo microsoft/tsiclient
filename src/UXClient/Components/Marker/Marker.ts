@@ -6,6 +6,7 @@ import { ChartOptions } from '../../Models/ChartOptions';
 import { LineChartData } from '../../Models/LineChartData';
 import { Tooltip } from '../Tooltip/Tooltip';
 import { ChartComponentData } from '../../Models/ChartComponentData';
+import { KeyCodes } from '../../Constants/Enums';
 
 const MARKERSTRINGMAXLENGTH = 250;
 
@@ -128,6 +129,12 @@ class Marker extends Component {
                         .attr('class', 'tsi-markerLabelText')
                         .attr('contenteditable', 'true')
                         .text(self.labelText)
+                        .on('keydown', () =>{
+                            if (d3.event.keyCode === KeyCodes.Enter && !d3.event.shiftKey) {
+                                d3.event.preventDefault();
+                                self.closeButton.node().focus();
+                            }
+                        })
                         .on('input', function () {
                             let didTrim = self.setLabelText(d3.select(this).text());
                             if (didTrim) {
