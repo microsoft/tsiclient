@@ -123,6 +123,12 @@ div[class^='tsi-']{
     border-radius: 4px;
     border-width: 1px;
     border-style: solid;
+
+    &.disabled {
+        cursor: default;
+        pointer-events: none;
+        opacity: .5;
+    }
 }
 
 .tsi-chartControlsPanel {

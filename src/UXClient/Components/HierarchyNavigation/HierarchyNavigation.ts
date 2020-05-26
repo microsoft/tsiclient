@@ -878,6 +878,7 @@ class HierarchyNavigation extends Component{
     public drawContextMenu = (contextMenuItems: Array<ContextMenuItems>, contextMenuOptions: ContextMenuOptions) => {
         let itemList = [];
         let contextMenuList;
+        let searchString = "";
         this.contextMenu = this.contextMenuProps['target'].append('div').classed('tsi-hierarchyNavigationContextMenu', true).attr('style', () => `top: ${this.contextMenuProps['wrapperMousePos'] - this.contextMenuProps['eltMousePos']}px`);
         let renderList = (contextMenuItems) => {
             if (this.contextMenu.select("ul").empty()) {
@@ -889,18 +890,21 @@ class HierarchyNavigation extends Component{
             contextMenuItems.forEach(item => {
                 let option = item.name;
                 let li = contextMenuList.append('li');
+                let markedElems = this.getElemsOfStrippedString(Utils.mark(searchString, option), 'mark');
                 
                 if (!contextMenuOptions.isSelectionEnabled) {
                     li.attr('tabindex', 0)
                     .attr('arialabel', option)
                     .attr('title', option)
-                    .text(option).on('click keydown', () => {
+                    .on('click keydown', () => {
                         if (Utils.isKeyDownAndNotEnter(d3.event)) {return; }
                         item.action();
+                        this.closeContextMenu();
                     });
+                    markedElems.forEach(elem => li.node().appendChild(elem));
                 } else {
-                    li.on('click', function() {
-                        let elem = d3.select(this).select(".tsi-hierarchyCheckbox");
+                    li.on('click', () => {
+                        let elem = d3.select(d3.event.currentTarget).select(".tsi-hierarchyCheckbox");
                         if (elem.classed("tsi-notSelected")) {
                             itemList.push(item);
                             elem.classed("tsi-notSelected", false);
@@ -909,11 +913,15 @@ class HierarchyNavigation extends Component{
                             itemList.splice(index, 1);
                             elem.classed("tsi-notSelected", true);
                         }
+                        itemList.length === 0 ?
+                            this.contextMenu.select("button").classed("disabled", true) 
+                            : this.contextMenu.select("button").classed("disabled", false);
                     })
-                    let div = li.append('div').classed('tsi-selectionItemWrapper', true);
-                    div.append('span').classed('tsi-hierarchyCheckbox tsi-notSelected', true);
-                    div.append('span').classed('tsi-selectionItem', true).text(option);
-                    div.append('span').classed('tsi-selectionItemKind', true).classed(item.kind, true).attr('title', item.kind.charAt(0).toUpperCase() + item.kind.slice(1));
+                    let itemWrapperElem = li.append('div').classed('tsi-selectionItemWrapper', true);
+                    itemWrapperElem.append('span').classed('tsi-hierarchyCheckbox tsi-notSelected', true);
+                    let itemElem = itemWrapperElem.append('span').classed('tsi-selectionItem', true);
+                    markedElems.forEach(elem => itemElem.node().appendChild(elem));
+                    itemWrapperElem.append('span').classed('tsi-selectionItemKind', true).classed(item.kind, true).attr('title', item.kind.charAt(0).toUpperCase() + item.kind.slice(1));
                 }
             });
         }
@@ -923,11 +931,13 @@ class HierarchyNavigation extends Component{
             let searchBox = this.contextMenu.append('div').classed('tsi-search', true);
             searchBox.append('i').classed('tsi-search-icon', true);
             searchBox.append('input').classed('tsi-searchInput', true).attr('placeholder', this.getString('Search'))
-                .on('input', function() { 
-                    let regex = new RegExp(this.value, 'gi');
+                .on('input', () => { 
+                    let regex = new RegExp(d3.event.currentTarget.value, 'gi');
+                    searchString = d3.event.currentTarget.value;
                     renderList(contextMenuItems.filter(varObj => varObj.name.match(regex)));
                     itemList = [];
-                })
+                    this.contextMenu.select("button").classed("disabled", true);
+                });
         }
 
         //draw variable list with checkbox if selection enabled
@@ -935,7 +945,7 @@ class HierarchyNavigation extends Component{
 
         //add button
         if (contextMenuOptions.isSelectionEnabled) {
-            this.contextMenu.append('button').classed("tsi-primaryButton", true).text(this.getString("Add")).on('click', () => {
+            this.contextMenu.append('button').classed("tsi-primaryButton", true).classed("disabled", true).text(this.getString("Add")).on('click', () => {
                 itemList.forEach(item => item.action());
                 this.closeContextMenu();
             });
@@ -953,12 +963,13 @@ class HierarchyNavigation extends Component{
     }
 
     // returns dom elements of stripped strings including hits and spans
-    private getElemsOfStrippedString = (str) => {
+    private getElemsOfStrippedString = (str, isMarkTag = null) => {
+        let tag = isMarkTag ? 'mark' : 'hit';
         let strippedElems = [];
-        str.split('<hit>').map(h => {
-            let strips = h.split('</hit>'); 
+        str.split(`<${tag}>`).map(h => {
+            let strips = h.split(`</${tag}>`); 
             if (strips.length > 1) {
-                let hitElem = document.createElement('hit'); 
+                let hitElem = document.createElement(tag); 
                 hitElem.innerText = strips[0];
                 strippedElems.push(hitElem);
                 let spanElem = document.createElement('span'); 

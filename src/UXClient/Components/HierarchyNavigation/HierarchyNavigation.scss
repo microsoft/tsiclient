@@ -650,6 +650,7 @@
 
     .tsi-hierarchyNavigationContextMenu{
         @extend .tsi-baseContextMenu;
+        border: none;
         position: absolute;
         width: 172px;
         left: calc(100% - 32px);
@@ -716,6 +717,7 @@
                 height: 16px;
                 background-size: contain;
                 background-repeat: no-repeat;
+                flex-shrink: 0;
                 &.categorical {
                     background-image: url('../../Icons/categorical.svg');
                 }
