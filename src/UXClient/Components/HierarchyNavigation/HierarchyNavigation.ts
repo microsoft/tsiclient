@@ -132,9 +132,6 @@ class HierarchyNavigation extends Component{
                         throw r.error;
                     } else {
                         // hierarchy selection button
-                        if (hierarchyNavOptions.selectedHierarchyId) {
-                            
-                        }
                         let hierarchySelectionWrapper = hierarchyNavWrapper.append('div').classed('tsi-hierarchy-selection-wrapper', true);
                         this.hierarchySelectorElem = hierarchySelectionWrapper.append('button').classed('tsi-hierarchy-select', true)
                             .attr("aria-haspopup", "listbox")
