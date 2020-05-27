@@ -77,8 +77,8 @@ class Strings {
         "zoom in": "zoom in",
         "zoom out": "zoom out",
         "select quick time of": "select quick time of",
-        "a time selection control dialog.": "a time selection control dialog.",
-        "a button to launch a time selection dialog. current selected time is ": "a button to launch a time selection dialog. current selected time is ",
+        "a time selection control dialog": "a time selection control dialog.",
+        "a button to launch a time selection dialog current selected time is ": "a button to launch a time selection dialog. current selected time is ",
         "No color": "No color",
         "Change y-axis type": "Change y-axis type",
         "Show/Hide values": "Show/Hide values",
@@ -104,7 +104,8 @@ class Strings {
         "Failed to complete search": "Failed to complete search",
         "Failed to get instance details": "Failed to get instance details",
         "Add": "Add",
-        "Search": "Search"
+        "Search": "Search",
+        "Marker": "Marker"
     };
   
     private stringValues: any = {};
