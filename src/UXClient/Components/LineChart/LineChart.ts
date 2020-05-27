@@ -558,15 +558,14 @@ class LineChart extends TemporalXAxisComponent {
     }
 
     public exportMarkers () {
-
         this.chartOptions.markers = Object.keys(this.markerGuidMap)
             .filter((markerGuid) => !this.activeMarker || this.activeMarker.getGuid() !== markerGuid)
-            .map((markerGuid) => this.markerGuidMap[markerGuid].getMillis());
+            .map((markerGuid) => {return [this.markerGuidMap[markerGuid].getMillis(), this.markerGuidMap[markerGuid].getLabelText()]});
         this.chartOptions.onMarkersChange(this.chartOptions.markers);
     }
 
     private createOnMarkerChange (markerGuid: string, marker: any) {
-        return (isDeleting, droppedMarker) => {
+        return (isDeleting, droppedMarker, shouldSort: boolean = true) => {
             if (droppedMarker) {
                 this.markerGuidMap[markerGuid] = marker;
                 this.isDroppingMarker = false;
@@ -580,13 +579,14 @@ class LineChart extends TemporalXAxisComponent {
                 } else {
                     this.focusOnEllipsis();
                 }
-            } 
+            }   
             this.exportMarkers();
-            this.sortMarkers();
+            if (shouldSort)
+                this.sortMarkers();
         }
     }
 
-    private renderMarker (marker: Marker, millis: number, onChange: any = null) {
+    private renderMarker (marker: Marker, millis: number, onChange: any = null, labelText: string = null) {
         marker.render(millis, this.chartOptions, this.chartComponentData, {
             chartMargins: this.chartMargins,
             x: this.x,
@@ -595,7 +595,8 @@ class LineChart extends TemporalXAxisComponent {
             yMap: this.yMap,
             onChange: onChange,
             chartHeight: this.height,
-            isDropping: false
+            isDropping: false,
+            labelText: labelText
         });
     }
 
@@ -641,9 +642,21 @@ class LineChart extends TemporalXAxisComponent {
                 });
             }
             this.markerGuidMap = {};            
-            this.chartOptions.markers.forEach((markerMillis) => {
+            this.chartOptions.markers.forEach((markerValueTuples, markerIndex) => {
+                if (markerValueTuples === null || markerValueTuples === undefined) {
+                    return;
+                }
                 let marker = new Marker(this.renderTarget);
                 let markerUID = Utils.guid();
+
+                let markerMillis;
+                if (typeof markerValueTuples === 'number') {
+                    markerMillis = markerValueTuples;
+                    marker.setLabelText(`${this.getString('Marker')} ${markerIndex + 1}`);
+                } else {
+                    marker.setLabelText(markerValueTuples[1]);
+                    markerMillis = markerValueTuples[0];
+                }
                 marker.setMillis(markerMillis);
                 this.markerGuidMap[markerUID] = marker;
             });
@@ -673,7 +686,6 @@ class LineChart extends TemporalXAxisComponent {
         return !(filteredValues == null || filteredValues.length == 0)
     }
 
-
     public addMarker = () => {
         if (this.isFirstMarkerDrop) {
             this.isFirstMarkerDrop = false;
@@ -690,9 +702,9 @@ class LineChart extends TemporalXAxisComponent {
         let marker = new Marker(this.renderTarget);
         let markerUID = Utils.guid();
         let onChange = this.createOnMarkerChange(markerUID, marker);
-        this.renderMarker(marker, Infinity, onChange);
         this.activeMarker = marker;
         this.markerGuidMap[markerUID] = marker;
+        this.renderMarker(marker, Infinity, onChange, `${this.getString('Marker')} ${Object.keys(this.markerGuidMap).length}`);
     }
 
     private voronoiExists (): boolean {

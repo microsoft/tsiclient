@@ -20,13 +20,13 @@ class DateTimeButtonRange extends DateTimeButton {
         let toString = this.buttonDateTimeFormat(toMillis) + ' (' + tzAbbr + ')';
         if (!isRelative) {
             this.dateTimeButton.text(`${fromString} - ${toString}`);
-            this.dateTimeButton.attr('aria-label', `${this.getString('a button to launch a time selection dialog. current selected time is ')} ${fromString} - ${toString}`)
+            this.dateTimeButton.attr('aria-label', `${this.getString('a button to launch a time selection dialog current selected time is ')} ${fromString} - ${toString}`)
         }
         else{
             let quickTimeText = this.dateTimePicker.getQuickTimeText(quickTime);
             let text = quickTimeText !== null ? `${quickTimeText} (${fromString} - ${toString})` : `${fromString} - ${this.getString('Latest')} (${toString})`
             this.dateTimeButton.text(text);
-            this.dateTimeButton.attr('aria-label', `${this.getString('a button to launch a time selection dialog. current selected time is ')} ${text}`)
+            this.dateTimeButton.attr('aria-label', `${this.getString('a button to launch a time selection dialog current selected time is ')} ${text}`)
         }
     }
 
