@@ -7,6 +7,7 @@ import { EventsTableData } from '../../Models/EventsTableData';
 import { TimeSeriesEvent } from '../../Models/TimeSeriesEvent';
 import { TimeSeriesEventCell } from '../../Models/TimeSeriesEventCell';
 import { ChartOptions } from '../../Models/ChartOptions';
+import { MetadataPropertyTypes } from '../../Constants/Enums';
 
 class EventsTable extends ChartComponent{
 
@@ -165,7 +166,7 @@ class EventsTable extends ChartComponent{
                     self.setLegendColumnStates();
                     self.buildTable();
                 })
-            d3.select(this).append("div").attr("class", "tsi-columnToggleName").text((d: any) => d.name);
+            d3.select(this).append("div").attr("class", "tsi-columnToggleName").text((d : any) => columns.filter(c => c.name === d.name).length > 1 ? `${d.name} (${d.type})` : d.name);
         });
         this.setLegendColumnStates();
         toggleableColumnLis.exit().remove();
@@ -216,6 +217,11 @@ class EventsTable extends ChartComponent{
 
     //creates columnHeaders, returns a dictionary of widths so that buildTable can know the min width of each column
     private buildHeaders (filteredColumnKeys, focusedHeader = null) {
+        let longAndDoubleExist = (propertyKey) => {
+            let propertyName = this.eventsTableData.columns[propertyKey].name;
+            return this.eventsTableData.columns.hasOwnProperty(propertyName + "_Long") && this.eventsTableData.columns.hasOwnProperty(propertyName + "_Double")
+        }
+
         this.eventsTable.select(".tsi-columnHeaders").html("");
         var self = this;
         var columnHeaders = this.eventsTable.select(".tsi-columnHeaders").selectAll(".tsi-columnHeader")
@@ -226,7 +232,7 @@ class EventsTable extends ChartComponent{
             .each( function(d: string) {
                 d3.select(this).append("span")
                     .classed("tsi-columnHeaderName", true)
-                    .text(self.eventsTableData.columns[d].name);
+                    .text(longAndDoubleExist(d) ? `${self.eventsTableData.columns[d].name} (${self.eventsTableData.columns[d].type})` : self.eventsTableData.columns[d].name);
                 d3.select(this).append("span").attr("class", "tsi-columnSortIcon")
                     .classed("up", (self.sortColumn == d && self.isAscending))
                     .classed("down", (self.sortColumn == d && !self.isAscending));
