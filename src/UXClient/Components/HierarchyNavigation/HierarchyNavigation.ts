@@ -118,11 +118,18 @@ class HierarchyNavigation extends Component{
             }).catch(err => this.chartOptions.onError(this.getString("hierarchyNav_error_title"), this.getString("hierarchyNav_hierarchy_load_error"), err instanceof XMLHttpRequest ? err : null));
         }).catch(err => this.chartOptions.onError(this.getString("hierarchyNav_error_title"), this.getString("hierarchyNav_auth_error"), err instanceof XMLHttpRequest ? err : null));
 
-        if (hierarchyNavOptions.selectedHierarchyId) {
-            this.selectedHierarchyName = hierarchyNavOptions.selectedHierarchyId === HierarchySelectionValues.All || hierarchyNavOptions.selectedHierarchyId === HierarchySelectionValues.Unparented ? 
-                                hierarchyNavOptions.selectedHierarchyId
-                                : Object.values(this.envHierarchies).find(h => h["id"] === hierarchyNavOptions.selectedHierarchyId)["name"];
-            this.path = this.selectedHierarchyName === HierarchySelectionValues.All || this.selectedHierarchyName === HierarchySelectionValues.Unparented ? [] : [this.selectedHierarchyName]
+        const selectedHierarchyId = hierarchyNavOptions.selectedHierarchyId;
+        if (selectedHierarchyId) {
+            if (selectedHierarchyId === HierarchySelectionValues.All || selectedHierarchyId === HierarchySelectionValues.Unparented) {
+                this.selectedHierarchyName = selectedHierarchyId; //Using enum values of All and Unparented as both name and id
+                this.path = [];
+            } else {
+                let hierarchy = Object.values(this.envHierarchies).find(h => h["id"] === selectedHierarchyId);
+                if (hierarchy) {
+                    this.selectedHierarchyName = hierarchy["name"];
+                    this.path =  [this.selectedHierarchyName];
+                }
+            }
         }
         
         getToken().then(token => {
