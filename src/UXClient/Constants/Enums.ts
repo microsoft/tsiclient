@@ -10,3 +10,4 @@ export enum KeyCodes {
 export enum InstancesSort {DisplayName = "DisplayName", Rank = "Rank"};
 export enum HierarchiesExpand {UntilChildren = "UntilChildren", OneLevel = "OneLevel"};
 export enum HierarchiesSort {Name = "Name", CumulativeInstanceCount = "CumulativeInstanceCount"};
+export enum MetadataPropertyTypes {Double = "Double", String = "String", DateTime = "DateTime", Long = "Long"}
