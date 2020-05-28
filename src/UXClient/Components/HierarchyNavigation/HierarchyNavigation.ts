@@ -935,7 +935,7 @@ class HierarchyNavigation extends Component{
                     })
                     let itemWrapperElem = li.append('div').classed('tsi-selectionItemWrapper', true);
                     itemWrapperElem.append('span').classed('tsi-hierarchyCheckbox tsi-notSelected', true);
-                    let itemElem = itemWrapperElem.append('span').classed('tsi-selectionItem', true);
+                    let itemElem = itemWrapperElem.append('span').classed('tsi-selectionItem', true).attr('title', option);
                     markedElems.forEach(elem => itemElem.node().appendChild(elem));
                     itemWrapperElem.append('span').classed('tsi-selectionItemKind', true).classed(item.kind, true).attr('title', item.kind.charAt(0).toUpperCase() + item.kind.slice(1));
                 }
