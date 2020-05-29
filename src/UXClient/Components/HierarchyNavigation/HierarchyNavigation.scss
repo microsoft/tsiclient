@@ -342,6 +342,7 @@
             height: 24px;
             transform: scaleY(1);
             padding: 0px 20px;
+            margin-top: 4px;
         }
 
         .tsi-filter-path {
@@ -396,7 +397,7 @@
     .tsi-search-global {
         display: none;
         animation: fade-in .2s ease-in-out;
-        padding: 0 20px 8px;
+        padding: 4px 20px 0px;
 
         a {
             text-decoration: none;
