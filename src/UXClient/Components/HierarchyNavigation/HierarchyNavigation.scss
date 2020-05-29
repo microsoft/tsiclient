@@ -680,7 +680,6 @@
         }
 
         li {
-            padding: 4px 8px;
             font-size: 12px;
             cursor: pointer;
             height: 28px;
@@ -700,6 +699,7 @@
             display: flex;
             align-items: center;
             width: 100%;
+            padding: 4px 8px;
             cursor: pointer;
 
             .tsi-hierarchyCheckbox {
