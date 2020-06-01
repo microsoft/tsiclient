@@ -198,21 +198,9 @@
         }    
     }
     .tsi-markerTimeLabel {
-        cursor: move;
+        @extend .tsi-chartValueTextBox;  
+        cursor: move;     
         top: calc(100% + 3px);
-        position: absolute;
-        left: 0px;
-        white-space: nowrap;
-        font-size: 11px;
-        padding: 1px 4px;
-        border-width: 1px;
-        border-style: solid;
-        box-shadow: 0px 0px 2px 0px rgba(0, 0, 0, 0.3);	
-
-        .tsi-markerTimeLine {
-            line-height: 16px;
-        }
-       
     }
     
     &.tsi-dark{

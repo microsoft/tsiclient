@@ -19,6 +19,9 @@ import { Marker } from '../Marker/Marker';
 class LineChart extends TemporalXAxisComponent {
     private targetElement: any;
     private focus: any;
+    private horizontalValueBox: any;
+    private verticalValueBox: any;
+    private horizontalValueBar: any;
     private contextMenu: ContextMenu;
     private brushContextMenu: ContextMenu;
     private setDisplayStateFromData: any;
@@ -125,12 +128,18 @@ class LineChart extends TemporalXAxisComponent {
         this.focusedSplitby = null;
     }
 
+    private hideFocusElements () {
+        this.focus.style('display', 'none');
+        this.verticalValueBox.style('display', 'none');
+        this.horizontalValueBox.style('display', 'none');
+    }
+
     private voronoiMouseout (d: any)  {
         //supress if the context menu is visible
         if (this.contextMenu && this.contextMenu.contextMenuVisible)
             return;
         
-        this.focus.style("display", "none");
+        this.hideFocusElements();        
         this.tooltip.hide();
         (<any>this.legendObject.legendElement.selectAll('.tsi-splitByLabel')).classed("inFocus", false);
         if (d3.event && d3.event.type != 'end') {
@@ -282,6 +291,26 @@ class LineChart extends TemporalXAxisComponent {
         this.tooltip.hide();
     }
 
+    private setHorizontalValuePosAndText (d: any, xPos: number, xValue: any, shiftMillis: number) {
+        var bucketSize = this.chartComponentData.displayState[d.aggregateKey].bucketSize;
+        var endValue = bucketSize ? (new Date(xValue.valueOf() + bucketSize)) : null;
+        
+        this.horizontalValueBox.text('')
+            .style('left', `${xPos}px`)
+            .style('display', 'block');
+        this.horizontalValueBox.append('div')
+            .attr('class', 'tsi-valueBoxText')
+            .text(Utils.timeFormat(this.chartComponentData.usesSeconds, this.chartComponentData.usesMillis, 
+                this.chartOptions.offset, this.chartOptions.is24HourTime, shiftMillis, null, this.chartOptions.dateLocale)(xValue))
+
+    }
+
+    private setVerticalValueAndPosition (yValue: number, yPos) {
+        this.verticalValueBox.style('top', `${yPos}px`)
+            .style('display', 'block')
+            .text(Utils.formatYAxisNumber(yValue));
+    }
+
     private voronoiMouseover = (d: any) => {
         //supress if the context menu is visible
         if (this.contextMenu && this.contextMenu.contextMenuVisible)
@@ -298,51 +327,24 @@ class LineChart extends TemporalXAxisComponent {
         this.focus.attr("transform", "translate(" + xPos + "," + yPos + ")");
         this.focus.select('.tsi-hLine').attr("transform", "translate(" + (-xPos) + ",0)");
         this.focus.select('.tsi-vLine').attr("transform", "translate(0," + (-yPos) + ")");
-        
-        this.focus.select('.hHoverG')
-            .attr("transform", "translate(0," + (this.chartHeight - yPos) + ")");
-        var text = this.focus.select('.hHoverG').select("text").text("");
 
+        this.setHorizontalValuePosAndText(d, xPos + this.getSVGLeftOffset() + this.chartMargins.left, xValue, shiftMillis);
+        this.setVerticalValueAndPosition(yValue, yPos + this.chartMargins.top);
+        
         var bucketSize = this.chartComponentData.displayState[d.aggregateKey].bucketSize;
         var endValue = bucketSize ? (new Date(xValue.valueOf() + bucketSize)) : null;
-        
-        text.append("tspan").text(Utils.timeFormat(this.chartComponentData.usesSeconds, this.chartComponentData.usesMillis, 
-                 this.chartOptions.offset, this.chartOptions.is24HourTime, shiftMillis, null, this.chartOptions.dateLocale)(xValue))
-            .attr("x", 0)
-            .attr("y", 4);
+
         if (endValue) {
-            text.append("tspan").text(Utils.timeFormat(this.chartComponentData.usesSeconds, this.chartComponentData.usesMillis, 
-                    this.chartOptions.offset, this.chartOptions.is24HourTime, shiftMillis, null, this.chartOptions.dateLocale)(endValue))
-                .attr("x", 0)
-                .attr("y", 27);
-            var barWidth = this.x(endValue) - this.x(xValue);
-            this.focus.select('.hHoverG').select('.hHoverValueBar')
+            let barWidth = this.x(endValue) - this.x(xValue);
+            this.horizontalValueBar
+                .style('display', 'block')
                 .attr("x1", (-barWidth / 2))
-                .attr("x2", (barWidth / 2));
+                .attr("x2", (barWidth / 2))
+                .attr('y1', this.chartHeight - yPos + 2)
+                .attr('y2', this.chartHeight - yPos + 2)
+        } else {
+            this.horizontalValueBar.style('display', 'none');
         }
-        else {
-            this.focus.select('.hHoverG').select('.hHoverValueBar')
-                .attr("x2", 0);
-        }
-
-        var textElemDimensions = (<any>this.focus.select('.hHoverG').select("text")
-            .node()).getBoundingClientRect();
-        this.focus.select(".hHoverG").select("rect")
-            .attr("x", -(textElemDimensions.width / 2) - 3)
-            .attr("width", textElemDimensions.width + 6)
-            .attr("height", textElemDimensions.height + 5);
-
-        this.focus.select('.vHoverG')
-            .attr("transform", "translate(" + (-xPos) + ",0)")
-            .select("text")
-            .text(Utils.formatYAxisNumber(yValue));
-        var textElemDimensions = (<any>this.focus.select('.vHoverG').select("text")
-            .node()).getBoundingClientRect();
-        this.focus.select(".vHoverG").select("rect")
-            .attr("x", -(textElemDimensions.width) - 13)
-            .attr("y", -(textElemDimensions.height / 2) - 3)
-            .attr("width", textElemDimensions.width + 6)
-            .attr("height", textElemDimensions.height + 4);
         if (this.chartOptions.tooltip){
             this.tooltip.render(this.chartOptions.theme);
             this.tooltip.draw(d, this.chartComponentData, xPos, yPos, this.chartMargins, (text) => {
@@ -985,8 +987,12 @@ class LineChart extends TemporalXAxisComponent {
         }
     }
 
+    private getSVGLeftOffset () {
+        return this.chartOptions.legend === 'shown' ? (this.width - this.svgSelection.node().getBoundingClientRect().width) : 0;
+    }
+
     public updateBrushRange () {
-        let svgLeftOffset = this.chartOptions.legend === 'shown' ? (this.width - this.svgSelection.node().getBoundingClientRect().width) : 0;
+        let svgLeftOffset = this.getSVGLeftOffset();
         if (!(this.brushStartTime || this.brushEndTime)) {
             this.deleteBrushRange();
             return;
@@ -1363,48 +1369,26 @@ class LineChart extends TemporalXAxisComponent {
             this.focus.append("circle")
                 .attr("r", 4);
     
-            var hHoverG: any = this.focus.append("g")
-                .attr("class", 'hHoverG')
-                .style("pointer-events", "none")
-                .attr("transform", "translate(0," + (this.chartHeight + this.chartOptions.aggTopMargin) + ")");
-            var hHoverBox: any = hHoverG.append("rect")
-                .style("pointer-events", "none")
-                .attr("class", 'hHoverBox')
-                .attr("x", 0)
-                .attr("y", 4)
-                .attr("width", 0)
-                .attr("height", 0);
-    
-            var hHoverText: any = hHoverG.append("text")
-                .style("pointer-events", "none")
-                .attr("class", "hHoverText")
-                .attr("dy", ".71em")
-                .attr("transform", "translate(0,6)")
-                .text(d => d);
+            this.horizontalValueBox = d3.select(this.renderTarget)
+                .append('div')
+                .attr('class', 'tsi-horizontalValueBox tsi-chartValueTextBox')
+                .style('display', 'none')
+                .style('top', `${(this.chartMargins.top + this.chartHeight + 3)}px`)
+                .attr('pointer-events', 'none');
 
-            var hHoverBar: any = hHoverG.append("line")
-                .style("pointer-events", "none")
-                .attr("class", "hHoverValueBar")
-                .attr("x1", 0)
-                .attr("x2", 0)
-                .attr("y1", 2)
-                .attr("y2", 2);
+            this.verticalValueBox =  d3.select(this.renderTarget)
+                .append('div')
+                .attr('class', 'tsi-verticalValueBox')
+                .attr('display', 'none')
+                .style('right', `${(this.chartMargins.right + this.chartWidth)}px`)
+                .style('top', '10px');
+                
+            this.horizontalValueBar = this.focus.append('line')
+                .attr('y1', 0)
+                .attr('y2', 0)
+                .attr('class', 'tsi-horizontalValueBar')
+                .style('display', 'none');        
 
-            var vHoverG: any = this.focus.append("g")
-                .attr("class", 'vHoverG')
-                .attr("transform", "translate(0," + (this.chartHeight + this.chartOptions.aggTopMargin) + ")");
-            var vHoverBox: any = vHoverG.append("rect")
-                .attr("class", 'vHoverBox')
-                .attr("x", -5)
-                .attr("y", 0)
-                .attr("width", 0)
-                .attr("height", 0)
-            var vHoverText: any = vHoverG.append("text")
-                .attr("class", "vHoverText")
-                .attr("dy", ".32em")
-                .attr("x", -10)
-                .text(d => d);
-    
             if (!this.tooltip) {
                 this.tooltip = new Tooltip(d3.select(this.renderTarget));                        
             }
