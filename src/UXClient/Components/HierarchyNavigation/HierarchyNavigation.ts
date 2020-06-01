@@ -40,31 +40,41 @@ class HierarchyNavigation extends Component{
     constructor(renderTarget: Element){ 
         super(renderTarget); 
         this.server = new ServerClient();
-        function amIClicked() {
+        function isTarget() {
             return d3.event.target === this || this.contains(d3.event.target);
         }
-        d3.select("html").on("click. keydown." + Utils.guid(), () => {
-            if (this.clickedInstance && this.contextMenu && this.contextMenu.filter(amIClicked).empty()) {
-                if (d3.event && d3.event.type && d3.event.type === 'keydown') {
-                    let key = d3.event.which || d3.event.keyCode;
-                    if (key === 27) { // esc
-                        this.closeContextMenu();
+        d3.select("html").on("click. keydown." + Utils.guid(), () => { //close hierarchy selection dropdown or context menu if necessary 
+            if (this.clickedInstance && this.contextMenu) {
+                if (d3.event.type && d3.event.type === 'keydown') {
+                    if (!this.contextMenu.filter(isTarget).empty()) {
+                        let key = d3.event.which || d3.event.keyCode;
+                        if (key === KeyCodes.Esc) { // close context menu when pressed esc on it
+                            this.closeContextMenu();
+                        }
+                        return;
                     }
-                    return;
+                } else {
+                    if (this.contextMenu.filter(isTarget).empty()) { // close context menu when clicked any other target outside of it
+                        this.closeContextMenu(); 
+                    }
                 }
-                this.closeContextMenu();
             }
-            if (this.isHierarchySelectionActive && this.hierarchySelectorElem.filter(amIClicked).empty()) {
+            if (this.isHierarchySelectionActive) {
                 if (d3.event && d3.event.type && d3.event.type === 'keydown') {
-                    let key = d3.event.which || d3.event.keyCode;
-                    if (key === 27) { // esc
+                    if (!d3.select(this.hierarchyListWrapperElem.node().parentNode).filter(isTarget).empty()) {
+                        let key = d3.event.which || d3.event.keyCode;
+                        if (key === KeyCodes.Esc) { // close hierarchy selection dropdown when pressed esc on it
+                            this.isHierarchySelectionActive = false;
+                            this.hierarchyListWrapperElem.style('display', 'none');
+                        }
+                        return;
+                    }
+                } else {
+                    if (d3.select(this.hierarchyListWrapperElem.node().parentNode).filter(isTarget).empty() ) { // close hierarchy selection dropdown when clicked any other target outside of it
                         this.isHierarchySelectionActive = false;
                         this.hierarchyListWrapperElem.style('display', 'none');
                     }
-                    return;
                 }
-                this.isHierarchySelectionActive = false;
-                this.hierarchyListWrapperElem.style('display', 'none');
             }
         })
     }
@@ -704,6 +714,7 @@ class HierarchyNavigation extends Component{
 
     // renders instances data in flat list view, only in 'Search' mode
     private renderInstances = (data, target) => {
+        let self = this;
         if (Object.keys(data).length === 0) {
             this.noResultsElem.style('display', 'block');
             (this.viewTypesElem.node() as any).style.display = 'none';
@@ -735,12 +746,12 @@ class HierarchyNavigation extends Component{
                 div.on('click keydown', function() {
                     let clickInstance = () => {
                         d3.event.stopPropagation();
-                        this.closeContextMenu();
-                        let target = this.instanceListElem.select(function() { return this.parentNode.parentNode});
+                        self.closeContextMenu();
+                        let target = self.instanceListElem.select(function() { return this.parentNode.parentNode});
                         let mouseWrapper = d3.mouse(target.node());
                         let mouseElt = d3.mouse(this as any);
-                        this.prepareForContextMenu(data[i], target, mouseWrapper[1], mouseElt[1]);
-                        this.chartOptions.onInstanceClick(data[i]);
+                        self.prepareForContextMenu(data[i], target, mouseWrapper[1], mouseElt[1]);
+                        self.chartOptions.onInstanceClick(data[i]);
                     }
 
                     if (d3.event && d3.event.type && d3.event.type === 'keydown') {
@@ -917,25 +928,31 @@ class HierarchyNavigation extends Component{
                         item.action();
                         this.closeContextMenu();
                     });
-                    markedElems.forEach(elem => li.node().appendChild(elem));
+                    let itemWrapperElem = li.append('div').classed('tsi-selectionItemWrapper', true);
+                    markedElems.forEach(elem => itemWrapperElem.node().appendChild(elem));
                 } else {
-                    li.on('click', () => {
+                    li.attr('tabindex', 0)
+                    .on('click keydown', () => {
+                        if (Utils.isKeyDownAndNotEnter(d3.event)) {return; }
                         let elem = d3.select(d3.event.currentTarget).select(".tsi-hierarchyCheckbox");
                         if (elem.classed("tsi-notSelected")) {
                             itemList.push(item);
                             elem.classed("tsi-notSelected", false);
+                            elem.attr("aria-checked", true);
                         } else {
                             let index = itemList.map(elem => elem.name).indexOf(item.name);
                             itemList.splice(index, 1);
                             elem.classed("tsi-notSelected", true);
+                            elem.attr("aria-checked", false);
                         }
                         itemList.length === 0 ?
                             this.contextMenu.select("button").classed("disabled", true) 
                             : this.contextMenu.select("button").classed("disabled", false);
                     })
                     let itemWrapperElem = li.append('div').classed('tsi-selectionItemWrapper', true);
-                    itemWrapperElem.append('span').classed('tsi-hierarchyCheckbox tsi-notSelected', true);
-                    let itemElem = itemWrapperElem.append('span').classed('tsi-selectionItem', true);
+                    itemWrapperElem.append('span').classed('tsi-hierarchyCheckbox tsi-notSelected', true)
+                                    .attr("role","checkbox").attr("aria-checked", false);
+                    let itemElem = itemWrapperElem.append('span').classed('tsi-selectionItem', true).attr('title', option);
                     markedElems.forEach(elem => itemElem.node().appendChild(elem));
                     itemWrapperElem.append('span').classed('tsi-selectionItemKind', true).classed(item.kind, true).attr('title', item.kind.charAt(0).toUpperCase() + item.kind.slice(1));
                 }
