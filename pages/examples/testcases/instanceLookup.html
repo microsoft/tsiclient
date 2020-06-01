@@ -29,6 +29,9 @@
             var hierarchy = null;
             var environmentFqdn = '0293bb6f-5d98-4953-be00-e8e9eedf9b88.env.timeseries.azure.com'; //'c3657b0f-7f56-4a45-932b-68aba4d34b6d.env.timeseries.azure.com'; //'c3657b0f-7f56-4a45-932b-68aba4d34b6d.env.timeseries.azure.com';//'a8061fa4-53ff-41cf-9ad5-3f56bd9883cf.env.crystal-dev.windows-int.net' //'dcbba382-10bd-40ea-ba06-454094aee00a.env.timeseries.azure.com'; //'bf43f133-3f68-4ec0-bcb4-fd64530e4256.env.crystal-dev.windows-int.net'
             var tsiClient;
+            onSelect = (selectedHierarchyId) => {
+                console.log(selectedHierarchyId);
+            }
             onError = (title, message, xhr) => {
                 console.log(title + ": " + message);
             }
@@ -43,14 +46,22 @@
                                     let option = {};
                                     if (type.variables[vName].aggregation && type.variables[vName].aggregation.tsx === 'avg($value)') {
                                         let newType = this.getTsmTypeFromVariable(type.variables[vName]);
-                                        option['Show ' + vName] = () => alert(JSON.stringify(newType.variables));
+                                        option.name = vName;
+                                        option.kind = type.variables[vName].kind;
+                                        option.action = () => alert(JSON.stringify(newType.variables));
                                     } else {
-                                        option['Show ' + vName] = () => alert(JSON.stringify(type.variables));//addInstanceAction(type, vName);
+                                        option.name = vName;
+                                        option.kind = type.variables[vName].kind;
+                                        option.action = () => alert(JSON.stringify(type.variables));//addInstanceAction(type, vName);
                                     }
                                     contextMenuActions.push(option);
                                 });
                             });
-                            instance.drawContextMenu(contextMenuActions);
+                            hierarchy.drawContextMenu(contextMenuActions, {
+                                isSelectionEnabled: contextMenuActions.length > 1 ? true : false, 
+                                isFilterEnabled: contextMenuActions.length > 5 ? true : false,
+                                onClose: () => hierarchy.closeContextMenu()
+                            });
                         }
                     }).catch(function (err) {
                         let typeVariables = instance.type.variables;
@@ -59,16 +70,22 @@
                             let option = {};
                             if (typeVariables[vName].aggregation && typeVariables[vName].aggregation.tsx === 'avg($value)') {
                                 let newType = this.getTsmTypeFromVariable(typeVariables[vName]);
-                                option['Show ' + vName] = () => alert(JSON.stringify(newType.variables));
+                                option.name = vName;
+                                option.kind = typeVariables[vName].kind;
+                                option.action = () => alert(JSON.stringify(newType.variables));
                             } else {
-                                option['Show ' + vName] = () => alert(JSON.stringify(instance.type.variables));//addInstanceAction(type, vName);
+                                option.name = vName;
+                                option.kind = typeVariables[vName].kind;
+                                option.action = () => alert(JSON.stringify(instance.type.variables));//addInstanceAction(type, vName);
                             }
                             contextMenuActions.push(option);
                         });
-                        instance.drawContextMenu(contextMenuActions);
+                        hierarchy.drawContextMenu(contextMenuActions, {
+                            isSelectionEnabled: contextMenuActions.length > 1 ? true : false, 
+                            isFilterEnabled: contextMenuActions.length > 5 ? true : false
+                        });
                     });
                 });
-                
             }
             getTsmTypeFromVariable = (v) => {
                 let type = {variables: {
@@ -123,7 +140,7 @@
                 hierarchy.render(
                     environmentFqdn, 
                     authContext.getTsiToken, 
-                    Object.assign({}, hierarchyNavOptions, {onInstanceClick: instance => this.onInstanceClick(instance), onError: (title, message, xhr) => this.onError(title, message, xhr)}),
+                    Object.assign({}, hierarchyNavOptions, {onInstanceClick: instance => this.onInstanceClick(instance), onError: (title, message, xhr) => this.onError(title, message, xhr), onSelect: (hierarchyId) => this.onSelect(hierarchyId)}),
                 );
 
             }

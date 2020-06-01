@@ -9,3 +9,8 @@ export const DefaultHierarchyNavigationOptions = {
     hierarchiesExpand: HierarchiesExpand.OneLevel,
     hierarchiesSort: HierarchiesSort.Name
 };
+
+export const DefaultHierarchyContextMenuOptions = {
+    isSelectionEnabled: false,
+    isFilterEnabled: false
+}

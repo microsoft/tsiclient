@@ -24,21 +24,15 @@ class ModelAutocomplete extends Component{
         let wrapper = targetElement.append('div').attr('class', 'tsi-modelAutocompleteWrapper');
         super.themify(wrapper, this.chartOptions.theme);
         let inputWrapper = wrapper.append("div")
-            .attr("class", "tsi-modelAutocompleteInputWrapper");
+            .attr("class", "tsi-search");
         inputWrapper.append('i').classed('tsi-search-icon', true);
         let input = inputWrapper.append("input")
-            .attr("class", "tsi-modelAutocompleteInput")
+            .attr("class", "tsi-searchInput")
             .attr("aria-label", this.getString("Search Time Series Instances"))
             .attr("aria-describedby", "tsi-search-desc")
             .attr("aria-owns", "tsi-search-results")
             .attr("aria-expanded", "false")
             .attr("placeholder", this.getString("Search Time Series Instances") + '...')
-            .on("focus", function() {
-                ((this as HTMLElement).parentNode.parentNode as HTMLElement).classList.add("focused");
-            })
-            .on("blur", function() {
-                ((this as HTMLElement).parentNode.parentNode as HTMLElement).classList.remove("focused");
-            });
         let clear = inputWrapper.append('div').attr('class', 'tsi-clear')
                     .attr("tabindex", "0").attr("role", "button")
                     .attr("aria-label", "Clear Search")
