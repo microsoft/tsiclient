@@ -51,6 +51,9 @@
                 stroke: #fff !important;
             }
         }
+        .tsi-horizontalValueBar {
+            stroke: rgba($gray1, .8);
+        }
     }
 
     .tsi-scooterContainer {
@@ -79,6 +82,21 @@
 }
 
 .tsi-lineChart {
+    .tsi-horizontalValueBox, .tsi-verticalValueBox {
+        @extend .tsi-chartValueTextBox;
+        z-index: 2;
+        pointer-events: none;
+    }
+    .tsi-horizontalValueBox {
+        transform: translateX(-50%);
+    }
+    .tsi-verticalValueBox {
+        transform: translateY(-50%);
+    }
+
+    .tsi-horizontalValueBar {
+        stroke-width: 3;
+    }
 
     .tsi-rangeTextContainer {
         pointer-events: none;

@@ -123,7 +123,10 @@ class Marker extends Component {
                         .attr('class', 'tsi-markerLabel');
 
                     self.markerLabel.append('div')
-                        .attr('class', 'tsi-markerGrabber');
+                        .attr('class', 'tsi-markerGrabber')
+                        .on('mouseenter', () => {
+                            self.bumpMarker();    
+                        });
 
                     self.markerLabel.append('div')
                         .attr('class', 'tsi-markerLabelText')
