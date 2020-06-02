@@ -77,8 +77,8 @@ class Strings {
         "zoom in": "zoom in",
         "zoom out": "zoom out",
         "select quick time of": "select quick time of",
-        "a time selection control dialog.": "a time selection control dialog.",
-        "a button to launch a time selection dialog. current selected time is ": "a button to launch a time selection dialog. current selected time is ",
+        "a time selection control dialog": "a time selection control dialog.",
+        "a button to launch a time selection dialog current selected time is ": "a button to launch a time selection dialog. current selected time is ",
         "No color": "No color",
         "Change y-axis type": "Change y-axis type",
         "Show/Hide values": "Show/Hide values",
@@ -97,12 +97,15 @@ class Strings {
         "and value": "and value",
         "Looking for": "Looking for",
         "Hierarchy error": "Error occured! Refreshing hierarchy...",
-        "hierarchyNav_auth_error": "Failed to get token",
-        "hierarchyNav_error_title": "Error in hierarchy navigation",
-        "hierarchyNav_type_load_error": "Failed to load types for navigation",
-        "hierarchyNav_hierarchy_load_error": "Failed to load hierarchies for navigation",
-        "hierarchyNav_search_error": "Failed to complete search",
-        "hierarchyNav_instance_error": "Failed to get instance details"
+        "Failed to get token": "Failed to get token",
+        "Error in hierarchy navigation": "Error in hierarchy navigation",
+        "Failed to load types for navigation": "Failed to load types for navigation",
+        "Failed to load hierarchies for navigation": "Failed to load hierarchies for navigation",
+        "Failed to complete search": "Failed to complete search",
+        "Failed to get instance details": "Failed to get instance details",
+        "Add": "Add",
+        "Search": "Search",
+        "Marker": "Marker"
     };
   
     private stringValues: any = {};

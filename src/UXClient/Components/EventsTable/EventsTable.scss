@@ -117,7 +117,7 @@
         &.DateTime {
             background-image: url('../../Icons/date.svg');
         }
-        &.Double {
+        &.Double, &.Long {
             background-image: url('../../Icons/number.svg');
         }
         &.Bool {

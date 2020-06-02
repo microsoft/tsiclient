@@ -509,7 +509,7 @@ class Utils {
     static mark(filter, text){
         if(filter.length == 0)
             return text;
-        var regExp = new RegExp(filter, 'i');
+        var regExp = new RegExp(filter, 'gi');
         return text.replace(regExp, function(m){ return '<mark>'+m+'</mark>';});
     }
 

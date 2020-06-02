@@ -28,24 +28,10 @@
             background-color: $gray4;
         }
     }
-
-    input {
-        background-color: $gray3;
-        color: $gray1;
-    }
-
-
-    .tsi-modelAutocompleteInputWrapper {
-        border: 1px solid $gray5;
-
-        &.focused {
-            border-color: $gray6;
-        }
-    }
 }
 
 .tsi-modelAutocompleteWrapper{
-    padding: 4px 0;
+    height: 32px;
     position: relative;
 
     &.tsi-dark{
@@ -69,21 +55,7 @@
         }
     }
 
-    .tsi-modelAutocompleteInputWrapper{
-        height: 32px;
-        width: 100%;
-        display: flex;
-        flex-shrink: 0;
-        align-items: center;
-        padding: 4px 0 4px 4px;
-
-        .tsi-search-icon {
-            width: 20px;
-            height: 17px;
-            background-repeat: no-repeat;
-            margin-right: 4px;
-        }
-
+    .tsi-search{
         .tsi-clear{
             width: 20px;
             height: 20px;
@@ -99,14 +71,7 @@
                 display: block;
             }
         }
-        .tsi-modelAutocompleteInput{
-            border: none !important;
-
-            &:focus {
-                outline: none;
-            }
-        }
-        .tsi-modelAutocompleteInput::-ms-clear{
+        .tsi-searchInput::-ms-clear{
             display: none;
         }
         
@@ -120,17 +85,13 @@
         }
 
         .awesomplete {
-            display: inline-block;
-            position: relative;
+            height: 100%;
             width: 100%;
+            position: absolute;
         }
 
         .awesomplete > input {
-            display: block;
-            z-index: 2;
-            position: relative;
-            width: calc(100% - 28px);
-            height: 29px;
+            padding-right: 28px;
         }
 
         .awesomplete > ul {
@@ -142,8 +103,8 @@
             padding: 0;
             border-radius: 0px;
             font-size: 13px;
-            width: calc(100% + 28px);
-            margin-left: -27px;
+            width: 100%;
+            margin-top: 30px;
 
             &:before{
                 display: none;

@@ -25,7 +25,12 @@
                         var values = {};
                         lines[`Station${j}`] = values;
                         for(var k = 0; k < 60; k++){
-                            if(!(k%2 && k%3)){  // if check is to create some sparseness in the data
+                            if (i === 0) {
+                                if (k%10 === 0 && k % 30 !== 0) {
+                                    var to = new Date(from.valueOf() + 1000*60*k);
+                                    values[to.toISOString().split('.')[0]+"Z"] = {avg: Math.random() * 20};
+                                }
+                            } else {
                                 var to = new Date(from.valueOf() + 1000*60*k);
                                 values[to.toISOString().split('.')[0]+"Z"] = {avg: Math.random() * 20};
                             }
@@ -58,7 +63,7 @@
                 lineChart.render(JSON.parse(JSON.stringify(data)), {legend: 'compact', theme: 'dark', grid: true, tooltip: true, 
                     brushContextMenuActions: brushContextMenu, markers: [from.valueOf() + (60*1000*20), 
                         from.valueOf() + (60*1000*25)], onMarkersChange: (markers) => {console.log(markers)}},
-                    [{measureTypes: ['avg'], searchSpan: {from: from.toISOString(), to: to.toISOString(), bucketSize: '1m'}, alias: 'Factory0'}, {alias: 'Factory1'}]);
+                    [{measureTypes: ['avg'], searchSpan: {from: from.toISOString(), to: to.toISOString(), bucketSize: '10m'}, alias: 'Factory0'}, {alias: 'Factory1'}]);
 
                 exportMarkers = function () {
                     console.log(lineChart.exportMarkers());

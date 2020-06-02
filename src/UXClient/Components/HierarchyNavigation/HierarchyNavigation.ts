@@ -34,37 +34,47 @@ class HierarchyNavigation extends Component{
     private mode = State.Navigate;
     private searchString = "";  
     private path: Array<string> = [];
+    private contextMenu: any;
+    private contextMenuProps: {};
 
     constructor(renderTarget: Element){ 
         super(renderTarget); 
         this.server = new ServerClient();
-        function amIClicked() {
-            return this == d3.event.target || this == d3.event.target.parentNode;
+        function isTarget() {
+            return d3.event.target === this || this.contains(d3.event.target);
         }
-        d3.select("html").on("click. keydown." + Utils.guid(), () => {
-            if (this.clickedInstance && this.clickedInstance.contextMenu && this.clickedInstance.contextMenu.filter(amIClicked).empty()) {
-                if (d3.event && d3.event.type && d3.event.type === 'keydown') {
-                    let key = d3.event.which || d3.event.keyCode;
-                    if (key === 27) { // esc
-                        this.closeContextMenu();
-                        this.clickedInstance = null;
+        d3.select("html").on("click. keydown." + Utils.guid(), () => { //close hierarchy selection dropdown or context menu if necessary 
+            if (this.clickedInstance && this.contextMenu) {
+                if (d3.event.type && d3.event.type === 'keydown') {
+                    if (!this.contextMenu.filter(isTarget).empty()) {
+                        let key = d3.event.which || d3.event.keyCode;
+                        if (key === KeyCodes.Esc) { // close context menu when pressed esc on it
+                            this.closeContextMenu();
+                        }
+                        return;
                     }
-                    return;
+                } else {
+                    if (this.contextMenu.filter(isTarget).empty()) { // close context menu when clicked any other target outside of it
+                        this.closeContextMenu(); 
+                    }
                 }
-                this.closeContextMenu();
-                this.clickedInstance = null;
             }
-            if (this.isHierarchySelectionActive && this.hierarchySelectorElem.filter(amIClicked).empty()) {
+            if (this.isHierarchySelectionActive) {
                 if (d3.event && d3.event.type && d3.event.type === 'keydown') {
-                    let key = d3.event.which || d3.event.keyCode;
-                    if (key === 27) { // esc
+                    if (!d3.select(this.hierarchyListWrapperElem.node().parentNode).filter(isTarget).empty()) {
+                        let key = d3.event.which || d3.event.keyCode;
+                        if (key === KeyCodes.Esc) { // close hierarchy selection dropdown when pressed esc on it
+                            this.isHierarchySelectionActive = false;
+                            this.hierarchyListWrapperElem.style('display', 'none');
+                        }
+                        return;
+                    }
+                } else {
+                    if (d3.select(this.hierarchyListWrapperElem.node().parentNode).filter(isTarget).empty() ) { // close hierarchy selection dropdown when clicked any other target outside of it
                         this.isHierarchySelectionActive = false;
                         this.hierarchyListWrapperElem.style('display', 'none');
                     }
-                    return;
                 }
-                this.isHierarchySelectionActive = false;
-                this.hierarchyListWrapperElem.style('display', 'none');
             }
         })
     }
@@ -72,7 +82,7 @@ class HierarchyNavigation extends Component{
     HierarchyNavigation(){
     }
     
-    public render(environmentFqdn: string, getToken: any, hierarchyNavOptions: any = {}){
+    public async render(environmentFqdn: string, getToken: any, hierarchyNavOptions: any = {}){
         let self = this;
         this.chartOptions.setOptions(hierarchyNavOptions);
         this.getToken = getToken;
@@ -85,8 +95,8 @@ class HierarchyNavigation extends Component{
         super.themify(hierarchyNavWrapper, this.chartOptions.theme);
 
         //get the most recent types to show in the context menu on instance click
-        getToken().then(token => {
-            this.server.getTimeseriesTypes(token, environmentFqdn).then(r => {
+        await getToken().then(token => {
+            return this.server.getTimeseriesTypes(token, environmentFqdn).then(r => {
                 try {
                     if (r.error) {
                         throw r.error;
@@ -98,12 +108,12 @@ class HierarchyNavigation extends Component{
                 } catch (err) {
                     throw err;
                 }
-            }).catch(err => this.chartOptions.onError(this.getString("hierarchyNav_error_title"), this.getString("hierarchyNav_type_load_error"), err instanceof XMLHttpRequest ? err : null));
-        }).catch(err => this.chartOptions.onError(this.getString("hierarchyNav_error_title"), this.getString("hierarchyNav_auth_error"), err instanceof XMLHttpRequest ? err : null));
+            }).catch(err => this.chartOptions.onError(this.getString("Error in hierarchy navigation"), this.getString("Failed to load types for navigation"), err instanceof XMLHttpRequest ? err : null));
+        }).catch(err => this.chartOptions.onError(this.getString("Error in hierarchy navigation"), this.getString("Failed to get token"), err instanceof XMLHttpRequest ? err : null));
 
         //get the most recent hierarchies for reverse lookup
-        getToken().then(token => {
-            this.server.getTimeseriesHierarchies(token, environmentFqdn).then(r => {
+        await getToken().then(token => {
+            return this.server.getTimeseriesHierarchies(token, environmentFqdn).then(r => {
                 try {
                     if (r.error) {
                         throw r.error;
@@ -115,11 +125,25 @@ class HierarchyNavigation extends Component{
                 } catch (err) {
                     throw err;
                 }
-            }).catch(err => this.chartOptions.onError(this.getString("hierarchyNav_error_title"), this.getString("hierarchyNav_hierarchy_load_error"), err instanceof XMLHttpRequest ? err : null));
-        }).catch(err => this.chartOptions.onError(this.getString("hierarchyNav_error_title"), this.getString("hierarchyNav_auth_error"), err instanceof XMLHttpRequest ? err : null));
+            }).catch(err => this.chartOptions.onError(this.getString("Error in hierarchy navigation"), this.getString("Failed to load hierarchies for navigation"), err instanceof XMLHttpRequest ? err : null));
+        }).catch(err => this.chartOptions.onError(this.getString("Error in hierarchy navigation"), this.getString("Failed to get token"), err instanceof XMLHttpRequest ? err : null));
 
+        const selectedHierarchyId = hierarchyNavOptions.selectedHierarchyId;
+        if (selectedHierarchyId) {
+            if (selectedHierarchyId === HierarchySelectionValues.All || selectedHierarchyId === HierarchySelectionValues.Unparented) {
+                this.selectedHierarchyName = selectedHierarchyId; //Using enum values of All and Unparented as both name and id
+                this.path = [];
+            } else {
+                let hierarchy = Object.values(this.envHierarchies).find(h => h["id"] === selectedHierarchyId);
+                if (hierarchy) {
+                    this.selectedHierarchyName = hierarchy["name"];
+                    this.path =  [this.selectedHierarchyName];
+                }
+            }
+        }
+        
         getToken().then(token => {
-            self.server.getTimeseriesInstancesPathSearch(token, environmentFqdn, {searchString: '', path: [], hierarchies: {sort: {by: HierarchiesSort.CumulativeInstanceCount}, expand: {kind: HierarchiesExpand.OneLevel}, pageSize: 100}}).then(r => {
+            self.server.getTimeseriesInstancesPathSearch(token, environmentFqdn, {searchString: '', path: this.path, hierarchies: {sort: {by: HierarchiesSort.CumulativeInstanceCount}, expand: {kind: HierarchiesExpand.OneLevel}, pageSize: 100}}).then(r => {
                 try {
                     if (r.error) {
                         throw r.error;
@@ -131,15 +155,17 @@ class HierarchyNavigation extends Component{
                             .on('click keydown', () => {
                                 if (Utils.isKeyDownAndNotEnter(d3.event)) {return; }
                                 if (this.isHierarchySelectionActive) {
-                                this.hierarchyListWrapperElem.style('display', 'none');
-                                this.isHierarchySelectionActive = false;
+                                    this.hierarchyListWrapperElem.style('display', 'none');
+                                    this.isHierarchySelectionActive = false;
                                 }
                                 else {
-                                this.renderHierarchySelection();
-                                this.isHierarchySelectionActive = true;
+                                    this.renderHierarchySelection();
+                                    this.isHierarchySelectionActive = true;
                                 }
                             });
-                        this.hierarchySelectorElem.append('span').classed('tsi-hierarchy-name', true).text(self.getString("All hierarchies"));
+                        this.hierarchySelectorElem.append('span').classed('tsi-hierarchy-name', true).text(this.selectedHierarchyName === HierarchySelectionValues.All ? this.getString("All hierarchies") 
+                                                                                                            : this.selectedHierarchyName === HierarchySelectionValues.Unparented ? this.getString("Unassigned Time Series Instances") 
+                                                                                                            : this.selectedHierarchyName);
                         this.hierarchySelectorElem.append('i').classed('tsi-down-caret-icon', true);
                         // hierarchy flyout list
                         this.hierarchyListWrapperElem = hierarchySelectionWrapper.append('div').classed('tsi-hierarchy-list-wrapper', true);
@@ -236,8 +262,8 @@ class HierarchyNavigation extends Component{
                 } catch (err) {
                     throw err;
                 }
-            }).catch(err => this.chartOptions.onError(this.getString("hierarchyNav_error_title"), this.getString("hierarchyNav_search_error"), err instanceof XMLHttpRequest ? err : null));
-        }).catch(err => this.chartOptions.onError(this.getString("hierarchyNav_error_title"), this.getString("hierarchyNav_auth_error"), err instanceof XMLHttpRequest ? err : null));
+            }).catch(err => this.chartOptions.onError(this.getString("Error in hierarchy navigation"), this.getString("Failed to complete search"), err instanceof XMLHttpRequest ? err : null));
+        }).catch(err => this.chartOptions.onError(this.getString("Error in hierarchy navigation"), this.getString("Failed to get token"), err instanceof XMLHttpRequest ? err : null));
 
         let autocompleteOnInput = (st, event) => {
             if(st.length === 0){
@@ -420,7 +446,7 @@ class HierarchyNavigation extends Component{
                         this.server.getTimeseriesInstancesPathSearch(token, this.environmentFqdn, payload, null, null)
                         .catch(err => {throw err}))
                     .catch(err => {throw err});
-        })).catch(err => this.chartOptions.onError(this.getString("hierarchyNav_error_title"), this.getString("hierarchyNav_search_error"), err instanceof XMLHttpRequest ? err : null));
+        })).catch(err => this.chartOptions.onError(this.getString("Error in hierarchy navigation"), this.getString("Failed to complete search"), err instanceof XMLHttpRequest ? err : null));
     }
 
     // clear dom and reset some variables for fresh navigation experience 
@@ -442,9 +468,9 @@ class HierarchyNavigation extends Component{
     private getInstance = timeSeriesID => {
         return this.getToken()
                 .then(token => {
-                    return this.server.getTimeseriesInstances(token, this.environmentFqdn, 1, [timeSeriesID]).catch(err => this.chartOptions.onError(this.getString("hierarchyNav_error_title"), this.getString("hierarchyNav_instance_error"), err instanceof XMLHttpRequest ? err : null));;
+                    return this.server.getTimeseriesInstances(token, this.environmentFqdn, 1, [timeSeriesID]).catch(err => this.chartOptions.onError(this.getString("Error in hierarchy navigation"), this.getString("Failed to get instance details"), err instanceof XMLHttpRequest ? err : null));;
                 })
-                .catch(err => this.chartOptions.onError(this.getString("hierarchyNav_error_title"), this.getString("hierarchyNav_auth_error"), err instanceof XMLHttpRequest ? err : null));
+                .catch(err => this.chartOptions.onError(this.getString("Error in hierarchy navigation"), this.getString("Failed to get token"), err instanceof XMLHttpRequest ? err : null));
     }
 
     // simulate expand operation for each hierarchy node in a full path until the instance and then locate the instance
@@ -503,7 +529,7 @@ class HierarchyNavigation extends Component{
         ulToLook = lastHierarchyNodeParent.getElementsByTagName("ul")[0];
         nameSpan = Array.from((ulToLook as HTMLElement).getElementsByClassName("tsi-name")).find(e => (e as HTMLElement).innerText === instanceIdentifier);
         if (!nameSpan) {//if the instance node we are looking is not there after expansion, add it manually to prevent possible show more calls and dom insertions
-            let instanceNode = new InstanceNode(instance.timeSeriesId, instance.name, this.envTypes[instance.typeId], instance.hierarchyIds, instance.highlights, this.chartOptions.onInstanceClick, isHierarchySelected || hierarchyNamesFromParam ? path.length - 1 : path.length);
+            let instanceNode = new InstanceNode(instance.timeSeriesId, instance.name, this.envTypes[instance.typeId], instance.hierarchyIds, instance.highlights, isHierarchySelected || hierarchyNamesFromParam ? path.length - 1 : path.length);
             let li = d3.create("li").classed('tsi-leaf', true);
             let newListContentElem = this.createHierarchyItemElem(instanceNode, instance.name ? instance.name : (instance.timeSeriesId.filter(id => id !== null).length ? instance.timeSeriesId.join(" "): ''));
             li.node().appendChild(newListContentElem.node());
@@ -687,7 +713,7 @@ class HierarchyNavigation extends Component{
     }
 
     // renders instances data in flat list view, only in 'Search' mode
-    private renderInstances (data, target) {
+    private renderInstances = (data, target) => {
         let self = this;
         if (Object.keys(data).length === 0) {
             this.noResultsElem.style('display', 'block');
@@ -721,11 +747,11 @@ class HierarchyNavigation extends Component{
                     let clickInstance = () => {
                         d3.event.stopPropagation();
                         self.closeContextMenu();
-                        self.clickedInstance = data[i];
                         let target = self.instanceListElem.select(function() { return this.parentNode.parentNode});
                         let mouseWrapper = d3.mouse(target.node());
                         let mouseElt = d3.mouse(this as any);
-                        data[i].onClick(target, mouseWrapper[1], mouseElt[1]);
+                        self.prepareForContextMenu(data[i], target, mouseWrapper[1], mouseElt[1]);
+                        self.chartOptions.onInstanceClick(data[i]);
                     }
 
                     if (d3.event && d3.event.type && d3.event.type === 'keydown') {
@@ -760,7 +786,7 @@ class HierarchyNavigation extends Component{
                 throw err;
             }
         }).catch(err => {
-            this.chartOptions.onError(this.getString("hierarchyNav_error_title"), this.getString("hierarchyNav_search_error"), err instanceof XMLHttpRequest ? err : null);
+            this.chartOptions.onError(this.getString("Error in hierarchy navigation"), this.getString("Failed to complete search"), err instanceof XMLHttpRequest ? err : null);
             if (bubbleUpReject) {throw err}
         });
     }
@@ -785,11 +811,11 @@ class HierarchyNavigation extends Component{
         }
         if (r.instances && r.instances.hits && r.instances.hits.length) {
             r.instances.hits.forEach((i) => {
-                instancesData[this.instanceNodeIdentifier(i)] = new InstanceNode(i.timeSeriesId, i.name, self.envTypes[i.typeId], i.hierarchyIds, i.highlights, self.chartOptions.onInstanceClick, payload.path.length - self.path.length);
+                instancesData[this.instanceNodeIdentifier(i)] = new InstanceNode(i.timeSeriesId, i.name, self.envTypes[i.typeId], i.hierarchyIds, i.highlights, payload.path.length - self.path.length);
             });
         }
         if (r.instances && r.instances.continuationToken && r.instances.continuationToken !== 'END') {
-            let showMoreInstances = new InstanceNode(null, this.getString("Show More Instances"), null, null, null, self.chartOptions.onInstanceClick, payload.path.length - self.path.length);
+            let showMoreInstances = new InstanceNode(null, this.getString("Show More Instances"), null, null, null, payload.path.length - self.path.length);
             showMoreInstances.onClick = async () => {
                 this.pathSearchAndRenderResult({
                     search: {payload: payload, hierarchiesContinuationToken: null, instancesContinuationToken: r.instances['continuationToken']}, 
@@ -856,21 +882,127 @@ class HierarchyNavigation extends Component{
         return data;
     }
 
-    private closeContextMenu() {
-        if(this.clickedInstance && this.clickedInstance.contextMenu) {
-            this.clickedInstance.contextMenu.remove();
+    public closeContextMenu = () => {
+        if(this.clickedInstance && this.contextMenu) {
+            this.contextMenu.remove();
             d3.selectAll('li.tsi-selected').classed('tsi-selected', false);
         }
         d3.selectAll('.tsi-modelResultWrapper').classed('tsi-selected', false);
+        this.clickedInstance = null;
+    }
+
+    private prepareForContextMenu = (instanceObj, target, wrapperMousePos, eltMousePos) => {
+        let contextMenuProps = {};
+        contextMenuProps['target'] = target;
+        contextMenuProps['wrapperMousePos'] = wrapperMousePos;
+        contextMenuProps['eltMousePos'] = eltMousePos;
+        this.contextMenuProps = contextMenuProps;
+
+        this.clickedInstance = instanceObj;
+        instanceObj.node.classed('tsi-selected', true);
+    }
+
+    public drawContextMenu = (contextMenuItems: Array<ContextMenuItems>, contextMenuOptions: ContextMenuOptions) => {
+        let itemList = [];
+        let contextMenuList;
+        let searchString = "";
+        this.contextMenu = this.contextMenuProps['target'].append('div').classed('tsi-hierarchyNavigationContextMenu', true).attr('style', () => `top: ${this.contextMenuProps['wrapperMousePos'] - this.contextMenuProps['eltMousePos']}px`);
+        let renderList = (contextMenuItems) => {
+            if (this.contextMenu.select("ul").empty()) {
+                contextMenuList = this.contextMenu.append('ul');
+            } else {
+                this.contextMenu.select("ul").text('');
+            }
+            
+            contextMenuItems.forEach(item => {
+                let option = item.name;
+                let li = contextMenuList.append('li');
+                let markedElems = this.getElemsOfStrippedString(Utils.mark(searchString, option), 'mark');
+                
+                if (!contextMenuOptions.isSelectionEnabled) {
+                    li.attr('tabindex', 0)
+                    .attr('arialabel', option)
+                    .attr('title', option)
+                    .on('click keydown', () => {
+                        if (Utils.isKeyDownAndNotEnter(d3.event)) {return; }
+                        item.action();
+                        this.closeContextMenu();
+                    });
+                    let itemWrapperElem = li.append('div').classed('tsi-selectionItemWrapper', true);
+                    markedElems.forEach(elem => itemWrapperElem.node().appendChild(elem));
+                } else {
+                    li.attr('tabindex', 0)
+                    .on('click keydown', () => {
+                        if (Utils.isKeyDownAndNotEnter(d3.event)) {return; }
+                        let elem = d3.select(d3.event.currentTarget).select(".tsi-hierarchyCheckbox");
+                        if (elem.classed("tsi-notSelected")) {
+                            itemList.push(item);
+                            elem.classed("tsi-notSelected", false);
+                            elem.attr("aria-checked", true);
+                        } else {
+                            let index = itemList.map(elem => elem.name).indexOf(item.name);
+                            itemList.splice(index, 1);
+                            elem.classed("tsi-notSelected", true);
+                            elem.attr("aria-checked", false);
+                        }
+                        itemList.length === 0 ?
+                            this.contextMenu.select("button").classed("disabled", true) 
+                            : this.contextMenu.select("button").classed("disabled", false);
+                    })
+                    let itemWrapperElem = li.append('div').classed('tsi-selectionItemWrapper', true);
+                    itemWrapperElem.append('span').classed('tsi-hierarchyCheckbox tsi-notSelected', true)
+                                    .attr("role","checkbox").attr("aria-checked", false);
+                    let itemElem = itemWrapperElem.append('span').classed('tsi-selectionItem', true).attr('title', option);
+                    markedElems.forEach(elem => itemElem.node().appendChild(elem));
+                    itemWrapperElem.append('span').classed('tsi-selectionItemKind', true).classed(item.kind, true).attr('title', item.kind.charAt(0).toUpperCase() + item.kind.slice(1));
+                }
+            });
+        }
+
+        // draw filter box if enabled
+        if (contextMenuOptions.isFilterEnabled) {
+            let searchBox = this.contextMenu.append('div').classed('tsi-search', true);
+            searchBox.append('i').classed('tsi-search-icon', true);
+            searchBox.append('input').classed('tsi-searchInput', true).attr('placeholder', this.getString('Search'))
+                .on('input', () => { 
+                    let regex = new RegExp(d3.event.currentTarget.value, 'gi');
+                    searchString = d3.event.currentTarget.value;
+                    renderList(contextMenuItems.filter(varObj => varObj.name.match(regex)));
+                    itemList = [];
+                    this.contextMenu.select("button").classed("disabled", true);
+                });
+        }
+
+        //draw variable list with checkbox if selection enabled
+        renderList(contextMenuItems);
+
+        //add button
+        if (contextMenuOptions.isSelectionEnabled) {
+            this.contextMenu.append('button').classed("tsi-primaryButton", true).classed("disabled", true).text(this.getString("Add")).on('click', () => {
+                itemList.forEach(item => item.action());
+                this.closeContextMenu();
+            });
+        }
+
+        // move context menu above if necessary for tag selection visibility around the bottom of the page
+        let leftSpaceAtBottom = this.contextMenuProps['target'].node().getBoundingClientRect().height - parseFloat(this.contextMenu.node().style.top);
+        let overflowAtBottom = this.contextMenu.node().getBoundingClientRect().height - leftSpaceAtBottom;
+        if (overflowAtBottom > 0)
+            this.contextMenu.style('top', (parseFloat(this.contextMenu.node().style.top) - overflowAtBottom) + 'px');
+        let contextMenuFirstElt = (d3.select('.tsi-hierarchyNavigationContextMenu li').node() as any);
+        if(contextMenuFirstElt){
+            contextMenuFirstElt.focus();
+        }
     }
 
     // returns dom elements of stripped strings including hits and spans
-    private getElemsOfStrippedString = (str) => {
+    private getElemsOfStrippedString = (str, isMarkTag = null) => {
+        let tag = isMarkTag ? 'mark' : 'hit';
         let strippedElems = [];
-        str.split('<hit>').map(h => {
-            let strips = h.split('</hit>'); 
+        str.split(`<${tag}>`).map(h => {
+            let strips = h.split(`</${tag}>`); 
             if (strips.length > 1) {
-                let hitElem = document.createElement('hit'); 
+                let hitElem = document.createElement(tag); 
                 hitElem.innerText = strips[0];
                 strippedElems.push(hitElem);
                 let spanElem = document.createElement('span'); 
@@ -900,11 +1032,11 @@ class HierarchyNavigation extends Component{
                 if (!isHierarchyNode) { // means it is an instance
                     d3.event.stopPropagation();
                     self.closeContextMenu();
-                    self.clickedInstance = hORi; 
                     let mouseElt = d3.mouse(this as any);
                     let target = self.hierarchyElem.select(function() { return this.parentNode});
                     let mouseWrapper = d3.mouse(target.node());
-                    hORi.onClick(target, mouseWrapper[1], mouseElt[1]);
+                    self.prepareForContextMenu(hORi, target, mouseWrapper[1], mouseElt[1]);
+                    self.chartOptions.onInstanceClick(hORi);
                 } else {
                     if (hORi.isExpanded) {
                         hORi.collapse();
@@ -915,15 +1047,15 @@ class HierarchyNavigation extends Component{
             })
             .on('mouseover focus', function() {
                 if (isHierarchyNode) {
-                    if (d3.event.relatedTarget != d3.select(this.parentNode).select('.tsi-pin-icon').node()) {
-                        (d3.select(this.parentNode).select('.tsi-pin-icon').node() as any).style.visibility = 'visible';
+                    if (d3.event.relatedTarget != d3.select(this.parentNode).select('.tsi-filter-icon').node()) {
+                        (d3.select(this.parentNode).select('.tsi-filter-icon').node() as any).style.visibility = 'visible';
                     }
                 }
             })
             .on('mouseleave blur', function() {
                 if (isHierarchyNode) {
-                    if (d3.event.relatedTarget != d3.select(this.parentNode).select('.tsi-pin-icon').node()) {
-                        (d3.select(this.parentNode).select('.tsi-pin-icon').node() as any).style.visibility = 'hidden';
+                    if (d3.event.relatedTarget != d3.select(this.parentNode).select('.tsi-filter-icon').node()) {
+                        (d3.select(this.parentNode).select('.tsi-filter-icon').node() as any).style.visibility = 'hidden';
                     }
                 }
             });
@@ -934,7 +1066,7 @@ class HierarchyNavigation extends Component{
             hierarchyItemElem.append('span').classed('tsi-instanceCount', true).text(hORi.cumulativeInstanceCount);
             hierarchyItemElem.append('span').classed('tsi-hitCount', true).text(''); // hit count is the number of hierarchy nodes below, it is filled after expand is clicked for this node (after search is done for this path)
 
-            hierarchyItemElem.append('div').classed('tsi-pin-icon', true).attr('title', this.getString('Add to Filter Path'))
+            hierarchyItemElem.append('div').classed('tsi-filter-icon', true).attr('title', this.getString('Add to Filter Path'))
                 .attr('tabindex', 0)
                 .attr('arialabel', this.getString('Add to Filter Path'))
                 .on('click keydown', function() {
@@ -1079,6 +1211,8 @@ class HierarchyNavigation extends Component{
     private selectHierarchy = (pathName, applySearch: boolean = true) => {
         this.path = pathName === HierarchySelectionValues.All || pathName === HierarchySelectionValues.Unparented ? [] : [pathName];
         this.selectedHierarchyName = pathName;
+        let selectedhierarchyId = pathName === HierarchySelectionValues.All || pathName === HierarchySelectionValues.Unparented ? pathName : this.envHierarchies[this.selectedHierarchyName].id;
+        this.chartOptions.onSelect(selectedhierarchyId);
         let pathText = pathName === HierarchySelectionValues.All ? this.getString("All hierarchies") : pathName === HierarchySelectionValues.Unparented ? this.getString("Unassigned Time Series Instances") : pathName;
         d3.select('.tsi-hierarchy-name').text(pathText).attr('title', pathText);
         this.clearAndGetResults(applySearch);
@@ -1118,53 +1252,29 @@ function HierarchyNode (name, parentPath, level, cumulativeInstanceCount = null)
     this.collapse = () => {this.isExpanded = false; this.node.classed('tsi-expanded', false); this.node.selectAll('ul').remove();};
 }
 
-function InstanceNode (tsId, name = null, type, hierarchyIds, highlights, contextMenuFunc, level) {
+function InstanceNode (tsId, name = null, type, hierarchyIds, highlights, level) {
     this.timeSeriesId = tsId;
     this.name = name;
     this.type = type;
     this.hierarchyIds = hierarchyIds;
     this.highlights = highlights;
     this.suppressDrawContextMenu = false;
-    this.onClick = (target, wrapperMousePos, eltMousePos) => {
-        this.node.classed('tsi-selected', true);
-        this.prepareForContextMenu(target, wrapperMousePos, eltMousePos)
-        contextMenuFunc(this);
-    };
-    this.prepareForContextMenu = (target, wrapperMousePos, eltMousePos) => {
-        this.contextMenuProps = {};
-        this.contextMenuProps['resultsWrapper'] = target;
-        this.contextMenuProps['wrapperMousePos'] = wrapperMousePos;
-        this.contextMenuProps['eltMousePos'] = eltMousePos;
-    }
-    this.drawContextMenu = (contextMenuActions) => {
-        this.contextMenu = this.contextMenuProps['resultsWrapper'].append('div').classed('tsi-hierarchyNavigationContextMenu', true).attr('style', () => `top: ${this.contextMenuProps['wrapperMousePos'] - this.contextMenuProps['eltMousePos']}px`);
-        var contextMenuList = this.contextMenu.append('ul');
-        contextMenuActions.forEach((a) => {
-            var option = Object.keys(a)[0];
-            contextMenuList.append('li')
-                .attr('tabindex', 0)
-                .attr('arialabel', option)
-                .attr('title', option)
-                .text(option).on('click keydown', () => {
-                    if (Utils.isKeyDownAndNotEnter(d3.event)) {return; }
-                    a[option]();
-                });
-        });
-
-        // move context menu above if necessary for tag selection visibility around the bottom of the page
-        let leftSpaceAtBottom = this.contextMenuProps['resultsWrapper'].node().getBoundingClientRect().height - parseFloat(this.contextMenu.node().style.top);
-        let overflowAtBottom = this.contextMenu.node().getBoundingClientRect().height - leftSpaceAtBottom;
-        if (overflowAtBottom > 0)
-            this.contextMenu.style('top', (parseFloat(this.contextMenu.node().style.top) - overflowAtBottom) + 'px');
-        let contextMenuFirstElt = (d3.select('.tsi-hierarchyNavigationContextMenu li').node() as any);
-        if(contextMenuFirstElt){
-            contextMenuFirstElt.focus();
-        }
-    }
     this.isLeaf = true;
     this.level = level;
     this.node = null;
 }
+
+interface ContextMenuItems {
+    name: string,
+    kind: string,
+    action: any
+};
+
+interface ContextMenuOptions {
+    isSelectionEnabled: boolean,
+    isFilterEnabled: boolean,
+    onClose: any
+};
 
 export enum HierarchySelectionValues {All = "0", Unparented = "-1"};
 export enum ViewType {Hierarchy, List};
