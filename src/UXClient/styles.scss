@@ -90,6 +90,17 @@ div[class^='tsi-']{
     background-repeat: no-repeat;
 }
 
+.tsi-chartValueTextBox {
+    position: absolute;
+    white-space: nowrap;
+    font-size: 11px;
+    padding: 1px 4px;
+    border-width: 1px;
+    border-style: solid;
+    box-shadow: 0px 0px 2px 0px rgba(0, 0, 0, 0.3);	
+    line-height: 16px;
+}
+
 .tsi-baseContextMenu{
     white-space: nowrap;
     padding: 4px 0;
@@ -480,4 +491,10 @@ select::-ms-expand {
     svg {
         display: block;
     }
+
+    .tsi-chartValueTextBox {
+        background-color: $gray3;
+        border-color: $gray2;
+    }
+
 }
