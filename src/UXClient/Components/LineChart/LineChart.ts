@@ -302,6 +302,13 @@ class LineChart extends TemporalXAxisComponent {
             .attr('class', 'tsi-valueBoxText')
             .text(Utils.timeFormat(this.chartComponentData.usesSeconds, this.chartComponentData.usesMillis, 
                 this.chartOptions.offset, this.chartOptions.is24HourTime, shiftMillis, null, this.chartOptions.dateLocale)(xValue))
+        if (endValue !== null) {
+            this.horizontalValueBox.append('div')
+                .attr('class', 'tsi-valueBoxText')
+                .text(Utils.timeFormat(this.chartComponentData.usesSeconds, this.chartComponentData.usesMillis, 
+                    this.chartOptions.offset, this.chartOptions.is24HourTime, shiftMillis, null, this.chartOptions.dateLocale)(endValue))
+        }
+            
 
     }
 
@@ -1379,7 +1386,7 @@ class LineChart extends TemporalXAxisComponent {
             this.verticalValueBox =  d3.select(this.renderTarget)
                 .append('div')
                 .attr('class', 'tsi-verticalValueBox')
-                .attr('display', 'none')
+                .style('display', 'none')
                 .style('right', `${(this.chartMargins.right + this.chartWidth)}px`)
                 .style('top', '10px');
                 
@@ -1395,7 +1402,9 @@ class LineChart extends TemporalXAxisComponent {
 
             this.draw = (isFromResize = false) => {  
                 this.minBrushWidth = (this.chartOptions.minBrushWidth) ? this.chartOptions.minBrushWidth : this.minBrushWidth;
-                this.focus.attr("visibility", (this.chartOptions.focusHidden) ? "hidden" : "visible")
+                this.focus.attr("visibility", (this.chartOptions.focusHidden) ? "hidden" : "visible");
+                this.verticalValueBox.style("visibility", (this.chartOptions.focusHidden) ? "hidden" : "visible");
+                this.horizontalValueBox.style("visibility", (this.chartOptions.focusHidden) ? "hidden" : "visible");
                 if (this.chartOptions.xAxisHidden && this.chartOptions.focusHidden) {
                     this.chartMargins.bottom = 5;
                 }
