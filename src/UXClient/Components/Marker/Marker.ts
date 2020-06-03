@@ -122,8 +122,7 @@ class Marker extends Component {
                     self.markerLabel = d3.select(this).append('div')
                         .attr('class', 'tsi-markerLabel')
                         .on('mouseleave', function () {
-                            d3.select(this).classed('tsi-markerLabelHovered', false)
-                                .classed('tsi-markerLabelTextFocused', false);
+                            d3.select(this).classed('tsi-markerLabelHovered', false);
                         });
 
                     self.markerLabel.append('div')
@@ -329,6 +328,9 @@ class Marker extends Component {
         let values = this.chartComponentData.timeMap[closestTime] != undefined ? this.chartComponentData.timeMap[closestTime] : [];
         Object.keys(this.chartComponentData.visibleTAs).forEach((aggKey) => {
             Object.keys(this.chartComponentData.visibleTAs[aggKey]).forEach((splitBy) => {
+                if (this.chartComponentData.displayState[aggKey].dataType !== DataTypes.Numeric) {
+                    return;
+                }
                 let filteredValues = values.filter((v) => {
                     return (v.aggregateKey === aggKey && v.splitBy === splitBy && this.getValueOfVisible(v) !== null);
                 });
