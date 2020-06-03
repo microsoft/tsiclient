@@ -302,6 +302,13 @@ class LineChart extends TemporalXAxisComponent {
             .attr('class', 'tsi-valueBoxText')
             .text(Utils.timeFormat(this.chartComponentData.usesSeconds, this.chartComponentData.usesMillis, 
                 this.chartOptions.offset, this.chartOptions.is24HourTime, shiftMillis, null, this.chartOptions.dateLocale)(xValue))
+        if (endValue !== null) {
+            this.horizontalValueBox.append('div')
+                .attr('class', 'tsi-valueBoxText')
+                .text(Utils.timeFormat(this.chartComponentData.usesSeconds, this.chartComponentData.usesMillis, 
+                    this.chartOptions.offset, this.chartOptions.is24HourTime, shiftMillis, null, this.chartOptions.dateLocale)(endValue))
+        }
+            
 
     }
 
