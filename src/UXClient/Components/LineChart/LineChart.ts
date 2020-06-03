@@ -1395,7 +1395,9 @@ class LineChart extends TemporalXAxisComponent {
 
             this.draw = (isFromResize = false) => {  
                 this.minBrushWidth = (this.chartOptions.minBrushWidth) ? this.chartOptions.minBrushWidth : this.minBrushWidth;
-                this.focus.attr("visibility", (this.chartOptions.focusHidden) ? "hidden" : "visible")
+                this.focus.attr("visibility", (this.chartOptions.focusHidden) ? "hidden" : "visible");
+                this.verticalValueBox.style("visibility", (this.chartOptions.focusHidden) ? "hidden" : "visible");
+                this.horizontalValueBox.style("visibility", (this.chartOptions.focusHidden) ? "hidden" : "visible");
                 if (this.chartOptions.xAxisHidden && this.chartOptions.focusHidden) {
                     this.chartMargins.bottom = 5;
                 }
