@@ -1379,7 +1379,7 @@ class LineChart extends TemporalXAxisComponent {
             this.verticalValueBox =  d3.select(this.renderTarget)
                 .append('div')
                 .attr('class', 'tsi-verticalValueBox')
-                .attr('display', 'none')
+                .style('display', 'none')
                 .style('right', `${(this.chartMargins.right + this.chartWidth)}px`)
                 .style('top', '10px');
                 

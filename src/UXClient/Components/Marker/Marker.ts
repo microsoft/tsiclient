@@ -120,7 +120,11 @@ class Marker extends Component {
                     d3.select(this).append('div')
                         .attr('class', 'tsi-markerLine');
                     self.markerLabel = d3.select(this).append('div')
-                        .attr('class', 'tsi-markerLabel');
+                        .attr('class', 'tsi-markerLabel')
+                        .on('mouseleave', function () {
+                            d3.select(this).classed('tsi-markerLabelHovered', false)
+                                .classed('tsi-markerLabelTextFocused', false);
+                        });
 
                     self.markerLabel.append('div')
                         .attr('class', 'tsi-markerGrabber')
@@ -159,9 +163,6 @@ class Marker extends Component {
                                 d3.select(d3.select(this).node().parentNode).classed('tsi-markerLabelHovered', true);
                                 self.bumpMarker();    
                             }
-                        })
-                        .on('mouseout', function () {
-                            d3.select(d3.select(this).node().parentNode).classed('tsi-markerLabelHovered', false);
                         });
                     
                     self.closeButton = self.markerLabel.append("button")
