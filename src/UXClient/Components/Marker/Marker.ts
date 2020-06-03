@@ -122,8 +122,7 @@ class Marker extends Component {
                     self.markerLabel = d3.select(this).append('div')
                         .attr('class', 'tsi-markerLabel')
                         .on('mouseleave', function () {
-                            d3.select(this).classed('tsi-markerLabelHovered', false)
-                                .classed('tsi-markerLabelTextFocused', false);
+                            d3.select(this).classed('tsi-markerLabelHovered', false);
                         });
 
                     self.markerLabel.append('div')
