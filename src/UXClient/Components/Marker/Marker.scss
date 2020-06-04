@@ -17,12 +17,14 @@
     }
     .tsi-markerLine{
         background-color: $gray2;
+        box-shadow: 0px 0px 0px 1px rgba($gray4, .4);
     }
 
     .tsi-markerLabel {
         background-color: $gray3;
         .tsi-markerGrabber {
             background-color: $gray2;
+            box-shadow: 0px 0px 0px 1px rgba($gray4, .4);
         }
         .tsi-closeButton {
             background-color: transparent;

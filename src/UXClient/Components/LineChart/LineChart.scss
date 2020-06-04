@@ -111,6 +111,7 @@
         transform: translate(-50%,-50%);
         display: flex;
         align-content: center;
+        z-index: 1;
     }
 
     .tsi-chartControlsPanel {
