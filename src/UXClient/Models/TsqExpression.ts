@@ -77,25 +77,6 @@ class TsqExpression extends ChartDataOptions {
             });
             tsq.aggregateSeries['inlineVariables'] = inlineVariables;        
             tsq.aggregateSeries['projectedVariables'] = Object.keys(inlineVariables);
-            //TODO: lets check the below block if we want to show avg, min, max and stdev for only variables having avg aggregation
-            /*
-            let firstVariable = tsq.aggregateSeries['inlineVariables'][Object.keys(tsq.aggregateSeries['inlineVariables'])[0]];
-            if (firstVariable.aggregation.tsx === "avg($value)") {
-                let inlineVariables = {min: {}, max: {}, avg: {}, stdev: {}};
-                Object.keys(inlineVariables).forEach(k => {
-                    inlineVariables[k] = Object.assign({}, firstVariable);
-                    inlineVariables[k].aggregation.tsx = `${k}($value)`;
-                })
-                tsq.aggregateSeries['inlineVariables'] = inlineVariables;        
-                tsq.aggregateSeries['projectedVariables'] = Object.keys(inlineVariables);
-            }
-            Object.keys(tsq.aggregateSeries['inlineVariables']).forEach(k => {
-                let aggregation = tsq.aggregateSeries['inlineVariables'][k].aggregation.tsx;
-                if (!(aggregation === "left($value)" || aggregation === "right($value)" || aggregation === "twavg($value)" || aggregation === "twsum($value)")) {
-                    delete tsq.aggregateSeries['inlineVariables'][k]['interpolation'];
-                }
-            });
-            */
         }
         return tsq;
     }
