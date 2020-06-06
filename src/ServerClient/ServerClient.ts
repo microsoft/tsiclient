@@ -5,14 +5,28 @@ class ServerClient {
     private apiVersionUrlParam = "?api-version=2016-12-12";
     private tsmTsqApiVersion = "?api-version=2018-11-01-preview";
     public maxRetryCount = 3;
+    public sessionId = Utils.guid();
+    public retriableStatusCodes = [408, 429, 500, 503];
+    public onAjaxError = (logObject) => {};
+    public onAjaxRetry = (logObject) => {};
 
     Server () {
+    }
+
+    private retryBasedOnStatus = xhr => this.retriableStatusCodes.indexOf(xhr.status) !== -1;
+    private setStandardHeaders = (xhr, token) => {
+        let clientRequestId = Utils.guid();
+        xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+        xhr.setRequestHeader('x-ms-client-request-id', clientRequestId);
+        xhr.setRequestHeader('x-ms-client-session-id', this.sessionId);
+        return clientRequestId;
     }
 
     private createPromiseFromXhr (uri, httpMethod, payload, token, responseTextFormat, continuationToken = null) {
         return new Promise((resolve: any, reject: any) => {
             let sendRequest;
             let retryCount = 0;
+            let clientRequestId;
             sendRequest = () => {
                 var xhr = new XMLHttpRequest();
                 xhr.onreadystatechange = () => {
@@ -25,16 +39,18 @@ class ServerClient {
                             resolve(responseTextFormat(xhr.responseText));
                         }
                     }
-                    else if(xhr.status == 503 && retryCount < this.maxRetryCount){
+                    else if(this.retryBasedOnStatus(xhr) && retryCount < this.maxRetryCount){
                         retryCount++;
                         this.retryWithDelay(retryCount, sendRequest);
+                        this.onAjaxRetry({uri: uri, method: httpMethod, payload: JSON.stringify(payload), clientRequestId: clientRequestId, statusCode: xhr.status})
                     }
                     else{
                         reject(xhr);
+                        this.onAjaxError({uri: uri, method: httpMethod, payload: JSON.stringify(payload), clientRequestId: clientRequestId})
                     }
                 }
                 xhr.open(httpMethod, uri);
-                xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+                clientRequestId = this.setStandardHeaders(xhr, token);
                 if(httpMethod == 'POST')
                     xhr.setRequestHeader('Content-Type', 'application/json');
                 if (continuationToken)
@@ -82,6 +98,7 @@ class ServerClient {
         var retryTimeout;
         var continuationToken;
         var accumulator = [];
+        var clientRequestId;
         onreadystatechange = () => {
             if(xhr.readyState != 4) return;
 
@@ -106,28 +123,31 @@ class ServerClient {
                     xhr = new XMLHttpRequest();
                     xhr.onreadystatechange = onreadystatechange;
                     xhr.open('POST', uri);
-                    xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+                    this.setStandardHeaders(xhr, token);
                     xhr.setRequestHeader('Content-Type', 'application/json');
                     continuationToken = message.continuationToken;
                     xhr.setRequestHeader('x-ms-continuation', continuationToken);
                     xhr.send(JSON.stringify(contentObject));
                 }
             }
-            else if(xhr.status === 503 && retryCount < this.maxRetryCount){
+            else if(this.retryBasedOnStatus(xhr)  && retryCount < this.maxRetryCount){
                 retryCount++;
                 retryTimeout = this.retryWithDelay(retryCount, () => {
                     xhr.open('POST', uri);
-                    xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+                    clientRequestId = this.setStandardHeaders(xhr, token);
                     xhr.setRequestHeader('Content-Type', 'application/json');
                     if(continuationToken)
                         xhr.setRequestHeader('x-ms-continuation', continuationToken);
                     xhr.send(JSON.stringify(contentObject));
+                    this.onAjaxRetry({uri: uri, payload: JSON.stringify(contentObject), clientRequestId: clientRequestId, statusCode: xhr.status})
                 });
             }
             else if (xhr.status !== 0) {
                 results[index] = {__tsiError__: JSON.parse(xhr.responseText)};
-                if(results.map(ar => !('progress' in ar)).reduce((p,c) => { p = c && p; return p}, true))
+                if(results.map(ar => !('progress' in ar)).reduce((p,c) => { p = c && p; return p}, true)){
                     resolve(results);
+                    this.onAjaxError({uri: uri, payload: JSON.stringify(contentObject), clientRequestId: clientRequestId})
+                }
             }
             let percentComplete = Math.max(results.map(r => 'progress' in r ? r.progress : 100).reduce((p,c) => p+c, 0) / results.length, 1);
             onProgressChange(percentComplete);
@@ -139,7 +159,7 @@ class ServerClient {
             clearTimeout(retryTimeout);
         }
         xhr.open('POST', uri);
-        xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+        clientRequestId = this.setStandardHeaders(xhr, token)
         xhr.setRequestHeader('Content-Type', 'application/json');
         xhr.send(JSON.stringify(contentObject));
     }
@@ -294,6 +314,9 @@ class ServerClient {
                 } else {
                     resolve(coldResponse);
                 }
+            })
+            .catch(xhr => {
+                reject(xhr);
             });
         });
     }
@@ -309,7 +332,7 @@ class ServerClient {
     }
 
     private getDataWithContinuationBatch(token, resolve, reject, rows, url, verb, propName, continuationToken = null, maxResults = Number.MAX_VALUE){
-        var continuationToken, sendRequest, retryCount = 0;
+        var continuationToken, sendRequest, clientRequestId, retryCount = 0;
         var xhr = new XMLHttpRequest();
         xhr.onreadystatechange = () => {
             if(xhr.readyState != 4) return;
@@ -327,17 +350,19 @@ class ServerClient {
                 else
                     this.getDataWithContinuationBatch(token, resolve, reject, rows, url, verb, propName, continuationToken, maxResults);
             }
-            else if(xhr.status == 503 && retryCount < this.maxRetryCount){
+            else if(this.retryBasedOnStatus(xhr) && retryCount < this.maxRetryCount){
                 retryCount++;
                 this.retryWithDelay(retryCount, sendRequest);
+                this.onAjaxRetry({uri: url, method: verb, clientRequestId: clientRequestId, statusCode: xhr.status});
             }
             else{
                 reject(xhr);
+                this.onAjaxError({uri: url, method: verb, clientRequestId: clientRequestId});
             }
         }
         sendRequest = () => {
             xhr.open(verb, url);
-            xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+            clientRequestId = this.setStandardHeaders(xhr, token);
             if(verb === 'POST')
                 xhr.setRequestHeader('Content-Type', 'application/json');
             if (continuationToken)
