@@ -42,11 +42,11 @@ class ServerClient {
                     else if(this.retryBasedOnStatus(xhr) && retryCount < this.maxRetryCount){
                         retryCount++;
                         this.retryWithDelay(retryCount, sendRequest);
-                        this.onAjaxRetry({uri: uri, method: httpMethod, payload: JSON.stringify(payload), clientRequestId: clientRequestId, statusCode: xhr.status})
+                        this.onAjaxRetry({uri: uri, method: httpMethod, payload: JSON.stringify(payload), clientRequestId: clientRequestId, sessionId: this.sessionId, statusCode: xhr.status})
                     }
                     else{
                         reject(xhr);
-                        this.onAjaxError({uri: uri, method: httpMethod, payload: JSON.stringify(payload), clientRequestId: clientRequestId})
+                        this.onAjaxError({uri: uri, method: httpMethod, payload: JSON.stringify(payload), clientRequestId: clientRequestId, sessionId: this.sessionId})
                     }
                 }
                 xhr.open(httpMethod, uri);
@@ -139,14 +139,14 @@ class ServerClient {
                     if(continuationToken)
                         xhr.setRequestHeader('x-ms-continuation', continuationToken);
                     xhr.send(JSON.stringify(contentObject));
-                    this.onAjaxRetry({uri: uri, payload: JSON.stringify(contentObject), clientRequestId: clientRequestId, statusCode: xhr.status})
+                    this.onAjaxRetry({uri: uri, payload: JSON.stringify(contentObject), clientRequestId: clientRequestId, sessionId: this.sessionId, statusCode: xhr.status})
                 });
             }
             else if (xhr.status !== 0) {
                 results[index] = {__tsiError__: JSON.parse(xhr.responseText)};
                 if(results.map(ar => !('progress' in ar)).reduce((p,c) => { p = c && p; return p}, true)){
                     resolve(results);
-                    this.onAjaxError({uri: uri, payload: JSON.stringify(contentObject), clientRequestId: clientRequestId})
+                    this.onAjaxError({uri: uri, payload: JSON.stringify(contentObject), clientRequestId: clientRequestId, sessionId: this.sessionId})
                 }
             }
             let percentComplete = Math.max(results.map(r => 'progress' in r ? r.progress : 100).reduce((p,c) => p+c, 0) / results.length, 1);
@@ -353,11 +353,11 @@ class ServerClient {
             else if(this.retryBasedOnStatus(xhr) && retryCount < this.maxRetryCount){
                 retryCount++;
                 this.retryWithDelay(retryCount, sendRequest);
-                this.onAjaxRetry({uri: url, method: verb, clientRequestId: clientRequestId, statusCode: xhr.status});
+                this.onAjaxRetry({uri: url, method: verb, clientRequestId: clientRequestId, sessionId: this.sessionId, statusCode: xhr.status});
             }
             else{
                 reject(xhr);
-                this.onAjaxError({uri: url, method: verb, clientRequestId: clientRequestId});
+                this.onAjaxError({uri: url, method: verb, clientRequestId: clientRequestId, sessionId: this.sessionId});
             }
         }
         sendRequest = () => {
