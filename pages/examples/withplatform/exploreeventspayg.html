@@ -132,20 +132,23 @@
                                         let option = {};
                                         if (type.variables[vName].aggregation.tsx === 'avg($value)') {
                                             let newType = this.getTsmTypeFromVariable(type.variables[vName]);
-                                            option['Show ' + vName] = () => addInstanceAction(newType, vName, instance);
+                                            option['name'] = vName;
+                                            option['action'] = () => addInstanceAction(newType, vName, instance);
                                         } else {
-                                            option['Show ' + vName] = () => addInstanceAction(instance.type, vName, instance);
+                                            option['name'] = vName;
+                                            option['action'] = () => addInstanceAction(instance.type, vName, instance);
                                         }
                                         contextMenuActions.push(option);
                                     });
                                 });
-                                instance.drawContextMenu(contextMenuActions);
+                                hierarchy.drawContextMenu(contextMenuActions, {});
                             }
                         })
                     });
                 }
 
                 // get availability, then get results
+                var hierarchy;
                 authContext.getTsiToken().then(function(token){
                     tsiClient.server.getAvailability(token, '10000000-0000-0000-0000-100000000109.env.timeseries.azure.com', "?api-version=2018-11-01-preview").then(function(result){
                         var result = result['availability']
@@ -154,7 +157,7 @@
                                 result);
                         endDate = new Date(result.range.to);
                         startDate = new Date(endDate.valueOf() - 1000*60*60*24);
-                        var hierarchy = new tsiClient.ux.HierarchyNavigation(document.getElementById('hierarchy'));
+                        hierarchy = new tsiClient.ux.HierarchyNavigation(document.getElementById('hierarchy'));
                         hierarchy.render('10000000-0000-0000-0000-100000000109.env.timeseries.azure.com', window.authContext.getTsiToken, {theme: 'light', onInstanceClick: instance => onInstanceClick(instance)})
                     })
                 })
