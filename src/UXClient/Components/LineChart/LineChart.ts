@@ -1,7 +1,7 @@
 import * as d3 from 'd3';
 import { interpolatePath } from 'd3-interpolate-path';
 import './LineChart.scss';
-import {Utils, DataTypes, YAxisStates, LINECHARTTOPPADDING, TooltipMeasureFormat, LINECHARTCHARTMARGINS} from "./../../Utils";
+import {Utils, DataTypes, YAxisStates, LINECHARTTOPPADDING, TooltipMeasureFormat, LINECHARTCHARTMARGINS, VALUEBARHEIGHT} from "./../../Utils";
 import {Legend} from "./../Legend/Legend";
 import {TemporalXAxisComponent} from "./../../Interfaces/TemporalXAxisComponent";
 import {LineChartData} from "./../../Models/LineChartData";
@@ -297,6 +297,7 @@ class LineChart extends TemporalXAxisComponent {
         
         this.horizontalValueBox.text('')
             .style('left', `${xPos}px`)
+            .style('top', `${(this.chartMargins.top + this.chartHeight + VALUEBARHEIGHT)}px`)
             .style('display', 'block');
         this.horizontalValueBox.append('div')
             .attr('class', 'tsi-valueBoxText')
@@ -314,6 +315,7 @@ class LineChart extends TemporalXAxisComponent {
 
     private setVerticalValueAndPosition (yValue: number, yPos) {
         this.verticalValueBox.style('top', `${yPos}px`)
+            .style('right', `${(this.chartMargins.right + this.chartWidth)}px`)
             .style('display', 'block')
             .text(Utils.formatYAxisNumber(yValue));
     }
@@ -1380,15 +1382,12 @@ class LineChart extends TemporalXAxisComponent {
                 .append('div')
                 .attr('class', 'tsi-horizontalValueBox tsi-chartValueTextBox')
                 .style('display', 'none')
-                .style('top', `${(this.chartMargins.top + this.chartHeight + 3)}px`)
                 .attr('pointer-events', 'none');
 
             this.verticalValueBox =  d3.select(this.renderTarget)
                 .append('div')
                 .attr('class', 'tsi-verticalValueBox')
-                .style('display', 'none')
-                .style('right', `${(this.chartMargins.right + this.chartWidth)}px`)
-                .style('top', '10px');
+                .style('display', 'none');
                 
             this.horizontalValueBar = this.focus.append('line')
                 .attr('y1', 0)
