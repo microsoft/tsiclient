@@ -118,6 +118,10 @@ class ColorPicker extends Component{
         gridItem.attr("aria-selected", true);
         this.selectedColor = cStr;
     }
+
+    public getColorPickerElem = () => {
+        return this.colorPickerElem;
+    }
 }
 
 export {ColorPicker};
