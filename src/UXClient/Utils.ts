@@ -19,6 +19,8 @@ export const LINECHARTCHARTMARGINS = {
 }
 export const LINECHARTXOFFSET = 8;
 export const MARKERVALUENUMERICHEIGHT = 20;
+export const VALUEBARHEIGHT = 3;
+
 
 // Linechart stack states
 export enum YAxisStates {Stacked = "stacked", Shared = "shared", Overlap = "overlap" };
