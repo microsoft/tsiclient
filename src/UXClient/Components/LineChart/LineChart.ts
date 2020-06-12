@@ -1,7 +1,7 @@
 import * as d3 from 'd3';
 import { interpolatePath } from 'd3-interpolate-path';
 import './LineChart.scss';
-import {Utils, DataTypes, YAxisStates, LINECHARTTOPPADDING, TooltipMeasureFormat, LINECHARTCHARTMARGINS} from "./../../Utils";
+import {Utils, DataTypes, YAxisStates, LINECHARTTOPPADDING, TooltipMeasureFormat, LINECHARTCHARTMARGINS, VALUEBARHEIGHT} from "./../../Utils";
 import {Legend} from "./../Legend/Legend";
 import {TemporalXAxisComponent} from "./../../Interfaces/TemporalXAxisComponent";
 import {LineChartData} from "./../../Models/LineChartData";
@@ -297,16 +297,25 @@ class LineChart extends TemporalXAxisComponent {
         
         this.horizontalValueBox.text('')
             .style('left', `${xPos}px`)
+            .style('top', `${(this.chartMargins.top + this.chartHeight + VALUEBARHEIGHT)}px`)
             .style('display', 'block');
         this.horizontalValueBox.append('div')
             .attr('class', 'tsi-valueBoxText')
             .text(Utils.timeFormat(this.chartComponentData.usesSeconds, this.chartComponentData.usesMillis, 
                 this.chartOptions.offset, this.chartOptions.is24HourTime, shiftMillis, null, this.chartOptions.dateLocale)(xValue))
+        if (endValue !== null) {
+            this.horizontalValueBox.append('div')
+                .attr('class', 'tsi-valueBoxText')
+                .text(Utils.timeFormat(this.chartComponentData.usesSeconds, this.chartComponentData.usesMillis, 
+                    this.chartOptions.offset, this.chartOptions.is24HourTime, shiftMillis, null, this.chartOptions.dateLocale)(endValue))
+        }
+            
 
     }
 
     private setVerticalValueAndPosition (yValue: number, yPos) {
         this.verticalValueBox.style('top', `${yPos}px`)
+            .style('right', `${(this.chartMargins.right + this.chartWidth)}px`)
             .style('display', 'block')
             .text(Utils.formatYAxisNumber(yValue));
     }
@@ -1373,15 +1382,12 @@ class LineChart extends TemporalXAxisComponent {
                 .append('div')
                 .attr('class', 'tsi-horizontalValueBox tsi-chartValueTextBox')
                 .style('display', 'none')
-                .style('top', `${(this.chartMargins.top + this.chartHeight + 3)}px`)
                 .attr('pointer-events', 'none');
 
             this.verticalValueBox =  d3.select(this.renderTarget)
                 .append('div')
                 .attr('class', 'tsi-verticalValueBox')
-                .attr('display', 'none')
-                .style('right', `${(this.chartMargins.right + this.chartWidth)}px`)
-                .style('top', '10px');
+                .style('display', 'none');
                 
             this.horizontalValueBar = this.focus.append('line')
                 .attr('y1', 0)
@@ -1395,7 +1401,9 @@ class LineChart extends TemporalXAxisComponent {
 
             this.draw = (isFromResize = false) => {  
                 this.minBrushWidth = (this.chartOptions.minBrushWidth) ? this.chartOptions.minBrushWidth : this.minBrushWidth;
-                this.focus.attr("visibility", (this.chartOptions.focusHidden) ? "hidden" : "visible")
+                this.focus.attr("visibility", (this.chartOptions.focusHidden) ? "hidden" : "visible");
+                this.verticalValueBox.style("visibility", (this.chartOptions.focusHidden) ? "hidden" : "visible");
+                this.horizontalValueBox.style("visibility", (this.chartOptions.focusHidden) ? "hidden" : "visible");
                 if (this.chartOptions.xAxisHidden && this.chartOptions.focusHidden) {
                     this.chartMargins.bottom = 5;
                 }

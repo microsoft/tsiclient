@@ -260,25 +260,26 @@ class LinePlot extends Plot {
                     d3.select(this).selectAll(".tsi-valueDot").remove();
                 }
                 
+                let envelopeData = {};
                 if ((self.chartComponentData.displayState[aggKey].includeEnvelope || self.chartOptions.includeEnvelope) && self.chartComponentData.isPossibleEnvelope(aggKey, splitBy)) {
-                    var envelopeData = self.chartComponentData.timeArrays[aggKey][splitBy].map((d: any) => ({...d, isEnvelope: true}));
-                    var envelope = d3.select(this).selectAll(".tsi-valueEnvelope")
+                    envelopeData = self.chartComponentData.timeArrays[aggKey][splitBy].map((d: any) => ({...d, isEnvelope: true}));
+                } 
+                let envelope = d3.select(this).selectAll(".tsi-valueEnvelope")
                         .data([envelopeData]);
                     
-                    envelope.enter()
-                        .append("path")
-                        .attr("class", "tsi-valueElement tsi-valueEnvelope")
-                        .merge(envelope)
-                        .style("visibility", (d: any) => { 
-                            return (self.chartComponentData.isSplitByVisible(aggKey, splitBy)) ? "visible" : "hidden";
-                        })                                            
-                        .transition()
-                        .duration(durationFunction)
-                        .ease(d3.easeExp)
-                        .style("fill", splitByColors[j])
-                        .attr("fill-opacity", .2)
-                        .attr("d", aggEnvelope);
-                }
+                envelope.enter()
+                    .append("path")
+                    .attr("class", "tsi-valueElement tsi-valueEnvelope")
+                    .merge(envelope)
+                    .style("visibility", (d: any) => {
+                        return (self.chartComponentData.isSplitByVisible(aggKey, splitBy)) ? "visible" : "hidden";
+                    })
+                    .transition()
+                    .duration(durationFunction)
+                    .ease(d3.easeExp)
+                    .style("fill", splitByColors[j])
+                    .attr("fill-opacity", .2)
+                    .attr("d", aggEnvelope);
 
                 if (self.chartOptions.isArea) {
                     self.createAreaPath(aggY);
