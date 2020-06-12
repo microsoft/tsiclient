@@ -58,7 +58,7 @@ function initAuth(title){
         // Get an access token to the Microsoft TSI API
         var promise = new Promise(function(resolve,reject){
             authContext.acquireToken(
-            'https://api.timeseries.azure.com/',
+            '120d688d-1518-4cf7-bd38-182f158850b6',
             function (error, token) {
 
                 if (error || !token) {
