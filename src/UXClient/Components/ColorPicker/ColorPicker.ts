@@ -28,6 +28,8 @@ class ColorPicker extends Component{
                     .attr("aria-describedby", "tsi-selectedColorValue")
                     .attr("aria-controls", "tsi-colorGrid")
                     .on('click', (e) => {
+                        d3.event.preventDefault();
+                        d3.event.stopPropagation();
                         if (this.isColorGridVisible) {
                             this.hideColorGrid(true);
                         } else {
@@ -115,6 +117,10 @@ class ColorPicker extends Component{
         gridItem.classed("tsi-selected", true);
         gridItem.attr("aria-selected", true);
         this.selectedColor = cStr;
+    }
+
+    public getColorPickerElem = () => {
+        return this.colorPickerElem;
     }
 }
 
