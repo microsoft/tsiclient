@@ -186,7 +186,7 @@ class ChartOptions {
         this.dTPIsModal = this.mergeValue(chartOptionsObj, 'dTPIsModal', false);
         this.defaultColor = this.mergeValue(chartOptionsObj, 'defaultColor', null);
         this.numberOfColors = this.mergeValue(chartOptionsObj, 'numberOfColors', 15);
-        this.colors = Utils.getValueOrDefault(chartOptionsObj, 'colors', Utils.generateColors(this.numberOfColors, this.defaultColor ? [this.defaultColor] : null));
+        this.colors = Utils.generateColors(this.numberOfColors, chartOptionsObj['colors'] ? chartOptionsObj['colors'] : null);
         this.isColorValueHidden = this.mergeValue(chartOptionsObj, 'isColorValueHidden', false);
         this.onClick = this.mergeValue(chartOptionsObj, 'onClick', () => {});
         this.onSelect = this.mergeValue(chartOptionsObj, 'onSelect', () => {});

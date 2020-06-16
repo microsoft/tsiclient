@@ -22,6 +22,7 @@ import { SingleDateTimePicker } from "./Components/SingleDateTimePicker/SingleDa
 import { DateTimeButtonSingle } from "./Components/DateTimeButtonSingle/DateTimeButtonSingle";
 import { DateTimeButtonRange } from "./Components/DateTimeButtonRange/DateTimeButtonRange";
 import { ProcessGraphic } from './Components/ProcessGraphic/ProcessGraphic';
+import { PlaybackControls } from './Components/PlaybackControls/PlaybackControls';
 import { ColorPicker } from "./Components/ColorPicker/ColorPicker";
 
 class UXClient {
@@ -118,6 +119,10 @@ class UXClient {
 
     public ProcessGraphic(renderTarget) {
         return new ProcessGraphic(renderTarget);
+    }
+
+    public PlaybackControls(renderTarget) {
+        return new PlaybackControls(renderTarget);
     }
 
     public ColorPicker(renderTarget) {
