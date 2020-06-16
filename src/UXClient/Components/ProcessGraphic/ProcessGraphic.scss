@@ -56,7 +56,7 @@
         @include tColors($grays);
 
         &.tsi-label-highlight {
-            animation: border-glow-dark .5s ease-in 0s 1;
+            animation: border-glow-dark .6s ease-out 0s 1;
         }
     }
 
@@ -65,7 +65,7 @@
         @include tColors($grays);
 
         &.tsi-label-highlight {
-            animation: border-glow-light .5s ease-in 0s 1;
+            animation: border-glow-light .6s ease-out 0s 1;
         }
     }
 

@@ -6,6 +6,11 @@ import { TemporalXAxisComponent } from '../../Interfaces/TemporalXAxisComponent'
 
 type d3Selection = d3.Selection<d3.BaseType, unknown, null, undefined>;
 
+interface IPlaybackSettings {
+  intervalMillis: number;
+  stepSizeMillis: number;
+}
+
 class PlaybackControls extends Component {
   private playbackInterval: number;
   private playButton: d3Selection;
@@ -142,6 +147,7 @@ class PlaybackControls extends Component {
       // not be lower than the minimum playback interval.
       let playbackIntervalMs = Math.max(this.playbackSettings.intervalMillis || this.minimumPlaybackInterval, this.minimumPlaybackInterval);
 
+      this.next();
       this.playbackInterval = window.setInterval(this.next.bind(this), playbackIntervalMs);
       this.playButton
         .classed('tsi-play-button', false)
@@ -237,11 +243,6 @@ class TimeAxis extends TemporalXAxisComponent {
 
     this.drawXAxis(0, true, true);
   }
-}
-
-interface IPlaybackSettings {
-  intervalMillis: number;
-  stepSizeMillis: number;
 }
 
 export { PlaybackControls };
