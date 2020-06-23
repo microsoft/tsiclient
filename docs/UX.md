@@ -38,7 +38,7 @@ A line chart can hold three different types of plots:
 1. An event plot
 1. A categorical plot
 
-***Note**: hosted examples of all three are provided at [https://tsiclientsample.azurewebsites.net](https://tsiclientsample.azurewebsites.net/)*.
+***Note**: hosted examples of all three are provided at [https://tsiclientsample.azurewebsites.net/noauth/multipleseriestypes.html](https://tsiclientsample.azurewebsites.net/noauth/multipleseriestypes.html)*.
 
 The type of plot for each data group is specified with the `dataType` [Chart Data Option](#chart-data-options). Multiple types are concurrently possible within one line chart.
 
@@ -291,18 +291,18 @@ The most common available parameters for chart options are provided below:
 |`grid`| **boolean** | `true`, `false` | `false` | If `true`, add accessible grid button to the ellipsis menu |
 |`includeDots`| **boolean** | `true`, `false` | `false` | If `true`, the line chart plots dots for values |
 |`includeEnvelope`| **boolean** | `true`, `false` | `false` | If `true`, include an area showing min/max boundaries in the line chart |
-|`interpolationFunction`| **string** | `''`, `curveLinear` | `''` | Name for interpolation function used for line chart lines|
-|`legend`| **string** |`shown`,`compact`,`hidden` |  `shown` | Legend layout|
+|`interpolationFunction`| **string** | `''`, `'curveLinear'` | `''` | Name for interpolation function used for line chart lines|
+|`legend`| **string** |`'shown'`,`'compact'`,`'hidden'` |  `'shown'` | Legend layout|
 |`noAnimate`| **boolean** |`true`, `false`| `false` | Deterimines whether animations happen on state change|
-|`offset`|**any**| `0`, `-120`, `America/Los_Angeles` | `0` | Offset for all timestamps in minutes from UTC, or a timezone supported by *moment.js*|
+|`offset`|**any**| `0`, `-120`, `'America/Los_Angeles'` | `0` | Offset for all timestamps in minutes from UTC, or a timezone supported by *moment.js*|
 |`spMeasures`| **Array&lt;string&gt;** | `Array<string>` |  `Array<string>` | X, Y, and Radius (optional) measures passed into Scatter Plot. *(**Note**: this is a scatter plot specific chart option)* |
 |`isTemporal`| **boolean** | `true`, `false` | `false` | `true`: scatter plot has temporal slider to slide through time slices </br> `false*` scatter plot renders all timestamps. *(**Note**: this is a scatter plot specific chart option)*|
 |`spAxisLabels`| **Array&lt;string&gt;** | `null`, `Array<string>` | `null` | If given array, first element of array is used as X axis label.  Second element of array is used as Y axis label. *(**Note**: this is a scatter plot specific chart option)*|
 |`stacked`|**boolean** |`true`, `false` | `false` | If `true`, stack bars in bar chart|
-|`theme`|**string** |`dark`, `light` | `dark` | Component color scheme|
-|`timestamp`|**string**| `null`,`2017-04-19T13:00:00Z` | `null` | If an ISO string, sets the slider in the bar or pie chart to the specified timestamp|
+|`theme`|**string** |`'dark'`, `'light'` | `'dark'` | Component color scheme|
+|`timestamp`|**string**| `null`,`'2017-04-19T13:00:00Z'` | `null` | If an ISO string, sets the slider in the bar or pie chart to the specified timestamp|
 |`tooltip`|**boolean**| `true`, `false` | `false` |If `true`, display tooltip on hover over a value element|
-|`yAxisState`|**string**| `stacked`, `shared`, `overlap` | `stacked` | State of the y axis in line chart|
+|`yAxisState`|**string**| `'stacked'`, `'shared'`, `'overlap'` | `'stacked'` | State of the y axis in line chart|
 |`yExtent`|**[number, number]**| `null`, `[minValue, maxValue]` | `null` | A minimum and maximum for the extent of the yAxis for this line chart, when the yAxisState is set to shared|
 
 All chart options can be viewed [in the source code](../src/UXClient/Models/ChartOptions.ts).
@@ -324,13 +324,13 @@ Available **Chart Data Options** include:
 
 | Property name | Type | Value options | Default | Description |
 |-|-|-|-|-|
-| `color` |**string**|`#4286f4`| | The color of this group in a component|
-|`alias`|**string**|`Factory1`| | The display name for this group|
-|`dataType`|**string**| `numeric`, `categorical`, `events`| `numeric`| Specifies the visual representation of the data: `numeric` creates a line plot, `categorical` a series of rectangles, and events a diamond or teardrop at each timestamp with data
+| `color` |**string**|`'#4286f4'`| | The color of this group in a component|
+|`alias`|**string**|`'Factory1'`| | The display name for this group|
+|`dataType`|**string**| `'numeric'`, `'categorical'`, `'events'`| `'numeric'`| Specifies the visual representation of the data: `numeric` creates a line plot, `categorical` a series of rectangles, and events a diamond or teardrop at each timestamp with data
 |`contextMenu`|**Array&lt;[groupContextMenuAction](#group-context-menu-actions)&gt;**|`[]`||Actions to take on context menu click on a group, or time series|
 |`searchSpan`|**[searchSpanObject](#search-span-object)**|`null`||Specifies search span for this group|
 |`measureTypes`|**Array&lt;string&gt;**|`['min', 'avg', max']`||The measure properties specified in the time series of this group|
-|`interpolationFunction`|**string**|`curveStep`| |If `curveStep` is set, step interpolation is used|
+|`interpolationFunction`|**string**|`'curveStep'`| |If `'curveStep'` is set, step interpolation is used|
 |`includeEnvelope`|**boolean**|`true`, `false`| |If `true`, and a data group has measure types `['min', 'avg', max']`, a shadow will be drawn to show the range of values|
 |`includeDots`|**boolean**|`true`, `false`| |If `true`, draw circles for each value in the group|
 |`yExtent`|**[number, number]**|`[0,400]`| |A minimum and maximum for the extent of the yAxis for this group|
@@ -339,7 +339,7 @@ Available **Chart Data Options** include:
 |`valueMapping`|**[valueMapping](#value-mapping)**|`{}`||Defines the relationship between measures and their colors in non-numeric plots in the line chart|
 |`onElementClick`|**(dataGroupName: string, </br> timeSeriesName: string,  </br> timestamp: string,  </br> measures: Array&lt;any&gt;) => void**|`null`|`null` |Handler for when an element in a non-numeric plot in the line chart is clicked. the parameters are: data group, series name, timestamp, and measures at that timestamp|
 |`rollupCategoricalValues`|**boolean**| `true`, `false` | `false`|For categorical plots in line charts, this specifies that adjacent measures with the same values should be rolled into the first with those values|
-|`eventElementType`|**string**|`diamond`, `teardrop`| `diamond` | Specifies the svg icon for an event in the line chart, either a `diamond` or a `teardrop`|
+|`eventElementType`|**string**|`'diamond'`, `'teardrop'`| `'diamond'` | Specifies the svg icon for an event in the line chart, either a `diamond` or a `teardrop`|
 
 ***Note**: For boolean values, the property will evaluate to `true` if either value is `true`. For other types of values, the chart data option value will take precedence over the chart option value.*
 
@@ -447,8 +447,8 @@ This section provides supplemental reference information.
 |`brushMoveAction`| **(from:DateTime, to:DateTime) => any** | `() => {}` |`() => {}` |Action fired when the brush moves|
 |`brushMoveEndAction`|**(from:DateTime, to:DateTime) => any**| `() => {}` |`() => {}` |Action fired at the end of a mouse movement involving the brush|
 |`canDownload`|**boolean**|`true`, `false` | `true` |If `true`, chart's ellipsis menu contains a download button to download the chart's data|
-|`color`| **string**|`null`, `purple`, `#404040` | `null` |Color of the time selection ghost in availability chart|
-|`dateLocale`|**string**| `en`, `de`| `en` |Date locale name for the formatting of dates as well as the language of days and months in the calendar picker|
+|`color`| **string**|`null`, `'purple'`, `'#404040'` | `null` |Color of the time selection ghost in availability chart|
+|`dateLocale`|**string**| `'en'`, `'de'`| `'en'` |Date locale name for the formatting of dates as well as the language of days and months in the calendar picker|
 |`focusHidden`|**boolean**|`true`, `false` |`false`|If `true`, hide focus element|
 |`fromChart`|**boolean**|`true`, `false` |`false`|If `true`, a component is a subcomponent of another component|
 |`hideChartControlPanel`|**boolean**|`true`, `false` |`false`|If `true`, hide panel with chart control buttons|
@@ -461,13 +461,13 @@ This section provides supplemental reference information.
 |`maxBuckets`|**number**|`500`|`500`|Max number of buckets in availability chart|
 |`minBrushWidth`|**number**| `0`|`0`|Minimum possible width of brush in a line chart in pixels|
 |`minutesForTimeLabels`|**boolean**|`true`, `false` |`false`|If `true`, force time labels to minute granularity|
-|`onInstanceClick`|**(instance: any) => any**|`() => {return {}}` | `() => {return {}}`|For model search: takes an instance and returns an object of context menu actions|
-|`onMouseout`|**() => void**|`() => {return {}}` | `() => {return {}}`|Action fired when the mouse leaves a chart value element (ex: line, bar, pie chart segment, etc.)|
-|`onMouseover`|**(aggKey: string, splitBy: string) => void**|`() => {return {}}` | `() => {return {}}`|Action fired when the mouse enters a chart value element|
-|`onSticky`|**(aggKey: string, splitBy: string) => void**|`() => {return {}}` | `() => {return {}}`|Action fired when a chart value element is stickied|
-|`onUnsticky`|**(aggKey: string, splitBy: string) => void**|`() => {return {}}` | `() => {return {}}`|Action fired when a chart value element is stickied|
-|`onKeydown`| **(d3Event: any, awesompleteObject: any) => void** |`() => {return {}}` | `() => {return {}}`| Action fired when keydown action performed in ModelAutocomplete|
-|`onInput`|**(searchText: string) => void** |`() => {return {}}` | `() => {return {}}`| Action fired on input actions in ModelAutocomplete|
+|`onInstanceClick`|**(instance: any) => any**|`() => {}` | `() => {}`|For model search: takes an instance and returns an object of context menu actions|
+|`onMouseout`|**() => void**|`() => {}` | `() => {}`|Action fired when the mouse leaves a chart value element (ex: line, bar, pie chart segment, etc.)|
+|`onMouseover`|**(aggKey: string, splitBy: string) => void**|`() => {}` | `() => {}`|Action fired when the mouse enters a chart value element|
+|`onSticky`|**(aggKey: string, splitBy: string) => void**|`() => {}` | `() => {}`|Action fired when a chart value element is stickied|
+|`onUnsticky`|**(aggKey: string, splitBy: string) => void**|`() => {}` | `() => {}`|Action fired when a chart value element is stickied|
+|`onKeydown`| **(d3Event: any, awesompleteObject: any) => void** |`() => {}` | `() => {}`| Action fired when keydown action performed in ModelAutocomplete|
+|`onInput`|**(searchText: string) => void** |`() => {}` | `() => {}`| Action fired on input actions in ModelAutocomplete|
 |`preserveAvailabilityState`|**boolean**|`true`, `false` |`false`|If `true`, save availability chart state on render|
 |`scaledToCurrentTime`|**boolean**|`true`, `false` |`false`|If `true`, base slider base component's scale on current time's values (all values if false)|
 |`singleLineXAxisLabel`|**boolean**|`true`, `false` |`false`|If `true`, display x axis time labels on a single line (split into two lines if false)|
