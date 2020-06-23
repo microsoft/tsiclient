@@ -4,10 +4,14 @@
 
 The Azure Time Series Insights JavaScript SDK (aka **tsiclient**) is a JavaScript library for Microsoft Azure Time Series Insights, featuring components for data visualization and analytics, utilities for making calls directly to the TSI Platform API, and more.  **tsiclient** also ships with an associated CSS file (which you must include using your preferred css linking method), which makes the components look great out of the box.
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-red.svg)](https://opensource.org/licenses/MIT)
+
 ## Resources
 
-* [API Reference](docs/API.md)
-* [Examples](https://tsiclientsample.azurewebsites.net)
+* [API Reference documentation](docs/API.md)
+* [Product documentation](https://docs.microsoft.com/azure/time-series-insights/)
+* [Authorization and authentication](https://docs.microsoft.com/azure/time-series-insights/time-series-insights-authentication-and-authorization)
+* [Hosted tsiclient samples](https://tsiclientsample.azurewebsites.net)
 
 ## Installing
 
@@ -33,7 +37,7 @@ var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart'));
 Starting with version 1.3.0, discrete events and state transitions will be represented just like numeric time series in the LineChart component.  This may be a breaking change for users representing non-numeric series in the line chart using the "events" and "states" Chart Options.  For usage instructions, consult [this example](https://tsiclientsample.azurewebsites.net/noauth/multipleseriestypes.html) and the associated [documentation](https://github.com/microsoft/tsiclient/blob/master/docs/UX.md#line-chart).
 
 
-# Contributing
+## Contributing
 
 This project welcomes contributions and suggestions.  Most contributions require you to agree to a
 Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us
