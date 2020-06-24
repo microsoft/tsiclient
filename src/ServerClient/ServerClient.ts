@@ -16,7 +16,7 @@ class ServerClient {
     }
 
     private retryBasedOnStatus = xhr => this.retriableStatusCodes.indexOf(xhr.status) !== -1;
-    private fallBackToOldApiVersion = xhr => xhr.status === 400 && xhr.response.indexOf('UnsupportedTSXVersionTSX01') !== -1;
+    private fallBackToOldApiVersion = xhr => xhr.status === 400 && xhr.response.indexOf('UnsupportedTSXVersionTSX00') !== -1;
     private setStandardHeaders = (xhr, token) => {
         let clientRequestId = Utils.guid();
         xhr.setRequestHeader('Authorization', 'Bearer ' + token);
