@@ -244,6 +244,10 @@ class ServerClient {
         }
     }
 
+    public putTimeSeriesTypes(token: string, environmentFqdn: string, types: Array<any>) {
+        return this.createPromiseFromXhr('https://' + environmentFqdn + '/timeseries/types/$batch' + this.tsmTsqApiVersion, "POST", JSON.stringify({put: types}), token, (responseText) => {return JSON.parse(responseText);});
+    }
+
     public getTimeseriesHierarchies(token: string, environmentFqdn: string) {
         let uri = 'https://' + environmentFqdn + '/timeseries/hierarchies/' + this.tsmTsqApiVersion;
         return this.createPromiseFromXhr(uri, "GET", {}, token, (responseText) => {return JSON.parse(responseText);});
