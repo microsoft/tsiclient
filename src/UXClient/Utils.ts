@@ -577,6 +577,20 @@ class Utils {
         link.click();
     }  
 
+    static sanitizeString (str: any, type: any) {
+        if (str === null || str === undefined) {
+            return "";
+        }
+        if (type !== 'Double' && type !== 'Long') {
+            let jsonifiedString = type === 'Dynamic' ? JSON.stringify(str) : str;
+            if (jsonifiedString.indexOf(',') !== -1 || jsonifiedString.indexOf('"') !== -1 || jsonifiedString.indexOf('\n') !== -1 || type === 'Dynamic') {
+                let replacedString = jsonifiedString.replace(/"/g, '""');
+                return '"' + replacedString + '"';
+           }
+        }
+        return str;
+    }
+
     static hideGrid (renderTarget: any) {
         d3.select(renderTarget).selectAll(`.${GRIDCONTAINERCLASS}`).remove();
     }
