@@ -1,4 +1,4 @@
-import {Utils, DataTypes} from "./../Utils";
+import {Utils, DataTypes, valueTypes} from "./../Utils";
 import { ChartDataOptions } from "./ChartDataOptions";
 
 class ChartComponentData {
@@ -485,12 +485,12 @@ class ChartComponentData {
 
     private guessValueType (v: any) {
         if (typeof v === 'number') {
-            return 'Double';
+            return valueTypes.Double;
         }
         if (typeof v === 'string') {
-            return 'String';
+            return valueTypes.String;
         }
-        return 'Dynamic';
+        return valueTypes.Dynamic;
     }
     
 
@@ -523,7 +523,7 @@ class ChartComponentData {
                     var rowKey = aggKey + "_" + splitBy + "_" + type; 
                     rowMap[rowKey] = { };
                     rowOrder.push(rowKey);
-                    headerString += Utils.sanitizeString(splitByString + "." + type, 'String') + ",";
+                    headerString += Utils.sanitizeString(splitByString + "." + type, valueTypes.String) + ",";
                 });
             });
         });

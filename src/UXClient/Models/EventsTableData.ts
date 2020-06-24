@@ -1,4 +1,4 @@
-import {Utils} from "./../Utils";
+import {Utils, valueTypes} from "./../Utils";
 import {ChartComponentData} from "./ChartComponentData";
 import {TimeSeriesEvent} from "./TimeSeriesEvent";
 import * as d3 from 'd3';
@@ -132,7 +132,7 @@ class EventsTableData {
         }
         let columnKeys = this.sortColumnKeys();
         var csvString = endLine(columnKeys.reduce((headerString, columnKey) => {
-            return headerString + Utils.sanitizeString(columnKey, 'String') + ",";
+            return headerString + Utils.sanitizeString(columnKey, valueTypes.String) + ",";
         }, ""));
 
         this.events.forEach((event: TimeSeriesEvent) => {
