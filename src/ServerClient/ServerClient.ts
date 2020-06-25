@@ -3,17 +3,20 @@ import { Utils } from '../UXClient/Utils';
 
 class ServerClient {
     private apiVersionUrlParam = "?api-version=2016-12-12";
-    private tsmTsqApiVersion = "?api-version=2018-11-01-preview";
+    private oldTsmTsqApiVersion = "?api-version=2018-11-01-preview";
+    private tsmTsqApiVersion = "?api-version=2020-07-31";
     public maxRetryCount = 3;
     public sessionId = Utils.guid();
     public retriableStatusCodes = [408, 429, 500, 503];
     public onAjaxError = (logObject) => {};
     public onAjaxRetry = (logObject) => {};
+    public onFallbackToOldApiVersion = (logObject) => {};
 
     Server () {
     }
 
     private retryBasedOnStatus = xhr => this.retriableStatusCodes.indexOf(xhr.status) !== -1;
+    private fallBackToOldApiVersion = xhr => xhr.status === 400 && xhr.response.indexOf('UnsupportedTSXVersionTSX01') !== -1;
     private setStandardHeaders = (xhr, token) => {
         let clientRequestId = Utils.guid();
         xhr.setRequestHeader('Authorization', 'Bearer ' + token);
@@ -102,6 +105,7 @@ class ServerClient {
         onreadystatechange = () => {
             if(xhr.readyState != 4) return;
 
+            let fallBackToOldApiVersion = this.fallBackToOldApiVersion(xhr);
             if(xhr.status == 200){
                 var message = JSON.parse(xhr.responseText);
                 if(!message.continuationToken){
@@ -130,9 +134,13 @@ class ServerClient {
                     xhr.send(JSON.stringify(contentObject));
                 }
             }
-            else if(this.retryBasedOnStatus(xhr)  && retryCount < this.maxRetryCount){
-                retryCount++;
+            else if((this.retryBasedOnStatus(xhr) && retryCount < this.maxRetryCount) || fallBackToOldApiVersion){
+                retryCount += fallBackToOldApiVersion ? 0 : 1;
                 retryTimeout = this.retryWithDelay(retryCount, () => {
+                    if(fallBackToOldApiVersion) {
+                        uri = uri.split(this.tsmTsqApiVersion).join(this.oldTsmTsqApiVersion);
+                        this.onFallbackToOldApiVersion({uri: uri, payload: JSON.stringify(contentObject), clientRequestId: clientRequestId, sessionId: this.sessionId, statusCode: xhr.status});
+                    }
                     xhr.open('POST', uri);
                     clientRequestId = this.setStandardHeaders(xhr, token);
                     xhr.setRequestHeader('Content-Type', 'application/json');
@@ -234,6 +242,11 @@ class ServerClient {
         } else {
             return this.createPromiseFromXhr('https://' + environmentFqdn + '/timeseries/types/$batch' + this.tsmTsqApiVersion, "POST", JSON.stringify({get: {typeIds: typeIds, names: null}}), token, (responseText) => {return JSON.parse(responseText);});
         }
+    }
+
+    public postTimeSeriesTypes(token: string, environmentFqdn: string, payload: string) {
+        let uri = 'https://' + environmentFqdn + '/timeseries/types/$batch' + this.tsmTsqApiVersion;
+        return this.createPromiseFromXhr(uri, "POST", payload, token, (responseText) => {return JSON.parse(responseText);});
     }
 
     public getTimeseriesHierarchies(token: string, environmentFqdn: string) {
