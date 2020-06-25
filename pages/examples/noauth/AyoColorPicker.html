@@ -1,0 +1,126 @@
+
+<!DOCTYPE html> 
+<html>
+    <head>
+        <title>Basic Charts</title>
+
+        <!-- boilerplate headers are injected with head.js, grab them from the live example header, or include a link to head.js -->
+        <script src="../boilerplate/head.js"></script>
+    </head>
+    <body style="font-family: 'Segoe UI', sans-serif;">
+        <div id="chart1" style="width: 100%; height: 600px;"></div>
+        <div id="cp" style="width: 50%; height: 400px; float: left;">
+            <div id ="cpFactory0">
+                <label>change Color Factory 0: </label>
+            </div>
+            <div id ="cpFactory1">
+                <h2>change Color Factory 1</h2>
+            </div>
+            <div id ="cpFactory2">
+                <h2>change Color Factory 2</h2>
+            </div>
+        </div>
+  
+        
+      
+            
+        <script>
+            window.onload = function() {
+                
+                // create fake data in the shape our charts expect
+                var data = [];
+                var from = new Date(Math.floor((new Date()).valueOf() / (1000*60 * 60)) * (1000*60 * 60));
+                var to;
+                for(var i = 0; i < 3; i++){
+                    var lines = {};
+                    data.push({[`Factory${i}`]: lines});
+                    for(var j = 0; j < 5; j++){
+                        var values = {};
+                        lines[`Station${j}`] = values;
+                        for(var k = 0; k < 60; k++){
+                            if(!(k%2 && k%3)){  // if check is to create some sparseness in the data
+                                var to = new Date(from.valueOf() + 1000*60*k);
+                                var val = Math.random();
+                                var val2 = Math.random();
+                                var val3 = Math.random();
+                                var val4 = Math.random();
+                                values[to.toISOString()] = {avg: val, x: val2, y: val3, r: val4};
+                            }
+                        } 
+                    }
+                }
+
+                // render the data in a chart
+                var tsiClient = new TsiClient();
+                var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart1'));
+                lineChart.render(data, {theme: 'light'});
+                     //lineChart.render(data, {theme:"light"}, [{color:"red"}, {color:"red"},{color:"red"}]);
+                var choosenColor1=null;
+                var choosenColor2=null;
+                var choosenColor3=null;
+
+                var colorPicker;
+                var cpElement1 = document.getElementById('cpFactory0');
+                var colorPickerOptions = {
+                    theme: 'light',
+                    numberOfColors: 15,
+                    defaultColor: null,
+                    isColorValueHidden: false,
+                    onSelect: colorHex => {
+                        choosenColor1=colorHex;
+                        lineChart.render(data, {theme:"light"}, [{color:choosenColor1}, {color:choosenColor2}, {color:choosenColor3}]);
+                    }
+                };
+        
+                var tsiClient = new TsiClient();
+                colorPicker = new tsiClient.ux.ColorPicker(cpElement1);
+                colorPicker.render(colorPickerOptions);
+
+
+                var colorPicker;
+                var cpElement2 = document.getElementById('cpFactory1');
+                var colorPickerOptions = {
+                    theme: 'light',
+                    numberOfColors: 15,
+                    defaultColor: null,
+                    isColorValueHidden: false,
+                    onSelect: colorHex => {
+                        choosenColor2=colorHex;
+                        lineChart.render(data, {theme:"light"}, [{color:choosenColor1},{color:choosenColor2}, {color:choosenColor3}]);
+                    }
+                };
+        
+                var tsiClient = new TsiClient();
+                colorPicker = new tsiClient.ux.ColorPicker(cpElement2);
+                colorPicker.render(colorPickerOptions);
+
+                var colorPicker;
+                var cpElement3 = document.getElementById('cpFactory2');
+                var colorPickerOptions = {
+                    theme: 'light',
+                    numberOfColors: 15,
+                    defaultColor: null,
+                    isColorValueHidden: false,
+                    onSelect: colorHex => {
+                        choosenColor3=colorHex;
+                        lineChart.render(data, {theme:"light"}, [{color:choosenColor1},{color:choosenColor2}, {color:choosenColor3}]);
+                    }
+                };
+        
+                var tsiClient = new TsiClient();
+                colorPicker = new tsiClient.ux.ColorPicker(cpElement3);
+                colorPicker.render(colorPickerOptions);
+                
+               
+
+                // setTimeout(()=>{
+                //     lineChart.render(data, {theme:"light"}, [{color:"red"}]);
+                // }, 2000)
+
+                
+
+                
+            };
+        </script>
+    </body>
+</html>

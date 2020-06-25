@@ -16,6 +16,9 @@ class ColorPicker extends Component{
     public render (options: any = {}) {
         this.chartOptions.setOptions(options);
         this.selectedColor = this.chartOptions.defaultColor;
+        if (this.chartOptions.colors.indexOf(this.selectedColor) === -1) {
+            this.chartOptions.colors.push(this.selectedColor);
+        }
 
         this.colorPickerElem = d3.select(this.renderTarget).classed("tsi-colorPicker", true);
         this.colorPickerElem.text(''); 
@@ -27,11 +30,11 @@ class ColorPicker extends Component{
                     .attr("aria-label", this.getString('Select color'))
                     .attr("aria-describedby", "tsi-selectedColorValue")
                     .attr("aria-controls", "tsi-colorGrid")
-                    .on('click', (e) => {
+                    .on('click', () => {
                         if (this.isColorGridVisible) {
                             this.hideColorGrid(true);
                         } else {
-                            this.chartOptions.onClick(e); this.showColorGrid();
+                            this.chartOptions.onClick(d3.event); this.showColorGrid();
                         }
                     });
         if (this.selectedColor) {
@@ -115,6 +118,10 @@ class ColorPicker extends Component{
         gridItem.classed("tsi-selected", true);
         gridItem.attr("aria-selected", true);
         this.selectedColor = cStr;
+    }
+
+    public getColorPickerElem = () => {
+        return this.colorPickerElem;
     }
 }
 
