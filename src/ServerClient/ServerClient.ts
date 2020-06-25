@@ -138,7 +138,7 @@ class ServerClient {
                 retryCount += fallBackToOldApiVersion ? 0 : 1;
                 retryTimeout = this.retryWithDelay(retryCount, () => {
                     if(fallBackToOldApiVersion) {
-                        uri = uri.split(this.tsmTsqApiVersion).join('') + this.oldTsmTsqApiVersion;
+                        uri = uri.split(this.tsmTsqApiVersion).join(this.oldTsmTsqApiVersion);
                         this.onFallbackToOldApiVersion({uri: uri, payload: JSON.stringify(contentObject), clientRequestId: clientRequestId, sessionId: this.sessionId, statusCode: xhr.status});
                     }
                     xhr.open('POST', uri);
@@ -245,7 +245,8 @@ class ServerClient {
     }
 
     public putTimeSeriesTypes(token: string, environmentFqdn: string, types: Array<any>) {
-        return this.createPromiseFromXhr('https://' + environmentFqdn + '/timeseries/types/$batch' + this.tsmTsqApiVersion, "POST", JSON.stringify({put: types}), token, (responseText) => {return JSON.parse(responseText);});
+        let uri = 'https://' + environmentFqdn + '/timeseries/types/$batch' + this.tsmTsqApiVersion;
+        return this.createPromiseFromXhr(uri, "POST", JSON.stringify({put: types}), token, (responseText) => {return JSON.parse(responseText);});
     }
 
     public getTimeseriesHierarchies(token: string, environmentFqdn: string) {
