@@ -30,7 +30,7 @@
                                 var val2 = Math.random();
                                 var val3 = Math.random();
                                 var val4 = Math.random();
-                                values[to.toISOString()] = {avg: val, x: val2, y: val3, 'bad, "measure name"': [4,"5",6, '7']};
+                                values[to.toISOString()] = {avg: val, x: val2, y: val3, 'bad, "measure name"': [4,"5",6, '7 \n p'], 'new line value': 'new \n line', 'new \n line key': 'test'};
                             }
                         } 
                     }
@@ -101,11 +101,12 @@
                         "name": 'long',
                         "type": "Long",
                         "value": 90
+                    },
+                    "string with new \n line_String": {
+                        "name": 'string with new \n line',
+                        "type": "String",
+                        "value": "new \n line"
                     }
-
-
-
-
                 }];
                 var eventsTable = tsiClient.ux.EventsTable(document.getElementById('chart2'));
                 eventsTable.render(events, {theme: 'light', offset: 'Local'}, true);
