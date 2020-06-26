@@ -26,7 +26,8 @@ export const VALUEBARHEIGHT = 3;
 export enum YAxisStates {Stacked = "stacked", Shared = "shared", Overlap = "overlap" };
 export enum DataTypes {Numeric = 'numeric', Categorical = 'categorical', Events = 'events'};
 export enum EventElementTypes {Diamond = 'diamond', Teardrop = 'teardrop'};
-export enum TooltipMeasureFormat {Enveloped = 'Enveloped', SingleValue = 'SingleValue', Scatter = 'Scatter'} 
+export enum TooltipMeasureFormat {Enveloped = 'Enveloped', SingleValue = 'SingleValue', Scatter = 'Scatter'};
+export enum valueTypes {String = 'String', Double = 'Double', Long = 'Long', Dynamic = 'Dynamic', Boolean = 'Boolean', DateTime = 'DateTime'};
 
 
 class Utils {
@@ -576,6 +577,20 @@ class Utils {
         document.body.appendChild(link);
         link.click();
     }  
+
+    static sanitizeString (str: any, type: String) {
+        if (str === null || str === undefined) {
+            return "";
+        }
+        if (type !== valueTypes.Double && type !== valueTypes.Long) {
+            let jsonifiedString = type === valueTypes.Dynamic ? JSON.stringify(str) : String(str);
+            if (jsonifiedString.indexOf(',') !== -1 || jsonifiedString.indexOf('"') !== -1 || jsonifiedString.indexOf('\n') !== -1 || type === valueTypes.Dynamic) {
+                let replacedString = jsonifiedString.replace(/"/g, '""');
+                return '"' + replacedString + '"';
+           }
+        }
+        return str;
+    }
 
     static hideGrid (renderTarget: any) {
         d3.select(renderTarget).selectAll(`.${GRIDCONTAINERCLASS}`).remove();
