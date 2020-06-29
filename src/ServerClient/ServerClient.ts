@@ -249,6 +249,12 @@ class ServerClient {
         return this.createPromiseFromXhr(uri, "POST", payload, token, (responseText) => {return JSON.parse(responseText);});
     }
 
+    public updateSavedQuery(token: string, timeSeriesQuery: any, endpoint: string = 'https://api.timeseries.azure.com') {
+        let uri = `${endpoint}/artifacts/${timeSeriesQuery.id}${this.tsmTsqApiVersion}`;
+        let payload = JSON.stringify(timeSeriesQuery);
+        return this.createPromiseFromXhr(uri, "POST", payload, token, (responseText) => {return JSON.parse(responseText);});
+    }
+
     public getTimeseriesHierarchies(token: string, environmentFqdn: string) {
         let uri = 'https://' + environmentFqdn + '/timeseries/hierarchies/' + this.tsmTsqApiVersion;
         return this.createPromiseFromXhr(uri, "GET", {}, token, (responseText) => {return JSON.parse(responseText);});
