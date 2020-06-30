@@ -1,0 +1,117 @@
+
+<!DOCTYPE html> 
+<html>
+    <head>
+        <title>Basic Charts</title>
+
+        <!-- boilerplate headers are injected with head.js, grab them from the live example header, or include a link to head.js -->
+        <script src="../boilerplate/head.js"></script>
+    </head>
+    <body style="font-family: 'Segoe UI', sans-serif;">
+        <div id="chart1" style="width: 100%; height: 600px;"></div>
+        <div id="chart2" style="width: 100%; height: 600px;"></div>
+        <script>
+            window.onload = function() {
+                
+                // create fake data in the shape our charts expect
+                var data = [];
+                var from = new Date(Math.floor((new Date()).valueOf() / (1000*60 * 60)) * (1000*60 * 60));
+                var to;
+                for(var i = 0; i < 3; i++){
+                    var lines = {};
+                    data.push({[`Fact,or""y${i}`]: lines});
+                    for(var j = 0; j < 5; j++){
+                        var values = {};
+                        lines[`Sta,ti"on${j}`] = values;
+                        for(var k = 0; k < 60; k++){
+                            if(!(k%2 && k%3)){  // if check is to create some sparseness in the data
+                                var to = new Date(from.valueOf() + 1000*60*k);
+                                var val = Math.random();
+                                var val2 = Math.random();
+                                var val3 = Math.random();
+                                var val4 = Math.random();
+                                values[to.toISOString()] = {avg: val, x: val2, y: val3, 'bad, "measure name"': [4,"5",6, '7 \n p'], 'new line value': 'new \n line', 'new \n line key': 'test'};
+                            }
+                        } 
+                    }
+                }
+
+                // render the data in a chart
+                var tsiClient = new TsiClient();
+                var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart1'));
+                lineChart.render(data, {theme: 'light'});
+
+
+
+
+
+                let events = [{
+                    "timestamp ($ts)": "2017-04-20T20:00:09Z",
+                    "timeSeriesId_String": {
+                    "name": "timeSeriesId",
+                    "type": "String",
+                    "value": "df4412c4-dba2-4a52-87af-780e78ff156b"
+                    },
+                    "value_Double": {
+                    "name": "value",
+                    "type": "Double",
+                    "value": 2100
+                    },
+                    "dynamic type_Dynamic": {
+                        "name": "dynamic type",
+                        "type": "Dynamic",
+                        "value": [1,2,3,4,5]
+                    },
+                    "standard string_String": {
+                        "name": "standard string",
+                        "type": "String",
+                        "value": "normal string"
+                    },
+                    "string with commas_String": {
+                        "name": "string with commas",
+                        "type": "String",
+                        "value": "string, with, commas"
+                    },
+                    "string with one double quote_String": {
+                        "name": 'string with one double quote',
+                        "type": "String",
+                        "value": 'string with " quote'
+                    },
+                    "string with two double quotes_String": {
+                        "name": 'string with two double quotes',
+                        "type": "String",
+                        "value": 'string "with" quotes'
+                    },
+                    "dynamic with double quotes_Dynamic": {
+                        "name": "dynamic with double quotes",
+                        "type": "Dynamic",
+                        "value": [{valueG1: 26, valueG2: "d18ef"}, {valueG1: 27, valueG2: "517ad"}, {valueG1: 24, valueG2: "fb1ed"}]
+                    },
+                    'variable name with "quotes"_String': {
+                        "name": 'variable name with "quotes"',
+                        "type": "String",
+                        "value": "test"
+                    }, 
+                    "variable name, with, commas_String": {
+                        "name": 'variable name, with, commas',
+                        "type": "String",
+                        "value": "test"
+                    }, 
+                    "long_Long": {
+                        "name": 'long',
+                        "type": "Long",
+                        "value": 90
+                    },
+                    "string with new \n line_String": {
+                        "name": 'string with new \n line',
+                        "type": "String",
+                        "value": "new \n line"
+                    }
+                }];
+                var eventsTable = tsiClient.ux.EventsTable(document.getElementById('chart2'));
+                eventsTable.render(events, {theme: 'light', offset: 'Local'}, true);
+
+            };
+        </script>
+    </body>
+</html>

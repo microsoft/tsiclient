@@ -1,0 +1,58 @@
+
+<!DOCTYPE html> 
+<html>
+    <head>
+        <title>PAYG Charts</title>
+
+        <!-- styles are only used for styling header and auth elements, where possible -->
+        <link rel="stylesheet" type="text/css" href="../styles.css" />
+
+        <!-- boilerplate headers are injected with head.js, grab them from the live example header, or include a link to head.js -->
+        <script src="../boilerplate/head.js"></script>
+
+        <!-- boilerplate auth code is injected with auth.js, check it out for auth setup -->
+        <script src="../boilerplate/auth.js"></script>
+    </head>
+    <body style="font-family: 'Segoe UI', sans-serif;">
+
+        <div id="chart1" style="width: 50%; height: 600px; margin-top: 40px; float: left;"></div>
+        <div id="chart2" style="width: 50%; height: 600px; margin-top: 40px; float: right;"></div>
+        <script>
+            window.onload = function() {
+                initAuth('Line chart and events table using the PAYG SKU');  // initiate auth objects, header, and login modal
+                var tsiClient = new TsiClient();
+
+                var linechartTsqExpressions = [];
+                var startDate = new Date('2020-06-01T00:00:00Z');
+                var endDate = new Date(startDate.valueOf() + 1000*60*60*24*2);
+    
+                linechartTsqExpressions.push(new tsiClient.ux.TsqExpression(
+                    {timeSeriesId: ['5001']}, // instance json
+                    {Max: {
+                        kind: 'numeric',
+                        value: {tsx: `$event['valueA'].Double`},
+                        filter: null,
+                        aggregation: {tsx: 'max($value)'}
+                    }}, // variable json
+                    { from: startDate, to: endDate, bucketSize: '1h' }, // search span
+                    '#60B9AE', // color
+                    'MaxValue')); // alias
+
+                authContext.getTsiToken().then(function(token){
+                    tsiClient.server.onFallbackToOldApiVersion = (obj) => console.log(obj);
+                    tsiClient.server.getTsqResults(token, '607c2107-1e64-4f9b-bc57-17cbc455a876.env.crystal-dev.windows-int.net', linechartTsqExpressions.map(function(ae){return ae.toTsq()})).then(function(result){
+                        var transformedResult = tsiClient.ux.transformTsqResultsForVisualization(result, linechartTsqExpressions);
+                        var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart1'));
+                        lineChart.render(transformedResult, {theme: 'dark', grid: true, tooltip: true, legend: 'shown'}, linechartTsqExpressions);
+                    });
+
+                    // tsiClient.server.getTsqResults(token, '607c2107-1e64-4f9b-bc57-17cbc455a876.env.crystal-dev.windows-int.net', linechartTsqExpressions.map(function(ae){return ae.toTsq(true, true)})).then(function(result){
+                    //     var transformedEvents = tsiClient.ux.transformTsqResultsToEventsArray(result);
+                    //     var eventsTable = tsiClient.ux.EventsTable(document.getElementById('chart2'));
+                    //     eventsTable.render(transformedEvents, {theme: 'dark', offset: 'Local'}, true);
+                    // });
+                });
+            }
+        </script>
+    </body>
+</html>

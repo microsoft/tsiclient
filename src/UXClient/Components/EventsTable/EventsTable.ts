@@ -343,7 +343,10 @@ class EventsTable extends ChartComponent{
     }
 
     private formatValue (value, type) {
-        if (type != 'DateTime' || value === null || value === undefined) {
+        if (type === 'Dynamic') {
+            return JSON.stringify(value);
+        }
+        if (type !== 'DateTime' || value === null || value === undefined) {
             return value;
         }
         let timeFormatFunction = Utils.timeFormat(true, true, 0, this.chartOptions.is24HourTime, null, null, this.chartOptions.dateLocale);
