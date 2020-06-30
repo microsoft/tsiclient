@@ -1,0 +1,108 @@
+
+<!DOCTYPE html> 
+<html>
+    <head>
+        <title>Geo-Process Graphic</title>
+
+        <!-- styles are only used for styling header and auth elements, where possible -->
+        <link rel="stylesheet" type="text/css" href="../styles.css" />
+
+        <!-- boilerplate headers are injected with head.js, grab them from the live example header, or include a link to head.js -->
+        <script src="../boilerplate/head.js"></script>
+
+        <!-- boilerplate auth code is injected with auth.js, check it out for auth setup -->
+        <script src="../boilerplate/auth.js"></script>
+
+        <!-- Add references to the Azure Maps Map control JavaScript and CSS files. -->
+  <link rel="stylesheet" href="https://atlas.microsoft.com/sdk/javascript/mapcontrol/2/atlas.min.css" type="text/css">
+  <script src="https://atlas.microsoft.com/sdk/javascript/mapcontrol/2/atlas.min.js"></script>
+
+ <!-- Add a reference to the Azure Maps Services Module JavaScript file. -->
+ <script src="https://atlas.microsoft.com/sdk/javascript/service/2/atlas-service.min.js"></script>
+ <style>
+    body {
+      font-family: 'Segoe UI', sans-serif; 
+      background-color: white;
+      width: 100vw;
+      height: 100vh;
+    }
+
+    main {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+  </style>
+    </head>
+
+    <body>
+        <main>
+            <div id="geo-process-graphic" style="margin: 80px; width: calc(100% - 160px); height: calc(100% - 160px);"></div>
+        </main>
+        <script type="text/javascript">
+          window.onload = () => {
+            initAuth('Geo-Process Graphic');
+            let tsiClient = new TsiClient();
+            let environmentFqdn = 'd7603093-b261-4f9e-b1f2-2596dfd88289.env.timeseries.azure.com';
+            let container = document.getElementById('geo-process-graphic');
+            
+            let geoProcessGraphic = tsiClient.ux.GeoProcessGraphic(container);
+            let geoProcessGraphicOptions = {
+                subscriptionKey: 'OAmjAFiJVm4Kg2xnKTySkg_3B4z-D_I8OIZiog6NDyc',
+                view: 'auto',
+                zoom:3.7,
+                width: 1200,
+                height: 600,
+                theme: 'dark', 
+                throttleSlider: true, 
+                xAxisHidden: false, 
+                bucketSizeMillis: 60000, 
+                updateInterval: 200, 
+                initialValue: new Date('8/10/2017 16:00:00') 
+            };
+
+            // var event = {
+            //     timeStamp: "2020-06-15T21:15:36.327Z"
+            //     tsId: 'Ship_12FD',
+            //     air_temp: 27.12,
+            //     latitude: 18.241,
+            //     longitude: -127.3545
+            // }
+
+            let tsqExpression1 = new tsiClient.ux.TsqExpression(
+              {timeSeriesId: ['9312494'] },
+              {
+                amb_air_temp: {
+                  kind: 'numeric',
+                  value: { tsx: '$event.[data].Double' },
+                  filter: null,
+                  aggregation: { tsx: 'max($value)' }
+                },
+                lat: {
+                    kind: 'numeric',
+                    value: { tsx: '$event.[latitude].Double' },
+                    filter: null,
+                    aggregation: { tsx: 'max($value)' }
+                },
+                lon: {
+                    kind: 'numeric',
+                    value: { tsx: '$event.[longitude].Double' },
+                    filter: null,
+                    aggregation: { tsx: 'max($value)' }
+                }
+              },
+              { },
+              { 
+                positionXVariableName: 'lat',
+                positionYVariableName: 'long',
+                alias: 'Titanic',
+              }
+            );
+            let image =  '../images/boat.png';
+            geoProcessGraphic.render(environmentFqdn, authContext.getTsiToken, image, [tsqExpression1], geoProcessGraphicOptions);
+          }
+        </script>
+    </body>
+</html>
