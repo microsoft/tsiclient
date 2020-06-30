@@ -252,7 +252,7 @@ class ServerClient {
     public updateSavedQuery(token: string, timeSeriesQuery: any, endpoint: string = 'https://api.timeseries.azure.com') {
         let uri = `${endpoint}/artifacts/${timeSeriesQuery.id}${this.tsmTsqApiVersion}`;
         let payload = JSON.stringify(timeSeriesQuery);
-        return this.createPromiseFromXhr(uri, "POST", payload, token, (responseText) => {return JSON.parse(responseText);});
+        return this.createPromiseFromXhr(uri, "MERGE", payload, token, (responseText) => {return JSON.parse(responseText);});
     }
 
     public getTimeseriesHierarchies(token: string, environmentFqdn: string) {
