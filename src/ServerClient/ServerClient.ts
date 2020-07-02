@@ -35,7 +35,7 @@ class ServerClient {
                 xhr.onreadystatechange = () => {
                     if(xhr.readyState != 4) return;
 
-                    if(xhr.status == 200){
+                    if(xhr.status >= 200 && xhr.status < 300){
                         if (xhr.responseText.length == 0)
                             resolve({});
                         else {
