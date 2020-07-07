@@ -14,6 +14,7 @@ class GeoProcessGraphic extends HistoryPlayback {
     private height: number;
     private timeSeriesIds: string[][];
     private markerIds: Array<string>;
+    private pin : atlas.Shape;
 
   constructor(renderTarget: Element){ 
     super(renderTarget); 
@@ -28,6 +29,8 @@ class GeoProcessGraphic extends HistoryPlayback {
     chartOptions
     ) {
     this.subscriptionKey = chartOptions.subscriptionKey;
+    this.width = chartOptions.width;
+    this.height = chartOptions.height;
     this.renderBase(environmentFqdn, getToken, graphicSrc, data, chartOptions);
   }
 
@@ -38,7 +41,6 @@ class GeoProcessGraphic extends HistoryPlayback {
     let map = new atlas.Map(<HTMLElement>this.component.node(), {
       center: [0, 0],
       zoom: this.zoom,
-      view: this.view,
       authOptions: {
         authType: atlas.AuthenticationType.subscriptionKey,
         subscriptionKey: this.subscriptionKey
@@ -64,11 +66,30 @@ class GeoProcessGraphic extends HistoryPlayback {
                 allowOverlap: true
             }
         }));
-
-        //Create a pin and wrap with the shape class and add to data source.
-        let pin = new atlas.Shape(new atlas.data.Point([0,0]));
-        this.dataSource.add(pin);
-      
+        this.pin = new atlas.Shape(new atlas.data.Point([0,0]));
+        this.dataSource.add(this.pin);
+        // //Create a pin and wrap with the shape class and add to data source.
+        // this.pin = new atlas.data.Feature(new atlas.data.Point([0,0]), {Name: 'Titanic'});
+        // this.dataSource.add(this.pin);
+        // let popup = new atlas.Popup();
+        // map.events.add('click', this.pin, (event: any) => {
+        //     if(!event.shapes || event.shapes.length === 0) {
+        //       return; 
+        //     }
+        
+        //     let shape = event.shapes[0];
+        //     let position = shape.getCoordinates();
+        //     let offset = [0, -18];
+        //     let properties = event.shapes[0].getProperties();
+        
+        //     popup.setOptions({
+        //       content: atlas.PopupTemplate.applyTemplate(properties),
+        //       position,
+        //       pixelOffset: offset
+        //     });
+        
+        //     popup.open(map);
+        //   });
     });
     return Promise.resolve({
         graphic: map,
@@ -76,34 +97,43 @@ class GeoProcessGraphic extends HistoryPlayback {
         height: this.height
       });
   }
+  protected extractInfo(prm: Array<IGeoProcessGraphicLabelInfo>){
+      //debugger;
+    let dataPoints = prm.map((r, i): IGeoProcessGraphicLabelInfo => {
+        let airTemp = this.parseTsqResponse(r, 0);
+        let lat = this.parseTsqResponse(r, 1);
+        let lon = this.parseTsqResponse(r, 2);
+        return {
+            airTemp,
+            lat,
+            lon,
+            alias: this.tsqExpressions[i].alias,
+        };
+      });
+      this.updateDataMarkers(dataPoints);
+  }
+  protected parseTsqResponse(response, idx) {
+    return (response && response.properties && response.properties[idx] && response.properties[idx].values) 
+      ? response.properties[idx].values[0] 
+      : null;
+  }
 
   protected updateDataMarkers(dataPoints: Array<any>) {
-    console.log(dataPoints);
-    this.getAuthToken().then(authToken => {
-        return this.serverClient.getTimeseriesInstances(authToken, this.environmentFqdn, 1000000, this.timeSeriesIds).then(instancesResult => {
-
-            let boats = instancesResult.get.map(instanceInfo => {
-              let boatName = instanceInfo.instance.instanceFields.BoatName;
-              return {boatName};
-            });
-        this.dataSource.clear();
-        for(let i = 0; i < dataPoints.length; i++) {
-          let airTemp = dataPoints[i].amb_air_temp.value;
-          let lat = dataPoints[i].lat.value;
-          let lon = dataPoints[i].lon.value;
-          if(!lat&&lon) { continue; }
-
-          let {boatName} = boats[i];
-          
-          let mapPoint = new atlas.data.Point([lon, lat]); 
-          let markerId = `instance-${i}`;
-          this.dataSource.add(new atlas.data.Feature(mapPoint, 
-            {AirTemp: airTemp, Latitude: lat, Longitude: lon }, markerId));
-          this.markerIds[i] = markerId;
-        }
-      });
-    });
+     console.log(dataPoints);
+    for(let i = 0; i < dataPoints.length; i++) {
+        let airTemp =dataPoints[i].airTemp;
+        let lat = dataPoints[i].lat;
+        let lon = dataPoints[i].lon;
+        if(!lat&&lon) { continue; }
+       //this.pin.setCoordinates([lat,lon], {Airtemp: airTemp, Latitude: lat, Longitude: lon});
+        this.pin.setCoordinates([lat,lon]);
+    }
   }
 }
-
+interface IGeoProcessGraphicLabelInfo{
+    airTemp: number,
+    lat: number,
+    lon: number,
+    alias: string
+}
 export { GeoProcessGraphic };

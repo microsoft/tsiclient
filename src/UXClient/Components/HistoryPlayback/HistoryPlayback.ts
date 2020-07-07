@@ -45,6 +45,7 @@ abstract class HistoryPlayback extends Component {
 
   protected abstract loadGraphic(graphicSrc: string): Promise<GraphicInfo>;
   protected abstract updateDataMarkers(data: Array<any>): void;
+  protected abstract extractInfo(data: Array<any>): void;
   protected onGraphicLoaded(): void { }
 
   protected renderBase(environmentFqdn: string, 
@@ -170,25 +171,10 @@ abstract class HistoryPlayback extends Component {
       }
 
       this.currentCancelTrigger = <Function>cancelTrigger;
-
-      (promise as Promise<any>).then(results => {
-        let dataPoints = results.map((r, i): IProcessGraphicLabelInfo => {
-          let value = this.parseTsqResponse(r);
-          let color = typeof(this.tsqExpressions[i].color) === 'function'
-            ? (<Function>this.tsqExpressions[i].color)(value)
-            : this.tsqExpressions[i].color;
-
-          return {
-            value,
-            alias: this.tsqExpressions[i].alias,
-            x: this.tsqExpressions[i].positionX,
-            y: this.tsqExpressions[i].positionY,
-            color: this.sanitizeAttribute(color),
-            onClick: this.tsqExpressions[i].onElementClick
-          };
-        });
-
-        this.updateDataMarkers(dataPoints);
+      
+       (promise as Promise<any>).then(results => {
+        //  console.log(results);
+        this.extractInfo(results);
       }); 
     });
   }
@@ -279,29 +265,5 @@ abstract class HistoryPlayback extends Component {
 
     return { from, to };
   }
-
-  private parseTsqResponse(response) {
-    return (response && response.properties && response.properties[0] && response.properties[0].values) 
-      ? response.properties[0].values[0] 
-      : null;
-  }
-
-  private sanitizeAttribute(str) {
-    let sanitized = String(str);
-    let illegalChars = ['"', "'", '?', '<', '>', ';'];
-    illegalChars.forEach(c => { sanitized = sanitized.split(c).join('') });
-
-    return sanitized;
-  }
 }
-
-interface IProcessGraphicLabelInfo {
-  value: number,
-  alias: string,
-  x: number,
-  y: number,
-  color: string,
-  onClick: Function
-}
-
 export { HistoryPlayback };
