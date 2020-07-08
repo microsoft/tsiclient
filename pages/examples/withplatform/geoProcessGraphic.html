@@ -50,56 +50,46 @@
             
             let geoProcessGraphic = tsiClient.ux.GeoProcessGraphic(container);
             let geoProcessGraphicOptions = {
-                subscriptionKey: 'OAmjAFiJVm4Kg2xnKTySkg_3B4z-D_I8OIZiog6NDyc',
+                subscriptionKey: '',
+                zoom: 8.0,
                 view: 'auto',
-                zoom:3.7,
-                width: 1200,
-                height: 600,
+                width: 1900,
+                height: 800,
                 theme: 'dark', 
                 throttleSlider: true, 
                 xAxisHidden: false, 
                 bucketSizeMillis: 60000, 
                 updateInterval: 200, 
-                initialValue: new Date('8/10/2017 16:00:00') 
             };
-
-            // var event = {
-            //     timeStamp: "2020-06-15T21:15:36.327Z"
-            //     tsId: 'Ship_12FD',
-            //     air_temp: 27.12,
-            //     latitude: 18.241,
-            //     longitude: -127.3545
-            // }
-
             let tsqExpression1 = new tsiClient.ux.TsqExpression(
-              {timeSeriesId: ['9312494'] },
+              { timeSeriesId: ['9461776'] },
               {
-                amb_air_temp: {
-                  kind: 'numeric',
-                  value: { tsx: '$event.[data].Double' },
-                  filter: null,
-                  aggregation: { tsx: 'max($value)' }
+                    AirtempHoldValue: {
+                        kind: "numeric", 
+                        value: {tsx: "$event.[amb_air_temp].Double"}, 
+                        aggregation: {tsx: "right($value)"},
+                        interpolation: {kind: 'linear'}
+                    },
+                    LatitudeHoldValue: {
+                        kind: "numeric",
+                        value: {tsx: "$event.[lat].Double"},
+                        aggregation: {tsx: "right($value)"},
+                        interpolation: {kind: 'linear'}
+                    },
+                    LongitudeHoldValue: {
+                        kind: "numeric",
+                        value: {tsx: "$event.[lon].Double"},
+                        aggregation: {tsx: "right($value)"},
+                        interpolation: {kind: 'linear'}
+                    }
                 },
-                lat: {
-                    kind: 'numeric',
-                    value: { tsx: '$event.[latitude].Double' },
-                    filter: null,
-                    aggregation: { tsx: 'max($value)' }
-                },
-                lon: {
-                    kind: 'numeric',
-                    value: { tsx: '$event.[longitude].Double' },
-                    filter: null,
-                    aggregation: { tsx: 'max($value)' }
-                }
-              },
               { },
               { 
-                positionXVariableName: 'lat',
-                positionYVariableName: 'long',
-                alias: 'Titanic',
+                alias: 'Titantic'
               }
             );
+
+
             let image =  '../images/boat.png';
             geoProcessGraphic.render(environmentFqdn, authContext.getTsiToken, image, [tsqExpression1], geoProcessGraphicOptions);
           }
