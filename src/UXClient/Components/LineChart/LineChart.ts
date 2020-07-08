@@ -1,7 +1,7 @@
 import * as d3 from 'd3';
 import { interpolatePath } from 'd3-interpolate-path';
 import './LineChart.scss';
-import {Utils, DataTypes, YAxisStates, LINECHARTTOPPADDING, TooltipMeasureFormat, LINECHARTCHARTMARGINS, VALUEBARHEIGHT} from "./../../Utils";
+import {Utils, DataTypes, YAxisStates, LINECHARTTOPPADDING, TooltipMeasureFormat, LINECHARTCHARTMARGINS, VALUEBARHEIGHT, SERIESLABELWIDTH} from "./../../Utils";
 import {Legend} from "./../Legend/Legend";
 import {TemporalXAxisComponent} from "./../../Interfaces/TemporalXAxisComponent";
 import {LineChartData} from "./../../Models/LineChartData";
@@ -49,6 +49,7 @@ class LineChart extends TemporalXAxisComponent {
 
     private markers = {};
 
+    private seriesLabelsMarker: Marker = null;
     private markerGuidMap: any = {};
     private isDroppingMarker: boolean = false;
     private activeMarker: Marker;
@@ -597,8 +598,9 @@ class LineChart extends TemporalXAxisComponent {
         }
     }
 
-    private renderMarker (marker: Marker, millis: number, onChange: any = null, labelText: string = null) {
-        marker.render(millis, this.chartOptions, this.chartComponentData, {
+    private renderMarker (marker: Marker, millis: number, onChange: any = null, labelText: string = null, isSeriesLabels: boolean = false) {
+        let chartOptions: any = this.chartOptions;
+        marker.render(millis, chartOptions, this.chartComponentData, {
             chartMargins: this.chartMargins,
             x: this.x,
             marginLeft: this.getMarkerMarginLeft(),
@@ -607,7 +609,8 @@ class LineChart extends TemporalXAxisComponent {
             onChange: onChange,
             chartHeight: this.height,
             isDropping: false,
-            labelText: labelText
+            labelText: labelText,
+            isSeriesLabels: isSeriesLabels
         });
     }
 
@@ -676,6 +679,17 @@ class LineChart extends TemporalXAxisComponent {
         }
     }
 
+
+    private createSeriesLabelsMarker () {
+        this.seriesLabelsMarker = new Marker(this.renderTarget);
+    }
+
+    private renderSeriesLabelsMarker () {
+        if (this.chartOptions.labelSeriesWithMarker) {
+            this.renderMarker(this.seriesLabelsMarker, this.x.domain()[1], () => {}, null, true);
+        }
+    }
+
     private renderAllMarkers () {
         this.getAllLinesTransitionsComplete().then(() => {
             Object.keys(this.markerGuidMap).forEach((guid) => {
@@ -683,6 +697,9 @@ class LineChart extends TemporalXAxisComponent {
                 let onChange = this.createOnMarkerChange(guid, marker);
                 this.renderMarker(marker, marker.getMillis(), onChange)
             });
+            if (this.seriesLabelsMarker) {
+                this.renderSeriesLabelsMarker();
+            }    
         });
     }
 
@@ -1263,6 +1280,9 @@ class LineChart extends TemporalXAxisComponent {
 
         this.hasBrush = options && (options.brushMoveAction || options.brushMoveEndAction || options.brushContextMenuActions);
         this.chartOptions.setOptions(options);
+        if (this.chartOptions.labelSeriesWithMarker) {
+            this.chartMargins.right = SERIESLABELWIDTH + 8;
+        }
         this.width = this.getWidth();
         this.height = Math.max((<any>d3.select(this.renderTarget).node()).clientHeight, this.MINHEIGHT);
         if (this.chartOptions.legend == "compact")
@@ -1718,6 +1738,12 @@ class LineChart extends TemporalXAxisComponent {
         this.draw();
         this.gatedShowGrid();
         this.chartOptions.noAnimate = false;  // ensure internal renders are always animated, overriding the users noAnimate option
+
+        if (this.chartOptions.labelSeriesWithMarker && this.seriesLabelsMarker === null) {
+            this.createSeriesLabelsMarker();
+        } 
+
+        this.renderSeriesLabelsMarker();
 
         if (this.chartOptions.markers && this.chartOptions.markers.length > 0) {
             this.importMarkers();

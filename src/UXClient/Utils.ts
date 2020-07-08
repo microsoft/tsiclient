@@ -20,6 +20,7 @@ export const LINECHARTCHARTMARGINS = {
 export const LINECHARTXOFFSET = 8;
 export const MARKERVALUENUMERICHEIGHT = 20;
 export const VALUEBARHEIGHT = 3;
+export const SERIESLABELWIDTH = 92;
 
 
 // Linechart stack states

@@ -175,21 +175,7 @@ class ChartComponent extends Component {
         let titleGroup = text.append("div")
 			.attr("class", "tsi-tooltipTitleGroup");
 		
-		titleGroup.append('h2')
-			.attr('class', 'tsi-tooltipGroupName tsi-tooltipTitle')
-            .text(d.aggregateName);
-
-        if (d.splitBy && d.splitBy != ""){
-            titleGroup.append('h4')
-                .text(d.splitBy)
-                .attr('class', 'tsi-tooltipSeriesName tsi-tooltipSubtitle');
-		}
-		
-        if (cDO.variableAlias){
-            titleGroup.append('h4')
-                .text(cDO.variableAlias)
-                .attr('class', 'tsi-tooltipVariableAlias tsi-tooltipSubtitle');
-		}
+		this.createTooltipSeriesInfo(d, titleGroup, cDO);
 
         if (dataType === DataTypes.Categorical) {
             titleGroup.append('h4')

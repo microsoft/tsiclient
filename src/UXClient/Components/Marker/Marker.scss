@@ -60,6 +60,25 @@
 
 .tsi-markerContainer {
 
+    &.tsi-isSeriesLabels {
+        background: transparent !important;
+        .tsi-markerValue {
+            transform: translateX(-2px);
+            .tsi-tooltip {
+                width: 92px;
+                top: 0px !important;
+                transform: translate(0px, -50%) !important;
+                .tsi-tooltipTitle {
+                    max-height: 36px;
+                    display: -webkit-box;
+                    -webkit-line-clamp: 2;
+                    -webkit-box-orient: vertical; 
+                    overflow-y: hidden;
+                }
+            }
+        }
+    }
+
     position: absolute;
     pointer-events: none;
     width: 2px;
@@ -171,19 +190,6 @@
                 min-width: unset;
                 transform: translateX(8px);
             }    
-
-            .tsi-markerValueCaret {
-                left: 2px;
-                width: 0; 
-                height: 0; 
-                border-top: 12px solid transparent;
-                border-bottom: 8px solid transparent;
-                border-right-width: 8px;
-                border-right-style: solid;
-                position: absolute;
-                transform: translateY(-50%);
-                -webkit-transform: translateY(-50%);
-            }        
         }
 
         .tsi-markerValueCaret {
@@ -198,6 +204,18 @@
             transform: translateY(-50%);
             -webkit-transform: translateY(-50%);
         }    
+    }
+
+    &.tsi-isFlipped {
+        .tsi-markerValue {
+            .tsi-tooltip {
+                transform: translate(calc(-100% - 15px), -50%) !important; 
+                top: 0px !important;
+            }
+            .tsi-markerValueCaret {
+                transform: rotate(180deg) translateX(10px) translateY(50%);
+            }    
+        }
     }
     .tsi-markerTimeLabel {
         @extend .tsi-chartValueTextBox;  

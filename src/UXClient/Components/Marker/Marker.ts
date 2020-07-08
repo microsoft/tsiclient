@@ -31,6 +31,7 @@ class Marker extends Component {
     private labelText: string = '';
     private markerIsDragging: boolean = false;
     private timeFormat;
+    private isSeriesLabels: boolean = false;
 
     readonly ADDITIONALRIGHTSIDEOVERHANG = 12;
 
@@ -65,12 +66,39 @@ class Marker extends Component {
         return this.labelText;
     }
 
+    private setSeriesLabelText (d, text) {
+        let cDO = this.chartComponentData.displayState[d.aggregateKey].aggregateExpression;
+        this.createTooltipSeriesInfo(d, text, cDO);
+        // text.append('h4')
+        //     .attr('class', 'tsi-seriesLabelGroupName')
+        //     .text(d.aggregateName);
+        // if (d.splitBy && d.splitBy !== '') {
+        //     text.append('h4')
+        //         .attr('class', 'tsi-seriesLabelSeriesName')
+        //         .text(d.splitBy);
+        // }
+        // if (this.chartComponentData.displayState[d.aggregateKey].aggregateExpression.variableAlias) {
+        //     text.append('h4')
+        //         .attr('class', 'tsi-seriesLabelSeriesName')
+        //         .text(this.chartComponentData.displayState[d.aggregateKey].aggregateExpression.variableAlias);
+        // }
+        // console.log(this.chartComponentData);
+    }
+
 	protected tooltipFormat (d, text, measureFormat: TooltipMeasureFormat, xyrMeasures = null) {
+        
         let tooltipHeight = MARKERVALUENUMERICHEIGHT;
-        text.text(Utils.formatYAxisNumber(this.getValueOfVisible(d)))
-            .classed('tsi-markerValueTooltipInner', true)
-            .style('height', tooltipHeight + 'px')
-            .style('line-height', ((tooltipHeight - 2) + 'px')) // - 2 to account for border height
+
+        // revert to default text format if none specified
+        if (!this.isSeriesLabels) {
+            text.text(Utils.formatYAxisNumber(this.getValueOfVisible(d)))
+                .style('height', tooltipHeight + 'px')
+                .style('line-height', ((tooltipHeight - 2) + 'px')) // - 2 to account for border height
+
+        } else {
+            this.setSeriesLabelText(d, text);
+        }
+        text.classed('tsi-markerValueTooltipInner', true)
             .style('border-color', this.colorMap[d.aggregateKey + "_" + d.splitBy]);                
     }
 
@@ -109,13 +137,23 @@ class Marker extends Component {
         this.markerContainer = marker.enter()
             .append('div')
             .attr('class', 'tsi-markerContainer')
+            .classed('tsi-isSeriesLabels', this.isSeriesLabels)
             .merge(marker)
             .style('top', `${this.chartMargins.top + this.chartOptions.aggTopMargin}px`)
             .style('height', `${this.chartHeight - (this.chartMargins.top + this.chartMargins.bottom + this.chartOptions.aggTopMargin)}px`)
             .style('left', (d: any) => {
                 return `${this.getLeft(d)}px`;
             })
+            .classed('tsi-isFlipped', () => {
+                if (this.isSeriesLabels) {
+                    return false;
+                }
+                return true; // TODO check if too close to the right
+            }) 
             .each(function(markerD) {
+                if (self.isSeriesLabels) {
+                    return;
+                }
                 if (d3.select(this).selectAll('.tsi-markerLine').empty()) {
                     d3.select(this).append('div')
                         .attr('class', 'tsi-markerLine');
@@ -406,6 +444,9 @@ class Marker extends Component {
     }
 
     private setTimeLabel (closestTime: number) {
+        if (this.isSeriesLabels) {
+            return;
+        }
         let values: Array<any> = this.chartComponentData.timeMap[closestTime];
         if (values == undefined || values.length == 0) {
             return;
@@ -413,7 +454,7 @@ class Marker extends Component {
         let firstValue = values[0].dateTime;
         let secondValue = new Date(values[0].dateTime.valueOf() + (values[0].bucketSize != null ? values[0].bucketSize : 0));
         this.timeLabel.text('');
-        
+
         this.timeLabel.append('div')
             .attr('class', 'tsi-markerTimeLine')
             .text(this.timeFormat(firstValue));
@@ -461,7 +502,7 @@ class Marker extends Component {
     }
 
 
-    public render (timestampMillis: number, chartOptions: ChartOptions, chartComponentData: any, additionalMarkerFields: {chartMargins: any, x: any, marginLeft: number, colorMap: any, yMap: any, onChange: any, isDropping: boolean, chartHeight: number, labelText: string}) {
+    public render (timestampMillis: number, chartOptions: ChartOptions, chartComponentData: any, additionalMarkerFields: {chartMargins: any, x: any, marginLeft: number, colorMap: any, yMap: any, onChange: any, isDropping: boolean, chartHeight: number, labelText: string, isSeriesLabels: boolean}) {
         this.chartMargins = Object.assign({}, additionalMarkerFields.chartMargins);
         this.chartHeight = additionalMarkerFields.chartHeight;
         this.timestampMillis = timestampMillis;
@@ -471,6 +512,7 @@ class Marker extends Component {
         this.marginLeft = additionalMarkerFields.marginLeft;
         this.colorMap = additionalMarkerFields.colorMap;
         this.timeFormat = this.getTimeFormat();
+        this.isSeriesLabels = additionalMarkerFields.isSeriesLabels;
         if (additionalMarkerFields.labelText) {
             this.labelText = additionalMarkerFields.labelText;
         }
