@@ -380,8 +380,8 @@ class DateTimePicker extends ChartComponent{
                         }
                     });
             },
-            minDate: this.offsetFromUTC(new Date(this.minMillis)),
-            maxDate: this.offsetFromUTC(new Date(this.maxMillis)),
+            minDate: this.convertToCalendarDate(this.minMillis),
+            maxDate: this.convertToCalendarDate(this.maxMillis),
             defaultDate: this.offsetFromUTC(new Date(this.fromMillis))
         });
     }
