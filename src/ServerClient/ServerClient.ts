@@ -244,8 +244,8 @@ class ServerClient {
         }
     }
 
-    public postTimeSeriesTypes(token: string, environmentFqdn: string, payload: string) {
-        let uri = 'https://' + environmentFqdn + '/timeseries/types/$batch' + this.tsmTsqApiVersion;
+    public postTimeSeriesTypes(token: string, environmentFqdn: string, payload: string, useOldApiVersion: boolean = false) {
+        let uri = 'https://' + environmentFqdn + '/timeseries/types/$batch' + (useOldApiVersion ? this.oldTsmTsqApiVersion : this.tsmTsqApiVersion);
         return this.createPromiseFromXhr(uri, "POST", payload, token, (responseText) => {return JSON.parse(responseText);});
     }
 
