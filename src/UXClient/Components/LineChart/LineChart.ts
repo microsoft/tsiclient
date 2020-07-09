@@ -56,8 +56,8 @@ class LineChart extends TemporalXAxisComponent {
     private brushElem: any;
     public brushStartTime: Date;
     public brushEndTime: Date;
-    private brushStartPosition: number;
-    private brushEndPosition: number;
+    private brushStartPosition: number = null;
+    private brushEndPosition: number = null;
     private hasBrush: boolean = false;
     private isClearingBrush: boolean = false;
     private previousAggregateData: any = d3.local();
@@ -871,7 +871,7 @@ class LineChart extends TemporalXAxisComponent {
                 this.voronoiDiagram = this.voronoi(this.getFilteredAndSticky(this.chartComponentData.allValues));
                 site = this.voronoiDiagram.find(mx, my);
                 this.voronoiMousemove(site.data);
-                this.chartOptions.onUnsticky(site.data.aggregateKey, site.data.splitBy)
+                this.chartOptions.onUnsticky(site.data.aggregateKey, site.data.splitBy);
                 return;
             }
 
