@@ -108,8 +108,8 @@ class HierarchyNavigation extends Component{
                 } catch (err) {
                     throw err;
                 }
-            }).catch(err => this.chartOptions.onError(this.getString("Error in hierarchy navigation"), this.getString("Failed to load types for navigation"), err instanceof XMLHttpRequest ? err : null));
-        }).catch(err => this.chartOptions.onError(this.getString("Error in hierarchy navigation"), this.getString("Failed to get token"), err instanceof XMLHttpRequest ? err : null));
+            }).catch(err => this.chartOptions.onError("Error in hierarchy navigation", "Failed to load types for navigation", err instanceof XMLHttpRequest ? err : null));
+        }).catch(err => this.chartOptions.onError("Error in hierarchy navigation", "Failed to get token", err instanceof XMLHttpRequest ? err : null));
 
         //get the most recent hierarchies for reverse lookup
         await getToken().then(token => {
@@ -125,8 +125,8 @@ class HierarchyNavigation extends Component{
                 } catch (err) {
                     throw err;
                 }
-            }).catch(err => this.chartOptions.onError(this.getString("Error in hierarchy navigation"), this.getString("Failed to load hierarchies for navigation"), err instanceof XMLHttpRequest ? err : null));
-        }).catch(err => this.chartOptions.onError(this.getString("Error in hierarchy navigation"), this.getString("Failed to get token"), err instanceof XMLHttpRequest ? err : null));
+            }).catch(err => this.chartOptions.onError("Error in hierarchy navigation", "Failed to load hierarchies for navigation", err instanceof XMLHttpRequest ? err : null));
+        }).catch(err => this.chartOptions.onError("Error in hierarchy navigation", "Failed to get token", err instanceof XMLHttpRequest ? err : null));
 
         const selectedHierarchyId = hierarchyNavOptions.selectedHierarchyId;
         if (selectedHierarchyId) {
@@ -270,8 +270,8 @@ class HierarchyNavigation extends Component{
                 } catch (err) {
                     throw err;
                 }
-            }).catch(err => this.chartOptions.onError(this.getString("Error in hierarchy navigation"), this.getString("Failed to complete search"), err instanceof XMLHttpRequest ? err : null));
-        }).catch(err => this.chartOptions.onError(this.getString("Error in hierarchy navigation"), this.getString("Failed to get token"), err instanceof XMLHttpRequest ? err : null));
+            }).catch(err => this.chartOptions.onError("Error in hierarchy navigation", "Failed to complete search", err instanceof XMLHttpRequest ? err : null));
+        }).catch(err => this.chartOptions.onError("Error in hierarchy navigation", "Failed to get token", err instanceof XMLHttpRequest ? err : null));
 
         let autocompleteOnInput = (st, event) => {
             if(st.length === 0){
@@ -454,7 +454,7 @@ class HierarchyNavigation extends Component{
                         this.server.getTimeseriesInstancesPathSearch(token, this.environmentFqdn, payload, null, null)
                         .catch(err => {throw err}))
                     .catch(err => {throw err});
-        })).catch(err => this.chartOptions.onError(this.getString("Error in hierarchy navigation"), this.getString("Failed to complete search"), err instanceof XMLHttpRequest ? err : null));
+        })).catch(err => this.chartOptions.onError("Error in hierarchy navigation", "Failed to complete search", err instanceof XMLHttpRequest ? err : null));
     }
 
     // clear dom and reset some variables for fresh navigation experience 
@@ -476,9 +476,9 @@ class HierarchyNavigation extends Component{
     private getInstance = timeSeriesID => {
         return this.getToken()
                 .then(token => {
-                    return this.server.getTimeseriesInstances(token, this.environmentFqdn, 1, [timeSeriesID]).catch(err => this.chartOptions.onError(this.getString("Error in hierarchy navigation"), this.getString("Failed to get instance details"), err instanceof XMLHttpRequest ? err : null));;
+                    return this.server.getTimeseriesInstances(token, this.environmentFqdn, 1, [timeSeriesID]).catch(err => this.chartOptions.onError("Error in hierarchy navigation", "Failed to get instance details", err instanceof XMLHttpRequest ? err : null));;
                 })
-                .catch(err => this.chartOptions.onError(this.getString("Error in hierarchy navigation"), this.getString("Failed to get token"), err instanceof XMLHttpRequest ? err : null));
+                .catch(err => this.chartOptions.onError("Error in hierarchy navigation", "Failed to get token", err instanceof XMLHttpRequest ? err : null));
     }
 
     // simulate expand operation for each hierarchy node in a full path until the instance and then locate the instance
@@ -794,7 +794,7 @@ class HierarchyNavigation extends Component{
                 throw err;
             }
         }).catch(err => {
-            this.chartOptions.onError(this.getString("Error in hierarchy navigation"), this.getString("Failed to complete search"), err instanceof XMLHttpRequest ? err : null);
+            this.chartOptions.onError("Error in hierarchy navigation", "Failed to complete search", err instanceof XMLHttpRequest ? err : null);
             if (bubbleUpReject) {throw err}
         });
     }
