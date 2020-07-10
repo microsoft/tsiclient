@@ -1296,6 +1296,8 @@ class LineChart extends TemporalXAxisComponent {
         if (this.brush && this.svgSelection.select('.svgGroup').select(".brushElem") && !this.chartOptions.keepBrush) {
             this.brushStartTime = null;
             this.brushEndTime = null;
+            this.brushStartPosition = null;
+            this.brushEndPosition = null;
             this.clearBrush();
         }
         
