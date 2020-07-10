@@ -85,7 +85,7 @@ class ChartOptions {
     public zeroYAxis: boolean; // whether bar chart's bar's bottom (or top if negative) is zero
     public withContextMenu: boolean; // whether the hierarchy uses a context menu when you click on a parent of leaf nodes
     public hierarchyOptions: any; // hierarchy navigation related options for search api
-    public onError: (title, message, xhr) => any;
+    public onError: (titleKey, messageKey, xhr) => any;
 
     public stringsInstance: Strings = new Strings(); 
 
@@ -192,7 +192,7 @@ class ChartOptions {
         this.onSelect = this.mergeValue(chartOptionsObj, 'onSelect', () => {});
         this.swimLaneOptions = this.mergeValue(chartOptionsObj, 'swimLaneOptions', null);
         this.hierarchyOptions = this.mergeValue(chartOptionsObj, 'hierarchyOptions', Object.assign({}, DefaultHierarchyNavigationOptions));
-        this.onError = this.mergeValue(chartOptionsObj, 'onError', (title, message, xhr) => {});
+        this.onError = this.mergeValue(chartOptionsObj, 'onError', (titleKey, messageKey, xhr) => {});
     }
 
     private mergeStrings (strings) {

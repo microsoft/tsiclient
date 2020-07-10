@@ -32,8 +32,8 @@
             onSelect = (selectedHierarchyId) => {
                 console.log(selectedHierarchyId);
             }
-            onError = (title, message, xhr) => {
-                console.log(title + ": " + message);
+            onError = (titleKey, messageKey, xhr) => {
+                console.log(this.hierarchy.getString(titleKey) + ": " + this.hierarchy.getString(messageKey));
             }
             onInstanceClick = function(instance) {
                 let contextMenuActions = [];
@@ -140,7 +140,7 @@
                 hierarchy.render(
                     environmentFqdn, 
                     authContext.getTsiToken, 
-                    Object.assign({}, hierarchyNavOptions, {onInstanceClick: instance => this.onInstanceClick(instance), onError: (title, message, xhr) => this.onError(title, message, xhr), onSelect: (hierarchyId) => this.onSelect(hierarchyId)}),
+                    Object.assign({}, hierarchyNavOptions, {onInstanceClick: instance => this.onInstanceClick(instance), onError: (titleKey, messageKey, xhr) => this.onError(titleKey, messageKey, xhr), onSelect: (hierarchyId) => this.onSelect(hierarchyId)}),
                 );
 
             }
