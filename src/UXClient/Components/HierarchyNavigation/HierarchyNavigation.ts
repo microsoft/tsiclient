@@ -174,7 +174,15 @@ class HierarchyNavigation extends Component{
                         // search
                         this.searchWrapperElem = hierarchyNavWrapper.append('div').classed('tsi-hierarchy-search', true);
                         let modelAutocomplete = new ModelAutocomplete(this.searchWrapperElem.node() as Element);
-                        modelAutocomplete.render(environmentFqdn, getToken, {onInput: autocompleteOnInput, onKeydown: (event, ap) => {handleKeydown(event, ap)},theme: hierarchyNavOptions.theme});
+                        modelAutocomplete.render(
+                            environmentFqdn, 
+                            getToken, 
+                            {
+                                onInput: autocompleteOnInput, 
+                                onKeydown: (event, ap) => {handleKeydown(event, ap)}, 
+                                theme: hierarchyNavOptions.theme, 
+                                strings: this.chartOptions.strings
+                            });
                         this.viewTypesElem = this.searchWrapperElem.append('div').classed('tsi-view-types', true).attr("role", "tablist");
                         this.viewTypesElem.append('div').classed('tsi-view-type', true)
                                                 .attr('title', 'Hierarchy View')
