@@ -38,6 +38,17 @@
     </head>
 
     <body>
+        <div class="tsi-gpgTooltip">
+            <div class="tsi=gpgAlias">tsq.alias</div>
+            <div class="tsi=gpgTimestamp">timestamp</div>
+            <table class="tsi=gpgValueTable">
+                <tr>
+                    <td>lat</td>
+                    <td>24.5</td>
+                </tr>
+            </table>
+        </div>
+
         <main>
             <div id="geo-process-graphic" style="margin: 80px; width: calc(100% - 160px); height: calc(100% - 160px);"></div>
         </main>
@@ -51,46 +62,70 @@
             let geoProcessGraphic = tsiClient.ux.GeoProcessGraphic(container);
             let geoProcessGraphicOptions = {
                 subscriptionKey: '',
-                zoom: 8.0,
+                zoom: 3.7,
                 view: 'auto',
+                img: '',
                 width: 1900,
                 height: 800,
                 theme: 'dark', 
                 throttleSlider: true, 
                 xAxisHidden: false, 
-                bucketSizeMillis: 60000, 
-                updateInterval: 200, 
+                bucketSizeMillis: 21600000, 
+                updateInterval: 2000, 
             };
             let tsqExpression1 = new tsiClient.ux.TsqExpression(
-              { timeSeriesId: ['9461776'] },
+              {timeSeriesId: ['9461776'] },
               {
-                    AirtempHoldValue: {
-                        kind: "numeric", 
-                        value: {tsx: "$event.[amb_air_temp].Double"}, 
-                        aggregation: {tsx: "right($value)"},
-                        interpolation: {kind: 'linear'}
+                LatitudeHoldValue: {
+                    kind: 'numeric',
+                    value: { tsx: '$event.lat.Double' }, 
+                    aggregation: {
+                      "tsx": "right($value)"
                     },
-                    LatitudeHoldValue: {
-                        kind: "numeric",
-                        value: {tsx: "$event.[lat].Double"},
-                        aggregation: {tsx: "right($value)"},
-                        interpolation: {kind: 'linear'}
-                    },
-                    LongitudeHoldValue: {
-                        kind: "numeric",
-                        value: {tsx: "$event.[lon].Double"},
-                        aggregation: {tsx: "right($value)"},
-                        interpolation: {kind: 'linear'}
+                    interpolation: {
+                        "kind": "linear",
+                        "boundary": {
+                          "span": "P30D"
+                        }
                     }
                 },
+                LongitudeHoldValue: {
+                    kind: 'numeric',
+                    value: { tsx: '$event.lon.Double' },
+                    aggregation: {
+                      "tsx": "right($value)"
+                    },
+                    interpolation: {
+                        "kind": "linear",
+                        "boundary": {
+                          "span": "P30D"
+                        }
+                    }
+                },
+                AirTempHoldValue: {
+                  kind: 'numeric',
+                  value: { tsx: "$event['amb_air_temp'].Double" },
+                  aggregation: {
+                    "tsx": "right($value)"
+                  },
+                  interpolation: {
+                      "kind": "linear",
+                      "boundary": {
+                        "span": "P30D"
+                      }
+                  }
+                }
+              },
+              
               { },
               { 
-                alias: 'Titantic'
+                alias: 'Titanic',
               }
             );
 
 
-            let image =  '../images/boat.png';
+
+            let image =  '/images/boat.png';
             geoProcessGraphic.render(environmentFqdn, authContext.getTsiToken, image, [tsqExpression1], geoProcessGraphicOptions);
           }
         </script>

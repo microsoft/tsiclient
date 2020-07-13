@@ -100,6 +100,10 @@ abstract class HistoryPlayback extends Component {
             this.onSelecTimestamp(initialTimeStamp);
           
             this.draw();
+            
+            if(initialTimeStamp){
+              this.playbackControls.play();
+            }
 
             window.addEventListener('resize', () => {
               this.draw();
