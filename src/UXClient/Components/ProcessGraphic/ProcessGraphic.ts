@@ -44,6 +44,24 @@ class ProcessGraphic extends HistoryPlayback {
     this.component.append(() => this.graphic);
   }
 
+  protected extractInfo(prm: Array<IProcessGraphicLabelInfo>){
+    debugger;
+    let dataPoints = prm.map((r, i): IProcessGraphicLabelInfo => {
+      let value = this.parseTsqResponse(r);
+      let color = typeof(this.tsqExpressions[i].color) === 'function'
+        ? (<Function>this.tsqExpressions[i].color)(value)
+        : this.tsqExpressions[i].color;
+      return {
+        value,
+        alias: this.tsqExpressions[i].alias,
+        x: this.tsqExpressions[i].positionX,
+        y: this.tsqExpressions[i].positionY,
+        color: this.sanitizeAttribute(color),
+        onClick: this.tsqExpressions[i].onElementClick
+      };
+    });
+    this.updateDataMarkers(dataPoints);
+  }
   protected updateDataMarkers(graphicValues: Array<IProcessGraphicLabelInfo>) {
     let textElements = this.component.selectAll('div')
       .data(graphicValues);
@@ -93,6 +111,20 @@ class ProcessGraphic extends HistoryPlayback {
       .data(graphicValues)
       .text(tsqe => tsqe.value !== null ? Utils.formatYAxisNumber(tsqe.value) : '--')
       .style('color', tsqe => tsqe.color);
+  }
+
+  protected parseTsqResponse(response) {
+    return (response && response.properties && response.properties[0] && response.properties[0].values) 
+      ? response.properties[0].values[0] 
+      : null;
+  }
+
+  protected sanitizeAttribute(str) {
+    let sanitized = String(str);
+    let illegalChars = ['"', "'", '?', '<', '>', ';'];
+    illegalChars.forEach(c => { sanitized = sanitized.split(c).join('') });
+
+    return sanitized;
   }
 }
 
