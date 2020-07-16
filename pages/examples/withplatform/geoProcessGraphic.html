@@ -37,17 +37,6 @@
     </head>
 
     <body>
-        <div class="tsi-gpgTooltip">
-            <div class="tsi=gpgAlias">tsq.alias</div>
-            <div class="tsi=gpgTimestamp">timestamp</div>
-            <table class="tsi=gpgValueTable">
-                <tr>
-                    <td>lat</td>
-                    <td>24.5</td>
-                </tr>
-            </table>
-        </div>
-
         <main>
             <div id="geo-process-graphic" style="margin: 80px; width: calc(100% - 160px); height: calc(100% - 160px);"></div>
         </main>
@@ -60,17 +49,17 @@
             
             let geoProcessGraphic = tsiClient.ux.GeoProcessGraphic(container);
             let geoProcessGraphicOptions = {
-                subscriptionKey: '',
-                zoom: 3.7,
+                subscriptionKey: 'JEvUCDxRV-vlQI4cyPQqH_WVsupUriYWOicuQceCsew',
+                zoom: 3,
                 view: 'auto',
                 img: '',
                 width: 1900,
                 height: 800,
-                theme: 'dark', 
+                theme: 'light', 
                 throttleSlider: true, 
                 xAxisHidden: false, 
                 bucketSizeMillis: 21600000, 
-                updateInterval: 2000, 
+                updateInterval: 1500, 
             };
             let tsqExpression1 = new tsiClient.ux.TsqExpression(
               {timeSeriesId: ['9461776'] },
@@ -115,10 +104,11 @@
                   }
                 }
               },
-              
               { },
               { 
-                alias: 'Titanic',
+                positionXVariableName : 'LatitudeHoldValue',
+                positionYVariableName: 'LongitudeHoldValue',
+                alias: 'Titanic'
               }
             );
 
