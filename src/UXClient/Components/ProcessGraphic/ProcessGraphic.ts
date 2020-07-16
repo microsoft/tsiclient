@@ -45,7 +45,6 @@ class ProcessGraphic extends HistoryPlayback {
   }
 
   protected extractInfo(prm: Array<IProcessGraphicLabelInfo>){
-    debugger;
     let dataPoints = prm.map((r, i): IProcessGraphicLabelInfo => {
       let value = this.parseTsqResponse(r);
       let color = typeof(this.tsqExpressions[i].color) === 'function'
