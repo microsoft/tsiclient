@@ -317,6 +317,7 @@ class LinePlot extends Plot {
                 path.exit().remove();
                 previousAggregateData.set(this, splitBy);
             });
+            splitByGroups.exit().remove();
     }
 }
 export {LinePlot}
