@@ -19,7 +19,7 @@
                 var data = [];
                 var from = new Date();
                 var to;
-                for(var i = 0; i < 2; clei++){
+                for(var i = 0; i < 2; i++){
                     var lines = {};
                     data.push({[`Factory${i}`]: lines});
                     for(var j = 0; j < 5; j++){
@@ -54,6 +54,51 @@
                     action: function(dataGroup, timeSeriesName, timestamp) {
                         barChart.render(data.filter(d => Object.keys(d)[0] === dataGroup.alias), {timestamp: timestamp}, [{contextMenu: genericDataContextMenu}]);
                     }
+                }, {
+                    name: 'nested actions',
+                    isNested: true,
+                    subActions: [
+                        {
+                            name: 'sub action 1',
+                            action: function (dataGroup, timeSeriesName, timestamp) {
+                                console.log("sub action 1");
+                                console.log(dataGroup, timeSeriesName, timestamp)
+                            }
+                        },
+                        {
+                            name: 'sub action 2',
+                            action: function (dataGroup, timeSeriesName, timestamp) {
+                                console.log("sub action 2");
+                                console.log(dataGroup, timeSeriesName, timestamp)
+                            }
+                        }
+
+                    ]
+                }, {
+                    name: "Plot as a Bar Chart V2",
+                    action: function(dataGroup, timeSeriesName, timestamp) {
+                        barChart.render(data.filter(d => Object.keys(d)[0] === dataGroup.alias), {timestamp: timestamp}, [{contextMenu: genericDataContextMenu}]);
+                    }
+                }, {
+                    name: 'nested actions v2',
+                    isNested: true,
+                    subActions: [
+                        {
+                            name: 'sub action 1',
+                            action: function (dataGroup, timeSeriesName, timestamp) {
+                                console.log("sub action 1");
+                                console.log(dataGroup, timeSeriesName, timestamp)
+                            }
+                        },
+                        {
+                            name: 'sub action 2',
+                            action: function (dataGroup, timeSeriesName, timestamp) {
+                                console.log("sub action 2");
+                                console.log(dataGroup, timeSeriesName, timestamp)
+                            }
+                        }
+
+                    ]
                 }];
 
                 var brushContextMenu = [{

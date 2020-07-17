@@ -1,26 +1,55 @@
 @import "../../styles";
 
+
+
 .tsi-dark{
     $grays: grays('dark');
     @include baseContextMenuColors($grays);
+    .tsi-actionElementContainer {
+        .tsi-actionElement {
+            &.tsi-hasSubMenu {
+                background: url(../../Icons/CaretClosed_Dark_Theme.svg);
+            }
+        }
+    }
 }
 .tsi-light{
     $grays: grays('light');
     @include baseContextMenuColors($grays);
+    .tsi-actionElementContainer {
+        .tsi-actionElement {
+            &.tsi-hasSubMenu {
+                background: url(../../Icons/CaretClosed_Light_Theme.svg);
+            }
+        }
+    }
 }
 
 .tsi-contextMenu {
-    @extend .tsi-baseContextMenu;
     display: none;
     position: absolute;
-    height: auto;
-    max-width: 200px;
-    z-index: 2;
+    z-index: 3;
+    .tsi-actionElementContainer {
+        @extend .tsi-baseContextMenu;
+        height: auto;
+        max-width: 200px;
+        z-index: 3;
+        overflow-y: auto;
+        display: block;
+        position: absolute;
 
-    .tsi-actionElement {
-        padding: 4px 16px;
-        cursor: default;
-        font-size: 12px;
-    }
-	
+        overflow-y: auto;
+        max-height: 240px;
+    
+        .tsi-actionElement {
+            padding: 4px 16px;
+            cursor: default;
+            font-size: 12px;
+            &.tsi-hasSubMenu {
+                background-repeat: no-repeat;
+                background-position: calc(100% - 4px), 50%;
+                background-size: 12px 12px;
+            }
+        }
+    }	
 }

@@ -3,6 +3,9 @@ import './ContextMenu.scss';
 import {Utils} from "./../../Utils";
 import {Component} from "./../../Interfaces/Component";
 
+const ACTIONELEMENTHEIGHT = 28;
+const ACTIONELEMENTMAXWIDTH = 200;
+
 class ContextMenu extends Component {
     public drawChart: any;
     public contextMenuElement: any;
@@ -10,6 +13,16 @@ class ContextMenu extends Component {
     public contextMenuVisible: boolean = false;
     public startTime;
     public endTime;
+
+    private left: number;
+    private top: number;
+
+    private ae: string;
+    private splitBy: string;
+    private onClick: any;
+
+    private subMenuFromSubLevel;
+    private subMenuFromActionIndex;
 
 	constructor(drawChart: any, renderTarget: Element) {
         super(renderTarget);
@@ -20,51 +33,135 @@ class ContextMenu extends Component {
                                 .style("top", "0px");
     }
 
+    private launchSubMenu (parent, subMenuActions, subLevel, top) {
+        parent.selectAll(`.tsi-actionElementContainer${subLevel}`).remove();
+        let container = this.contextMenuElement
+            .selectAll(`tsi-actionElementContainer${subLevel}`)
+            .data([{subLevel: subLevel}]);
+        let enteredContainer = container.enter()
+            .append('div')
+            .attr("class", (d) => `tsi-actionElementContainer tsi-actionElementContainer${d.subLevel}`)
+            .style("top", `${top}px`)
+            .style('display', 'block');
+        this.horizontalPositionAEC(enteredContainer, subLevel);
+        this.createActionElements(enteredContainer, subMenuActions, subLevel);
+        enteredContainer.exit().remove();
+    }
+
+    private shouldHorizontalFlip (rawLeft) {
+        let containerLeft = rawLeft + this.left;
+        // let containerLeft = this.left + rawLeft;
+        let totalWidth = d3.select(this.renderTarget).node().getBoundingClientRect().width;
+        return ((containerLeft + ACTIONELEMENTMAXWIDTH) > totalWidth);
+    }
+
+    private shouldVerticalFlip () {
+        
+    }
+
+    //determine position relative to the chart as a whole
+    private getRelativeHorizontalPosition (node, isLeft: boolean = true) {
+        return node.getBoundingClientRect().x + (isLeft ? 0 : node.getBoundingClientRect().width) - this.renderTarget.getBoundingClientRect().x;
+    }
+
+    private horizontalPositionAEC (actionElementContainer, subLevel) {
+        let leftPosition = 0;
+        let rightPosition = 0;
+        if (subLevel !== 0) {
+            let oneLevelUp = this.contextMenuElement.selectAll(`.tsi-actionElementContainer${subLevel - 1}`);
+            if (oneLevelUp.size()) {
+                rightPosition = this.getRelativeHorizontalPosition(oneLevelUp.nodes()[0], false) - this.left;  
+                leftPosition = this.getRelativeHorizontalPosition(oneLevelUp.nodes()[0], true) - this.left;
+            } 
+        }
+        if (this.shouldHorizontalFlip(rightPosition)) {
+            actionElementContainer.style('left', null)
+                .style('right', `${0 - leftPosition}px`);
+        } else {
+            actionElementContainer.style('left', `${rightPosition}px`)
+                .style('right', null);
+        }
+    }
+
+    private getActionElementContainerTop (launchedFromActionNode: any = null) {
+        if (launchedFromActionNode === null) {
+            return 0;
+        }
+        return launchedFromActionNode.getBoundingClientRect().top - 
+                this.contextMenuElement.node().getBoundingClientRect().top;
+    }
+
+    private removeSubMenusAboveLevel (level) {
+        d3.select(this.renderTarget).selectAll('.tsi-actionElementContainer').filter((subMenuD: any) => {
+            return (subMenuD.subLevel > level);
+        }).remove();
+    }
+
+    private createActionElements (container, actions, subLevel = 0) {
+        let self = this;
+        var actionElements = container.selectAll(`.tsi-actionElement`)
+            .data(actions.map((a) => {
+                a.subLevel = subLevel;
+                return a;
+            }));
+            
+        var actionElementsEntered = actionElements.enter()
+            .append("div")
+            .attr("class", `tsi-actionElement`)
+            .classed('tsi-hasSubMenu', d => d.isNested)
+            .merge(actionElements)
+            .text(d => d.name)
+            .on('mouseenter', function (d, i) {
+                if (d.isNested) {
+                    self.launchSubMenu(d3.select(this), d.subActions, subLevel + 1, self.getActionElementContainerTop(this));
+                    self.subMenuFromActionIndex = i;
+                    self.subMenuFromSubLevel = d.subLevel;
+                    return;
+                }
+                if ((d.subLevel === self.subMenuFromSubLevel && i !== self.subMenuFromActionIndex) || d.subLevel < self.subMenuFromSubLevel) {
+                    self.removeSubMenusAboveLevel(d.subLevel);
+                }
+            })
+            .on("click", function (d, i) {
+                if (d.isNested) {
+                    return;
+                }
+                if (self.endTime) { // if endTime is present, this is a brush action
+                    var startTime = self.startTime ?  self.startTime.toISOString().slice(0,-5)+"Z" : null;
+                    var endTime = self.endTime ?  self.endTime.toISOString().slice(0,-5)+"Z" : null;
+                    d.action(startTime, endTime);
+                } else {
+                    var timestamp = self.startTime ?  self.startTime.toISOString().slice(0,-5)+"Z" : null;
+                    d.action(self.ae, self.splitBy, timestamp, event);
+                }
+
+                self.hide();
+                if (self.onClick)
+                    self.onClick();
+            });
+        this.horizontalPositionAEC(container, subLevel);
+
+        actionElements.exit().remove();
+    }
+
 	public draw(chartComponentData, renderTarget, options, mousePosition, aggKey, splitBy, onClick = null, startTime = null, endTime = null, event = null) {
         this.contextMenuVisible = true;
 
         if (!endTime) {
             this.actions = chartComponentData.displayState[aggKey].contextMenuActions;
-            var ae = chartComponentData.displayState[aggKey].aggregateExpression;
+            this.ae = chartComponentData.displayState[aggKey].aggregateExpression;
         } else {
             this.actions = options.brushContextMenuActions;
         }
+        this.splitBy = splitBy;
 
         this.startTime = startTime;
         this.endTime = endTime;
-        d3.select(this.renderTarget).on("click", () => {
-            this.hide();
-            if (onClick)
-                onClick();
-        });
+        this.onClick = onClick;
 
         super.themify(this.contextMenuElement, options.theme);
-        this.contextMenuElement.style("display", "block");
-        var actionElements = this.contextMenuElement.selectAll(".tsi-actionElement")
-            .data(this.actions);
-        var actionElementsEntered = actionElements.enter()
-            .append("div")
-            .attr("class", "tsi-actionElement")
-            .merge(actionElements)
-            .text(d => d.name)
-            .on("click", (d) => {
-                if (this.endTime) { // if endTime is present, this is a brush action
-                    var startTime = this.startTime ?  this.startTime.toISOString().slice(0,-5)+"Z" : null;
-                    var endTime = this.endTime ?  this.endTime.toISOString().slice(0,-5)+"Z" : null;
-                    d.action(startTime, endTime);
-                } else {
-                    var timestamp = this.startTime ?  this.startTime.toISOString().slice(0,-5)+"Z" : null;
-                    d.action(ae, splitBy, timestamp, event);
-                }
-            });
 
-        var left = mousePosition[0];
-        var contextMenuWidth = this.contextMenuElement.node().getBoundingClientRect().width; 
-        var renderTargetWidth = this.renderTarget.getBoundingClientRect().width;
-        var right = contextMenuWidth + mousePosition[0];
-        if (right > renderTargetWidth) {
-            left = renderTargetWidth - contextMenuWidth;
-        }
+        this.left = mousePosition[0];
 
         var top = mousePosition[1];
         var contextMenuHeight = this.contextMenuElement.node().getBoundingClientRect().height; 
@@ -75,11 +172,38 @@ class ContextMenu extends Component {
         }
 
         this.contextMenuElement
-            .style('left', left + 'px')
+            .style('left', this.left + 'px')
             .style('top', top + 'px');
 
-        actionElements.exit().remove();
+            // TODO do this more gracefully
+        this.contextMenuElement.selectAll('*').remove();
+
+        this.contextMenuElement.style("display", "block")
+            .on('mouseleave', () => {
+                this.removeSubMenusAboveLevel(0);
+            });
+
+        let actionContainer = this.contextMenuElement
+            .selectAll('.tsi-actionElementContainer0')
+            .data([{subLevel: 0}]);
+        let actionContainerEntered = actionContainer.enter()
+            .append('div')
+            .attr('class', 'tsi-actionElementContainer tsi-actionElementContainer0');
+        
+        this.createActionElements(actionContainerEntered, this.actions);
+
+        let self = this;
+        d3.select(this.renderTarget).on("click", function () {
+            if (!d3.select(d3.event.srcElement).classed('tsi-actionElement')) {
+                if (onClick) {
+                    onClick();
+                }
+                self.hide();
+            }
+        });
+
     }
+
     public hide () {
         this.contextMenuElement.style("display", "none");
         this.contextMenuVisible = false;
