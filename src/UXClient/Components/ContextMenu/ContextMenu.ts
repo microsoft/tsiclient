@@ -5,6 +5,8 @@ import {Component} from "./../../Interfaces/Component";
 
 const ACTIONELEMENTHEIGHT = 28;
 const ACTIONELEMENTMAXWIDTH = 200;
+const ACTIONELEMENTCONTAINERMAXHEIGHT = 200;
+const VERTICALPADDING = 4;
 
 class ContextMenu extends Component {
     public drawChart: any;
@@ -34,34 +36,52 @@ class ContextMenu extends Component {
     }
 
     private launchSubMenu (parent, subMenuActions, subLevel, top) {
-        parent.selectAll(`.tsi-actionElementContainer${subLevel}`).remove();
         let container = this.contextMenuElement
-            .selectAll(`tsi-actionElementContainer${subLevel}`)
+            .selectAll(`.tsi-actionElementContainer${subLevel}`)
             .data([{subLevel: subLevel}]);
         let enteredContainer = container.enter()
             .append('div')
             .attr("class", (d) => `tsi-actionElementContainer tsi-actionElementContainer${d.subLevel}`)
-            .style("top", `${top}px`)
+            .merge(container)
+            .style('max-height', `${ACTIONELEMENTCONTAINERMAXHEIGHT}px`)
             .style('display', 'block');
-        this.horizontalPositionAEC(enteredContainer, subLevel);
         this.createActionElements(enteredContainer, subMenuActions, subLevel);
-        enteredContainer.exit().remove();
+        this.positionAEC(enteredContainer, subMenuActions.length, top, subLevel);
+        container.exit().remove();
+    }
+
+    private positionAEC (container, subMenuActionsCount, top, subLevel) {
+        this.verticalPositionAEC(container, top, subMenuActionsCount, subLevel);
+        this.horizontalPositionAEC(container, subLevel)
     }
 
     private shouldHorizontalFlip (rawLeft) {
         let containerLeft = rawLeft + this.left;
-        // let containerLeft = this.left + rawLeft;
         let totalWidth = d3.select(this.renderTarget).node().getBoundingClientRect().width;
         return ((containerLeft + ACTIONELEMENTMAXWIDTH) > totalWidth);
     }
 
-    private shouldVerticalFlip () {
-        
+    private shouldVerticalFlip (rawTop, elementCount) {
+        let containerTop = rawTop + this.top;
+        let totalHeight = d3.select(this.renderTarget).node().getBoundingClientRect().height;
+        let heightOfElements = Math.min(elementCount * ACTIONELEMENTHEIGHT + (VERTICALPADDING * 2), ACTIONELEMENTCONTAINERMAXHEIGHT);
+        return ((containerTop + heightOfElements) > totalHeight);
     }
 
     //determine position relative to the chart as a whole
     private getRelativeHorizontalPosition (node, isLeft: boolean = true) {
         return node.getBoundingClientRect().x + (isLeft ? 0 : node.getBoundingClientRect().width) - this.renderTarget.getBoundingClientRect().x;
+    }
+
+    private verticalPositionAEC (actionElementContainer, rawTop, elementCount, subLevel) {
+        let totalHeight = this.contextMenuElement.node().getBoundingClientRect().height;
+        if (this.shouldVerticalFlip(rawTop, elementCount)) {
+            actionElementContainer.style('bottom', `${(totalHeight - rawTop) - (subLevel === 0 ? 0 : ACTIONELEMENTHEIGHT + VERTICALPADDING)}px`)
+                .style('top', null);
+        } else {
+            actionElementContainer.style('top', `${rawTop - VERTICALPADDING}px`)
+                .style('bottom', null);
+        }
     }
 
     private horizontalPositionAEC (actionElementContainer, subLevel) {
@@ -134,13 +154,10 @@ class ContextMenu extends Component {
                     var timestamp = self.startTime ?  self.startTime.toISOString().slice(0,-5)+"Z" : null;
                     d.action(self.ae, self.splitBy, timestamp, event);
                 }
-
                 self.hide();
                 if (self.onClick)
                     self.onClick();
             });
-        this.horizontalPositionAEC(container, subLevel);
-
         actionElements.exit().remove();
     }
 
@@ -162,20 +179,12 @@ class ContextMenu extends Component {
         super.themify(this.contextMenuElement, options.theme);
 
         this.left = mousePosition[0];
-
-        var top = mousePosition[1];
-        var contextMenuHeight = this.contextMenuElement.node().getBoundingClientRect().height; 
-        var renderTargetHeight = this.renderTarget.getBoundingClientRect().height;
-        var bottom = contextMenuHeight + mousePosition[1];
-        if (bottom > renderTargetHeight) {
-            top = renderTargetHeight - contextMenuHeight;
-        }
+        this.top = mousePosition[1];
 
         this.contextMenuElement
             .style('left', this.left + 'px')
-            .style('top', top + 'px');
+            .style('top', this.top + 'px');
 
-            // TODO do this more gracefully
         this.contextMenuElement.selectAll('*').remove();
 
         this.contextMenuElement.style("display", "block")
@@ -191,6 +200,7 @@ class ContextMenu extends Component {
             .attr('class', 'tsi-actionElementContainer tsi-actionElementContainer0');
         
         this.createActionElements(actionContainerEntered, this.actions);
+        this.positionAEC(actionContainerEntered, this.actions.length, 0, 0);
 
         let self = this;
         d3.select(this.renderTarget).on("click", function () {
@@ -201,7 +211,6 @@ class ContextMenu extends Component {
                 self.hide();
             }
         });
-
     }
 
     public hide () {
@@ -209,5 +218,4 @@ class ContextMenu extends Component {
         this.contextMenuVisible = false;
     }
 }
-
 export {ContextMenu}
