@@ -870,15 +870,17 @@ class Utils {
             if (dataGroup) {
                 Object.keys(dataGroup).forEach((seriesName) => {
                     convertedDataGroup[seriesName] = {};
-                    Object.keys(dataGroup[seriesName]).forEach((rawTS: string) => {
-                        let isoString: string;
-                        try {
-                            isoString = (new Date(rawTS)).toISOString();
-                            convertedDataGroup[seriesName][isoString] = dataGroup[seriesName][rawTS];
-                        } catch(RangeError) {
-                            console.log(`${rawTS} is not a valid ISO time`);
-                        }
-                    });
+                    if (dataGroup[seriesName]) {
+                        Object.keys(dataGroup[seriesName]).forEach((rawTS: string) => {
+                            let isoString: string;
+                            try {
+                                isoString = (new Date(rawTS)).toISOString();
+                                convertedDataGroup[seriesName][isoString] = dataGroup[seriesName][rawTS];
+                            } catch(RangeError) {
+                                console.log(`${rawTS} is not a valid ISO time`);
+                            }
+                        });
+                    }
                 });
             }
         });
