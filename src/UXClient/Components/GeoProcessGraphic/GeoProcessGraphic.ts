@@ -18,16 +18,16 @@ class GeoProcessGraphic extends HistoryPlayback {
     private theme: string;
     private alias: string;
 
-  constructor(renderTarget: Element){ 
-    super(renderTarget); 
+  constructor(renderTarget: Element){
+    super(renderTarget);
     this.serverClient = new ServerClient();
     this.currentCancelTrigger = null;
   }
 
-  render(environmentFqdn: string, 
-    getToken: () => Promise<string>, 
-    graphicSrc: string, 
-    data: Array<TsqExpression>, 
+  render(environmentFqdn: string,
+    getToken: () => Promise<string>,
+    graphicSrc: string,
+    data: Array<TsqExpression>,
     chartOptions
     ) {
     this.zoom = chartOptions.zoom;
@@ -83,7 +83,7 @@ class GeoProcessGraphic extends HistoryPlayback {
       });
   }
   
-  protected extractInfo(prm: Array<IGeoProcessGraphicLabelInfo>){
+  protected createDataPoints(prm: Array<IGeoProcessGraphicLabelInfo>){
     let dataPoints = prm.map((r, i): IGeoProcessGraphicLabelInfo => {
         let result = this.parseTsqResponse(r);
         this.positionXVariableName = this.tsqExpressions[i].positionXVariableName;
@@ -146,7 +146,7 @@ class GeoProcessGraphic extends HistoryPlayback {
             var row = document.createElement('tr');
 
             var cell1 = document.createElement('td');
-            cell1.className = 'tsi-gpgValueLabel';;
+            cell1.className = 'tsi-gpgValueLabel';
             var cellText1 = document.createTextNode(dataPointArr[i][0]);
             cell1.appendChild(cellText1);
             row.appendChild(cell1);
@@ -166,6 +166,5 @@ class GeoProcessGraphic extends HistoryPlayback {
      }
 }
 interface IGeoProcessGraphicLabelInfo{
- 
 }
 export { GeoProcessGraphic };

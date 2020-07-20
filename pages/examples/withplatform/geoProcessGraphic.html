@@ -52,21 +52,20 @@
                 subscriptionKey: 'JEvUCDxRV-vlQI4cyPQqH_WVsupUriYWOicuQceCsew',
                 zoom: 3,
                 view: 'auto',
-                img: '',
                 width: 1900,
                 height: 800,
-                theme: 'light', 
-                throttleSlider: true, 
-                xAxisHidden: false, 
-                bucketSizeMillis: 21600000, 
-                updateInterval: 1500, 
+                theme: 'light',
+                throttleSlider: true,
+                xAxisHidden: false,
+                bucketSizeMillis: 21600000,
+                updateInterval: 1500,
             };
             let tsqExpression1 = new tsiClient.ux.TsqExpression(
               {timeSeriesId: ['9461776'] },
               {
                 LatitudeHoldValue: {
                     kind: 'numeric',
-                    value: { tsx: '$event.lat.Double' }, 
+                    value: { tsx: '$event.lat.Double' },
                     aggregation: {
                       "tsx": "right($value)"
                     },
@@ -105,14 +104,12 @@
                 }
               },
               { },
-              { 
+              {
                 positionXVariableName : 'LatitudeHoldValue',
                 positionYVariableName: 'LongitudeHoldValue',
                 alias: 'Titanic'
               }
             );
-
-
 
             let image =  '/images/boat.png';
             geoProcessGraphic.render(environmentFqdn, authContext.getTsiToken, image, [tsqExpression1], geoProcessGraphicOptions);

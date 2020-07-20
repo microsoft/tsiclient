@@ -45,7 +45,7 @@ abstract class HistoryPlayback extends Component {
 
   protected abstract loadGraphic(graphicSrc: string): Promise<GraphicInfo>;
   protected abstract updateDataMarkers(data: Array<any>): void;
-  protected abstract extractInfo(data: Array<any>): void;
+  protected abstract createDataPoints(data: Array<any>): void;
   protected onGraphicLoaded(): void { }
 
   protected renderBase(environmentFqdn: string, 
@@ -177,8 +177,7 @@ abstract class HistoryPlayback extends Component {
       this.currentCancelTrigger = <Function>cancelTrigger;
       
        (promise as Promise<any>).then(results => {
-        //  console.log(results);
-        this.extractInfo(results);
+        this.createDataPoints(results);
       }); 
     });
   }
