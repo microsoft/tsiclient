@@ -69,11 +69,15 @@
                 top: 0px !important;
                 transform: translate(0px, -50%) !important;
                 .tsi-tooltipTitle {
+                    font-size: 11px;
                     max-height: 36px;
                     display: -webkit-box;
                     -webkit-line-clamp: 2;
                     -webkit-box-orient: vertical; 
                     overflow-y: hidden;
+                }
+                .tsi-tooltipSubtitle {
+                    font-size: 10px;
                 }
             }
         }
