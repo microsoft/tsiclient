@@ -773,6 +773,10 @@ class LineChart extends TemporalXAxisComponent {
     }
 
     private voronoiClick (mouseEvent) {
+        //supress if the context menu is visible
+        if (this.contextMenu && this.contextMenu.contextMenuVisible)
+            return;
+    
         if (!this.filteredValueExist() || !this.voronoiExists()) return;
         if (this.brushElem && !this.isDroppingMarker) return;
         const [mx, my] = d3.mouse(mouseEvent);
@@ -880,7 +884,7 @@ class LineChart extends TemporalXAxisComponent {
             this.brushStartPosition = null;
             this.brushEndPosition = null;
 
-            if (!this.isDroppingMarker && !isClearingBrush) {
+            if (!this.isDroppingMarker && !isClearingBrush && !(this.contextMenu && this.contextMenu.contextMenuVisible)) {
                 this.stickySeries(site.data.aggregateKey, site.data.splitBy);
             } else {
                 this.isDroppingMarker = false;
