@@ -341,9 +341,9 @@ class DateTimePicker extends ChartComponent{
         var i18nOptions = {
             previousMonth : this.getString('Previous Month'),
             nextMonth     : this.getString('Next Month'),
-            months        : moment.localeData()._months,
-            weekdays      : moment.localeData()._weekdays,
-            weekdaysShort : moment.localeData()._weekdaysMin
+            months        : moment.localeData().months,
+            weekdays      : moment.localeData().weekdays,
+            weekdaysShort : moment.localeData().weekdaysMin
         };
 
         this.calendarPicker = new Pikaday({ 
@@ -380,8 +380,8 @@ class DateTimePicker extends ChartComponent{
                         }
                     });
             },
-            minDate: this.offsetFromUTC(new Date(this.minMillis)),
-            maxDate: this.offsetFromUTC(new Date(this.maxMillis)),
+            minDate: this.convertToCalendarDate(this.minMillis),
+            maxDate: this.convertToCalendarDate(this.maxMillis),
             defaultDate: this.offsetFromUTC(new Date(this.fromMillis))
         });
     }

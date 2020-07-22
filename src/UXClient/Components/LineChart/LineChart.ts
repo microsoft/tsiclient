@@ -57,8 +57,8 @@ class LineChart extends TemporalXAxisComponent {
     private brushElem: any;
     public brushStartTime: Date;
     public brushEndTime: Date;
-    private brushStartPosition: number;
-    private brushEndPosition: number;
+    private brushStartPosition: number = null;
+    private brushEndPosition: number = null;
     private hasBrush: boolean = false;
     private isClearingBrush: boolean = false;
     private previousAggregateData: any = d3.local();
@@ -790,6 +790,10 @@ class LineChart extends TemporalXAxisComponent {
     }
 
     private voronoiClick (mouseEvent) {
+        //supress if the context menu is visible
+        if (this.contextMenu && this.contextMenu.contextMenuVisible)
+            return;
+    
         if (!this.filteredValueExist() || !this.voronoiExists()) return;
         if (this.brushElem && !this.isDroppingMarker) return;
         const [mx, my] = d3.mouse(mouseEvent);
@@ -888,7 +892,7 @@ class LineChart extends TemporalXAxisComponent {
                 this.voronoiDiagram = this.voronoi(this.getFilteredAndSticky(this.chartComponentData.allValues));
                 site = this.voronoiDiagram.find(mx, my);
                 this.voronoiMousemove(site.data);
-                this.chartOptions.onUnsticky(site.data.aggregateKey, site.data.splitBy)
+                this.chartOptions.onUnsticky(site.data.aggregateKey, site.data.splitBy);
                 return;
             }
 
@@ -897,7 +901,7 @@ class LineChart extends TemporalXAxisComponent {
             this.brushStartPosition = null;
             this.brushEndPosition = null;
 
-            if (!this.isDroppingMarker && !isClearingBrush) {
+            if (!this.isDroppingMarker && !isClearingBrush && !(this.contextMenu && this.contextMenu.contextMenuVisible)) {
                 this.stickySeries(site.data.aggregateKey, site.data.splitBy);
             } else {
                 this.isDroppingMarker = false;
@@ -1316,6 +1320,8 @@ class LineChart extends TemporalXAxisComponent {
         if (this.brush && this.svgSelection.select('.svgGroup').select(".brushElem") && !this.chartOptions.keepBrush) {
             this.brushStartTime = null;
             this.brushEndTime = null;
+            this.brushStartPosition = null;
+            this.brushEndPosition = null;
             this.clearBrush();
         }
         

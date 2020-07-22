@@ -1,4 +1,4 @@
-import {Utils, DataTypes} from "./../Utils";
+import {Utils, DataTypes, valueTypes} from "./../Utils";
 import { ChartDataOptions } from "./ChartDataOptions";
 
 class ChartComponentData {
@@ -482,6 +482,16 @@ class ChartComponentData {
             return this.displayState[aggKey].visible;
         });
     }
+
+    private guessValueType (v: any) {
+        if (typeof v === 'number') {
+            return valueTypes.Double;
+        }
+        if (typeof v === 'string') {
+            return valueTypes.String;
+        }
+        return valueTypes.Dynamic;
+    }
     
 
     public generateCSVString (offset: number = 0, dateLocale: string = 'en', spMeasures = null): string {
@@ -513,7 +523,7 @@ class ChartComponentData {
                     var rowKey = aggKey + "_" + splitBy + "_" + type; 
                     rowMap[rowKey] = { };
                     rowOrder.push(rowKey);
-                    headerString += splitByString + "." + type + ",";
+                    headerString += Utils.sanitizeString(splitByString + "." + type, valueTypes.String) + ",";
                 });
             });
         });
@@ -527,12 +537,11 @@ class ChartComponentData {
                     if(rowKey in rowMap){
                         rowMap[rowKey][value.dateTime.valueOf()] = 
                         (value.measures[type] == null || value.measures[type] == undefined) ? 
-                        "" : value.measures[type];
+                        "" : Utils.sanitizeString(value.measures[type], this.guessValueType(value.measures[type]));
                     }
                 });
             }
         });
-
 
         this.allTimestampsArray.forEach((timeString: string) => {
             var millis = (new Date(timeString)).valueOf();
