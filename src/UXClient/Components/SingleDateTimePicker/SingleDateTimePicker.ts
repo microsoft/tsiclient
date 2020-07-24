@@ -110,9 +110,9 @@ class SingleDateTimePicker extends ChartComponent{
         var i18nOptions = {
             previousMonth : this.getString('Previous Month'),
             nextMonth     : this.getString('Next Month'),
-            months        : moment.localeData().months,
-            weekdays      : moment.localeData().weekdays,
-            weekdaysShort : moment.localeData().weekdaysMin
+            months        : moment.localeData().months(),
+            weekdays      : moment.localeData().weekdays(),
+            weekdaysShort : moment.localeData().weekdaysMin()
         };
 
         this.calendarPicker = new Pikaday({ 
