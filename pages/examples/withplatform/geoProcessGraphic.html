@@ -123,7 +123,7 @@
               {
                 LatitudeValueBoat2: {
                     kind: 'numeric',
-                    value: { tsx: `$event.lat.Double${-3.5}`},
+                    value: { tsx: `$event.lat.Double${- 5}`},
                     aggregation: {
                       "tsx": "right($value)"
                     },
@@ -201,7 +201,7 @@
                 },
                 AirTempValueBoat3: {
                   kind: 'numeric',
-                  value: { tsx: `$event['amb_air_temp'].Double${ - 10 }` },
+                  value: { tsx: `$event['amb_air_temp'].Double${- 10 }` },
                   aggregation: {
                     "tsx": "right($value)"
                   },
@@ -216,7 +216,7 @@
               { },
               {
                 positionXVariableName : 'LatitudeValueBoat3',
-                positionYVariableName: 'LongitudeHoldValue3',
+                positionYVariableName: 'LongitudeValueBoat3',
                 alias: 'Titanic3', 
                 image: '/images/boat.png'
               }
