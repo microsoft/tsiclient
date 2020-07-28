@@ -28,6 +28,7 @@ class ChartDataOptions {
     public variableAlias: any;
     public positionXVariableName: string;
     public positionYVariableName: string;
+    public image: string;
 
     constructor (optionsObject: Object){
         this.searchSpan = Utils.getValueOrDefault(optionsObject, 'searchSpan');
@@ -54,6 +55,7 @@ class ChartDataOptions {
         this.variableAlias = Utils.getValueOrDefault(optionsObject, 'variableAlias', null);
         this.positionXVariableName = Utils.getValueOrDefault(optionsObject, 'positionXVariableName', null);
         this.positionYVariableName = Utils.getValueOrDefault(optionsObject, 'positionYVariableName', null);
+        this.image = Utils.getValueOrDefault(optionsObject, 'image', null);
     }
 }
 export {ChartDataOptions}

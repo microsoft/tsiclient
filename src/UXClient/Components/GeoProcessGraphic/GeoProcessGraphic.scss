@@ -18,27 +18,36 @@
 
     .tsi-gpgValueTable tr {
         border-bottom: 1px solid rgba($gray1, .1);
-        &:last-of-type {
-            border-bottom: none;
-        }
-        border-left-width: 10px;
-        border-left-style: solid;
     }
 
 }
+.tsi-gpgValueTable tr {
+    &:last-of-type {
+        border-bottom: none;
+    }
+    border-left-width: 10px;
+    border-left-style: solid;
+}
+
 .tsi-gpgTooltipTitle{
     @extend .tsi-textWrap;
 }
+
 .tsi-gpgTooltipTitle {
     font-weight: bold;
     font-size: 13px;
-} 
-.popup-container{
+}
+
+.popup-container{ //azure-maps specific
     margin-top: -20px;
 }
+
+.tsi-gpgPopUp{
+    padding:10px;
+}
+
 .tsi-gpgTooltip {
     pointer-events: none;
-    //position: absolute;
     border-width: 1px;
     border-style: solid;
     border-radius: 3px;
@@ -57,10 +66,7 @@
         border-bottom-width: 0;
         padding: 4px 6px;
     }
-    .popup-container{
-        transform: translate(-50%, 0px) translate(353px, 42px) rotateX(0deg) rotateZ(0deg) !important;
-    }
-   
+
     &.tsi-dark{
         $grays: grays('dark');
         @include tColors($grays);
@@ -95,7 +101,7 @@
 
 }
 
-.circleImage {
+.tsi-gpgcircleImage {
     width: 40px;
     border: 2px solid #855a19;
     border-radius: 50%;

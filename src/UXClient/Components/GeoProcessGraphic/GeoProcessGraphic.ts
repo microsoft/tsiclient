@@ -6,17 +6,18 @@ import { ServerClient } from '../../../ServerClient/ServerClient';
 
 class GeoProcessGraphic extends HistoryPlayback {
     private dataSource: atlas.source.DataSource;
-    private marker: atlas.HtmlMarker;
-    private subscriptionKey: string;
-    private img: string;
+    private azureMapsSubscriptionKey: string;
     private zoom: number;
     private width: number;
     private height: number;
-    private popup: atlas.Popup;
-    private positionXVariableName: string;
-    private positionYVariableName: string;
     private theme: string;
-    private alias: string;
+    private center: Array<number>;
+    private bearing: number;
+    private pitch: number;
+    private maxZoom: number;
+    private minZoom: number;
+    private duration: number;
+    private map: atlas.Map;
 
   constructor(renderTarget: Element){
     super(renderTarget);
@@ -31,10 +32,15 @@ class GeoProcessGraphic extends HistoryPlayback {
     chartOptions
     ) {
     this.zoom = chartOptions.zoom;
-    this.subscriptionKey = chartOptions.subscriptionKey;
+    this.center = chartOptions.center;
+    this.bearing = chartOptions.bearing;
+    this.pitch = chartOptions.pitch;
+    this.maxZoom = chartOptions.maxZoom;
+    this.minZoom = chartOptions.minZoom;
+    this.duration = chartOptions.duration;
+    this.azureMapsSubscriptionKey = chartOptions.subscriptionKey;
     this.width = chartOptions.width;
     this.height = chartOptions.height;
-    this.img = graphicSrc;
     this.theme= chartOptions.theme;
     this.renderBase(environmentFqdn, getToken, graphicSrc, data, chartOptions);
   }
@@ -43,127 +49,129 @@ class GeoProcessGraphic extends HistoryPlayback {
     (<HTMLElement>this.component.node()).style.width = `${this.width}px`;
     (<HTMLElement>this.component.node()).style.height = `${this.height}px`;
     
-    let map = new atlas.Map(<HTMLElement>this.component.node(), {
+     this.map = new atlas.Map(<HTMLElement>this.component.node(), {
       authOptions: {
         authType: atlas.AuthenticationType.subscriptionKey,
-        subscriptionKey: this.subscriptionKey
+        subscriptionKey: this.azureMapsSubscriptionKey
       }
     });
-    map.events.add('ready', () => {
-        this.dataSource = new atlas.source.DataSource();
-        map.sources.add(this.dataSource);
-        this.popup = new atlas.Popup({
-            content: `<div style="padding:10px;"></div>`,
-            pixelOffset: [0, -30]
-        })
-        this.marker =  new atlas.HtmlMarker({
-            htmlContent: '<img class="circleImage " src= "' + this.img + '" />',
-            position: [0, 0],
-            popup: this.popup
+    this.map.events.add('ready', () => {
+      this.dataSource = new atlas.source.DataSource();
+      this.map.sources.add(this.dataSource);
+
+      for (let i = 0; i < this.tsqExpressions.length; i++){
+        let popup = new atlas.Popup({
+          content: "<div class = 'tsi-gpgPopUp tsi-popup'></div>",
+          pixelOffset: [0, -30]
         });
-        map.markers.add(this.marker);
-        map.events.add('click', this.marker, () => {
-            this.marker.togglePopup();
+          let marker = new atlas.HtmlMarker({
+            htmlContent: `<img class='tsi-gpgcircleImage tsi-htmlMarker${i}' src= "` + this.tsqExpressions[i].image + '" />',
+            position: [0,0],
+            popup: popup
+          });
+          this.map.markers.add(marker);
+          this.map.popups.add(popup);
+          this.map.events.add('click', marker, () => {
+            marker.togglePopup();
         });
+      }
     });
-    map.setCamera({
-        center: [0, 0],
-        bearing: 0,
-        pitch: 90,
+    this.map.setCamera({
+        center: this.center,
+        bearing: this.bearing,
+        pitch: this.pitch,
         zoom: this.zoom,
-        maxZoom : 4,
-        minZoom: 1.5,
+        maxZoom: this.maxZoom,
+        minZoom: this.minZoom,
         type: "fly",
-        duration: 100
+        duration: this.duration
     });
     return Promise.resolve({
-        graphic: map,
+        graphic: this.map,
         width: this.width,
         height: this.height
       });
   }
   
-  protected createDataPoints(prm: Array<IGeoProcessGraphicLabelInfo>){
-    let dataPoints = prm.map((r, i): IGeoProcessGraphicLabelInfo => {
-        let result = this.parseTsqResponse(r);
-        this.positionXVariableName = this.tsqExpressions[i].positionXVariableName;
-        this.positionYVariableName = this.tsqExpressions[i].positionYVariableName;
-        this.alias = this.tsqExpressions[i].alias;
-        return result;  
+  protected getDataPoints(promise: Array<IGeoProcessGraphicLabelInfo>){
+    let dataPoints = promise.map((r): IGeoProcessGraphicLabelInfo => {
+        return this.parseTsqResponse(r);  
       });
       this.updateDataMarkers(dataPoints);
   }
 
   protected parseTsqResponse(response) {
-      let parsedResponse = {};
+    let parsedResponse = {};
     if (response && response.properties){
-        for (let i =0; i<response.properties.length; i++){
-            response.properties[i] && response.properties[i].name && response.properties[i].values ?
-                parsedResponse[response.properties[i].name] = response.properties[i].values[0]
-                : null;
-        }
+      for (let i =0; i<response.properties.length; i++){
+          response.properties[i] && response.properties[i].name && response.properties[i].values ?
+            parsedResponse[response.properties[i].name] = response.properties[i].values[0]
+              : null;
+      }
     }
     return parsedResponse;
   }
 
   protected updateDataMarkers(dataPoints: Array<any>) {
-        for(let i = 0; i < dataPoints.length; i++) {
-            let lat = dataPoints[i][this.positionXVariableName];
-            let lon = dataPoints[i][this.positionYVariableName];
-            this.marker.setOptions({
-                position: [lat, lon]
-            });
-            let dataPointArr = Object.entries(dataPoints[0]);
-            this.popup.setOptions({
-                position: [lat, lon],
-                content: this.createTable(dataPointArr)
-            });
-        }
-     }
+      for(let i = 0; i < dataPoints.length; i++) {
+        let lat = dataPoints[i][this.tsqExpressions[i].positionXVariableName];
+        let lon = dataPoints[i][this.tsqExpressions[i].positionYVariableName];
+        this.map.markers.getMarkers()[i].setOptions({
+            position: [lat, lon]
+        });
+        let dataPointArr = Object.entries(dataPoints[i]);
+        
+        this.map.popups.getPopups()[i].setOptions({
+            position: [lat, lon],
+            content: this.createTable(dataPointArr, i)
+        });
+        console.log(this.map.popups.getPopups()[i]);
+      }
+    }
 
-     protected createTable(dataPointArr){
-         let div1= document.createElement('div');
-         div1.className = 'tsi-gpgTooltip tsi-'+ this.theme;
+  protected createTable(dataPointArr, idx){
+    let gpgTooltipDiv = document.createElement('div');
+    gpgTooltipDiv.className = 'tsi-gpgTooltip tsi-'+ this.theme;
 
-         let div2 = document.createElement('div');
-         div2.className = 'tsi-gpgTooltipInner';
+    let gpgTooltipInnerDiv = document.createElement('div');
+    gpgTooltipInnerDiv.className = 'tsi-gpgTooltipInner';
 
-         let div3 = document.createElement('div');
-         div3.className = 'tsi-gpgTooltipTitle';
+    let gpgTooltipTitleDiv = document.createElement('div');
+    gpgTooltipTitleDiv.className = 'tsi-gpgTooltipTitle';
 
-         var title = document.createTextNode(this.alias);
-         div3.appendChild(title);
+    let title = document.createTextNode(this.tsqExpressions[idx].alias);
+    gpgTooltipTitleDiv.appendChild(title);
 
-         let tbl=  document.createElement('table');
-         tbl.className = 'tsi-gpgTooltipValues';
-         tbl.classList.add('tsi-gpgTooltipTable');
+    let gpgTooltipTable =  document.createElement('table');
+    gpgTooltipTable.className = 'tsi-gpgTooltipValues';
+    gpgTooltipTable.classList.add('tsi-gpgTooltipTable');
 
-         for (let i = 0; i < dataPointArr.length; i++){
-            var spacer = document.createElement('tr');
-            spacer.className = 'tsi-gpgTableSpacer';
-            tbl.appendChild(spacer);
+    for (let i = 0; i < dataPointArr.length; i++){
+      let spacer = document.createElement('tr');
+      spacer.className = 'tsi-gpgTableSpacer';
+      gpgTooltipTable.appendChild(spacer);
 
-            var row = document.createElement('tr');
+      let gpgTooltipValueRow = document.createElement('tr');
 
-            var cell1 = document.createElement('td');
-            cell1.className = 'tsi-gpgValueLabel';
-            var cellText1 = document.createTextNode(dataPointArr[i][0]);
-            cell1.appendChild(cellText1);
-            row.appendChild(cell1);
+      let gpgValueLabelCell = document.createElement('td');
+      gpgValueLabelCell .className = 'tsi-gpgValueLabel';
+      let labelName = document.createTextNode(dataPointArr[i][0]);
+      gpgValueLabelCell .appendChild(labelName);
+      gpgTooltipValueRow.appendChild(gpgValueLabelCell);
 
-            var cell2 = document.createElement('td');
-            cell2.className = 'tsi-gpgValueCell';
-            var cellText2 = document.createTextNode(dataPointArr[i][1].toFixed(5));
-            cell2.appendChild(cellText2);
-            row.appendChild(cell2);
+      let gpgValueCell = document.createElement('td');
+      gpgValueCell.className = 'tsi-gpgValueCell';
+      let cellData = document.createTextNode(dataPointArr[i][1].toFixed(5));
+      gpgValueCell.appendChild(cellData);
+      gpgTooltipValueRow.appendChild(gpgValueCell);
 
-            tbl.appendChild(row);
-         }         
-         div2.appendChild(div3);
-         div2.appendChild(tbl);
-         div1.appendChild(div2);
-         return div1;
-     }
+      gpgTooltipTable.appendChild(gpgTooltipValueRow);
+    }
+    gpgTooltipInnerDiv.appendChild(gpgTooltipTitleDiv);
+    gpgTooltipInnerDiv.appendChild(gpgTooltipTable);
+    gpgTooltipDiv.appendChild(gpgTooltipInnerDiv);
+    return gpgTooltipDiv;
+  }
 }
 interface IGeoProcessGraphicLabelInfo{
 }

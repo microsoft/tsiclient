@@ -44,8 +44,8 @@ class ProcessGraphic extends HistoryPlayback {
     this.component.append(() => this.graphic);
   }
 
-  protected createDataPoints(prm: Array<IProcessGraphicLabelInfo>){
-    let dataPoints = prm.map((r, i): IProcessGraphicLabelInfo => {
+  protected getDataPoints(promise: Array<IProcessGraphicLabelInfo>){
+    let dataPoints = promise.map((r, i): IProcessGraphicLabelInfo => {
       let value = this.parseTsqResponse(r);
       let color = typeof(this.tsqExpressions[i].color) === 'function'
         ? (<Function>this.tsqExpressions[i].color)(value)
