@@ -61,18 +61,19 @@ class GeoProcessGraphic extends HistoryPlayback {
 
       for (let i = 0; i < this.tsqExpressions.length; i++){
         let popup = new atlas.Popup({
-          content: "<div class = 'tsi-gpgPopUp tsi-popup'></div>",
+          content: `<div class = 'tsi-gpgPopUp id= tsi-popup${i}'></div>`,
           pixelOffset: [0, -30]
         });
-          let marker = new atlas.HtmlMarker({
-            htmlContent: `<img class='tsi-gpgcircleImage tsi-htmlMarker${i}' src= "` + this.tsqExpressions[i].image + '" />',
-            position: [0,0],
-            popup: popup
-          });
-          this.map.markers.add(marker);
-          this.map.popups.add(popup);
-          this.map.events.add('click', marker, () => {
-            marker.togglePopup();
+        let marker = new atlas.HtmlMarker({
+          htmlContent: `<div class = tsi-geoprocess-graphic> <img class='tsi-gpgcircleImage 
+          id= tsi-htmlMarker${i}' src= "` + this.tsqExpressions[i].image + '" /> </div>',
+          position: [0,0],
+          popup: popup
+        });
+        this.map.markers.add(marker);
+        this.map.popups.add(popup);
+        this.map.events.add('click', marker, () => {
+          marker.togglePopup();
         });
       }
     });
