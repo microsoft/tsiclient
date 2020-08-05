@@ -157,7 +157,7 @@ class GeoProcessGraphic extends HistoryPlayback {
       let gpgValueLabelCell = document.createElement('td');
       gpgValueLabelCell.className = 'tsi-gpgValueLabel';
       let labelName = document.createTextNode(dataPointArr[i][0]);
-      gpgValueLabelCell .appendChild(labelName);
+      gpgValueLabelCell.appendChild(labelName);
       gpgTooltipValueRow.appendChild(gpgValueLabelCell);
 
       let gpgValueCell = document.createElement('td');
