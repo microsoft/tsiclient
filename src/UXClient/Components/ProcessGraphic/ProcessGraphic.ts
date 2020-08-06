@@ -6,6 +6,7 @@ import { Utils } from '../../Utils';
 import { TsqExpression } from '../../Models/TsqExpression';
 
 class ProcessGraphic extends HistoryPlayback {
+  private graphicSrc: string;
   constructor(renderTarget: Element){ 
     super(renderTarget); 
     this.serverClient = new ServerClient();
@@ -17,35 +18,80 @@ class ProcessGraphic extends HistoryPlayback {
     graphicSrc: string, 
     data: Array<TsqExpression>, 
     chartOptions) {
-    this.renderBase(environmentFqdn, getToken, graphicSrc, data, chartOptions);
+      this.graphicSrc = graphicSrc;
+      this.renderBase(environmentFqdn, getToken, data, chartOptions);
   }
 
-  protected loadGraphic(graphicSrc: string): Promise<GraphicInfo> {
+  protected loadResources(): Promise<GraphicInfo> {
     return new Promise(function(resolve, reject) {
       let image = new Image();
 
       image.onload = () => {
-        resolve({
-          graphic: image, 
-          width: image.width, 
-          height: image.height
-        });
+        this.graphic = image;
+        this.graphicOriginalWidth = image.width;
+        this.graphicOriginalHeight = image.height;
+        
+        this.component.append(this.graphic);
+        
+        resolve();
       }
 
       image.onerror = (errorMessage) => {
+        console.log(errorMessage);
         reject(errorMessage);
       }
 
-      image.src = graphicSrc;
+      image.src = this.graphicSrc;
     });
   }
 
-  protected onGraphicLoaded(): void {
-    this.component.append(() => this.graphic);
+  protected draw(){
+
+    let graphicContainerWidth = this.renderTarget.clientWidth;
+    let graphicContainerHeight = this.renderTarget.clientHeight - this.playbackSliderHeight;
+
+    this.componentContainer
+      .style('width', `${graphicContainerWidth}px`)
+      .style('height', `${graphicContainerHeight}px`);
+
+    let resizedImageDim = this.getResizedImageDimensions(
+      graphicContainerWidth,
+      graphicContainerHeight,
+      this.graphicOriginalWidth,
+      this.graphicOriginalHeight);
+
+    this.component
+      .style('width', `${resizedImageDim.width}px`)
+      .style('height', `${resizedImageDim.height}px`);
+
+      this.drawBase();
+
   }
 
-  protected getDataPoints(promise: Array<IProcessGraphicLabelInfo>){
-    let dataPoints = promise.map((r, i): IProcessGraphicLabelInfo => {
+  private getResizedImageDimensions(containerWidth: number, containerHeight: number, imageWidth: number, imageHeight: number) {
+    if (containerWidth >= imageWidth && containerHeight >= imageHeight) {
+      return {
+        width: imageWidth,
+        height: imageHeight
+      }
+    }
+
+    // Calculate the factor we would need to multiply width by to make it fit in the container.
+    // Do the same for height. The smallest of those two corresponds to the largest size reduction
+    // needed. Multiply both width and height by the smallest factor to a) ensure we maintain the
+    // aspect ratio of the image b) ensure the image fits inside the container.
+    let widthFactor = containerWidth / imageWidth;
+    let heightFactor = containerHeight / imageHeight;
+    let resizeFactor = Math.min(widthFactor, heightFactor);
+
+    return {
+      width: imageWidth * resizeFactor,
+      height: imageHeight * resizeFactor
+    }
+  }
+
+  protected getDataPoints(results: Array<IProcessGraphicLabelInfo>){
+    let dataPoints = results.map((r, i): IProcessGraphicLabelInfo => {
       let value = this.parseTsqResponse(r);
       let color = typeof(this.tsqExpressions[i].color) === 'function'
         ? (<Function>this.tsqExpressions[i].color)(value)

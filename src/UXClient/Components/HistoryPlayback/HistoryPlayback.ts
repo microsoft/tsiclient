@@ -43,14 +43,14 @@ abstract class HistoryPlayback extends Component {
     this.currentCancelTrigger = null;
   }
 
-  protected abstract loadGraphic(graphicSrc: string): Promise<GraphicInfo>;
+  protected abstract loadResources(): Promise<any>;
+  protected abstract draw();
   protected abstract updateDataMarkers(data: Array<any>): void;
   protected abstract getDataPoints(data: Array<any>): void;
   protected onGraphicLoaded(): void { }
 
   protected renderBase(environmentFqdn: string, 
     getToken: () => Promise<string>, 
-    graphicSrc: string, 
     data: Array<TsqExpression>, 
     chartOptions) {
     this.environmentFqdn = environmentFqdn;
@@ -87,13 +87,7 @@ abstract class HistoryPlayback extends Component {
             .append('div')
             .classed('tsi-playback-controls-container', true);
 
-          this.loadGraphic(graphicSrc).then((graphicInfo: GraphicInfo) => {
-            this.graphic = graphicInfo.graphic;
-            this.graphicOriginalWidth = graphicInfo.width;
-            this.graphicOriginalHeight = graphicInfo.height;
-
-            this.onGraphicLoaded();
-
+          this.loadResources().then(() => {
             let initialTimeStamp = this.chartOptions.initialValue instanceof Date ? this.chartOptions.initialValue : from;
             this.playbackControls = new PlaybackControls(<any>this.playbackControlsContainer.node(), initialTimeStamp);
 
@@ -193,24 +187,7 @@ abstract class HistoryPlayback extends Component {
     }
   }
 
-  private draw() {
-    let graphicContainerWidth = this.renderTarget.clientWidth;
-    let graphicContainerHeight = this.renderTarget.clientHeight - this.playbackSliderHeight;
-
-    this.componentContainer
-      .style('width', `${graphicContainerWidth}px`)
-      .style('height', `${graphicContainerHeight}px`);
-
-    let resizedImageDim = this.getResizedImageDimensions(
-      graphicContainerWidth,
-      graphicContainerHeight,
-      this.graphicOriginalWidth,
-      this.graphicOriginalHeight);
-
-    this.component
-      .style('width', `${resizedImageDim.width}px`)
-      .style('height', `${resizedImageDim.height}px`);
-
+  protected drawBase() {
     this.playbackControlsContainer
       .style('width', `${this.renderTarget.clientWidth}px`)
       .style('height', `${this.playbackSliderHeight}px`);
@@ -221,28 +198,6 @@ abstract class HistoryPlayback extends Component {
       this.onSelecTimestamp.bind(this),
       this.chartOptions, 
       { intervalMillis: this.playbackRate, stepSizeMillis: this.availability.bucketSizeMillis });
-  }
-
-  private getResizedImageDimensions(containerWidth: number, containerHeight: number, imageWidth: number, imageHeight: number) {
-    if (containerWidth >= imageWidth && containerHeight >= imageHeight) {
-      return {
-        width: imageWidth,
-        height: imageHeight
-      }
-    }
-
-    // Calculate the factor we would need to multiply width by to make it fit in the container.
-    // Do the same for height. The smallest of those two corresponds to the largest size reduction
-    // needed. Multiply both width and height by the smallest factor to a) ensure we maintain the
-    // aspect ratio of the image b) ensure the image fits inside the container.
-    let widthFactor = containerWidth / imageWidth;
-    let heightFactor = containerHeight / imageHeight;
-    let resizeFactor = Math.min(widthFactor, heightFactor);
-
-    return {
-      width: imageWidth * resizeFactor,
-      height: imageHeight * resizeFactor
-    }
   }
 
   private updateAvailability(from: Date, to: Date) {

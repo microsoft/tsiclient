@@ -27,7 +27,6 @@ class GeoProcessGraphic extends HistoryPlayback {
 
   render(environmentFqdn: string,
     getToken: () => Promise<string>,
-    graphicSrc: string,
     data: Array<TsqExpression>,
     chartOptions
     ) {
@@ -42,10 +41,10 @@ class GeoProcessGraphic extends HistoryPlayback {
     this.width = chartOptions.width;
     this.height = chartOptions.height;
     this.theme= chartOptions.theme;
-    this.renderBase(environmentFqdn, getToken, graphicSrc, data, chartOptions);
+    this.renderBase(environmentFqdn, getToken, data, chartOptions);
   }
 
-  protected loadGraphic(graphicSrc: string): Promise<GraphicInfo> {
+  protected loadResources(): Promise<any> {
     (<HTMLElement>this.component.node()).style.width = `${this.width}px`;
     (<HTMLElement>this.component.node()).style.height = `${this.height}px`;
     
@@ -87,15 +86,15 @@ class GeoProcessGraphic extends HistoryPlayback {
         type: "fly",
         duration: this.duration
     });
-    return Promise.resolve({
-        graphic: this.map,
-        width: this.width,
-        height: this.height
-      });
+    return Promise.resolve();
+  }
+
+  protected draw(){
+    this.drawBase();
   }
   
-  protected getDataPoints(promise: Array<IGeoProcessGraphicLabelInfo>){
-    let dataPoints = promise.map((r): IGeoProcessGraphicLabelInfo => {
+  protected getDataPoints(results: Array<IGeoProcessGraphicLabelInfo>){
+    let dataPoints = results.map((r): IGeoProcessGraphicLabelInfo => {
         return this.parseTsqResponse(r);  
       });
       this.updateDataMarkers(dataPoints);
@@ -126,7 +125,6 @@ class GeoProcessGraphic extends HistoryPlayback {
             position: [lat, lon],
             content: this.createTable(dataPointArr, i)
         });
-        console.log(this.map.popups.getPopups()[i]);
       }
     }
 
