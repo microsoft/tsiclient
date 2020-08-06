@@ -395,6 +395,36 @@ class Utils {
         return text;
     }
 
+    static setSeriesLabelSubtitleText (subtitle, isInFocus: boolean = false) {
+        let subtitleDatum = subtitle.data()[0];
+        if (!subtitle.select('.tsi-splitBy').empty()) {
+            subtitle.select('.tsi-splitBy')
+                .text(d => {
+                    let textAfterSplitByExists = subtitleDatum.timeShift !== '' || subtitleDatum.variableAlias;
+                    return `${subtitleDatum.splitBy}${(textAfterSplitByExists && !isInFocus) ? ', ' : ''}`;    
+                });
+        }
+        if (subtitle.select('.tsi-timeShift')) {
+            subtitle.select('.tsi-timeShift')
+                .text(d => {
+                    return `${subtitleDatum.timeShift}${(subtitleDatum.variableAlias && !isInFocus) ? ', ' : ''}`;
+                });
+        }
+        if (subtitle.select('.tsi-variableAlias')) {
+            subtitle.select('.tsi-variableAlias')
+                .text(d => subtitleDatum.variableAlias);
+        }
+    }
+
+    static revertAllSubtitleText (markerValues, opacity = 1) {
+        let self = this;
+        markerValues.classed('tsi-isExpanded', false)
+            .style('opacity', opacity)
+            .each(function () {
+                self.setSeriesLabelSubtitleText(d3.select(this).selectAll('.tsi-tooltipSubtitle'), false);
+            });
+    }
+
     static generateColors (numColors: number, includeColors: string[] = null) {
         let defaultColors = ['#008272', '#D869CB', '#FF8C00', '#8FE6D7', '#3195E3', '#F7727E', '#E0349E', '#C8E139', '#60B9AE', 
                              '#93CFFB', '#854CC7', '#258225', '#0078D7', '#FF2828', '#FFF100'];

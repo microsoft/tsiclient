@@ -39,7 +39,7 @@
                 // render the data in a chart
                 var tsiClient = new TsiClient();
                 var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart1'));
-                lineChart.render(data, {theme: 'light', tooltip: true});
+                lineChart.render(data, {theme: 'light', tooltip: true}, [{},{timeShift: '-1m', variableAlias: 'd'}, {timeShift: '-1m', variableAlias: 'this is a prettttty long variable alias'}]);
             };
         </script>
     </body>

@@ -66,26 +66,40 @@ class Marker extends Component {
         return this.labelText;
     }
 
-    private setSeriesLabelText (d, text) {
-        let cDO = this.chartComponentData.displayState[d.aggregateKey].aggregateExpression;
-        this.createTooltipSeriesInfo(d, text, cDO);
-        // text.append('h4')
-        //     .attr('class', 'tsi-seriesLabelGroupName')
-        //     .text(d.aggregateName);
-        // if (d.splitBy && d.splitBy !== '') {
-        //     text.append('h4')
-        //         .attr('class', 'tsi-seriesLabelSeriesName')
-        //         .text(d.splitBy);
-        // }
-        // if (this.chartComponentData.displayState[d.aggregateKey].aggregateExpression.variableAlias) {
-        //     text.append('h4')
-        //         .attr('class', 'tsi-seriesLabelSeriesName')
-        //         .text(this.chartComponentData.displayState[d.aggregateKey].aggregateExpression.variableAlias);
-        // }
-        // console.log(this.chartComponentData);
+    private setSeriesLabelText (d, text, isSeriesLabelInFocus) {
+        text.classed('tsi-isExpanded', false);
+        text.append('h4')
+            .attr('class', 'tsi-seriesLabelGroupName tsi-tooltipTitle')
+            .text(d.aggregateName);
+
+        let labelDatum = {
+            splitBy: d.splitBy,
+            variableAlias: this.chartComponentData.displayState[d.aggregateKey].aggregateExpression.variableAlias,
+            timeShift: this.chartComponentData.getTemporalShiftString(d.aggregateKey),
+        }
+
+        let subtitle = text.selectAll('.tsi-seriesLabelSeriesName').data([labelDatum]);
+        let enteredSubtitle = subtitle.enter()
+            .append('div')
+            .attr('class', 'tsi-seriesLabelSeriesName tsi-tooltipSubtitle');
+
+        if (labelDatum.splitBy && labelDatum.splitBy !== '') {
+            enteredSubtitle.append('span')
+                .classed('tsi-splitBy', true)
+        }
+        if (labelDatum.timeShift) {
+            enteredSubtitle.append('span')
+                .classed('tsi-timeShift', true)
+        }
+        if (labelDatum.variableAlias) {
+            enteredSubtitle.append('span')
+                .classed('tsi-variableAlias', true)
+        }
+        subtitle.exit().remove();
+        Utils.setSeriesLabelSubtitleText(enteredSubtitle, false);
     }
 
-	protected tooltipFormat (d, text, measureFormat: TooltipMeasureFormat, xyrMeasures = null) {
+	protected tooltipFormat (d, text, measureFormat: TooltipMeasureFormat, xyrMeasures = null, isSeriesLabelInFocus = false) {
         
         let tooltipHeight = MARKERVALUENUMERICHEIGHT;
 
@@ -96,7 +110,7 @@ class Marker extends Component {
                 .style('line-height', ((tooltipHeight - 2) + 'px')) // - 2 to account for border height
 
         } else {
-            this.setSeriesLabelText(d, text);
+            this.setSeriesLabelText(d, text, isSeriesLabelInFocus);
         }
         text.classed('tsi-markerValueTooltipInner', true)
             .style('border-color', this.colorMap[d.aggregateKey + "_" + d.splitBy]);                
@@ -375,7 +389,13 @@ class Marker extends Component {
                 if (filteredValues.length === 1) {
                     valueArray.push(filteredValues[0]);
                 } else {
-                    valueArray.push(this.interpolateValue(closestTime, aggKey, splitBy));
+                    let interpolatedValue = this.interpolateValue(closestTime, aggKey, splitBy); 
+                    if (interpolatedValue !== null || !this.isSeriesLabels) {
+                        valueArray.push(interpolatedValue);
+                    } else {
+                        let lastValue = this.chartComponentData.findLastTimestampWithValue(aggKey, splitBy);
+                        valueArray.push(this.chartComponentData.findLastTimestampWithValue(aggKey, splitBy));
+                    }
                 }
             });
         });
@@ -396,6 +416,7 @@ class Marker extends Component {
         valueLabels.enter()
             .append("div")
             .classed("tsi-markerValue", true)
+            .classed('tsi-seriesLabelValue', this.isSeriesLabels)
             .merge(valueLabels)
             .classed('tsi-isInterpolated', d => {
                 return d.isInterpolated;

@@ -122,8 +122,7 @@ class LineChart extends TemporalXAxisComponent {
         this.svgSelection.selectAll(".tsi-valueEnvelope")
             .attr("fill-opacity", .2);
             
-        d3.select(this.renderTarget).selectAll(".tsi-markerValue")
-            .style("opacity", 1);
+            Utils.revertAllSubtitleText(d3.select(this.renderTarget).selectAll('.tsi-markerValue'));
 
         this.focusedAggKey = null;
         this.focusedSplitby = null;
@@ -976,11 +975,16 @@ class LineChart extends TemporalXAxisComponent {
     }
 
     private focusMarkerLabel (filterFunction, aggKey, splitBy) {
-        d3.select(this.renderTarget).selectAll(".tsi-markerValue").style("opacity", .2);
+        Utils.revertAllSubtitleText(d3.select(this.renderTarget).selectAll(".tsi-markerValue"), .2);
+
 
         d3.select(this.renderTarget).selectAll(".tsi-markerValue")
             .filter(filterFunction)
-            .style("opacity", 1);
+            .style("opacity", 1)
+            .classed('tsi-isExpanded', true)
+            .each(function () {
+                Utils.setSeriesLabelSubtitleText(d3.select(this).selectAll('.tsi-tooltipSubtitle'), true);
+            });
         
         d3.select(this.renderTarget).selectAll(".tsi-markerContainer").each(function () {
             d3.select(this).selectAll(".tsi-markerValue").sort(function (a: any, b: any) { 
@@ -989,11 +993,9 @@ class LineChart extends TemporalXAxisComponent {
         });
     }  
 
-    public labelMouseout = () =>{
-        if (this.svgSelection) {
-            d3.select(this.renderTarget).selectAll(".tsi-markerValue")
-                .style("opacity", 1);
-        
+    public labelMouseout = () => {
+        if (this.svgSelection) {    
+            Utils.revertAllSubtitleText(d3.select(this.renderTarget).selectAll('.tsi-markerValue'));
             this.svgSelection.selectAll(".tsi-valueElement")
                 .filter(function () { return !d3.select(this).classed("tsi-valueEnvelope"); })
                 .attr("stroke-opacity", 1)
@@ -1459,8 +1461,7 @@ class LineChart extends TemporalXAxisComponent {
                 if (!isFromResize) {
                     this.legendObject.draw(this.chartOptions.legend, this.chartComponentData, (aggKey, splitBy) => { this.labelMouseover(aggKey, splitBy); }, 
                     this.svgSelection, this.chartOptions, () => {
-                     d3.select(this.renderTarget).selectAll(".tsi-markerValue")
-                         .style("opacity", 1);
+                        Utils.revertAllSubtitleText(d3.select(this.renderTarget).selectAll('.tsi-markerValue'));
                     }, this.stickySeries);
                 }        
 

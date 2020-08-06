@@ -60,29 +60,6 @@
 
 .tsi-markerContainer {
 
-    &.tsi-isSeriesLabels {
-        background: transparent !important;
-        .tsi-markerValue {
-            transform: translateX(-2px);
-            .tsi-tooltip {
-                width: 92px;
-                top: 0px !important;
-                transform: translate(0px, -50%) !important;
-                .tsi-tooltipTitle {
-                    font-size: 11px;
-                    max-height: 36px;
-                    display: -webkit-box;
-                    -webkit-line-clamp: 2;
-                    -webkit-box-orient: vertical; 
-                    overflow-y: hidden;
-                }
-                .tsi-tooltipSubtitle {
-                    font-size: 10px;
-                }
-            }
-        }
-    }
-
     position: absolute;
     pointer-events: none;
     width: 2px;
@@ -183,31 +160,70 @@
                 }    
             }
         }
-        .tsi-tooltip {
-            box-shadow: none;
-            border: none;
-            .tsi-markerValueTooltipInner {
-                padding: 0px 4px 0px 4px;
-                border-width: 1px !important;
-                border-style: solid;
-                font-size: 11px;
-                min-width: unset;
-                transform: translateX(8px);
-            }    
-        }
 
-        .tsi-markerValueCaret {
-            left: 2px;
-            width: 0; 
-            height: 0; 
-            border-top: 8px solid transparent;
-            border-bottom: 8px solid transparent;
-            border-right-width: 8px;
-            border-right-style: solid;
-            position: absolute;
-            transform: translateY(-50%);
-            -webkit-transform: translateY(-50%);
-        }    
+
+        &:not(.tsi-seriesLabelValue) {
+            .tsi-tooltip {
+                box-shadow: none;
+                border: none;
+                .tsi-markerValueTooltipInner {
+                    padding: 0px 4px 0px 4px;
+                    border-width: 1px !important;
+                    border-style: solid;
+                    font-size: 11px;
+                    min-width: unset;
+                    transform: translateX(8px);
+                }    
+            }
+    
+            .tsi-markerValueCaret {
+                left: 2px;
+                width: 0; 
+                height: 0; 
+                border-top: 8px solid transparent;
+                border-bottom: 8px solid transparent;
+                border-right-width: 8px;
+                border-right-style: solid;
+                position: absolute;
+                transform: translateY(-50%);
+                -webkit-transform: translateY(-50%);
+            }        
+        }
+        &.tsi-seriesLabelValue {
+            transform: translateX(-2px);
+            .tsi-tooltip {
+                width: 110px;
+                top: 0px !important;
+                transform: translate(0px, -50%) !important;
+                .tsi-markerValueTooltipInner {
+                    padding: 4px;
+                    .tsi-tooltipTitle {
+                        font-size: 11px;
+                        overflow-y: hidden;
+                        overflow-x: hidden;
+                        white-space: nowrap;
+                        text-overflow: ellipsis;
+                    }
+                    .tsi-tooltipSubtitle {
+                        font-size: 10px;
+                        text-overflow: none;
+                        white-space: nowrap;
+                        text-overflow: ellipsis;
+                        overflow-y: hidden;
+                        overflow-x: hidden;
+                    }  
+                }
+            }
+            &.tsi-isExpanded {
+                max-height: unset;
+                .tsi-splitBy, .tsi-timeShift, .tsi-variableAlias {
+                    display: block;
+                }
+            }
+            .tsi-timeShift {
+                font-style: italic;
+            }
+        }
     }
 
     &.tsi-isFlipped {
