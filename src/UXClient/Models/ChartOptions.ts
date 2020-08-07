@@ -193,7 +193,7 @@ class ChartOptions {
         this.onSelect = this.mergeValue(chartOptionsObj, 'onSelect', () => {});
         this.swimLaneOptions = this.mergeValue(chartOptionsObj, 'swimLaneOptions', null);
         this.hierarchyOptions = this.mergeValue(chartOptionsObj, 'hierarchyOptions', Object.assign({}, DefaultHierarchyNavigationOptions));
-        this.labelSeriesWithMarker = this.mergeValue(chartOptionsObj, 'labelSeriesWithMarker', true);
+        this.labelSeriesWithMarker = this.mergeValue(chartOptionsObj, 'labelSeriesWithMarker', false);
         this.onError = this.mergeValue(chartOptionsObj, 'onError', (titleKey, messageKey, xhr) => {});
     }
 

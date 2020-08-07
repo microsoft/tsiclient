@@ -9,6 +9,7 @@ import { ChartComponentData } from '../../Models/ChartComponentData';
 import { KeyCodes } from '../../Constants/Enums';
 
 const MARKERSTRINGMAXLENGTH = 250;
+const MARKERVALUEMAXWIDTH = 80;
 
 class Marker extends Component {
     //DOM components
@@ -158,11 +159,11 @@ class Marker extends Component {
             .style('left', (d: any) => {
                 return `${this.getLeft(d)}px`;
             })
-            .classed('tsi-isFlipped', () => {
+            .classed('tsi-isFlipped', (d) => {
                 if (this.isSeriesLabels) {
                     return false;
                 }
-                return true; // TODO check if too close to the right
+                return (this.chartOptions.labelSeriesWithMarker && this.x(d.timestamp) > (this.x.range()[1] - MARKERVALUEMAXWIDTH));
             }) 
             .each(function(markerD) {
                 if (self.isSeriesLabels) {

@@ -9,7 +9,6 @@
     $gray6: nth($grays, 6); // hover
 
     color: $gray1;
-    background: $gray3;
 
     .tsi-markerTimeLabel {
         background-color: $gray3;
@@ -192,9 +191,9 @@
         &.tsi-seriesLabelValue {
             transform: translateX(-2px);
             .tsi-tooltip {
-                width: 110px;
+                width: 108px;
                 top: 0px !important;
-                transform: translate(0px, -50%) !important;
+                transform: translate(4px, -50%) !important;
                 .tsi-markerValueTooltipInner {
                     padding: 4px;
                     .tsi-tooltipTitle {
@@ -218,6 +217,12 @@
                 max-height: unset;
                 .tsi-splitBy, .tsi-timeShift, .tsi-variableAlias {
                     display: block;
+                }
+                .tsi-markerValueTooltipInner {
+                    .tsi-tooltipTitle, .tsi-tooltipSubtitle {
+                        overflow-y: hidden;
+                        white-space: unset;
+                    }
                 }
             }
             .tsi-timeShift {

@@ -19,7 +19,7 @@
                 var to;
                 for(var i = 0; i < 3; i++){
                     var lines = {};
-                    data.push({[`this is a longer group name ${i}`]: lines});
+                    data.push({[`this is a much much muuuuuuuuch longer group name ${i}`]: lines});
                     for(var j = 0; j < 5; j++){
                         var values = {};
                         lines[`Station${j}`] = values;
@@ -39,7 +39,7 @@
                 // render the data in a chart
                 var tsiClient = new TsiClient();
                 var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart1'));
-                lineChart.render(data, {theme: 'light', tooltip: true}, [{},{timeShift: '-1m', variableAlias: 'd'}, {timeShift: '-1m', variableAlias: 'this is a prettttty long variable alias'}]);
+                lineChart.render(data, {theme: 'light', tooltip: true, labelSeriesWithMarker: true}, [{},{timeShift: '-1m', variableAlias: 'd'}, {timeShift: '-1m', variableAlias: 'this is a prettttty long variable alias'}]);
             };
         </script>
     </body>
