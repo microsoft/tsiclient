@@ -598,8 +598,7 @@ class LineChart extends TemporalXAxisComponent {
     }
 
     private renderMarker (marker: Marker, millis: number, onChange: any = null, labelText: string = null, isSeriesLabels: boolean = false) {
-        let chartOptions: any = this.chartOptions;
-        marker.render(millis, chartOptions, this.chartComponentData, {
+        marker.render(millis, this.chartOptions, this.chartComponentData, {
             chartMargins: this.chartMargins,
             x: this.x,
             marginLeft: this.getMarkerMarginLeft(),

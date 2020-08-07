@@ -28,9 +28,9 @@
 
 }
 
-// .tsi-tooltipTitle, .tsi-tooltipSubtitle, .tsi-tooltipAttrTitle, .tsi-tooltipAttrValue, .tsi-valueLabel, .tsi-valueCell, .tsi-tooltipMeasureTitle{
-//     @extend .tsi-textWrap;
-// }
+.tsi-tooltipTitle, .tsi-tooltipSubtitle, .tsi-tooltipAttrTitle, .tsi-tooltipAttrValue, .tsi-valueLabel, .tsi-valueCell, .tsi-tooltipMeasureTitle{
+    @extend .tsi-textWrap;
+}
 
 .tsi-tooltip {
     pointer-events: none;
