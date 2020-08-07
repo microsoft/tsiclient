@@ -26,6 +26,9 @@ class ChartDataOptions {
     public positionY: number;
     public swimLane: number;
     public variableAlias: any;
+    public positionXVariableName: string;
+    public positionYVariableName: string;
+    public image: string;
 
     constructor (optionsObject: Object){
         this.searchSpan = Utils.getValueOrDefault(optionsObject, 'searchSpan');
@@ -50,6 +53,9 @@ class ChartDataOptions {
         this.positionY = Utils.getValueOrDefault(optionsObject, 'positionY', 0);
         this.swimLane = Utils.getValueOrDefault(optionsObject, 'swimLane', null);
         this.variableAlias = Utils.getValueOrDefault(optionsObject, 'variableAlias', null);
+        this.positionXVariableName = Utils.getValueOrDefault(optionsObject, 'positionXVariableName', null);
+        this.positionYVariableName = Utils.getValueOrDefault(optionsObject, 'positionYVariableName', null);
+        this.image = Utils.getValueOrDefault(optionsObject, 'image', null);
     }
 }
 export {ChartDataOptions}

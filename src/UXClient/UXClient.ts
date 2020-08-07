@@ -24,6 +24,7 @@ import { DateTimeButtonRange } from "./Components/DateTimeButtonRange/DateTimeBu
 import { ProcessGraphic } from './Components/ProcessGraphic/ProcessGraphic';
 import { PlaybackControls } from './Components/PlaybackControls/PlaybackControls';
 import { ColorPicker } from "./Components/ColorPicker/ColorPicker";
+import { GeoProcessGraphic } from "./Components/GeoProcessGraphic/GeoProcessGraphic";
 
 class UXClient {
     UXClient () {
@@ -127,6 +128,10 @@ class UXClient {
 
     public ColorPicker(renderTarget) {
         return new ColorPicker(renderTarget);
+    }
+
+    public GeoProcessGraphic(renderTarget) {
+        return new GeoProcessGraphic(renderTarget);
     }
 
     public transformTsxToEventsArray (events, options) {

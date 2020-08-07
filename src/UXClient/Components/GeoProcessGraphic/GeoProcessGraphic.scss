@@ -1,0 +1,112 @@
+@import "../../styles";
+
+@mixin tColors($grays){
+    $gray1: nth($grays, 1); // text
+    $gray2: nth($grays, 2); // hover
+    $gray3: nth($grays, 3); // element
+    $gray4: nth($grays, 4); // background
+    $gray5: nth($grays, 5); 
+    $gray6: nth($grays, 6); // hover
+
+    box-shadow: 0 1px 3px 0 rgba($gray1, .16);
+    border-color: rgba($gray1, .1);
+    
+    @include chartColors($grays);
+
+    color: $gray1;
+    background-color: $gray3;
+
+    .tsi-gpgValueTable tr {
+        border-bottom: 1px solid rgba($gray1, .1);
+    }
+
+}
+.tsi-gpgValueTable tr {
+    &:last-of-type {
+        border-bottom: none;
+    }
+    border-left-width: 10px;
+    border-left-style: solid;
+}
+
+.tsi-gpgTooltipTitle{
+    @extend .tsi-textWrap;
+}
+
+.tsi-gpgTooltipTitle {
+    font-weight: bold;
+    font-size: 13px;
+}
+
+.popup-container{ //azure-maps specific
+    margin-top: -20px;
+}
+
+.tsi-gpgPopUp{
+    padding:10px;
+}
+
+.tsi-gpgTooltip {
+    pointer-events: none;
+    border-width: 1px;
+    border-style: solid;
+    border-radius: 3px;
+    display: block; 
+    
+    .tsi-gpgTooltipInner{
+        position: relative;
+        overflow: hidden;
+        border-radius: 3px;
+        min-width: 108px;
+        max-width: 260px;
+        border-style: solid;
+        border-color:rgb(44, 123, 251);
+        border-top-width: 0;
+        border-right-width: 0;
+        border-bottom-width: 0;
+        padding: 4px 6px;
+    }
+
+    &.tsi-dark{
+        $grays: grays('dark');
+        @include tColors($grays);
+    }
+    &.tsi-light{
+        $grays: grays('light');
+        @include tColors($grays);
+    }
+
+    .tsi-gpgTooltipValues {
+        font-size: 12px;
+    }
+
+    .tsi-gpgTooltipTable {        
+        border-collapse: collapse;
+        margin: 8px 0 4px;
+        width: 236px;
+        overflow: hidden;
+        table-layout: fixed;
+    }
+
+    .tsi-gpgTooltipTable tr {
+        td {
+            margin: 0px;
+            padding: 4px;
+            &.tsi-gpgValueCell {
+                text-align: right;
+            }
+        }
+    }
+
+
+}
+
+.tsi-gpgcircleImage {
+    width: 40px;
+    border: 2px solid #855a19;
+    border-radius: 50%;
+}
+.tsi-geoprocess-graphic img {
+    width: 60px;
+    height: 60px;
+}
