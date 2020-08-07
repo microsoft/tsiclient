@@ -5,6 +5,7 @@ import {Component} from "./../../Interfaces/Component";
 import {ServerClient} from '../../../ServerClient/ServerClient';
 import { ModelAutocomplete } from '../ModelAutocomplete/ModelAutocomplete';
 import { KeyCodes, InstancesSort, HierarchiesExpand, HierarchiesSort } from '../../Constants/Enums';
+import { nullTsidFormatTag } from '../../Constants/Constants';
 
 
 class HierarchyNavigation extends Component{
@@ -517,7 +518,7 @@ class HierarchyNavigation extends Component{
                 // create the dom element for this new hierarchy node
                 let li = d3.create("li");
                 ulToLook.insertBefore(li.node(), ulToLook.firstChild); // put it to the top of the list
-                let newListContentElem = this.createHierarchyItemElem(hierarchyNode, hierarchyNode.name);
+                let newListContentElem = this.createHierarchyItemElem(hierarchyNode, this.hierarchyNodeIdentifier(hierarchyNode.name));
                 li.node().appendChild(newListContentElem.node());
                 hierarchyNode.node = li;
                 nameSpan = newListContentElem.select('.tsi-name').node() as HTMLElement;
@@ -535,11 +536,11 @@ class HierarchyNavigation extends Component{
 
         // locate the instance
         ulToLook = lastHierarchyNodeParent.getElementsByTagName("ul")[0];
-        nameSpan = Array.from((ulToLook as HTMLElement).getElementsByClassName("tsi-name")).find(e => (e as HTMLElement).innerText === instanceIdentifier);
+        nameSpan = Array.from((ulToLook as HTMLElement).getElementsByClassName("tsi-name")).find(e => (e as HTMLElement).innerText === Utils.getTimeSeriesIdString(instance));
         if (!nameSpan) {//if the instance node we are looking is not there after expansion, add it manually to prevent possible show more calls and dom insertions
             let instanceNode = new InstanceNode(instance.timeSeriesId, instance.name, this.envTypes[instance.typeId], instance.hierarchyIds, instance.highlights, isHierarchySelected || hierarchyNamesFromParam ? path.length - 1 : path.length);
             let li = d3.create("li").classed('tsi-leaf', true);
-            let newListContentElem = this.createHierarchyItemElem(instanceNode, instance.name ? instance.name : (instance.timeSeriesId.filter(id => id !== null).length ? instance.timeSeriesId.join(" "): ''));
+            let newListContentElem = this.createHierarchyItemElem(instanceNode, instanceIdentifier);
             li.node().appendChild(newListContentElem.node());
             ulToLook.insertBefore(li.node(), ulToLook.getElementsByClassName('tsi-leaf')[0]); // put it to the top of the instance list after hierarchy nodes
             instanceNode.node = li;
@@ -553,8 +554,8 @@ class HierarchyNavigation extends Component{
         }
         // mark the instance identifier manually to highlight it
         nameSpan.innerText = '';
-        let hitElem = document.createElement('hit'); 
-        hitElem.innerText = instanceIdentifier;
+        let hitElem = document.createElement('hit');
+        this.getFormattedHtml(Utils.getTimeSeriesIdToDisplay(instance, this.getString('Empty')), {monoClassName: 'tsi-baseMono'}).forEach(s => hitElem.appendChild(s));
         nameSpan.appendChild(hitElem);
     }
 
@@ -671,10 +672,11 @@ class HierarchyNavigation extends Component{
             }
         }
 
-        Object.keys(data).forEach((el) => {
+        Object.keys(data).forEach(el => {
             let li, newListElem;
             if (locInTarget) {
-                if (target.selectAll(".tsi-name").nodes().find(e => e.innerText === el)) {return;}
+                let nodeNameToCheckIfExists = data[el] instanceof InstanceNode && data[el].name !== this.getString("Show More Instances") ? Utils.getTimeSeriesIdString(data[el]) : el;
+                if (target.selectAll(".tsi-name").nodes().find(e => e.innerText === nodeNameToCheckIfExists)) {return;}
                 li = target.insert('li', '.tsi-target-loc').classed('tsi-leaf', data[el].isLeaf);
             } else {
                 li = list.append('li').classed('tsi-leaf', data[el].isLeaf);
@@ -925,7 +927,7 @@ class HierarchyNavigation extends Component{
             contextMenuItems.forEach(item => {
                 let option = item.name;
                 let li = contextMenuList.append('li');
-                let markedElems = this.getElemsOfStrippedString(Utils.mark(searchString, option), 'mark');
+                let markedElems = this.getFormattedHtml(Utils.mark(searchString, option));
                 
                 if (!contextMenuOptions.isSelectionEnabled) {
                     li.attr('tabindex', 0)
@@ -1003,26 +1005,41 @@ class HierarchyNavigation extends Component{
         }
     }
 
-    // returns dom elements of stripped strings including hits and spans
-    private getElemsOfStrippedString = (str, isMarkTag = null) => {
-        let tag = isMarkTag ? 'mark' : 'hit';
-        let strippedElems = [];
-        str.split(`<${tag}>`).map(h => {
-            let strips = h.split(`</${tag}>`); 
-            if (strips.length > 1) {
-                let hitElem = document.createElement(tag); 
-                hitElem.innerText = strips[0];
-                strippedElems.push(hitElem);
-                let spanElem = document.createElement('span'); 
-                spanElem.innerText = strips[1];
-                strippedElems.push(spanElem);
+    // returns dom elements of stripped strings including hits (for instance search results) and pre (for null tsid)
+    private getFormattedHtml = (str, options: {monoClassName: string} = null) : Node[] => {
+        let splitByPre = (str: string) : Array<Node> => { // to format <pre> in null tsids
+            let nodeList: Node[] = [];
+            let splittedPres = str.split(`<${nullTsidFormatTag}>`);
+            if(str) {
+                splittedPres.length > 1 ?
+                    splittedPres.forEach((s, i) => {
+                        if (i === 0) { 
+                            nodeList.push(d3.create('span').text(s).node());
+                        } else {
+                            nodeList.push(d3.create('span').classed(options ? options.monoClassName : '', true).text(s.split(`</${nullTsidFormatTag}>`)[0]).node());
+                            if (s.split(`</${nullTsidFormatTag}>`)[1] !== "") {
+                                nodeList.push(d3.create('span').text(s.split(`</${nullTsidFormatTag}>`)[1]).node());
+                            }
+                        }
+                    })
+                : nodeList.push(d3.create('span').text(splittedPres[0]).node());
+            }
+            return nodeList;
+        };
+
+        let nodeList: Node[] = [];
+        let splitStr = str.split('<hit>');
+        splitStr.forEach((s, i) => {
+            if (i === 0) {
+                splitByPre(s).forEach(s => nodeList.push(s));
             } else {
-                let spanElem = document.createElement('span'); 
-                spanElem.innerText = strips[0];
-                strippedElems.push(spanElem);
+                let markedNode = d3.create('mark').text(s.split('</hit>')[0]).node();
+                nodeList.push(markedNode);
+                splitByPre(s.split('</hit>')[1]).forEach(s => nodeList.push(s));
             }
         });
-        return strippedElems;
+
+        return nodeList;
     }
 
     //returns the dom element of one hierarchy level item for tree rendering
@@ -1032,8 +1049,8 @@ class HierarchyNavigation extends Component{
         let hierarchyItemElem = d3.create('div').classed('tsi-hierarchyItem', true)
             .attr('style', `padding-left: ${hORi.isLeaf ? hORi.level * 18 + 20 : (hORi.level + 1) * 18 + 20}px`)
             .attr('tabindex', 0)
-            .attr('arialabel', key)
-            .attr('title', key)
+            .attr('arialabel', isHierarchyNode ? key : Utils.getTimeSeriesIdString(hORi))
+            .attr('title', isHierarchyNode ? key : Utils.getTimeSeriesIdString(hORi))
             .attr("role", "treeitem").attr('aria-expanded', hORi.isExpanded)
             .on('click keydown', async function() {
                 if (Utils.isKeyDownAndNotEnter(d3.event)) {return; }
@@ -1070,7 +1087,7 @@ class HierarchyNavigation extends Component{
 
         if (isHierarchyNode) {
             hierarchyItemElem.append('span').classed('tsi-caret-icon', true).attr('style', `left: ${(hORi.level) * 18 + 20}px`);
-            hierarchyItemElem.append('span').classed('tsi-name', true).text(key ? key : '(null)');
+            hierarchyItemElem.append('span').classed('tsi-name', true).text(key);
             hierarchyItemElem.append('span').classed('tsi-instanceCount', true).text(hORi.cumulativeInstanceCount);
             hierarchyItemElem.append('span').classed('tsi-hitCount', true).text(''); // hit count is the number of hierarchy nodes below, it is filled after expand is clicked for this node (after search is done for this path)
 
@@ -1112,12 +1129,12 @@ class HierarchyNavigation extends Component{
             let spanElem = hierarchyItemElem.append('span').classed('tsi-name', true);
             if (hORi.highlights) {
                 if (hORi.highlights.name) {
-                    this.getElemsOfStrippedString(hORi.highlights.name).forEach(s => (spanElem.node() as HTMLElement).appendChild(s));
+                    this.getFormattedHtml(hORi.highlights.name).forEach(e => (spanElem.node() as ParentNode).append(e));
                 } else {
-                    this.getElemsOfStrippedString(this.getTsidFromHighlights(hORi.highlights)).forEach(s => (spanElem.node() as HTMLElement).appendChild(s));
+                    this.getFormattedHtml(Utils.getHighlightedTimeSeriesIdToDisplay(hORi), {monoClassName: 'tsi-baseMono'}).forEach(e => (spanElem.node() as ParentNode).append(e));
                 }
             } else {
-                spanElem.text(key ? key : '(null)');
+                this.getFormattedHtml(Utils.getTimeSeriesIdToDisplay(hORi, this.getString('Empty')), {monoClassName: 'tsi-baseMono'}).forEach(e => (spanElem.node() as ParentNode).append(e));
             }
             
             if (hORi.highlights) {
@@ -1125,18 +1142,18 @@ class HierarchyNavigation extends Component{
                 let highlightDetails = hierarchyItemElem.append('div').classed('tsi-highlights-detail', true);
                 if (hORi.highlights.description && this.hasHits(hORi.highlights.description)) {
                     hitsExist = true;
-                    this.getElemsOfStrippedString(hORi.highlights.description).forEach(s => (highlightDetails.node() as HTMLElement).appendChild(s))
+                    this.getFormattedHtml(hORi.highlights.description).forEach(e => (highlightDetails.node() as ParentNode).append(e));
                 }
                 let hitTuples = [];
-                if (hORi.highlights.name && this.hasHits(this.getTsidFromHighlights(hORi.highlights))) {
+                if (hORi.highlights.name && this.hasHits(Utils.getHighlightedTimeSeriesIdToDisplay(hORi))) {
                     hitsExist = true;
-                    hitTuples.push([this.getElemsOfStrippedString(this.getString("Time Series ID")), this.getElemsOfStrippedString(this.getTsidFromHighlights(hORi.highlights))])
+                    hitTuples.push([this.getFormattedHtml(this.getString("Time Series ID")), this.getFormattedHtml(Utils.getHighlightedTimeSeriesIdToDisplay(hORi))])
                 }
                 hORi.highlights.instanceFieldNames.forEach((ifn, idx) => {
                     var val = hORi.highlights.instanceFieldValues[idx];
                     if (this.hasHits(ifn) || this.hasHits(val)) {
                         hitsExist = true;
-                        hitTuples.push([this.getElemsOfStrippedString(ifn), this.getElemsOfStrippedString(hORi.highlights.instanceFieldValues[idx])])
+                        hitTuples.push([this.getFormattedHtml(ifn), this.getFormattedHtml(hORi.highlights.instanceFieldValues[idx])])
                     }
                 });
                 let table = highlightDetails.append('table');
@@ -1161,10 +1178,10 @@ class HierarchyNavigation extends Component{
     private createInstanceElem(i) {
         let instanceElem = d3.create('div').classed('tsi-modelResult', true);
         let firstLine = instanceElem.append('div').classed('tsi-modelPK', true);
-        (i.highlights.name ? this.getElemsOfStrippedString(i.highlights.name) : this.getElemsOfStrippedString(this.getTsidFromHighlights(i.highlights))).forEach(a => (firstLine.node() as HTMLDivElement).appendChild(a));
+        (i.highlights.name ? this.getFormattedHtml(i.highlights.name) : this.getFormattedHtml(Utils.getHighlightedTimeSeriesIdToDisplay(i), {monoClassName: 'tsi-baseMono'})).forEach(a => (firstLine.node() as HTMLDivElement).appendChild(a));
 
         let secondLine = instanceElem.append('div').classed('tsi-modelHighlights', true);
-        this.getElemsOfStrippedString(i.highlights.description && i.highlights.description.length ? i.highlights.description : 'No description').forEach(a => (secondLine.node() as HTMLDivElement).appendChild(a));
+        this.getFormattedHtml(i.highlights.description && i.highlights.description.length ? i.highlights.description : 'No description').forEach(a => (secondLine.node() as HTMLDivElement).appendChild(a));
         secondLine.append('br');
         let table = secondLine.append('table');
         let row = table.append('tr');
@@ -1172,7 +1189,7 @@ class HierarchyNavigation extends Component{
         if (i.highlights.name) {
             row.append('td').text(this.getString("Time Series ID"));
             td = row.append('td');
-            this.getElemsOfStrippedString(this.getTsidFromHighlights(i.highlights)).forEach(a => (td.node() as HTMLTableDataCellElement).appendChild(a));
+            this.getFormattedHtml(Utils.getHighlightedTimeSeriesIdToDisplay(i)).forEach(a => (td.node() as HTMLTableDataCellElement).appendChild(a));
         }
 
         i.highlights.instanceFieldNames.map((ifn, idx) => {
@@ -1181,16 +1198,16 @@ class HierarchyNavigation extends Component{
                 if (this.hasHits(ifn) || this.hasHits(val)) {
                     row = table.append('tr');
                     td = row.append('td');
-                    this.getElemsOfStrippedString(ifn).forEach(a => (td.node() as HTMLTableDataCellElement).appendChild(a));
+                    this.getFormattedHtml(ifn).forEach(a => (td.node() as HTMLTableDataCellElement).appendChild(a));
                     td = row.append('td');
-                    this.getElemsOfStrippedString(i.highlights.instanceFieldValues[idx]).forEach(a => (td.node() as HTMLTableDataCellElement).appendChild(a));
+                    this.getFormattedHtml(i.highlights.instanceFieldValues[idx]).forEach(a => (td.node() as HTMLTableDataCellElement).appendChild(a));
                 }
             } else if (val.length !== 0) {
                 row = table.append('tr');
                 td = row.append('td');
-                this.getElemsOfStrippedString(ifn).forEach(a => (td.node() as HTMLTableDataCellElement).appendChild(a));
+                this.getFormattedHtml(ifn).forEach(a => (td.node() as HTMLTableDataCellElement).appendChild(a));
                 td = row.append('td');
-                this.getElemsOfStrippedString(i.highlights.instanceFieldValues[idx]).forEach(a => (td.node() as HTMLTableDataCellElement).appendChild(a));
+                this.getFormattedHtml(i.highlights.instanceFieldValues[idx]).forEach(a => (td.node() as HTMLTableDataCellElement).appendChild(a));
             }
         });
 
@@ -1206,7 +1223,7 @@ class HierarchyNavigation extends Component{
     }
 
     private instanceNodeIdentifier = (instance) => {
-        return instance.name ? instance.name : (instance.timeSeriesId.filter(id => id !== null).length ? instance.timeSeriesId.join(" "): '');
+        return `instance-${Utils.getInstanceKey(instance)}`;
     }
 
     private clearAndHideFilterPath = () => {
@@ -1241,10 +1258,6 @@ class HierarchyNavigation extends Component{
         this.viewType = ViewType.Hierarchy;
         this.clickedInstance = null;
         this.isHierarchySelectionActive = false;
-    }
-
-    private getTsidFromHighlights = (highlights) => {
-        return highlights.timeSeriesId ? (highlights.timeSeriesId.filter(id => id !== null && id !== '').length ? highlights.timeSeriesId.join(' ') : '(null)') : '(null)'
     }
 }
 

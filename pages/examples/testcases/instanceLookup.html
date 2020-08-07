@@ -27,7 +27,7 @@
         </div>
         <script>
             var hierarchy = null;
-            var environmentFqdn = '0293bb6f-5d98-4953-be00-e8e9eedf9b88.env.timeseries.azure.com'; //'c3657b0f-7f56-4a45-932b-68aba4d34b6d.env.timeseries.azure.com'; //'c3657b0f-7f56-4a45-932b-68aba4d34b6d.env.timeseries.azure.com';//'a8061fa4-53ff-41cf-9ad5-3f56bd9883cf.env.crystal-dev.windows-int.net' //'dcbba382-10bd-40ea-ba06-454094aee00a.env.timeseries.azure.com'; //'bf43f133-3f68-4ec0-bcb4-fd64530e4256.env.crystal-dev.windows-int.net'
+            var environmentFqdn = '6988946f-2b5c-4f84-9921-530501fbab45.env.timeseries.azure.com';
             var tsiClient;
             onSelect = (selectedHierarchyId) => {
                 console.log(selectedHierarchyId);
@@ -122,8 +122,8 @@
             var hierarchyNavOptions = {
                 theme: 'light',
                 hierarchyOptions: {
-                    instancesPageSize: 2,
-                    hierarchiesPageSize: 2,
+                    instancesPageSize: 10,
+                    hierarchiesPageSize: 10,
                     isInstancesRecursive: false,
                     isInstancesHighlighted: true,
                     instancesSort: "DisplayName",
@@ -148,6 +148,7 @@
             lookup = function() {
                 let value = document.getElementById("timeSeriesId").value;
                 let timeSeriesIdArray = value.split(",").map(id => {return id === "" ? null : id}); // use , for composite tsid's
+                debugger;
                 hierarchy.showInstance(timeSeriesIdArray, /*["f25720a3-82ca-4cfe-a242-e047ac7d1de2", "c282f60a-d257-440b-836b-6dc275e9971b"]*/);
             }
         </script>
