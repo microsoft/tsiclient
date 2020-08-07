@@ -391,47 +391,41 @@ class ScatterPlot extends ChartVisualizationComponent {
             return;
         }
 
-        console.log(this.chartComponentData)
         let dataSet = this.cleanData(this.chartComponentData.temporalDataArray);
-        let unflattenedData = null;
+        let connectedSeries = {};
 
+        dataSet.forEach(point => {
+            let series = point.aggregateKey + "_" + point.splitBy;
+            if(series in connectedSeries){
+                connectedSeries[series].push(point)
+            } else{
+                connectedSeries[series] = [point]
+            }
+        })
 
-        console.log("drawing connecting lines", dataSet);
+        console.log(connectedSeries)
 
         let line = d3.line()
             .x((d:any) => this.xScale(d.measures[this.xMeasure]))
             .y((d:any) => this.yScale(d.measures[this.yMeasure]))
             .curve(d3.curveCatmullRomClosed) // apply smoothing to the line
 
-        console.log(this.cleanData(this.chartComponentData.temporalDataArray))
-
-         // Select Data
-        this.seqLines = this.lineWrapper.selectAll(".tsi-seqLines")
-            .data(this.cleanData(this.chartComponentData.temporalDataArray), (d) => {
-                if(this.chartOptions.isTemporal){
-                    return d.aggregateKey + d.splitBy + d.splitByI;
-                } else{
-                    return d.aggregateKey + d.splitBy + d.timestamp;
-                }
-            });
-        
-        this.seqLines
-            .enter()
-            .append("path")
-            .attr("class", "tsi-seqLines")
-            .attr("fill", "none")
-            .attr("stroke", "black")
-            .attr("stroke", (d) => Utils.colorSplitBy(this.chartComponentData.displayState, d.splitByI, d.aggregateKey, this.chartOptions.keepSplitByColor))
-            .attr("stroke-width", 2.5)
-            .attr("stroke-linejoin", "round")
-            .attr("stroke-linecap", "round")
-            .merge(this.seqLines)
-            .transition()
-            .duration(this.chartOptions.noAnimate ? 0 : this.TRANSDURATION)
-            .ease(d3.easeExp)
-            .attr("d", (d) => line(dataSet))
-
-        this.seqLines.exit().remove();
+        // Create lines
+        for(let key in connectedSeries){
+            this.lineWrapper
+                .append("path")
+                .data([connectedSeries[key]])
+                .attr("class", "tsi-seqLines")
+                .attr("fill", "none")
+                .attr("stroke", (d) => Utils.colorSplitBy(this.chartComponentData.displayState, d[0].splitByI, d[0].aggregateKey, this.chartOptions.keepSplitByColor))
+                .attr("stroke-width", 2.5)
+                .attr("stroke-linejoin", "round")
+                .attr("stroke-linecap", "round")
+                .transition()
+                .duration(this.chartOptions.noAnimate ? 0 : this.TRANSDURATION)
+                .ease(d3.easeExp)
+                .attr("d", line)
+        }
     }
 
     /******** CHECK VALIDITY OF EXTENTS ********/
