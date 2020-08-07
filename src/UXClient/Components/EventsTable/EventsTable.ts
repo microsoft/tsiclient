@@ -349,6 +349,9 @@ class EventsTable extends ChartComponent{
         if (type !== 'DateTime' || value === null || value === undefined) {
             return value;
         }
+        if (typeof(value) === 'function') {
+            return value();
+        }
         let timeFormatFunction = Utils.timeFormat(true, true, 0, this.chartOptions.is24HourTime, null, null, this.chartOptions.dateLocale);
         let dateValue = new Date(value.split("Z").join(""));
         return timeFormatFunction(Utils.offsetUTC(dateValue));

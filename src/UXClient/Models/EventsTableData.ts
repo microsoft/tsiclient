@@ -11,19 +11,25 @@ class EventsTableData {
     private timestampColumnKey= "timestamp ($ts)_DateTime"
     private offsetName = null;
     private maxVisibleToStart = 10;
+    private offsetNameCache = {};
 
 	constructor(){
         
     }
 
     private createOffsetName (offset) {
+        if(offset in this.offsetNameCache){
+            return this.offsetNameCache[offset];
+        }
         var offsetSubstring = "";
         if ((typeof offset) === 'string') {
             offsetSubstring = Utils.convertTimezoneToLabel(offset);
         } else {
             offsetSubstring = Utils.formatOffsetMinutes(offset);
         }
-        return "timestamp " + offsetSubstring;
+        let offsetName = "timestamp " + offsetSubstring;
+        this.offsetNameCache[offset] = offsetName;
+        return offsetName;
     }
 
     public sortColumnKeys () {

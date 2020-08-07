@@ -11,7 +11,7 @@ class TimeSeriesEvent {
             let utcOffsetDate = Utils.offsetUTC(new Date(Date.parse(rawEvent['timestamp ($ts)'].split("Z").join(""))));
             rawEvent[offsetName + "_" + type] = {
                 name: offsetName,
-                value: Utils.timeFormat(true, true, offset, true, null, null, locale)(utcOffsetDate),
+                value: () => Utils.timeFormat(true, true, offset, true, null, null, locale)(utcOffsetDate),
                 type: type
             };
         } 
