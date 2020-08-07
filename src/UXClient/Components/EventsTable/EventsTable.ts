@@ -226,9 +226,11 @@ class EventsTable extends ChartComponent{
         var self = this;
         var columnHeaders = this.eventsTable.select(".tsi-columnHeaders").selectAll(".tsi-columnHeader")
             .data(filteredColumnKeys);
+        var isOffsetDateTimeColumn = (d: string) => d.includes('timestamp') && (d.includes('') || d.includes('-')) && !d.includes('$ts') ? true : null
         var columnHeadersEntered = columnHeaders.enter()
             .append("div")
             .classed("tsi-columnHeader", true)
+            .classed("tsi-columnHeaderDisabled", isOffsetDateTimeColumn)
             .each( function(d: string) {
                 d3.select(this).append("span")
                     .classed("tsi-columnHeaderName", true)
@@ -255,7 +257,8 @@ class EventsTable extends ChartComponent{
                         self.eventsTable.select('.tsi-columnHeaders').node().scrollLeft = 
                             self.eventsTable.select('.tsi-eventRowsContainer').node().scrollLeft;
                         
-                    });
+                    })
+                    .attr("disabled", isOffsetDateTimeColumn);
             });
         var widthDictionary = {};
         columnHeadersEntered.each(function (d) {

@@ -143,8 +143,9 @@ class EventsTableData {
 
         this.events.forEach((event: TimeSeriesEvent) => {
             csvString += endLine(columnKeys.reduce((lineString, columnKey) => {
-                return lineString + ((event.cells[columnKey] != null && Utils.sanitizeString(event.cells[columnKey].value, event.cells[columnKey].type) !== null) ? 
-                Utils.sanitizeString(event.cells[columnKey].value, event.cells[columnKey].type) : "") + ","
+                let value = typeof(event.cells[columnKey].value) === 'function' ? event.cells[columnKey].value() : event.cells[columnKey].value;
+                return lineString + ((event.cells[columnKey] != null && Utils.sanitizeString(value, event.cells[columnKey].type) !== null) ? 
+                Utils.sanitizeString(value, event.cells[columnKey].type) : "") + ","
             }, ""));
         });
         return csvString;

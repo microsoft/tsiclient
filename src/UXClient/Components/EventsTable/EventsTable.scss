@@ -34,6 +34,11 @@
                 &:hover{
                     background-color: $gray2;
                 }
+                &.tsi-columnHeaderDisabled{
+                    &:hover{
+                        background-color: $gray5;
+                    }
+                }
             }
         }
     }
@@ -156,6 +161,11 @@
                 padding-right: 12px;
                 position: relative;
                 box-sizing: content-box;
+                &.tsi-columnHeaderDisabled{
+                    &:hover{
+                        cursor: default;
+                    }
+                }
                 &:hover{
                     cursor: pointer;
                 }
@@ -183,6 +193,9 @@
                     position: absolute;
                     border: none;
                     cursor: pointer;
+                    &:disabled{
+                        cursor: default;
+                    }
                 }
             }
         }
