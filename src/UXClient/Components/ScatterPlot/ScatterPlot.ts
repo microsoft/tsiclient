@@ -20,6 +20,8 @@ class ScatterPlot extends ChartVisualizationComponent {
     private height: number;
     private measures: Array<string>;
     private pointWrapper: any;
+    private lineWrapper: any;
+    private seqLines: any = null;
     private rMeasure: string;
     private rScale: any;
     private slider: any;
@@ -45,7 +47,6 @@ class ScatterPlot extends ChartVisualizationComponent {
     readonly lowStroke = 0.3;
     
     chartComponentData = new ScatterPlotData();
-
 
     constructor(renderTarget: Element){
         super(renderTarget);
@@ -100,6 +101,9 @@ class ScatterPlot extends ChartVisualizationComponent {
 
             this.pointWrapper = this.g.append("g")
                 .classed("tsi-pointWrapper", true);
+
+            this.lineWrapper = this.g.append("g")
+                .classed("tsi-lineWrapper", true);
 
             // Create temporal slider div
             this.sliderWrapper = d3.select(this.renderTarget).append('div').classed('tsi-sliderWrapper', true);
@@ -191,6 +195,7 @@ class ScatterPlot extends ChartVisualizationComponent {
         
         this.legendPostRenderProcess(this.chartOptions.legend, this.svgSelection, false);
     }
+    
     private getSliderWidth () {
         return this.chartWidth + this.chartMargins.left + this.chartMargins.right - 16;
     }
@@ -308,6 +313,9 @@ class ScatterPlot extends ChartVisualizationComponent {
         // Draw axis labels
         this.drawAxisLabels();
 
+        // Only render sequence lines if sequence lines are turned on
+        if(this.chartOptions.spSeqLines) this.drawConnectingLines();
+
         // Draw data
         let scatter = this.pointWrapper.selectAll(".tsi-dot")
             .data(this.cleanData(this.chartComponentData.temporalDataArray),  (d) => {
@@ -372,6 +380,58 @@ class ScatterPlot extends ChartVisualizationComponent {
 
         this.sliderWrapper
             .style("width", `${this.svgSelection.node().getBoundingClientRect().width + 10}px`);
+    }
+
+    /******** DRAW TIME SEQUENTIAL LINES BETWEEN POINTS ********/
+    private drawConnectingLines(){
+        // Don't render sequence lines on temporal mode
+        if(this.chartOptions.isTemporal){
+            console.log('is temporal if hit in drawConnectingLines')
+            if(this.seqLines) this.lineWrapper.selectAll(".tsi-seqLines").remove();
+            return;
+        }
+
+        console.log(this.chartComponentData)
+        let dataSet = this.cleanData(this.chartComponentData.temporalDataArray);
+        let unflattenedData = null;
+
+
+        console.log("drawing connecting lines", dataSet);
+
+        let line = d3.line()
+            .x((d:any) => this.xScale(d.measures[this.xMeasure]))
+            .y((d:any) => this.yScale(d.measures[this.yMeasure]))
+            .curve(d3.curveCatmullRomClosed) // apply smoothing to the line
+
+        console.log(this.cleanData(this.chartComponentData.temporalDataArray))
+
+         // Select Data
+        this.seqLines = this.lineWrapper.selectAll(".tsi-seqLines")
+            .data(this.cleanData(this.chartComponentData.temporalDataArray), (d) => {
+                if(this.chartOptions.isTemporal){
+                    return d.aggregateKey + d.splitBy + d.splitByI;
+                } else{
+                    return d.aggregateKey + d.splitBy + d.timestamp;
+                }
+            });
+        
+        this.seqLines
+            .enter()
+            .append("path")
+            .attr("class", "tsi-seqLines")
+            .attr("fill", "none")
+            .attr("stroke", "black")
+            .attr("stroke", (d) => Utils.colorSplitBy(this.chartComponentData.displayState, d.splitByI, d.aggregateKey, this.chartOptions.keepSplitByColor))
+            .attr("stroke-width", 2.5)
+            .attr("stroke-linejoin", "round")
+            .attr("stroke-linecap", "round")
+            .merge(this.seqLines)
+            .transition()
+            .duration(this.chartOptions.noAnimate ? 0 : this.TRANSDURATION)
+            .ease(d3.easeExp)
+            .attr("d", (d) => line(dataSet))
+
+        this.seqLines.exit().remove();
     }
 
     /******** CHECK VALIDITY OF EXTENTS ********/
