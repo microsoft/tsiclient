@@ -384,10 +384,13 @@ class ScatterPlot extends ChartVisualizationComponent {
 
     /******** DRAW TIME SEQUENTIAL LINES BETWEEN POINTS ********/
     private drawConnectingLines(){
+        // Remove lines from previous draw
+        this.lineWrapper.selectAll("*").remove();
+
         // Don't render sequence lines on temporal mode
         if(this.chartOptions.isTemporal){
             console.log('is temporal if hit in drawConnectingLines')
-            if(this.seqLines) this.lineWrapper.selectAll(".tsi-seqLines").remove();
+            if(this.seqLines) this.lineWrapper.selectAll("*").remove();
             return;
         }
 
@@ -412,19 +415,26 @@ class ScatterPlot extends ChartVisualizationComponent {
 
         // Create lines
         for(let key in connectedSeries){
-            this.lineWrapper
+            let series = this.lineWrapper.selectAll(`tsi-${key}`).data([connectedSeries[key]])
+            console.log("Series: ", series);
+            series
+                .enter()
                 .append("path")
-                .data([connectedSeries[key]])
-                .attr("class", "tsi-seqLines")
+                .attr("class", `tsi-${key}`)
                 .attr("fill", "none")
                 .attr("stroke", (d) => Utils.colorSplitBy(this.chartComponentData.displayState, d[0].splitByI, d[0].aggregateKey, this.chartOptions.keepSplitByColor))
                 .attr("stroke-width", 2.5)
                 .attr("stroke-linejoin", "round")
                 .attr("stroke-linecap", "round")
+                .merge(series)
                 .transition()
                 .duration(this.chartOptions.noAnimate ? 0 : this.TRANSDURATION)
                 .ease(d3.easeExp)
                 .attr("d", line)
+
+            //Exit
+            series.exit().remove();
+
         }
     }
 
