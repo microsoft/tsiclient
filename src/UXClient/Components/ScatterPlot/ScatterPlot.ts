@@ -411,7 +411,7 @@ class ScatterPlot extends ChartVisualizationComponent {
         let line = d3.line()
             .x((d:any) => this.xScale(d.measures[this.xMeasure]))
             .y((d:any) => this.yScale(d.measures[this.yMeasure]))
-            .curve(d3.curveCatmullRomClosed) // apply smoothing to the line
+            .curve(d3.curveLinear) // apply smoothing to the line
 
         // Create lines
         for(let key in connectedSeries){
