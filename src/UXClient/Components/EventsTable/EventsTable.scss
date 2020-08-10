@@ -265,6 +265,14 @@
                 height: 16px;
                 width: 16px;
                 display: inline-flex;
+                background-repeat: no-repeat;
+                background-position: center;
+            }
+            &.tsi-downloading{
+                .tsi-downloadEventsIcon {
+                    animation: rotating 2s linear infinite;
+                    background-image: url('../../Icons/Spinner.svg');
+                }       
             }
             .tsi-downloadEventsText {
                 display: inline-flex;

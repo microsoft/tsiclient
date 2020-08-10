@@ -70,7 +70,13 @@ class EventsTable extends ChartComponent{
         var downloadButton = tableLeftPanel.append("button")
             .attr("class", "tsi-eventsDownload tsi-primaryButton")
             .attr("aria-label", this.getString("Download as CSV"))
-            .on("click", () => Utils.downloadCSV(this.eventsTableData.generateCSVString(true, 0), "Events"));
+            .on("click", function() {
+                this.classList.add('tsi-downloading');
+                setTimeout(() => {
+                    Utils.downloadCSV(self.eventsTableData.generateCSVString(true, 0), "Events")
+                    this.classList.remove('tsi-downloading');
+                }, 100);
+            });
         downloadButton.append("div").attr("class", "tsi-downloadEventsIcon");
         downloadButton.append("div").attr("class", "tsi-downloadEventsText").text(this.getString("Download as CSV"));
 
