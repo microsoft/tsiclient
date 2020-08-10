@@ -327,7 +327,7 @@ class ChartComponentData {
         let i = timeArray.length - 1;
         let lastValue = null;
         while (i >= 0 && lastValue === null) {
-            if (timeArray[i].measures) {
+            if (timeArray[i].measures && (timeArray[i].measures[this.getVisibleMeasure(aggKey, splitBy)] !== null)) {
                 lastValue = timeArray[i];
             }
             i += -1;
