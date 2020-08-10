@@ -31,6 +31,7 @@
         "@types/d3": "^4.13.0",
         "array-includes": "^3.0.3",
         "awesomplete": "^1.1.2",
+        "azure-maps-control": "^2.0.26",
         "d3": "^4.13.0",
         "d3-interpolate-path": "^1.1.1",
         "moment-timezone": "^0.5.21",
