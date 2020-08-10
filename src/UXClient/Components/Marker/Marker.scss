@@ -191,13 +191,16 @@
         &.tsi-seriesLabelValue {
             transform: translateX(-2px);
             .tsi-tooltip {
-                width: 108px;
+                max-width: 108px;
                 top: 0px !important;
                 transform: translate(4px, -50%) !important;
                 .tsi-markerValueTooltipInner {
                     padding: 4px;
+                    min-width: unset;
+                    border-left-width: 2px !important;
                     .tsi-tooltipTitle {
                         font-size: 11px;
+                        line-height: 14px;
                         overflow-y: hidden;
                         overflow-x: hidden;
                         white-space: nowrap;

@@ -19,7 +19,7 @@
                 var to;
                 for(var i = 0; i < 3; i++){
                     var lines = {};
-                    data.push({[`this is a much much muuuuuuuuch longer group name ${i}`]: lines});
+                    data.push({[i === 0 ? 'shortj' : `this is a much much muuuuuuuuch longer group name ${i}`]: lines});
                     for(var j = 0; j < 5; j++){
                         var values = {};
                         lines[`Station${j}`] = values;
