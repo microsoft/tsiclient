@@ -70,7 +70,13 @@ class EventsTable extends ChartComponent{
         var downloadButton = tableLeftPanel.append("button")
             .attr("class", "tsi-eventsDownload tsi-primaryButton")
             .attr("aria-label", this.getString("Download as CSV"))
-            .on("click", () => Utils.downloadCSV(this.eventsTableData.generateCSVString(true, 0), "Events"));
+            .on("click", function() {
+                this.classList.add('tsi-downloading');
+                setTimeout(() => {
+                    Utils.downloadCSV(self.eventsTableData.generateCSVString(true, 0), "Events")
+                    this.classList.remove('tsi-downloading');
+                }, 100);
+            });
         downloadButton.append("div").attr("class", "tsi-downloadEventsIcon");
         downloadButton.append("div").attr("class", "tsi-downloadEventsText").text(this.getString("Download as CSV"));
 
@@ -226,9 +232,11 @@ class EventsTable extends ChartComponent{
         var self = this;
         var columnHeaders = this.eventsTable.select(".tsi-columnHeaders").selectAll(".tsi-columnHeader")
             .data(filteredColumnKeys);
+        var isOffsetDateTimeColumn = (d: string) => d.includes('timestamp') && (d.includes('') || d.includes('-')) && !d.includes('$ts') ? true : null
         var columnHeadersEntered = columnHeaders.enter()
             .append("div")
             .classed("tsi-columnHeader", true)
+            .classed("tsi-columnHeaderDisabled", isOffsetDateTimeColumn)
             .each( function(d: string) {
                 d3.select(this).append("span")
                     .classed("tsi-columnHeaderName", true)
@@ -255,7 +263,8 @@ class EventsTable extends ChartComponent{
                         self.eventsTable.select('.tsi-columnHeaders').node().scrollLeft = 
                             self.eventsTable.select('.tsi-eventRowsContainer').node().scrollLeft;
                         
-                    });
+                    })
+                    .attr("disabled", isOffsetDateTimeColumn);
             });
         var widthDictionary = {};
         columnHeadersEntered.each(function (d) {
@@ -348,6 +357,9 @@ class EventsTable extends ChartComponent{
         }
         if (type !== 'DateTime' || value === null || value === undefined) {
             return value;
+        }
+        if (typeof(value) === 'function') {
+            return value();
         }
         let timeFormatFunction = Utils.timeFormat(true, true, 0, this.chartOptions.is24HourTime, null, null, this.chartOptions.dateLocale);
         let dateValue = new Date(value.split("Z").join(""));

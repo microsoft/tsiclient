@@ -117,6 +117,11 @@ class ServerClient {
                         results[index] = messageProperty(message);
                         delete results[index].progress;
                     }
+                    let eventCount = (results[index] && results[index].timestamps && results[index].timestamps.length) ? results[index].timestamps.length : 0;
+                    let take = (contentObject && contentObject.getEvents && contentObject.getEvents.take) ? contentObject.getEvents.take : 0;
+                    if(eventCount && take && eventCount === take){
+                        results['moreEventsAvailable'] = true;
+                    }
                     if(results.map(ar => !('progress' in ar)).reduce((p,c) => { p = c && p; return p}, true))
                         resolve(results);
                 }

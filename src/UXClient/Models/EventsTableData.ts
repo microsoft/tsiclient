@@ -11,19 +11,25 @@ class EventsTableData {
     private timestampColumnKey= "timestamp ($ts)_DateTime"
     private offsetName = null;
     private maxVisibleToStart = 10;
+    private offsetNameCache = {};
 
 	constructor(){
         
     }
 
     private createOffsetName (offset) {
+        if(offset in this.offsetNameCache){
+            return this.offsetNameCache[offset];
+        }
         var offsetSubstring = "";
         if ((typeof offset) === 'string') {
             offsetSubstring = Utils.convertTimezoneToLabel(offset);
         } else {
             offsetSubstring = Utils.formatOffsetMinutes(offset);
         }
-        return "timestamp " + offsetSubstring;
+        let offsetName = "timestamp " + offsetSubstring;
+        this.offsetNameCache[offset] = offsetName;
+        return offsetName;
     }
 
     public sortColumnKeys () {
@@ -137,8 +143,9 @@ class EventsTableData {
 
         this.events.forEach((event: TimeSeriesEvent) => {
             csvString += endLine(columnKeys.reduce((lineString, columnKey) => {
-                return lineString + ((event.cells[columnKey] != null && Utils.sanitizeString(event.cells[columnKey].value, event.cells[columnKey].type) !== null) ? 
-                Utils.sanitizeString(event.cells[columnKey].value, event.cells[columnKey].type) : "") + ","
+                let value = (event.cells[columnKey] ? (typeof(event.cells[columnKey].value) === 'function' ? event.cells[columnKey].value() : event.cells[columnKey].value) : null);
+                return lineString + ((event.cells[columnKey] != null && Utils.sanitizeString(value, event.cells[columnKey].type) !== null) ? 
+                Utils.sanitizeString(value, event.cells[columnKey].type) : "") + ","
             }, ""));
         });
         return csvString;

@@ -28,6 +28,9 @@ class ChartDataOptions {
     public variableAlias: any;
     public connectPoints: boolean = false;
     public pointConnectionMeasure: string = '';
+    public positionXVariableName: string;
+    public positionYVariableName: string;
+    public image: string;
 
     constructor (optionsObject: Object){
         this.searchSpan = Utils.getValueOrDefault(optionsObject, 'searchSpan');
@@ -54,6 +57,9 @@ class ChartDataOptions {
         this.variableAlias = Utils.getValueOrDefault(optionsObject, 'variableAlias', null);
         this.connectPoints = Utils.getValueOrDefault(optionsObject, "connectPoints", false)
         this.pointConnectionMeasure = Utils.getValueOrDefault(optionsObject, 'pointConnectionMeasure', '')
+        this.positionXVariableName = Utils.getValueOrDefault(optionsObject, 'positionXVariableName', null);
+        this.positionYVariableName = Utils.getValueOrDefault(optionsObject, 'positionYVariableName', null);
+        this.image = Utils.getValueOrDefault(optionsObject, 'image', null);
     }
 }
 export {ChartDataOptions}
