@@ -389,7 +389,6 @@ class ScatterPlot extends ChartVisualizationComponent {
 
         // Don't render sequence lines on temporal mode
         if(this.chartOptions.isTemporal){
-            console.log('is temporal if hit in drawConnectingLines')
             if(this.seqLines) this.lineWrapper.selectAll("*").remove();
             return;
         }
@@ -406,8 +405,6 @@ class ScatterPlot extends ChartVisualizationComponent {
             }
         })
 
-        console.log(connectedSeries)
-
         let line = d3.line()
             .x((d:any) => this.xScale(d.measures[this.xMeasure]))
             .y((d:any) => this.yScale(d.measures[this.yMeasure]))
@@ -415,12 +412,15 @@ class ScatterPlot extends ChartVisualizationComponent {
 
         // Create lines
         for(let key in connectedSeries){
-            let series = this.lineWrapper.selectAll(`tsi-${key}`).data([connectedSeries[key]])
-            console.log("Series: ", series);
+            let series = this.lineWrapper.selectAll(`tsi-${key}`).data([connectedSeries[key]], (d) => d.aggregateKey+d.splitBy+d.timestamp)
+
+            //Exit
+            series.exit().remove();
+
             series
                 .enter()
                 .append("path")
-                .attr("class", `tsi-${key}`)
+                .attr("class", `tsi-${key} tsi-lineSeries`)
                 .attr("fill", "none")
                 .attr("stroke", (d) => Utils.colorSplitBy(this.chartComponentData.displayState, d[0].splitByI, d[0].aggregateKey, this.chartOptions.keepSplitByColor))
                 .attr("stroke-width", 2.5)
@@ -431,10 +431,6 @@ class ScatterPlot extends ChartVisualizationComponent {
                 .duration(this.chartOptions.noAnimate ? 0 : this.TRANSDURATION)
                 .ease(d3.easeExp)
                 .attr("d", line)
-
-            //Exit
-            series.exit().remove();
-
         }
     }
 
@@ -579,7 +575,7 @@ class ScatterPlot extends ChartVisualizationComponent {
         if (aggKey !== this.focusedAggKey || splitBy !== this.focusedSplitBy) {
             let selectedFilter = Utils.createValueFilter(aggKey, splitBy);
             let oldFilter = Utils.createValueFilter(this.focusedAggKey, this.focusedSplitBy);
-
+          
             this.svgSelection.selectAll(".tsi-dot")
                 .filter(selectedFilter)
                 .attr("stroke-opacity", this.standardStroke)
@@ -589,6 +585,18 @@ class ScatterPlot extends ChartVisualizationComponent {
                 .filter(oldFilter)
                 .attr("stroke-opacity", this.lowStroke)
                 .attr("fill-opacity", this.lowOpacity)
+
+            let lineSelectedFilter = (d: any) => {
+                return (d[0].aggregateKey === aggKey && d[0].splitBy === splitBy)
+            }
+    
+            this.svgSelection.selectAll(".tsi-lineSeries")
+                .filter((d: any) => lineSelectedFilter(d))
+                .attr("stroke-opacity", this.standardStroke)
+            
+            this.svgSelection.selectAll(".tsi-lineSeries")
+                .filter((d: any) => !lineSelectedFilter(d))
+                .attr("stroke-opacity", this.lowStroke)
 
             this.focusedAggKey = aggKey;
             this.focusedSplitBy = splitBy;
@@ -715,6 +723,12 @@ class ScatterPlot extends ChartVisualizationComponent {
             .filter(selectedFilter)
             .attr("stroke-opacity", this.lowStroke)
             .attr("fill-opacity", this.lowOpacity)
+
+        // Decrease opacity of unselected line
+        this.svgSelection.selectAll(".tsi-lineSeries")
+            .filter((d: any) => !(d[0].aggregateKey === aggKey && d[0].splitBy === splitBy))
+            .attr("stroke-opacity", this.lowStroke)
+
     }
 
     /******** UNHIGHLIGHT FOCUSED GROUP ********/
@@ -728,6 +742,9 @@ class ScatterPlot extends ChartVisualizationComponent {
             .attr("stroke", (d) => Utils.colorSplitBy(this.chartComponentData.displayState, d.splitByI, d.aggregateKey, this.chartOptions.keepSplitByColor))
             .attr("fill", (d) => Utils.colorSplitBy(this.chartComponentData.displayState, d.splitByI, d.aggregateKey, this.chartOptions.keepSplitByColor))
             .attr("stroke-width", "1px");
+
+        this.g.selectAll(".tsi-lineSeries")
+            .attr("stroke-opacity", this.standardStroke)
     }
 
     /******** FILTER DATA, ONLY KEEPING POINTS WITH ALL REQUIRED MEASURES ********/

@@ -18,37 +18,28 @@
                 // Show toggle
                 document.getElementById("temporalToggle").style.display = "flex";
                 // create fake data in the shape our charts expect
-                let iteration = 0;
-                let getData = (scaleFactor = 1) => {
+                let getData = (scaleFactor = 10, offset = 0) => {
                     let data = [];
-                    let from = new Date(Math.floor((new Date()).valueOf() / (1000*60)) * (1000*60) + iteration*1000*60);
+                    let from = new Date();
                     let to;
-                    for(let i = 0; i < 3; i++){
-                        let lines = {};
-                        data.push({[`Factory${i}`]: lines});
-                        for(let j = 0; j < 1; j++){
-                            let values = {};
-                            lines[`Station${j}`] = values;
-                            for(let k = 0; k < 10; k++){
-                                if(!(k%2 && k%3)){  // if check is to create some sparseness in the data
-                                    let to = new Date(from.valueOf() + 1000*k);
-                                    let val = Math.random() * scaleFactor;
-                                    let val2 = Math.random() * scaleFactor;
-                                    let val3 = Math.random() * scaleFactor;
 
-                                    if(j == 1) val2 /= 10;
-                                    values[to.toISOString()] = {press: val, temp: val2, vol: val3};
-                                }
+                    for(let i = 0; i < 2; i++){
+                        let lines = {};
+                        data.push({[`Drill_Site${i}`]: lines});
+                        for(let j = 0; j < 2; j++){
+                            let values = {};
+                            lines[`Drill${j}`] = values;
+                            for(let k = 0; k < 2 * Math.PI; k+=.1){
+                                    let to = new Date(from.valueOf() + 1000*k);
+                                    let y = scaleFactor * Math.sin(k) + offset + (scaleFactor / 5) * Math.random();
+                                    let x = scaleFactor * Math.cos(k) + offset + Math.random();
+                                    let temp = Math.random() * scaleFactor;
+                                    values[to.toISOString()] = {x, y, temp};
                             }
                         }
-                        iteration++;       
-                    }             
-                    let toDel =  Object.keys(data[0].Factory0.Station0)
-                    delete data[0].Factory0.Station0[toDel[0]].temp;
+                    }
                     return data;
                 }
-
-                let getRandomBoolean = () => Math.random() > 0.5 ? true : false;
 
                 // render the data in a chart
                 let tsiClient = new TsiClient();
@@ -56,17 +47,15 @@
 
                 let scatterPlot =  new tsiClient.ux.ScatterPlot(document.getElementById('chart1'));
 
-                console.log(data);
-
                 let renderScatterPlot = () => scatterPlot.render(data, {
                     legend: 'shown', 
-                    spAxisLabels: ['Temperature', 'Pressure'], 
+                    spAxisLabels: ['X', 'Y'], 
                     noAnimate: false, 
                     isTemporal: temporal, 
                     grid: true, 
                     tooltip: true, 
                     theme: 'light', 
-                    spMeasures: ['temp', 'press', 'vol'],
+                    spMeasures: ['x', 'y', 'temp'],
                     spSeqLines: true
                 });
 
