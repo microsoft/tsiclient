@@ -312,7 +312,6 @@ class ScatterPlot extends ChartVisualizationComponent {
         // Draw axis labels
         this.drawAxisLabels();
 
-        console.log('chart data options', this.aggregateExpressionOptions)
         // Draw connecting lines (if toggled on)
         this.drawConnectingLines();
 
@@ -396,30 +395,46 @@ class ScatterPlot extends ChartVisualizationComponent {
         let dataSet = this.cleanData(this.chartComponentData.temporalDataArray);
         let connectedSeries = {};
 
-        console.log(dataSet)
-        console.log(this.data);
-
+        // Find series of connected points
         dataSet.forEach(point => {
             //Check if connectedPoints enabled
             if(point.aggregateKeyI !== null && point.aggregateKeyI < this.aggregateExpressionOptions.length && 
                 this.aggregateExpressionOptions[point.aggregateKeyI].connectPoints){
                     let series = point.aggregateKey + "_" + point.splitBy;
                     if(series in connectedSeries){
-                        connectedSeries[series].push(point)
+                        connectedSeries[series].data.push(point);
                     } else{
-                        connectedSeries[series] = [point]
+                        connectedSeries[series] = {
+                            data: [point],
+                            pointConnectionMeasure: this.aggregateExpressionOptions[point.aggregateKeyI].pointConnectionMeasure ? 
+                                this.aggregateExpressionOptions[point.aggregateKeyI].pointConnectionMeasure in point.measures ?
+                                this.aggregateExpressionOptions[point.aggregateKeyI].pointConnectionMeasure : null : null
+                        }
                     }
             }
         })
 
+        // Sort connected series by pointConnectionMeasure
+        for(let key of Object.keys(connectedSeries)){
+            let sortMeasure = connectedSeries[key].pointConnectionMeasure;
+            // If sort measure specified, sort by that measure
+            if(sortMeasure){
+                connectedSeries[key].data.sort((a,b) => {
+                    if(a.measures[sortMeasure] < b.measures[sortMeasure]) return -1;
+                    if(a.measures[sortMeasure] > b.measures[sortMeasure]) return 1;
+                    return 0;
+                })
+            }
+        }
+
         let line = d3.line()
             .x((d:any) => this.xScale(d.measures[this.xMeasure]))
             .y((d:any) => this.yScale(d.measures[this.yMeasure]))
-            .curve(d3.curveLinear) // apply smoothing to the line
+            .curve(d3.curveLinear); // apply smoothing to the line
 
         // Create lines
         for(let key in connectedSeries){
-            let series = this.lineWrapper.selectAll(`tsi-${key}`).data([connectedSeries[key]], (d) => d.aggregateKey+d.splitBy+d.timestamp)
+            let series = this.lineWrapper.selectAll(`tsi-${key}`).data([connectedSeries[key].data], (d) => d.aggregateKey+d.splitBy+d.timestamp);
             //Exit
             series.exit().remove();
 
@@ -436,7 +451,7 @@ class ScatterPlot extends ChartVisualizationComponent {
                 .transition()
                 .duration(this.chartOptions.noAnimate ? 0 : this.TRANSDURATION)
                 .ease(d3.easeExp)
-                .attr("d", line)
+                .attr("d", line);
         }
     }
 
