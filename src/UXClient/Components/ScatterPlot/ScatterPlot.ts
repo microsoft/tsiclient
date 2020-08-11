@@ -21,7 +21,6 @@ class ScatterPlot extends ChartVisualizationComponent {
     private measures: Array<string>;
     private pointWrapper: any;
     private lineWrapper: any;
-    private seqLines: any = null;
     private rMeasure: string;
     private rScale: any;
     private slider: any;
@@ -313,8 +312,9 @@ class ScatterPlot extends ChartVisualizationComponent {
         // Draw axis labels
         this.drawAxisLabels();
 
-        // Only render sequence lines if sequence lines are turned on
-        if(this.chartOptions.spSeqLines) this.drawConnectingLines();
+        console.log('chart data options', this.aggregateExpressionOptions)
+        // Draw connecting lines (if toggled on)
+        this.drawConnectingLines();
 
         // Draw data
         let scatter = this.pointWrapper.selectAll(".tsi-dot")
@@ -389,19 +389,26 @@ class ScatterPlot extends ChartVisualizationComponent {
 
         // Don't render sequence lines on temporal mode
         if(this.chartOptions.isTemporal){
-            if(this.seqLines) this.lineWrapper.selectAll("*").remove();
+            this.lineWrapper.selectAll("*").remove();
             return;
         }
 
         let dataSet = this.cleanData(this.chartComponentData.temporalDataArray);
         let connectedSeries = {};
 
+        console.log(dataSet)
+        console.log(this.data);
+
         dataSet.forEach(point => {
-            let series = point.aggregateKey + "_" + point.splitBy;
-            if(series in connectedSeries){
-                connectedSeries[series].push(point)
-            } else{
-                connectedSeries[series] = [point]
+            //Check if connectedPoints enabled
+            if(point.aggregateKeyI !== null && point.aggregateKeyI < this.aggregateExpressionOptions.length && 
+                this.aggregateExpressionOptions[point.aggregateKeyI].connectPoints){
+                    let series = point.aggregateKey + "_" + point.splitBy;
+                    if(series in connectedSeries){
+                        connectedSeries[series].push(point)
+                    } else{
+                        connectedSeries[series] = [point]
+                    }
             }
         })
 
@@ -413,7 +420,6 @@ class ScatterPlot extends ChartVisualizationComponent {
         // Create lines
         for(let key in connectedSeries){
             let series = this.lineWrapper.selectAll(`tsi-${key}`).data([connectedSeries[key]], (d) => d.aggregateKey+d.splitBy+d.timestamp)
-
             //Exit
             series.exit().remove();
 

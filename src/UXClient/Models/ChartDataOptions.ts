@@ -26,6 +26,8 @@ class ChartDataOptions {
     public positionY: number;
     public swimLane: number;
     public variableAlias: any;
+    public connectPoints: boolean = false;
+    public pointConnectionMeasure: string = '';
 
     constructor (optionsObject: Object){
         this.searchSpan = Utils.getValueOrDefault(optionsObject, 'searchSpan');
@@ -50,6 +52,8 @@ class ChartDataOptions {
         this.positionY = Utils.getValueOrDefault(optionsObject, 'positionY', 0);
         this.swimLane = Utils.getValueOrDefault(optionsObject, 'swimLane', null);
         this.variableAlias = Utils.getValueOrDefault(optionsObject, 'variableAlias', null);
+        this.connectPoints = Utils.getValueOrDefault(optionsObject, "connectPoints", false)
+        this.pointConnectionMeasure = Utils.getValueOrDefault(optionsObject, 'pointConnectionMeasure', '')
     }
 }
 export {ChartDataOptions}
