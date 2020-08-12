@@ -23,7 +23,7 @@
                     let from = new Date();
                     let to;
 
-                    for(let i = 0; i < 2; i++){
+                    for(let i = 0; i < 3; i++){
                         let lines = {};
                         data.push({[`Drill_Site${i}`]: lines});
                         for(let j = 0; j < 1; j++){
@@ -32,7 +32,7 @@
                             for(let k = 0; k < 8 * Math.PI; k+=.5){
                                     let to = new Date(from.valueOf() + 1000*k);
                                     let y = scaleFactor * Math.sin(k) + offset + (scaleFactor / 5) + Math.random();
-                                    let x = scaleFactor * (i === 1 ? .5 : 1) * Math.cos(k) + offset + Math.random();
+                                    let x = scaleFactor * (i === 1 ? .6 : i === 2 ? .3 : 1) * Math.cos(k) + offset + Math.random();
                                     let temp = Math.random() * scaleFactor;
                                     values[to.toISOString()] = {x, y, temp};
                             }
@@ -49,17 +49,19 @@
 
                 let renderScatterPlot = () => scatterPlot.render(data, {
                     legend: 'shown', 
-                    spAxisLabels: ['X', 'Y'], 
+                    spAxisLabels: ['X (mm)', 'Y (mm)'], 
                     noAnimate: false, 
                     isTemporal: temporal, 
                     grid: true, 
                     tooltip: true, 
                     theme: 'light', 
                     spMeasures: ['x', 'y', 'temp'],
+                    interpolationFunction: "curveLinear"
                 },
                 [
-                    {connectPoints: true, pointConnectionMeasure: "y"}, 
-                    {connectPoints: true, pointConnectionMeasure: "x"}
+                    {connectPoints: true}, 
+                    {connectPoints: true, pointConnectionMeasure: "x"},
+                    {connectPoints: true, pointConnectionMeasure: "y"}
                 ]
                 );
 
