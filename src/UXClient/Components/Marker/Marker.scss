@@ -194,6 +194,7 @@
                 max-width: 108px;
                 top: 0px !important;
                 transform: translate(4px, -50%) !important;
+                border: none;
                 .tsi-markerValueTooltipInner {
                     padding: 4px;
                     min-width: unset;
@@ -205,6 +206,7 @@
                         overflow-x: hidden;
                         white-space: nowrap;
                         text-overflow: ellipsis;
+                        font-weight: normal;
                     }
                     .tsi-tooltipSubtitle {
                         font-size: 10px;
@@ -225,6 +227,9 @@
                     .tsi-tooltipTitle, .tsi-tooltipSubtitle {
                         overflow-y: hidden;
                         white-space: unset;
+                    }
+                    .tsi-tooltipTitle {
+                        font-weight: bold;
                     }
                 }
             }
