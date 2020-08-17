@@ -1133,6 +1133,19 @@ class LineChart extends TemporalXAxisComponent {
                 }
             });
         });
+
+        //If yAxisState is set to shared with only one swimmer, overwrite with custom yExtent chartDataOption (if set)
+        visibleCDOs.forEach(cDO => {
+            // if custom yExtent set
+            if(cDO.yExtent){
+                // if only swimmer in lane
+                let swimmers = visibleCDOs.map(el => el.swimLane);
+                if(swimmers.indexOf(cDO.swimLane) == swimmers.lastIndexOf(cDO.swimLane)){
+                    extents[cDO.swimLane] = cDO.yExtent;
+                }
+            }
+        });
+
         this.swimlaneYExtents = extents;
     }
 
@@ -1607,6 +1620,9 @@ class LineChart extends TemporalXAxisComponent {
                             if (self.getAggAxisType(agg) === YAxisStates.Shared) {
                                 yExtent = self.swimlaneYExtents[agg.swimLane];
                             }
+
+                            // Update yExtent in AggExpOpts to reflect current yExtent
+                            if(self.aggregateExpressionOptions[i].yExtent === null) self.aggregateExpressionOptions[i].yExtent = yExtent;
 
                             //should count all as same swim lane when not in stacked.
                             let swimLane = agg.swimLane;
