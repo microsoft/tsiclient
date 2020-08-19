@@ -8,7 +8,7 @@
         <script src="../boilerplate/head.js"></script>
     </head>
     <body style="font-family: 'Segoe UI', sans-serif;">
-        <div id="chart1" style="width: valc(100% - 40px); height: 600px; margin-right: 40px; border-right: 1px solid grey;"></div>
+        <div id="chart1" style="width: calc(100% - 40px); height: 600px; margin-right: 40px; border-right: 1px solid grey;"></div>
         
         <script>
             window.onload = function() {
@@ -40,6 +40,10 @@
                 var tsiClient = new TsiClient();
                 var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart1'));
                 lineChart.render(data, {theme: 'light', tooltip: true, labelSeriesWithMarker: true}, [{},{timeShift: '-1m', variableAlias: 'd'}, {timeShift: '-1m', variableAlias: 'this is a prettttty long variable alias'}]);
+
+                setTimeout(() => {
+                    lineChart.render(data, {theme: 'light', tooltip: true, labelSeriesWithMarker: false}, [{},{timeShift: '-1m', variableAlias: 'd'}, {timeShift: '-1m', variableAlias: 'this is a prettttty long variable alias'}]);
+                }, 2000)
             };
         </script>
     </body>
