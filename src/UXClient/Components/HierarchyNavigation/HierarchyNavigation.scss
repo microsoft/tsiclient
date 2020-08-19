@@ -148,6 +148,10 @@
         }
     }
 
+    .tsi-baseMono {
+        background: $gray4;
+    }
+
     @include baseContextMenuColors($grays);
 
     .tsi-hierarchyCheckbox{
