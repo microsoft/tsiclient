@@ -311,6 +311,14 @@ select::-ms-expand {
     }
 }
 
+.tsi-baseMono {
+    padding: 4px;
+    border-radius: 3px;
+    font-family: "Lucida Console", Monaco, monospace;
+    font-size: 85%;
+    font-weight: 300;
+}
+
 @mixin chartColors($grays){
     $gray1: nth($grays, 1); // text
     $gray2: nth($grays, 2); // hover
