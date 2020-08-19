@@ -39,11 +39,15 @@
                 // render the data in a chart
                 var tsiClient = new TsiClient();
                 var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart1'));
-                lineChart.render(data, {theme: 'light', tooltip: true, labelSeriesWithMarker: true}, [{},{timeShift: '-1m', variableAlias: 'd'}, {timeShift: '-1m', variableAlias: 'this is a prettttty long variable alias'}]);
+                lineChart.render(data, {theme: 'light', tooltip: true, labelSeriesWithMarker: false}, [{},{timeShift: '-1m', variableAlias: 'd'}, {timeShift: '-1m', variableAlias: 'this is a prettttty long variable alias'}]);
 
-                setTimeout(() => {
-                    lineChart.render(data, {theme: 'light', tooltip: true, labelSeriesWithMarker: false}, [{},{timeShift: '-1m', variableAlias: 'd'}, {timeShift: '-1m', variableAlias: 'this is a prettttty long variable alias'}]);
-                }, 2000)
+                let counter = 0;
+                setInterval(() => {
+                    if (counter < 6) {
+                        lineChart.render(data, {theme: 'light', tooltip: true, labelSeriesWithMarker: (counter % 2 === 0)}, [{},{timeShift: '-1m', variableAlias: 'd'}, {timeShift: '-1m', variableAlias: 'this is a prettttty long variable alias'}]);
+                    }
+                    counter++;
+                }, 2000);
             };
         </script>
     </body>

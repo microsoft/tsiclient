@@ -812,7 +812,7 @@ class LineChart extends TemporalXAxisComponent {
         } 
 
         this.destroyMarkerInstructions();
-        if (this.activeMarker !== null) {
+        if (Utils.safeNotNullOrUndefined(() => this.activeMarker)) {
             this.activeMarker.onChange(false, true);
             this.exportMarkers();
             this.activeMarker = null;
@@ -1285,9 +1285,7 @@ class LineChart extends TemporalXAxisComponent {
 
         this.hasBrush = options && (options.brushMoveAction || options.brushMoveEndAction || options.brushContextMenuActions);
         this.chartOptions.setOptions(options);
-        if (this.chartOptions.labelSeriesWithMarker) {
-            this.chartMargins.right = SERIESLABELWIDTH + 8;
-        }
+        this.chartMargins.right = this.chartOptions.labelSeriesWithMarker ? (SERIESLABELWIDTH + 8) : LINECHARTCHARTMARGINS.right;
         this.width = this.getWidth();
         this.height = Math.max((<any>d3.select(this.renderTarget).node()).clientHeight, this.MINHEIGHT);
         if (this.chartOptions.legend == "compact")
@@ -1301,6 +1299,11 @@ class LineChart extends TemporalXAxisComponent {
 
         if (!this.chartOptions.brushRangeVisible && this.targetElement) {
             this.deleteBrushRange();
+        }
+
+        if (this.seriesLabelsMarker && !this.chartOptions.labelSeriesWithMarker) {
+            this.seriesLabelsMarker.destroyMarker();
+            this.seriesLabelsMarker = null;
         }
 
         this.strokeOpacity = this.chartOptions.isArea ? .55 : 1;
