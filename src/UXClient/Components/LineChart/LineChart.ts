@@ -1,7 +1,7 @@
 import * as d3 from 'd3';
 import { interpolatePath } from 'd3-interpolate-path';
 import './LineChart.scss';
-import {Utils, DataTypes, YAxisStates, LINECHARTTOPPADDING, TooltipMeasureFormat, LINECHARTCHARTMARGINS, VALUEBARHEIGHT} from "./../../Utils";
+import {Utils, DataTypes, YAxisStates, LINECHARTTOPPADDING, TooltipMeasureFormat, LINECHARTCHARTMARGINS, VALUEBARHEIGHT, SERIESLABELWIDTH} from "./../../Utils";
 import {Legend} from "./../Legend/Legend";
 import {TemporalXAxisComponent} from "./../../Interfaces/TemporalXAxisComponent";
 import {LineChartData} from "./../../Models/LineChartData";
@@ -49,6 +49,7 @@ class LineChart extends TemporalXAxisComponent {
 
     private markers = {};
 
+    private seriesLabelsMarker: Marker = null;
     private markerGuidMap: any = {};
     private isDroppingMarker: boolean = false;
     private activeMarker: Marker;
@@ -121,8 +122,7 @@ class LineChart extends TemporalXAxisComponent {
         this.svgSelection.selectAll(".tsi-valueEnvelope")
             .attr("fill-opacity", .2);
             
-        d3.select(this.renderTarget).selectAll(".tsi-markerValue")
-            .style("opacity", 1);
+            Utils.revertAllSubtitleText(d3.select(this.renderTarget).selectAll('.tsi-markerValue'));
 
         this.focusedAggKey = null;
         this.focusedSplitby = null;
@@ -597,7 +597,7 @@ class LineChart extends TemporalXAxisComponent {
         }
     }
 
-    private renderMarker (marker: Marker, millis: number, onChange: any = null, labelText: string = null) {
+    private renderMarker (marker: Marker, millis: number, onChange: any = null, labelText: string = null, isSeriesLabels: boolean = false) {
         marker.render(millis, this.chartOptions, this.chartComponentData, {
             chartMargins: this.chartMargins,
             x: this.x,
@@ -607,7 +607,8 @@ class LineChart extends TemporalXAxisComponent {
             onChange: onChange,
             chartHeight: this.height,
             isDropping: false,
-            labelText: labelText
+            labelText: labelText,
+            isSeriesLabels: isSeriesLabels
         });
     }
 
@@ -676,6 +677,17 @@ class LineChart extends TemporalXAxisComponent {
         }
     }
 
+
+    private createSeriesLabelsMarker () {
+        this.seriesLabelsMarker = new Marker(this.renderTarget);
+    }
+
+    private renderSeriesLabelsMarker () {
+        if (this.chartOptions.labelSeriesWithMarker) {
+            this.renderMarker(this.seriesLabelsMarker, this.x.domain()[1], () => {}, null, true);
+        }
+    }
+
     private renderAllMarkers () {
         this.getAllLinesTransitionsComplete().then(() => {
             Object.keys(this.markerGuidMap).forEach((guid) => {
@@ -683,6 +695,9 @@ class LineChart extends TemporalXAxisComponent {
                 let onChange = this.createOnMarkerChange(guid, marker);
                 this.renderMarker(marker, marker.getMillis(), onChange)
             });
+            if (this.seriesLabelsMarker) {
+                this.renderSeriesLabelsMarker();
+            }    
         });
     }
 
@@ -797,7 +812,7 @@ class LineChart extends TemporalXAxisComponent {
         } 
 
         this.destroyMarkerInstructions();
-        if (this.activeMarker !== null) {
+        if (Utils.safeNotNullOrUndefined(() => this.activeMarker)) {
             this.activeMarker.onChange(false, true);
             this.exportMarkers();
             this.activeMarker = null;
@@ -959,11 +974,16 @@ class LineChart extends TemporalXAxisComponent {
     }
 
     private focusMarkerLabel (filterFunction, aggKey, splitBy) {
-        d3.select(this.renderTarget).selectAll(".tsi-markerValue").style("opacity", .2);
+        Utils.revertAllSubtitleText(d3.select(this.renderTarget).selectAll(".tsi-markerValue"), .2);
+
 
         d3.select(this.renderTarget).selectAll(".tsi-markerValue")
             .filter(filterFunction)
-            .style("opacity", 1);
+            .style("opacity", 1)
+            .classed('tsi-isExpanded', true)
+            .each(function () {
+                Utils.setSeriesLabelSubtitleText(d3.select(this).selectAll('.tsi-tooltipSubtitle'), true);
+            });
         
         d3.select(this.renderTarget).selectAll(".tsi-markerContainer").each(function () {
             d3.select(this).selectAll(".tsi-markerValue").sort(function (a: any, b: any) { 
@@ -972,11 +992,9 @@ class LineChart extends TemporalXAxisComponent {
         });
     }  
 
-    public labelMouseout = () =>{
-        if (this.svgSelection) {
-            d3.select(this.renderTarget).selectAll(".tsi-markerValue")
-                .style("opacity", 1);
-        
+    public labelMouseout = () => {
+        if (this.svgSelection) {    
+            Utils.revertAllSubtitleText(d3.select(this.renderTarget).selectAll('.tsi-markerValue'));
             this.svgSelection.selectAll(".tsi-valueElement")
                 .filter(function () { return !d3.select(this).classed("tsi-valueEnvelope"); })
                 .attr("stroke-opacity", 1)
@@ -1267,6 +1285,7 @@ class LineChart extends TemporalXAxisComponent {
 
         this.hasBrush = options && (options.brushMoveAction || options.brushMoveEndAction || options.brushContextMenuActions);
         this.chartOptions.setOptions(options);
+        this.chartMargins.right = this.chartOptions.labelSeriesWithMarker ? (SERIESLABELWIDTH + 8) : LINECHARTCHARTMARGINS.right;
         this.width = this.getWidth();
         this.height = Math.max((<any>d3.select(this.renderTarget).node()).clientHeight, this.MINHEIGHT);
         if (this.chartOptions.legend == "compact")
@@ -1280,6 +1299,11 @@ class LineChart extends TemporalXAxisComponent {
 
         if (!this.chartOptions.brushRangeVisible && this.targetElement) {
             this.deleteBrushRange();
+        }
+
+        if (this.seriesLabelsMarker && !this.chartOptions.labelSeriesWithMarker) {
+            this.seriesLabelsMarker.destroyMarker();
+            this.seriesLabelsMarker = null;
         }
 
         this.strokeOpacity = this.chartOptions.isArea ? .55 : 1;
@@ -1439,8 +1463,7 @@ class LineChart extends TemporalXAxisComponent {
                 if (!isFromResize) {
                     this.legendObject.draw(this.chartOptions.legend, this.chartComponentData, (aggKey, splitBy) => { this.labelMouseover(aggKey, splitBy); }, 
                     this.svgSelection, this.chartOptions, () => {
-                     d3.select(this.renderTarget).selectAll(".tsi-markerValue")
-                         .style("opacity", 1);
+                        Utils.revertAllSubtitleText(d3.select(this.renderTarget).selectAll('.tsi-markerValue'));
                     }, this.stickySeries);
                 }        
 
@@ -1724,6 +1747,12 @@ class LineChart extends TemporalXAxisComponent {
         this.draw();
         this.gatedShowGrid();
         this.chartOptions.noAnimate = false;  // ensure internal renders are always animated, overriding the users noAnimate option
+
+        if (this.chartOptions.labelSeriesWithMarker && this.seriesLabelsMarker === null) {
+            this.createSeriesLabelsMarker();
+        } 
+
+        this.renderSeriesLabelsMarker();
 
         if (this.chartOptions.markers && this.chartOptions.markers.length > 0) {
             this.importMarkers();

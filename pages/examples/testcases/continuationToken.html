@@ -50,6 +50,7 @@
                     ];   
                     authContext.getTsiToken().then(function(token){
                         tsiClient.server.getTsqResults(token, '18074f2c-f7c9-46ff-9ece-289b2a808a89.env.crystal-dev.windows-int.net', predicateObject, p => {console.log(p)}, true).then(r => {
+                            let events = tsiClient.ux.transformTsqResultsToEventsArray(r, {});
                             debugger;
                         })
                     });

@@ -1,0 +1,228 @@
+<!DOCTYPE html> 
+<html>
+    <head>
+        <title>Geo-Process Graphic</title>
+
+        <!-- styles are only used for styling header and auth elements, where possible -->
+        <link rel="stylesheet" type="text/css" href="../styles.css" />
+
+        <!-- boilerplate headers are injected with head.js, grab them from the live example header, or include a link to head.js -->
+        <script src="../boilerplate/head.js"></script>
+
+        <!-- boilerplate auth code is injected with auth.js, check it out for auth setup -->
+        <script src="../boilerplate/auth.js"></script>
+
+        <!-- Add references to the Azure Maps Map control JavaScript and CSS files. -->
+  <link rel="stylesheet" href="https://atlas.microsoft.com/sdk/javascript/mapcontrol/2/atlas.min.css" type="text/css">
+  <script src="https://atlas.microsoft.com/sdk/javascript/mapcontrol/2/atlas.min.js"></script>
+
+ <!-- Add a reference to the Azure Maps Services Module JavaScript file. -->
+ <script src="https://atlas.microsoft.com/sdk/javascript/service/2/atlas-service.min.js"></script>
+ <style>
+    body {
+      font-family: 'Segoe UI', sans-serif; 
+      background-color: white;
+      width: 100vw;
+      height: 100vh;
+    }
+
+    main {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+  </style>
+    </head>
+
+    <body>
+        <main>
+            <div id="geo-process-graphic" style="margin: 80px; width: calc(100% - 160px); height: calc(100% - 160px);"></div>
+        </main>
+        <script type="text/javascript">
+          window.onload = () => {
+            initAuth('Geo-Process Graphic');
+            let tsiClient = new TsiClient();
+            let environmentFqdn = 'd7603093-b261-4f9e-b1f2-2596dfd88289.env.timeseries.azure.com';
+            let container = document.getElementById('geo-process-graphic');
+            
+            let geoProcessGraphic = tsiClient.ux.GeoProcessGraphic(container);
+            let geoProcessGraphicOptions = {
+                subscriptionKey: '',
+                zoom: 3,
+                view: 'auto',
+                width: 1900,
+                height: 800,
+                theme: 'light',
+                throttleSlider: true,
+                xAxisHidden: false,
+                bucketSizeMillis: 21600000,
+                updateInterval: 1500,
+                center: [0, 0],
+                bearing: 0,
+                pitch: 90,
+                maxZoom: 4,
+                minZoom: 1.5,
+                duration: 100
+            };
+            let tsqExpression1 = new tsiClient.ux.TsqExpression(
+              {timeSeriesId: ['9461776'] },
+              {
+                LatitudeValueBoat1: {
+                    kind: 'numeric',
+                    value: { tsx: '$event.lat.Double'},
+                    aggregation: {
+                      "tsx": "right($value)"
+                    },
+                    interpolation: {
+                        "kind": "linear",
+                        "boundary": {
+                          "span": "P30D"
+                        }
+                    }
+                },
+                LongitudeValueBoat1: {
+                    kind: 'numeric',
+                    value: { tsx: '$event.lon.Double'},
+                    aggregation: {
+                      "tsx": "right($value)"
+                    },
+                    interpolation: {
+                        "kind": "linear",
+                        "boundary": {
+                          "span": "P30D"
+                        }
+                    }
+                },
+                AirTempValueBoat1: {
+                  kind: 'numeric',
+                  value: { tsx: "$event['amb_air_temp'].Double"},
+                  aggregation: {
+                    "tsx": "right($value)"
+                  },
+                  interpolation: {
+                      "kind": "linear",
+                      "boundary": {
+                        "span": "P30D"
+                      }
+                  }
+                }
+              },
+              { },
+              {
+                positionXVariableName : 'LatitudeValueBoat1',
+                positionYVariableName: 'LongitudeValueBoat1',
+                alias: 'Titanic', 
+                image: '/images/boat.png'
+              }
+            );
+
+            let tsqExpression2 = new tsiClient.ux.TsqExpression(
+              {timeSeriesId: ['9461776'] },
+              {
+                LatitudeValueBoat2: {
+                    kind: 'numeric',
+                    value: { tsx: `$event.lat.Double${- 5}`},
+                    aggregation: {
+                      "tsx": "right($value)"
+                    },
+                    interpolation: {
+                        "kind": "linear",
+                        "boundary": {
+                          "span": "P30D"
+                        }
+                    }
+                },
+                LongitudeValueBoat2: {
+                    kind: 'numeric',
+                    value: { tsx: `$event.lon.Double${- 5}`},
+                    aggregation: {
+                      "tsx": "right($value)"
+                    },
+                    interpolation: {
+                        "kind": "linear",
+                        "boundary": {
+                          "span": "P30D"
+                        }
+                    }
+                },
+                AirTempValueBoat2: {
+                  kind: 'numeric',
+                  value: { tsx: `$event['amb_air_temp'].Double${- 5}` },
+                  aggregation: {
+                    "tsx": "right($value)"
+                  },
+                  interpolation: {
+                      "kind": "linear",
+                      "boundary": {
+                        "span": "P30D"
+                      }
+                  }
+                }
+              },
+              { },
+              {
+                positionXVariableName : 'LatitudeValueBoat2',
+                positionYVariableName: 'LongitudeValueBoat2',
+                alias: 'Titanic2', 
+                image: '/images/vat.png'
+              }
+            );
+
+            let tsqExpression3 = new tsiClient.ux.TsqExpression(
+              {timeSeriesId: ['9461776'] },
+              {
+                LatitudeValueBoat3: {
+                    kind: 'numeric',
+                    value: { tsx: `$event.lat.Double${- 10}`},
+                    aggregation: {
+                      "tsx": "right($value)"
+                    },
+                    interpolation: {
+                        "kind": "linear",
+                        "boundary": {
+                          "span": "P30D"
+                        }
+                    }
+                },
+                LongitudeValueBoat3: {
+                    kind: 'numeric',
+                    value: { tsx: `$event.lon.Double${- 10}`},
+                    aggregation: {
+                      "tsx": "right($value)"
+                    },
+                    interpolation: {
+                        "kind": "linear",
+                        "boundary": {
+                          "span": "P30D"
+                        }
+                    }
+                },
+                AirTempValueBoat3: {
+                  kind: 'numeric',
+                  value: { tsx: `$event['amb_air_temp'].Double${- 10 }` },
+                  aggregation: {
+                    "tsx": "right($value)"
+                  },
+                  interpolation: {
+                      "kind": "linear",
+                      "boundary": {
+                        "span": "P30D"
+                      }
+                  }
+                }
+              },
+              { },
+              {
+                positionXVariableName : 'LatitudeValueBoat3',
+                positionYVariableName: 'LongitudeValueBoat3',
+                alias: 'Titanic3', 
+                image: '/images/boat.png'
+              }
+            );
+            geoProcessGraphic.render(environmentFqdn, authContext.getTsiToken, [tsqExpression1,tsqExpression2,tsqExpression3], geoProcessGraphicOptions);
+          }
+        </script>
+    </body>
+</html>
