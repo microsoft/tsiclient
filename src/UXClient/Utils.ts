@@ -20,6 +20,7 @@ export const LINECHARTCHARTMARGINS = {
 export const LINECHARTXOFFSET = 8;
 export const MARKERVALUENUMERICHEIGHT = 20;
 export const VALUEBARHEIGHT = 3;
+export const SERIESLABELWIDTH = 92;
 
 
 // Linechart stack states
@@ -392,6 +393,36 @@ class Utils {
         var specialCharacters = ['"', "'", '?', '<', '>', ';'];
         specialCharacters.forEach(c => { text = text.split(c).join('') });
         return text;
+    }
+
+    static setSeriesLabelSubtitleText (subtitle, isInFocus: boolean = false) {
+        let subtitleDatum = subtitle.data()[0];
+        if (!subtitle.select('.tsi-splitBy').empty()) {
+            subtitle.select('.tsi-splitBy')
+                .text(d => {
+                    let textAfterSplitByExists = subtitleDatum.timeShift !== '' || subtitleDatum.variableAlias;
+                    return `${subtitleDatum.splitBy}${(textAfterSplitByExists && !isInFocus) ? ', ' : ''}`;    
+                });
+        }
+        if (subtitle.select('.tsi-timeShift')) {
+            subtitle.select('.tsi-timeShift')
+                .text(d => {
+                    return `${subtitleDatum.timeShift}${(subtitleDatum.variableAlias && !isInFocus) ? ', ' : ''}`;
+                });
+        }
+        if (subtitle.select('.tsi-variableAlias')) {
+            subtitle.select('.tsi-variableAlias')
+                .text(d => subtitleDatum.variableAlias);
+        }
+    }
+
+    static revertAllSubtitleText (markerValues, opacity = 1) {
+        let self = this;
+        markerValues.classed('tsi-isExpanded', false)
+            .style('opacity', opacity)
+            .each(function () {
+                self.setSeriesLabelSubtitleText(d3.select(this).selectAll('.tsi-tooltipSubtitle'), false);
+            });
     }
 
     static generateColors (numColors: number, includeColors: string[] = null) {
