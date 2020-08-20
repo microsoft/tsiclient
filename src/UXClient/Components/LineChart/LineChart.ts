@@ -1573,6 +1573,8 @@ class LineChart extends TemporalXAxisComponent {
 
                 let swimLaneCounts = {};
 
+                this.chartComponentData.resetYExtents(); // Reset public facing yExtents
+
                 let aggregateGroups = this.svgSelection.select('.svgGroup').selectAll('.tsi-aggGroup')
                     .data(visibleCDOs, (agg) => agg.aggKey);
                     var self = this;

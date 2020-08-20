@@ -13,6 +13,10 @@ class LineChartData extends ChartComponentData {
         this._yExtents[key] = value;
     }
 
+    public resetYExtents(){
+        this._yExtents = {};
+    }
+
     public setTimeMap () {
         this.timeMap = this.allValues.reduce ((timeMap, currVal) => {
             var millis = currVal.dateTime.valueOf();

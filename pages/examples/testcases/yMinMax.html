@@ -299,6 +299,10 @@
                 document.getElementById(`lane2option`).onchange = function(evt) { changeSwimLaneOptionAndRender(2, evt.target.value)}
                 document.getElementById(`lane3option`).onchange = function(evt) { changeSwimLaneOptionAndRender(3, evt.target.value)}
 
+                setTimeout(() => { // Test for change in data rendered
+                    data = data.slice(1);
+                    renderLinechart();
+                }, 4000)
             };
         </script>
     </body>
