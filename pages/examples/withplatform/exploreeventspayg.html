@@ -62,7 +62,7 @@
                             });
                             authContext.getTsiToken().then(function(token){
                                 document.getElementById('eventsWrapper').style.transform = 'translateX(0)';
-                                tsiClient.server.getTsqResults(token, '6988946f-2b5c-4f84-9921-530501fbab45.env.timeseries.azure.com', getLtsExploreEventsPayload(visibleTsqEs)).then(function (events) {
+                                tsiClient.server.getTsqResults(token, '10000000-0000-0000-0000-100000000109.env.timeseries.azure.com', getLtsExploreEventsPayload(visibleTsqEs)).then(function (events) {
                                     var transformedEvents = tsiClient.ux.transformTsqResultsToEventsArray(events, {});
                                     var eventsTable = tsiClient.ux.EventsTable(document.getElementById('events'));
                                     eventsTable.render(transformedEvents, {theme: 'light', offset: "Local"}, true);
@@ -101,7 +101,7 @@
                         bucketSize = bs;
                     }
                     authContext.getTsiToken().then(function(token){
-                        tsiClient.server.getTsqResults(token, '6988946f-2b5c-4f84-9921-530501fbab45.env.timeseries.azure.com', tsqExpressions.map(function(tsqe){return tsqe.toTsq(true)})).then(function(result){
+                        tsiClient.server.getTsqResults(token, '10000000-0000-0000-0000-100000000109.env.timeseries.azure.com', tsqExpressions.map(function(tsqe){return tsqe.toTsq(true)})).then(function(result){
                             var transformedResult = tsiClient.ux.transformTsqResultsForVisualization(result, tsqExpressions);
                             lineChart.render(transformedResult, {theme: 'light', grid: true, tooltip: true, brushContextMenuActions: brushActions, autoTriggerBrushContextMenu: true, offset: 'Local', color: '#136BFB'}, tsqExpressions);
                         });
@@ -124,7 +124,7 @@
                 var onInstanceClick = function(instance) {                
                     let contextMenuActions = [];
                     authContext.getTsiToken().then(token => { 
-                        tsiClient.server.getTimeseriesTypes(token, '6988946f-2b5c-4f84-9921-530501fbab45.env.timeseries.azure.com', [instance.type.id]).then(r => {
+                        tsiClient.server.getTimeseriesTypes(token, '10000000-0000-0000-0000-100000000109.env.timeseries.azure.com', [instance.type.id]).then(r => {
                             if (r.get && Array.isArray(r.get)) {
                                 r.get.forEach((t) => {
                                     let type = t.timeSeriesType;
@@ -150,7 +150,7 @@
                 // get availability, then get results
                 var hierarchy;
                 authContext.getTsiToken().then(function(token){
-                    tsiClient.server.getAvailability(token, '6988946f-2b5c-4f84-9921-530501fbab45.env.timeseries.azure.com', "?api-version=2018-11-01-preview").then(function(result){
+                    tsiClient.server.getAvailability(token, '10000000-0000-0000-0000-100000000109.env.timeseries.azure.com', "?api-version=2018-11-01-preview").then(function(result){
                         var result = result['availability']
                         availabilityChart.render(tsiClient.ux.transformAvailabilityForVisualization(result, 500), 
                                 {theme: 'light', color: '#136BFB', legend: 'hidden', brushMoveEndAction: (from, to) => {getResults(from, to)}}, 
@@ -158,7 +158,7 @@
                         endDate = new Date(result.range.to);
                         startDate = new Date(endDate.valueOf() - 1000*60*60*24);
                         hierarchy = new tsiClient.ux.HierarchyNavigation(document.getElementById('hierarchy'));
-                        hierarchy.render('6988946f-2b5c-4f84-9921-530501fbab45.env.timeseries.azure.com', window.authContext.getTsiToken, {theme: 'light', onInstanceClick: instance => onInstanceClick(instance)})
+                        hierarchy.render('10000000-0000-0000-0000-100000000109.env.timeseries.azure.com', window.authContext.getTsiToken, {theme: 'light', onInstanceClick: instance => onInstanceClick(instance)})
                     })
                 })
 
@@ -184,9 +184,7 @@
                     } else {
                         variableObject = {[variableName]: type.variables[variableName]};
                     }
-                    var tsiClient = new TsiClient();
-                    let tsidToDisplay = tsiClient.utils.getTimeSeriesIdToDisplay(instance, hierarchy.getString('Empty'));
-                    let alias = instance.name ? instance.name : tsidToDisplay;
+                    let alias = instance.name ? instance.name : instance.timeSeriesId.join(',');
                     chartDataOptions['alias'] = alias;
                     chartDataOptions['color'] = colors[currentTsqECount];
                     chartDataOptions['includeEnvelope'] = true;
