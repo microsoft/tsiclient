@@ -43,8 +43,8 @@
 
                 let counter = 0;
                 setInterval(() => {
-                    if (counter < 6) {
-                        lineChart.render(data, {theme: 'light', tooltip: true, labelSeriesWithMarker: (counter % 2 === 0)}, [{},{timeShift: '-1m', variableAlias: 'd'}, {timeShift: '-1m', variableAlias: 'this is a prettttty long variable alias'}]);
+                    if (counter < 1) {
+                        lineChart.render(data, {theme: 'light', tooltip: true, labelSeriesWithMarker: (counter % 2 === 0)}, [{},{timeShift: '-1m', variableAlias: 'd'}, {startAt: from.toISOString(), variableAlias: 'this is a prettttty long variable alias', searchSpan: {from: from.valueOf(), to: to.valueOf()}}]);
                     }
                     counter++;
                 }, 2000);

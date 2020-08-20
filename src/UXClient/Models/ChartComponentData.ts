@@ -264,13 +264,12 @@ class ChartComponentData {
                 return ['shifted', ae.timeShift];
             }    
         }
-        return '';
+        return null;
     } 
 
     public getTemporalShiftMillis (aggKey) {
         let ae = this.displayState[aggKey].aggregateExpression;
         if (ae) {
-            console.log(ae.startAt);
             return Utils.parseShift(ae.timeShift, ae.startAt, ae.searchSpan);
         }
         return 0;

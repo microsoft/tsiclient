@@ -72,11 +72,17 @@ class Marker extends Component {
         text.append('h4')
             .attr('class', 'tsi-seriesLabelGroupName tsi-tooltipTitle')
             .text(d.aggregateName);
+        
+        let shiftTuple = this.chartComponentData.getTemporalShiftStringTuple(d.aggregateKey);
+        let shiftString = '';
+        if (shiftTuple !== null) {
+            shiftString = shiftTuple[0] === 'Start at' ? this.timeFormat(new Date(shiftTuple[1])) : shiftTuple[1]; 
+        }
 
         let labelDatum = {
             splitBy: d.splitBy,
             variableAlias: this.chartComponentData.displayState[d.aggregateKey].aggregateExpression.variableAlias,
-            timeShift: this.chartComponentData.getTemporalShiftString(d.aggregateKey),
+            timeShift: shiftString,
         }
 
         let subtitle = text.selectAll('.tsi-seriesLabelSeriesName').data([labelDatum]);
