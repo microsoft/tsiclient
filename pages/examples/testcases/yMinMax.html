@@ -259,7 +259,7 @@
                 var renderLinechart = function () {
                     lineChart.render(data, {theme: 'light', tooltip: 'true', swimLaneOptions: swimLaneOptions, markers: [from.valueOf() + (60*1000*33)]}, chartDataOptions);
                     console.log('-- Public yExtents --')
-                    console.log(lineChart.chartComponentData.yExtent)
+                    console.log(lineChart.getYExtents())
                 }
 
                 renderLinechart();

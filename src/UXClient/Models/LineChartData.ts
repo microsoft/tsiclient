@@ -3,14 +3,14 @@ import {ChartComponentData} from "./ChartComponentData";
 
 class LineChartData extends ChartComponentData {
     public timeMap: any = {};
-    get yExtent(): {}{
-        return this._yExtent;
+    get yExtents(): {}{
+        return this._yExtents;
     };
+
+    private _yExtents: {} = {};
     
-    private _yExtent: {} = {};
-    
-    public setYExtent(key: number, value: [number, number]){
-        this._yExtent[key] = value;
+    public setYExtents(key: number, value: [number, number]){
+        this._yExtents[key] = value;
     }
 
     public setTimeMap () {

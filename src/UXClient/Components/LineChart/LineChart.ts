@@ -1043,6 +1043,10 @@ class LineChart extends TemporalXAxisComponent {
         this.targetElement.select('.tsi-rangeTextContainer').remove();
     }
 
+    public getYExtents(){
+        return this.chartComponentData.yExtents;
+    }
+
     private nextStackedState = () => {
         if (this.chartOptions.yAxisState === YAxisStates.Stacked) 
             return "shared";
@@ -1622,7 +1626,7 @@ class LineChart extends TemporalXAxisComponent {
                             }
 
                             // Update yExtent in LineChartData after all yExtent updates (this is public facing yExtent)
-                            self.chartComponentData.setYExtent(i, yExtent);
+                            self.chartComponentData.setYExtents(i, yExtent);
 
                             //should count all as same swim lane when not in stacked.
                             let swimLane = agg.swimLane;
