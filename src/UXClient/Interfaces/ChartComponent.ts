@@ -205,7 +205,10 @@ class ChartComponent extends Component {
 
         let tooltipAttrs = cDO.tooltipAttributes;
         if (shiftMillis !== 0 && tooltipAttrs) {
-            tooltipAttrs = [...tooltipAttrs, [this.getString("shifted"), this.chartComponentData.getTemporalShiftString(d.aggregateKey)]];
+			let shiftTuple = this.chartComponentData.getTemporalShiftStringTuple(d.aggregateKey);
+			let keyString = this.getString(shiftTuple[0]);
+			let valueString = (keyString === 'Start at') ? this.formatDate(new Date(shiftTuple[1]), 0) : shiftTuple[1]; 
+            tooltipAttrs = [...tooltipAttrs, [keyString, valueString]];
         }
 
         if (tooltipAttrs && tooltipAttrs.length > 0) {
