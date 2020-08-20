@@ -522,7 +522,7 @@ class ChartComponentData {
             var aggKey = aggObj.aggKey;
             var splitByObject = this.displayState[aggKey].aggregateExpression.splitByObject;
             Object.keys(this.timeArrays[aggKey]).forEach((splitBy) => {
-                var splitByString = this.displayState[aggKey].name;
+                var splitByString = Utils.stripNullGuid(this.displayState[aggKey].name);
                 if (splitByObject !== undefined && splitByObject !== null) {
                     splitByString += "/" + splitByObject.property + "/" + splitBy;
                 } else if (splitBy !== ''){

@@ -956,6 +956,10 @@ class Utils {
         return Utils.instanceHasEmptyTSID(instance) ? Utils.guid() : instance.timeSeriesId.map(id => id === null ? Utils.guidForNullTSID : id).join();
     }
 
+    static stripNullGuid = (str) => { // for replacing guids for null tsid in alias etc. with its display string
+        return str.replace(Utils.guidForNullTSID, nullTsidDisplayString);
+    }
+
     static getTimeSeriesIdString = (instance) => { // for arialabel and title 
         return instance.timeSeriesId.map(id => id === null ? nullTsidDisplayString : id).join(', ');
     }
