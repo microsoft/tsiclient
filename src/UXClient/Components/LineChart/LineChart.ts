@@ -392,7 +392,7 @@ class LineChart extends TemporalXAxisComponent {
         this.chartOptions.onMouseover(d.aggregateKey, d.splitBy);
     }
 
-    // //get the extent of an array of timeValues
+    //get the extent of an array of timeValues
     private getYExtent (aggValues, isEnvelope, aggKey = null) {   
         let extent;
         if (aggKey !== null && (this.chartComponentData.displayState[aggKey].yExtent !== null)) {
@@ -1131,23 +1131,11 @@ class LineChart extends TemporalXAxisComponent {
                     let yExtent = this.getYExtent(aggValues, 
                         this.chartComponentData.displayState[aggKey].includeEnvelope ? 
                             this.chartComponentData.displayState[aggKey].includeEnvelope : 
-                            this.chartOptions.includeEnvelope, null);
+                            this.chartOptions.includeEnvelope, aggKey);
                     extent = d3.extent(yExtent.concat(extent));
                     extents[lane] = extent;
                 }
             });
-        });
-
-        //If yAxisState is set to shared with only one swimmer, overwrite with custom yExtent chartDataOption (if set)
-        visibleCDOs.forEach(cDO => {
-            // if custom yExtent set
-            if(cDO.yExtent){
-                // if only swimmer in lane
-                let swimmers = visibleCDOs.map(el => el.swimLane);
-                if(swimmers.indexOf(cDO.swimLane) == swimmers.lastIndexOf(cDO.swimLane)){
-                    extents[cDO.swimLane] = cDO.yExtent;
-                }
-            }
         });
 
         this.swimlaneYExtents = extents;
