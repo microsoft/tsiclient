@@ -258,10 +258,8 @@
 
                 var renderLinechart = function () {
                     lineChart.render(data, {theme: 'light', tooltip: 'true', swimLaneOptions: swimLaneOptions, markers: [from.valueOf() + (60*1000*33)]}, chartDataOptions);
-                    console.log('-- Agg Exp Opt yExtents --')
-                    for(let agg of Object.keys(lineChart.aggregateExpressionOptions)){
-                        console.log(`${agg}:`, lineChart.aggregateExpressionOptions[agg].yExtent)
-                    }
+                    console.log('-- Public yExtents --')
+                    console.log(lineChart.chartComponentData.yExtent)
                 }
 
                 renderLinechart();

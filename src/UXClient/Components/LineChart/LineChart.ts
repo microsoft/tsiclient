@@ -1621,8 +1621,8 @@ class LineChart extends TemporalXAxisComponent {
                                 yExtent = self.swimlaneYExtents[agg.swimLane];
                             }
 
-                            // Update yExtent in AggExpOpts to reflect current yExtent
-                            if(self.aggregateExpressionOptions[i].yExtent === null) self.aggregateExpressionOptions[i].yExtent = yExtent;
+                            // Update yExtent in LineChartData after all yExtent updates (this is public facing yExtent)
+                            self.chartComponentData.setYExtent(i, yExtent);
 
                             //should count all as same swim lane when not in stacked.
                             let swimLane = agg.swimLane;
