@@ -2,11 +2,9 @@ import * as d3 from 'd3';
 import * as momentTZ from 'moment-timezone';
 import * as moment from 'moment';
 import {Grid} from "./Components/Grid/Grid";
-import { ChartComponent } from './Interfaces/ChartComponent';
 import { ChartOptions } from './Models/ChartOptions';
-import { AggregateExpression } from './Models/AggregateExpression';
 import { ChartComponentData } from './Models/ChartComponentData';
-import { TsqExpression } from './Models/TsqExpression';
+import { nullTsidDisplayString, nullTsidFormatTag } from './Constants/Constants';
 
 export const NONNUMERICTOPMARGIN = 8;
 export const LINECHARTTOPPADDING = 16;
@@ -20,6 +18,7 @@ export const LINECHARTCHARTMARGINS = {
 export const LINECHARTXOFFSET = 8;
 export const MARKERVALUENUMERICHEIGHT = 20;
 export const VALUEBARHEIGHT = 3;
+export const SERIESLABELWIDTH = 92;
 
 
 // Linechart stack states
@@ -30,7 +29,9 @@ export enum TooltipMeasureFormat {Enveloped = 'Enveloped', SingleValue = 'Single
 export enum valueTypes {String = 'String', Double = 'Double', Long = 'Long', Dynamic = 'Dynamic', Boolean = 'Boolean', DateTime = 'DateTime'};
 
 
-class Utils {
+class Utils { 
+    static guidForNullTSID = Utils.guid();
+
     static formatYAxisNumber (val: number) {
         if (Math.abs(val) < 1000000) {
             if (Math.abs(val) < .0000001)
@@ -400,6 +401,36 @@ class Utils {
         var specialCharacters = ['"', "'", '?', '<', '>', ';'];
         specialCharacters.forEach(c => { text = text.split(c).join('') });
         return text;
+    }
+
+    static setSeriesLabelSubtitleText (subtitle, isInFocus: boolean = false) {
+        let subtitleDatum = subtitle.data()[0];
+        if (!subtitle.select('.tsi-splitBy').empty()) {
+            subtitle.select('.tsi-splitBy')
+                .text(d => {
+                    let textAfterSplitByExists = subtitleDatum.timeShift !== '' || subtitleDatum.variableAlias;
+                    return `${subtitleDatum.splitBy}${(textAfterSplitByExists && !isInFocus) ? ', ' : ''}`;    
+                });
+        }
+        if (subtitle.select('.tsi-timeShift')) {
+            subtitle.select('.tsi-timeShift')
+                .text(d => {
+                    return `${subtitleDatum.timeShift}${(subtitleDatum.variableAlias && !isInFocus) ? ', ' : ''}`;
+                });
+        }
+        if (subtitle.select('.tsi-variableAlias')) {
+            subtitle.select('.tsi-variableAlias')
+                .text(d => subtitleDatum.variableAlias);
+        }
+    }
+
+    static revertAllSubtitleText (markerValues, opacity = 1) {
+        let self = this;
+        markerValues.classed('tsi-isExpanded', false)
+            .style('opacity', opacity)
+            .each(function () {
+                self.setSeriesLabelSubtitleText(d3.select(this).selectAll('.tsi-tooltipSubtitle'), false);
+            });
     }
 
     static generateColors (numColors: number, includeColors: string[] = null) {
@@ -927,6 +958,26 @@ class Utils {
     static languageGuess () {
         return navigator.languages && navigator.languages[0] || // Chrome / Firefox
         navigator.language; // All browsers
+    }
+
+    static getInstanceKey = (instance) => { // for keying instances using timeseriesid to be used data object to render hierarchy navigation
+        return Utils.instanceHasEmptyTSID(instance) ? Utils.guid() : instance.timeSeriesId.map(id => id === null ? Utils.guidForNullTSID : id).join();
+    }
+
+    static getTimeSeriesIdString = (instance) => { // for arialabel and title 
+        return instance.timeSeriesId.map(id => id === null ? nullTsidDisplayString : id).join(', ');
+    }
+
+    static getTimeSeriesIdToDisplay = (instance, emptyDisplayString) => { // time series id to be shown in UI
+        return Utils.instanceHasEmptyTSID(instance) ? emptyDisplayString : instance.timeSeriesId.map(id => id === null ?  `<${nullTsidFormatTag}>${nullTsidDisplayString}</${nullTsidFormatTag}>` : id).join(', ');
+    }
+
+    static getHighlightedTimeSeriesIdToDisplay = (instance) => { // highlighted time series ids (including hits) to be shown in UI
+        return instance.highlights.timeSeriesId.map((id, idx) => instance.timeSeriesId[idx] === null ? `<${nullTsidFormatTag}>${nullTsidDisplayString}</${nullTsidFormatTag}>` : id).join(', ');
+    }
+
+    static instanceHasEmptyTSID = (instance) => {
+        return !instance.timeSeriesId || instance.timeSeriesId.length === 0;
     }
 }
 

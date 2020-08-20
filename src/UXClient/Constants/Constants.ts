@@ -14,3 +14,6 @@ export const DefaultHierarchyContextMenuOptions = {
     isSelectionEnabled: false,
     isFilterEnabled: false
 }
+
+export const nullTsidDisplayString = "null";
+export const nullTsidFormatTag = "pre";

@@ -332,6 +332,19 @@ class ChartComponentData {
         return [new Date(this.fromMillis), new Date(this.toMillis)];
     }
 
+    public findLastTimestampWithValue (aggKey, splitBy) {
+        let timeArray = this.timeArrays[aggKey][splitBy];
+        let i = timeArray.length - 1;
+        let lastValue = null;
+        while (i >= 0 && lastValue === null) {
+            if (timeArray[i].measures && (timeArray[i].measures[this.getVisibleMeasure(aggKey, splitBy)] !== null)) {
+                lastValue = timeArray[i];
+            }
+            i += -1;
+        }
+        return lastValue;
+    }
+
     private findFirstBucket (agg, fromMillis, bucketSize) {
         if (agg == null || Object.keys(agg).length == 0)
             return null;
