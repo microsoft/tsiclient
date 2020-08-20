@@ -26,6 +26,9 @@
         border-left-style: solid;
     }
 
+    .tsi-baseMono {
+        background: $gray4;
+    }
 }
 
 .tsi-tooltipTitle, .tsi-tooltipSubtitle, .tsi-tooltipAttrTitle, .tsi-tooltipAttrValue, .tsi-valueLabel, .tsi-valueCell, .tsi-tooltipMeasureTitle{

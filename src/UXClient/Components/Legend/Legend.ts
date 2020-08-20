@@ -285,10 +285,10 @@ class Legend extends Component {
             }
 
             if (d3.select(this).select('.tsi-seriesName').empty()) {
-                d3.select(this)
+                let seriesName = d3.select(this)
                     .append('div')
-                    .attr('class', 'tsi-seriesName')
-                    .text(d => (noSplitBys ? (self.chartComponentData.displayState[aggKey].name): splitBy));      
+                    .attr('class', 'tsi-seriesName');
+                Utils.getFormattedHtml(noSplitBys ? (self.chartComponentData.displayState[aggKey].name): splitBy, {monoClassName: 'tsi-baseMono'}).forEach(s => (seriesName.node() as ParentNode).append(s));
             }
 
             if (dataType === DataTypes.Numeric) {

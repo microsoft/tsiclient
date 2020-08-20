@@ -4,7 +4,7 @@ import * as moment from 'moment';
 import {Grid} from "./Components/Grid/Grid";
 import { ChartOptions } from './Models/ChartOptions';
 import { ChartComponentData } from './Models/ChartComponentData';
-import { nullTsidDisplayString, nullTsidFormatTag } from './Constants/Constants';
+import { nullTsidDisplayString } from './Constants/Constants';
 
 export const NONNUMERICTOPMARGIN = 8;
 export const LINECHARTTOPPADDING = 16;
@@ -961,15 +961,50 @@ class Utils {
     }
 
     static getTimeSeriesIdToDisplay = (instance, emptyDisplayString) => { // time series id to be shown in UI
-        return Utils.instanceHasEmptyTSID(instance) ? emptyDisplayString : instance.timeSeriesId.map(id => id === null ?  `<${nullTsidFormatTag}>${nullTsidDisplayString}</${nullTsidFormatTag}>` : id).join(', ');
+        return Utils.instanceHasEmptyTSID(instance) ? emptyDisplayString : instance.timeSeriesId.map(id => id === null ? Utils.guidForNullTSID : id).join(', ');
     }
 
     static getHighlightedTimeSeriesIdToDisplay = (instance) => { // highlighted time series ids (including hits) to be shown in UI
-        return instance.highlights.timeSeriesId.map((id, idx) => instance.timeSeriesId[idx] === null ? `<${nullTsidFormatTag}>${nullTsidDisplayString}</${nullTsidFormatTag}>` : id).join(', ');
+        return instance.highlights.timeSeriesId.map((id, idx) => instance.timeSeriesId[idx] === null ? Utils.guidForNullTSID : id).join(', ');
     }
 
     static instanceHasEmptyTSID = (instance) => {
         return !instance.timeSeriesId || instance.timeSeriesId.length === 0;
+    }
+
+    // returns dom elements of stripped strings including hits (for instance search results) and pre (for null tsid)
+    static getFormattedHtml = (str, options: {monoClassName: string} = null) : Node[] => {
+        let splitByNullGuid = (str: string) : Array<Node> => { // to format <pre> in null tsids
+            let nodeList: Node[] = [];
+            let splitStr = str.split(Utils.guidForNullTSID);
+            splitStr.forEach((s, i) => {
+                if (i === 0) { 
+                    if (s) {
+                        nodeList.push(d3.create('span').text(s).node());
+                    }
+                } else {
+                    nodeList.push(d3.create('span').classed(options ? options.monoClassName : '', true).text(nullTsidDisplayString).node());
+                    if (s) {
+                        nodeList.push(d3.create('span').text(s).node());
+                    }
+                }
+            });
+            return nodeList;
+        };
+
+        let nodeList: Node[] = [];
+        let splitStr = str.split('<hit>');
+        splitStr.forEach((s, i) => {
+            if (i === 0) {
+                splitByNullGuid(s).forEach(s => nodeList.push(s));
+            } else {
+                let markedNode = d3.create('mark').text(s.split('</hit>')[0]).node();
+                nodeList.push(markedNode);
+                splitByNullGuid(s.split('</hit>')[1]).forEach(s => nodeList.push(s));
+            }
+        });
+
+        return nodeList;
     }
 }
 

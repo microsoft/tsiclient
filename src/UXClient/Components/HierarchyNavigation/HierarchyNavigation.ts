@@ -5,7 +5,6 @@ import {Component} from "./../../Interfaces/Component";
 import {ServerClient} from '../../../ServerClient/ServerClient';
 import { ModelAutocomplete } from '../ModelAutocomplete/ModelAutocomplete';
 import { KeyCodes, InstancesSort, HierarchiesExpand, HierarchiesSort } from '../../Constants/Enums';
-import { nullTsidFormatTag } from '../../Constants/Constants';
 
 
 class HierarchyNavigation extends Component{
@@ -555,7 +554,7 @@ class HierarchyNavigation extends Component{
         // mark the instance identifier manually to highlight it
         nameSpan.innerText = '';
         let hitElem = document.createElement('hit');
-        this.getFormattedHtml(Utils.getTimeSeriesIdToDisplay(instance, this.getString('Empty')), {monoClassName: 'tsi-baseMono'}).forEach(s => hitElem.appendChild(s));
+        Utils.getFormattedHtml(Utils.getTimeSeriesIdToDisplay(instance, this.getString('Empty')), {monoClassName: 'tsi-baseMono'}).forEach(s => hitElem.appendChild(s));
         nameSpan.appendChild(hitElem);
     }
 
@@ -927,7 +926,7 @@ class HierarchyNavigation extends Component{
             contextMenuItems.forEach(item => {
                 let option = item.name;
                 let li = contextMenuList.append('li');
-                let markedElems = this.getFormattedHtml(Utils.mark(searchString, option));
+                let markedElems = Utils.getFormattedHtml(Utils.mark(searchString, option));
                 
                 if (!contextMenuOptions.isSelectionEnabled) {
                     li.attr('tabindex', 0)
@@ -1003,43 +1002,6 @@ class HierarchyNavigation extends Component{
         if(contextMenuFirstElt){
             contextMenuFirstElt.focus();
         }
-    }
-
-    // returns dom elements of stripped strings including hits (for instance search results) and pre (for null tsid)
-    private getFormattedHtml = (str, options: {monoClassName: string} = null) : Node[] => {
-        let splitByPre = (str: string) : Array<Node> => { // to format <pre> in null tsids
-            let nodeList: Node[] = [];
-            let splittedPres = str.split(`<${nullTsidFormatTag}>`);
-            if(str) {
-                splittedPres.length > 1 ?
-                    splittedPres.forEach((s, i) => {
-                        if (i === 0) { 
-                            nodeList.push(d3.create('span').text(s).node());
-                        } else {
-                            nodeList.push(d3.create('span').classed(options ? options.monoClassName : '', true).text(s.split(`</${nullTsidFormatTag}>`)[0]).node());
-                            if (s.split(`</${nullTsidFormatTag}>`)[1] !== "") {
-                                nodeList.push(d3.create('span').text(s.split(`</${nullTsidFormatTag}>`)[1]).node());
-                            }
-                        }
-                    })
-                : nodeList.push(d3.create('span').text(splittedPres[0]).node());
-            }
-            return nodeList;
-        };
-
-        let nodeList: Node[] = [];
-        let splitStr = str.split('<hit>');
-        splitStr.forEach((s, i) => {
-            if (i === 0) {
-                splitByPre(s).forEach(s => nodeList.push(s));
-            } else {
-                let markedNode = d3.create('mark').text(s.split('</hit>')[0]).node();
-                nodeList.push(markedNode);
-                splitByPre(s.split('</hit>')[1]).forEach(s => nodeList.push(s));
-            }
-        });
-
-        return nodeList;
     }
 
     //returns the dom element of one hierarchy level item for tree rendering
@@ -1129,12 +1091,12 @@ class HierarchyNavigation extends Component{
             let spanElem = hierarchyItemElem.append('span').classed('tsi-name', true);
             if (hORi.highlights) {
                 if (hORi.highlights.name) {
-                    this.getFormattedHtml(hORi.highlights.name).forEach(e => (spanElem.node() as ParentNode).append(e));
+                    Utils.getFormattedHtml(hORi.highlights.name).forEach(e => (spanElem.node() as ParentNode).append(e));
                 } else {
-                    this.getFormattedHtml(Utils.getHighlightedTimeSeriesIdToDisplay(hORi), {monoClassName: 'tsi-baseMono'}).forEach(e => (spanElem.node() as ParentNode).append(e));
+                    Utils.getFormattedHtml(Utils.getHighlightedTimeSeriesIdToDisplay(hORi), {monoClassName: 'tsi-baseMono'}).forEach(e => (spanElem.node() as ParentNode).append(e));
                 }
             } else {
-                this.getFormattedHtml(Utils.getTimeSeriesIdToDisplay(hORi, this.getString('Empty')), {monoClassName: 'tsi-baseMono'}).forEach(e => (spanElem.node() as ParentNode).append(e));
+                Utils.getFormattedHtml(Utils.getTimeSeriesIdToDisplay(hORi, this.getString('Empty')), {monoClassName: 'tsi-baseMono'}).forEach(e => (spanElem.node() as ParentNode).append(e));
             }
             
             if (hORi.highlights) {
@@ -1142,18 +1104,18 @@ class HierarchyNavigation extends Component{
                 let highlightDetails = hierarchyItemElem.append('div').classed('tsi-highlights-detail', true);
                 if (hORi.highlights.description && this.hasHits(hORi.highlights.description)) {
                     hitsExist = true;
-                    this.getFormattedHtml(hORi.highlights.description).forEach(e => (highlightDetails.node() as ParentNode).append(e));
+                    Utils.getFormattedHtml(hORi.highlights.description).forEach(e => (highlightDetails.node() as ParentNode).append(e));
                 }
                 let hitTuples = [];
                 if (hORi.highlights.name && this.hasHits(Utils.getHighlightedTimeSeriesIdToDisplay(hORi))) {
                     hitsExist = true;
-                    hitTuples.push([this.getFormattedHtml(this.getString("Time Series ID")), this.getFormattedHtml(Utils.getHighlightedTimeSeriesIdToDisplay(hORi))])
+                    hitTuples.push([Utils.getFormattedHtml(this.getString("Time Series ID")), Utils.getFormattedHtml(Utils.getHighlightedTimeSeriesIdToDisplay(hORi))])
                 }
                 hORi.highlights.instanceFieldNames.forEach((ifn, idx) => {
                     var val = hORi.highlights.instanceFieldValues[idx];
                     if (this.hasHits(ifn) || this.hasHits(val)) {
                         hitsExist = true;
-                        hitTuples.push([this.getFormattedHtml(ifn), this.getFormattedHtml(hORi.highlights.instanceFieldValues[idx])])
+                        hitTuples.push([Utils.getFormattedHtml(ifn), Utils.getFormattedHtml(hORi.highlights.instanceFieldValues[idx])])
                     }
                 });
                 let table = highlightDetails.append('table');
@@ -1178,10 +1140,10 @@ class HierarchyNavigation extends Component{
     private createInstanceElem(i) {
         let instanceElem = d3.create('div').classed('tsi-modelResult', true);
         let firstLine = instanceElem.append('div').classed('tsi-modelPK', true);
-        (i.highlights.name ? this.getFormattedHtml(i.highlights.name) : this.getFormattedHtml(Utils.getHighlightedTimeSeriesIdToDisplay(i), {monoClassName: 'tsi-baseMono'})).forEach(a => (firstLine.node() as HTMLDivElement).appendChild(a));
+        (i.highlights.name ? Utils.getFormattedHtml(i.highlights.name) : Utils.getFormattedHtml(Utils.getHighlightedTimeSeriesIdToDisplay(i), {monoClassName: 'tsi-baseMono'})).forEach(a => (firstLine.node() as HTMLDivElement).appendChild(a));
 
         let secondLine = instanceElem.append('div').classed('tsi-modelHighlights', true);
-        this.getFormattedHtml(i.highlights.description && i.highlights.description.length ? i.highlights.description : 'No description').forEach(a => (secondLine.node() as HTMLDivElement).appendChild(a));
+        Utils.getFormattedHtml(i.highlights.description && i.highlights.description.length ? i.highlights.description : 'No description').forEach(a => (secondLine.node() as HTMLDivElement).appendChild(a));
         secondLine.append('br');
         let table = secondLine.append('table');
         let row = table.append('tr');
@@ -1189,7 +1151,7 @@ class HierarchyNavigation extends Component{
         if (i.highlights.name) {
             row.append('td').text(this.getString("Time Series ID"));
             td = row.append('td');
-            this.getFormattedHtml(Utils.getHighlightedTimeSeriesIdToDisplay(i)).forEach(a => (td.node() as HTMLTableDataCellElement).appendChild(a));
+            Utils.getFormattedHtml(Utils.getHighlightedTimeSeriesIdToDisplay(i)).forEach(a => (td.node() as HTMLTableDataCellElement).appendChild(a));
         }
 
         i.highlights.instanceFieldNames.map((ifn, idx) => {
@@ -1198,16 +1160,16 @@ class HierarchyNavigation extends Component{
                 if (this.hasHits(ifn) || this.hasHits(val)) {
                     row = table.append('tr');
                     td = row.append('td');
-                    this.getFormattedHtml(ifn).forEach(a => (td.node() as HTMLTableDataCellElement).appendChild(a));
+                    Utils.getFormattedHtml(ifn).forEach(a => (td.node() as HTMLTableDataCellElement).appendChild(a));
                     td = row.append('td');
-                    this.getFormattedHtml(i.highlights.instanceFieldValues[idx]).forEach(a => (td.node() as HTMLTableDataCellElement).appendChild(a));
+                    Utils.getFormattedHtml(i.highlights.instanceFieldValues[idx]).forEach(a => (td.node() as HTMLTableDataCellElement).appendChild(a));
                 }
             } else if (val.length !== 0) {
                 row = table.append('tr');
                 td = row.append('td');
-                this.getFormattedHtml(ifn).forEach(a => (td.node() as HTMLTableDataCellElement).appendChild(a));
+                Utils.getFormattedHtml(ifn).forEach(a => (td.node() as HTMLTableDataCellElement).appendChild(a));
                 td = row.append('td');
-                this.getFormattedHtml(i.highlights.instanceFieldValues[idx]).forEach(a => (td.node() as HTMLTableDataCellElement).appendChild(a));
+                Utils.getFormattedHtml(i.highlights.instanceFieldValues[idx]).forEach(a => (td.node() as HTMLTableDataCellElement).appendChild(a));
             }
         });
 
