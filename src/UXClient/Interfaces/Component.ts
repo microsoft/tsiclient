@@ -44,9 +44,9 @@ class Component {
 		Utils.getFormattedHtml(d.aggregateName, {monoClassName: 'tsi-baseMono'}).forEach(s => title.node().append(s));
 
 		if (d.splitBy && d.splitBy != ""){
-			group.append('h4')
-				.text(d.splitBy)
+			let splitBy = group.append('h4')
 				.attr('class', 'tsi-tooltipSeriesName tsi-tooltipSubtitle');
+			Utils.getFormattedHtml(d.splitBy, {monoClassName: 'tsi-baseMono'}).forEach(s => (splitBy.node() as ParentNode).append(s));
 		}
 		
 		if (cDO.variableAlias){

@@ -977,19 +977,26 @@ class Utils {
     }
 
     // returns dom elements of stripped strings including hits (for instance search results) and pre (for null tsid)
-    static getFormattedHtml = (str, options: {monoClassName: string} = null) : Node[] => {
+    static getFormattedHtml = (str, options: {monoClassName: string, forSvg?: boolean} = null) : any[] => {
+        let tagToBeUsed = options && options.forSvg ? 'tspan' : 'span';
         let splitByNullGuid = (str: string) : Array<Node> => { // to format <pre> in null tsids
             let nodeList: Node[] = [];
             let splitStr = str.split(Utils.guidForNullTSID);
             splitStr.forEach((s, i) => {
                 if (i === 0) { 
                     if (s) {
-                        nodeList.push(d3.create('span').text(s).node());
+                        tagToBeUsed === 'tspan' ?
+                            nodeList.push(d3.select(document.createElementNS('http://www.w3.org/2000/svg', tagToBeUsed)).text(s).node())
+                            : nodeList.push(d3.create(tagToBeUsed).text(s).node());
                     }
                 } else {
-                    nodeList.push(d3.create('span').classed(options ? options.monoClassName : '', true).text(nullTsidDisplayString).node());
+                    tagToBeUsed === 'tspan' ?
+                        nodeList.push(d3.select(document.createElementNS('http://www.w3.org/2000/svg', tagToBeUsed)).attr('class', options && options.monoClassName ? options.monoClassName : '').text(nullTsidDisplayString).node())
+                        : nodeList.push(d3.create(tagToBeUsed).attr('class', options && options.monoClassName ? options.monoClassName : '').text(nullTsidDisplayString).node())
                     if (s) {
-                        nodeList.push(d3.create('span').text(s).node());
+                        tagToBeUsed === 'tspan' ?
+                            nodeList.push(d3.select(document.createElementNS('http://www.w3.org/2000/svg', tagToBeUsed)).text(s).node())
+                            : nodeList.push(d3.create(tagToBeUsed).text(s).node());
                     }
                 }
             });
@@ -997,6 +1004,7 @@ class Utils {
         };
 
         let nodeList: Node[] = [];
+        if (str === null || str === undefined) { return nodeList;}
         let splitStr = str.split('<hit>');
         splitStr.forEach((s, i) => {
             if (i === 0) {

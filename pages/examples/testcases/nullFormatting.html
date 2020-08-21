@@ -25,10 +25,10 @@
                 let nullGuid = tsiClient.utils.guidForNullTSID;
                 for(var i = 0; i < 3; i++){
                     var lines = {};
-                    data.push({[`Factory${i} ${nullGuid}`]: lines});
+                    data.push({[`Factory${i} ${nullGuid} Factory`]: lines});
                     for(var j = 0; j < 5; j++){
                         var values = {};
-                        lines[`Station${j} ${nullGuid}`] = values;
+                        lines[`Station${j} ${nullGuid} Station`] = values;
                         for(var k = 0; k < 60; k++){
                             if(!(k%2 && k%3)){  // if check is to create some sparseness in the data
                                 var to = new Date(from.valueOf() + 1000*60*k);

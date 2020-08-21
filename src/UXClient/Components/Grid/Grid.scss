@@ -45,10 +45,6 @@
 			}
 		}
 	}
-
-	.tsi-baseMono {
-        background: $gray4;
-	}
 	
     @include chartColors($grays);
 }
@@ -130,8 +126,6 @@
 						display: table;
 						.tsi-rowHeaderSeriesName {
 							padding: 2px;
-							display: flex;
-							align-items: center;
 						}
 						.tsi-rowHeaderMeasures {
 							visibility: hidden;
@@ -192,8 +186,9 @@
 			}
 		}
 	}
-}
 
-.tsi-baseMono {
-	padding: 2px !important;
+	.tsi-baseMono {
+		@extend .tsi-baseMono;
+		padding: 2px;
+	}
 }

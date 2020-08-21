@@ -429,7 +429,7 @@ class Legend extends Component {
                 }) 
                 .attr("aria-label", (agg: string) => {
                     let showOrHide = self.chartComponentData.displayState[agg].visible ? self.getString('hide group') : self.getString('show group');
-                    return `${showOrHide} ${self.getString('group')} ${self.chartComponentData.displayState[agg].name}`;
+                    return `${showOrHide} ${self.getString('group')} ${Utils.stripNullGuid(self.chartComponentData.displayState[agg].name)}`;
                 })   
                 .on("click", function (d: string, i: number) {
                     var newState = !self.chartComponentData.displayState[d].visible;
@@ -464,8 +464,9 @@ class Legend extends Component {
             var seriesNameLabelTextEntered = seriesNameLabelText.enter()
                 .append("h4")
                 .merge(seriesNameLabelText)
-                .attr("title", (d: string) => self.chartComponentData.displayState[d].name)
-                .text((d: string) => self.chartComponentData.displayState[d].name);
+                .attr("title", (d: string) => Utils.stripNullGuid(self.chartComponentData.displayState[d].name))
+                .text(null);
+            Utils.getFormattedHtml(self.chartComponentData.displayState[aggKey].name, {monoClassName: 'tsi-baseMono'}).forEach(s => (seriesNameLabelTextEntered.node() as ParentNode).append(s));
 
             seriesNameLabelText.exit().remove();
             seriesNameLabel.exit().remove();

@@ -79,6 +79,10 @@ div[class^='tsi-']{
             border: 1px solid $gray6;
         }
     }
+
+    .tsi-baseMono {
+        background: $gray4;
+	}
 }
 
 .tsi-resizeGutter {
@@ -312,6 +316,7 @@ select::-ms-expand {
 }
 
 .tsi-baseMono {
+    display: inline-block;
     padding: 4px;
     border-radius: 3px;
     font-family: "Lucida Console", Monaco, monospace;
@@ -504,5 +509,9 @@ select::-ms-expand {
         background-color: $gray3;
         border-color: $gray2;
     }
+
+    .tsi-baseMono {
+        background: $gray4;
+	}
 
 }
