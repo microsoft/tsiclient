@@ -392,7 +392,7 @@ class LineChart extends TemporalXAxisComponent {
         this.chartOptions.onMouseover(d.aggregateKey, d.splitBy);
     }
 
-    // //get the extent of an array of timeValues
+    //get the extent of an array of timeValues
     private getYExtent (aggValues, isEnvelope, aggKey = null) {   
         let extent;
         if (aggKey !== null && (this.chartComponentData.displayState[aggKey].yExtent !== null)) {
@@ -1061,6 +1061,10 @@ class LineChart extends TemporalXAxisComponent {
         this.targetElement.select('.tsi-rangeTextContainer').remove();
     }
 
+    public getYExtents(){
+        return this.chartComponentData.yExtents;
+    }
+
     private nextStackedState = () => {
         if (this.chartOptions.yAxisState === YAxisStates.Stacked) 
             return "shared";
@@ -1145,12 +1149,13 @@ class LineChart extends TemporalXAxisComponent {
                     let yExtent = this.getYExtent(aggValues, 
                         this.chartComponentData.displayState[aggKey].includeEnvelope ? 
                             this.chartComponentData.displayState[aggKey].includeEnvelope : 
-                            this.chartOptions.includeEnvelope, null);
+                            this.chartOptions.includeEnvelope, aggKey);
                     extent = d3.extent(yExtent.concat(extent));
                     extents[lane] = extent;
                 }
             });
         });
+
         this.swimlaneYExtents = extents;
     }
 
@@ -1591,6 +1596,8 @@ class LineChart extends TemporalXAxisComponent {
 
                 let swimLaneCounts = {};
 
+                this.chartComponentData.resetYExtents(); // Reset public facing yExtents
+
                 let aggregateGroups = this.svgSelection.select('.svgGroup').selectAll('.tsi-aggGroup')
                     .data(visibleCDOs, (agg) => agg.aggKey);
                     var self = this;
@@ -1630,6 +1637,9 @@ class LineChart extends TemporalXAxisComponent {
                             if (self.getAggAxisType(agg) === YAxisStates.Shared) {
                                 yExtent = self.swimlaneYExtents[agg.swimLane];
                             }
+
+                            // Update yExtent in LineChartData after all yExtent updates (this is public facing yExtent)
+                            self.chartComponentData.setYExtents(i, yExtent);
 
                             //should count all as same swim lane when not in stacked.
                             let swimLane = agg.swimLane;
