@@ -101,6 +101,7 @@ class GroupedBarChart extends ChartVisualizationComponent {
             });
 
             var labelMouseover = (aggKey: string, splitBy: string = null) => {
+                var self = this;
                 svgSelection.selectAll(".tsi-valueElement")
                     .attr("stroke-opacity", 1)
                     .attr("fill-opacity", 1);
@@ -127,26 +128,22 @@ class GroupedBarChart extends ChartVisualizationComponent {
                             .filter((d: any) => {
                                 return d == aggKey;
                             })
-                            .select(".labelGroup").select("text");
+                            .select(".labelGroup").select("text").text(null);
                 var dy = parseFloat(text.attr("dy"));
-                text.text(null);
-                Utils.getFormattedHtml(this.chartComponentData.displayState[aggKey].name, {monoClassName: 'tsi-baseMono', forSvg: true}).forEach(s => {
-                    d3.select(s).attr('class', s.className.baseVal + " " + "tsi-aggregateLabelGroupText");
-                    text.append(() => s);
-                });
-  
-                Utils.getFormattedHtml(splitBy, {monoClassName: 'tsi-baseMono', forSvg: true}).forEach((s,idx) => { 
-                    let splitByLine = d3.select(s);
-                    splitByLine.attr('class', s.className.baseVal + " " + "tsi-splitByLabelGroupText");
-                    if (idx == 0) {
-                        splitByLine.attr("y", text.attr("y"))
+
+                let aggLabelGroup = text.append("tspan").attr('class', "tsi-labelGroupLine");
+                Utils.appendFormattedElementsFromString(aggLabelGroup, self.chartComponentData.displayState[aggKey].name, {inSvg: true, additionalClassName: "tsi-aggregateLabelGroupText"});
+                let splitByLabelGroup = text.append("tspan").attr('class', "tsi-labelGroupLine");
+                Utils.appendFormattedElementsFromString(splitByLabelGroup, splitBy, {inSvg: true, additionalClassName: "tsi-splitByLabelGroupText"});
+
+                splitByLabelGroup.selectAll('.tsi-splitByLabelGroupText').each(function(d, i) {
+                    if (i == 0) {
+                        d3.select(this).attr("y", text.attr("y"))
                         .attr("x", text.attr("x"))
                         .attr("dy", (dy + dy * 2) + "em")
                         .attr("text-anchor", "middle");
                     }
-                    text.append(() => s);
                 });
-
                 rePositionLabelGroupBoxes(svgSelection, aggKey);         
             }
 
@@ -159,10 +156,7 @@ class GroupedBarChart extends ChartVisualizationComponent {
                 allText.each(function(aggKey) {
                     var text = d3.select(this);
                     if (self.chartComponentData.displayState[aggKey] != undefined) {
-                        Utils.getFormattedHtml(self.chartComponentData.displayState[aggKey].name, {monoClassName: 'tsi-baseMono', forSvg: true}).forEach(s => {
-                            d3.select(s).attr('class', s.className.baseVal + " " + "tsi-aggregateLabelGroupText");
-                            text.append(() => s);
-                        });
+                        Utils.appendFormattedElementsFromString(text, self.chartComponentData.displayState[aggKey].name, {inSvg: true, additionalClassName: "tsi-aggregateLabelGroupText"});
                     }
                 })
                 rePositionLabelGroupBoxes(svgSelection);
@@ -203,10 +197,10 @@ class GroupedBarChart extends ChartVisualizationComponent {
                     }
 
                     //text is either in tspans or just in text. Either truncate text directly or through tspan
-                    if (textSelection.selectAll("tspan").size() == 0)
+                    if (textSelection.selectAll("tspan").filter(function() {return !d3.select(this).classed("tsi-labelGroupLine")}).size() === 0)
                         truncateText(textSelection)
                     else {
-                        textSelection.selectAll("tspan").each(function() {
+                        textSelection.selectAll("tspan").filter(function() {return !d3.select(this).classed("tsi-labelGroupLine")}).each(function() {
                             var tspanTextSelection = d3.select(this);
                             let childrenSize = tspanTextSelection.classed("tsi-splitByLabelGroupText") ? textSelection.selectAll(".tsi-splitByLabelGroupText").size() : textSelection.selectAll(".tsi-aggregateLabelGroupText").size();
                             truncateText(tspanTextSelection, childrenSize);
@@ -349,11 +343,8 @@ class GroupedBarChart extends ChartVisualizationComponent {
                         .attr("class", "labelGroup");
                     labelGroupEntered.append("rect");
                     var labelGroupText = labelGroupEntered.append("text")
-                        .attr("dy", ".71em").text(null)
-                    Utils.getFormattedHtml(self.chartComponentData.displayState[aggKey].name, {monoClassName: 'tsi-baseMono', forSvg: true}).forEach(s => {
-                        d3.select(s).attr('class', s.className.baseVal + " " + "tsi-aggregateLabelGroupText");
-                        labelGroupText.append(() => s);
-                    });
+                        .attr("dy", ".71em");
+                    Utils.appendFormattedElementsFromString(labelGroupText, self.chartComponentData.displayState[aggKey].name, {inSvg: true, additionalClassName: "tsi-aggregateLabelGroupText"});
 
                     var labelGroupBox: any = labelGroupEntered.merge(labelGroup)
                         .select("rect")

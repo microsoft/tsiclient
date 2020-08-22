@@ -163,7 +163,7 @@ class Grid extends Component {
                         let container = d3.select(this).append('div').attr('class', 'tsi-rowHeaderContainer');
                         let seriesName = container.append('div')
                             .attr('class', 'tsi-rowHeaderSeriesName');
-                        Utils.getFormattedHtml(getRowHeaderText(d), {monoClassName: 'tsi-baseMono'}).forEach(s => (seriesName.node() as ParentNode).append(s));
+                        Utils.appendFormattedElementsFromString(seriesName, getRowHeaderText(d));
                         let measureContainer = container.append('div')
                             .attr('class', 'tsi-rowHeaderMeasures');
 

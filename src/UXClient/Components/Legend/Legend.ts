@@ -288,7 +288,7 @@ class Legend extends Component {
                 let seriesName = d3.select(this)
                     .append('div')
                     .attr('class', 'tsi-seriesName');
-                Utils.getFormattedHtml(noSplitBys ? (self.chartComponentData.displayState[aggKey].name): splitBy, {monoClassName: 'tsi-baseMono'}).forEach(s => (seriesName.node() as ParentNode).append(s));
+                Utils.appendFormattedElementsFromString(seriesName, noSplitBys ? (self.chartComponentData.displayState[aggKey].name): splitBy);
             }
 
             if (dataType === DataTypes.Numeric) {
@@ -461,12 +461,14 @@ class Legend extends Component {
             }
 
             var seriesNameLabelText = enteredSeriesNameLabel.selectAll("h4").data([aggKey]);
-            var seriesNameLabelTextEntered = seriesNameLabelText.enter()
+            seriesNameLabelText.enter()
                 .append("h4")
                 .merge(seriesNameLabelText)
                 .attr("title", (d: string) => Utils.stripNullGuid(self.chartComponentData.displayState[d].name))
-                .text(null);
-            Utils.getFormattedHtml(self.chartComponentData.displayState[aggKey].name, {monoClassName: 'tsi-baseMono'}).forEach(s => (seriesNameLabelTextEntered.node() as ParentNode).append(s));
+                .each(function() {
+                    Utils.appendFormattedElementsFromString(d3.select(this), self.chartComponentData.displayState[aggKey].name);
+                });
+            
 
             seriesNameLabelText.exit().remove();
             seriesNameLabel.exit().remove();

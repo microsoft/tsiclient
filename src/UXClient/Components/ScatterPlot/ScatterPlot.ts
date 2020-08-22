@@ -753,7 +753,7 @@ class ScatterPlot extends ChartVisualizationComponent {
             .text(null);
         xAxisLabel.each(function(d) {
             let label = d3.select(this);
-            Utils.getFormattedHtml(d, {monoClassName: 'tsi-baseMono', forSvg: true}).forEach(s => (label.node() as ParentNode).append(s));
+            Utils.appendFormattedElementsFromString(label, d, {inSvg: true});
         });
         //text is either in tspans or just in text. Either truncate text directly or through tspan
         if (xAxisLabel.selectAll("tspan").size() == 0)
@@ -777,7 +777,7 @@ class ScatterPlot extends ChartVisualizationComponent {
             .text(null);
         yAxisLabel.each(function(d) {
             let label = d3.select(this);
-            Utils.getFormattedHtml(d, {monoClassName: 'tsi-baseMono', forSvg: true}).forEach(s => (label.node() as ParentNode).append(s));
+            Utils.appendFormattedElementsFromString(label, d, {inSvg: true});
         });
         //text is either in tspans or just in text. Either truncate text directly or through tspan
         if (yAxisLabel.selectAll("tspan").size() == 0)

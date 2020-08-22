@@ -41,12 +41,12 @@ class Component {
 
 	protected createTooltipSeriesInfo (d, group, cDO) {
 		let title = group.append('h2').attr('class', 'tsi-tooltipGroupName tsi-tooltipTitle');
-		Utils.getFormattedHtml(d.aggregateName, {monoClassName: 'tsi-baseMono'}).forEach(s => title.node().append(s));
+		Utils.appendFormattedElementsFromString(title, d.aggregateName);
 
 		if (d.splitBy && d.splitBy != ""){
 			let splitBy = group.append('h4')
 				.attr('class', 'tsi-tooltipSeriesName tsi-tooltipSubtitle');
-			Utils.getFormattedHtml(d.splitBy, {monoClassName: 'tsi-baseMono'}).forEach(s => (splitBy.node() as ParentNode).append(s));
+			Utils.appendFormattedElementsFromString(splitBy, d.splitBy);
 		}
 		
 		if (cDO.variableAlias){

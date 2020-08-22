@@ -56,7 +56,7 @@
                 heatmap.render(data, {theme: 'dark'}, data.map(d => {return {measureTypes: ['avg'], searchSpan: {from: from.toISOString(), to: to.toISOString(), bucketSize: '1m'}}}));
 
                 var scatterplot = new tsiClient.ux.ScatterPlot(document.getElementById('chart5'));
-                scatterplot.render(data, {theme: 'light', legend: 'compact', tooltip: true, spMeasures: ['x', 'y', 'r']})
+                scatterplot.render(data, {theme: 'light', legend: 'compact', tooltip: true, spMeasures: ['x', 'y', 'r'], spAxisLabels: [`TemperatureTemperatureTemperatureTemperatureTemperatureTemperatureTemperatureTemperatureTemperature ${tsiClient.utils.guidForNullTSID}`, `PressurePressurePressurePressurePressurePressurePressurePressurePressurePressurePressurePressurePressurePressurePressurePressurePressurePressurePressurePressurePressurePressurePressurePressurePressure ${tsiClient.utils.guidForNullTSID}`]})
             };
         </script>
     </body>

@@ -975,48 +975,59 @@ class Utils {
     static instanceHasEmptyTSID = (instance) => {
         return !instance.timeSeriesId || instance.timeSeriesId.length === 0;
     }
+    
+    // appends dom elements of stripped strings including hits (for instance search results) and mono classed spans (for null tsid)
+    static appendFormattedElementsFromString = (targetElem, str, options: {additionalClassName?: string, inSvg?: boolean} = null) => {
+        interface FormattedElemData {
+            str: string;
+            isHit?: boolean;
+            isNull?: boolean;
+        };
 
-    // returns dom elements of stripped strings including hits (for instance search results) and pre (for null tsid)
-    static getFormattedHtml = (str, options: {monoClassName: string, forSvg?: boolean} = null) : any[] => {
-        let tagToBeUsed = options && options.forSvg ? 'tspan' : 'span';
-        let splitByNullGuid = (str: string) : Array<Node> => { // to format <pre> in null tsids
-            let nodeList: Node[] = [];
-            let splitStr = str.split(Utils.guidForNullTSID);
-            splitStr.forEach((s, i) => {
+        let data : Array<FormattedElemData> = [];
+        let splitByNullGuid = (str) : Array<any> => {
+            let data = [];
+            let splittedByNull = str.split(Utils.guidForNullTSID);
+            splittedByNull.forEach((s, i) => {
                 if (i === 0) { 
                     if (s) {
-                        tagToBeUsed === 'tspan' ?
-                            nodeList.push(d3.select(document.createElementNS('http://www.w3.org/2000/svg', tagToBeUsed)).text(s).node())
-                            : nodeList.push(d3.create(tagToBeUsed).text(s).node());
+                        data.push({str: s});
                     }
                 } else {
-                    tagToBeUsed === 'tspan' ?
-                        nodeList.push(d3.select(document.createElementNS('http://www.w3.org/2000/svg', tagToBeUsed)).attr('class', options && options.monoClassName ? options.monoClassName : '').text(nullTsidDisplayString).node())
-                        : nodeList.push(d3.create(tagToBeUsed).attr('class', options && options.monoClassName ? options.monoClassName : '').text(nullTsidDisplayString).node())
+                    data.push({str: nullTsidDisplayString, isNull: true});
                     if (s) {
-                        tagToBeUsed === 'tspan' ?
-                            nodeList.push(d3.select(document.createElementNS('http://www.w3.org/2000/svg', tagToBeUsed)).text(s).node())
-                            : nodeList.push(d3.create(tagToBeUsed).text(s).node());
+                        data.push({str: s});
                     }
                 }
             });
-            return nodeList;
-        };
+            return data;
+        }
 
-        let nodeList: Node[] = [];
-        if (str === null || str === undefined) { return nodeList;}
-        let splitStr = str.split('<hit>');
-        splitStr.forEach((s, i) => {
+        let splittedByHit = str.split('<hit>');
+        splittedByHit.forEach((s, i) => {
             if (i === 0) {
-                splitByNullGuid(s).forEach(s => nodeList.push(s));
+                data = data.concat(splitByNullGuid(s));
             } else {
-                let markedNode = d3.create('mark').text(s.split('</hit>')[0]).node();
-                nodeList.push(markedNode);
-                splitByNullGuid(s.split('</hit>')[1]).forEach(s => nodeList.push(s));
+                let splittedByHitClose = s.split('</hit>');
+                data.push({str: splittedByHitClose[0], isHit: true});
+                data = data.concat(splitByNullGuid(splittedByHitClose[1]));
             }
         });
 
-        return nodeList;
+        let additionalClassName = options && options.additionalClassName ? options.additionalClassName : '';
+        let children = targetElem.selectAll('.tsi-formattedChildren').data(data);
+        children.enter()
+            .append(d => 
+                d.isHit ? document.createElement('mark')
+                : options && options.inSvg ? document.createElementNS('http://www.w3.org/2000/svg', 'tspan')
+                    : document.createElement('span')
+            )
+            .classed('tsi-formattedChildren', true)
+            .merge(children)
+            .classed('tsi-baseMono', d => d.isNull)
+            .classed(additionalClassName, options && options.additionalClassName)
+            .text(d => d.str);
+        children.exit().remove();
     }
 }
 
