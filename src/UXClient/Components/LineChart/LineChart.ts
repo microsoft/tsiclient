@@ -579,14 +579,16 @@ class LineChart extends TemporalXAxisComponent {
         return (isDeleting, droppedMarker, shouldSort: boolean = true) => {
             if (droppedMarker) {
                 this.markerGuidMap[markerGuid] = marker;
-                this.isDroppingMarker = false;
             }
             else if (isDeleting) {
                 delete this.markerGuidMap[markerGuid];
 
                 //set focus to first marker if markers exist on delete
-                if (Object.keys(this.markerGuidMap).length !== 0) {
-                    this.markerGuidMap[Object.keys(this.markerGuidMap)[0]].focusCloseButton();
+                let visibleMarkers: any = Object.values(this.markerGuidMap).filter((marker: Marker) => {
+                    return marker.isMarkerInRange();
+                });
+                if (visibleMarkers.length !== 0) {
+                    visibleMarkers[0].focusCloseButton();
                 } else {
                     this.focusOnEllipsis();
                 }
@@ -801,7 +803,7 @@ class LineChart extends TemporalXAxisComponent {
             if (site.data && cDO.onElementClick !== null) {
                 cDO.onElementClick(site.data.aggregateKey, site.data.splitBy, site.data.dateTime.toISOString(), site.data.measures);
             } else {
-                if (this.chartComponentData.stickiedKey != null) {
+                if (this.chartComponentData.stickiedKey !== null) {
                     site = this.voronoiDiagram.find(mx, my);
                     this.voronoiMousemove(site.data);
                     this.unstickySeries(site.data.aggregateKey, site.data.splitBy);
@@ -809,7 +811,11 @@ class LineChart extends TemporalXAxisComponent {
                 }
                 this.stickySeries(site.data.aggregateKey, site.data.splitBy);    
             }
-        } 
+        } else {
+            if (!this.hasBrush) {
+                this.isDroppingMarker = false;
+            }
+        }
 
         this.destroyMarkerInstructions();
         if (Utils.safeNotNullOrUndefined(() => this.activeMarker)) {
@@ -883,7 +889,7 @@ class LineChart extends TemporalXAxisComponent {
             const [mx, my] = d3.mouse(mouseEvent);
             var site: any = this.voronoiDiagram.find(mx, my);
             let isClearingBrush = (this.brushStartPosition !== null) && (this.brushEndPosition !== null);
-            if (this.chartComponentData.stickiedKey != null && !this.isDroppingMarker && !isClearingBrush) {
+            if (this.chartComponentData.stickiedKey !== null && !this.isDroppingMarker && !isClearingBrush) {
                 this.chartComponentData.stickiedKey = null;
                 (<any>this.legendObject.legendElement.selectAll('.tsi-splitByLabel')).classed("stickied", false);
                 // recompute voronoi with no sticky
@@ -1511,7 +1517,7 @@ class LineChart extends TemporalXAxisComponent {
                     .extent([[this.xLowerBound, this.chartOptions.aggTopMargin],
                              [this.xUpperBound, this.chartHeight]])
                     .on("start", function() {
-                        if (self.activeMarker != null && self.isDroppingMarker) {
+                        if (self.activeMarker !== null && self.isDroppingMarker) {
                             self.voronoiClick(this);
                         }
                         var handleHeight = self.getHandleHeight();

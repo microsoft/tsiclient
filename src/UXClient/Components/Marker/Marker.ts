@@ -221,8 +221,8 @@ class Marker extends Component {
                         .attr("aria-label", self.getString('Delete marker')) 
                         .classed("tsi-closeButton", true)
                         .on("click", function () {
-                            d3.select((d3.select(this).node() as any).parentNode.parentNode).remove();
                             self.onChange(true, false);
+                            d3.select((d3.select(this).node() as any).parentNode.parentNode).remove();
                         });
             
                     self.timeLabel = d3.select(this).append("div")
@@ -507,10 +507,12 @@ class Marker extends Component {
     }
 
     public focusCloseButton () {
-        this.closeButton.node().focus();
+        if (this.closeButton) {
+            this.closeButton.node().focus();
+        }
     }
 
-    private isMarkerInRange (millis: number) {
+    public isMarkerInRange (millis: number = this.timestampMillis) {
         let domain = this.x.domain();
         return !(millis < domain[0].valueOf() || millis > domain[1].valueOf());
     }
