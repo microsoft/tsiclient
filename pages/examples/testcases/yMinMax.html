@@ -1,0 +1,309 @@
+<!DOCTYPE html> 
+<html>
+    <head>
+        <title>Basic Charts</title>
+
+        <!-- boilerplate headers are injected with head.js, grab them from the live example header, or include a link to head.js -->
+        <script src="../../boilerplate/head.js"></script>
+        <style>
+            .controls{
+                display: flex;
+                flex-direction: row;
+            }
+            .controlItem{
+                margin: 20px 20px 20px 20px;
+                height: 200px;
+            }
+            .controlItem > input{
+                width: 40px;
+            }
+            .controlItem > span{
+                font-weight: bold;
+            }
+        </style>
+    </head>
+    <body style="font-family: 'Segoe UI', sans-serif;">
+        <div id="chart1" style="width: 100%; height: 600px;"></div>
+        <div class='controls'>
+            <div class='controlItem'>
+                <h2>Lane selections:</h2>
+                <span>group 0: </span>
+                <select id='group0Select'>
+                    <option selected>1</option>
+                    <option>2</option>
+                    <option>3</option>
+                    <option>4</option>
+                    <option>5</option>
+                </select>
+                <br/>
+                <span>group 1: </span>
+                <select id='group1Select'>
+                    <option>1</option>
+                    <option selected>2</option>
+                    <option>3</option>
+                    <option>4</option>
+                    <option>5</option>
+                </select>
+                <br/>
+                <span>group 2: </span>
+                <select id='group2Select'>
+                    <option>1</option>
+                    <option>2</option>
+                    <option selected>3</option>
+                    <option>4</option>
+                    <option>5</option>
+                </select>
+                <br/>
+                <span>group 3: </span>
+                <select id='group3Select'>
+                    <option>1</option>
+                    <option>2</option>
+                    <option>3</option>
+                    <option selected>4</option>
+                    <option>5</option>
+                </select>
+                <br/>
+                <span>group 4: </span>
+                <select id='group4Select'>
+                    <option>1</option>
+                    <option>2</option>
+                    <option>3</option>
+                    <option>4</option>
+                    <option selected>5</option>
+                </select>
+            </div>
+            <div class='controlItem'>
+                <h2>Lane yAxisType:</h2>
+                <span>lane 1: </span>
+                <select id='lane1option'>
+                    <option>stacked</option>
+                    <option>shared</option>
+                    <option selected>overlap</option>
+                </select>
+                <br/>
+                <span>lane 2: </span>
+                <select id='lane2option'>
+                    <option>stacked</option>
+                    <option selected>shared</option>
+                    <option>overlap</option>
+                </select>
+                <br/>
+                <span>lane 3: </span>
+                <select id='lane3option'>
+                    <option>stacked</option>
+                    <option selected>shared</option>
+                    <option>overlap</option>
+                </select>
+            </div>
+            <div class='controlItem'>
+                <h2>yExtents:</h2>
+                <span>group 0:</span>
+                <label>Min </label><input type='number' id='group0YMin' name='0'>
+                <label>Max </label><input type='number' id='group0YMax' name='0'>
+                <button type='button' value='0' onclick="yExtentUpdate(0, document.getElementById('group0YMin').value, document.getElementById('group0YMax').value)">Update</button>
+                <br/>
+                <span>group 1:</span>
+                <label>Min </label><input type='number' id='group1YMin' name='1'>
+                <label>Max </label><input type='number' id='group1YMax' name='1'>
+                <button type='button' value='1' onclick="yExtentUpdate(1, document.getElementById('group1YMin').value, document.getElementById('group1YMax').value)">Update</button>
+                <br/>
+                <span>group 2:</span>
+                <label>Min </label><input type='number' id='group2YMin' name='2'>
+                <label>Max </label><input type='number' id='group2YMax' name='2'>
+                <button type='button' value='2' onclick="yExtentUpdate(2, document.getElementById('group2YMin').value, document.getElementById('group2YMax').value)">Update</button>
+                <br/>
+                <span>group 3:</span>
+                <label>Min </label><input type='number' id='group3YMin' name='3'>
+                <label>Max </label><input type='number' id='group3YMax' name='3'>
+                <button type='button' value='3' onclick="yExtentUpdate(3, document.getElementById('group3YMin').value, document.getElementById('group3YMax').value)">Update</button>
+                <br/>
+                <span>group 4:</span>
+                <label>Min </label><input type='number' id='group4YMin' name='4'>
+                <label>Max </label><input type='number' id='group4YMax' name='4'>
+                <button type='button' value='4' onclick="yExtentUpdate(4, document.getElementById('group4YMin').value, document.getElementById('group4YMax').value)">Update</button>
+                <br/>
+            </div>
+        </div>
+        <script>
+            let yExtentUpdate = null;
+            window.onload = function() {
+                // create fake data in the shape our charts expect
+                let numberOfBuckets = 120;
+                var data = [];
+                var from = new Date(Math.floor((new Date()).valueOf() / (1000*60 * 60)) * (1000*60 * 60));
+                var to;
+                for(var i = 0; i < 3; i++){
+                    var lines = {};
+                    data.push({[`Factory${i}`]: lines});
+                    var values = {};
+                    lines[``] = values;
+                    for(var k = 0; k < numberOfBuckets; k++){
+                        if (i % 2 === 0) {
+                            // if(!(k%2 && k%3)){  // if check is to create some sparseness in the data
+                                var to = new Date(from.valueOf() + 1000*60*k);
+                                var val = Math.random() + (j !== 4 ? 2 : 0);
+                                var val2 = Math.random();
+                                var val3 = Math.random();
+                                var val4 = Math.random();
+                                values[to.toISOString()] = {avg: val, x: val2, y: val3, r: val4};
+                            // }
+                        } else {
+                            var val1 = Math.random();
+                            if (val1 < .5) {
+                                val1 = 1;
+                            }
+                            var val2 = (1 - val1) / 2;
+                            var val3 = (1 - val1) / 2;
+                            var to = new Date(from.valueOf() + 1000*60*k);
+                            if(Math.random() < .2)
+                                values[to.toISOString()] = {state1: val1, state2: val2, state3: val3};
+                            else
+                                values[to.toISOString()] = null;
+                        }
+                    } 
+                }
+                var random1Through10 = function () {
+                    return Math.ceil(Math.random() * 10);
+                }
+
+                var lines = {};
+                var events = {};
+                data.push({[`Factory3`]: events});
+                data.push({[`Factory 4`]: lines})
+                for(var j = 0; j < 1; j++){
+                        var values = {};
+                        lines[`Station${j}`] = values;
+                        events[`Station${j}`] = {};
+                        for(var k = 0; k < numberOfBuckets; k++){
+                            var val1 = Math.random(); 
+                            var val2 = 1- val1;
+                            var val3 = 0;
+                            if (j === 1) {
+                                val1 = 0;
+                                val2 = 1;
+                                val3 = 0;
+                            } 
+                            if (j === 2) {
+                                val1 = 0;
+                                val2 = 0;
+                                val3 = 1;
+                            }
+                            let previousTo = to;
+                            var toLocal = new Date(from.valueOf() + 1000*60*k);
+                            values[toLocal.toISOString()] = {state1: val1, state2: val2, state3: val3};
+
+                            if (Math.random() > .8) {
+                                let goodOrBad = Math.random() > .5;
+                                let goodAndBad = Math.random() > .8;
+                                let localEvent = {};
+                                events[`Station${j}`][toLocal.toISOString()] = localEvent;
+                                localEvent[goodOrBad ? 'goodEvent' : 'badEvent'] = (goodOrBad ? random1Through10() : random1Through10());
+                                if (goodAndBad) {
+                                    localEvent[goodOrBad ? 'badEvent' : 'goodEvent'] = (!goodOrBad ? random1Through10() : random1Through10());                                    
+                                }
+                                if (Math.random() > .7) {
+                                    localEvent['neutral Event'] = 'neutral message';                                    
+                                }
+
+                            }
+                            to = toLocal;
+                    }
+                }
+
+                let searchSpan = {
+                    from: from.toISOString(),
+                    to: new Date(to.valueOf() + 45 * 1000).toISOString(),
+                    bucketSize: '1m'
+                }
+
+                // render the data in a chart
+                var tsiClient = new TsiClient();
+                var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart1'));
+                let valueMapping = {
+                    state1: {
+                        color: '#F2C80F'
+                    }, 
+                    state2: {
+                        color: '#FD625E'
+                    },
+                    state3: {
+                        color:'#3599B8'
+                    }
+                }
+                let eventValueMapping = {
+                    badEvent: {
+                        color: 'red'
+                    },
+                    goodEvent: {
+                        color: 'blue'
+                    }
+                }
+                eventValueMapping['neutral Event'] =  { color: 'purple' };
+
+                var onElementClick = function (aggKey, splitBy, ts, measures) {
+                    console.log(aggKey, splitBy, ts, measures);
+                }
+
+                var chartDataOptions = [{dataType: 'numeric', searchSpan: searchSpan, swimLane: 1}, 
+                            {dataType: 'numeric', searchSpan: searchSpan, swimLane: 2}, 
+                            {dataType: 'categorical', valueMapping: valueMapping, height: 50, searchSpan: searchSpan, onElementClick: onElementClick, swimLane: 3},
+                            {dataType: 'events', valueMapping: eventValueMapping, height: 30, eventElementType: 'teardrop', onElementClick: onElementClick, swimLane: 4},
+                            {dataType: 'numeric', searchSpan: searchSpan, onElementClick: onElementClick, swimLane: 5}]; 
+
+                let swimLaneOptions = {
+                    1: {yAxisType: 'overlap'},
+                    2: {yAxisType: 'shared'},
+                    3: {yAxisType: 'shared'} 
+                }
+
+                var renderLinechart = function () {
+                    lineChart.render(data, {theme: 'light', tooltip: 'true', swimLaneOptions: swimLaneOptions, markers: [from.valueOf() + (60*1000*33)]}, chartDataOptions);
+                    console.log('-- Public yExtents --')
+                    console.log(lineChart.getYExtents())
+                }
+
+                renderLinechart();
+
+                function changeSwimLaneAndRender (aggGroup, newSwimLane) {
+                    chartDataOptions[aggGroup].swimLane = newSwimLane;
+                    renderLinechart();
+                }
+
+                function changeSwimLaneOptionAndRender(swimlane, yAxisType){
+                    swimLaneOptions[swimlane].yAxisType = yAxisType;
+                    renderLinechart();
+                }
+
+                yExtentUpdate = (group, yMin, yMax) => {
+                    yMin = Number(yMin);
+                    yMax = Number(yMax);
+                    // Update yExtents
+                    if(!isNaN(yMin) && !isNaN(yMax) && yMax > yMin){
+                        chartDataOptions[group].yExtent = [yMin, yMax]
+                    } else {
+                        delete chartDataOptions[group].yExtent;
+                    }
+
+                    renderLinechart();
+                }
+
+                // Group change listeners
+                document.getElementById(`group0Select`).onchange = function(evt) { changeSwimLaneAndRender(0, Number(evt.target.value))};
+                document.getElementById(`group1Select`).onchange = function(evt) { changeSwimLaneAndRender(1, Number(evt.target.value))};
+                document.getElementById(`group2Select`).onchange = function(evt) { changeSwimLaneAndRender(2, Number(evt.target.value))};
+                document.getElementById(`group3Select`).onchange = function(evt) { changeSwimLaneAndRender(3, Number(evt.target.value))};
+                document.getElementById(`group4Select`).onchange = function(evt) { changeSwimLaneAndRender(4, Number(evt.target.value))};
+
+                // Lane option change listeners
+                document.getElementById(`lane1option`).onchange = function(evt) { changeSwimLaneOptionAndRender(1, evt.target.value)}
+                document.getElementById(`lane2option`).onchange = function(evt) { changeSwimLaneOptionAndRender(2, evt.target.value)}
+                document.getElementById(`lane3option`).onchange = function(evt) { changeSwimLaneOptionAndRender(3, evt.target.value)}
+
+                setTimeout(() => { // Test for change in data rendered
+                    data = data.slice(1);
+                    renderLinechart();
+                }, 4000)
+            };
+        </script>
+    </body>
+</html>
