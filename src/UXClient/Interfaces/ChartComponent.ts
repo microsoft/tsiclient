@@ -241,9 +241,9 @@ class ChartComponent extends Component {
 							(dataType === DataTypes.Numeric && 
 							(measureType === this.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy)) &&
 							(measureFormat !== TooltipMeasureFormat.Scatter)));
-                    valueItem.append('div')
+                    let measureTitle = valueItem.append('div')
 						.attr('class', 'tsi-tooltipMeasureTitle')
-						.text(measureType);
+					Utils.appendFormattedElementsFromString(measureTitle, measureType);
                     valueItem.append('div')
                         .attr('class', 'tsi-tooltipMeasureValue')
                         .text(formatValue(d.measures[measureType]))
