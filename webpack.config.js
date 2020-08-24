@@ -1,5 +1,6 @@
 const path = require('path');
 const webpack = require('webpack');
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 module.exports = {
@@ -45,6 +46,7 @@ module.exports = {
     libraryTarget: 'umd'
   },
   plugins: [
+    new new BundleAnalyzerPlugin(),
     new MiniCssExtractPlugin({
       filename: 'tsiclient.css'
     })
