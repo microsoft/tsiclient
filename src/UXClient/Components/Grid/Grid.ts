@@ -156,14 +156,14 @@ class Grid extends Component {
                     .attr('class', (d, col) => `tsi-rowHeaderCell ${self.cellClass(i + 1, 0)}`)
                     .on("keydown", (d, col) => {self.arrowNavigate(d3.event, i + 1, 0)})
                     .attr('aria-label', d => {
-                        return `${self.getString('row header for')} ${getRowHeaderText(d)}`;
+                        return `${self.getString('row header for')} ${Utils.stripNullGuid(getRowHeaderText(d))}`;
                     })
                     .each(function (d) {
                         d3.select(this).select('*').remove();
                         let container = d3.select(this).append('div').attr('class', 'tsi-rowHeaderContainer');
-                        container.append('div')
-                            .attr('class', 'tsi-rowHeaderSeriesName')
-                            .text(getRowHeaderText);
+                        let seriesName = container.append('div')
+                            .attr('class', 'tsi-rowHeaderSeriesName');
+                        Utils.appendFormattedElementsFromString(seriesName, getRowHeaderText(d));
                         let measureContainer = container.append('div')
                             .attr('class', 'tsi-rowHeaderMeasures');
 

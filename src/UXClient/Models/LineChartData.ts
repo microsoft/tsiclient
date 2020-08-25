@@ -3,7 +3,19 @@ import {ChartComponentData} from "./ChartComponentData";
 
 class LineChartData extends ChartComponentData {
     public timeMap: any = {};
+    get yExtents(): {}{
+        return this._yExtents;
+    };
 
+    private _yExtents: {} = {};
+    
+    public setYExtents(key: number, value: [number, number]){
+        this._yExtents[key] = value;
+    }
+
+    public resetYExtents(){
+        this._yExtents = {};
+    }
 
     public setTimeMap () {
         this.timeMap = this.allValues.reduce ((timeMap, currVal) => {

@@ -45,6 +45,7 @@
 			}
 		}
 	}
+	
     @include chartColors($grays);
 }
 
@@ -124,7 +125,7 @@
 					.tsi-rowHeaderContainer {
 						display: table;
 						.tsi-rowHeaderSeriesName {
-							padding:2px;
+							padding: 2px;
 						}
 						.tsi-rowHeaderMeasures {
 							visibility: hidden;
@@ -184,5 +185,10 @@
 				}
 			}
 		}
+	}
+
+	.tsi-baseMono {
+		@extend .tsi-baseMono;
+		padding: 2px;
 	}
 }

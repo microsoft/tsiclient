@@ -4,7 +4,7 @@ import * as moment from 'moment';
 import {Grid} from "./Components/Grid/Grid";
 import { ChartOptions } from './Models/ChartOptions';
 import { ChartComponentData } from './Models/ChartComponentData';
-import { nullTsidDisplayString, nullTsidFormatTag } from './Constants/Constants';
+import { nullTsidDisplayString } from './Constants/Constants';
 
 export const NONNUMERICTOPMARGIN = 8;
 export const LINECHARTTOPPADDING = 16;
@@ -964,20 +964,78 @@ class Utils {
         return Utils.instanceHasEmptyTSID(instance) ? Utils.guid() : instance.timeSeriesId.map(id => id === null ? Utils.guidForNullTSID : id).join();
     }
 
+    static stripNullGuid = (str) => { // for replacing guids for null tsid in alias etc. with its display string
+        return str.replace(Utils.guidForNullTSID, nullTsidDisplayString);
+    }
+
     static getTimeSeriesIdString = (instance) => { // for arialabel and title 
         return instance.timeSeriesId.map(id => id === null ? nullTsidDisplayString : id).join(', ');
     }
 
     static getTimeSeriesIdToDisplay = (instance, emptyDisplayString) => { // time series id to be shown in UI
-        return Utils.instanceHasEmptyTSID(instance) ? emptyDisplayString : instance.timeSeriesId.map(id => id === null ?  `<${nullTsidFormatTag}>${nullTsidDisplayString}</${nullTsidFormatTag}>` : id).join(', ');
+        return Utils.instanceHasEmptyTSID(instance) ? emptyDisplayString : instance.timeSeriesId.map(id => id === null ? Utils.guidForNullTSID : id).join(', ');
     }
 
     static getHighlightedTimeSeriesIdToDisplay = (instance) => { // highlighted time series ids (including hits) to be shown in UI
-        return instance.highlights.timeSeriesId.map((id, idx) => instance.timeSeriesId[idx] === null ? `<${nullTsidFormatTag}>${nullTsidDisplayString}</${nullTsidFormatTag}>` : id).join(', ');
+        return instance.highlights.timeSeriesId.map((id, idx) => instance.timeSeriesId[idx] === null ? Utils.guidForNullTSID : id).join(', ');
     }
 
     static instanceHasEmptyTSID = (instance) => {
         return !instance.timeSeriesId || instance.timeSeriesId.length === 0;
+    }
+    
+    // appends dom elements of stripped strings including hits (for instance search results) and mono classed spans (for null tsid)
+    static appendFormattedElementsFromString = (targetElem, str, options: {additionalClassName?: string, inSvg?: boolean} = null) => {
+        interface FormattedElemData {
+            str: string;
+            isHit?: boolean;
+            isNull?: boolean;
+        };
+
+        let data : Array<FormattedElemData> = [];
+        let splitByNullGuid = (str) : Array<any> => {
+            let data = [];
+            let splittedByNull = str.split(Utils.guidForNullTSID);
+            splittedByNull.forEach((s, i) => {
+                if (i === 0) { 
+                    if (s) {
+                        data.push({str: s});
+                    }
+                } else {
+                    data.push({str: nullTsidDisplayString, isNull: true});
+                    if (s) {
+                        data.push({str: s});
+                    }
+                }
+            });
+            return data;
+        }
+
+        let splittedByHit = str.split('<hit>');
+        splittedByHit.forEach((s, i) => {
+            if (i === 0) {
+                data = data.concat(splitByNullGuid(s));
+            } else {
+                let splittedByHitClose = s.split('</hit>');
+                data.push({str: splittedByHitClose[0], isHit: true});
+                data = data.concat(splitByNullGuid(splittedByHitClose[1]));
+            }
+        });
+
+        let additionalClassName = options && options.additionalClassName ? options.additionalClassName : '';
+        let children = targetElem.selectAll('.tsi-formattedChildren').data(data);
+        children.enter()
+            .append(d => 
+                d.isHit ? document.createElement('mark')
+                : options && options.inSvg ? document.createElementNS('http://www.w3.org/2000/svg', 'tspan')
+                    : document.createElement('span')
+            )
+            .classed('tsi-formattedChildren', true)
+            .merge(children)
+            .classed('tsi-baseMono', d => d.isNull)
+            .classed(additionalClassName, options && options.additionalClassName)
+            .text(d => d.str);
+        children.exit().remove();
     }
 }
 

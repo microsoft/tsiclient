@@ -392,7 +392,7 @@ class LineChart extends TemporalXAxisComponent {
         this.chartOptions.onMouseover(d.aggregateKey, d.splitBy);
     }
 
-    // //get the extent of an array of timeValues
+    //get the extent of an array of timeValues
     private getYExtent (aggValues, isEnvelope, aggKey = null) {   
         let extent;
         if (aggKey !== null && (this.chartComponentData.displayState[aggKey].yExtent !== null)) {
@@ -579,14 +579,16 @@ class LineChart extends TemporalXAxisComponent {
         return (isDeleting, droppedMarker, shouldSort: boolean = true) => {
             if (droppedMarker) {
                 this.markerGuidMap[markerGuid] = marker;
-                this.isDroppingMarker = false;
             }
             else if (isDeleting) {
                 delete this.markerGuidMap[markerGuid];
 
                 //set focus to first marker if markers exist on delete
-                if (Object.keys(this.markerGuidMap).length !== 0) {
-                    this.markerGuidMap[Object.keys(this.markerGuidMap)[0]].focusCloseButton();
+                let visibleMarkers: any = Object.values(this.markerGuidMap).filter((marker: Marker) => {
+                    return marker.isMarkerInRange();
+                });
+                if (visibleMarkers.length !== 0) {
+                    visibleMarkers[0].focusCloseButton();
                 } else {
                     this.focusOnEllipsis();
                 }
@@ -801,7 +803,7 @@ class LineChart extends TemporalXAxisComponent {
             if (site.data && cDO.onElementClick !== null) {
                 cDO.onElementClick(site.data.aggregateKey, site.data.splitBy, site.data.dateTime.toISOString(), site.data.measures);
             } else {
-                if (this.chartComponentData.stickiedKey != null) {
+                if (this.chartComponentData.stickiedKey !== null) {
                     site = this.voronoiDiagram.find(mx, my);
                     this.voronoiMousemove(site.data);
                     this.unstickySeries(site.data.aggregateKey, site.data.splitBy);
@@ -809,7 +811,11 @@ class LineChart extends TemporalXAxisComponent {
                 }
                 this.stickySeries(site.data.aggregateKey, site.data.splitBy);    
             }
-        } 
+        } else {
+            if (!this.hasBrush) {
+                this.isDroppingMarker = false;
+            }
+        }
 
         this.destroyMarkerInstructions();
         if (Utils.safeNotNullOrUndefined(() => this.activeMarker)) {
@@ -883,7 +889,7 @@ class LineChart extends TemporalXAxisComponent {
             const [mx, my] = d3.mouse(mouseEvent);
             var site: any = this.voronoiDiagram.find(mx, my);
             let isClearingBrush = (this.brushStartPosition !== null) && (this.brushEndPosition !== null);
-            if (this.chartComponentData.stickiedKey != null && !this.isDroppingMarker && !isClearingBrush) {
+            if (this.chartComponentData.stickiedKey !== null && !this.isDroppingMarker && !isClearingBrush) {
                 this.chartComponentData.stickiedKey = null;
                 (<any>this.legendObject.legendElement.selectAll('.tsi-splitByLabel')).classed("stickied", false);
                 // recompute voronoi with no sticky
@@ -1061,6 +1067,10 @@ class LineChart extends TemporalXAxisComponent {
         this.targetElement.select('.tsi-rangeTextContainer').remove();
     }
 
+    public getYExtents(){
+        return this.chartComponentData.yExtents;
+    }
+
     private nextStackedState = () => {
         if (this.chartOptions.yAxisState === YAxisStates.Stacked) 
             return "shared";
@@ -1145,12 +1155,13 @@ class LineChart extends TemporalXAxisComponent {
                     let yExtent = this.getYExtent(aggValues, 
                         this.chartComponentData.displayState[aggKey].includeEnvelope ? 
                             this.chartComponentData.displayState[aggKey].includeEnvelope : 
-                            this.chartOptions.includeEnvelope, null);
+                            this.chartOptions.includeEnvelope, aggKey);
                     extent = d3.extent(yExtent.concat(extent));
                     extents[lane] = extent;
                 }
             });
         });
+
         this.swimlaneYExtents = extents;
     }
 
@@ -1511,7 +1522,7 @@ class LineChart extends TemporalXAxisComponent {
                     .extent([[this.xLowerBound, this.chartOptions.aggTopMargin],
                              [this.xUpperBound, this.chartHeight]])
                     .on("start", function() {
-                        if (self.activeMarker != null && self.isDroppingMarker) {
+                        if (self.activeMarker !== null && self.isDroppingMarker) {
                             self.voronoiClick(this);
                         }
                         var handleHeight = self.getHandleHeight();
@@ -1591,6 +1602,8 @@ class LineChart extends TemporalXAxisComponent {
 
                 let swimLaneCounts = {};
 
+                this.chartComponentData.resetYExtents(); // Reset public facing yExtents
+
                 let aggregateGroups = this.svgSelection.select('.svgGroup').selectAll('.tsi-aggGroup')
                     .data(visibleCDOs, (agg) => agg.aggKey);
                     var self = this;
@@ -1630,6 +1643,9 @@ class LineChart extends TemporalXAxisComponent {
                             if (self.getAggAxisType(agg) === YAxisStates.Shared) {
                                 yExtent = self.swimlaneYExtents[agg.swimLane];
                             }
+
+                            // Update yExtent in LineChartData after all yExtent updates (this is public facing yExtent)
+                            self.chartComponentData.setYExtents(i, yExtent);
 
                             //should count all as same swim lane when not in stacked.
                             let swimLane = agg.swimLane;

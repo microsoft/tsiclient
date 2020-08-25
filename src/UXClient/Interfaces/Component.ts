@@ -40,14 +40,13 @@ class Component {
 	}
 
 	protected createTooltipSeriesInfo (d, group, cDO) {
-		group.append('h2')
-			.attr('class', 'tsi-tooltipGroupName tsi-tooltipTitle')
-			.text(d.aggregateName);
+		let title = group.append('h2').attr('class', 'tsi-tooltipGroupName tsi-tooltipTitle');
+		Utils.appendFormattedElementsFromString(title, d.aggregateName);
 
 		if (d.splitBy && d.splitBy != ""){
-			group.append('h4')
-				.text(d.splitBy)
+			let splitBy = group.append('h4')
 				.attr('class', 'tsi-tooltipSeriesName tsi-tooltipSubtitle');
+			Utils.appendFormattedElementsFromString(splitBy, d.splitBy);
 		}
 		
 		if (cDO.variableAlias){

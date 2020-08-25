@@ -16,4 +16,3 @@ export const DefaultHierarchyContextMenuOptions = {
 }
 
 export const nullTsidDisplayString = "null";
-export const nullTsidFormatTag = "pre";
