@@ -101,6 +101,7 @@ class GroupedBarChart extends ChartVisualizationComponent {
             });
 
             var labelMouseover = (aggKey: string, splitBy: string = null) => {
+                var self = this;
                 svgSelection.selectAll(".tsi-valueElement")
                     .attr("stroke-opacity", 1)
                     .attr("fill-opacity", 1);
@@ -127,32 +128,37 @@ class GroupedBarChart extends ChartVisualizationComponent {
                             .filter((d: any) => {
                                 return d == aggKey;
                             })
-                            .select(".labelGroup").select("text");
+                            .select(".labelGroup").select("text").text(null);
                 var dy = parseFloat(text.attr("dy"));
-                text.text(null).append("tspan")
-                    .attr("y", text.attr("y"))
-                    .attr("x", text.attr("x"))
-                    .attr("dy", dy + "em")
-                    .attr("text-anchor", "middle")
-                    .text(this.chartComponentData.displayState[aggKey].name);
-                text.append("tspan")
-                    .attr("y", text.attr("y"))
-                    .attr("x", text.attr("x"))
-                    .attr("dy", (dy + dy * 2) + "em")
-                    .attr("text-anchor", "middle")
-                    .text(splitBy);   
+
+                let aggLabelGroup = text.append("tspan").attr('class', "tsi-labelGroupLine");
+                Utils.appendFormattedElementsFromString(aggLabelGroup, self.chartComponentData.displayState[aggKey].name, {inSvg: true, additionalClassName: "tsi-aggregateLabelGroupText"});
+                let splitByLabelGroup = text.append("tspan").attr('class', "tsi-labelGroupLine");
+                Utils.appendFormattedElementsFromString(splitByLabelGroup, splitBy, {inSvg: true, additionalClassName: "tsi-splitByLabelGroupText"});
+
+                splitByLabelGroup.selectAll('.tsi-splitByLabelGroupText').each(function(d, i) {
+                    if (i == 0) {
+                        d3.select(this).attr("y", text.attr("y"))
+                        .attr("x", text.attr("x"))
+                        .attr("dy", (dy + dy * 2) + "em")
+                        .attr("text-anchor", "middle");
+                    }
+                });
                 rePositionLabelGroupBoxes(svgSelection, aggKey);         
             }
 
             var labelMouseout = (svgSelection, aggKey) => {
-                svgSelection.selectAll(".barGroup")
+                var self = this;
+                var allText = svgSelection.selectAll(".barGroup")
                     .selectAll(".labelGroup")
                     .selectAll("text")
-                    .text((aggKey) => {
-                        if (this.chartComponentData.displayState[aggKey] != undefined)
-                            return this.chartComponentData.displayState[aggKey].name;
-                        return "";
-                    });
+                    .text(null);
+                allText.each(function(aggKey) {
+                    var text = d3.select(this);
+                    if (self.chartComponentData.displayState[aggKey] != undefined) {
+                        Utils.appendFormattedElementsFromString(text, self.chartComponentData.displayState[aggKey].name, {inSvg: true, additionalClassName: "tsi-aggregateLabelGroupText"});
+                    }
+                })
                 rePositionLabelGroupBoxes(svgSelection);
             }                         
 
@@ -178,23 +184,26 @@ class GroupedBarChart extends ChartVisualizationComponent {
                     // //truncate text to fit in spacePerAggregate of width
                     var textSelection: any = d3.select(this).select('.labelGroup').select("text");
 
-                    var truncateText = (textSelection) => {
-                        var textLength = textSelection.node().getComputedTextLength();
-                        var text = textSelection.text();
-                        while ( ( textLength > spacePerAgg - 6) && text.length > 0) {
-                            text = text.slice(0, -1);
-                            textSelection.text(text + '...');
-                            textLength = textSelection.node().getComputedTextLength();
+                    var truncateText = (textSelection, childrenSize = 1) => {
+                        if(textSelection.node().getComputedTextLength) {
+                            var textLength = textSelection.node().getComputedTextLength();
+                            var text = textSelection.text();
+                            while ( textLength > ((spacePerAgg-6)/childrenSize) && text.length > 0) {
+                                text = text.slice(0, -1);
+                                textSelection.text(text + '...');
+                                textLength = textSelection.node().getComputedTextLength();
+                            }
                         }
                     }
 
                     //text is either in tspans or just in text. Either truncate text directly or through tspan
-                    if (textSelection.selectAll("tspan").size() == 0)
+                    if (textSelection.selectAll("tspan").filter(function() {return !d3.select(this).classed("tsi-labelGroupLine")}).size() === 0)
                         truncateText(textSelection)
                     else {
-                        textSelection.selectAll("tspan").each(function() {
+                        textSelection.selectAll("tspan").filter(function() {return !d3.select(this).classed("tsi-labelGroupLine")}).each(function() {
                             var tspanTextSelection = d3.select(this);
-                            truncateText(tspanTextSelection);
+                            let childrenSize = tspanTextSelection.classed("tsi-splitByLabelGroupText") ? textSelection.selectAll(".tsi-splitByLabelGroupText").size() : textSelection.selectAll(".tsi-aggregateLabelGroupText").size();
+                            truncateText(tspanTextSelection, childrenSize);
                         });
                     }
 
@@ -333,9 +342,9 @@ class GroupedBarChart extends ChartVisualizationComponent {
                         .append("g")
                         .attr("class", "labelGroup");
                     labelGroupEntered.append("rect");
-                    labelGroupEntered.append("text")
+                    var labelGroupText = labelGroupEntered.append("text")
                         .attr("dy", ".71em");
-                    
+                    Utils.appendFormattedElementsFromString(labelGroupText, self.chartComponentData.displayState[aggKey].name, {inSvg: true, additionalClassName: "tsi-aggregateLabelGroupText"});
 
                     var labelGroupBox: any = labelGroupEntered.merge(labelGroup)
                         .select("rect")
@@ -345,10 +354,6 @@ class GroupedBarChart extends ChartVisualizationComponent {
                         .attr("width", 0)
                         .attr("height", 0);
 
-                    labelGroupEntered
-                        .merge(labelGroup)
-                        .select("text")
-                        .text((d) => self.chartComponentData.displayState[aggKey].name);
                     d3.select(this).select(".labelGroup").select("text")
                         .transition()
                         .duration(self.TRANSDURATION)
@@ -357,6 +362,7 @@ class GroupedBarChart extends ChartVisualizationComponent {
                         .attr("y", chartHeight + 12)
                         .style("fill", (d) => self.chartComponentData.displayState[aggKey].color)
                         .attr("text-anchor", "middle");
+                    
                     labelGroup.exit().remove();
 
                     rePositionLabelGroupBoxes(svgSelection, aggKey);

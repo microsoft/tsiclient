@@ -1,6 +1,5 @@
 import * as d3 from 'd3';
 import './Tooltip.scss';
-import {Utils} from "./../../Utils";
 import {Component} from "./../../Interfaces/Component";
 import { ChartComponentData } from '../../Models/ChartComponentData';
 

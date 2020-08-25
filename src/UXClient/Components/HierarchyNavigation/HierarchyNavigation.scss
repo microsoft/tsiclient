@@ -148,10 +148,6 @@
         }
     }
 
-    .tsi-baseMono {
-        background: $gray4;
-    }
-
     @include baseContextMenuColors($grays);
 
     .tsi-hierarchyCheckbox{
@@ -747,12 +743,6 @@
 
     .tsi-hitCount { 
         display: none;
-    }
-
-    .tsi-baseMono{
-        position: relative;
-        padding-bottom: 1px;
-        top: -1px;
     }
 
     @keyframes fade-in {
