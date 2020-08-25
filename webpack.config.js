@@ -1,6 +1,8 @@
 const path = require('path');
 const webpack = require('webpack');
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 
 module.exports = {
   entry: './src/TsiClient.ts',
@@ -45,8 +47,12 @@ module.exports = {
     libraryTarget: 'umd'
   },
   plugins: [
+    new BundleAnalyzerPlugin({generateStatsFile: true, analyzerMode: 'disabled', statsFilename: '../buildStats.json'}),
     new MiniCssExtractPlugin({
       filename: 'tsiclient.css'
     })
-  ]
+  ],
+  optimization: {
+    minimizer: [new OptimizeCSSAssetsPlugin({})],
+  },
 };
