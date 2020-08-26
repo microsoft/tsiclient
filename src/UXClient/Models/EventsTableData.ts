@@ -12,6 +12,7 @@ class EventsTableData {
     private offsetName = null;
     private maxVisibleToStart = 10;
     private offsetNameCache = {};
+    private timeSeriesIdProperties: Array<{name: string, type: any}> = [];
 
 	constructor(){
         
@@ -34,6 +35,8 @@ class EventsTableData {
 
     public sortColumnKeys () {
         let columnKeys = Object.keys(this.columns);
+        let existingTsidColumnKeys = Object.values(this.columns).filter(c => c['isTsid']).map(c => c['key']); // detect existing time series id properties in column keys
+        columnKeys = existingTsidColumnKeys.concat(columnKeys.filter(c => !existingTsidColumnKeys.includes(c))); // put these time series id properties to the beginning of the column key list
         let offsetKey = this.offsetName + "_DateTime";
 
         let lessTimestamps = columnKeys.filter((columnKey) => {
@@ -44,10 +47,12 @@ class EventsTableData {
             timestamps.push(this.timestampColumnKey);
         if (columnKeys.indexOf(offsetKey) !== -1) 
             timestamps.push(offsetKey);
+
         return timestamps.concat(lessTimestamps);
     }
 
-    public setEvents (rawEvents, fromTsx, offset = null) {
+    public setEvents (rawEvents, fromTsx, timeSeriesIdProperties, offset = null) {
+        this.timeSeriesIdProperties = timeSeriesIdProperties;
         this.events = [];
         rawEvents.forEach((rawEvent) => {
             if (!fromTsx) {
@@ -109,24 +114,32 @@ class EventsTableData {
     }
 
     public constructColumns () {
+        var timeSeriesIdPropertyKeys = this.timeSeriesIdProperties.map(p => `${p.name}_${p.type}`);
         var newColumns = {};
         this.events.forEach((event: TimeSeriesEvent) => {
             Object.keys(event.cells).forEach((cellKey: string) => {
                 var cell = event.cells[cellKey];
                 if (this.columns[cell.key] == null) {
                     newColumns[cell.key] = { 
-                        key:  cell.key,
+                        key: cell.key,
                         name: cell.name,
                         visible: true,
-                        type: cell.type
+                        type: cell.type,
+                        isTsid: timeSeriesIdPropertyKeys.includes(cell.key)
                     }
                 } else {
                     newColumns[cell.key] = this.columns[cell.key];
                 }
             })
         });
-        Object.keys(newColumns).forEach((columnKey, i) => {
-            newColumns[columnKey].visible = (i < this.maxVisibleToStart);
+        var visibleColumnCounter = Object.values(newColumns).filter(c => c['isTsid']).length;
+        Object.keys(newColumns).forEach(columnKey => {
+            if (newColumns[columnKey].isTsid) {
+                newColumns[columnKey].visible = true;
+            } else {
+                newColumns[columnKey].visible =  visibleColumnCounter < this.maxVisibleToStart;
+                visibleColumnCounter++
+            }
         });
         this.columns = newColumns;
     }

@@ -112,6 +112,11 @@
         }
     }
 
+    .tsi-columnTypeIcons {
+        display: flex;
+        align-items: center;
+    }
+
     .tsi-columnTypeIcon {
         width: 16px;
         height: 16px;
@@ -127,6 +132,10 @@
         }
         &.Bool {
             background-image: url('../../Icons/boolean.svg');
+        }
+        &.tsid {
+            margin-right: 8px;
+            background-image: url('../../Icons/key.svg');
         }
     }
 
@@ -173,10 +182,26 @@
                     display: inline-block;
                     font-weight: bold;
                     margin-right: 52px;
+                    &.moreMarginRight {
+                        margin-right: 72px;
+                    }
                 }
                 .tsi-columnSortIcon {
                     right: 28px;
                     position: absolute;
+                    &.moreRight {
+                        right: 52px;
+                    }
+                }
+                .tsi-columnTypeIcons {
+                    position: absolute;
+                    vertical-align: bottom;
+                    right: 8px;
+
+                    .tsi-columnTypeIcon {
+                        position: relative;
+                        right: unset;
+                    }
                 }
                 .tsi-columnTypeIcon {
                     position: absolute;
@@ -335,6 +360,10 @@
                     text-overflow: ellipsis;
                     overflow: hidden;
                     display: inline-block;
+
+                    &.tsidPropertyName {
+                        width: calc(100% - 112px);
+                    }
                 }
     
                 .tsi-columnToggleCheckbox {
@@ -361,7 +390,7 @@
                         right: 4px;
                         position: absolute;
                         cursor: pointer;
-                        margin-top: -7px;
+                        margin-top: -10px;
                         font-size: 14px;
                         &:hover, &:focus {
                             text-decoration: underline;
