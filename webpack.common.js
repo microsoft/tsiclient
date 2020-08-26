@@ -5,7 +5,9 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 module.exports = {
     entry: {
-        tsiclient: './src/TsiClient.ts'
+        tsiclient: './src/TsiClient.ts',
+        serverclient: './src/ServerClient/ServerClient.ts',
+        utils: './src/UXClient/Utils'
     },
     module: {
         rules: [
