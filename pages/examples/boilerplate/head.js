@@ -1,7 +1,7 @@
 window.addEventListener('DOMContentLoaded', function(){
     var sdkJs = document.createElement('script');
     // sdkJs.src = 'https://unpkg.com/tsiclient@1.3.0/tsiclient.js';
-    sdkJs.src = '../../../dist/tsiclient.bundle.js';  // for local testing
+    sdkJs.src = '../../../dist/tsiclient.js';  // for local testing
 
     var promiseJs = document.createElement('script');
     promiseJs.src = 'https://cdnjs.cloudflare.com/ajax/libs/bluebird/3.3.4/bluebird.min.js';

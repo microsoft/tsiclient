@@ -6,8 +6,6 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 module.exports = {
     entry: {
         tsiclient: './src/TsiClient.ts',
-        serverclient: './src/ServerClient/ServerClient.ts',
-        utils: './src/UXClient/Utils'
     },
     module: {
         rules: [
@@ -42,10 +40,11 @@ module.exports = {
         extensions: ['.tsx', '.ts', '.js']
     },
     output: {
-        filename: '[name].bundle.js',
+        filename: '[name].js',
         path: path.resolve(__dirname, 'dist'),
         publicPath: '/dist/',
-        libraryTarget: 'umd'
+        libraryTarget: 'umd',
+        library: 'tsiclient',
     },
     plugins: [
         new BundleAnalyzerPlugin({generateStatsFile: true, analyzerMode: 'disabled', statsFilename: '../buildStats.json'}),
