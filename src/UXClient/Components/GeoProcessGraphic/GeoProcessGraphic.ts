@@ -1,12 +1,11 @@
+import * as atlas from 'azure-maps-control';
 import './GeoProcessGraphic.scss';
 import { HistoryPlayback, GraphicInfo } from "./../../Components/HistoryPlayback/HistoryPlayback";
 import { TsqExpression } from '../../Models/TsqExpression';
 import { ServerClient } from '../../../ServerClient/ServerClient';
-import AtlasMapWrapper from '../AtlasMapWrapper/AtlasMapWrapper';
 
 class GeoProcessGraphic extends HistoryPlayback {
-    private atlas: any = null;
-    private dataSource: any = null;
+    private dataSource: atlas.source.DataSource;
     private azureMapsSubscriptionKey: string;
     private zoom: number;
     private width: number;
@@ -18,7 +17,7 @@ class GeoProcessGraphic extends HistoryPlayback {
     private maxZoom: number;
     private minZoom: number;
     private duration: number;
-    private map: any = null;
+    private map: atlas.Map;
 
   constructor(renderTarget: Element){
     super(renderTarget);
@@ -26,22 +25,11 @@ class GeoProcessGraphic extends HistoryPlayback {
     this.currentCancelTrigger = null;
   }
 
-  async initAtlas(){
-    if(this.atlas) return;
-    this.atlas = await (new AtlasMapWrapper()).getAtlas();
-    this.dataSource = this.atlas.source.DataSource;
-    this.map = this.atlas.Map;
-  }
-
-  async render(environmentFqdn: string,
+  render(environmentFqdn: string,
     getToken: () => Promise<string>,
     data: Array<TsqExpression>,
     chartOptions
     ) {
-
-    // Initialize Atlas Asynchronously
-    await this.initAtlas();
-
     this.zoom = chartOptions.zoom;
     this.center = chartOptions.center;
     this.bearing = chartOptions.bearing;
@@ -60,22 +48,22 @@ class GeoProcessGraphic extends HistoryPlayback {
     (<HTMLElement>this.component.node()).style.width = `${this.width}px`;
     (<HTMLElement>this.component.node()).style.height = `${this.height}px`;
     
-     this.map = new this.atlas.Map(<HTMLElement>this.component.node(), {
+     this.map = new atlas.Map(<HTMLElement>this.component.node(), {
       authOptions: {
-        authType: this.atlas.AuthenticationType.subscriptionKey,
+        authType: atlas.AuthenticationType.subscriptionKey,
         subscriptionKey: this.azureMapsSubscriptionKey
       }
     });
     this.map.events.add('ready', () => {
-      this.dataSource = new this.atlas.source.DataSource();
+      this.dataSource = new atlas.source.DataSource();
       this.map.sources.add(this.dataSource);
 
       for (let i = 0; i < this.tsqExpressions.length; i++){
-        let popup = new this.atlas.Popup({
+        let popup = new atlas.Popup({
           content: `<div class = 'tsi-gpgPopUp id= tsi-popup${i}'></div>`,
           pixelOffset: [0, -30]
         });
-        let marker = new this.atlas.HtmlMarker({
+        let marker = new atlas.HtmlMarker({
           htmlContent: `<div class = tsi-geoprocess-graphic> <img class='tsi-gpgcircleImage 
           id= tsi-htmlMarker${i}' src= "` + this.tsqExpressions[i].image + '" /> </div>',
           position: [0,0],

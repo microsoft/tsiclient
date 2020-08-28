@@ -4,8 +4,9 @@ const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPl
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 module.exports = {
+    target: 'web',
     entry: {
-        tsiclient: './src/TsiClient.ts',
+        tsiclient: './src/TsiIndex.ts'
     },
     module: {
         rules: [
@@ -40,17 +41,19 @@ module.exports = {
         extensions: ['.tsx', '.ts', '.js']
     },
     output: {
-        filename: '[name].js',
+        filename: "[name].js",
         path: path.resolve(__dirname, 'dist'),
         publicPath: '/dist/',
         libraryTarget: 'umd',
-        library: 'tsiclient',
+        library: 'TsiClientLib',
+        globalObject: 'this',
+        umdNamedDefine: true,
     },
     plugins: [
         new BundleAnalyzerPlugin({generateStatsFile: true, analyzerMode: 'disabled', statsFilename: '../buildStats.json'}),
         new CleanWebpackPlugin(),
         new MiniCssExtractPlugin({
-            filename: 'tsiclient.css'
+            filename: '[name].css'
         })
     ],
 };
