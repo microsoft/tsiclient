@@ -1,22 +1,22 @@
 import './UXClient/styles.scss'
 
-import {ServerClient} from "./ServerClient/ServerClient";
-import {UXClient} from "./UXClient/UXClient";
-import {LineChart} from "./UXClient/Components/LineChart/LineChart";
-import {AvailabilityChart} from "./UXClient/Components/AvailabilityChart/AvailabilityChart";
-import {PieChart} from "./UXClient/Components/PieChart/PieChart";
-import {ScatterPlot} from "./UXClient/Components/ScatterPlot/ScatterPlot";
-import {GroupedBarChart} from "./UXClient/Components/GroupedBarChart/GroupedBarChart";
-import {Grid} from "./UXClient/Components/Grid/Grid";
-import {Slider} from "./UXClient/Components/Slider/Slider";
-import {Hierarchy} from "./UXClient/Components/Hierarchy/Hierarchy";
-import {AggregateExpression} from "./UXClient/Models/AggregateExpression";
-import {Heatmap} from "./UXClient/Components/Heatmap/Heatmap";
-import {EventsTable} from "./UXClient/Components/EventsTable/EventsTable";
-import {ModelSearch} from "./UXClient/Components/ModelSearch/ModelSearch"; 
-import {DateTimePicker} from "./UXClient/Components/DateTimePicker/DateTimePicker";
-import {TimezonePicker} from "./UXClient/Components/TimezonePicker/TimezonePicker";
-import {Utils} from "./UXClient/Utils";
+import { ServerClient } from "./ServerClient/ServerClient";
+import { UXClient } from "./UXClient/UXClient";
+import { LineChart } from "./UXClient/Components/LineChart/LineChart";
+import { AvailabilityChart } from "./UXClient/Components/AvailabilityChart/AvailabilityChart";
+import { PieChart } from "./UXClient/Components/PieChart/PieChart";
+import { ScatterPlot } from "./UXClient/Components/ScatterPlot/ScatterPlot";
+import { GroupedBarChart } from "./UXClient/Components/GroupedBarChart/GroupedBarChart";
+import { Grid } from "./UXClient/Components/Grid/Grid";
+import { Slider } from "./UXClient/Components/Slider/Slider";
+import { Hierarchy } from "./UXClient/Components/Hierarchy/Hierarchy";
+import { AggregateExpression } from "./UXClient/Models/AggregateExpression";
+import { Heatmap } from "./UXClient/Components/Heatmap/Heatmap";
+import { EventsTable } from "./UXClient/Components/EventsTable/EventsTable";
+import { ModelSearch } from "./UXClient/Components/ModelSearch/ModelSearch"; 
+import { DateTimePicker } from "./UXClient/Components/DateTimePicker/DateTimePicker";
+import { TimezonePicker } from "./UXClient/Components/TimezonePicker/TimezonePicker";
+import { Utils } from "./UXClient/Utils";
 import { EllipsisMenu } from "./UXClient/Components/EllipsisMenu/EllipsisMenu";
 import { TsqExpression } from "./UXClient/Models/TsqExpression";
 import { ModelAutocomplete } from "./UXClient/Components/ModelAutocomplete/ModelAutocomplete";
@@ -29,33 +29,31 @@ import { PlaybackControls } from './UXClient/Components/PlaybackControls/Playbac
 import { ColorPicker } from "./UXClient/Components/ColorPicker/ColorPicker";
 import { GeoProcessGraphic } from "./UXClient/Components/GeoProcessGraphic/GeoProcessGraphic";
 
-export{
-    ServerClient,
-    UXClient,
-    LineChart,
-    AvailabilityChart,
-    PieChart,
-    ScatterPlot,
-    GroupedBarChart,
-    Grid,
-    Slider,
-    Hierarchy,
-    AggregateExpression,
-    Heatmap,
-    EventsTable,
-    ModelSearch,
-    DateTimePicker,
-    TimezonePicker,
-    Utils,
-    EllipsisMenu,
-    TsqExpression,
-    ModelAutocomplete,
-    HierarchyNavigation,
-    SingleDateTimePicker,
-    DateTimeButtonSingle,
-    DateTimeButtonRange,
-    ProcessGraphic,
-    PlaybackControls,
-    ColorPicker,
-    GeoProcessGraphic
-}
+export { ServerClient };
+export { UXClient };
+export { LineChart };
+export { AvailabilityChart };
+export { PieChart };
+export { ScatterPlot };
+export { GroupedBarChart };
+export { Grid };
+export { Slider };
+export { Hierarchy };
+export { AggregateExpression };
+export { Heatmap };
+export { EventsTable };
+export { ModelSearch };
+export { DateTimePicker };
+export { TimezonePicker };
+export { Utils };
+export { EllipsisMenu };
+export { TsqExpression };
+export { ModelAutocomplete };
+export { HierarchyNavigation };
+export { SingleDateTimePicker };
+export { DateTimeButtonSingle };
+export { DateTimeButtonRange };
+export { ProcessGraphic };
+export { PlaybackControls };
+export { ColorPicker };
+export { GeoProcessGraphic };

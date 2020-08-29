@@ -1,7 +1,6 @@
 {
     "name": "tsiclient",
     "main": "dist/index.js",
-    "module": "src/TsiIndex.js",
     "description": "",
     "version": "1.3.0",
     "files": [

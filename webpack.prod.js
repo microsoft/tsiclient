@@ -12,6 +12,5 @@ module.exports = merge(common, {
         splitChunks: {
             chunks: 'all',
         },
-        runtimeChunk: true
     },
 });

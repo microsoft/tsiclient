@@ -4,7 +4,6 @@ const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPl
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 module.exports = {
-    target: 'web',
     entry: {
         tsiclient: './src/TsiIndex.ts'
     },
@@ -46,7 +45,6 @@ module.exports = {
         publicPath: '/dist/',
         libraryTarget: 'umd',
         library: 'TsiClientLib',
-        globalObject: 'this',
         umdNamedDefine: true,
     },
     plugins: [
