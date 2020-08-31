@@ -977,7 +977,7 @@ class Utils {
     }
     
     // appends dom elements of stripped strings including hits (for instance search results) and mono classed spans (for null tsid)
-    static appendFormattedElementsFromString = (targetElem, str, options: {additionalClassName?: string, inSvg?: boolean} = null) => {
+    static appendFormattedElementsFromString = (targetElem, str, options: {additionalClassName?: string, inSvg?: boolean, splitByTag?: string} = null) => {
         interface FormattedElemData {
             str: string;
             isHit?: boolean;
@@ -1003,12 +1003,13 @@ class Utils {
             return data;
         }
 
-        let splittedByHit = str.split('<hit>');
+        let splitByTag = options && options.splitByTag ? options.splitByTag : 'hit';
+        let splittedByHit = str.split(`<${splitByTag}>`);
         splittedByHit.forEach((s, i) => {
             if (i === 0) {
                 data = data.concat(splitByNullGuid(s));
             } else {
-                let splittedByHitClose = s.split('</hit>');
+                let splittedByHitClose = s.split(`</${splitByTag}>`);
                 data.push({str: splittedByHitClose[0], isHit: true});
                 data = data.concat(splitByNullGuid(splittedByHitClose[1]));
             }

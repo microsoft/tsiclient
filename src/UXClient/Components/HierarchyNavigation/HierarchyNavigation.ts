@@ -937,7 +937,7 @@ class HierarchyNavigation extends Component{
                         this.closeContextMenu();
                     });
                     let itemWrapperElem = li.append('div').classed('tsi-selectionItemWrapper', true);
-                    Utils.appendFormattedElementsFromString(itemWrapperElem, Utils.mark(searchString, option));
+                    Utils.appendFormattedElementsFromString(itemWrapperElem, Utils.mark(searchString, option), {splitByTag: 'mark'});
                 } else {
                     li.attr('tabindex', 0)
                     .on('click keydown', () => {
@@ -961,7 +961,7 @@ class HierarchyNavigation extends Component{
                     itemWrapperElem.append('span').classed('tsi-hierarchyCheckbox tsi-notSelected', true)
                                     .attr("role","checkbox").attr("aria-checked", false);
                     let itemElem = itemWrapperElem.append('span').classed('tsi-selectionItem', true).attr('title', option);
-                    Utils.appendFormattedElementsFromString(itemElem, Utils.mark(searchString, option));
+                    Utils.appendFormattedElementsFromString(itemElem, Utils.mark(searchString, option), {splitByTag: 'mark'});
                     itemWrapperElem.append('span').classed('tsi-selectionItemKind', true).classed(item.kind, true).attr('title', item.kind.charAt(0).toUpperCase() + item.kind.slice(1));
                 }
             });
