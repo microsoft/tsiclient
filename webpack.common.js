@@ -44,8 +44,9 @@ module.exports = {
         path: path.resolve(__dirname, 'dist'),
         publicPath: '/dist/',
         libraryTarget: 'umd',
-        library: 'TsiClientLib',
+        library: 'tsiclient',
         umdNamedDefine: true,
+        globalObject: 'this',
     },
     plugins: [
         new BundleAnalyzerPlugin({generateStatsFile: true, analyzerMode: 'disabled', statsFilename: '../buildStats.json'}),
