@@ -6,6 +6,7 @@ import { EllipsisMenu } from "../Components/EllipsisMenu/EllipsisMenu";
 import * as d3 from 'd3';
 import Split from 'split.js';
 import { Legend } from "../Components/Legend/Legend";
+import { ShiftTypes } from "../Constants/Enums";
 
 
 class ChartComponent extends Component {
@@ -194,7 +195,7 @@ class ChartComponent extends Component {
 			let shiftTuple = this.chartComponentData.getTemporalShiftStringTuple(d.aggregateKey);
 			if (shiftTuple !== null) {
 				let keyString = this.getString(shiftTuple[0]);
-				let valueString = (keyString === 'Start at') ? this.formatDate(new Date(shiftTuple[1]), 0) : shiftTuple[1]; 
+				let valueString = (keyString === ShiftTypes.startAt) ? this.formatDate(new Date(shiftTuple[1]), 0) : shiftTuple[1]; 
 				tooltipAttrs = [...tooltipAttrs, [keyString, valueString]];
 			}
         }

@@ -1,5 +1,6 @@
 import {Utils, DataTypes, valueTypes} from "./../Utils";
 import { ChartDataOptions } from "./ChartDataOptions";
+import { ShiftTypes } from "../Constants/Enums";
 
 class ChartComponentData {
     public data: any = {};
@@ -258,10 +259,10 @@ class ChartComponentData {
         let ae = this.displayState[aggKey].aggregateExpression;
         if (ae) {
             if (Utils.isStartAt(ae.startAt, ae.searchSpan)) {
-                return ['Start at', ae.startAt];
+                return [ShiftTypes.startAt, ae.startAt];
             }
             if (ae.timeShift) {
-                return ['shifted', ae.timeShift];
+                return [ShiftTypes.shifted, ae.timeShift];
             }    
         }
         return null;
