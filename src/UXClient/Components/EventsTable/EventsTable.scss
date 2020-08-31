@@ -134,6 +134,7 @@
             background-image: url('../../Icons/boolean.svg');
         }
         &.tsid {
+            pointer-events: auto;
             margin-right: 8px;
             background-image: url('../../Icons/key.svg');
         }

@@ -158,7 +158,7 @@ class EventsTable extends ChartComponent{
             if (d.isTsid) {
                 let typeIconCOntainer = d3.select(this).append("div").attr("class", "tsi-columnTypeIcons");
                 typeIconCOntainer.append("span").attr("class", "tsi-columnTypeIcon")
-                    .classed("tsid", true);
+                    .classed("tsid", true).attr("title", self.getString("Time Series ID"));
                 typeIconCOntainer.append("span").attr("class", "tsi-columnTypeIcon")
                     .classed(d.type, true);
             } else {
@@ -255,7 +255,7 @@ class EventsTable extends ChartComponent{
                 if (self.eventsTableData.columns[d].isTsid) {
                     let typeIconContainer = d3.select(this).append("div").attr("class", "tsi-columnTypeIcons");
                     typeIconContainer.append("span").attr("class", "tsi-columnTypeIcon")
-                        .classed("tsid", true);
+                        .classed("tsid", true).attr("title", self.getString("Time Series ID"));
                     typeIconContainer.append("span").attr("class", "tsi-columnTypeIcon")
                         .classed(self.eventsTableData.columns[d].type, true);
                 } else {
