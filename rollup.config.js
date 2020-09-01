@@ -3,7 +3,6 @@ import typescript from 'rollup-plugin-typescript2';
 import { nodeResolve } from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import json from '@rollup/plugin-json';
-import url from '@rollup/plugin-url';
 import postcss from 'rollup-plugin-postcss'
 import pkg from './package.json';
 import {terser} from 'rollup-plugin-terser';
@@ -25,15 +24,12 @@ const getPluginConfig = () => {
         nodeResolve(),
         commonjs({sourceMap: false}),
         json(),
-        terser(),
-        url({
-            limit: 8000,
-        }),
+        terser()
     ]
     return config;
 }
 
-export default () => {
+export default (args) => {
     // browser-friendly UMD build
     const browserBundle = 
     {
@@ -50,7 +46,7 @@ export default () => {
     {
         input: 'src/components.ts',
         output: {
-            file: path.join('dist', pkg.module),
+            file: path.join('dist', 'components.js'),
             format: 'es',
             sourcemap: true
         }
