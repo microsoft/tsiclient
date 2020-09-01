@@ -8,6 +8,7 @@ import pkg from './package.json';
 import {terser} from 'rollup-plugin-terser';
 import path from 'path';
 import postcssUrl from "postcss-url";
+import analyze from 'rollup-plugin-analyzer'
 
 const getPluginConfig = () => {
     const config = [
@@ -24,7 +25,8 @@ const getPluginConfig = () => {
         nodeResolve(),
         commonjs({sourceMap: false}),
         json(),
-        terser()
+        terser(),
+        analyze({summaryOnly: true, limit: 20})
     ]
     return config;
 }
@@ -50,7 +52,6 @@ export default (args) => {
             format: 'es',
             sourcemap: true
         }
-        
     }
 
     // ESM TsiClient (all-up) build
@@ -66,6 +67,9 @@ export default (args) => {
     let bundle = [browserBundle, esmComponentBundle, esmTsiClientBundle]
     
     // Add plugins to each bundle config
-    bundle.map(b => b.plugins = getPluginConfig())
+    bundle.map(b => {
+        b.plugins = getPluginConfig();
+        //b.external = ['azure-maps-control'] // Mark AzMapCtrl as external dependency
+    })
     return bundle;
 };
