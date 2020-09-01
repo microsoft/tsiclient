@@ -8,15 +8,18 @@ import postcss from 'rollup-plugin-postcss'
 import pkg from './package.json';
 import {terser} from 'rollup-plugin-terser';
 import path from 'path';
+import postcssUrl from "postcss-url";
 
 const getPluginConfig = () => {
     const config = [
         typescript({typescript: require('typescript')}),
         postcss({
-            // extensions: ['.css', 'scss'],
             extract: path.resolve('dist/tsiclient.css'),
-            modules: true,
-            use: ['sass'],
+            plugins: [
+                postcssUrl({
+                    url: 'inline',
+                })
+            ],
             minimize: true
         }),
         nodeResolve(),
