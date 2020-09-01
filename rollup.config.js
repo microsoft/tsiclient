@@ -1,90 +1,64 @@
 // import typescript from '@rollup/plugin-typescript';
 import typescript from 'rollup-plugin-typescript2';
 import { nodeResolve } from '@rollup/plugin-node-resolve';
-import serve from 'rollup-plugin-serve'
 import commonjs from '@rollup/plugin-commonjs';
 import json from '@rollup/plugin-json';
+import url from '@rollup/plugin-url';
 import postcss from 'rollup-plugin-postcss'
 import pkg from './package.json';
 import {terser} from 'rollup-plugin-terser';
 import path from 'path';
-var fs = require('fs');
 
-const getPluginConfig = async (prod) => {
+const getPluginConfig = () => {
     const config = [
         typescript({typescript: require('typescript')}),
         postcss({
+            // extract: path.resolve('dist/tsiclient.css'),
+            // extensions: ['.css', 'scss'],
             extract: path.resolve('dist/tsiclient.css'),
-            extensions: ['.css', 'scss'],
-            minimize: prod ? true : false
+            modules: true,
+            use: ['sass'],
+            minimize: true
         }),
         nodeResolve(),
-        commonjs(),
-        json()
+        commonjs({sourceMap: false}),
+        json(),
+        terser(),
+        url({
+            limit: 8000,
+        }),
     ]
-
-    // Production specific plugins
-    if(prod){
-        config.push(terser());
-    } else{ 
-        // Dev specific plugins
-        config.push(serve({
-            contentBase: ['pages/examples', 'dist'],
-            open: true,
-            port: 443,
-            host: 'insights-local.timeseries.azure.com',
-            https: {
-                key: fs.readFileSync('ssl_keys/server.key'),
-                cert: fs.readFileSync('ssl_keys/server.cer'),
-                ca: fs.readFileSync('ssl_keys/server.csr'),
-            }
-        }))
-    }
-
     return config;
 }
 
-export default async CLIArgs => {
-    const prod = !!CLIArgs.configProd;
-
+export default () => {
     // browser-friendly UMD build
     const browserBundle = 
     {
-        input: 'src/TsiClient.ts',
+        input: 'src/tsiclient.ts',
         output: {
-            file: pkg.browser,
+            file: path.join('dist', pkg.main),
             format: 'umd',
-            name: 'TsiClient'
+            name: 'tsiclient'
         }
     };
 
-    // Commonjs and ESM builds
-    const cjsEsmBundle = 
+    // ESM builds
+    const esmBundle = 
     {
-        input: 'src/TsiIndex.ts',
-        output: [
-            {
-                file: pkg.main,
-                format: 'cjs',
-                sourcemap: true
-            },
-            {
-                file: pkg.module,
-                format: 'es',
-                sourcemap: true
-            }
-        ]
+        input: 'src/components.ts',
+        output: {
+            file: path.join('dist', pkg.module),
+            format: 'es',
+            sourcemap: true
+        }
+        
     }
     
-    let bundle = [browserBundle]
+    let bundle = [browserBundle, esmBundle]
     
-    // Bundle CJS & ESM in prod mode
-    if(prod){
-        bundle.push(cjsEsmBundle)
-    }
-
     // Add plugins to each bundle config
-    bundle.map(async b => b.plugins = await getPluginConfig(prod))
+    bundle.map(b => b.plugins = getPluginConfig())
     return bundle;
 };
 
