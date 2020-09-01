@@ -108,16 +108,24 @@ class Utils {
         } 
         return null;
     }
+
+    static isStartAt (startAtString: string = null, searchSpan: any = null) {
+        return (startAtString !== null && searchSpan !== null && searchSpan.from !== null);
+    }
     
-    static parseShift (inputString: string) {
-        if (inputString === undefined || inputString === null || inputString.length === 0) {
+    static parseShift (shiftString: string, startAtString: any = null, searchSpan: any = null) {
+        if (this.isStartAt(startAtString, searchSpan)) {
+            return (new Date(startAtString)).valueOf() - (new Date(searchSpan.from)).valueOf();
+        }
+        
+        if (shiftString === undefined || shiftString === null || shiftString.length === 0) {
             return 0;
         }
         let millis: number;
-        if (inputString[0] === '-' || inputString[0] === '+') {
-            millis = (inputString[0] === '-' ? -1 : 1) * this.parseTimeInput(inputString.slice(1,inputString.length));
+        if (shiftString[0] === '-' || shiftString[0] === '+') {
+            millis = (shiftString[0] === '-' ? -1 : 1) * this.parseTimeInput(shiftString.slice(1,shiftString.length));
         } else {
-            millis = this.parseTimeInput(inputString);
+            millis = this.parseTimeInput(shiftString);
         }
         return millis;
     }
@@ -786,7 +794,7 @@ class Utils {
             let newTS = {}
             Object.keys(query.data[query.alias][""]).forEach((key) => {
                 let oldTime = new Date(key).valueOf();
-                let timeShift = query.timeShift != "" ? this.parseShift(query.timeShift): 0;
+                let timeShift = query.timeShift != "" ? this.parseShift(query.timeShift, query.startAt, query.searchSpan): 0;
                 // Calculate real timeshift based on bucket snapping
                 let bucketShiftInMillis =  this.adjustStartMillisToAbsoluteZero(timeShift, this.parseShift(query.searchSpan.bucketSize));
                 let normalizedTime = oldTime - bucketShiftInMillis;

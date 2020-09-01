@@ -1,5 +1,6 @@
 import {Utils, DataTypes, valueTypes} from "./../Utils";
 import { ChartDataOptions } from "./ChartDataOptions";
+import { ShiftTypes } from "../Constants/Enums";
 
 class ChartComponentData {
     public data: any = {};
@@ -167,10 +168,12 @@ class ChartComponentData {
             this.visibleTAs[aggKey] = {};
 
             Object.keys(data[i][aggName]).forEach((splitBy: string, splitByI: number) => {
-                this.timeArrays[aggKey][splitBy] = 
-                    this.convertAggregateToArray(data[i][aggName][splitBy], aggKey, aggName, splitBy, 
+                let shiftValue = Utils.parseShift(aggregateExpressionOptions[i].timeShift, 
+                    aggregateExpressionOptions[i].startAt, 
+                    aggregateExpressionOptions[i].searchSpan);
+                this.timeArrays[aggKey][splitBy] = this.convertAggregateToArray(data[i][aggName][splitBy], aggKey, aggName, splitBy, 
                                                  newDisplayState[aggKey].from, newDisplayState[aggKey].to, 
-                                                 newDisplayState[aggKey].bucketSize, aggregateExpressionOptions[i].timeShift);  
+                                                 newDisplayState[aggKey].bucketSize, shiftValue);  
                 if (newDisplayState[aggKey].dataType === DataTypes.Categorical && aggregateExpressionOptions[i].rollupCategoricalValues){
                     this.timeArrays[aggKey][splitBy] = Utils.rollUpContiguous(this.timeArrays[aggKey][splitBy]);
                 }             
@@ -252,17 +255,24 @@ class ChartComponentData {
         return Object.keys(measureTypes);
     }
 
-    public getTemporalShiftString (aggKey) {
-        if (this.displayState[aggKey].aggregateExpression && this.displayState[aggKey].aggregateExpression.timeShift) {
-            return this.displayState[aggKey].aggregateExpression.timeShift;
+    public getTemporalShiftStringTuple (aggKey) {
+        let ae = this.displayState[aggKey].aggregateExpression;
+        if (ae) {
+            if (Utils.isStartAt(ae.startAt, ae.searchSpan)) {
+                return [ShiftTypes.startAt, ae.startAt];
+            }
+            if (ae.timeShift) {
+                return [ShiftTypes.shifted, ae.timeShift];
+            }    
         }
-        return '';
+        return null;
     } 
 
     public getTemporalShiftMillis (aggKey) {
-        if (this.displayState[aggKey].aggregateExpression && this.displayState[aggKey].aggregateExpression.timeShift) {
-            return Utils.parseShift(this.displayState[aggKey].aggregateExpression.timeShift);
-        } 
+        let ae = this.displayState[aggKey].aggregateExpression;
+        if (ae) {
+            return Utils.parseShift(ae.timeShift, ae.startAt, ae.searchSpan);
+        }
         return 0;
     }
 
@@ -369,11 +379,10 @@ class ChartComponentData {
     //aggregates object => array of objects containing timestamp and values. Pad with 
     public convertAggregateToArray (agg: any, aggKey: string, aggName: string, splitBy: string, 
                                     from: Date = null, to: Date = null, bucketSize: number = null, 
-                                    timeShift: string): Array<any> {
+                                    shiftValue: number): Array<any> {
         
         let aggArray: Array<any> = [];
         let isoStringAgg = {};
-        let shiftValue = Utils.parseShift(timeShift);
         Object.keys(agg).forEach((dateString: string) => {
             let shiftedDate = new Date((new Date(dateString)).valueOf() - shiftValue);
             let jsISOString = shiftedDate.toISOString();
