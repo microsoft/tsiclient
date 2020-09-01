@@ -42,7 +42,7 @@ class EventsTable extends ChartComponent{
     public render(events: any, chartOptions: any, fromTsx: boolean = false) {
         this.chartOptions.setOptions(chartOptions);
         this.maxVisibleIndex = 100;
-        this.eventsTableData.setEvents(events, fromTsx, chartOptions.offset);
+        this.eventsTableData.setEvents(events, fromTsx, this.chartOptions.timeSeriesIdProperties, chartOptions.offset);
 
         var componentContainer = d3.select(this.renderTarget)
             .classed("tsi-tableComponent", true);
@@ -106,7 +106,6 @@ class EventsTable extends ChartComponent{
         var columns = this.eventsTableData.sortColumnKeys()
             .map((cIdx) => this.eventsTableData.columns[cIdx]);
         
-        var filteredColumnKeys = this.getFilteredColumnKeys();
         this.setSelectAllState();
         if (columns.length > 2) { // tristate - all selected
             var selectAllColumns = this.eventsLegend.select("ul")
@@ -156,8 +155,16 @@ class EventsTable extends ChartComponent{
                     self.buildTable();
                 });
             d3.select(this).append("div").attr("class", "tsi-columnToggleCheckbox");
-            d3.select(this).append("div").attr("class", "tsi-columnTypeIcon")
-                .classed(d.type, true);
+            if (d.isTsid) {
+                let typeIconCOntainer = d3.select(this).append("div").attr("class", "tsi-columnTypeIcons");
+                typeIconCOntainer.append("span").attr("class", "tsi-columnTypeIcon")
+                    .classed("tsid", true).attr("title", self.getString("Time Series ID"));
+                typeIconCOntainer.append("span").attr("class", "tsi-columnTypeIcon")
+                    .classed(d.type, true);
+            } else {
+                d3.select(this).append("div").attr("class", "tsi-columnTypeIcon")
+                    .classed(d.type, true);
+            }
             d3.select(this).select("button").append("div").attr("class", "tsi-onlyLabel").text(self.getString("only"))
                 .attr('tabindex', "0")
                 .attr('role', 'button')
@@ -172,7 +179,7 @@ class EventsTable extends ChartComponent{
                     self.setLegendColumnStates();
                     self.buildTable();
                 })
-            d3.select(this).append("div").attr("class", "tsi-columnToggleName").text((d : any) => columns.filter(c => c.name === d.name).length > 1 ? `${d.name} (${d.type})` : d.name);
+            d3.select(this).append("div").attr("class", "tsi-columnToggleName").classed('tsidPropertyName', (d: any) => d.isTsid).text((d : any) => columns.filter(c => c.name === d.name).length > 1 ? `${d.name} (${d.type})` : d.name);
         });
         this.setLegendColumnStates();
         toggleableColumnLis.exit().remove();
@@ -240,12 +247,21 @@ class EventsTable extends ChartComponent{
             .each( function(d: string) {
                 d3.select(this).append("span")
                     .classed("tsi-columnHeaderName", true)
+                    .classed("moreMarginRight", (d: any) => self.eventsTableData.columns[d].isTsid)
                     .text(longAndDoubleExist(d) ? `${self.eventsTableData.columns[d].name} (${self.eventsTableData.columns[d].type})` : self.eventsTableData.columns[d].name);
-                d3.select(this).append("span").attr("class", "tsi-columnSortIcon")
+                d3.select(this).append("span").attr("class", "tsi-columnSortIcon").classed("moreRight", self.eventsTableData.columns[d].isTsid)
                     .classed("up", (self.sortColumn == d && self.isAscending))
                     .classed("down", (self.sortColumn == d && !self.isAscending));
-                d3.select(this).append("span").attr("class", "tsi-columnTypeIcon")
-                    .classed(self.eventsTableData.columns[d].type, true);
+                if (self.eventsTableData.columns[d].isTsid) {
+                    let typeIconContainer = d3.select(this).append("div").attr("class", "tsi-columnTypeIcons");
+                    typeIconContainer.append("span").attr("class", "tsi-columnTypeIcon")
+                        .classed("tsid", true).attr("title", self.getString("Time Series ID"));
+                    typeIconContainer.append("span").attr("class", "tsi-columnTypeIcon")
+                        .classed(self.eventsTableData.columns[d].type, true);
+                } else {
+                    d3.select(this).append("span").attr("class", "tsi-columnTypeIcon")
+                        .classed(self.eventsTableData.columns[d].type, true);
+                }
                 var id = JSON.parse(JSON.stringify(d));
                 d3.select(this).append("button").attr("class", "tsi-sortColumnButton")
                     .attr("aria-label", title => "Sort by column " + title)
