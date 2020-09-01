@@ -2,6 +2,7 @@
     "name": "tsiclient",
     "main": "tsiclient.js",
     "module": "components.js",
+    "umd": "tsiclient.umd.js",
     "description": "",
     "version": "1.3.0",
     "repository": {
@@ -9,7 +10,7 @@
         "url": "https://github.com/Microsoft/tsiclient"
     },
     "scripts": {
-        "build": "del /S /Q dist & rollup --c & xcopy package.json dist",
+        "build": "shx rm -rf dist & rollup --c & shx cp package.json dist",
         "pack": "cd dist & npm pack",
         "start": "rollup --c",
         "watch": "rollup --c --watch"
@@ -32,6 +33,7 @@
         "rollup-plugin-terser": "^7.0.1",
         "rollup-plugin-typescript2": "^0.27.2",
         "sass-loader": "^6.0.7",
+        "shx": "^0.3.2",
         "style-loader": "^0.19.1",
         "svg-inline-loader": "^0.8.0",
         "terser-webpack-plugin": "^4.1.0",

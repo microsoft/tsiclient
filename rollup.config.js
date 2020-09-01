@@ -13,7 +13,6 @@ const getPluginConfig = () => {
     const config = [
         typescript({typescript: require('typescript')}),
         postcss({
-            // extract: path.resolve('dist/tsiclient.css'),
             // extensions: ['.css', 'scss'],
             extract: path.resolve('dist/tsiclient.css'),
             modules: true,
@@ -37,14 +36,14 @@ export default () => {
     {
         input: 'src/tsiclient.ts',
         output: {
-            file: path.join('dist', pkg.main),
+            file: path.join('dist', pkg.umd),
             format: 'umd',
             name: 'tsiclient'
         }
     };
 
-    // ESM builds
-    const esmBundle = 
+    // ESM Component build
+    const esmComponentBundle = 
     {
         input: 'src/components.ts',
         output: {
@@ -54,41 +53,20 @@ export default () => {
         }
         
     }
+
+    // ESM TsiClient (all-up) build
+    const esmTsiClientBundle = {
+        input: 'src/tsiclient.ts',
+        output: {
+            file: path.join('dist', pkg.main),
+            format: 'es',
+            sourcemap: true
+        }
+    }
     
-    let bundle = [browserBundle, esmBundle]
+    let bundle = [browserBundle, esmComponentBundle, esmTsiClientBundle]
     
     // Add plugins to each bundle config
     bundle.map(b => b.plugins = getPluginConfig())
     return bundle;
 };
-
-// export default 
-// {
-//     input: 'src/TsiIndex.ts',
-//     output: [
-//         {
-//             file: pkg.main,
-//             format: 'es',
-//             sourcemap: true
-//         },
-//         {
-//             file: pkg.umd,
-//             format: 'umd',
-//             name: 'tsiclient',
-//             sourcemap: true
-//         }
-//     ],
-//     plugins: [
-//         typescript({typescript: require('typescript')}),
-//         terser(),
-//         postcss({
-//             extract: path.resolve('dist/tsiclient.css'),
-//             extensions: ['.css', 'scss'],
-//             minimize: true
-//         }),
-//         nodeResolve(),
-//         commonjs(),
-//         json()
-//     ]
-// }
-    
