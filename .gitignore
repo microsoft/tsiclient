@@ -4,4 +4,3 @@ dist/
 .vscode/settings.json
 scripts
 .vs
-buildStats.json
