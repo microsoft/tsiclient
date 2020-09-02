@@ -32,7 +32,7 @@ const getPluginConfig = (target) => {
 
     // umd plugins
     if(target === 'umd'){
-        config.push(terser());
+        // config.push(terser());
     }
 
     return config;
@@ -42,11 +42,12 @@ export default (args) => {
     // browser-friendly UMD build ()
     const browserBundle = 
     {
-        input: 'src/tsiclient.ts',
+        input: 'src/TsiClient.ts',
         output: {
             file: path.join('dist', pkg.main),
             format: 'umd',
-            name: 'tsiclient'
+            name: 'TsiClient',
+            sourcemap: true
         }
     };
 
