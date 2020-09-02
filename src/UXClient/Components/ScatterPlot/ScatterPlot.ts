@@ -720,32 +720,19 @@ class ScatterPlot extends ChartVisualizationComponent {
 
     /******** DRAW X AND Y AXIS LABELS ********/
     private drawAxisLabels(){
+        let self = this;
         let xLabelData, yLabelData;
 
-        const truncateTextLength = (labelText: string, maxTextLengthPx: number) => {
-            let lengthFound = false, resultText = labelText;
-            let currTextLengthPx;
-
-            while(!lengthFound){
-                let testText = this.pointWrapper.selectAll(".tsi-testAxisText")
-                    .data([resultText]);
-                testText
-                    .enter()
-                    .append("text")
-                    .attr("class", "tsi-testAxisText")
-                    .merge(testText)
-                    .text(d => d)
-                    .each(function(d){
-                        currTextLengthPx = this.getComputedTextLength();
-                        this.remove();
-                    })
-
-                if(currTextLengthPx > maxTextLengthPx - 100) resultText = resultText.substring(0, resultText.length - 2);
-                else lengthFound = true;
-                // Short circuit to prevent infinite loop
-                if(resultText.length < 10) lengthFound = true;
+        const truncateTextLength = (textSelection,  maxTextLengthPx: number) => {
+            if(textSelection.node() && textSelection.node().getComputedTextLength) {
+                var textLength = textSelection.node().getComputedTextLength();
+                var text = textSelection.text();
+                while ( textLength > maxTextLengthPx && text.length > 0) {
+                    text = text.slice(0, -1);
+                    textSelection.text(text + '...');
+                    textLength = textSelection.node().getComputedTextLength();
+                }
             }
-            return resultText != labelText ? resultText += "..." : resultText ;
         }
         
         // Associate axis label data
@@ -756,25 +743,51 @@ class ScatterPlot extends ChartVisualizationComponent {
         yLabelData = [this.chartOptions.spAxisLabels[1]] : yLabelData = [];
 
         this.xAxisLabel = this.pointWrapper.selectAll('.tsi-xAxisLabel').data(xLabelData);
-        this.xAxisLabel
+        let xAxisLabel = this.xAxisLabel
             .enter()
             .append("text")
             .attr("class", "tsi-xAxisLabel tsi-AxisLabel")
             .merge(this.xAxisLabel)
             .style("text-anchor", "middle")
             .attr("transform", "translate(" + (this.chartWidth / 2) + " ," + (this.chartHeight + 42) + ")")
-            .text((d) => truncateTextLength(d, this.chartWidth));
+            .text(null);
+        xAxisLabel.each(function(d) {
+            let label = d3.select(this);
+            Utils.appendFormattedElementsFromString(label, d, {inSvg: true});
+        });
+        //text is either in tspans or just in text. Either truncate text directly or through tspan
+        if (xAxisLabel.selectAll("tspan").size() == 0)
+            truncateTextLength(xAxisLabel, this.chartWidth)
+        else {
+            xAxisLabel.selectAll("tspan").each(function() {
+                var tspanTextSelection = d3.select(this);
+                truncateTextLength(tspanTextSelection, self.chartWidth / xAxisLabel.selectAll("tspan").size());
+            });
+        }
         this.xAxisLabel.exit().remove();
 
         this.yAxisLabel = this.pointWrapper.selectAll('.tsi-yAxisLabel').data(yLabelData);
-        this.yAxisLabel
+        let yAxisLabel = this.yAxisLabel
             .enter()
             .append("text")
             .attr("class", "tsi-yAxisLabel tsi-AxisLabel")
             .merge(this.yAxisLabel)
             .style("text-anchor", "middle")
             .attr("transform", "translate(" + ( -70 ) + " ," + (this.chartHeight / 2) + ") rotate(-90)")
-            .text((d) => truncateTextLength(d, this.chartHeight));
+            .text(null);
+        yAxisLabel.each(function(d) {
+            let label = d3.select(this);
+            Utils.appendFormattedElementsFromString(label, d, {inSvg: true});
+        });
+        //text is either in tspans or just in text. Either truncate text directly or through tspan
+        if (yAxisLabel.selectAll("tspan").size() == 0)
+            truncateTextLength(yAxisLabel, this.chartHeight)
+        else {
+            yAxisLabel.selectAll("tspan").each(function() {
+                var tspanTextSelection = d3.select(this);
+                truncateTextLength(tspanTextSelection, self.chartHeight / yAxisLabel.selectAll("tspan").size());
+            });
+        }
         this.yAxisLabel.exit().remove();
     }
 

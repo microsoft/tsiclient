@@ -6,7 +6,7 @@ import { ChartOptions } from '../../Models/ChartOptions';
 import { LineChartData } from '../../Models/LineChartData';
 import { Tooltip } from '../Tooltip/Tooltip';
 import { ChartComponentData } from '../../Models/ChartComponentData';
-import { KeyCodes } from '../../Constants/Enums';
+import { KeyCodes, ShiftTypes } from '../../Constants/Enums';
 
 const MARKERSTRINGMAXLENGTH = 250;
 const MARKERVALUEMAXWIDTH = 80;
@@ -72,11 +72,17 @@ class Marker extends Component {
         text.append('h4')
             .attr('class', 'tsi-seriesLabelGroupName tsi-tooltipTitle')
             .text(d.aggregateName);
+        
+        let shiftTuple = this.chartComponentData.getTemporalShiftStringTuple(d.aggregateKey);
+        let shiftString = '';
+        if (shiftTuple !== null) {
+            shiftString = shiftTuple[0] === ShiftTypes.startAt ? this.timeFormat(new Date(shiftTuple[1])) : shiftTuple[1]; 
+        }
 
         let labelDatum = {
             splitBy: d.splitBy,
             variableAlias: this.chartComponentData.displayState[d.aggregateKey].aggregateExpression.variableAlias,
-            timeShift: this.chartComponentData.getTemporalShiftString(d.aggregateKey),
+            timeShift: shiftString,
         }
 
         let subtitle = text.selectAll('.tsi-seriesLabelSeriesName').data([labelDatum]);
@@ -221,8 +227,8 @@ class Marker extends Component {
                         .attr("aria-label", self.getString('Delete marker')) 
                         .classed("tsi-closeButton", true)
                         .on("click", function () {
-                            d3.select((d3.select(this).node() as any).parentNode.parentNode).remove();
                             self.onChange(true, false);
+                            d3.select((d3.select(this).node() as any).parentNode.parentNode).remove();
                         });
             
                     self.timeLabel = d3.select(this).append("div")
@@ -507,10 +513,12 @@ class Marker extends Component {
     }
 
     public focusCloseButton () {
-        this.closeButton.node().focus();
+        if (this.closeButton) {
+            this.closeButton.node().focus();
+        }
     }
 
-    private isMarkerInRange (millis: number) {
+    public isMarkerInRange (millis: number = this.timestampMillis) {
         let domain = this.x.domain();
         return !(millis < domain[0].valueOf() || millis > domain[1].valueOf());
     }

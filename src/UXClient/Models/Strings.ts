@@ -105,7 +105,8 @@ class Strings {
         "Failed to get instance details": "Failed to get instance details",
         "Add": "Add",
         "Search": "Search",
-        "Marker": "Marker"
+        "Marker": "Marker",
+        "Start at": "Start at"
     };
   
     private stringValues: any = {};

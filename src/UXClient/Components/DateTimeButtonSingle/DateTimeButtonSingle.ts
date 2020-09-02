@@ -17,6 +17,7 @@ class DateTimeButtonSingle extends DateTimeButton {
         if (millis !== null) {
             this.dateTimeButton.text(this.buttonDateTimeFormat(millis));
             this.selectedMillis = millis;
+            this.onSet(millis);
         }
         this.dateTimePickerContainer.style("display", "none");
         this.dateTimeButton.node().focus();

@@ -87,6 +87,7 @@ class ChartOptions {
     public withContextMenu: boolean; // whether the hierarchy uses a context menu when you click on a parent of leaf nodes
     public hierarchyOptions: any; // hierarchy navigation related options for search api
     public onError: (titleKey, messageKey, xhr) => any;
+    public timeSeriesIdProperties: Array<{name: string, type: any}>; // time series id properties to highlight and prioritize in events table
 
     public stringsInstance: Strings = new Strings(); 
 
@@ -195,6 +196,7 @@ class ChartOptions {
         this.hierarchyOptions = this.mergeValue(chartOptionsObj, 'hierarchyOptions', Object.assign({}, DefaultHierarchyNavigationOptions));
         this.labelSeriesWithMarker = this.mergeValue(chartOptionsObj, 'labelSeriesWithMarker', false);
         this.onError = this.mergeValue(chartOptionsObj, 'onError', (titleKey, messageKey, xhr) => {});
+        this.timeSeriesIdProperties = Utils.getValueOrDefault(chartOptionsObj, 'timeSeriesIdProperties', []);
     }
 
     private mergeStrings (strings) {
@@ -291,7 +293,8 @@ class ChartOptions {
             swimLaneOptions: this.swimLaneOptions,
             hierarchyOptions: this.hierarchyOptions,
             onError: this.onError,
-            labelSeriesWithMarker: this.labelSeriesWithMarker
+            labelSeriesWithMarker: this.labelSeriesWithMarker,
+            timeSeriesIdProperties: this.timeSeriesIdProperties
         }
     }
 }
