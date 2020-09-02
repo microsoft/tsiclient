@@ -1,7 +1,6 @@
-import {ServerClient} from "./ServerClient/ServerClient";
-import {UXClient} from "./UXClient/UXClient";
-import * as d3 from 'd3';
-import { Utils } from "./UXClient/Utils";
+import ServerClient from "./ServerClient/ServerClient";
+import UXClient from "./UXClient/UXClient";
+import Utils from "./UXClient/Utils";
 
 class TsiClient {
     public server = new ServerClient();

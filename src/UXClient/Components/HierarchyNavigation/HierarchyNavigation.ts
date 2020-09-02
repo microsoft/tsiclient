@@ -1,9 +1,9 @@
 import * as d3 from 'd3';
 import './HierarchyNavigation.scss';
-import {Utils} from "./../../Utils";
+import Utils from "./../../Utils";
 import {Component} from "./../../Interfaces/Component";
-import {ServerClient} from '../../../ServerClient/ServerClient';
-import { ModelAutocomplete } from '../ModelAutocomplete/ModelAutocomplete';
+import ServerClient from '../../../ServerClient/ServerClient';
+import ModelAutocomplete from '../ModelAutocomplete/ModelAutocomplete';
 import { KeyCodes, InstancesSort, HierarchiesExpand, HierarchiesSort } from '../../Constants/Enums';
 import { nullTsidFormatTag } from '../../Constants/Constants';
 
@@ -1301,4 +1301,4 @@ export enum HierarchySelectionValues {All = "0", Unparented = "-1"};
 export enum ViewType {Hierarchy, List};
 export enum State {Navigate, Search, Filter};
 
-export {HierarchyNavigation}
+export default HierarchyNavigation

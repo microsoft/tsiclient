@@ -1,15 +1,15 @@
 import * as d3 from 'd3';
 import './GroupedBarChart.scss';
-import {Utils, TooltipMeasureFormat} from "./../../Utils";
+import Utils, {TooltipMeasureFormat} from "./../../Utils";
 import {Legend} from './../Legend/Legend';
-import {Slider} from './../Slider/Slider';
+import Slider from './../Slider/Slider';
 import { ChartComponentData } from '../../Models/ChartComponentData';
 import { GroupedBarChartData } from '../../Models/GroupedBarChartData';
 import { ContextMenu } from './../ContextMenu/ContextMenu';
 import { Tooltip } from '../Tooltip/Tooltip';
 import { ChartOptions } from '../../Models/ChartOptions';
-import { EllipsisMenu } from '../EllipsisMenu/EllipsisMenu';
-import { Grid } from '../Grid/Grid';
+import EllipsisMenu from '../EllipsisMenu/EllipsisMenu';
+import Grid from '../Grid/Grid';
 import { ChartDataOptions } from '../../Models/ChartDataOptions';
 import { ChartVisualizationComponent } from '../../Interfaces/ChartVisualizationComponent';
 
@@ -641,4 +641,4 @@ class GroupedBarChart extends ChartVisualizationComponent {
         this.legendPostRenderProcess(this.chartOptions.legend, this.svgSelection, true);
     }
 }
-export {GroupedBarChart}
+export default GroupedBarChart

@@ -1,4 +1,4 @@
-import {Utils, valueTypes} from "./../Utils";
+import Utils, {valueTypes} from "./../Utils";
 import {ChartComponentData} from "./ChartComponentData";
 import {TimeSeriesEvent} from "./TimeSeriesEvent";
 import * as d3 from 'd3';

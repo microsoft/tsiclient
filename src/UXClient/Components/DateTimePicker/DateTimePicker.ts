@@ -4,9 +4,9 @@ import * as moment from 'moment';
 import './DateTimePicker.scss';
 import '../../../packages/pikaday/css/pikaday.css';
 import { ChartComponent } from '../../Interfaces/ChartComponent';
-import { TimezonePicker } from '../TimezonePicker/TimezonePicker';
+import TimezonePicker from '../TimezonePicker/TimezonePicker';
 import { entries } from 'd3';
-import { Utils } from "./../../Utils";
+import Utils from "./../../Utils";
 
 
 class DateTimePicker extends ChartComponent{
@@ -592,4 +592,4 @@ class DateTimePicker extends ChartComponent{
     }
 }
 
-export {DateTimePicker};
+export default DateTimePicker;

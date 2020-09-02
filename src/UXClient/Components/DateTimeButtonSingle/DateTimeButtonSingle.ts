@@ -2,8 +2,8 @@ import * as d3 from 'd3';
 import './DateTimeButtonSingle.scss';
 import { ChartDataOptions } from '../../Models/ChartDataOptions';
 import { DateTimeButton } from '../../Interfaces/DateTimeButton';
-import { Utils } from '../../Utils';
-import { SingleDateTimePicker } from '../SingleDateTimePicker/SingleDateTimePicker';
+import Utils from '../../Utils';
+import SingleDateTimePicker from '../SingleDateTimePicker/SingleDateTimePicker';
 
 class DateTimeButtonSingle extends DateTimeButton {    
 
@@ -53,4 +53,4 @@ class DateTimeButtonSingle extends DateTimeButton {
     }
   
 }
-export {DateTimeButtonSingle}
+export default DateTimeButtonSingle

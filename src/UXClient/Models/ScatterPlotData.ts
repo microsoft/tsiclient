@@ -1,7 +1,7 @@
 import {ChartComponentData} from "./ChartComponentData";
 import { GroupedBarChartData } from "./GroupedBarChartData";
 import * as d3 from "d3";
-import { Utils } from "../Utils";
+import Utils from "../Utils";
 
 class ScatterPlotData extends GroupedBarChartData {
     public temporalDataArray: any;

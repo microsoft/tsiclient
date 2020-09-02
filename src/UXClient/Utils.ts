@@ -1,7 +1,7 @@
 import * as d3 from 'd3';
 import * as momentTZ from 'moment-timezone';
 import * as moment from 'moment';
-import {Grid} from "./Components/Grid/Grid";
+import Grid from "./Components/Grid/Grid";
 import { ChartOptions } from './Models/ChartOptions';
 import { ChartComponentData } from './Models/ChartComponentData';
 import { nullTsidDisplayString, nullTsidFormatTag } from './Constants/Constants';
@@ -973,4 +973,4 @@ class Utils {
     }
 }
 
-export {Utils};
+export default Utils;

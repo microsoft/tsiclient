@@ -8,13 +8,15 @@ import pkg from './package.json';
 import {terser} from 'rollup-plugin-terser';
 import path from 'path';
 import postcssUrl from "postcss-url";
-import analyze from 'rollup-plugin-analyzer'
+import analyze from 'rollup-plugin-analyzer';
 
-const getPluginConfig = () => {
+const getPluginConfig = (target) => {
+
+    // Common plugins
     const config = [
-        typescript({typescript: require('typescript')}),
+        nodeResolve(),
         postcss({
-            extract: path.resolve('dist/tsiclient.css'),
+            extract: 'tsiclient.css',
             plugins: [
                 postcssUrl({
                     url: 'inline',
@@ -22,54 +24,85 @@ const getPluginConfig = () => {
             ],
             minimize: true
         }),
-        nodeResolve(),
+        typescript(),
         commonjs({sourceMap: false}),
         json(),
-        terser(),
         analyze({summaryOnly: true, limit: 20})
     ]
+
+    // umd plugins
+    if(target === 'umd'){
+        config.push(terser());
+    }
+
     return config;
 }
 
 export default (args) => {
-    // browser-friendly UMD build
+    // browser-friendly UMD build ()
     const browserBundle = 
     {
         input: 'src/tsiclient.ts',
         output: {
-            file: path.join('dist', pkg.umd),
+            file: path.join('dist', pkg.main),
             format: 'umd',
             name: 'tsiclient'
         }
     };
 
-    // ESM Component build
+    // ESM Component build (add all componets via script)
     const esmComponentBundle = 
     {
-        input: 'src/components.ts',
+        input: {
+            Components: 'src/components.ts',
+            ServerClient: 'src/ServerClient/ServerClient.ts',
+            UXClient: 'src/UXClient/UXClient.ts',
+            Utils: 'src/UXClient/Utils.ts',
+            
+            // /Components imports 
+            LineChart: 'src/UXClient/Components/LineChart/LineChart.ts',
+            AvailabilityChart: 'src/UXClient/Components/AvailabilityChart/AvailabilityChart.ts',
+            PieChart: 'src/UXClient/Components/PieChart/PieChart.ts',
+            ScatterPlot: 'src/UXClient/Components/ScatterPlot/ScatterPlot.ts',
+            GroupedBarChart: 'src/UXClient/Components/GroupedBarChart/GroupedBarChart.ts',
+            Grid: 'src/UXClient/Components/Grid/Grid.ts',
+            Slider: 'src/UXClient/Components/Slider/Slider.ts',
+            Hierarchy: 'src/UXClient/Components/Hierarchy/Hierarchy.ts',
+            AggregateExpression: 'src/UXClient/Models/AggregateExpression.ts',
+            Heatmap: 'src/UXClient/Components/Heatmap/Heatmap.ts',
+            EventsTable: 'src/UXClient/Components/EventsTable/EventsTable.ts',
+            ModelSearch: 'src/UXClient/Components/ModelSearch/ModelSearch.ts',
+            DateTimePicker: 'src/UXClient/Components/DateTimePicker/DateTimePicker.ts',
+            TimezonePicker: 'src/UXClient/Components/TimezonePicker/TimezonePicker.ts',
+            EllipsisMenu: 'src/UXClient/Components/EllipsisMenu/EllipsisMenu.ts',
+            TsqExpression: 'src/UXClient/Models/TsqExpression.ts',
+            ModelAutocomplete: 'src/UXClient/Components/ModelAutocomplete/ModelAutocomplete.ts',
+            HierarchyNavigation: 'src/UXClient/Components/HierarchyNavigation/HierarchyNavigation.ts',
+            SingleDateTimePicker:'src/UXClient/Components/SingleDateTimePicker/SingleDateTimePicker.ts',
+            DateTimeButtonSingle: 'src/UXClient/Components/DateTimeButtonSingle/DateTimeButtonSingle.ts',
+            DateTimeButtonRange: 'src/UXClient/Components/DateTimeButtonRange/DateTimeButtonRange.ts',
+            ProcessGraphic: 'src/UXClient/Components/ProcessGraphic/ProcessGraphic.ts',
+            PlaybackControls: 'src/UXClient/Components/PlaybackControls/PlaybackControls.ts',
+            ColorPicker: 'src/UXClient/Components/ColorPicker/ColorPicker.ts',
+            GeoProcessGraphic: 'src/UXClient/Components/GeoProcessGraphic/GeoProcessGraphic.ts'
+        },
         output: {
-            file: path.join('dist', 'components.js'),
-            format: 'es',
+            dir: 'dist',
+            format: 'esm',
             sourcemap: true
         }
     }
 
-    // ESM TsiClient (all-up) build
-    const esmTsiClientBundle = {
-        input: 'src/tsiclient.ts',
-        output: {
-            file: path.join('dist', pkg.main),
-            format: 'es',
-            sourcemap: true
-        }
-    }
+    // Attach all components as entry points (for direct import optimization)
+    // TODO scriptify this
+
+    // Attach plugins to browserBundle
+    browserBundle.plugins = getPluginConfig('umd');
+
+    // Attach plugins to esmComponentBundle
+    esmComponentBundle.plugins = getPluginConfig('esm');
+
+    let bundle = [browserBundle, esmComponentBundle]
     
-    let bundle = [browserBundle, esmComponentBundle, esmTsiClientBundle]
-    
-    // Add plugins to each bundle config
-    bundle.map(b => {
-        b.plugins = getPluginConfig();
-        //b.external = ['azure-maps-control'] // Mark AzMapCtrl as external dependency
-    })
     return bundle;
 };

@@ -1,5 +1,5 @@
 import * as Promise from 'promise-polyfill';
-import { Utils } from '../UXClient/Utils';
+import Utils from '../UXClient/Utils';
 
 class ServerClient {
     private apiVersionUrlParam = "?api-version=2016-12-12";
@@ -402,4 +402,4 @@ class ServerClient {
     }
 }
 
-export {ServerClient}
+export default ServerClient

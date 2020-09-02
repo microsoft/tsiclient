@@ -5,7 +5,7 @@ import './SingleDateTimePicker.scss';
 import '../../../packages/pikaday/css/pikaday.css';
 import { ChartComponent } from '../../Interfaces/ChartComponent';
 import { entries } from 'd3';
-import { Utils } from "./../../Utils";
+import Utils from "./../../Utils";
 
 
 class SingleDateTimePicker extends ChartComponent{
@@ -239,4 +239,4 @@ class SingleDateTimePicker extends ChartComponent{
     }
 }
 
-export {SingleDateTimePicker};
+export default SingleDateTimePicker;

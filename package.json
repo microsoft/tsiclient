@@ -1,7 +1,6 @@
 {
     "name": "tsiclient",
     "main": "tsiclient.js",
-    "umd": "tsiclient.umd.js",
     "sideEffects": false,
     "description": "",
     "version": "1.3.0",

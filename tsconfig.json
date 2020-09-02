@@ -9,7 +9,7 @@
         "lib" : ["es5", "es2015.promise", "dom", "es6"],
         "moduleResolution": "Node",
         "sourceMap": true,
-        "declaration": true,
+        "declaration": true
     },
     "include": [
 		"src/*"

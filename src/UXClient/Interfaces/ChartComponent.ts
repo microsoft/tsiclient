@@ -1,8 +1,8 @@
-import {Utils, DataTypes, TooltipMeasureFormat, GRIDCONTAINERCLASS } from "./../Utils";
+import Utils, { DataTypes, TooltipMeasureFormat, GRIDCONTAINERCLASS } from "./../Utils";
 import {Component} from "./Component";
 import {ChartComponentData} from './../Models/ChartComponentData'; 
 import {ChartOptions} from './../Models/ChartOptions';
-import { EllipsisMenu } from "../Components/EllipsisMenu/EllipsisMenu";
+import EllipsisMenu from "../Components/EllipsisMenu/EllipsisMenu";
 import * as d3 from 'd3';
 import Split from 'split.js';
 import { Legend } from "../Components/Legend/Legend";
