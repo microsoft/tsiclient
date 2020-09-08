@@ -95,7 +95,7 @@ class ModelSearch extends Component{
             if(ct === null || !self.usedContinuationTokens[ct]){
                 self.usedContinuationTokens[ct] = true;
                 getToken().then(token => {
-                    self.server.getTimeseriesInstancesSearch(token, environmentFqdn, searchText, ct).then(r => {
+                    self.server.getTimeseriesInstancesSearch(token, environmentFqdn, searchText, ct).then((r: any) => {
                         let instances;
                         if (Array.isArray(r.instances)) {
                             continuationToken = r.instancesContinuationToken;
@@ -193,14 +193,14 @@ class ModelSearch extends Component{
         }
 
         getToken().then(token => {
-            this.server.getTimeseriesHierarchies(token, environmentFqdn).then(r => {
+            this.server.getTimeseriesHierarchies(token, environmentFqdn).then((r: any) => {
                 this.hierarchies = r.hierarchies;
             })
         })
 
         // get types
         getToken().then(token => {
-            this.server.getTimeseriesTypes(token, environmentFqdn).then(r => {
+            this.server.getTimeseriesTypes(token, environmentFqdn).then((r: any) => {
                 this.types = r.types;
             })
         })

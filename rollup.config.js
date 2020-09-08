@@ -24,7 +24,7 @@ const getPluginConfig = (target) => {
             ],
             minimize: true
         }),
-        typescript(),
+        typescript({typescript: require("typescript")}),
         commonjs({sourceMap: false}),
         json(),
         analyze({summaryOnly: true, limit: 20})
@@ -32,13 +32,13 @@ const getPluginConfig = (target) => {
 
     // umd plugins
     if(target === 'umd'){
-        // config.push(terser());
+        config.push(terser());
     }
 
     return config;
 }
 
-export default (args) => {
+export default () => {
     // browser-friendly UMD build ()
     const browserBundle = 
     {
@@ -60,7 +60,7 @@ export default (args) => {
             UXClient: 'src/UXClient/UXClient.ts',
             Utils: 'src/UXClient/Utils.ts',
             
-            // /Components imports 
+            // Component imports 
             LineChart: 'src/UXClient/Components/LineChart/LineChart.ts',
             AvailabilityChart: 'src/UXClient/Components/AvailabilityChart/AvailabilityChart.ts',
             PieChart: 'src/UXClient/Components/PieChart/PieChart.ts',

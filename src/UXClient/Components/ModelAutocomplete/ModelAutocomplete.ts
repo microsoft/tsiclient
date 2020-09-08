@@ -74,7 +74,7 @@ class ModelAutocomplete extends Component{
             searchText = (<any>this).value;
             if(searchText.replace(/ /g,'') && !noSuggest){
                 getToken().then(token => {
-                    self.server.getTimeseriesInstancesSuggestions(token, environmentFqdn, searchText).then(r => {
+                    self.server.getTimeseriesInstancesSuggestions(token, environmentFqdn, searchText).then((r:any) => {
                         self.ap.list = r.suggestions.map(s => s.searchString);
                         self.ap.ul.setAttribute("role", "listbox");
                         self.ap.ul.setAttribute("tabindex", "0");

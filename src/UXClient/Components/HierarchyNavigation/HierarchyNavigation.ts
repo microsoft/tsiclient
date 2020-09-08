@@ -96,7 +96,7 @@ class HierarchyNavigation extends Component{
 
         //get the most recent types to show in the context menu on instance click
         await getToken().then(token => {
-            return this.server.getTimeseriesTypes(token, environmentFqdn).then(r => {
+            return this.server.getTimeseriesTypes(token, environmentFqdn).then((r:any) => {
                 try {
                     if (r.error) {
                         throw r.error;
@@ -113,7 +113,7 @@ class HierarchyNavigation extends Component{
 
         //get the most recent hierarchies for reverse lookup
         await getToken().then(token => {
-            return this.server.getTimeseriesHierarchies(token, environmentFqdn).then(r => {
+            return this.server.getTimeseriesHierarchies(token, environmentFqdn).then((r:any) => {
                 try {
                     if (r.error) {
                         throw r.error;
@@ -143,7 +143,7 @@ class HierarchyNavigation extends Component{
         }
         
         getToken().then(token => {
-            self.server.getTimeseriesInstancesPathSearch(token, environmentFqdn, {searchString: '', path: this.path, hierarchies: {sort: {by: HierarchiesSort.CumulativeInstanceCount}, expand: {kind: HierarchiesExpand.OneLevel}, pageSize: 100}}).then(r => {
+            self.server.getTimeseriesInstancesPathSearch(token, environmentFqdn, {searchString: '', path: this.path, hierarchies: {sort: {by: HierarchiesSort.CumulativeInstanceCount}, expand: {kind: HierarchiesExpand.OneLevel}, pageSize: 100}}).then((r:any) => {
                 try {
                     if (r.error) {
                         throw r.error;
@@ -499,11 +499,11 @@ class HierarchyNavigation extends Component{
                 let hierarchyNode = new HierarchyNode(pathNodeName, path.slice(0, idx), isHierarchySelected || hierarchyNamesFromParam ? idx - 1 : idx, '');
                 hierarchyNode.expand = () => {
                     return this.pathSearchAndRenderResult({search: {payload: this.requestPayload(hierarchyNode.path), bubbleUpReject: true}, render: {target: hierarchyNode.node}})
-                        .then(r => {
+                        .then((r:any) => {
                             let payload = this.requestPayload(hierarchyNode.path);
                             payload["instances"].recursive = true;
                             this.pathSearch(payload, null, null) // make a second call to retrieve the cumulative instance count for manually added hierarchy node
-                                .then(r => {
+                                .then((r:any) => {
                                     hierarchyNode.node.select(".tsi-instanceCount").text(r.instances.hitCount);
                                 })
                                 .catch(err => {});
@@ -784,7 +784,7 @@ class HierarchyNavigation extends Component{
     }
 
     private pathSearchAndRenderResult = ({search: {payload, instancesContinuationToken = null, hierarchiesContinuationToken = null, bubbleUpReject = false}, render: {target, locInTarget = null, skipLevels = null}}) => {
-        return this.pathSearch(payload, instancesContinuationToken, hierarchiesContinuationToken).then(r => {
+        return this.pathSearch(payload, instancesContinuationToken, hierarchiesContinuationToken).then((r:any) => {
             try {
                 if (r.error) {
                     throw r.error;
@@ -866,9 +866,9 @@ class HierarchyNavigation extends Component{
                 };
 
                 if (this.mode === State.Search) {
-                    return this.pathSearchAndRenderResult({search: {payload: this.requestPayload(hierarchy.path), bubbleUpReject: true}, render: {target: this.instanceListElem}}).then(r => expandNode()).catch(err => {});
+                    return this.pathSearchAndRenderResult({search: {payload: this.requestPayload(hierarchy.path), bubbleUpReject: true}, render: {target: this.instanceListElem}}).then((r:any) => expandNode()).catch(err => {});
                 } else {
-                    return this.pathSearchAndRenderResult({search: {payload: this.requestPayload(hierarchy.path), bubbleUpReject: true}, render: {target: hierarchy.node}}).then(r => expandNode()).catch(err => {});
+                    return this.pathSearchAndRenderResult({search: {payload: this.requestPayload(hierarchy.path), bubbleUpReject: true}, render: {target: hierarchy.node}}).then((r:any) => expandNode()).catch(err => {});
                 }
             };
             data[this.hierarchyNodeIdentifier(h.name)] = hierarchy;
