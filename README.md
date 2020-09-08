@@ -23,15 +23,25 @@ If you use npm, `npm install tsiclient`. You can also load directly from [unpkg]
 <link rel="stylesheet" type="text/css" href="https://unpkg.com/tsiclient@1.2.24/tsiclient.css"></link>
 ```
 
-To import **tsiclient** into an ES2015 application, import everything into a namespace, like so...
+To import all of **tsiclient** into an ES2015 application, import everything into a namespace, like so...
 
 ```js
 import TsiClient from "tsiclient";
 
 // later, when you want a line chart
-var tsiClient = new TsiClient();
-var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart'));
+let tsiClient = new TsiClient();
+let lineChart = new tsiClient.ux.LineChart(document.getElementById('chart'));
 ```
+
+You can also import components directly.  If you only need LineChart for example, you can import it like so...
+
+```js
+import LineChart from 'tsiclient/LineChart'
+
+// later when you want a line chart
+let lineChart = new LineChart(document.getElementById('chart'));
+```
+Direct imports will significantly reduce your bundle size. This is the recommended approach.
 
 ## Release Notes
 

@@ -30,7 +30,7 @@ const getPluginConfig = (target) => {
         analyze({summaryOnly: true, limit: 20})
     ]
 
-    // umd plugins
+    // umd specific plugins
     if(target === 'umd'){
         config.push(terser());
     }
