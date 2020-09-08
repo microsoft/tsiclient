@@ -143,6 +143,7 @@ abstract class HistoryPlayback extends Component {
         })
         .catch(reason => {
           console.error(`Failed to update data availability: ${reason}`);
+          return null;
         });
     });
   }
