@@ -16,15 +16,6 @@ const getPluginConfig = (target) => {
     // Common plugins
     const config = [
         nodeResolve(),
-        postcss({
-            extract: 'tsiclient.css',
-            plugins: [
-                postcssUrl({
-                    url: 'inline',
-                })
-            ],
-            minimize: true
-        }),
         typescript({typescript: require("typescript")}),
         commonjs({sourceMap: false}),
         json(),
@@ -33,11 +24,36 @@ const getPluginConfig = (target) => {
 
     // umd specific plugins
     if(target === 'umd'){
-        config.push(terser());
+        config.push(
+            terser(), 
+            postcss({
+                extract:'tsiclient.min.css',
+                plugins: [
+                    postcssUrl({
+                        url: 'inline',
+                    })
+                ],
+                minimize: true,
+                sourceMap: true
+            }),
+        );
     }
 
+    // esm specific plugins
     if(target === 'esm'){
-        config.push(autoExternal());
+        config.push(
+            autoExternal(),
+            postcss({
+                extract:'tsiclient.css',
+                plugins: [
+                    postcssUrl({
+                        url: 'inline',
+                    })
+                ],
+                minimize: false,
+                sourceMap: false
+            }),    
+        );
     }
 
     return config;
@@ -95,7 +111,7 @@ export default () => {
         output: {
             dir: 'dist',
             format: 'esm',
-            sourcemap: true
+            sourcemap: false
         }
     }
 
