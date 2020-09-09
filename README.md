@@ -41,7 +41,7 @@ import LineChart from 'tsiclient/LineChart'
 // later when you want a line chart
 let lineChart = new LineChart(document.getElementById('chart'));
 ```
-Direct imports will significantly reduce your bundle size. This is the recommended approach.
+Direct imports will significantly reduce your bundle size. This is the recommended approach if your app only consumes specific components.
 
 ## Release Notes
 

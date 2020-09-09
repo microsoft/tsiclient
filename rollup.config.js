@@ -56,16 +56,16 @@ export default () => {
         }
     };
 
-    // ESM Component build (add all componets via script)
+    // ESM Component build
     const esmComponentBundle = 
     {
         input: {
-            Components: 'src/components.ts',
+            // TsiClient core
             ServerClient: 'src/ServerClient/ServerClient.ts',
             UXClient: 'src/UXClient/UXClient.ts',
             Utils: 'src/UXClient/Utils.ts',
             
-            // Component imports 
+            // Direct component imports 
             LineChart: 'src/UXClient/Components/LineChart/LineChart.ts',
             AvailabilityChart: 'src/UXClient/Components/AvailabilityChart/AvailabilityChart.ts',
             PieChart: 'src/UXClient/Components/PieChart/PieChart.ts',
@@ -98,9 +98,6 @@ export default () => {
             sourcemap: true
         }
     }
-
-    // Attach all components as entry points (for direct import optimization)
-    // TODO scriptify this
 
     // Attach plugins to browserBundle
     browserBundle.plugins = getPluginConfig('umd');
