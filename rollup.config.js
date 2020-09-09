@@ -9,6 +9,7 @@ import {terser} from 'rollup-plugin-terser';
 import path from 'path';
 import postcssUrl from "postcss-url";
 import analyze from 'rollup-plugin-analyzer';
+import autoExternal from 'rollup-plugin-auto-external';
 
 const getPluginConfig = (target) => {
 
@@ -33,6 +34,10 @@ const getPluginConfig = (target) => {
     // umd specific plugins
     if(target === 'umd'){
         config.push(terser());
+    }
+
+    if(target === 'esm'){
+        config.push(autoExternal());
     }
 
     return config;

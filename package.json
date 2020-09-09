@@ -1,7 +1,6 @@
 {
     "name": "tsiclient",
     "main": "tsiclient.js",
-    "sideEffects": false,
     "description": "",
     "version": "1.3.0",
     "repository": {
@@ -27,6 +26,7 @@
         "postcss-url": "^8.0.0",
         "rollup": "^2.26.8",
         "rollup-plugin-analyzer": "^3.3.0",
+        "rollup-plugin-auto-external": "^2.0.0",
         "rollup-plugin-postcss": "^3.1.8",
         "rollup-plugin-terser": "^7.0.1",
         "rollup-plugin-typescript2": "^0.27.2",
@@ -44,14 +44,12 @@
     "dependencies": {
         "@types/awesomplete": "^1.1.8",
         "@types/d3": "^4.13.0",
-        "array-includes": "^3.0.3",
         "awesomplete": "^1.1.2",
         "azure-maps-control": "^2.0.26",
         "d3": "^4.13.0",
         "d3-interpolate-path": "^1.1.1",
         "moment-timezone": "^0.5.21",
         "npm": "^6.13.7",
-        "promise-polyfill": "^7.1.0",
         "split.js": "^1.5.11"
     }
 }
