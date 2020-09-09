@@ -19,10 +19,16 @@
     &.tsi-dark{
 		$grays: grays('dark');
         @include dateTimeButtonSingleColors($grays);
+        .tsi-dateTimeButton {
+            background-image: url('../../Icons/dateTimeDark.svg');
+        }
 	}
 	&.tsi-light{
 		$grays: grays('light');
         @include dateTimeButtonSingleColors($grays);
+        .tsi-dateTimeButton {
+            background-image: url('../../Icons/dateTimeLight.svg');
+        }
     }
 
     .tsi-dateTimePickerContainer {
@@ -35,8 +41,12 @@
         height: 32px;
         border: none;
         cursor: pointer;
-        padding-left: 8px;
+        padding-left: 32px;
         padding-right: 8px;
         border-radius: 2px;
+        background-size: 16px 16px;
+        background-position-y: 8px;
+        background-position-x: 8px;
+        background-repeat: no-repeat;
     }
 }
