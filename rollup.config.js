@@ -1,5 +1,4 @@
-// import typescript from '@rollup/plugin-typescript';
-import typescript from 'rollup-plugin-typescript2';
+import typescript from '@wessberg/rollup-plugin-ts';
 import { nodeResolve } from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import json from '@rollup/plugin-json';
@@ -16,7 +15,7 @@ const getPluginConfig = (target) => {
     // Common plugins
     const config = [
         nodeResolve(),
-        typescript({typescript: require("typescript")}),
+        typescript(),
         commonjs({sourceMap: false}),
         json()
     ]
