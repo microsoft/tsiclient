@@ -33,13 +33,13 @@ class TsqExpression extends ChartDataOptions {
         this.variableObject = variableObject;
     }
 
-    public toTsq(roundFromTo: boolean = false, getEvents: boolean = false){
+    public toTsq(roundFromTo: boolean = false, getEvents: boolean = false, getSeries: boolean = false){
         var tsq = {};
         let shiftMillis = Utils.parseShift(this.timeShift, this.startAt, this.searchSpan);
         let fromMillis = this.searchSpan.from.valueOf() + shiftMillis;
         let toMillis = this.searchSpan.to.valueOf() + shiftMillis;
-        let bucketSizeInMillis = Utils.parseTimeInput(this.searchSpan.bucketSize);
         if (roundFromTo) {
+            let bucketSizeInMillis = Utils.parseTimeInput(this.searchSpan.bucketSize);
             let roundedFromMillis = Math.floor((fromMillis + 62135596800000) / (bucketSizeInMillis)) * (bucketSizeInMillis) - 62135596800000; 
             let roundedToMillis = Math.ceil((toMillis + 62135596800000) / (bucketSizeInMillis)) * (bucketSizeInMillis) - 62135596800000;
             fromMillis = roundedFromMillis;
@@ -48,11 +48,17 @@ class TsqExpression extends ChartDataOptions {
         tsq['searchSpan'] = {from: (new Date(fromMillis)).toISOString(), to: (new Date(toMillis)).toISOString()}; 
         tsq['timeSeriesId'] = this.instanceObject.timeSeriesId;
         if (getEvents) {
+            this.isRawData = true;
             return {getEvents: tsq};
-        }
-        else {
+        } else if (getSeries) {
+            this.isRawData = true;
+            tsq['inlineVariables'] = {...this.variableObject};
+            tsq['projectedVariables'] = Object.keys(this.variableObject);
+            return {getSeries: tsq};
+        } else {
+            this.isRawData = false;
             tsq['interval'] = Utils.bucketSizeToTsqInterval(this.searchSpan.bucketSize);
-            tsq['inlineVariables'] = this.variableObject;
+            tsq['inlineVariables'] = {...this.variableObject};
             tsq['projectedVariables'] = Object.keys(this.variableObject);
             return {aggregateSeries: tsq};
         }
