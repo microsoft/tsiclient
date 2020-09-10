@@ -8,8 +8,8 @@ import pkg from './package.json';
 import {terser} from 'rollup-plugin-terser';
 import path from 'path';
 import postcssUrl from "postcss-url";
-import analyze from 'rollup-plugin-analyzer';
 import autoExternal from 'rollup-plugin-auto-external';
+import visualizer from 'rollup-plugin-visualizer';
 
 const getPluginConfig = (target) => {
 
@@ -18,8 +18,7 @@ const getPluginConfig = (target) => {
         nodeResolve(),
         typescript({typescript: require("typescript")}),
         commonjs({sourceMap: false}),
-        json(),
-        analyze({summaryOnly: true, limit: 20})
+        json()
     ]
 
     // umd specific plugins
@@ -36,6 +35,7 @@ const getPluginConfig = (target) => {
                 minimize: true,
                 sourceMap: true
             }),
+            visualizer({filename: 'ignored/umd_stats.html'})
         );
     }
 
@@ -53,6 +53,7 @@ const getPluginConfig = (target) => {
                 minimize: false,
                 sourceMap: false
             }),    
+            visualizer({filename: 'ignored/esm_stats.html'})
         );
     }
 

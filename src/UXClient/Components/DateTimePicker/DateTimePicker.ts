@@ -1,13 +1,12 @@
 import * as d3 from 'd3';
-import * as Pikaday from '../../../packages/pikaday/pikaday';
-import * as moment from 'moment';
+import Pikaday from '../../../packages/pikaday/pikaday';
+import moment from 'moment';
 import './DateTimePicker.scss';
 import '../../../packages/pikaday/css/pikaday.css';
 import { ChartComponent } from '../../Interfaces/ChartComponent';
 import TimezonePicker from '../TimezonePicker/TimezonePicker';
 import { entries } from 'd3';
 import Utils from "./../../Utils";
-
 
 class DateTimePicker extends ChartComponent{
     private calendar: any;

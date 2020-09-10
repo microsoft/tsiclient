@@ -8,7 +8,8 @@
         "allowJs": true,
         "lib" : ["es5", "es2015.promise", "dom", "es6"],
         "moduleResolution": "Node",
-        "declaration": true
+        "declaration": true,
+        "allowSyntheticDefaultImports": true
     },
     "include": [
 		"src/*"
