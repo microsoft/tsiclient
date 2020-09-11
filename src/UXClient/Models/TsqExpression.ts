@@ -48,15 +48,12 @@ class TsqExpression extends ChartDataOptions {
         tsq['searchSpan'] = {from: (new Date(fromMillis)).toISOString(), to: (new Date(toMillis)).toISOString()}; 
         tsq['timeSeriesId'] = this.instanceObject.timeSeriesId;
         if (getEvents) {
-            this.isRawData = true;
             return {getEvents: tsq};
         } else if (getSeries) {
-            this.isRawData = true;
             tsq['inlineVariables'] = {...this.variableObject};
             tsq['projectedVariables'] = Object.keys(this.variableObject);
             return {getSeries: tsq};
         } else {
-            this.isRawData = false;
             tsq['interval'] = Utils.bucketSizeToTsqInterval(this.searchSpan.bucketSize);
             tsq['inlineVariables'] = {...this.variableObject};
             tsq['projectedVariables'] = Object.keys(this.variableObject);
@@ -67,7 +64,7 @@ class TsqExpression extends ChartDataOptions {
     // This method will create an API query payload for the variable statistics of the first inline variable
     // of this object, for numeric dataTypes. Categorical types work as expected.
     public toStatsTsq(fromMillis, toMillis){
-        let tsq = this.toTsq()
+        let tsq = this.toTsq();
         let shiftMillis = Utils.parseShift(this.timeShift);
         fromMillis += shiftMillis;
         toMillis += shiftMillis;
