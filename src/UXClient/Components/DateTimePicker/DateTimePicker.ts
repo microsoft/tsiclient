@@ -1,8 +1,8 @@
 import * as d3 from 'd3';
-import Pikaday from '../../../packages/pikaday/pikaday';
+import Pikaday from 'pikaday';
+import 'pikaday/css/pikaday.css'
 import moment from 'moment';
 import './DateTimePicker.scss';
-import '../../../packages/pikaday/css/pikaday.css';
 import { ChartComponent } from '../../Interfaces/ChartComponent';
 import TimezonePicker from '../TimezonePicker/TimezonePicker';
 import { entries } from 'd3';

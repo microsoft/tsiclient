@@ -10,4 +10,3 @@ class TsiClient {
 export default TsiClient;
 
 (<any>window).TsiClient = TsiClient;
-
