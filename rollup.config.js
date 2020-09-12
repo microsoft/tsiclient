@@ -1,5 +1,5 @@
-// import typescript from '@rollup/plugin-typescript';
-import typescript from 'rollup-plugin-typescript2';
+import typescript from '@wessberg/rollup-plugin-ts';
+import typescript2 from 'rollup-plugin-typescript2';
 import { nodeResolve } from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import json from '@rollup/plugin-json';
@@ -12,18 +12,15 @@ import autoExternal from 'rollup-plugin-auto-external';
 import visualizer from 'rollup-plugin-visualizer';
 
 const getPluginConfig = (target) => {
-
-    // Common plugins
-    const config = [
-        nodeResolve(),
-        typescript({typescript: require("typescript")}),
-        commonjs({sourceMap: false}),
-        json()
-    ]
+    let config = [];
 
     // umd specific plugins
     if(target === 'umd'){
-        config.push(
+        config = [
+            nodeResolve(["jsnext:main", "module", "main"]),
+            typescript2(),
+            commonjs(),
+            json(),
             terser(), 
             postcss({
                 extract:'tsiclient.min.css',
@@ -36,13 +33,17 @@ const getPluginConfig = (target) => {
                 sourceMap: true
             }),
             visualizer({filename: 'ignored/umd_stats.html'})
-        );
+        ]
     }
 
     // esm specific plugins
     if(target === 'esm'){
-        config.push(
+        config = [
+            nodeResolve(["jsnext:main", "module", "main"]),
+            typescript(),
             autoExternal(),
+            commonjs(),
+            json(),
             postcss({
                 extract:'tsiclient.css',
                 plugins: [
@@ -54,7 +55,7 @@ const getPluginConfig = (target) => {
                 sourceMap: false
             }),    
             visualizer({filename: 'ignored/esm_stats.html'})
-        );
+        ]
     }
 
     return config;
@@ -69,8 +70,9 @@ export default () => {
             file: path.join('dist', pkg.main),
             format: 'umd',
             name: 'TsiClient',
-            sourcemap: true
-        }
+            sourcemap: true,
+        },
+        context: "window"
     };
 
     // ESM Component build
@@ -113,7 +115,8 @@ export default () => {
             dir: 'dist',
             format: 'esm',
             sourcemap: false
-        }
+        },
+        context: "window"
     }
 
     // Attach plugins to browserBundle
@@ -122,7 +125,7 @@ export default () => {
     // Attach plugins to esmComponentBundle
     esmComponentBundle.plugins = getPluginConfig('esm');
 
-    let bundle = [browserBundle, esmComponentBundle]
+    let bundle = [esmComponentBundle, browserBundle]
     
     return bundle;
 };
