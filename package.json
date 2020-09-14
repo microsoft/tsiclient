@@ -15,7 +15,7 @@
         "rollup": "rollup --c & shx rm dist/tsiclient.js",
         "webpack": "webpack --config webpack.prod.js",
         "move-types": "shx mv dist/types/*.d.ts dist/",
-        "clean": "shx rm -rf dist",
+        "clean": "shx rm -rf dist & shx rm -rf build_artifacts",
         "copy-package": "shx cp package.json dist/",
         "pack": "cd dist & npm pack & shx mv *.tgz ../build_artifacts",
         "umd-analyze": "webpack-bundle-analyzer ./build_artifacts/umd_stats.json"
@@ -60,7 +60,6 @@
         "moment": "^2.27.0",
         "moment-timezone": "^0.5.31",
         "npm": "^6.13.7",
-        "pikaday": "^1.8.0",
         "split.js": "^1.5.11"
     }
 }

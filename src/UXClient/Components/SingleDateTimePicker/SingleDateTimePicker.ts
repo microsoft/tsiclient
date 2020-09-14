@@ -1,6 +1,6 @@
 import * as d3 from 'd3';
-import Pikaday from 'pikaday';
-import 'pikaday/css/pikaday.css'
+import * as Pikaday from '../../../packages/pikaday/pikaday';
+import '../../../packages/pikaday/css/pikaday.css'
 import moment from 'moment';
 import './SingleDateTimePicker.scss';
 import { ChartComponent } from '../../Interfaces/ChartComponent';
