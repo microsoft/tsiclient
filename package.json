@@ -3,17 +3,18 @@
     "main": "tsiclient.js",
     "description": "",
     "version": "1.3.0",
+    "types": "types/src/TsiClient.d.ts",
     "repository": {
         "type": "git",
         "url": "https://github.com/Microsoft/tsiclient"
     },
     "scripts": {
         "start": "webpack-dev-server --config webpack.dev.js",
-        "build": "npm run clean & rollup --c & npm run copy-package",
+        "build": "npm run clean & webpack --config webpack.prod.js & rollup --c & npm run copy-package & npm run move-types & npm run pack",
+        "move-types": "shx mv dist/types/*.d.ts dist/",
         "clean": "shx rm -rf dist",
         "copy-package": "shx cp package.json dist/",
-        "pack": "cd dist & npm pack",
-        "watch": "rollup --c --watch"
+        "pack": "cd dist & npm pack & shx mv *.tgz ../ignored"
     },
     "devDependencies": {
         "@rollup/plugin-commonjs": "^15.0.0",
@@ -24,6 +25,7 @@
         "file-loader": "^1.1.11",
         "mini-css-extract-plugin": "^0.4.5",
         "node-sass": "^4.13.1",
+        "optimize-css-assets-webpack-plugin": "^5.0.4",
         "postcss-url": "^8.0.0",
         "rollup": "^2.26.11",
         "rollup-plugin-auto-external": "^2.0.0",
@@ -34,6 +36,7 @@
         "sass-loader": "^6.0.7",
         "shx": "^0.3.2",
         "style-loader": "^0.19.1",
+        "terser-webpack-plugin": "^4.2.0",
         "ts-loader": "^5.2.2",
         "tslib": "^2.0.1",
         "typescript": "^4.0.2",

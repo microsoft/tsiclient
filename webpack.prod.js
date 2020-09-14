@@ -1,9 +1,11 @@
 const path = require('path');
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
+const TerserPlugin = require('terser-webpack-plugin');
 
-/* Used to run hot-reloading development server */
+/* Used to build UMD bundle, associated typings in dist/types, and minified css*/
 module.exports = {
-  mode: 'development',
+  mode: 'production',
   entry: './src/TsiClient.ts',
   module: {
     rules: [
@@ -34,14 +36,7 @@ module.exports = {
     }
     ]
   },
-  devtool: 'inline-source-map',
-  devServer: {
-    contentBase: 'pages/examples',
-    public: 'insights-local.timeseries.azure.com:443',
-    host: 'insights-local.timeseries.azure.com',
-    port: 443,
-    https: true
-  },
+  devtool: 'source-map',
   resolve: {
     extensions: [ '.tsx', '.ts', '.js' ]
   },
@@ -53,7 +48,11 @@ module.exports = {
   },
   plugins: [
     new MiniCssExtractPlugin({
-      filename: 'tsiclient.css'
+      filename: 'tsiclient.min.css'
     })
-  ]
+  ],
+  optimization: {
+    minimize: true,
+    minimizer: [new OptimizeCSSAssetsPlugin({}), new TerserPlugin()],
+  },
 };
