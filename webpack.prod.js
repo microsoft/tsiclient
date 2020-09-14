@@ -2,6 +2,7 @@ const path = require('path');
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 /* Used to build UMD bundle, associated typings in dist/types, and minified css*/
 module.exports = {
@@ -47,6 +48,7 @@ module.exports = {
     libraryTarget: 'umd'
   },
   plugins: [
+    new BundleAnalyzerPlugin({generateStatsFile: true, analyzerMode: 'disabled', statsFilename: '../build_artifacts/umd_stats.json'}),
     new MiniCssExtractPlugin({
       filename: 'tsiclient.min.css'
     })

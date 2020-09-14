@@ -7,7 +7,6 @@ import postcssUrl from "postcss-url";
 import autoExternal from 'rollup-plugin-auto-external';
 import visualizer from 'rollup-plugin-visualizer';
 
-
 /* Used to generate direct import bundle for each component, associated types, and unminified css */
 export default {
     input: {
@@ -15,6 +14,7 @@ export default {
         ServerClient: 'src/ServerClient/ServerClient.ts',
         UXClient: 'src/UXClient/UXClient.ts',
         Utils: 'src/UXClient/Utils.ts',
+        tsiclient: 'src/TsiClient.ts', // Used to generated correctly referenced tsiclient.d.ts file.  
         
         // Direct component imports 
         LineChart: 'src/UXClient/Components/LineChart/LineChart.ts',
@@ -65,6 +65,6 @@ export default {
             minimize: false,
             sourceMap: false
         }),    
-        visualizer({filename: 'ignored/esm_stats.html'}) // Generate esm bundle stats
+        visualizer({filename: 'build_artifacts/esm_stats.html'}) // Generate esm bundle stats
     ]
 };
