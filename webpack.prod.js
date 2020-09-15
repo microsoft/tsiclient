@@ -12,7 +12,14 @@ module.exports = {
     rules: [
       {
         test: /\.tsx?$/,
-        use: 'ts-loader',
+        use: [{
+          loader: 'ts-loader',
+          options: {
+            compilerOptions: {
+              declaration: false,
+            }
+          }
+        }],
         exclude: /node_modules/
       },
       {

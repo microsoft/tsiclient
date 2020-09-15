@@ -11,13 +11,12 @@
     "scripts": {
         "start": "webpack-dev-server --config webpack.dev.js",
         "build": "npm run clean & npm run rollup & npm run webpack & npm run post-build",
-        "post-build": "npm run copy-package & npm run move-types & npm run pack & shx rm -rf dist/types",
+        "clean": "shx rm -rf dist & shx rm -rf build_artifacts",
         "rollup": "rollup --c & shx rm dist/tsiclient.js",
         "webpack": "webpack --config webpack.prod.js",
-        "move-types": "shx mv dist/types/*.d.ts dist/",
-        "clean": "shx rm -rf dist & shx rm -rf build_artifacts",
         "copy-package": "shx cp package.json dist/",
         "pack": "cd dist & npm pack & shx mv *.tgz ../build_artifacts",
+        "post-build": "npm run copy-package & npm run pack",
         "umd-analyze": "webpack-bundle-analyzer ./build_artifacts/umd_stats.json"
     },
     "devDependencies": {

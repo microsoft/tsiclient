@@ -9,8 +9,7 @@
         "lib" : ["es5", "es2015.promise", "dom", "es6"],
         "moduleResolution": "Node",
         "declaration": true,
-        "allowSyntheticDefaultImports": true,
-        "declarationDir": "dist/types"
+        "allowSyntheticDefaultImports": true
     },
     "include": [
 		"src"
