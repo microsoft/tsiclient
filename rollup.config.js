@@ -50,7 +50,7 @@ export default {
     },
     context: "window",
     plugins: [
-        nodeResolve(["jsnext:main", "module", "main"]), // Resolve node_module imports
+        nodeResolve(), // Resolve node_module imports
         typescript(), // Compile typescript and associated .d.ts files using tsconfig.json
         autoExternal(), // Auto mark prod dependencies as external
         commonjs(), // Convert cjs imports to esm

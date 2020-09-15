@@ -1,5 +1,5 @@
 import * as d3 from 'd3';
-import * as Pikaday from '../../../packages/pikaday/pikaday';
+import Pikaday from '../../../packages/pikaday/pikaday';
 import '../../../packages/pikaday/css/pikaday.css'
 import moment from 'moment';
 import './SingleDateTimePicker.scss';
@@ -114,7 +114,7 @@ class SingleDateTimePicker extends ChartComponent{
             weekdaysShort : moment.localeData().weekdaysMin()
         };
 
-        this.calendarPicker = new Pikaday({ 
+        this.calendarPicker = new Pikaday({
             bound: false,
             container: this.calendar.node(),
             field: this.calendar.node(),

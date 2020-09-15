@@ -1,5 +1,5 @@
 import * as d3 from 'd3';
-import * as Pikaday from '../../../packages/pikaday/pikaday';
+import Pikaday from '../../../packages/pikaday/pikaday';
 import '../../../packages/pikaday/css/pikaday.css'
 import moment from 'moment';
 import './DateTimePicker.scss';
