@@ -127,7 +127,7 @@ class Utils {
         } else {
             millis = this.parseTimeInput(shiftString);
         }
-        return millis;
+        return -millis;
     }
 
     static adjustStartMillisToAbsoluteZero (fromMillis, bucketSize) {

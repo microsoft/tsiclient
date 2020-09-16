@@ -202,10 +202,22 @@ class SingleDateTimePicker extends ChartComponent{
         return Utils.parseUserInputDateTime(this.timeInput.node().value, this.chartOptions.offset);
     }
 
-    private updateDisplayedDateTime () {
-        var selectedDate = new Date(this.millis);
-        this.calendarPicker.setDate(this.roundDay(Utils.offsetFromUTC(selectedDate)));
-        this.timeInput.node().value = this.createTimeString(Utils.offsetFromUTC(selectedDate));
+    private offsetFromUTC (date: Date) {
+        let dateCopy = new Date(date.valueOf())
+        dateCopy.setTime(dateCopy.getTime() + dateCopy.getTimezoneOffset()*60*1000 );
+        return dateCopy;    
+    }
+
+    private convertToCalendarDate (millis: number) {
+        return this.roundDay(this.offsetFromUTC(Utils.offsetFromUTC(new Date(millis), this.chartOptions.offset)))
+    }
+
+    private updateDisplayedDateTime (fromInput: boolean = false) {
+        let selectedDate = new Date(this.millis);
+        this.calendarPicker.setDate(this.convertToCalendarDate(this.millis), fromInput);
+        if (!fromInput) {
+            this.timeInput.node().value = this.createTimeString(Utils.offsetFromUTC(selectedDate));
+        }
     }
 
     private createTimeString (currDate: Date) {
@@ -227,7 +239,7 @@ class SingleDateTimePicker extends ChartComponent{
                 if (this.isValid) {
                     let parsedMillis = this.parseUserInputDateTime();
                     this.setMillis(parsedMillis, false);
-                    this.calendarPicker.setDate(Utils.offsetFromUTC(new Date(this.millis)), true);
+                    this.updateDisplayedDateTime(true);
                 }
             })
             .on('keydown', () => {
