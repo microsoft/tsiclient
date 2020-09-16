@@ -1,0 +1,54 @@
+
+<!DOCTYPE html> 
+<html>
+    <head>
+        <title>Basic Charts</title>
+
+        <!-- boilerplate headers are injected with head.js, grab them from the live example header, or include a link to head.js -->
+        <script src="../boilerplate/head.js"></script>
+    </head>
+    <body style="font-family: 'Segoe UI', sans-serif;">
+        <div id="chart1" style="width: calc(100% - 40px); height: 600px; margin-right: 40px; border-right: 1px solid grey;"></div>
+        
+        <script>
+            window.onload = function() {
+                
+                // create fake data in the shape our charts expect
+                var data = [];
+                var from = new Date(Math.floor((new Date()).valueOf() / (1000*60 * 60)) * (1000*60 * 60));
+                var to;
+                for(var i = 0; i < 3; i++){
+                    var lines = {};
+                    data.push({[i === 0 ? 'shortj' : `this is a much much muuuuuuuuch longer group name ${i}`]: lines});
+                    for(var j = 0; j < 5; j++){
+                        var values = {};
+                        lines[`Station${j}`] = values;
+                        for(var k = 0; k < 60; k++){
+                            if(!(k%2 && k%3)){  // if check is to create some sparseness in the data
+                                var to = new Date(from.valueOf() + 1000*60*k);
+                                var val = Math.random();
+                                var val2 = Math.random();
+                                var val3 = Math.random();
+                                var val4 = Math.random();
+                                values[to.toISOString()] = {avg: val, x: val2, y: val3, r: val4};
+                            }
+                        } 
+                    }
+                }
+
+                // render the data in a chart
+                var tsiClient = new TsiClient();
+                var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart1'));
+                lineChart.render(data, {theme: 'light', tooltip: true, labelSeriesWithMarker: false}, [{},{timeShift: '-1m', variableAlias: 'd'}, {timeShift: '-1m', variableAlias: 'this is a prettttty long variable alias'}]);
+
+                let counter = 0;
+                setInterval(() => {
+                    if (counter < 1) {
+                        lineChart.render(data, {theme: 'light', tooltip: true, labelSeriesWithMarker: (counter % 2 === 0)}, [{},{timeShift: '-1m', variableAlias: 'd'}, {startAt: from.toISOString(), variableAlias: 'this is a prettttty long variable alias', searchSpan: {from: from.valueOf(), to: to.valueOf()}}]);
+                    }
+                    counter++;
+                }, 2000);
+            };
+        </script>
+    </body>
+</html>

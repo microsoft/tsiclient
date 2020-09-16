@@ -285,10 +285,10 @@ class Legend extends Component {
             }
 
             if (d3.select(this).select('.tsi-seriesName').empty()) {
-                d3.select(this)
+                let seriesName = d3.select(this)
                     .append('div')
-                    .attr('class', 'tsi-seriesName')
-                    .text(d => (noSplitBys ? (self.chartComponentData.displayState[aggKey].name): splitBy));      
+                    .attr('class', 'tsi-seriesName');
+                Utils.appendFormattedElementsFromString(seriesName, noSplitBys ? (self.chartComponentData.displayState[aggKey].name): splitBy);
             }
 
             if (dataType === DataTypes.Numeric) {
@@ -429,7 +429,7 @@ class Legend extends Component {
                 }) 
                 .attr("aria-label", (agg: string) => {
                     let showOrHide = self.chartComponentData.displayState[agg].visible ? self.getString('hide group') : self.getString('show group');
-                    return `${showOrHide} ${self.getString('group')} ${self.chartComponentData.displayState[agg].name}`;
+                    return `${showOrHide} ${self.getString('group')} ${Utils.stripNullGuid(self.chartComponentData.displayState[agg].name)}`;
                 })   
                 .on("click", function (d: string, i: number) {
                     var newState = !self.chartComponentData.displayState[d].visible;
@@ -461,11 +461,14 @@ class Legend extends Component {
             }
 
             var seriesNameLabelText = enteredSeriesNameLabel.selectAll("h4").data([aggKey]);
-            var seriesNameLabelTextEntered = seriesNameLabelText.enter()
+            seriesNameLabelText.enter()
                 .append("h4")
                 .merge(seriesNameLabelText)
-                .attr("title", (d: string) => self.chartComponentData.displayState[d].name)
-                .text((d: string) => self.chartComponentData.displayState[d].name);
+                .attr("title", (d: string) => Utils.stripNullGuid(self.chartComponentData.displayState[d].name))
+                .each(function() {
+                    Utils.appendFormattedElementsFromString(d3.select(this), self.chartComponentData.displayState[aggKey].name);
+                });
+            
 
             seriesNameLabelText.exit().remove();
             seriesNameLabel.exit().remove();

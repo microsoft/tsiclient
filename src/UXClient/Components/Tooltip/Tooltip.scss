@@ -25,7 +25,6 @@
         border-left-width: 10px;
         border-left-style: solid;
     }
-
 }
 
 .tsi-tooltipTitle, .tsi-tooltipSubtitle, .tsi-tooltipAttrTitle, .tsi-tooltipAttrValue, .tsi-valueLabel, .tsi-valueCell, .tsi-tooltipMeasureTitle{
@@ -136,23 +135,21 @@
         font-weight: bold;
     }
 
-    .tsi-tooltipTitleGroup {
-        .tsi-tooltipTitle {
-            font-weight: bold;
-            font-size: 13px;
-        } 
+    .tsi-tooltipTitle {
+        font-weight: bold;
+        font-size: 13px;
+    } 
 
-        .tsi-tooltipSubtitle {
-            font-weight: normal;
-            opacity: .7;
-            font-size: 11px;
-        }
-
-        .tsi-tooltipTitle, .tsi-tooltipSubtitle {
-            margin: 0;
-        }
-        margin-bottom: 8px;
+    .tsi-tooltipSubtitle {
+        font-weight: normal;
+        opacity: .7;
+        font-size: 11px;
     }
+
+    .tsi-tooltipTitle, .tsi-tooltipSubtitle {
+        margin: 0;
+    }
+    margin-bottom: 8px;
 
     .tsi-tooltipColorBlockCell {
         width: 12px;

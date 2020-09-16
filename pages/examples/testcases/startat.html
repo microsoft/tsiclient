@@ -1,0 +1,69 @@
+
+<!DOCTYPE html> 
+<html>
+    <head>
+        <title>Basic Charts</title>
+
+        <!-- boilerplate headers are injected with head.js, grab them from the live example header, or include a link to head.js -->
+        <script src="../boilerplate/head.js"></script>
+            <!-- boilerplate auth code is injected with auth.js, check it out for auth setup -->
+    <script src="../boilerplate/auth.js"></script>
+    <link rel="stylesheet" type="text/css" href="../styles.css" />
+
+    </head>
+    <body style="font-family: 'Segoe UI', sans-serif;">
+        <div style='margin-top:40px'>
+            <div id='series0StartAt' style='width: 100%; height: 60px; position: relative;'></div>
+        </div>
+        <div style="display:flex;">
+            <div id="chart1" style="width: 50%; height: 500px; margin-top: 40px;"></div>
+            <div id="chart2" style="width: 50%; height: 500px; margin-top: 40px;"></div>    
+        </div>
+        <script>
+            var aggregateExpressions = [];
+
+            window.onload = function() {
+                var tsiClient = new TsiClient();
+                initAuth('Start at');  // initiate auth objects, header, and login modal
+                            
+                // create aggregate expressions, they are S1/S2 SKU query objects
+                var startDate = new Date('2017-04-14T13:00:00Z');
+                var endDate = new Date(startDate.valueOf() + 1000*60*60*1);
+                var searchSpan = {
+                    from: startDate,
+                    to: endDate,
+                    bucketSize:'1m'
+                }
+                aggregateExpressions.push(new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory1'"}, {property: 'Pressure', type: "Double"}, ['avg', 'min', 'max'],
+                    searchSpan, {property: 'Station', type: 'String'}, {alias: 'Shifted time'}));
+                aggregateExpressions.push(new tsiClient.ux.AggregateExpression({predicateString: "Factory = 'Factory1'"}, {property: 'Pressure', type: "Double"}, ['avg', 'min', 'max'],
+                    searchSpan, {property: 'Station', type: 'String'}, 'orange', 'Normal time'));
+                
+                    var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart1'));
+                    var heatmap = new tsiClient.ux.Heatmap(document.getElementById('chart2'));
+
+                    function renderLinechart () {
+                    authContext.getTsiToken().then(function(token){
+                        tsiClient.server.getAggregates(token, '10000000-0000-0000-0000-100000000108.env.timeseries.azure.com', aggregateExpressions.map(function(ae){return ae.toTsx()})).then(function(result){
+                            var transformedResult = tsiClient.ux.transformAggregatesForVisualization(result, aggregateExpressions);
+                            lineChart.render(transformedResult, {theme: 'light', grid: true, tooltip: true}, aggregateExpressions);
+                            heatmap.render(transformedResult, {theme: 'light'}, aggregateExpressions);
+                        });
+                    });
+                }
+                renderLinechart();
+
+                applyShift = function (startAt, i) {
+                    aggregateExpressions[i].startAt = startAt;
+                    renderLinechart();
+                }
+            
+                var dtpSeries0 = new tsiClient.ux.DateTimeButtonSingle(document.getElementById('series0StartAt'));
+                dtpSeries0.render({}, 0, Infinity, startDate, (t) => {
+                    let dateString = (new Date(t)).toISOString();
+                    applyShift(dateString, 0);
+                });
+            };
+        </script>
+    </body>
+</html>

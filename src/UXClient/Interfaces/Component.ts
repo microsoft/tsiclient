@@ -36,7 +36,24 @@ class Component {
 	}
 	
 	protected tooltipFormat (d, text, measureFormat: TooltipMeasureFormat, xyrMeasures = null) {
+		
+	}
 
+	protected createTooltipSeriesInfo (d, group, cDO) {
+		let title = group.append('h2').attr('class', 'tsi-tooltipGroupName tsi-tooltipTitle');
+		Utils.appendFormattedElementsFromString(title, d.aggregateName);
+
+		if (d.splitBy && d.splitBy != ""){
+			let splitBy = group.append('h4')
+				.attr('class', 'tsi-tooltipSeriesName tsi-tooltipSubtitle');
+			Utils.appendFormattedElementsFromString(splitBy, d.splitBy);
+		}
+		
+		if (cDO.variableAlias){
+			group.append('h4')
+				.text(cDO.variableAlias)
+				.attr('class', 'tsi-tooltipVariableAlias tsi-tooltipSubtitle');
+		}
 	}
 	
 }

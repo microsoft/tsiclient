@@ -2,11 +2,9 @@ import * as d3 from 'd3';
 import * as momentTZ from 'moment-timezone';
 import * as moment from 'moment';
 import {Grid} from "./Components/Grid/Grid";
-import { ChartComponent } from './Interfaces/ChartComponent';
 import { ChartOptions } from './Models/ChartOptions';
-import { AggregateExpression } from './Models/AggregateExpression';
 import { ChartComponentData } from './Models/ChartComponentData';
-import { TsqExpression } from './Models/TsqExpression';
+import { nullTsidDisplayString } from './Constants/Constants';
 
 export const NONNUMERICTOPMARGIN = 8;
 export const LINECHARTTOPPADDING = 16;
@@ -20,6 +18,7 @@ export const LINECHARTCHARTMARGINS = {
 export const LINECHARTXOFFSET = 8;
 export const MARKERVALUENUMERICHEIGHT = 20;
 export const VALUEBARHEIGHT = 3;
+export const SERIESLABELWIDTH = 92;
 
 
 // Linechart stack states
@@ -30,7 +29,9 @@ export enum TooltipMeasureFormat {Enveloped = 'Enveloped', SingleValue = 'Single
 export enum valueTypes {String = 'String', Double = 'Double', Long = 'Long', Dynamic = 'Dynamic', Boolean = 'Boolean', DateTime = 'DateTime'};
 
 
-class Utils {
+class Utils { 
+    static guidForNullTSID = Utils.guid();
+
     static formatYAxisNumber (val: number) {
         if (Math.abs(val) < 1000000) {
             if (Math.abs(val) < .0000001)
@@ -107,16 +108,24 @@ class Utils {
         } 
         return null;
     }
+
+    static isStartAt (startAtString: string = null, searchSpan: any = null) {
+        return (startAtString !== null && searchSpan !== null && searchSpan.from !== null);
+    }
     
-    static parseShift (inputString: string) {
-        if (inputString === undefined || inputString === null || inputString.length === 0) {
+    static parseShift (shiftString: string, startAtString: any = null, searchSpan: any = null) {
+        if (this.isStartAt(startAtString, searchSpan)) {
+            return (new Date(startAtString)).valueOf() - (new Date(searchSpan.from)).valueOf();
+        }
+        
+        if (shiftString === undefined || shiftString === null || shiftString.length === 0) {
             return 0;
         }
         let millis: number;
-        if (inputString[0] === '-' || inputString[0] === '+') {
-            millis = (inputString[0] === '-' ? -1 : 1) * this.parseTimeInput(inputString.slice(1,inputString.length));
+        if (shiftString[0] === '-' || shiftString[0] === '+') {
+            millis = (shiftString[0] === '-' ? -1 : 1) * this.parseTimeInput(shiftString.slice(1,shiftString.length));
         } else {
-            millis = this.parseTimeInput(inputString);
+            millis = this.parseTimeInput(shiftString);
         }
         return millis;
     }
@@ -392,6 +401,36 @@ class Utils {
         var specialCharacters = ['"', "'", '?', '<', '>', ';'];
         specialCharacters.forEach(c => { text = text.split(c).join('') });
         return text;
+    }
+
+    static setSeriesLabelSubtitleText (subtitle, isInFocus: boolean = false) {
+        let subtitleDatum = subtitle.data()[0];
+        if (!subtitle.select('.tsi-splitBy').empty()) {
+            subtitle.select('.tsi-splitBy')
+                .text(d => {
+                    let textAfterSplitByExists = subtitleDatum.timeShift !== '' || subtitleDatum.variableAlias;
+                    return `${subtitleDatum.splitBy}${(textAfterSplitByExists && !isInFocus) ? ', ' : ''}`;    
+                });
+        }
+        if (subtitle.select('.tsi-timeShift')) {
+            subtitle.select('.tsi-timeShift')
+                .text(d => {
+                    return `${subtitleDatum.timeShift}${(subtitleDatum.variableAlias && !isInFocus) ? ', ' : ''}`;
+                });
+        }
+        if (subtitle.select('.tsi-variableAlias')) {
+            subtitle.select('.tsi-variableAlias')
+                .text(d => subtitleDatum.variableAlias);
+        }
+    }
+
+    static revertAllSubtitleText (markerValues, opacity = 1) {
+        let self = this;
+        markerValues.classed('tsi-isExpanded', false)
+            .style('opacity', opacity)
+            .each(function () {
+                self.setSeriesLabelSubtitleText(d3.select(this).selectAll('.tsi-tooltipSubtitle'), false);
+            });
     }
 
     static generateColors (numColors: number, includeColors: string[] = null) {
@@ -755,7 +794,7 @@ class Utils {
             let newTS = {}
             Object.keys(query.data[query.alias][""]).forEach((key) => {
                 let oldTime = new Date(key).valueOf();
-                let timeShift = query.timeShift != "" ? this.parseShift(query.timeShift): 0;
+                let timeShift = query.timeShift != "" ? this.parseShift(query.timeShift, query.startAt, query.searchSpan): 0;
                 // Calculate real timeshift based on bucket snapping
                 let bucketShiftInMillis =  this.adjustStartMillisToAbsoluteZero(timeShift, this.parseShift(query.searchSpan.bucketSize));
                 let normalizedTime = oldTime - bucketShiftInMillis;
@@ -919,6 +958,85 @@ class Utils {
     static languageGuess () {
         return navigator.languages && navigator.languages[0] || // Chrome / Firefox
         navigator.language; // All browsers
+    }
+
+    static getInstanceKey = (instance) => { // for keying instances using timeseriesid to be used data object to render hierarchy navigation
+        return Utils.instanceHasEmptyTSID(instance) ? Utils.guid() : instance.timeSeriesId.map(id => id === null ? Utils.guidForNullTSID : id).join();
+    }
+
+    static stripNullGuid = (str) => { // for replacing guids for null tsid in alias etc. with its display string
+        return str.replace(Utils.guidForNullTSID, nullTsidDisplayString);
+    }
+
+    static getTimeSeriesIdString = (instance) => { // for arialabel and title 
+        return instance.timeSeriesId.map(id => id === null ? nullTsidDisplayString : id).join(', ');
+    }
+
+    static getTimeSeriesIdToDisplay = (instance, emptyDisplayString) => { // time series id to be shown in UI
+        return Utils.instanceHasEmptyTSID(instance) ? emptyDisplayString : instance.timeSeriesId.map(id => id === null ? Utils.guidForNullTSID : id).join(', ');
+    }
+
+    static getHighlightedTimeSeriesIdToDisplay = (instance) => { // highlighted time series ids (including hits) to be shown in UI
+        return instance.highlights.timeSeriesId.map((id, idx) => instance.timeSeriesId[idx] === null ? Utils.guidForNullTSID : id).join(', ');
+    }
+
+    static instanceHasEmptyTSID = (instance) => {
+        return !instance.timeSeriesId || instance.timeSeriesId.length === 0;
+    }
+    
+    // appends dom elements of stripped strings including hits (for instance search results) and mono classed spans (for null tsid)
+    static appendFormattedElementsFromString = (targetElem, str, options: {additionalClassName?: string, inSvg?: boolean, splitByTag?: string} = null) => {
+        interface FormattedElemData {
+            str: string;
+            isHit?: boolean;
+            isNull?: boolean;
+        };
+
+        let data : Array<FormattedElemData> = [];
+        let splitByNullGuid = (str) : Array<any> => {
+            let data = [];
+            let splittedByNull = str.split(Utils.guidForNullTSID);
+            splittedByNull.forEach((s, i) => {
+                if (i === 0) { 
+                    if (s) {
+                        data.push({str: s});
+                    }
+                } else {
+                    data.push({str: nullTsidDisplayString, isNull: true});
+                    if (s) {
+                        data.push({str: s});
+                    }
+                }
+            });
+            return data;
+        }
+
+        let splitByTag = options && options.splitByTag ? options.splitByTag : 'hit';
+        let splittedByHit = str.split(`<${splitByTag}>`);
+        splittedByHit.forEach((s, i) => {
+            if (i === 0) {
+                data = data.concat(splitByNullGuid(s));
+            } else {
+                let splittedByHitClose = s.split(`</${splitByTag}>`);
+                data.push({str: splittedByHitClose[0], isHit: true});
+                data = data.concat(splitByNullGuid(splittedByHitClose[1]));
+            }
+        });
+
+        let additionalClassName = options && options.additionalClassName ? options.additionalClassName : '';
+        let children = targetElem.selectAll('.tsi-formattedChildren').data(data);
+        children.enter()
+            .append(d => 
+                d.isHit ? document.createElement('mark')
+                : options && options.inSvg ? document.createElementNS('http://www.w3.org/2000/svg', 'tspan')
+                    : document.createElement('span')
+            )
+            .classed('tsi-formattedChildren', true)
+            .merge(children)
+            .classed('tsi-baseMono', d => d.isNull)
+            .classed(additionalClassName, options && options.additionalClassName)
+            .text(d => d.str);
+        children.exit().remove();
     }
 }
 

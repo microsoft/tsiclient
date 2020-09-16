@@ -15,6 +15,7 @@ class ChartDataOptions {
     public includeDots: boolean = false;
     public visibilityState: Array<any> = null;
     public timeShift: string;
+    public startAt: string;
     public dataType: string; //numeric, categorical, events?
     public valueMapping: any; //only present for non-numeric
     public height: number; //only present for non-numeric
@@ -60,6 +61,7 @@ class ChartDataOptions {
         this.positionXVariableName = Utils.getValueOrDefault(optionsObject, 'positionXVariableName', null);
         this.positionYVariableName = Utils.getValueOrDefault(optionsObject, 'positionYVariableName', null);
         this.image = Utils.getValueOrDefault(optionsObject, 'image', null);
+        this.startAt = Utils.getValueOrDefault(optionsObject, 'startAt', null);
     }
 }
 export {ChartDataOptions}

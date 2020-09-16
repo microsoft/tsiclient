@@ -40,6 +40,7 @@ class ChartOptions {
     public is24HourTime: boolean; // whether time is displayed in 24, or 12 hour time with am/pm
     public keepBrush: boolean; // whether to keep the brush selected region upon re render
     public keepSplitByColor: boolean; //whether to keep the split By colors when state is updated
+    public labelSeriesWithMarker: boolean; //whether to add a marker at the right side of line chart with label for each series
     public legend: string; //state of the legend: shown, hidden, or compact
     public markers: Array<any>; // tuple of millisecond timestamps and labels per marker, listed as any to support back compatibility with when these were just timestamp millis
     public maxBuckets: number // max number of buckets in availability chart
@@ -86,6 +87,7 @@ class ChartOptions {
     public withContextMenu: boolean; // whether the hierarchy uses a context menu when you click on a parent of leaf nodes
     public hierarchyOptions: any; // hierarchy navigation related options for search api
     public onError: (titleKey, messageKey, xhr) => any;
+    public timeSeriesIdProperties: Array<{name: string, type: any}>; // time series id properties to highlight and prioritize in events table
 
     public stringsInstance: Strings = new Strings(); 
 
@@ -192,7 +194,9 @@ class ChartOptions {
         this.onSelect = this.mergeValue(chartOptionsObj, 'onSelect', () => {});
         this.swimLaneOptions = this.mergeValue(chartOptionsObj, 'swimLaneOptions', null);
         this.hierarchyOptions = this.mergeValue(chartOptionsObj, 'hierarchyOptions', Object.assign({}, DefaultHierarchyNavigationOptions));
+        this.labelSeriesWithMarker = this.mergeValue(chartOptionsObj, 'labelSeriesWithMarker', false);
         this.onError = this.mergeValue(chartOptionsObj, 'onError', (titleKey, messageKey, xhr) => {});
+        this.timeSeriesIdProperties = Utils.getValueOrDefault(chartOptionsObj, 'timeSeriesIdProperties', []);
     }
 
     private mergeStrings (strings) {
@@ -288,7 +292,9 @@ class ChartOptions {
             colors: this.colors,
             swimLaneOptions: this.swimLaneOptions,
             hierarchyOptions: this.hierarchyOptions,
-            onError: this.onError
+            onError: this.onError,
+            labelSeriesWithMarker: this.labelSeriesWithMarker,
+            timeSeriesIdProperties: this.timeSeriesIdProperties
         }
     }
 }

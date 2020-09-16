@@ -6,6 +6,7 @@ import { EllipsisMenu } from "../Components/EllipsisMenu/EllipsisMenu";
 import * as d3 from 'd3';
 import Split from 'split.js';
 import { Legend } from "../Components/Legend/Legend";
+import { ShiftTypes } from "../Constants/Enums";
 
 
 class ChartComponent extends Component {
@@ -175,21 +176,7 @@ class ChartComponent extends Component {
         let titleGroup = text.append("div")
 			.attr("class", "tsi-tooltipTitleGroup");
 		
-		titleGroup.append('h2')
-			.attr('class', 'tsi-tooltipGroupName tsi-tooltipTitle')
-            .text(d.aggregateName);
-
-        if (d.splitBy && d.splitBy != ""){
-            titleGroup.append('h4')
-                .text(d.splitBy)
-                .attr('class', 'tsi-tooltipSeriesName tsi-tooltipSubtitle');
-		}
-		
-        if (cDO.variableAlias){
-            titleGroup.append('h4')
-                .text(cDO.variableAlias)
-                .attr('class', 'tsi-tooltipVariableAlias tsi-tooltipSubtitle');
-		}
+		this.createTooltipSeriesInfo(d, titleGroup, cDO);
 
         if (dataType === DataTypes.Categorical) {
             titleGroup.append('h4')
@@ -205,7 +192,12 @@ class ChartComponent extends Component {
 
         let tooltipAttrs = cDO.tooltipAttributes;
         if (shiftMillis !== 0 && tooltipAttrs) {
-            tooltipAttrs = [...tooltipAttrs, [this.getString("shifted"), this.chartComponentData.getTemporalShiftString(d.aggregateKey)]];
+			let shiftTuple = this.chartComponentData.getTemporalShiftStringTuple(d.aggregateKey);
+			if (shiftTuple !== null) {
+				let keyString = this.getString(shiftTuple[0]);
+				let valueString = (keyString === ShiftTypes.startAt) ? this.formatDate(new Date(shiftTuple[1]), 0) : shiftTuple[1]; 
+				tooltipAttrs = [...tooltipAttrs, [keyString, valueString]];
+			}
         }
 
         if (tooltipAttrs && tooltipAttrs.length > 0) {
@@ -255,9 +247,9 @@ class ChartComponent extends Component {
 							(dataType === DataTypes.Numeric && 
 							(measureType === this.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy)) &&
 							(measureFormat !== TooltipMeasureFormat.Scatter)));
-                    valueItem.append('div')
-                        .attr('class', 'tsi-tooltipMeasureTitle')    
-                        .text(measureType);
+                    let measureTitle = valueItem.append('div')
+						.attr('class', 'tsi-tooltipMeasureTitle')
+					Utils.appendFormattedElementsFromString(measureTitle, measureType);
                     valueItem.append('div')
                         .attr('class', 'tsi-tooltipMeasureValue')
                         .text(formatValue(d.measures[measureType]))

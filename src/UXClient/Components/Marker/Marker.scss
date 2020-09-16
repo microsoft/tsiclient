@@ -9,7 +9,6 @@
     $gray6: nth($grays, 6); // hover
 
     color: $gray1;
-    background: $gray3;
 
     .tsi-markerTimeLabel {
         background-color: $gray3;
@@ -160,23 +159,27 @@
                 }    
             }
         }
-        .tsi-tooltip {
-            box-shadow: none;
-            border: none;
-            .tsi-markerValueTooltipInner {
-                padding: 0px 4px 0px 4px;
-                border-width: 1px !important;
-                border-style: solid;
-                font-size: 11px;
-                min-width: unset;
-                transform: translateX(8px);
-            }    
 
+
+        &:not(.tsi-seriesLabelValue) {
+            .tsi-tooltip {
+                box-shadow: none;
+                border: none;
+                .tsi-markerValueTooltipInner {
+                    padding: 0px 4px 0px 4px;
+                    border-width: 1px !important;
+                    border-style: solid;
+                    font-size: 11px;
+                    min-width: unset;
+                    transform: translateX(8px);
+                }    
+            }
+    
             .tsi-markerValueCaret {
                 left: 2px;
                 width: 0; 
                 height: 0; 
-                border-top: 12px solid transparent;
+                border-top: 8px solid transparent;
                 border-bottom: 8px solid transparent;
                 border-right-width: 8px;
                 border-right-style: solid;
@@ -185,19 +188,67 @@
                 -webkit-transform: translateY(-50%);
             }        
         }
+        &.tsi-seriesLabelValue {
+            transform: translateX(-2px);
+            .tsi-tooltip {
+                max-width: 108px;
+                top: 0px !important;
+                transform: translate(4px, -50%) !important;
+                border: none;
+                .tsi-markerValueTooltipInner {
+                    padding: 4px;
+                    min-width: unset;
+                    border-left-width: 2px !important;
+                    .tsi-tooltipTitle {
+                        font-size: 11px;
+                        line-height: 14px;
+                        overflow-y: hidden;
+                        overflow-x: hidden;
+                        white-space: nowrap;
+                        text-overflow: ellipsis;
+                        font-weight: normal;
+                    }
+                    .tsi-tooltipSubtitle {
+                        font-size: 10px;
+                        text-overflow: none;
+                        white-space: nowrap;
+                        text-overflow: ellipsis;
+                        overflow-y: hidden;
+                        overflow-x: hidden;
+                    }  
+                }
+            }
+            &.tsi-isExpanded {
+                max-height: unset;
+                .tsi-splitBy, .tsi-timeShift, .tsi-variableAlias {
+                    display: block;
+                }
+                .tsi-markerValueTooltipInner {
+                    .tsi-tooltipTitle, .tsi-tooltipSubtitle {
+                        overflow-y: hidden;
+                        white-space: unset;
+                    }
+                    .tsi-tooltipTitle {
+                        font-weight: bold;
+                    }
+                }
+            }
+            .tsi-timeShift {
+                font-style: italic;
+            }
+        }
+    }
 
-        .tsi-markerValueCaret {
-            left: 2px;
-            width: 0; 
-            height: 0; 
-            border-top: 8px solid transparent;
-            border-bottom: 8px solid transparent;
-            border-right-width: 8px;
-            border-right-style: solid;
-            position: absolute;
-            transform: translateY(-50%);
-            -webkit-transform: translateY(-50%);
-        }    
+    &.tsi-isFlipped {
+        .tsi-markerValue {
+            .tsi-tooltip {
+                transform: translate(calc(-100% - 15px), -50%) !important; 
+                top: 0px !important;
+            }
+            .tsi-markerValueCaret {
+                transform: rotate(180deg) translateX(10px) translateY(50%);
+            }    
+        }
     }
     .tsi-markerTimeLabel {
         @extend .tsi-chartValueTextBox;  
