@@ -13,9 +13,9 @@ class LineChartData extends ChartComponentData {
         this._yExtents[idx] = value;
     }
 
-    public resetYExtents(numAggs){
+    public resetYExtents(){
         this._yExtents = [];
-        for(let i = 0; i < numAggs; i++){
+        for(let i = 0; i < this.data.length; i++){
             this._yExtents.push(null);
         }
     }
