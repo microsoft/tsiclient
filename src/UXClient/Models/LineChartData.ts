@@ -3,18 +3,21 @@ import {ChartComponentData} from "./ChartComponentData";
 
 class LineChartData extends ChartComponentData {
     public timeMap: any = {};
-    get yExtents(): {}{
+    get yExtents(): Array<any>{
         return this._yExtents;
     };
 
-    private _yExtents: {} = {};
+    private _yExtents: Array<any> = [];
     
-    public setYExtents(key: number, value: [number, number]){
-        this._yExtents[key] = value;
+    public setYExtents(idx: number, value: [number, number]){
+        this._yExtents[idx] = value;
     }
 
-    public resetYExtents(){
-        this._yExtents = {};
+    public resetYExtents(numAggs){
+        this._yExtents = [];
+        for(let i = 0; i < numAggs; i++){
+            this._yExtents.push(null);
+        }
     }
 
     public setTimeMap () {
