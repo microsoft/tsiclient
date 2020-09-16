@@ -16,7 +16,6 @@ class DateTimeButtonSingle extends DateTimeButton {
     private closeSDTP () {
         this.dateTimePickerContainer.style("display", "none");
         this.dateTimeButton.node().focus();
-
     }
 
     private sDTPOnSet = (millis: number = null) => {
