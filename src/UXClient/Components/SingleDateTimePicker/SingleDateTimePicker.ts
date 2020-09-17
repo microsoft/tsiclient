@@ -232,7 +232,7 @@ class SingleDateTimePicker extends ChartComponent{
 
     private createTimePicker () {
         var self = this;
-        let timeLabel = this.timeControls.append("h4").classed("tsi-timeLabel", true).text(this.getString('date and time'));
+        let timeLabel = this.timeControls.append("h4").classed("tsi-timeLabel", true).text(this.getString('Date/Time'));
         this.timeInput = this.timeControls.append('input').attr('class', 'tsi-dateTimeInput tsi-input')
             .on('input', () => {
                 this.checkDateTimeValidity();
