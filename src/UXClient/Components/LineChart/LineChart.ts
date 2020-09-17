@@ -1645,7 +1645,7 @@ class LineChart extends TemporalXAxisComponent {
                                 yExtent = self.swimlaneYExtents[agg.swimLane];
                             }
 
-                            // Update yExtent key in LineChartData after all local yExtent updates (this is public facing yExtent)
+                            // Update yExtent index in LineChartData after all local yExtent updates (this is public facing yExtent)
                             // Only update if dataType is numeric
                             if(agg.dataType === 'numeric'){
                                 let idx = self.aggregateExpressionOptions.findIndex(el => el.aggKey === aggKey)
