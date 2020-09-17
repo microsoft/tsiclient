@@ -467,6 +467,12 @@ class Utils {
         return new Date(date.valueOf() - date.getTimezoneOffset() * 60 * 1000);
     }
 
+    static adjustDateFromTimezoneOffset (date: Date) {
+        let dateCopy = new Date(date.valueOf());
+        dateCopy.setTime(dateCopy.getTime() + dateCopy.getTimezoneOffset()*60*1000 );
+        return dateCopy;    
+    }
+
     static offsetFromUTC (date: Date, offset = 0) {
         let offsetMinutes = Utils.getOffsetMinutes(offset, date.valueOf());
         var dateCopy = new Date(date.valueOf() + offsetMinutes * 60 * 1000);

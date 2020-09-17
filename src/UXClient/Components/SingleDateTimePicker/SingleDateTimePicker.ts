@@ -202,14 +202,8 @@ class SingleDateTimePicker extends ChartComponent{
         return Utils.parseUserInputDateTime(this.timeInput.node().value, this.chartOptions.offset);
     }
 
-    private offsetFromUTC (date: Date) {
-        let dateCopy = new Date(date.valueOf())
-        dateCopy.setTime(dateCopy.getTime() + dateCopy.getTimezoneOffset()*60*1000 );
-        return dateCopy;    
-    }
-
     private convertToCalendarDate (millis: number) {
-        return this.roundDay(this.offsetFromUTC(Utils.offsetFromUTC(new Date(millis), this.chartOptions.offset)))
+        return this.roundDay(Utils.adjustDateFromTimezoneOffset(Utils.offsetFromUTC(new Date(millis), this.chartOptions.offset)));
     }
 
     private updateDisplayedDateTime (fromInput: boolean = false) {

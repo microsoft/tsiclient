@@ -78,7 +78,7 @@ class DateTimePicker extends ChartComponent{
     }
 
     private convertToCalendarDate (millis) {
-        return this.roundDay(this.offsetFromUTC(Utils.offsetFromUTC(new Date(millis), this.chartOptions.offset)))
+        return this.roundDay(Utils.adjustDateFromTimezoneOffset(Utils.offsetFromUTC(new Date(millis), this.chartOptions.offset)))
     }
 
     private setNewOffset (oldOffset: any) {
@@ -382,7 +382,7 @@ class DateTimePicker extends ChartComponent{
             },
             minDate: this.convertToCalendarDate(this.minMillis),
             maxDate: this.convertToCalendarDate(this.maxMillis),
-            defaultDate: this.offsetFromUTC(new Date(this.fromMillis))
+            defaultDate: Utils.adjustDateFromTimezoneOffset(new Date(this.fromMillis))
         });
     }
 
