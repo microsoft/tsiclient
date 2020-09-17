@@ -55,7 +55,7 @@ class Strings {
         "Show More Hierarchies": "Show more hierarchies",
         "Add to Filter Path": "Add to Filter Path",
         "Empty": "Empty",
-        "date and time": "date and time",
+        "Date/Time": "Date/Time",
         "show series": "show series",
         "hide series": "hide series",
         "in group": "in group",
