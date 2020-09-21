@@ -381,45 +381,45 @@ class ScatterPlot extends ChartVisualizationComponent {
             .style("width", `${this.svgSelection.node().getBoundingClientRect().width + 10}px`);
     }
 
-    /******** DRAW TIME SEQUENTIAL LINES BETWEEN POINTS ********/
+    /******** DRAW CONNECTING LINES BETWEEN POINTS ********/
     private drawConnectingLines(){
-        // Remove lines from previous draw
-        this.lineWrapper.selectAll("*").remove();
-
-        // Don't render sequence lines on temporal mode
+        // Don't render connecting lines on temporal mode
         if(this.chartOptions.isTemporal){
             this.lineWrapper.selectAll("*").remove();
             return;
         }
 
         let dataSet = this.cleanData(this.chartComponentData.temporalDataArray);
-        let connectedSeries = {};
+        let connectedSeriesMap = {};
 
-        // Find series of connected points
+        // Find measure by which to connect series of points
+        const getPointConnectionMeasure = (point => {
+            let pConMes = this.aggregateExpressionOptions[point.aggregateKeyI]?.pointConnectionMeasure;
+            return pConMes && pConMes in point.measures ? pConMes : null;
+        })
+
+        // Map data into groups of connected points, if connectedPoints enabled for agg
         dataSet.forEach(point => {
-            //Check if connectedPoints enabled
             if(point.aggregateKeyI !== null && point.aggregateKeyI < this.aggregateExpressionOptions.length && 
                 this.aggregateExpressionOptions[point.aggregateKeyI].connectPoints){
-                    let series = point.aggregateKey + "_" + point.splitBy;
-                    if(series in connectedSeries){
-                        connectedSeries[series].data.push(point);
-                    } else{
-                        connectedSeries[series] = {
-                            data: [point],
-                            pointConnectionMeasure: this.aggregateExpressionOptions[point.aggregateKeyI].pointConnectionMeasure ? 
-                                this.aggregateExpressionOptions[point.aggregateKeyI].pointConnectionMeasure in point.measures ?
-                                this.aggregateExpressionOptions[point.aggregateKeyI].pointConnectionMeasure : null : null
-                        }
+                let series = point.aggregateKey + "_" + point.splitBy;
+                if(series in connectedSeriesMap){
+                    connectedSeriesMap[series].data.push(point);
+                } else{
+                    connectedSeriesMap[series] = {
+                        data: [point],
+                        pointConnectionMeasure: getPointConnectionMeasure(point)
                     }
+                }
             }
         })
 
         // Sort connected series by pointConnectionMeasure
-        for(let key of Object.keys(connectedSeries)){
-            let sortMeasure = connectedSeries[key].pointConnectionMeasure;
+        for(let key of Object.keys(connectedSeriesMap)){
+            let sortMeasure = connectedSeriesMap[key].pointConnectionMeasure;
             // If sort measure specified, sort by that measure
             if(sortMeasure){
-                connectedSeries[key].data.sort((a,b) => {
+                connectedSeriesMap[key].data.sort((a,b) => {
                     if(a.measures[sortMeasure] < b.measures[sortMeasure]) return -1;
                     if(a.measures[sortMeasure] > b.measures[sortMeasure]) return 1;
                     return 0;
@@ -432,27 +432,37 @@ class ScatterPlot extends ChartVisualizationComponent {
             .y((d:any) => this.yScale(d.measures[this.yMeasure]))
             .curve(this.chartOptions.interpolationFunction); // apply smoothing to the line
 
-        // Create lines
-        for(let key in connectedSeries){
-            let series = this.lineWrapper.selectAll(`tsi-${key}`).data([connectedSeries[key].data], (d) => d.aggregateKey+d.splitBy+d.timestamp);
-            //Exit
-            series.exit().remove();
+        // Group lines by aggregate
+        let connectedGroups = this.lineWrapper.selectAll(`.tsi-lineSeries`).data(Object.keys(connectedSeriesMap));
 
-            series
-                .enter()
-                .append("path")
-                .attr("class", `tsi-${key} tsi-lineSeries`)
-                .attr("fill", "none")
-                .attr("stroke", (d) => Utils.colorSplitBy(this.chartComponentData.displayState, d[0].splitByI, d[0].aggregateKey, this.chartOptions.keepSplitByColor))
-                .attr("stroke-width", 2.5)
-                .attr("stroke-linejoin", "round")
-                .attr("stroke-linecap", "round")
-                .merge(series)
-                .transition()
-                .duration(this.chartOptions.noAnimate ? 0 : this.TRANSDURATION)
-                .ease(d3.easeExp)
-                .attr("d", line)
-        }
+        let self = this; 
+
+        connectedGroups.enter()
+            .append("g")
+            .attr("class", 'tsi-lineSeries')
+            .merge(connectedGroups)
+            .each(function(seriesName){
+                let series = d3.select(this).selectAll(`.tsi-line`).data([connectedSeriesMap[seriesName].data], _ => seriesName);
+
+                series.exit().remove();
+
+                series
+                    .enter()
+                    .append("path")
+                    .attr("class", `tsi-line`)
+                    .merge(series)
+                    .attr("fill", "none")
+                    .transition()
+                    .duration(self.chartOptions.noAnimate ? 0 : self.TRANSDURATION)
+                    .ease(d3.easeExp)
+                    .attr("stroke", (d) => Utils.colorSplitBy(self.chartComponentData.displayState, d[0].splitByI, d[0].aggregateKey, self.chartOptions.keepSplitByColor))
+                    .attr("stroke-width", 2.5)
+                    .attr("stroke-linejoin", "round")
+                    .attr("stroke-linecap", "round")
+                    .attr("d", line)
+            })
+            
+        connectedGroups.exit().remove()
     }
 
     /******** CHECK VALIDITY OF EXTENTS ********/
@@ -611,11 +621,11 @@ class ScatterPlot extends ChartVisualizationComponent {
                 return (d[0].aggregateKey === aggKey && d[0].splitBy === splitBy)
             }
     
-            this.svgSelection.selectAll(".tsi-lineSeries")
+            this.svgSelection.selectAll(".tsi-line")
                 .filter((d: any) => lineSelectedFilter(d))
                 .attr("stroke-opacity", this.standardStroke)
             
-            this.svgSelection.selectAll(".tsi-lineSeries")
+            this.svgSelection.selectAll(".tsi-line")
                 .filter((d: any) => !lineSelectedFilter(d))
                 .attr("stroke-opacity", this.lowStroke)
 
@@ -746,7 +756,7 @@ class ScatterPlot extends ChartVisualizationComponent {
             .attr("fill-opacity", this.lowOpacity)
 
         // Decrease opacity of unselected line
-        this.svgSelection.selectAll(".tsi-lineSeries")
+        this.svgSelection.selectAll(".tsi-line")
             .filter((d: any) => !(d[0].aggregateKey === aggKey && d[0].splitBy === splitBy))
             .attr("stroke-opacity", this.lowStroke)
 
@@ -764,7 +774,7 @@ class ScatterPlot extends ChartVisualizationComponent {
             .attr("fill", (d) => Utils.colorSplitBy(this.chartComponentData.displayState, d.splitByI, d.aggregateKey, this.chartOptions.keepSplitByColor))
             .attr("stroke-width", "1px");
 
-        this.g.selectAll(".tsi-lineSeries")
+        this.g.selectAll(".tsi-line")
             .attr("stroke-opacity", this.standardStroke)
     }
 

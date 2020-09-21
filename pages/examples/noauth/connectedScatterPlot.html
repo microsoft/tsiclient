@@ -8,7 +8,7 @@
         <script src="../boilerplate/head.js"></script>
     </head>
     <body style="font-family: 'Segoe UI', sans-serif;">
-        <div id="chart1" style="width: 1072px; height: 800px;"></div>
+        <div id="chart1" style=" height: 800px;"></div>
         <div id="temporalToggle" class = "buttonWrapper" style= "margin-top: 50px; display: none;align-items: center; justify-content: center;"><button onclick="toggleTemporal()">Toggle Temporal</button></div>
 
         <script>
@@ -43,11 +43,10 @@
 
                 // render the data in a chart
                 let tsiClient = new TsiClient();
-                let data = getData();
 
                 let scatterPlot =  new tsiClient.ux.ScatterPlot(document.getElementById('chart1'));
 
-                let renderScatterPlot = () => scatterPlot.render(data, {
+                let renderScatterPlot = () => scatterPlot.render(getData(), {
                     legend: 'shown', 
                     spAxisLabels: ['X (mm)', 'Y (mm)'], 
                     noAnimate: false, 
