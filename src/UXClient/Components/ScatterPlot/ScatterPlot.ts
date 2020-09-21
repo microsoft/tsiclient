@@ -1,7 +1,6 @@
 import * as d3 from 'd3';
 import './ScatterPlot.scss';
 import { ChartVisualizationComponent } from './../../Interfaces/ChartVisualizationComponent';
-import { ChartDataOptions } from '../../Models/ChartDataOptions';
 import { Legend } from './../Legend/Legend';
 import { ScatterPlotData } from '../../Models/ScatterPlotData';
 import {Slider} from './../Slider/Slider';
@@ -442,7 +441,7 @@ class ScatterPlot extends ChartVisualizationComponent {
             .attr("class", 'tsi-lineSeries')
             .merge(connectedGroups)
             .each(function(seriesName){
-                let series = d3.select(this).selectAll(`.tsi-line`).data([connectedSeriesMap[seriesName].data], _ => seriesName);
+                let series = d3.select(this).selectAll(`.tsi-line`).data([connectedSeriesMap[seriesName].data], d => d[0].aggregateKeyI+d[0].splitBy);
 
                 series.exit().remove();
 
@@ -461,7 +460,7 @@ class ScatterPlot extends ChartVisualizationComponent {
                     .attr("stroke-linecap", "round")
                     .attr("d", line)
             })
-            
+
         connectedGroups.exit().remove()
     }
 
