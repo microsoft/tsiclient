@@ -585,11 +585,11 @@ class HierarchyNavigation extends Component{
                             throw r.error;
                         }
                         if (idx === 0) { // if instance is direct instance of the top root
-                            if (r.instances && r.instances.hitCount) {
+                            if (r.instances?.hitCount) {
                                 paths.push([]);
                             };
                         } else { // under defined hierarchies
-                            if (r.hierarchyNodes && r.hierarchyNodes.hits.length) { // if the instance is under sub nodes in the hierarchy
+                            if (r.hierarchyNodes?.hits?.length) { // if the instance is under sub nodes in the hierarchy
                                 r.hierarchyNodes.hits.forEach(h => {
                                     let path: Array<string> = [hNames[idx]];
                                     let currentHit = h;
@@ -600,7 +600,7 @@ class HierarchyNavigation extends Component{
                                     }
                                     paths.push(path);
                                 });
-                            } else if (r.instances && r.instances.hitCount) { // if it is direct instance under the defined the hierarchy
+                            } else if (r.instances?.hitCount) { // if it is direct instance under the defined the hierarchy
                                 let path: Array<string> = [hNames[idx]];
                                 paths.push(path);
                             }
@@ -815,7 +815,7 @@ class HierarchyNavigation extends Component{
         let self = this;
         let hierarchyData = {};
         let instancesData = {};
-        if (r.hierarchyNodes && r.hierarchyNodes.hits.length) {
+        if (r.hierarchyNodes?.hits?.length) {
             let hitCountElem = target.select(".tsi-hitCount");
             if (hitCountElem.size() == 0) {
                 hitCountElem = target.append('span').classed('tsi-hitCount', true).text('');
@@ -823,12 +823,12 @@ class HierarchyNavigation extends Component{
             hitCountElem.text(r.hierarchyNodes.hitCount);
             hierarchyData = self.fillDataRecursively(r.hierarchyNodes, this.getToken, this.environmentFqdn, payload, payload);
         }
-        if (r.instances && r.instances.hits && r.instances.hits.length) {
+        if (r.instances?.hits?.length) {
             r.instances.hits.forEach((i) => {
                 instancesData[this.instanceNodeIdentifier(i)] = new InstanceNode(i.timeSeriesId, i.name, self.envTypes[i.typeId], i.hierarchyIds, i.highlights, payload.path.length - self.path.length);
             });
         }
-        if (r.instances && r.instances.continuationToken && r.instances.continuationToken !== 'END') {
+        if (r.instances?.continuationToken && r.instances.continuationToken !== 'END') {
             let showMoreInstances = new InstanceNode(null, this.getString("Show More Instances"), null, null, null, payload.path.length - self.path.length);
             showMoreInstances.onClick = async () => {
                 this.pathSearchAndRenderResult({
@@ -1199,19 +1199,8 @@ class HierarchyNavigation extends Component{
     }
 
     private instanceNodeStringToDisplay = (instance) => {
-        let str;
-        if (instance.highlights) {
-            if (instance.highlights.name) {
-                str = instance.highlights.name;
-            } else {
-                str = Utils.getHighlightedTimeSeriesIdToDisplay(instance);
-            }
-        } else if (instance.name) {
-            str = instance.name;
-        } else {
-            str = Utils.getTimeSeriesIdToDisplay(instance, this.getString('Empty'));
-        }
-        return str;
+        return instance.highlights?.name || Utils.getHighlightedTimeSeriesIdToDisplay(instance)
+                || instance.name || Utils.getTimeSeriesIdToDisplay(instance, this.getString('Empty'));
     }
 
     private clearAndHideFilterPath = () => {

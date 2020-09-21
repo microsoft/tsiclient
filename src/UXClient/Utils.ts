@@ -983,7 +983,7 @@ class Utils {
     }
 
     static getHighlightedTimeSeriesIdToDisplay = (instance) => { // highlighted time series ids (including hits) to be shown in UI
-        return instance.highlights.timeSeriesId.map((id, idx) => instance.timeSeriesId[idx] === null ? Utils.guidForNullTSID : id).join(', ');
+        return instance.highlights?.timeSeriesId.map((id, idx) => instance.timeSeriesId[idx] === null ? Utils.guidForNullTSID : id).join(', ');
     }
 
     static instanceHasEmptyTSID = (instance) => {
