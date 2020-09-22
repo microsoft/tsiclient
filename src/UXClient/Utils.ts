@@ -126,7 +126,7 @@ class Utils {
         } else {
             millis = this.parseTimeInput(shiftString);
         }
-        return millis;
+        return -millis;
     }
 
     static adjustStartMillisToAbsoluteZero (fromMillis, bucketSize) {
@@ -464,6 +464,12 @@ class Utils {
 
     static convertFromLocal (date: Date) {
         return new Date(date.valueOf() - date.getTimezoneOffset() * 60 * 1000);
+    }
+
+    static adjustDateFromTimezoneOffset (date: Date) {
+        let dateCopy = new Date(date.valueOf());
+        dateCopy.setTime(dateCopy.getTime() + dateCopy.getTimezoneOffset()*60*1000 );
+        return dateCopy;    
     }
 
     static offsetFromUTC (date: Date, offset = 0) {
@@ -976,7 +982,7 @@ class Utils {
     }
 
     static getHighlightedTimeSeriesIdToDisplay = (instance) => { // highlighted time series ids (including hits) to be shown in UI
-        return instance.highlights.timeSeriesId.map((id, idx) => instance.timeSeriesId[idx] === null ? Utils.guidForNullTSID : id).join(', ');
+        return instance.highlights?.timeSeriesId.map((id, idx) => instance.timeSeriesId[idx] === null ? Utils.guidForNullTSID : id).join(', ');
     }
 
     static instanceHasEmptyTSID = (instance) => {

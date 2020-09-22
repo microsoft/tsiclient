@@ -201,10 +201,16 @@ class SingleDateTimePicker extends ChartComponent{
         return Utils.parseUserInputDateTime(this.timeInput.node().value, this.chartOptions.offset);
     }
 
-    private updateDisplayedDateTime () {
-        var selectedDate = new Date(this.millis);
-        this.calendarPicker.setDate(this.roundDay(Utils.offsetFromUTC(selectedDate)));
-        this.timeInput.node().value = this.createTimeString(Utils.offsetFromUTC(selectedDate));
+    private convertToCalendarDate (millis: number) {
+        return this.roundDay(Utils.adjustDateFromTimezoneOffset(Utils.offsetFromUTC(new Date(millis), this.chartOptions.offset)));
+    }
+
+    private updateDisplayedDateTime (fromInput: boolean = false) {
+        let selectedDate = new Date(this.millis);
+        this.calendarPicker.setDate(this.convertToCalendarDate(this.millis), fromInput);
+        if (!fromInput) {
+            this.timeInput.node().value = this.createTimeString(Utils.offsetFromUTC(selectedDate));
+        }
     }
 
     private createTimeString (currDate: Date) {
@@ -219,14 +225,14 @@ class SingleDateTimePicker extends ChartComponent{
 
     private createTimePicker () {
         var self = this;
-        let timeLabel = this.timeControls.append("h4").classed("tsi-timeLabel", true).text(this.getString('date and time'));
+        let timeLabel = this.timeControls.append("h4").classed("tsi-timeLabel", true).text(this.getString('Date/Time'));
         this.timeInput = this.timeControls.append('input').attr('class', 'tsi-dateTimeInput tsi-input')
             .on('input', () => {
                 this.checkDateTimeValidity();
                 if (this.isValid) {
                     let parsedMillis = this.parseUserInputDateTime();
                     this.setMillis(parsedMillis, false);
-                    this.calendarPicker.setDate(Utils.offsetFromUTC(new Date(this.millis)), true);
+                    this.updateDisplayedDateTime(true);
                 }
             })
             .on('keydown', () => {

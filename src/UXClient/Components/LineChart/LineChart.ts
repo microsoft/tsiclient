@@ -1602,7 +1602,8 @@ class LineChart extends TemporalXAxisComponent {
 
                 let swimLaneCounts = {};
 
-                this.chartComponentData.resetYExtents(); // Reset public facing yExtents
+                // Reset public facing yExtents
+                this.chartComponentData.resetYExtents(); 
 
                 let aggregateGroups = this.svgSelection.select('.svgGroup').selectAll('.tsi-aggGroup')
                     .data(visibleCDOs, (agg) => agg.aggKey);
@@ -1644,8 +1645,12 @@ class LineChart extends TemporalXAxisComponent {
                                 yExtent = self.swimlaneYExtents[agg.swimLane];
                             }
 
-                            // Update yExtent in LineChartData after all yExtent updates (this is public facing yExtent)
-                            self.chartComponentData.setYExtents(i, yExtent);
+                            // Update yExtent index in LineChartData after all local yExtent updates (this is public facing yExtent)
+                            // Only update if dataType is numeric
+                            if(agg.dataType === 'numeric'){
+                                let idx = self.aggregateExpressionOptions.findIndex(el => el.aggKey === aggKey)
+                                self.chartComponentData.setYExtents(idx, yExtent);
+                            }
 
                             //should count all as same swim lane when not in stacked.
                             let swimLane = agg.swimLane;
