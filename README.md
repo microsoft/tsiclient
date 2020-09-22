@@ -33,7 +33,7 @@ let tsiClient = new TsiClient();
 let lineChart = new tsiClient.ux.LineChart(document.getElementById('chart'));
 ```
 
-You can also import components directly.  If you only need the LineChart, you can import it like so...
+You can also import components individually.  If you only need the LineChart, you can import it like so...
 
 ```js
 import LineChart from 'tsiclient/LineChart'
@@ -41,7 +41,7 @@ import LineChart from 'tsiclient/LineChart'
 // later when you want a line chart
 let lineChart = new LineChart(document.getElementById('chart'));
 ```
-Direct imports will significantly reduce your bundle size. This is the recommended approach if your app only consumes specific components.
+Importing individual components can help significantly reduce your bundle size as they work better with tree shaking. This is the recommended approach if your app only consumes specific components.
 
 To import the tsiclient stylesheet into an ES2015 application, import either `tsiclient.css` or `tsiclient.min.css`, like so...
 

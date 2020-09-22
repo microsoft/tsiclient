@@ -1,39 +1,10 @@
-const path = require('path');
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const { merge } = require('webpack-merge');
+const common = require('./webpack.common.js');
 
 /* Used to run hot-reloading development server */
-module.exports = {
+module.exports = merge(common, {
   mode: 'development',
-  entry: './src/TsiClient.ts',
-  module: {
-    rules: [
-      {
-        test: /\.tsx?$/,
-        use: 'ts-loader',
-        exclude: /node_modules/
-      },
-      {
-        test: /\.(scss|css)$/,
-        use: [
-          {
-            loader: MiniCssExtractPlugin.loader
-          },
-          'css-loader',
-          'sass-loader'
-        ]
-      },
-      {
-        test: /\.(png|jp(e*)g|svg)$/,  
-        use: [{
-            loader: 'url-loader',
-            options: { 
-                limit: 8000, // Convert images < 8kb to base64 strings
-                name: 'images/[hash]-[name].[ext]'
-            } 
-        }]
-    }
-    ]
-  },
   devtool: 'inline-source-map',
   devServer: {
     contentBase: 'pages/examples',
@@ -42,18 +13,9 @@ module.exports = {
     port: 443,
     https: true
   },
-  resolve: {
-    extensions: [ '.tsx', '.ts', '.js' ]
-  },
-  output: {
-    filename: 'tsiclient.js',
-    path: path.resolve(__dirname, 'dist'),
-    publicPath: '/dist/',
-    libraryTarget: 'umd'
-  },
   plugins: [
     new MiniCssExtractPlugin({
       filename: 'tsiclient.css'
     })
   ]
-};
+});

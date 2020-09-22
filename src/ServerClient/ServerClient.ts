@@ -13,7 +13,6 @@ class ServerClient {
     public onAjaxRetry = (logObject) => {};
     public onFallbackToOldApiVersion = (logObject) => {};
 
-
     Server () {
     }
 

@@ -30,6 +30,8 @@ class UXClient {
     UXClient () {
     }
 
+    // Public facing components have class constructors exposed as public UXClient members.
+    // This allows for typings to be bundled while maintaining 'new Component()' syntax
     public DateTimePicker: typeof DateTimePicker = DateTimePicker;
     public PieChart: typeof PieChart = PieChart;
     public ScatterPlot: typeof ScatterPlot = ScatterPlot;
