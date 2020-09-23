@@ -15,8 +15,9 @@
         "rollup": "rollup --c & shx rm dist/tsiclient.js",
         "webpack": "webpack --config webpack.prod.js",
         "copy-package": "shx cp package.json dist/",
+        "copy-readme": "shx cp README.MD dist/",
         "pack": "cd dist & npm pack & shx mv *.tgz ../build_artifacts",
-        "post-build": "npm run copy-package & npm run pack",
+        "post-build": "npm run copy-package & npm run copy-readme & npm run pack",
         "umd-analyze": "webpack-bundle-analyzer ./build_artifacts/umd_stats.json"
     },
     "devDependencies": {
