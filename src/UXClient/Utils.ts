@@ -931,6 +931,24 @@ class Utils {
         });
         return convertedData;
     }
+
+    static cullValuesOverMax (availabilityDistribution: any) {
+        let maxDateValue = (new Date()).setFullYear((new Date()).getFullYear() + 100).valueOf(); // 100 years from now
+        if (new Date(availabilityDistribution.range.to).valueOf() >= maxDateValue) {
+            let highestNotOverMax = -Infinity;
+            Object.keys(availabilityDistribution.distribution).forEach((bucketKey: string) => {
+                let bucketValue = (new Date(bucketKey)).valueOf();
+                if (bucketValue >= maxDateValue) {
+                    delete availabilityDistribution.distribution[bucketKey];
+                } else {
+                    if (bucketValue > highestNotOverMax) {
+                        highestNotOverMax = bucketValue;
+                    }
+                }
+            });
+        }
+        return availabilityDistribution;
+    }
     
     static mergeAvailabilities (warmAvailability, coldAvailability, retentionString = null) {
         let warmStoreRange = warmAvailability.range;
