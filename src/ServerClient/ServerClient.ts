@@ -5,6 +5,7 @@ class ServerClient {
     private apiVersionUrlParam = "?api-version=2016-12-12";
     private oldTsmTsqApiVersion = "?api-version=2018-11-01-preview";
     private tsmTsqApiVersion = "?api-version=2020-07-31";
+    private referenceDataAPIVersion = "?api-version=2017-11-15";
     public maxRetryCount = 3;
     public sessionId = Utils.guid();
     public retriableStatusCodes = [408, 429, 500, 503];
@@ -293,6 +294,11 @@ class ServerClient {
         return new Promise((resolve: any, reject: any) => {
             this.getDataWithContinuationBatch(token, resolve, reject, [], "https://" + environmentFqdn + "/referencedatasets/" + datasetId + "/items" + this.apiVersionUrlParam + "&format=stream", 'POST', 'items');
         });
+    }
+
+    public getReferenceDatasets(token: string, resourceId: string, endpoint= "https://management.azure.com") {
+        var uri = endpoint + resourceId + "/referencedatasets" + this.referenceDataAPIVersion;
+        return this.createPromiseFromXhr(uri, "GET", {}, token, (responseText) => {return JSON.parse(responseText);});
     }
 
     public getEnvironments(token: string, endpoint = 'https://api.timeseries.azure.com'){
