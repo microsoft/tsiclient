@@ -1,4 +1,4 @@
-import {Utils} from "./../Utils";
+import Utils from "./../Utils";
 import { ChartDataOptions } from "./ChartDataOptions";
 
 class TsqExpression extends ChartDataOptions {
@@ -6,7 +6,7 @@ class TsqExpression extends ChartDataOptions {
     private variableObject: any;
 
     constructor(instanceObject: any, variableObject: any, searchSpan: any, 
-                colorOrOptionsObject: any, alias: string, contextMenu: Array<any>){
+                colorOrOptionsObject: any, alias?: string, contextMenu?: Array<any>){
         // This constructor should be called with the following parameters: 
         // new TsqExpression(instanceObject, variableObject, searchSpan, optionsObject)
         // where the optionsObject should contain properties for color, alias, and contextMenu.
@@ -84,4 +84,4 @@ class TsqExpression extends ChartDataOptions {
         return tsq;
     }
 }
-export {TsqExpression}
+export default TsqExpression

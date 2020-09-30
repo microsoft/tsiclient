@@ -3,9 +3,9 @@ import './ModelAutocomplete.scss';
 import 'awesomplete';
 import { Component } from '../../Interfaces/Component';
 import { ChartOptions } from '../../Models/ChartOptions';
-import { ServerClient } from '../../../ServerClient/ServerClient';
+import ServerClient from '../../../ServerClient/ServerClient';
 import { KeyCodes } from '../../Constants/Enums';
-import { Utils } from '../../Utils';
+import Utils from '../../Utils';
 
 class ModelAutocomplete extends Component{
     public chartOptions: any = new ChartOptions();  // TODO handle onkeyup and oninput in chart options
@@ -74,7 +74,7 @@ class ModelAutocomplete extends Component{
             searchText = (<any>this).value;
             if(searchText.replace(/ /g,'') && !noSuggest){
                 getToken().then(token => {
-                    self.server.getTimeseriesInstancesSuggestions(token, environmentFqdn, searchText).then(r => {
+                    self.server.getTimeseriesInstancesSuggestions(token, environmentFqdn, searchText).then((r:any) => {
                         self.ap.list = r.suggestions.map(s => s.searchString);
                         self.ap.ul.setAttribute("role", "listbox");
                         self.ap.ul.setAttribute("tabindex", "0");
@@ -99,4 +99,4 @@ class ModelAutocomplete extends Component{
 
 }
 
-export {ModelAutocomplete}
+export default ModelAutocomplete

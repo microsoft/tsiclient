@@ -1,4 +1,4 @@
-import {Utils} from "./../Utils";
+import Utils from "./../Utils";
 import { ChartDataOptions } from "./ChartDataOptions";
 
 const MAXCARD = 150000;
@@ -10,7 +10,7 @@ class AggregateExpression extends ChartDataOptions {
     public visibleSplitByCap: number = 10;
 
 	constructor(predicateObject: any, measureObject: any, measureTypes: Array<string>, searchSpan: any, splitByObject: any = null, 
-                colorOrOptionsObject: any, alias: string, contextMenu: Array<any>){
+                colorOrOptionsObject: any, alias?: string, contextMenu?: Array<any>){
         super((typeof(colorOrOptionsObject) === 'object' && !!colorOrOptionsObject) ? {...colorOrOptionsObject, searchSpan: searchSpan, measureTypes: measureTypes} : {color: colorOrOptionsObject, searchSpan: searchSpan, measureTypes: measureTypes, alias: alias, contextMenu: contextMenu });
         this.predicate = predicateObject;
         this.splitByObject = splitByObject;
@@ -67,4 +67,4 @@ class AggregateExpression extends ChartDataOptions {
         return tsx;
     }
 }
-export {AggregateExpression}
+export default AggregateExpression

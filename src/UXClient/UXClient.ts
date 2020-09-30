@@ -1,138 +1,62 @@
-import {LineChart} from "./Components/LineChart/LineChart";
-import {AvailabilityChart} from "./Components/AvailabilityChart/AvailabilityChart";
-import {PieChart} from "./Components/PieChart/PieChart";
-import {ScatterPlot} from "./Components/ScatterPlot/ScatterPlot";
-import {GroupedBarChart} from "./Components/GroupedBarChart/GroupedBarChart";
-import {Grid} from "./Components/Grid/Grid";
-import {Slider} from "./Components/Slider/Slider";
-import {Hierarchy} from "./Components/Hierarchy/Hierarchy";
-import {AggregateExpression} from "./Models/AggregateExpression";
-import {Heatmap} from "./Components/Heatmap/Heatmap";
-import {EventsTable} from "./Components/EventsTable/EventsTable";
-import {ModelSearch} from "./Components/ModelSearch/ModelSearch"; 
-import {DateTimePicker} from "./Components/DateTimePicker/DateTimePicker";
-import {TimezonePicker} from "./Components/TimezonePicker/TimezonePicker";
-import {Utils} from "./Utils";
+import LineChart from "./Components/LineChart/LineChart";
+import AvailabilityChart from "./Components/AvailabilityChart/AvailabilityChart";
+import PieChart from "./Components/PieChart/PieChart";
+import ScatterPlot from "./Components/ScatterPlot/ScatterPlot";
+import GroupedBarChart from "./Components/GroupedBarChart/GroupedBarChart";
+import Grid from "./Components/Grid/Grid";
+import Slider from "./Components/Slider/Slider";
+import Hierarchy from "./Components/Hierarchy/Hierarchy";
+import AggregateExpression from "./Models/AggregateExpression";
+import Heatmap from "./Components/Heatmap/Heatmap";
+import EventsTable from "./Components/EventsTable/EventsTable";
+import ModelSearch from "./Components/ModelSearch/ModelSearch"; 
+import DateTimePicker from "./Components/DateTimePicker/DateTimePicker";
+import TimezonePicker from "./Components/TimezonePicker/TimezonePicker";
+import Utils from "./Utils";
 import './styles.scss'
-import { EllipsisMenu } from "./Components/EllipsisMenu/EllipsisMenu";
-import { TsqExpression } from "./Models/TsqExpression";
-import { ModelAutocomplete } from "./Components/ModelAutocomplete/ModelAutocomplete";
-import { HierarchyNavigation } from "./Components/HierarchyNavigation/HierarchyNavigation";
-import { SingleDateTimePicker } from "./Components/SingleDateTimePicker/SingleDateTimePicker";
-import { DateTimeButtonSingle } from "./Components/DateTimeButtonSingle/DateTimeButtonSingle";
-import { DateTimeButtonRange } from "./Components/DateTimeButtonRange/DateTimeButtonRange";
-import { ProcessGraphic } from './Components/ProcessGraphic/ProcessGraphic';
-import { PlaybackControls } from './Components/PlaybackControls/PlaybackControls';
-import { ColorPicker } from "./Components/ColorPicker/ColorPicker";
-import { GeoProcessGraphic } from "./Components/GeoProcessGraphic/GeoProcessGraphic";
+import  EllipsisMenu  from "./Components/EllipsisMenu/EllipsisMenu";
+import  TsqExpression  from "./Models/TsqExpression";
+import  ModelAutocomplete  from "./Components/ModelAutocomplete/ModelAutocomplete";
+import  HierarchyNavigation  from "./Components/HierarchyNavigation/HierarchyNavigation";
+import  SingleDateTimePicker  from "./Components/SingleDateTimePicker/SingleDateTimePicker";
+import  DateTimeButtonSingle  from "./Components/DateTimeButtonSingle/DateTimeButtonSingle";
+import  DateTimeButtonRange  from "./Components/DateTimeButtonRange/DateTimeButtonRange";
+import  ProcessGraphic  from './Components/ProcessGraphic/ProcessGraphic';
+import  PlaybackControls  from './Components/PlaybackControls/PlaybackControls';
+import  ColorPicker  from "./Components/ColorPicker/ColorPicker";
+import  GeoProcessGraphic  from "./Components/GeoProcessGraphic/GeoProcessGraphic";
 
 class UXClient {
     UXClient () {
     }
 
-    public DateTimePicker(renderTarget) {
-        return new DateTimePicker(renderTarget);
-    }
-
-    public PieChart(renderTarget) {
-        return new PieChart(renderTarget);
-    }
-
-    public ScatterPlot(renderTarget) {
-        return new ScatterPlot(renderTarget);
-    }
-    
-    public BarChart(renderTarget){
-        return new GroupedBarChart(renderTarget);
-    }
-
-    public LineChart(renderTarget){
-        return new LineChart(renderTarget);
-    }
-
-    public AvailabilityChart(renderTarget){
-        return new AvailabilityChart(renderTarget);
-    }
-    
-    public Grid(renderTarget){
-        return new Grid(renderTarget);
-    }
-    
-    public Slider(renderTarget){
-        return new Slider(renderTarget);
-    }
-
-    public Hierarchy(renderTarget) {
-        return new Hierarchy(renderTarget);
-    }
-
-    public AggregateExpression(predicateObject: any, measureObject: any, measureTypes: Array<string>, searchSpan: any, 
-                                        splitByObject: any = null, colorOrOptionsObject: any, alias: string = '', 
-                                        contextMenu: Array<any> = []): any {
-        return new AggregateExpression(predicateObject, measureObject, measureTypes, searchSpan, splitByObject, colorOrOptionsObject, 
-                                        alias, contextMenu);
-    }
-
-    public TsqExpression(instanceObject: any, variableObject: any, searchSpan: any, 
-        colorOrOptionsObject: any, alias: string = '', contextMenu: Array<any> = []){
-            return new TsqExpression(instanceObject, variableObject, searchSpan, colorOrOptionsObject, alias, contextMenu);
-    }
-
-    public Heatmap(renderTarget) {
-        return new Heatmap(renderTarget);
-    }
-
-    public EventsTable(renderTarget) {
-        return new EventsTable(renderTarget);
-    }
-
-    public ModelSearch(renderTarget) {
-        return new ModelSearch(renderTarget);
-    }
-
-    public ModelAutocomplete(renderTarget) {
-        return new ModelAutocomplete(renderTarget);
-    }
-
-    public HierarchyNavigation(renderTarget) {
-        return new HierarchyNavigation(renderTarget);
-    }
-
-    public TimezonePicker(renderTarget) {
-        return new TimezonePicker(renderTarget);
-    }
-
-    public EllipsisMenu(renderTarget) {
-        return new EllipsisMenu(renderTarget);
-    }
-
-    public SingleDateTimePicker(renderTarget) {
-        return new SingleDateTimePicker(renderTarget);
-    }
-
-    public DateTimeButtonSingle (renderTarget) {
-        return new DateTimeButtonSingle(renderTarget);
-    } 
-
-    public DateTimeButtonRange (renderTarget) {
-        return new DateTimeButtonRange(renderTarget);
-    }
-
-    public ProcessGraphic(renderTarget) {
-        return new ProcessGraphic(renderTarget);
-    }
-
-    public PlaybackControls(renderTarget) {
-        return new PlaybackControls(renderTarget);
-    }
-
-    public ColorPicker(renderTarget) {
-        return new ColorPicker(renderTarget);
-    }
-
-    public GeoProcessGraphic(renderTarget) {
-        return new GeoProcessGraphic(renderTarget);
-    }
+    // Public facing components have class constructors exposed as public UXClient members.
+    // This allows for typings to be bundled while maintaining 'new Component()' syntax
+    public DateTimePicker: typeof DateTimePicker = DateTimePicker;
+    public PieChart: typeof PieChart = PieChart;
+    public ScatterPlot: typeof ScatterPlot = ScatterPlot;
+    public BarChart: typeof GroupedBarChart = GroupedBarChart;
+    public LineChart: typeof LineChart = LineChart;
+    public AvailabilityChart: typeof AvailabilityChart = AvailabilityChart;
+    public Grid: typeof Grid = Grid;
+    public Slider: typeof Slider = Slider;
+    public Hierarchy: typeof Hierarchy = Hierarchy;
+    public AggregateExpression: typeof AggregateExpression = AggregateExpression;
+    public TsqExpression: typeof TsqExpression = TsqExpression;
+    public Heatmap: typeof Heatmap = Heatmap;
+    public EventsTable: typeof EventsTable = EventsTable;
+    public ModelSearch: typeof ModelSearch = ModelSearch;
+    public ModelAutocomplete: typeof ModelAutocomplete = ModelAutocomplete;
+    public HierarchyNavigation: typeof HierarchyNavigation = HierarchyNavigation;
+    public TimezonePicker: typeof TimezonePicker = TimezonePicker;
+    public EllipsisMenu: typeof EllipsisMenu = EllipsisMenu;
+    public SingleDateTimePicker: typeof SingleDateTimePicker = SingleDateTimePicker;
+    public DateTimeButtonSingle: typeof DateTimeButtonSingle = DateTimeButtonSingle;
+    public DateTimeButtonRange: typeof DateTimeButtonRange = DateTimeButtonRange;
+    public ProcessGraphic: typeof ProcessGraphic = ProcessGraphic;
+    public PlaybackControls: typeof PlaybackControls = PlaybackControls;
+    public ColorPicker: typeof ColorPicker = ColorPicker;
+    public GeoProcessGraphic: typeof GeoProcessGraphic = GeoProcessGraphic;
 
     public transformTsxToEventsArray (events, options) {
         var timezoneOffset = options.timezoneOffset ? options.timezoneOffset : 0;
@@ -332,4 +256,4 @@ class UXClient {
 }
 
 
-export {UXClient}
+export default UXClient

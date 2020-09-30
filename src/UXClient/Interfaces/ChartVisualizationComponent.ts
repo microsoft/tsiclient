@@ -1,4 +1,4 @@
-import { Utils } from "../Utils";
+import Utils from "../Utils";
 import {ChartComponent} from "./ChartComponent";
 import { ChartOptions } from "../Models/ChartOptions";
 import { ChartDataOptions } from "../Models/ChartDataOptions";

@@ -2,7 +2,7 @@ import * as d3 from 'd3';
 import { interpolatePath } from 'd3-interpolate-path';
 import './LinePlot.scss';
 import { Plot } from '../../Interfaces/Plot';
-import { Utils, DataTypes, YAxisStates } from '../../Utils';
+import Utils, { DataTypes, YAxisStates } from '../../Utils';
 import { AxisState } from '../../Models/AxisState';
 
 class LinePlot extends Plot {

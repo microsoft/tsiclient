@@ -1,7 +1,6 @@
 import * as d3 from 'd3';
-import * as momentTZ from 'moment-timezone';
-import * as moment from 'moment';
-import {Grid} from "./Components/Grid/Grid";
+import moment from 'moment-timezone';
+import Grid from "./Components/Grid/Grid";
 import { ChartOptions } from './Models/ChartOptions';
 import { ChartComponentData } from './Models/ChartComponentData';
 import { nullTsidDisplayString } from './Constants/Constants';
@@ -192,10 +191,10 @@ class Utils {
 
     static getOffsetMinutes(offset: any, millis: number) {
         if (offset == 'Local') {
-            return -momentTZ.tz.zone(momentTZ.tz.guess()).parse(millis);
+            return -moment.tz.zone(moment.tz.guess()).parse(millis);
         }
         if (typeof offset == 'string' && isNaN(offset as any)) {
-            return -momentTZ.tz.zone(offset).parse(millis);
+            return -moment.tz.zone(offset).parse(millis);
         } else {
             return offset;
         }
@@ -209,23 +208,23 @@ class Utils {
     // inverse of getOffsetMinutes, this is the conversion factor of an offsettedTime to UTC in minutes 
     static getMinutesToUTC (offset: any, millisInOffset: number) {
         if (offset == 'Local') {
-            return momentTZ.tz.zone(momentTZ.tz.guess()).utcOffset(millisInOffset);
+            return moment.tz.zone(moment.tz.guess()).utcOffset(millisInOffset);
         }
         if (typeof offset == 'string' && isNaN(offset as any)) {
-            return momentTZ.tz.zone(offset).utcOffset(millisInOffset);
+            return moment.tz.zone(offset).utcOffset(millisInOffset);
         } else {
             return -offset;
         }
     }
 
     static addOffsetGuess (timezoneName) {
-        let timezone = momentTZ.tz(new Date(), timezoneName.split(' ').join('_'));
+        let timezone = moment.tz(new Date(), timezoneName.split(' ').join('_'));
         let formatted = timezone.format('Z');
         return "UTC" + formatted;
     }
 
     static timezoneAbbreviation (timezoneName) {
-        let abbr = momentTZ.tz(new Date(), timezoneName).format('z');
+        let abbr = moment.tz(new Date(), timezoneName).format('z');
         if (abbr[0] === '-' || abbr[0] === '+')
             return '';
         return abbr;
@@ -245,7 +244,7 @@ class Utils {
             return '';
         }
         if (timezoneRaw == 'Local') {
-            return momentTZ.tz.guess();
+            return moment.tz.guess();
         } 
         return timezoneRaw !== null ? timezoneRaw.split(' ').join('_'): '';
     }
@@ -307,9 +306,9 @@ class Utils {
                 stringFormat = "L " + this.subDateTimeFormat(is24HourTime, usesSeconds, usesMillis);
             }
             if (typeof offset == 'string' && isNaN(offset as any)) {
-                return momentTZ.tz(d, 'UTC').tz(offset === 'Local' ? momentTZ.tz.guess() : offset).locale(locale).format(stringFormat);
+                return moment.tz(d, 'UTC').tz(offset === 'Local' ? moment.tz.guess() : offset).locale(locale).format(stringFormat);
             } else {
-                return momentTZ.tz(d, "UTC").utcOffset(offset).locale(locale).format(stringFormat);
+                return moment.tz(d, "UTC").utcOffset(offset).locale(locale).format(stringFormat);
             }
         }
     }
@@ -1047,4 +1046,4 @@ class Utils {
     }
 }
 
-export {Utils};
+export default Utils;

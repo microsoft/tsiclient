@@ -1,7 +1,7 @@
 import * as d3 from 'd3';
 import './Grid.scss';
-import {Utils, DataTypes} from "./../../Utils";
-import {Component} from "./../../Interfaces/Component";
+import Utils, { DataTypes } from "./../../Utils";
+import { Component } from "./../../Interfaces/Component";
 import { ChartOptions } from '../../Models/ChartOptions';
 import { ChartComponentData } from '../../Models/ChartComponentData';
 
@@ -308,4 +308,4 @@ class Grid extends Component {
     }
 }
 
-export {Grid}
+export default Grid

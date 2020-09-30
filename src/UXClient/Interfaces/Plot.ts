@@ -1,5 +1,5 @@
 import {Component} from "./Component";
-import { Utils, NONNUMERICTOPMARGIN } from '../Utils';
+import Utils, { NONNUMERICTOPMARGIN } from '../Utils';
 
 class Plot extends Component {
     protected chartHeight;

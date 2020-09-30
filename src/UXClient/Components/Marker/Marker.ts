@@ -1,6 +1,6 @@
 import * as d3 from 'd3';
 import './Marker.scss';
-import {Utils, LINECHARTCHARTMARGINS, DataTypes, MARKERVALUENUMERICHEIGHT, LINECHARTXOFFSET, TooltipMeasureFormat} from "./../../Utils";
+import Utils, { LINECHARTCHARTMARGINS, DataTypes, MARKERVALUENUMERICHEIGHT, LINECHARTXOFFSET, TooltipMeasureFormat} from "./../../Utils";
 import {Component} from "./../../Interfaces/Component";
 import { ChartOptions } from '../../Models/ChartOptions';
 import { LineChartData } from '../../Models/LineChartData';
