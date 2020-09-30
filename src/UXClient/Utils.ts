@@ -136,6 +136,7 @@ class Utils {
     }
 
     static bucketSizeToTsqInterval (bucketSize: string) {
+        if (!bucketSize) {return null;}
         let bucketSizeInMillis = Utils.parseTimeInput(bucketSize);
         let padLeadingZeroes = (number) => {
             let numberAsString = String(number);
