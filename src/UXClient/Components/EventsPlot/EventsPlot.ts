@@ -1,7 +1,7 @@
 import * as d3 from 'd3';
 import './EventsPlot.scss';
 import { Plot } from '../../Interfaces/Plot';
-import { Utils, NONNUMERICTOPMARGIN, EventElementTypes, DataTypes, LINECHARTTOPPADDING } from '../../Utils';
+import Utils, { NONNUMERICTOPMARGIN, EventElementTypes, DataTypes, LINECHARTTOPPADDING } from '../../Utils';
 
 const TOPMARGIN = 4;
 

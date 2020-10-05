@@ -1,6 +1,6 @@
 import * as d3 from 'd3';
 import { Component } from '../../Interfaces/Component';
-import { Utils } from '../../Utils';
+import Utils from '../../Utils';
 import './ColorPicker.scss';
 import { KeyCodes } from '../../Constants/Enums';
 
@@ -125,4 +125,4 @@ class ColorPicker extends Component{
     }
 }
 
-export {ColorPicker};
+export default ColorPicker

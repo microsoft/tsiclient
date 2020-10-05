@@ -1,6 +1,6 @@
 import * as d3 from 'd3';
 import './Legend.scss';
-import {Utils, DataTypes, EventElementTypes} from "./../../Utils";
+import Utils, {DataTypes, EventElementTypes} from "./../../Utils";
 import {Component} from "./../../Interfaces/Component";
 import { ChartOptions } from '../../Models/ChartOptions';
 import { ChartComponentData } from '../../Models/ChartComponentData';
