@@ -950,7 +950,6 @@ class Utils {
                 }
             });
             if (highestNotOverMaxString !== dateZero) {
-                // this.bucketSizeToTsqInterval
                 availabilityDistribution.range.to = new Date(highestNotOverMaxValue + this.parseTimeInput(availabilityDistribution.intervalSize));
             }
         }
