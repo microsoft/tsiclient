@@ -933,19 +933,26 @@ class Utils {
     }
 
     static cullValuesOverMax (availabilityDistribution: any) {
-        let maxDateValue = (new Date()).setFullYear((new Date()).getFullYear() + 100).valueOf(); // 100 years from now
+        const dateZero = '0000-01-01T00:00:00Z';
+        let maxDateValue = (new Date()).setFullYear((new Date()).getFullYear() + 10).valueOf(); // 10 years from now
         if (new Date(availabilityDistribution.range.to).valueOf() >= maxDateValue) {
-            let highestNotOverMax = -Infinity;
+            let highestNotOverMaxString = dateZero;
+            let highestNotOverMaxValue = (new Date(highestNotOverMaxString)).valueOf();
             Object.keys(availabilityDistribution.distribution).forEach((bucketKey: string) => {
                 let bucketValue = (new Date(bucketKey)).valueOf();
                 if (bucketValue >= maxDateValue) {
                     delete availabilityDistribution.distribution[bucketKey];
                 } else {
-                    if (bucketValue > highestNotOverMax) {
-                        highestNotOverMax = bucketValue;
+                    if (bucketValue > highestNotOverMaxValue) {
+                        highestNotOverMaxValue = bucketValue;
+                        highestNotOverMaxString = bucketKey;
                     }
                 }
             });
+            if (highestNotOverMaxString !== dateZero) {
+                // this.bucketSizeToTsqInterval
+                availabilityDistribution.range.to = new Date(highestNotOverMaxValue + this.parseTimeInput(availabilityDistribution.intervalSize));
+            }
         }
         return availabilityDistribution;
     }
