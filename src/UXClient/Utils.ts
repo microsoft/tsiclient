@@ -932,28 +932,58 @@ class Utils {
         return convertedData;
     }
 
-    static cullValuesOverMax (availabilityDistribution: any) {
+    // takes in an availability distribution and a min and max date, returns a tuple, where the first is the new distribution 
+    //  excluding values out of the range, and the second is all excluded values
+    static cullValuesOutOfRange (availabilityDistribution: any, minDateString: string, maxDateString: string) {
         const dateZero = '0000-01-01T00:00:00Z';
-        let maxDateValue = (new Date()).setFullYear((new Date()).getFullYear() + 10).valueOf(); // 10 years from now
-        if (new Date(availabilityDistribution.range.to).valueOf() >= maxDateValue) {
+        let minDateValue = new Date(minDateString).valueOf();
+        let maxDateValue = new Date(maxDateString).valueOf();
+
+        if (new Date(availabilityDistribution.range.from).valueOf() < minDateValue || 
+            new Date(availabilityDistribution.range.to).valueOf() > maxDateValue) {
+
+            let inRangeValues = {};
+            let outOfRangeValues = {};
+                    
             let highestNotOverMaxString = dateZero;
             let highestNotOverMaxValue = (new Date(highestNotOverMaxString)).valueOf();
+            let lowestAboveMinValue = Infinity; 
+
             Object.keys(availabilityDistribution.distribution).forEach((bucketKey: string) => {
                 let bucketValue = (new Date(bucketKey)).valueOf();
-                if (bucketValue >= maxDateValue) {
-                    delete availabilityDistribution.distribution[bucketKey];
+                if (bucketValue > maxDateValue || bucketValue < minDateValue) {
+                    outOfRangeValues[bucketKey] = availabilityDistribution.distribution[bucketKey]; 
                 } else {
+                    inRangeValues[bucketKey] = availabilityDistribution.distribution[bucketKey];
                     if (bucketValue > highestNotOverMaxValue) {
                         highestNotOverMaxValue = bucketValue;
                         highestNotOverMaxString = bucketKey;
                     }
+                    if (bucketValue < lowestAboveMinValue) {
+                        lowestAboveMinValue = bucketValue
+                    }
                 }
             });
-            if (highestNotOverMaxString !== dateZero) {
-                availabilityDistribution.range.to = new Date(highestNotOverMaxValue + this.parseTimeInput(availabilityDistribution.intervalSize));
+
+            const bucketSize = this.parseTimeInput(availabilityDistribution.intervalSize);
+            
+            if (highestNotOverMaxString !== dateZero) { // a value exists 
+                availabilityDistribution.range.to = new Date(highestNotOverMaxValue + bucketSize).toISOString();
+            } else {
+                let toValue = Math.min(maxDateValue + bucketSize, (new Date(availabilityDistribution.range.to)).valueOf()); //clamped to maxDateString passed in
+                availabilityDistribution.range.to = new Date(toValue);
             }
+
+            if (lowestAboveMinValue !== Infinity) { // a value exists
+                availabilityDistribution.range.from = (new Date(lowestAboveMinValue)).toISOString();
+            } else { 
+                let fromValue = Math.max(minDateValue, (new Date(availabilityDistribution.range.from)).valueOf()); // clamped to minDateString passed in
+                availabilityDistribution.range.from = new Date(fromValue);
+            }
+            availabilityDistribution.distribution = inRangeValues;
+            return[availabilityDistribution, outOfRangeValues];
         }
-        return availabilityDistribution;
+        return [availabilityDistribution, {}];
     }
     
     static mergeAvailabilities (warmAvailability, coldAvailability, retentionString = null) {
