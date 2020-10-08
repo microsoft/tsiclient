@@ -970,15 +970,25 @@ class Utils {
             if (highestNotOverMaxString !== dateZero) { // a value exists 
                 availabilityDistribution.range.to = new Date(highestNotOverMaxValue + bucketSize).toISOString();
             } else {
-                let toValue = Math.min(maxDateValue + bucketSize, (new Date(availabilityDistribution.range.to)).valueOf()); //clamped to maxDateString passed in
-                availabilityDistribution.range.to = new Date(toValue);
+                let rangeToValue: number = (new Date(availabilityDistribution.range.to)).valueOf();
+                if (minDateValue > rangeToValue) { // entire window is to the right of distribution range
+                    availabilityDistribution.range.to = maxDateString;
+                } else {
+                    let toValue = Math.min(maxDateValue + bucketSize, (new Date(availabilityDistribution.range.to)).valueOf()); //clamped to maxDateString passed in
+                    availabilityDistribution.range.to = (new Date(toValue)).toISOString();    
+                }
             }
 
             if (lowestAboveMinValue !== Infinity) { // a value exists
                 availabilityDistribution.range.from = (new Date(lowestAboveMinValue)).toISOString();
             } else { 
-                let fromValue = Math.max(minDateValue, (new Date(availabilityDistribution.range.from)).valueOf()); // clamped to minDateString passed in
-                availabilityDistribution.range.from = new Date(fromValue);
+                let rangeFromValue: number = (new Date(availabilityDistribution.range.from)).valueOf();
+                if (maxDateValue < (new Date(availabilityDistribution.range.from)).valueOf()) { // entire window is to the left of distribution range
+                    availabilityDistribution.range.from = minDateString;
+                } else {
+                    let fromValue = Math.max(minDateValue, rangeFromValue); // clamped to minDateString passed in
+                    availabilityDistribution.range.from = (new Date(fromValue)).toISOString();                        
+                }
             }
             availabilityDistribution.distribution = inRangeValues;
             return[availabilityDistribution, outOfRangeValues];
