@@ -931,6 +931,78 @@ class Utils {
         });
         return convertedData;
     }
+
+    // takes in an availability distribution and a min and max date, returns a tuple, where the first is the new distribution 
+    // excluding values out of the range, and the second is all excluded values
+    static cullValuesOutOfRange (availabilityDistribution: any, minDateString: string, maxDateString: string) {
+        const dateZero = '0000-01-01T00:00:00Z';
+        let minDateValue = new Date(minDateString).valueOf();
+        let maxDateValue = new Date(maxDateString).valueOf();
+
+        if (new Date(availabilityDistribution.range.from).valueOf() < minDateValue || 
+            new Date(availabilityDistribution.range.to).valueOf() > maxDateValue) {
+
+            let inRangeValues = {};
+            let outOfRangeValues = {};
+                    
+            let highestNotOverMaxString = dateZero;
+            let highestNotOverMaxValue = (new Date(highestNotOverMaxString)).valueOf();
+            let lowestAboveMinValue = Infinity; 
+
+            Object.keys(availabilityDistribution.distribution).forEach((bucketKey: string) => {
+                let bucketValue = (new Date(bucketKey)).valueOf();
+                if (bucketValue > maxDateValue || bucketValue < minDateValue) {
+                    outOfRangeValues[bucketKey] = availabilityDistribution.distribution[bucketKey]; 
+                } else {
+                    inRangeValues[bucketKey] = availabilityDistribution.distribution[bucketKey];
+                    if (bucketValue > highestNotOverMaxValue) {
+                        highestNotOverMaxValue = bucketValue;
+                        highestNotOverMaxString = bucketKey;
+                    }
+                    if (bucketValue < lowestAboveMinValue) {
+                        lowestAboveMinValue = bucketValue
+                    }
+                }
+            });
+
+            const bucketSize = this.parseTimeInput(availabilityDistribution.intervalSize);
+            
+            if (highestNotOverMaxString !== dateZero) { // a value exists 
+                let nowMillis = new Date().valueOf();
+                if(highestNotOverMaxValue < nowMillis && (highestNotOverMaxValue + bucketSize) > nowMillis){
+                    // the new end value was before now, but after adding bucket size, its after now
+                    // so we set it to now to avoid setting it to a date in the future
+                    availabilityDistribution.range.to = new Date(nowMillis).toISOString();
+                }
+                else{
+                    availabilityDistribution.range.to = new Date(highestNotOverMaxValue + bucketSize).toISOString();
+                }
+            } else {
+                let rangeToValue: number = (new Date(availabilityDistribution.range.to)).valueOf();
+                if (minDateValue > rangeToValue) { // entire window is to the right of distribution range
+                    availabilityDistribution.range.to = maxDateString;
+                } else {
+                    let toValue = Math.min(maxDateValue + bucketSize, (new Date(availabilityDistribution.range.to)).valueOf()); //clamped to maxDateString passed in
+                    availabilityDistribution.range.to = (new Date(toValue)).toISOString();    
+                }
+            }
+
+            if (lowestAboveMinValue !== Infinity) { // a value exists
+                availabilityDistribution.range.from = (new Date(lowestAboveMinValue)).toISOString();
+            } else { 
+                let rangeFromValue: number = (new Date(availabilityDistribution.range.from)).valueOf();
+                if (maxDateValue < (new Date(availabilityDistribution.range.from)).valueOf()) { // entire window is to the left of distribution range
+                    availabilityDistribution.range.from = minDateString;
+                } else {
+                    let fromValue = Math.max(minDateValue, rangeFromValue); // clamped to minDateString passed in
+                    availabilityDistribution.range.from = (new Date(fromValue)).toISOString();                        
+                }
+            }
+            availabilityDistribution.distribution = inRangeValues;
+            return[availabilityDistribution, outOfRangeValues];
+        }
+        return [availabilityDistribution, {}];
+    }
     
     static mergeAvailabilities (warmAvailability, coldAvailability, retentionString = null) {
         let warmStoreRange = warmAvailability.range;
