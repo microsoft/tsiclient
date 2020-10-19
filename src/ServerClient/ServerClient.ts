@@ -296,10 +296,21 @@ class ServerClient {
         });
     }
 
+    public postReferenceDatasetRows(token: string, environmentFqdn: string, datasetName: string, rows: Array<any>) {
+        var uri = "https://" + environmentFqdn + "/referencedatasets/" + datasetName + "/$batch" + this.apiVersionUrlParam;
+        return this.createPromiseFromXhr(uri, "POST", JSON.stringify({put: rows}), token, (responseText) => {return JSON.parse(responseText);});
+    }
+
     public getReferenceDatasets(token: string, resourceId: string, endpoint= "https://management.azure.com") {
         var uri = endpoint + resourceId + "/referencedatasets" + this.referenceDataAPIVersion;
         return this.createPromiseFromXhr(uri, "GET", {}, token, (responseText) => {return JSON.parse(responseText);});
     }
+
+    public deleteReferenceDataSet(token: string, resourceId: string, endpoint= "https://management.azure.com") {
+        var uri = endpoint + resourceId  + this.referenceDataAPIVersion;
+        return this.createPromiseFromXhr(uri, "DELETE", {}, token, (responseText) => {return JSON.parse(responseText);});
+    }
+
 
     public getEnvironments(token: string, endpoint = 'https://api.timeseries.azure.com'){
         var uri = endpoint + '/environments' + this.apiVersionUrlParam;
