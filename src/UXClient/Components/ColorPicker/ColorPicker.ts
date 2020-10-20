@@ -4,16 +4,28 @@ import Utils from '../../Utils';
 import './ColorPicker.scss';
 import { KeyCodes } from '../../Constants/Enums';
 
-class ColorPicker extends Component{
-    private colorPickerElem;
-    private selectedColor;
-    private isColorGridVisible;
+interface ColorPickerOptions {
+    theme?: string,
+    numberOfColors?: number,
+    colors?: Array<string>,
+    defaultColor?: string,
+    isColorValueHidden?: boolean,
+    onSelect?: (colorHex: string) => void,
+    onClick?: (event: any) => void
+};
 
-    constructor(renderTarget: Element){
+class ColorPicker extends Component{
+    private colorPickerElem: any;
+    private selectedColor: string | null;
+    private isColorGridVisible: boolean;
+    private guid: string;
+
+    constructor(renderTarget: Element, guid: string = Utils.guid()){
         super(renderTarget);
+        this.guid = guid;
     }
 
-    public render (options: any = {}) {
+    public render (options: ColorPickerOptions = {}) {
         this.chartOptions.setOptions(options);
         this.selectedColor = this.chartOptions.defaultColor;
         if (this.chartOptions.colors.indexOf(this.selectedColor) === -1) {
@@ -28,8 +40,8 @@ class ColorPicker extends Component{
         let colorPickerButton = this.colorPickerElem.append('button').classed("tsi-colorPickerButton", true)
                     .attr("title", this.getString('Select color'))
                     .attr("aria-label", this.getString('Select color'))
-                    .attr("aria-describedby", "tsi-selectedColorValue")
-                    .attr("aria-controls", "tsi-colorGrid")
+                    .attr("aria-describedby", `tsi-selectedColorValue_${this.guid}`)
+                    .attr("aria-controls", `tsi-colorGrid_${this.guid}`)
                     .on('click', () => {
                         if (this.isColorGridVisible) {
                             this.hideColorGrid(true);
@@ -44,11 +56,11 @@ class ColorPicker extends Component{
         }
 
         colorPickerButton.append('span').classed("tsi-selectedColorValue", true).classed("hidden", this.chartOptions.isColorValueHidden)
-                            .attr("id", "tsi-selectedColorValue")
+                            .attr("id", `tsi-selectedColorValue_${this.guid}`)
                             .text(this.selectedColor ? this.selectedColor : this.getString('No color'));
 
         // color grid
-        let colorGridElem =  this.colorPickerElem.append('div').classed("tsi-colorGrid", true).attr("id", "tsi-colorGrid").attr("role", "grid");
+        let colorGridElem =  this.colorPickerElem.append('div').classed("tsi-colorGrid", true).attr("id", `tsi-colorGrid_${this.guid}`).attr("role", "grid");
         let colorGridRowElem = colorGridElem.append('div').classed("tsi-colorGridRow", true).attr("role", "row");
         this.chartOptions.colors.forEach((c, idx) => {
             let gridItem = colorGridRowElem.append('div').classed("tsi-colorItem", true).classed("tsi-selected", c === this.selectedColor)
@@ -80,7 +92,7 @@ class ColorPicker extends Component{
                     });
         });
 
-        d3.select("html").on("click." + Utils.guid(), () => {
+        d3.select("html").on("click." + this.guid, () => {
             if (this.colorPickerElem.select(".tsi-colorPickerButton").filter(Utils.equalToEventTarget).empty() && 
                 this.colorPickerElem.select(".tsi-colorPickerButton").selectAll("*").filter(Utils.equalToEventTarget).empty() &&
                 this.colorPickerElem.selectAll(".tsi-colorGrid").filter(Utils.equalToEventTarget).empty()) {

@@ -509,13 +509,12 @@ class HierarchyNavigation extends Component{
                                 .catch(err => {});
                             hierarchyNode.isExpanded = true; 
                             hierarchyNode.node.classed('tsi-expanded', true);
-                            hierarchyNode.node.attr('aria-expanded', true);
                         })
                         .catch(err => {});
                 };
 
                 // create the dom element for this new hierarchy node
-                let li = d3.create("li");
+                let li = d3.create("li").attr("role", "none");
                 ulToLook.insertBefore(li.node(), ulToLook.firstChild); // put it to the top of the list
                 let newListContentElem = this.createHierarchyItemElem(hierarchyNode, this.hierarchyNodeIdentifier(hierarchyNode.name));
                 li.node().appendChild(newListContentElem.node());
@@ -538,7 +537,7 @@ class HierarchyNavigation extends Component{
         nameSpan = Array.from((ulToLook as HTMLElement).getElementsByClassName("tsi-name")).find(e => (e as HTMLElement).innerText === this.instanceNodeStringToDisplay(instance));
         if (!nameSpan) {//if the instance node we are looking is not there after expansion, add it manually to prevent possible show more calls and dom insertions
             let instanceNode = new InstanceNode(instance.timeSeriesId, instance.name, this.envTypes[instance.typeId], instance.hierarchyIds, instance.highlights, isHierarchySelected || hierarchyNamesFromParam ? path.length - 1 : path.length);
-            let li = d3.create("li").classed('tsi-leaf', true);
+            let li = d3.create("li").classed('tsi-leaf', true).attr("role", "none")
             let newListContentElem = this.createHierarchyItemElem(instanceNode, instanceIdentifier);
             li.node().appendChild(newListContentElem.node());
             ulToLook.insertBefore(li.node(), ulToLook.getElementsByClassName('tsi-leaf')[0]); // put it to the top of the instance list after hierarchy nodes
@@ -684,7 +683,8 @@ class HierarchyNavigation extends Component{
                 li = target.insert('li', '.tsi-target-loc').classed('tsi-leaf', data[el].isLeaf);
             } else {
                 li = list.append('li').classed('tsi-leaf', data[el].isLeaf);
-            }       
+            }
+            li.attr("role", "none");
 
             if(el === this.getString("Show More Hierarchies")) {
                 li.classed('tsi-show-more tsi-show-more-hierarchy', true)
@@ -714,7 +714,6 @@ class HierarchyNavigation extends Component{
             if (data[el].children) {
                 data[el].isExpanded = true;
                 data[el].node.classed('tsi-expanded', true);
-                data[el].node.attr('aria-expanded', true);
                 this.renderTree(data[el].children, data[el].node);
             }
             if (data[el] instanceof HierarchyNode && el !== this.getString("Show More Hierarchies") && this.mode === State.Filter && data[el].cumulativeInstanceCount == 1 && !data[el].isExpanded) { //expand the last parent node by default to prevent additional click to see the filter results
@@ -867,7 +866,6 @@ class HierarchyNavigation extends Component{
                 let expandNode = () => {
                     hierarchy.isExpanded = true; 
                     hierarchy.node.classed('tsi-expanded', true);
-                    hierarchy.node.attr('aria-expanded', true);
                 };
 
                 if (this.mode === State.Search) {
@@ -1060,6 +1058,7 @@ class HierarchyNavigation extends Component{
             hierarchyItemElem.append('div').classed('tsi-filter-icon', true).attr('title', this.getString('Add to Filter Path'))
                 .attr('tabindex', 0)
                 .attr('arialabel', this.getString('Add to Filter Path'))
+                .attr('role', 'button')
                 .on('click keydown', function() {
                     if (Utils.isKeyDownAndNotEnter(d3.event)) {return; }
                     self.path = hORi.path;
