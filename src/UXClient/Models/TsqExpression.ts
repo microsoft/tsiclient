@@ -1,4 +1,4 @@
-import {Utils} from "./../Utils";
+import Utils from "./../Utils";
 import { ChartDataOptions } from "./ChartDataOptions";
 
 class TsqExpression extends ChartDataOptions {
@@ -6,7 +6,7 @@ class TsqExpression extends ChartDataOptions {
     private variableObject: any;
 
     constructor(instanceObject: any, variableObject: any, searchSpan: any, 
-                colorOrOptionsObject: any, alias: string, contextMenu: Array<any>){
+                colorOrOptionsObject: any, alias?: string, contextMenu?: Array<any>){
         // This constructor should be called with the following parameters: 
         // new TsqExpression(instanceObject, variableObject, searchSpan, optionsObject)
         // where the optionsObject should contain properties for color, alias, and contextMenu.
@@ -33,13 +33,13 @@ class TsqExpression extends ChartDataOptions {
         this.variableObject = variableObject;
     }
 
-    public toTsq(roundFromTo: boolean = false, getEvents: boolean = false){
+    public toTsq(roundFromTo: boolean = false, getEvents: boolean = false, getSeries: boolean = false){
         var tsq = {};
         let shiftMillis = Utils.parseShift(this.timeShift, this.startAt, this.searchSpan);
         let fromMillis = this.searchSpan.from.valueOf() + shiftMillis;
         let toMillis = this.searchSpan.to.valueOf() + shiftMillis;
-        let bucketSizeInMillis = Utils.parseTimeInput(this.searchSpan.bucketSize);
         if (roundFromTo) {
+            let bucketSizeInMillis = Utils.parseTimeInput(this.searchSpan.bucketSize);
             let roundedFromMillis = Math.floor((fromMillis + 62135596800000) / (bucketSizeInMillis)) * (bucketSizeInMillis) - 62135596800000; 
             let roundedToMillis = Math.ceil((toMillis + 62135596800000) / (bucketSizeInMillis)) * (bucketSizeInMillis) - 62135596800000;
             fromMillis = roundedFromMillis;
@@ -49,10 +49,13 @@ class TsqExpression extends ChartDataOptions {
         tsq['timeSeriesId'] = this.instanceObject.timeSeriesId;
         if (getEvents) {
             return {getEvents: tsq};
-        }
-        else {
+        } else if (getSeries) {
+            tsq['inlineVariables'] = {...this.variableObject};
+            tsq['projectedVariables'] = Object.keys(this.variableObject);
+            return {getSeries: tsq};
+        } else {
             tsq['interval'] = Utils.bucketSizeToTsqInterval(this.searchSpan.bucketSize);
-            tsq['inlineVariables'] = this.variableObject;
+            tsq['inlineVariables'] = {...this.variableObject};
             tsq['projectedVariables'] = Object.keys(this.variableObject);
             return {aggregateSeries: tsq};
         }
@@ -61,7 +64,7 @@ class TsqExpression extends ChartDataOptions {
     // This method will create an API query payload for the variable statistics of the first inline variable
     // of this object, for numeric dataTypes. Categorical types work as expected.
     public toStatsTsq(fromMillis, toMillis){
-        let tsq = this.toTsq()
+        let tsq = this.toTsq();
         let shiftMillis = Utils.parseShift(this.timeShift);
         fromMillis += shiftMillis;
         toMillis += shiftMillis;
@@ -81,4 +84,4 @@ class TsqExpression extends ChartDataOptions {
         return tsq;
     }
 }
-export {TsqExpression}
+export default TsqExpression

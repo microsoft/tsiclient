@@ -1,4 +1,4 @@
-import {Utils} from "./../Utils";
+import Utils from "./../Utils";
 import {Component} from "./Component";
 import * as d3 from 'd3';
 import { ChartOptions } from "../Models/ChartOptions";

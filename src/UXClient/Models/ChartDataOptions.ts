@@ -1,4 +1,4 @@
-import {Utils, DataTypes, EventElementTypes} from "../Utils";
+import Utils, {DataTypes, EventElementTypes} from "../Utils";
 
 const DEFAULT_HEIGHT = 40;
 // Represents an expression that is suitable for use as the expression options parameter in a chart component
@@ -32,6 +32,7 @@ class ChartDataOptions {
     public positionXVariableName: string;
     public positionYVariableName: string;
     public image: string;
+    public isRawData: boolean;
 
     constructor (optionsObject: Object){
         this.searchSpan = Utils.getValueOrDefault(optionsObject, 'searchSpan');
@@ -62,6 +63,7 @@ class ChartDataOptions {
         this.positionYVariableName = Utils.getValueOrDefault(optionsObject, 'positionYVariableName', null);
         this.image = Utils.getValueOrDefault(optionsObject, 'image', null);
         this.startAt = Utils.getValueOrDefault(optionsObject, 'startAt', null);
+        this.isRawData = Utils.getValueOrDefault(optionsObject, 'isRawData', false);
     }
 }
 export {ChartDataOptions}

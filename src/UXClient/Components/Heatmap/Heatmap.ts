@@ -1,13 +1,13 @@
 import * as d3 from 'd3';
 import './Heatmap.scss';
-import {Utils} from "./../../Utils";
+import Utils from "./../../Utils";
 import {Component} from "./../../Interfaces/Component";
 import { Legend } from '../Legend/Legend';
 import { HeatmapCanvas} from '../HeatmapCanvas/HeatmapCanvas';
 import { ChartOptions } from '../../Models/ChartOptions';
-import { AggregateExpression } from '../../Models/AggregateExpression';
+import AggregateExpression from '../../Models/AggregateExpression';
 import { ChartDataOptions } from '../../Models/ChartDataOptions';
-import { EllipsisMenu } from '../EllipsisMenu/EllipsisMenu';
+import EllipsisMenu from '../EllipsisMenu/EllipsisMenu';
 import { TemporalXAxisComponent } from '../../Interfaces/TemporalXAxisComponent';
 
 class Heatmap extends TemporalXAxisComponent {
@@ -257,4 +257,4 @@ class Heatmap extends TemporalXAxisComponent {
     }
 }
 
-export {Heatmap}
+export default Heatmap

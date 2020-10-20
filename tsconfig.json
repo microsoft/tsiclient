@@ -7,6 +7,11 @@
         "jsx": "react",
         "allowJs": true,
         "lib" : ["es5", "es2015.promise", "dom", "es6"],
-        "moduleResolution": "Node"
-    }
+        "moduleResolution": "Node",
+        "declaration": true,
+        "allowSyntheticDefaultImports": true
+    },
+    "include": [
+        "src"
+    ]
 }

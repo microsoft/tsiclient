@@ -1,6 +1,6 @@
 import * as d3 from 'd3';
 import './EventsTable.scss';
-import {Utils} from "./../../Utils";
+import Utils from "./../../Utils";
 import {Component} from "./../../Interfaces/Component";
 import { ChartComponent } from '../../Interfaces/ChartComponent';
 import { EventsTableData } from '../../Models/EventsTableData';
@@ -383,4 +383,4 @@ class EventsTable extends ChartComponent{
     }
 }
 
-export {EventsTable}
+export default EventsTable

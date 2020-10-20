@@ -1,7 +1,6 @@
 import * as d3 from 'd3';
-import * as momentTZ from 'moment-timezone';
-import * as moment from 'moment';
-import {Grid} from "./Components/Grid/Grid";
+import moment from 'moment-timezone';
+import Grid from "./Components/Grid/Grid";
 import { ChartOptions } from './Models/ChartOptions';
 import { ChartComponentData } from './Models/ChartComponentData';
 import { nullTsidDisplayString } from './Constants/Constants';
@@ -136,6 +135,7 @@ class Utils {
     }
 
     static bucketSizeToTsqInterval (bucketSize: string) {
+        if (!bucketSize) {return null;}
         let bucketSizeInMillis = Utils.parseTimeInput(bucketSize);
         let padLeadingZeroes = (number) => {
             let numberAsString = String(number);
@@ -191,10 +191,10 @@ class Utils {
 
     static getOffsetMinutes(offset: any, millis: number) {
         if (offset == 'Local') {
-            return -momentTZ.tz.zone(momentTZ.tz.guess()).parse(millis);
+            return -moment.tz.zone(moment.tz.guess()).parse(millis);
         }
         if (typeof offset == 'string' && isNaN(offset as any)) {
-            return -momentTZ.tz.zone(offset).parse(millis);
+            return -moment.tz.zone(offset).parse(millis);
         } else {
             return offset;
         }
@@ -208,23 +208,23 @@ class Utils {
     // inverse of getOffsetMinutes, this is the conversion factor of an offsettedTime to UTC in minutes 
     static getMinutesToUTC (offset: any, millisInOffset: number) {
         if (offset == 'Local') {
-            return momentTZ.tz.zone(momentTZ.tz.guess()).utcOffset(millisInOffset);
+            return moment.tz.zone(moment.tz.guess()).utcOffset(millisInOffset);
         }
         if (typeof offset == 'string' && isNaN(offset as any)) {
-            return momentTZ.tz.zone(offset).utcOffset(millisInOffset);
+            return moment.tz.zone(offset).utcOffset(millisInOffset);
         } else {
             return -offset;
         }
     }
 
     static addOffsetGuess (timezoneName) {
-        let timezone = momentTZ.tz(new Date(), timezoneName.split(' ').join('_'));
+        let timezone = moment.tz(new Date(), timezoneName.split(' ').join('_'));
         let formatted = timezone.format('Z');
         return "UTC" + formatted;
     }
 
     static timezoneAbbreviation (timezoneName) {
-        let abbr = momentTZ.tz(new Date(), timezoneName).format('z');
+        let abbr = moment.tz(new Date(), timezoneName).format('z');
         if (abbr[0] === '-' || abbr[0] === '+')
             return '';
         return abbr;
@@ -244,7 +244,7 @@ class Utils {
             return '';
         }
         if (timezoneRaw == 'Local') {
-            return momentTZ.tz.guess();
+            return moment.tz.guess();
         } 
         return timezoneRaw !== null ? timezoneRaw.split(' ').join('_'): '';
     }
@@ -306,9 +306,9 @@ class Utils {
                 stringFormat = "L " + this.subDateTimeFormat(is24HourTime, usesSeconds, usesMillis);
             }
             if (typeof offset == 'string' && isNaN(offset as any)) {
-                return momentTZ.tz(d, 'UTC').tz(offset === 'Local' ? momentTZ.tz.guess() : offset).locale(locale).format(stringFormat);
+                return moment.tz(d, 'UTC').tz(offset === 'Local' ? moment.tz.guess() : offset).locale(locale).format(stringFormat);
             } else {
-                return momentTZ.tz(d, "UTC").utcOffset(offset).locale(locale).format(stringFormat);
+                return moment.tz(d, "UTC").utcOffset(offset).locale(locale).format(stringFormat);
             }
         }
     }
@@ -931,6 +931,78 @@ class Utils {
         });
         return convertedData;
     }
+
+    // takes in an availability distribution and a min and max date, returns a tuple, where the first is the new distribution 
+    // excluding values out of the range, and the second is all excluded values
+    static cullValuesOutOfRange (availabilityDistribution: any, minDateString: string, maxDateString: string) {
+        const dateZero = '0000-01-01T00:00:00Z';
+        let minDateValue = new Date(minDateString).valueOf();
+        let maxDateValue = new Date(maxDateString).valueOf();
+
+        if (new Date(availabilityDistribution.range.from).valueOf() < minDateValue || 
+            new Date(availabilityDistribution.range.to).valueOf() > maxDateValue) {
+
+            let inRangeValues = {};
+            let outOfRangeValues = {};
+                    
+            let highestNotOverMaxString = dateZero;
+            let highestNotOverMaxValue = (new Date(highestNotOverMaxString)).valueOf();
+            let lowestAboveMinValue = Infinity; 
+
+            Object.keys(availabilityDistribution.distribution).forEach((bucketKey: string) => {
+                let bucketValue = (new Date(bucketKey)).valueOf();
+                if (bucketValue > maxDateValue || bucketValue < minDateValue) {
+                    outOfRangeValues[bucketKey] = availabilityDistribution.distribution[bucketKey]; 
+                } else {
+                    inRangeValues[bucketKey] = availabilityDistribution.distribution[bucketKey];
+                    if (bucketValue > highestNotOverMaxValue) {
+                        highestNotOverMaxValue = bucketValue;
+                        highestNotOverMaxString = bucketKey;
+                    }
+                    if (bucketValue < lowestAboveMinValue) {
+                        lowestAboveMinValue = bucketValue
+                    }
+                }
+            });
+
+            const bucketSize = this.parseTimeInput(availabilityDistribution.intervalSize);
+            
+            if (highestNotOverMaxString !== dateZero) { // a value exists 
+                let nowMillis = new Date().valueOf();
+                if(highestNotOverMaxValue < nowMillis && (highestNotOverMaxValue + bucketSize) > nowMillis){
+                    // the new end value was before now, but after adding bucket size, its after now
+                    // so we set it to now to avoid setting it to a date in the future
+                    availabilityDistribution.range.to = new Date(nowMillis).toISOString();
+                }
+                else{
+                    availabilityDistribution.range.to = new Date(highestNotOverMaxValue + bucketSize).toISOString();
+                }
+            } else {
+                let rangeToValue: number = (new Date(availabilityDistribution.range.to)).valueOf();
+                if (minDateValue > rangeToValue) { // entire window is to the right of distribution range
+                    availabilityDistribution.range.to = maxDateString;
+                } else {
+                    let toValue = Math.min(maxDateValue + bucketSize, (new Date(availabilityDistribution.range.to)).valueOf()); //clamped to maxDateString passed in
+                    availabilityDistribution.range.to = (new Date(toValue)).toISOString();    
+                }
+            }
+
+            if (lowestAboveMinValue !== Infinity) { // a value exists
+                availabilityDistribution.range.from = (new Date(lowestAboveMinValue)).toISOString();
+            } else { 
+                let rangeFromValue: number = (new Date(availabilityDistribution.range.from)).valueOf();
+                if (maxDateValue < (new Date(availabilityDistribution.range.from)).valueOf()) { // entire window is to the left of distribution range
+                    availabilityDistribution.range.from = minDateString;
+                } else {
+                    let fromValue = Math.max(minDateValue, rangeFromValue); // clamped to minDateString passed in
+                    availabilityDistribution.range.from = (new Date(fromValue)).toISOString();                        
+                }
+            }
+            availabilityDistribution.distribution = inRangeValues;
+            return[availabilityDistribution, outOfRangeValues];
+        }
+        return [availabilityDistribution, {}];
+    }
     
     static mergeAvailabilities (warmAvailability, coldAvailability, retentionString = null) {
         let warmStoreRange = warmAvailability.range;
@@ -983,7 +1055,7 @@ class Utils {
     }
 
     static getHighlightedTimeSeriesIdToDisplay = (instance) => { // highlighted time series ids (including hits) to be shown in UI
-        return instance.highlights.timeSeriesId.map((id, idx) => instance.timeSeriesId[idx] === null ? Utils.guidForNullTSID : id).join(', ');
+        return instance.highlights?.timeSeriesId.map((id, idx) => instance.timeSeriesId[idx] === null ? Utils.guidForNullTSID : id).join(', ');
     }
 
     static instanceHasEmptyTSID = (instance) => {
@@ -1046,4 +1118,4 @@ class Utils {
     }
 }
 
-export {Utils};
+export default Utils;

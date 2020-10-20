@@ -1,13 +1,13 @@
 import * as d3 from "d3";
 import "./AvailabilityChart.scss";
-import { LineChart } from "../LineChart/LineChart";
-import { DateTimePicker } from "../DateTimePicker/DateTimePicker";
-import { Utils } from "./../../Utils";
+import LineChart from "../LineChart/LineChart";
+import DateTimePicker from "../DateTimePicker/DateTimePicker";
+import Utils from "./../../Utils";
 import { Component } from "./../../Interfaces/Component";
 import { ChartComponent } from "../../Interfaces/ChartComponent";
-import { UXClient } from "../../UXClient";
+import UXClient from "../../UXClient";
 import { ChartOptions } from "../../Models/ChartOptions";
-import { DateTimeButtonRange } from "../DateTimeButtonRange/DateTimeButtonRange";
+import DateTimeButtonRange from "../DateTimeButtonRange/DateTimeButtonRange";
 
 class AvailabilityChart extends ChartComponent{
     private fromMillis: number;
@@ -543,4 +543,4 @@ class AvailabilityChart extends ChartComponent{
     }
 }
 
-export {AvailabilityChart}
+export default AvailabilityChart

@@ -4,3 +4,4 @@ dist/
 .vscode/settings.json
 scripts
 .vs
+build_artifacts/
