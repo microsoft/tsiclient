@@ -306,11 +306,15 @@ class ServerClient {
         return this.createPromiseFromXhr(uri, "GET", {}, token, (responseText) => {return JSON.parse(responseText);});
     }
 
-    public deleteReferenceDataSet(token: string, resourceId: string, endpoint= "https://management.azure.com") {
-        var uri = endpoint + resourceId  + this.referenceDataAPIVersion;
+    public deleteReferenceDataSet(token: string, resourceId: string, datasetName: string, endpoint= "https://management.azure.com") {
+        var uri = endpoint + resourceId + "/referencedatasets/" + datasetName + this.referenceDataAPIVersion;
         return this.createPromiseFromXhr(uri, "DELETE", {}, token, (responseText) => {return JSON.parse(responseText);});
     }
 
+    public putReferenceDataSet(token: string, resourceId: string, datasetName: string, dataSet: any, endpoint= "https://management.azure.com") {
+        var uri = endpoint + resourceId + "/referencedatasets/" + datasetName + this.referenceDataAPIVersion;
+        return this.createPromiseFromXhr(uri, "PUT", dataSet, token, (responseText) => {return JSON.parse(responseText);});
+    }
 
     public getEnvironments(token: string, endpoint = 'https://api.timeseries.azure.com'){
         var uri = endpoint + '/environments' + this.apiVersionUrlParam;
