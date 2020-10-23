@@ -1,6 +1,6 @@
 import * as d3 from 'd3';
 import './Hierarchy.scss';
-import {Utils} from "./../../Utils";
+import Utils from "./../../Utils";
 import {Component} from "./../../Interfaces/Component";
 import {HierarchyNode} from "./../../Models/HierarchyNode";
 import { ChartOptions } from '../../Models/ChartOptions';
@@ -217,4 +217,4 @@ class Hierarchy extends Component {
         d3.selectAll('.tsi-resultSelected').classed('tsi-resultSelected', false);
     }
 }
-export {Hierarchy}
+export default Hierarchy

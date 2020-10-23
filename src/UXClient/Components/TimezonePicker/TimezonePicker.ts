@@ -1,8 +1,8 @@
 import * as d3 from 'd3';
 import './TimezonePicker.scss';
 import { ChartComponent } from '../../Interfaces/ChartComponent';
-import { Utils } from "./../../Utils";
-import * as momentTZ from 'moment-timezone';
+import Utils from "./../../Utils";
+import moment from 'moment-timezone';
 
 class TimezonePicker extends ChartComponent{
     private targetElement: any;
@@ -17,8 +17,8 @@ class TimezonePicker extends ChartComponent{
         }) 
 
         filteredTimezones.sort((a, b) => {
-            let aOffset = momentTZ.tz(new Date(), a.split(' ').join('_')).utcOffset();
-            let bOffset =  momentTZ.tz(new Date(), b.split(' ').join('_')).utcOffset();
+            let aOffset = moment.tz(new Date(), a.split(' ').join('_')).utcOffset();
+            let bOffset =  moment.tz(new Date(), b.split(' ').join('_')).utcOffset();
             if (aOffset < bOffset) {
                 return -1;
             }
@@ -60,4 +60,4 @@ class TimezonePicker extends ChartComponent{
 
 }
 
-export {TimezonePicker};
+export default TimezonePicker;

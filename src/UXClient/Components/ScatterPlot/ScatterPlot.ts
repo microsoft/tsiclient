@@ -4,9 +4,9 @@ import { ChartVisualizationComponent } from './../../Interfaces/ChartVisualizati
 import { ChartDataOptions } from '../../Models/ChartDataOptions';
 import { Legend } from './../Legend/Legend';
 import { ScatterPlotData } from '../../Models/ScatterPlotData';
-import {Slider} from './../Slider/Slider';
+import Slider from './../Slider/Slider';
 import { Tooltip } from '../Tooltip/Tooltip';
-import { Utils, TooltipMeasureFormat } from './../../Utils';
+import Utils, { TooltipMeasureFormat } from './../../Utils';
 
 class ScatterPlot extends ChartVisualizationComponent {
     private activeDot: any = null;
@@ -822,4 +822,4 @@ class ScatterPlot extends ChartVisualizationComponent {
 
 }
 
-export {ScatterPlot}
+export default ScatterPlot

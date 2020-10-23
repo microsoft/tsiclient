@@ -1,14 +1,14 @@
 import * as d3 from 'd3';
 import './PieChart.scss';
-import {Utils, TooltipMeasureFormat} from "./../../Utils";
+import Utils, {TooltipMeasureFormat} from "./../../Utils";
 import {Legend} from './../Legend/Legend';
 import {ContextMenu} from './../ContextMenu/ContextMenu';
 import { ChartComponentData } from '../../Models/ChartComponentData';
 import { PieChartData } from '../../Models/PieChartData';
-import { Slider } from '../Slider/Slider';
+import Slider from '../Slider/Slider';
 import { Tooltip } from '../Tooltip/Tooltip';
 import { ChartOptions } from '../../Models/ChartOptions';
-import { EllipsisMenu } from '../EllipsisMenu/EllipsisMenu';
+import EllipsisMenu from '../EllipsisMenu/EllipsisMenu';
 import { ChartDataOptions } from '../../Models/ChartDataOptions';
 import { ChartVisualizationComponent } from '../../Interfaces/ChartVisualizationComponent';
 
@@ -251,4 +251,4 @@ class PieChart extends ChartVisualizationComponent {
         this.legendPostRenderProcess(this.chartOptions.legend, this.svgSelection, true);
     }
 }
-export {PieChart}
+export default PieChart

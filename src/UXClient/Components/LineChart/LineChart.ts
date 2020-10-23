@@ -1,14 +1,14 @@
 import * as d3 from 'd3';
 import { interpolatePath } from 'd3-interpolate-path';
 import './LineChart.scss';
-import {Utils, DataTypes, YAxisStates, LINECHARTTOPPADDING, TooltipMeasureFormat, LINECHARTCHARTMARGINS, VALUEBARHEIGHT, SERIESLABELWIDTH} from "./../../Utils";
+import Utils, { DataTypes, YAxisStates, LINECHARTTOPPADDING, TooltipMeasureFormat, LINECHARTCHARTMARGINS, VALUEBARHEIGHT, SERIESLABELWIDTH} from "./../../Utils";
 import {Legend} from "./../Legend/Legend";
 import {TemporalXAxisComponent} from "./../../Interfaces/TemporalXAxisComponent";
 import {LineChartData} from "./../../Models/LineChartData";
 import { ContextMenu } from '../ContextMenu/ContextMenu';
 import { Tooltip } from '../Tooltip/Tooltip';
 import { ChartOptions } from '../../Models/ChartOptions';
-import { EllipsisMenu } from '../EllipsisMenu/EllipsisMenu';
+import EllipsisMenu from '../EllipsisMenu/EllipsisMenu';
 import { ChartDataOptions } from '../../Models/ChartDataOptions';
 import { LinePlot } from '../LinePlot/LinePlot';
 import { CategoricalPlot } from '../CategoricalPlot/CategoricalPlot';
@@ -1802,4 +1802,4 @@ class LineChart extends TemporalXAxisComponent {
         return null;
     }
 }
-export {LineChart}
+export default LineChart

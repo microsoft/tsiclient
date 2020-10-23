@@ -1,7 +1,7 @@
 import * as d3 from 'd3';
 import './PlaybackControls.scss';
 import { Component } from "./../../Interfaces/Component";
-import { Utils } from '../../Utils';
+import Utils from '../../Utils';
 import { TemporalXAxisComponent } from '../../Interfaces/TemporalXAxisComponent';
 
 type d3Selection = d3.Selection<d3.BaseType, unknown, null, undefined>;
@@ -252,4 +252,4 @@ class TimeAxis extends TemporalXAxisComponent {
   }
 }
 
-export { PlaybackControls };
+export default PlaybackControls

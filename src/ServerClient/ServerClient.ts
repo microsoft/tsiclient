@@ -1,5 +1,6 @@
-import * as Promise from 'promise-polyfill';
-import { Utils } from '../UXClient/Utils';
+import Utils from '../UXClient/Utils';
+
+type progressChange = (p: number) => void;
 
 class ServerClient {
     private apiVersionUrlParam = "?api-version=2016-12-12";
@@ -26,7 +27,7 @@ class ServerClient {
         return clientRequestId;
     }
 
-    private createPromiseFromXhr (uri, httpMethod, payload, token, responseTextFormat, continuationToken = null) {
+    private createPromiseFromXhr (uri, httpMethod, payload, token, responseTextFormat, continuationToken = null) : Promise<any> {
         return new Promise((resolve: any, reject: any) => {
             let sendRequest;
             let retryCount = 0;
@@ -92,7 +93,7 @@ class ServerClient {
         return events;
     }
 
-    private getQueryApiResult = (token, results, contentObject, index, uri, resolve, messageProperty, onProgressChange = (percentComplete) => {}, mergeAccumulatedResults = false, xhr = null) => {
+    private getQueryApiResult = (token, results, contentObject, index, uri, resolve, messageProperty, onProgressChange : progressChange = (percentComplete) => {}, mergeAccumulatedResults = false, xhr = null) => {
         if (xhr === null) {
             xhr = new XMLHttpRequest();
         }
@@ -178,7 +179,7 @@ class ServerClient {
         xhr.send(JSON.stringify(contentObject));
     }
 
-    public getCancellableTsqResults (token: string, uri: string, tsqArray: Array<any>, onProgressChange = () => {}, mergeAccumulatedResults = false, storeType: string = null): Array<any | Function> {
+    public getCancellableTsqResults (token: string, uri: string, tsqArray: Array<any>, onProgressChange : progressChange = p => {}, mergeAccumulatedResults = false, storeType: string = null): Array<any | Function> {
         // getTsqResults() returns either a promise or an array containing a promise + cancel trigger 
         // depending on whether we set the hasCancelTrigger flag. Here we need to set the type of what
         // we get back to 'unknown'. This lets TypeScript know that we have enough information to
@@ -187,7 +188,7 @@ class ServerClient {
         return (promiseAndTrigger as Array<any | Function>);
     }
 
-    public getTsqResults(token: string, uri: string, tsqArray: Array<any>, onProgressChange = () => {}, mergeAccumulatedResults = false, storeType: string = null, hasCancelTrigger = false) {
+    public getTsqResults(token: string, uri: string, tsqArray: Array<any>, onProgressChange : progressChange = p => {}, mergeAccumulatedResults = false, storeType: string = null, hasCancelTrigger = false): PromiseLike<any> | Array<any | Function>{
         var tsqResults = [];
         tsqArray.forEach(tsq => {
             tsqResults.push({progress: 0});
@@ -217,7 +218,7 @@ class ServerClient {
         return promise;
     }
 
-    public getAggregates(token: string, uri: string, tsxArray: Array<any>, onProgressChange = () => {}) {
+    public getAggregates(token: string, uri: string, tsxArray: Array<any>, onProgressChange : progressChange = p => {}) {
         var aggregateResults = [];
         tsxArray.forEach(ae => {
             aggregateResults.push({progress: 0});
@@ -423,4 +424,4 @@ class ServerClient {
     }
 }
 
-export {ServerClient}
+export default ServerClient
