@@ -51,7 +51,7 @@ class Tooltip extends Component {
     private isTopOffset (tooltipHeight, yPos, chartMargins) {
         //NOTE - this assumes that the svg's bottom border is the same as the render target's
         var renderTargetHeight = this.renderTarget.node().getBoundingClientRect().height;
-        let tooltipYPos = yPos + tooltipHeight + 20 + chartMargins.bottom + chartMargins.top;
+        let tooltipYPos = yPos + tooltipHeight + 20 + chartMargins.bottom + this.getTopOffset(chartMargins);
         return renderTargetHeight > tooltipYPos;
     }
 
@@ -92,7 +92,19 @@ class Tooltip extends Component {
             var translateX = this.isRightOffset(tooltipWidth, xPos, chartMargins.left) ? xOffset : 
                 (-Math.round(tooltipWidth) - xOffset - (elementWidth !== null ? elementWidth : 0));             
             translateX = Math.max(0 - xPos, translateX);
-            var translateY = this.isTopOffset(tooltipHeight, yPos, chartMargins) ? yOffset :  (-Math.round(tooltipHeight) - yOffset);
+
+            let translateY =  0;
+           
+            if(this.isTopOffset(tooltipHeight, yPos, chartMargins)){ // Place tooltip @ bottom of point
+                translateY = yOffset;
+            } else{
+                if(Math.round(yPos) - yOffset + topOffset - Math.round(tooltipHeight) <= 0){ // Upper bound check to keep tooltip within chart
+                    translateY = -(Math.round(yPos) + topOffset);
+                }else{
+                    translateY = (-Math.round(tooltipHeight) - yOffset); // Place tooltip @ top of point
+                }
+            }  
+
             this.tooltipDiv.style("transform", "translate(" + translateX + "px," + translateY + "px)");
             if (this.borderColor) {
                 this.tooltipDivInner.style('border-left-color', this.borderColor)
