@@ -39,8 +39,7 @@ class ColorPicker extends Component{
         // color selection button
         let colorPickerButton = this.colorPickerElem.append('button').classed("tsi-colorPickerButton", true)
             .attr("title", this.getString('Select color'))
-            .attr("aria-label", this.getString('Select color'))
-            .attr("aria-describedby", `tsi-selectedColorValue_${this.componentId}`)
+            .attr("aria-label", (this.selectedColor ? this.selectedColor : this.getString('No color')) + ' ' + this.getString('Select color'))
             .attr("aria-controls", `tsi-colorGrid_${this.componentId}`)
             .on('click', () => {
                 if (this.isColorGridVisible) {
@@ -127,6 +126,7 @@ class ColorPicker extends Component{
         this.colorPickerElem.select(".tsi-selectedColorValue").text(cStr);
         this.colorPickerElem.select(".tsi-colorItem.tsi-selected").classed("tsi-selected", false);
         this.colorPickerElem.select(".tsi-colorItem.tsi-selected").attr("aria-selected", false);
+        this.colorPickerElem.select(".tsi-colorPickerButton").attr("aria-label", (this.selectedColor ? this.selectedColor : this.getString('No color')) + ' ' + this.getString('Select color'));
         gridItem.classed("tsi-selected", true);
         gridItem.attr("aria-selected", true);
         this.selectedColor = cStr;
