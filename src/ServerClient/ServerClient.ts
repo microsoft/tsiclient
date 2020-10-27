@@ -56,7 +56,7 @@ class ServerClient {
                 }
                 xhr.open(httpMethod, uri);
                 clientRequestId = this.setStandardHeaders(xhr, token);
-                if(httpMethod == 'POST')
+                if(httpMethod == 'POST' || httpMethod == 'PUT')
                     xhr.setRequestHeader('Content-Type', 'application/json');
                 if (continuationToken)
                     xhr.setRequestHeader('x-ms-continuation', continuationToken);
@@ -314,7 +314,7 @@ class ServerClient {
 
     public putReferenceDataSet(token: string, resourceId: string, datasetName: string, dataSet: any, endpoint= "https://management.azure.com") {
         var uri = endpoint + resourceId + "/referencedatasets/" + datasetName + this.referenceDataAPIVersion;
-        return this.createPromiseFromXhr(uri, "PUT", dataSet, token, (responseText) => {return JSON.parse(responseText);});
+        return this.createPromiseFromXhr(uri, "PUT", JSON.stringify(dataSet), token, (responseText) => {return JSON.parse(responseText);});
     }
 
     public getEnvironments(token: string, endpoint = 'https://api.timeseries.azure.com'){
