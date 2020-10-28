@@ -48,12 +48,12 @@ class Tooltip extends Component {
         return this.getSVGWidth() > (xPos + tooltipWidth + 20 + chartMarginLeft);
     }
 
-    private isTopOffset (tooltipHeight, yPos, chartMarginBottom) {
+    private isTopOffset (tooltipHeight, yPos, chartMargins) {
         //NOTE - this assumes that the svg's bottom border is the same as the render target's
         var renderTargetHeight = this.renderTarget.node().getBoundingClientRect().height;
-        return renderTargetHeight > (yPos + tooltipHeight + 20 + chartMarginBottom);
+        let tooltipYPos = yPos + tooltipHeight + 20 + chartMargins.bottom + this.getTopOffset(chartMargins);
+        return renderTargetHeight > tooltipYPos;
     }
-
 
     public render(theme) {
         let self = this;
@@ -72,8 +72,8 @@ class Tooltip extends Component {
         tooltip.exit().remove();
         super.themify(this.tooltipDiv, theme);
         
-        //  element width is an optional parameter which ensurea that the tooltip doesn't interfere with the element
-        //when positioning to the right
+        // Element width is an optional parameter which ensures that the tooltip doesn't interfere with the element
+        // when positioning to the right
         this.draw = (d: any, chartComponentData: ChartComponentData, xPos, yPos, chartMargins, addText, elementWidth: number = null, xOffset = 20, yOffset = 20, borderColor: string = null) => {
             this.tooltipDiv.style("display", "block"); 
             this.tooltipDivInner.text(null);
@@ -81,18 +81,30 @@ class Tooltip extends Component {
             this.borderColor = borderColor;
 
             var leftOffset = this.getLeftOffset(chartMargins);
-            var topOffset = this.getTopOffset(chartMargins)
+            var topOffset = this.getTopOffset(chartMargins);
             addText(this.tooltipDivInner);
 
             this.tooltipDiv.style("left", Math.round(xPos + leftOffset) + "px")
                 .style("top", Math.round(yPos) + topOffset + "px");
-        
+
             var tooltipWidth = this.tooltipDiv.node().getBoundingClientRect().width;
             var tooltipHeight = this.tooltipDiv.node().getBoundingClientRect().height;
             var translateX = this.isRightOffset(tooltipWidth, xPos, chartMargins.left) ? xOffset : 
                 (-Math.round(tooltipWidth) - xOffset - (elementWidth !== null ? elementWidth : 0));             
             translateX = Math.max(0 - xPos, translateX);
-            var translateY = this.isTopOffset(tooltipHeight, yPos, chartMargins.bottom) ? yOffset :  (-Math.round(tooltipHeight) - yOffset);
+
+            let translateY =  0;
+           
+            if(this.isTopOffset(tooltipHeight, yPos, chartMargins)){ // Place tooltip @ bottom of point
+                translateY = yOffset;
+            } else{
+                if(Math.round(yPos) - yOffset + topOffset - Math.round(tooltipHeight) <= 0){ // Upper bound check to keep tooltip within chart
+                    translateY = -(Math.round(yPos) + topOffset);
+                }else{
+                    translateY = (-Math.round(tooltipHeight) - yOffset); // Place tooltip @ top of point
+                }
+            }  
+
             this.tooltipDiv.style("transform", "translate(" + translateX + "px," + translateY + "px)");
             if (this.borderColor) {
                 this.tooltipDivInner.style('border-left-color', this.borderColor)

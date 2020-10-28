@@ -1,0 +1,51 @@
+
+<!DOCTYPE html> 
+<html>
+    <head>
+        <title>Tooltip positioning test</title>
+
+        <!-- boilerplate headers are injected with head.js, grab them from the live example header, or include a link to head.js -->
+        <script src="../boilerplate/head.js"></script>
+    </head>
+    <body style="font-family: 'Segoe UI', sans-serif;">
+        <div id="chart2" style="width: 100%; height: 500px;"></div>
+        <div id="chart1" style="width: 100%; height: 50vh; background-color: lightblue;"></div>
+
+        
+        <script>
+            window.onload = function() {
+                
+                // create fake data in the shape our charts expect
+                var data = [];
+                var from = new Date(Math.floor((new Date()).valueOf() / (1000*60 * 60)) * (1000*60 * 60));
+                var to;
+                for(var i = 0; i < 1; i++){
+                    var lines = {};
+                    data.push({[`Factory${i}`]: lines});
+                    for(var j = 0; j < 1; j++){
+                        var values = {};
+                        lines[`Station${j}`] = values;
+                        for(var k = 0; k < 100; k++){
+                            if(!(k%2 && k%3)){  // if check is to create some sparseness in the data
+                                var to = new Date(from.valueOf() + 1000*60*k);
+                                var val = k;
+                                var val2 = k * 2;
+                                var val3 = k * 3;
+                                var val4 = k * 4;
+                                values[to.toISOString()] = {avg: val, x: val2, y: val3, r: val4};
+                            }
+                        } 
+                    }
+                }
+
+                // render the data in a chart
+                var tsiClient = new TsiClient();
+                var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart1'));
+                lineChart.render(data, {theme: 'light', tooltip: true, legend: 'hidden', hideChartControlPanel: true});
+
+                var scatterplot = new tsiClient.ux.ScatterPlot(document.getElementById('chart2'));
+                scatterplot.render(data, {theme: 'light', legend: 'compact', tooltip: true, spMeasures: ['x', 'y', 'r']})
+            };
+        </script>
+    </body>
+</html>
