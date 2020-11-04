@@ -4,6 +4,7 @@ import './LinePlot.scss';
 import { Plot } from '../../Interfaces/Plot';
 import Utils, { DataTypes, YAxisStates } from '../../Utils';
 import { AxisState } from '../../Models/AxisState';
+import { InterpolationFunctions } from '../../Constants/Enums';
 
 class LinePlot extends Plot {
     private defs;
@@ -22,8 +23,16 @@ class LinePlot extends Plot {
 
     private getXPosition (d, x) {
         var bucketSize = this.chartComponentData.displayState[d.aggregateKey].bucketSize;
-        if (bucketSize)
-            return (x(d.dateTime) + x((new Date(d.dateTime.valueOf() + bucketSize)))) / 2
+        if (bucketSize) {
+            const interpolationFunction = this.chartComponentData.displayState[d.aggregateKey].interpolationFunction;
+            if (interpolationFunction === InterpolationFunctions.CurveStepAfter) {
+                return x(d.dateTime);
+            } else if (interpolationFunction === InterpolationFunctions.CurveStepBefore) {
+                return x((new Date(d.dateTime.valueOf() + bucketSize)));
+            } else {
+                return (x(d.dateTime) + x((new Date(d.dateTime.valueOf() + bucketSize)))) / 2;
+            }
+        }
         return x(d.dateTime);
     }
 

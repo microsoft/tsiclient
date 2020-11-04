@@ -1,3 +1,4 @@
+import { InterpolationFunctions } from "../Constants/Enums";
 import Utils, {DataTypes, EventElementTypes} from "../Utils";
 
 const DEFAULT_HEIGHT = 40;
@@ -9,7 +10,7 @@ class ChartDataOptions {
     public alias: string;
     public contextMenu: any; // describes menu shown with a split by member on context menu, and actions
     public measureTypes: Array<string>;  // 
-    public interpolationFunction: string = '';
+    public interpolationFunction: string = InterpolationFunctions.None;
     public yExtent: any = null;
     public includeEnvelope: boolean = false;
     public includeDots: boolean = false;
@@ -38,7 +39,7 @@ class ChartDataOptions {
         this.color = Utils.getValueOrDefault(optionsObject, 'color');
         this.alias = Utils.getValueOrDefault(optionsObject, 'alias');
         this.contextMenu = Utils.getValueOrDefault(optionsObject, 'contextMenu', []);
-        this.interpolationFunction = Utils.getValueOrDefault(optionsObject, 'interpolationFunction', '');
+        this.interpolationFunction = Utils.getValueOrDefault(optionsObject, 'interpolationFunction', InterpolationFunctions.None);
         this.includeEnvelope = Utils.getValueOrDefault(optionsObject, 'includeEnvelope', false);
         this.includeDots = Utils.getValueOrDefault(optionsObject, 'includeDots', false);
         this.visibilityState = Utils.getValueOrDefault(optionsObject, 'visibilityState');
