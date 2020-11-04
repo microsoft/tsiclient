@@ -1009,28 +1009,14 @@ class Utils {
         let filteredColdDistribution = {};
         let filteredWarmDistribution = {};
         let minWarmTime = this.getMinWarmTime(warmStoreRange.from, retentionString);
-        let maxWarmTime = new Date(warmStoreRange.to);
+        let maxWarmTime = new Date(Math.min(new Date(warmStoreRange.to).valueOf(), new Date(coldAvailability.range.to).valueOf()));
+        let mergedAvailability = Object.assign({}, coldAvailability);
 
-        Object.keys(warmAvailability.distribution).forEach((ts) => {
-            let tsDate = new Date(ts);
-            if (tsDate >= minWarmTime) {
-                filteredWarmDistribution[ts] = warmAvailability.distribution[ts];
-            }
-        });
-
-        Object.keys(coldAvailability.distribution).forEach((ts) => {
-            let tsDate = new Date(ts);
-            if (tsDate < minWarmTime || tsDate > maxWarmTime) {
-                filteredColdDistribution[ts] = coldAvailability.distribution[ts];
-            }
-        });
-        let mergedDistribution = Object.assign(filteredColdDistribution, filteredWarmDistribution); 
-        let mergedAvailabilities = Object.assign(coldAvailability, {distribution: mergedDistribution});
-        mergedAvailabilities.warmStoreRange = [minWarmTime.toISOString(), maxWarmTime.toISOString()];
+        mergedAvailability.warmStoreRange = [minWarmTime.toISOString(), maxWarmTime.toISOString()];
         if (retentionString !== null) {
-            mergedAvailabilities.retentionPeriod = retentionString;
+            mergedAvailability.retentionPeriod = retentionString;
         }
-        return mergedAvailabilities;
+        return mergedAvailability;
     }
 
     static languageGuess () {

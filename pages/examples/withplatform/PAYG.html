@@ -71,7 +71,7 @@
 
                     tsiClient.server.getTsqResults(token, '10000000-0000-0000-0000-100000000109.env.timeseries.azure.com', eventsTsqExpressions.map(function(ae){return ae.toTsq(true, true)})).then(function(result){
                         var transformedEvents = tsiClient.ux.transformTsqResultsToEventsArray(result);
-                        var eventsTable = tsiClient.ux.EventsTable(document.getElementById('chart2'));
+                        var eventsTable = new tsiClient.ux.EventsTable(document.getElementById('chart2'));
                         eventsTable.render(transformedEvents, {theme: 'dark', offset: 'Local'}, true);
                     });
                 });
