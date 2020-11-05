@@ -24,14 +24,7 @@ class LinePlot extends Plot {
     private getXPosition (d, x) {
         var bucketSize = this.chartComponentData.displayState[d.aggregateKey].bucketSize;
         if (bucketSize) {
-            const interpolationFunction = this.chartComponentData.displayState[d.aggregateKey].interpolationFunction;
-            if (interpolationFunction === InterpolationFunctions.CurveStepAfter) {
-                return x(d.dateTime);
-            } else if (interpolationFunction === InterpolationFunctions.CurveStepBefore) {
-                return x((new Date(d.dateTime.valueOf() + bucketSize)));
-            } else {
-                return (x(d.dateTime) + x((new Date(d.dateTime.valueOf() + bucketSize)))) / 2;
-            }
+            return (x(d.dateTime) + x((new Date(d.dateTime.valueOf() + bucketSize)))) / 2;
         }
         return x(d.dateTime);
     }
