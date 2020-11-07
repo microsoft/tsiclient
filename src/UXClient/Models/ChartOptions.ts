@@ -69,6 +69,7 @@ class ChartOptions {
     public singleLineXAxisLabel: boolean; // whether x axis time labels are on a single line (else split into two lines)
     public snapBrush: boolean; // whether to snap linechart brush to closest value
     public stacked: boolean; //whether bars in barchart are stacked
+    public shouldSticky: boolean; // whether sticky is triggered in the linechart when stickySeries or unStickySeries is called
     public strings: any; // passed in key value pairs of strings -> strings
     public suppressResizeListener: boolean; // whether a component's resize function is ignored. Applies to components which draw an SVG
     public swimLaneOptions: any;  // mapping of swim lane number to information about that swimlane, including axis type
@@ -197,6 +198,7 @@ class ChartOptions {
         this.labelSeriesWithMarker = this.mergeValue(chartOptionsObj, 'labelSeriesWithMarker', false);
         this.onError = this.mergeValue(chartOptionsObj, 'onError', (titleKey, messageKey, xhr) => {});
         this.timeSeriesIdProperties = Utils.getValueOrDefault(chartOptionsObj, 'timeSeriesIdProperties', []);
+        this.shouldSticky = this.mergeValue(chartOptionsObj, 'shouldSticky', true);
     }
 
     private mergeStrings (strings) {
@@ -294,7 +296,8 @@ class ChartOptions {
             hierarchyOptions: this.hierarchyOptions,
             onError: this.onError,
             labelSeriesWithMarker: this.labelSeriesWithMarker,
-            timeSeriesIdProperties: this.timeSeriesIdProperties
+            timeSeriesIdProperties: this.timeSeriesIdProperties,
+            shouldSticky: this.shouldSticky
         }
     }
 }
