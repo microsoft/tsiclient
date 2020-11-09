@@ -90,6 +90,7 @@ class ScatterPlotData extends GroupedBarChartData {
                     
                 this.temporalDataArray.push({
                     aggregateKey: aggKey,
+                    aggregateKeyI: this.data.findIndex((datum) => datum.aggKey === aggKey),
                     splitBy: splitBy,
                     measures,
                     timestamp,

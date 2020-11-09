@@ -28,6 +28,8 @@ class ChartDataOptions {
     public positionY: number;
     public swimLane: number;
     public variableAlias: any;
+    public connectPoints: boolean = false;
+    public pointConnectionMeasure: string = '';
     public positionXVariableName: string;
     public positionYVariableName: string;
     public image: string;
@@ -56,6 +58,8 @@ class ChartDataOptions {
         this.positionY = Utils.getValueOrDefault(optionsObject, 'positionY', 0);
         this.swimLane = Utils.getValueOrDefault(optionsObject, 'swimLane', null);
         this.variableAlias = Utils.getValueOrDefault(optionsObject, 'variableAlias', null);
+        this.connectPoints = Utils.getValueOrDefault(optionsObject, "connectPoints", false)
+        this.pointConnectionMeasure = Utils.getValueOrDefault(optionsObject, 'pointConnectionMeasure', '')
         this.positionXVariableName = Utils.getValueOrDefault(optionsObject, 'positionXVariableName', null);
         this.positionYVariableName = Utils.getValueOrDefault(optionsObject, 'positionYVariableName', null);
         this.image = Utils.getValueOrDefault(optionsObject, 'image', null);
