@@ -97,11 +97,11 @@ class ScatterPlot extends ChartVisualizationComponent {
             this.g = this.svgSelection.append("g")
                 .classed("tsi-svgGroup", true)
 
-            this.pointWrapper = this.g.append("g")
-                .classed("tsi-pointWrapper", true);
-
             this.lineWrapper = this.g.append("g")
                 .classed("tsi-lineWrapper", true);
+
+            this.pointWrapper = this.g.append("g")
+                .classed("tsi-pointWrapper", true);
 
             // Create temporal slider div
             this.sliderWrapper = d3.select(this.renderTarget).append('div').classed('tsi-sliderWrapper', true);
