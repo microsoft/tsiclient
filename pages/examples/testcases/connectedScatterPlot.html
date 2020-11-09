@@ -1,0 +1,93 @@
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Scatter Plot</title>
+
+        <!-- boilerplate headers are injected with head.js, grab them from the live example header, or include a link to head.js -->
+        <script src="../boilerplate/head.js"></script>
+    </head>
+    <body style="font-family: 'Segoe UI', sans-serif;">
+        <div id="chart1" style=" height: 800px;"></div>
+        <div style="display: flex; flex-direction: row; justify-content: center; margin-top: 50px;">
+            <div id="temporalToggle" class = "buttonWrapper" style= "margin-right: 50px; display: none;"><button onclick="toggleTemporal()">Toggle Temporal</button></div>
+            <div id="newDataSetToggle" class = "buttonWrapper" style= "margin-right: 50px; display: none;"><button onclick="newDataSetTrigger()">New Data Set</button></div>
+            <div id="randomizeData" class = "buttonWrapper" style= "display: none;"><button onclick="ranomizeData()">Randomize data</button></div>
+        </div>
+        <script>
+            let temporal = false;
+            let toggleTemporal = null;
+            let newDataSetTrigger = null;
+            let ranomizeData = null;
+            let dataSize = [3,1];
+
+            window.onload = function() {
+                // Show toggle & data trigger
+                document.getElementById("temporalToggle").style.display = "flex";
+                document.getElementById("newDataSetToggle").style.display = "flex";
+                document.getElementById("randomizeData").style.display = "flex";
+
+                // create fake data in the shape our charts expect (connected in series around circle)
+                let getData = (scaleFactor = 10, offset = 0) => {
+                    let data = [];
+                    let from = new Date();
+                    let to;
+
+                    for(let i = 0; i < dataSize[0]; i++){
+                        let lines = {};
+                        data.push({[`Drill_Site${i}`]: lines});
+                        for(let j = 0; j < dataSize[1]; j++){
+                            let values = {};
+                            lines[`Drill${j}`] = values;
+                            for(let k = 0; k < 8 * Math.PI; k+=.5){
+                                    let to = new Date(from.valueOf() + 1000*k);
+                                    let y = scaleFactor * Math.sin(k) + offset + (scaleFactor / 5) + Math.random();
+                                    let x = scaleFactor * (i === 1 ? .6 : i === 2 ? .3 : 1) * Math.cos(k) + offset + Math.random();
+                                    let temp = Math.random() * scaleFactor;
+                                    values[to.toISOString()] = {x, y, temp};
+                            }
+                        }
+                    }
+                    return data;
+                }
+
+                // render the data in a chart
+                let tsiClient = new TsiClient();
+
+                let scatterPlot =  new tsiClient.ux.ScatterPlot(document.getElementById('chart1'));
+
+                let renderScatterPlot = (data=getData()) => scatterPlot.render(data, {
+                    legend: 'shown', 
+                    spAxisLabels: ['X (mm)', 'Y (mm)'], 
+                    noAnimate: false, 
+                    isTemporal: temporal, 
+                    grid: true, 
+                    tooltip: true, 
+                    theme: 'light', 
+                    spMeasures: ['x', 'y', 'temp'],
+                    interpolationFunction: "curveLinear"
+                },
+                [
+                    {connectPoints: true}, 
+                    {connectPoints: true, pointConnectionMeasure: "x"},
+                    {connectPoints: true, pointConnectionMeasure: "y"}
+                ]
+                );
+
+                renderScatterPlot();
+
+                newDataSetTrigger = () => {
+                    dataSize = [Math.ceil(Math.random() * 3),Math.ceil(Math.random() * 3)]
+                    renderScatterPlot(getData(10, 0));
+                }
+                ranomizeData = () => renderScatterPlot();
+
+                toggleTemporal = () => {
+                    temporal = !temporal;
+                    renderScatterPlot();
+                }
+            };
+            
+        </script>
+    </body>
+</html>

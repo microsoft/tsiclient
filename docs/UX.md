@@ -84,18 +84,18 @@ heatmap.render(data, chartOptions, chartDataOptionsArray);
 ### Scatter Plot
 
 **Scatter Plots** are created in the same way as [line charts](#line-chart) and take the same options and data shapes.
- However, [spMeasures](#chart-options) **must** be specified as an array of strings in the `chartOptions` object for scatter plots.  
+ However, [spMeasures](#chart-options) **must** be specified as an array of strings in the `chartOptions` object for scatter plots to render.
 
-Scatter plots also have the following optional `chartOptions`:
-
-* [isTemporal](#chart-options) toggles the temporal slider on or off
-* [spAxisLabels](#chart-options) creates axis labels for X and Y axis.
-
-```JavaScript
+ ```JavaScript
 var tsiClient = new TsiClient();
 var scatterPlot = new tsiClient.ux.ScatterPlot(document.getElementById('chart'))
 scatterPlot.render(data, chartOptions, chartDataOptionsArray);
 ```
+
+In addition to [spMeasures](#chart-options), scatter plots also have the following **optional** `chartOptions`:
+
+* [isTemporal](#chart-options) - toggles the temporal slider on or off
+* [spAxisLabels](#chart-options) - creates axis labels for X and Y axis.
 
 The following code snippet demonstrates scatter plot-specific chart options:
 
@@ -109,10 +109,16 @@ scatterPlot.render(data, {
     //          ^ X     ^ Y      ^ R (optional)
     isTemporal: true,
     //          ^ Turn on temporal slider
-    spAxisLabels:['Termperature', 'Pressure']
+    spAxisLabels:['Temperature', 'Pressure']
     //            ^ X axis label  ^ Y axis label
-    });
+    }
+);
 ```
+
+Connected scatter plots can be rendered using the following **optional** keys in the `chartDataOptions` array.
+
+* [connectPoints](#chart-data-options) - if true, connects the points on the scatter plot
+* [pointConnectionMeasure](#chart-data-options) - specifies measure by which to connect points, defaults to time.
 
 **Note**: *scatter plots will not render if `spMeasures` is not specified or **any** of the measures are not found in the [data](#chart-data-shape) as value keys*
 
@@ -340,6 +346,8 @@ Available **Chart Data Options** include:
 |`onElementClick`|**(dataGroupName: string, </br> timeSeriesName: string,  </br> timestamp: string,  </br> measures: Array&lt;any&gt;) => void**|`null`|`null` |Handler for when an element in a non-numeric plot in the line chart is clicked. the parameters are: data group, series name, timestamp, and measures at that timestamp|
 |`rollupCategoricalValues`|**boolean**| `true`, `false` | `false`|For categorical plots in line charts, this specifies that adjacent measures with the same values should be rolled into the first with those values|
 |`eventElementType`|**string**|`'diamond'`, `'teardrop'`| `'diamond'` | Specifies the svg icon for an event in the line chart, either a `diamond` or a `teardrop`|
+|`connectPoints`|**boolean**|`true`, `false` | `false` | For scatter plots.  Specifies connected scatter plot mode.
+|`pointConnectionMeasure`| **string**| `measure` | `''` | For scatter plots.  Specifies measure by which to connect points, defaults to time if no measure given.
 
 ***Note**: For boolean values, the property will evaluate to `true` if either value is `true`. For other types of values, the chart data option value will take precedence over the chart option value.*
 
