@@ -12,3 +12,8 @@ export enum HierarchiesExpand {UntilChildren = "UntilChildren", OneLevel = "OneL
 export enum HierarchiesSort {Name = "Name", CumulativeInstanceCount = "CumulativeInstanceCount"};
 export enum MetadataPropertyTypes {Double = "Double", String = "String", DateTime = "DateTime", Long = "Long"}
 export enum ShiftTypes {startAt = "Start at", shifted = "shifted"}
+
+export enum ErrorCodes {
+    InvalidInput = 'InvalidInput',
+    PartialSuccess = 'PartialSuccess'
+}

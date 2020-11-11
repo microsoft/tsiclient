@@ -1,3 +1,4 @@
+import { ErrorCodes } from '../UXClient/Constants/Enums';
 import Utils from '../UXClient/Utils';
 
 type progressChange = (p: number) => void;
@@ -297,9 +298,9 @@ class ServerClient {
         });
     }
 
-    public postReferenceDatasetRows(token: string, environmentFqdn: string, datasetName: string, rows: Array<any>) {
+    public postReferenceDatasetRows(token: string, environmentFqdn: string, datasetName: string, rows: Array<any>, onProgressChange : progressChange = p => {}) {
         var uri = "https://" + environmentFqdn + "/referencedatasets/" + datasetName + "/$batch" + this.apiVersionUrlParam;
-        return this.createPromiseFromXhr(uri, "POST", JSON.stringify({put: rows}), token, (responseText) => {return JSON.parse(responseText);});
+        return this.createBatchPostPromiseFromXhr(uri, JSON.stringify({put: rows}), token, (responseText) => {return JSON.parse(responseText);}, onProgressChange);
     }
 
     public getReferenceDatasets(token: string, resourceId: string, endpoint= "https://management.azure.com") {
@@ -421,6 +422,81 @@ class ServerClient {
     private retryWithDelay(retryNumber, method) {
         let retryDelay = (Math.exp(retryNumber - 1) + Math.random()*2) * 1000;
         return setTimeout(method, retryDelay);
+    }
+
+    private createBatchPostPromiseFromXhr = (url, payload, token, responseTextFormat, onProgressChange = (percentComplete) => {}, batchSize = 1000, maxByteSize = 8000000) => {
+        let payloadObj = JSON.parse(payload);
+        if (payloadObj.put || payloadObj.update) {
+            let method = payloadObj.put ? "put" : "update";
+            return new Promise((resolve, reject) => {
+                let data = payloadObj[method];
+                let dataIndex = 0;
+                let erroneousDataCount = 0;
+                let completedDataCount = 0;
+                let totalItemCount = data.length;
+                let lastErrorMessage = '';
+                
+                let postBatch = () => {
+                    let batch = [];
+                    while (data.length && (batch.length < batchSize) && (Utils.memorySizeOf(batch.concat(data[0])) < maxByteSize)) {
+                        batch = batch.concat(data.splice(0, 1));
+                    }
+    
+                    if (batch.length) {
+                        let batchObject = {};
+                        batchObject[method] = batch;
+                        
+                        return new Promise((resolve, reject) => {
+                            let xhr = new XMLHttpRequest();
+                            xhr.onreadystatechange = () => {
+                                if (xhr.readyState !== 4) { 
+                                    return;
+                                }
+                                if (xhr.status === 200 || xhr.status === 202) {
+                                    let result = JSON.parse(xhr.responseText);
+                                    if (result?.error) {
+                                        erroneousDataCount += batch.length;
+                                        lastErrorMessage += result.error.message ? ' Item ' + dataIndex + "-" + (dataIndex + batch.length) + ": " + result.error.message : '';
+                                        dataIndex += batch.length;
+                                        return;
+                                    } else {
+                                        result[method].forEach((i) => {
+                                            dataIndex++;
+                                            if (i?.error || i?.code === ErrorCodes.InvalidInput) {
+                                                erroneousDataCount++;
+                                                lastErrorMessage += ` >Item-${dataIndex}: ${i?.error?.message || i?.message}`;
+                                            }
+                                        });
+                                    }
+                                    resolve(postBatch());
+                                }
+                                else {
+                                    reject(xhr);
+                                }
+                                completedDataCount += batch.length;
+                                let percentComplete = completedDataCount * 100 / totalItemCount;
+                                onProgressChange(percentComplete);
+                            };
+                            xhr.open('POST', url);
+                            this.setStandardHeaders(xhr, token);
+                            xhr.setRequestHeader('Content-Type', 'application/json');
+                            xhr.send(JSON.stringify(batchObject));
+                        });
+                    } else {
+                        let result = {};
+                        if (erroneousDataCount === 0) {
+                            result[method] = [{}];
+                        } else {
+                            result[method] = [{error: {code: ErrorCodes.PartialSuccess, message: "Error in " + erroneousDataCount + "/" + totalItemCount + ` items .  ${lastErrorMessage}`}}];
+                        }
+                        return responseTextFormat(JSON.stringify(result));
+                    }
+                };
+                resolve(postBatch());
+            });
+        } else {
+            return this.createPromiseFromXhr(url, 'POST', payload, token, (responseText) => {return JSON.parse(responseText);});
+        }
     }
 }
 
