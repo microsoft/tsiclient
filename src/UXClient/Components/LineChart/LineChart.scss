@@ -54,6 +54,12 @@
         .tsi-horizontalValueBar {
             stroke: rgba($gray1, .8);
         }
+
+        .tsi-swimLaneLabel{
+            font-weight: 600;
+            font-size:13px;
+            cursor: pointer;
+        }
     }
 
     .tsi-scooterContainer {

@@ -82,10 +82,10 @@
                         if (i % 2 === 0) {
                             // if(!(k%2 && k%3)){  // if check is to create some sparseness in the data
                                 var to = new Date(from.valueOf() + 1000*60*k);
-                                var val = Math.random() + (j !== 4 ? 2 : 0);
-                                var val2 = Math.random();
-                                var val3 = Math.random();
-                                var val4 = Math.random();
+                                var val = Math.random() + (j !== 4 ? 2 : 0) * 100000;
+                                var val2 = Math.random()* 100000;
+                                var val3 = Math.random()* 100000;
+                                var val4 = Math.random()* 100000;
                                 values[to.toISOString()] = {avg: val, x: val2, y: val3, r: val4};
                             // }
                         } else {
@@ -201,7 +201,7 @@
                 }
 
                 var renderLinechart = function () {
-                    lineChart.render(data, {theme: 'light', tooltip: 'true', swimLaneOptions: swimLaneOptions}, chartDataOptions);
+                    lineChart.render(data, {theme: 'light', legend: 'compact', tooltip: 'true', swimLaneOptions: swimLaneOptions}, chartDataOptions);
                 }
 
                 renderLinechart();
@@ -212,8 +212,8 @@
                 }
 
                 function changeLabelAndRender(aggGroup, newLabel){
-                    console.log(`Changing group ${aggGroup} to: ${newLabel}`)
                     swimLaneOptions[aggGroup].label = newLabel;
+                    swimLaneOptions[aggGroup].onClick = () => console.log(`${newLabel} clicked`);
                     renderLinechart();
                 }
 
