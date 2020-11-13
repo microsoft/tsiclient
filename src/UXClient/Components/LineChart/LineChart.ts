@@ -33,6 +33,7 @@ class LineChart extends TemporalXAxisComponent {
     private hasStackedButton: boolean = false;
     private stackedButton: any = null;
     private visibleAggCount: number;
+    private swimLaneLabels: any;
 
     private tooltip: Tooltip;
     private height: number;
@@ -1222,10 +1223,9 @@ class LineChart extends TemporalXAxisComponent {
         heightNonNumeric += fixedEventsHeight;
         
         let heightPerNumeric = (useableHeight - heightNonNumeric) / countNumericLanes;
-
+        
         this.setSwimLaneYExtents(visibleGroups, visibleCDOs, Object.keys(swimLaneSet).filter((lane) => swimLaneSet[lane]).map((stringLane) => Number(stringLane)));
         return this.getSwimlaneOffsets(linechartTopPadding, visibleGroups, visibleCDOs, heightPerNumeric, swimLaneSet);
-
     }
 
     private heightNonNumeric () {
@@ -1284,6 +1284,57 @@ class LineChart extends TemporalXAxisComponent {
             this.aggregateExpressionOptions[i].swimLane = this.originalSwimLanes[i];
         });
         this.chartOptions.swimLaneOptions = this.originalSwimLaneOptions;
+    }
+
+    private createSwimlaneLabels(infoObj){
+        console.log("Creating swimlane labels: ", infoObj);
+
+        // Create swimlane label obj
+        let swimLaneLabels = {};
+
+        // Function to return swimlane label (if present) otherwise null
+        const getSwimlaneLabel = (swimlaneIdx) => {
+            let swimLaneOptions = this.chartOptions?.swimLaneOptions
+            if(swimLaneOptions && swimlaneIdx in swimLaneOptions){
+                if(swimLaneOptions[swimlaneIdx]?.label){
+                    return swimLaneOptions[swimlaneIdx].label;
+                }
+            }
+            return null;
+        }
+
+        // Creates object entry for each swimlane with offset, height, and label
+        infoObj.visibleCDOs.forEach((aggGroup, i) => {
+            if(!(aggGroup.swimLane in swimLaneLabels)){
+                swimLaneLabels[aggGroup.swimLane] = {
+                    offset: infoObj.offsetsAndHeights[i][0],
+                    height: infoObj.offsetsAndHeights[i][1],
+                    label: getSwimlaneLabel(aggGroup.swimLane - 1)
+                }
+            }
+        });
+
+        console.log(swimLaneLabels)
+
+        // Clear prior labels
+        this.swimLaneLabels.selectAll('*').remove();
+
+        // Map over swimLanes and create labels
+        Object.keys(swimLaneLabels).forEach(lane => {
+            let labelData = [swimLaneLabels[lane]];
+            let label = this.swimLaneLabels.selectAll(`swimLaneLabel-${lane}`).data(labelData);
+
+            label
+            .enter()
+            .append("text")
+            .attr("class", `swimLaneLabel-${lane} swimLaneLabel`)
+            .merge(label)
+            .style("text-anchor", "middle")
+            .attr("transform", d => "translate(" + ( -40 ) + " ," + (d.offset + d.height / 2) + ") rotate(-90)")
+            .text(d => d.label);
+
+            label.exit().remove();
+        })
     }
 
     public render (data: any, options: any, aggregateExpressionOptions: any) {
@@ -1435,6 +1486,9 @@ class LineChart extends TemporalXAxisComponent {
                 .attr('y2', 0)
                 .attr('class', 'tsi-horizontalValueBar')
                 .style('display', 'none');        
+
+            this.swimLaneLabels = g.append("g").
+                attr("class", "tsi-swimLaneLabels");
 
             if (!this.tooltip) {
                 this.tooltip = new Tooltip(d3.select(this.renderTarget));                        
@@ -1599,6 +1653,8 @@ class LineChart extends TemporalXAxisComponent {
                     return this.chartComponentData.displayState[cDO.aggKey]["visible"];
                 });
                 let offsetsAndHeights = this.createYOffsets();
+
+                this.createSwimlaneLabels({offsetsAndHeights, visibleCDOs});
 
                 let swimLaneCounts = {};
 
