@@ -19,7 +19,7 @@
                 <option>4</option>
                 <option>5</option>
             </select>
-            <input id="group0Label"></input>
+            <input id="group0Label" value="lane 1"></input>
             <label>Group 0 label</label>
             <br/>
             <span>group 1: </span>
@@ -30,7 +30,7 @@
                 <option>4</option>
                 <option>5</option>
             </select>
-            <input id="group1Label"></input>
+            <input id="group1Label" value="lane 2"></input>
             <label>Group 1 label</label>
             <br/>
             <span>group 2: </span>
@@ -41,7 +41,7 @@
                 <option>4</option>
                 <option>5</option>
             </select>
-            <input id="group2Label"></input>
+            <input id="group2Label" value="lane 3"></input>
             <label>Group 2 label</label>
             <br/>
             <span>group 3: </span>
@@ -52,7 +52,7 @@
                 <option selected>4</option>
                 <option>5</option>
             </select>
-            <input id="group3Label"></input>
+            <input id="group3Label" value="lane 4"></input>
             <label>Group 3 label</label>
             <br/>
             <span>group 4: </span>
@@ -63,7 +63,7 @@
                 <option>4</option>
                 <option selected>5</option>
             </select>
-            <input id="group4Label"></input>
+            <input id="group4Label" value="lane 5"></input>
             <label>Group 4 label</label>
         </div>
         <script>
@@ -193,11 +193,11 @@
                             {dataType: 'numeric', searchSpan: searchSpan, onElementClick: onElementClick, swimLane: 5}]; 
 
                 var swimLaneOptions = {
-                    0: {yAxisType: 'overlap'},
-                    1: {yAxisType: 'shared'},
-                    2: {yAxisType: 'overlap'},
-                    3: {yAxisType: 'stacked'},
-                    4: {yAxisType: 'stacked'}
+                    0: {yAxisType: 'overlap', label: 'lane 1'},
+                    1: {yAxisType: 'shared', label: 'lane 2'},
+                    2: {yAxisType: 'overlap', label: 'lane 3'},
+                    3: {yAxisType: 'stacked', label: 'lane 4'},
+                    4: {yAxisType: 'stacked', label: 'lane 5'}
                 }
 
                 var renderLinechart = function () {
