@@ -1293,14 +1293,13 @@ class LineChart extends TemporalXAxisComponent {
 
         // Creates object entry for each swimlane with offset, height, and label
         visibleCDOs.forEach((aggGroup, i) => {
-            console.log(`Index ${i}: `, aggGroup)
-            let swimLaneIdx = aggGroup.swimLane - 1;
+            let swimLane = aggGroup.swimLane;
             if(!(aggGroup.swimLane in swimLaneLabels)){ // Only add swimlanes once to swimLaneLabels map
                 swimLaneLabels[aggGroup.swimLane] = {
                     offset: offsetsAndHeights[i][0],
                     height: offsetsAndHeights[i][1],
-                    label: this.chartOptions?.swimLaneOptions[swimLaneIdx]?.label,
-                    onClick: this.chartOptions?.swimLaneOptions[swimLaneIdx]?.onClick
+                    label: this.chartOptions?.swimLaneOptions?.[swimLane]?.label,
+                    onClick: this.chartOptions?.swimLaneOptions?.[swimLane]?.onClick
                 }
             } else if(aggGroup.dataType !== DataTypes.Numeric){ // if lane contains non-numeric data and is being added to another lane
                 swimLaneLabels[aggGroup.swimLane].height += offsetsAndHeights[i][1]; // add heights (non-numerics don't share Y axis)
@@ -1324,8 +1323,6 @@ class LineChart extends TemporalXAxisComponent {
                 }
             }
         }
-
-        console.log(swimLaneLabels)
 
         // Map over swimLanes and create labels
         Object.keys(swimLaneLabels).forEach(lane => {
@@ -1375,7 +1372,7 @@ class LineChart extends TemporalXAxisComponent {
         }
 
         // Check if any swimlane labels present & modify left margin if so
-        if(Object.keys(this.originalSwimLaneOptions).map(key => this.originalSwimLaneOptions[key]).reduce((acc, curr) => acc  || curr.label ? true: false, false)){
+        if(this.originalSwimLaneOptions && Object.keys(this.originalSwimLaneOptions).map(key => this.originalSwimLaneOptions[key]).reduce((acc, curr) => acc  || curr.label ? true: false, false)){
             this.chartMargins.left = this.horizontalLabelOffset;
         } else{
             this.chartMargins.left = LINECHARTCHARTMARGINS.left;
