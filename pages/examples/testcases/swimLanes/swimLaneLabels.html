@@ -201,7 +201,7 @@
                 }
 
                 var renderLinechart = function () {
-                    lineChart.render(data, {theme: 'light', legend: 'compact', tooltip: 'true', swimLaneOptions: swimLaneOptions}, chartDataOptions);
+                    lineChart.render(data, {theme: 'light', legend: 'compact', tooltip: 'true', swimLaneOptions }, chartDataOptions);
                 }
 
                 renderLinechart();
@@ -213,7 +213,7 @@
 
                 function changeLabelAndRender(swimLane, newLabel){
                     swimLaneOptions[swimLane].label = newLabel;
-                    swimLaneOptions[swimLane].onClick = () => console.log(`${newLabel} clicked`);
+                    swimLaneOptions[swimLane].onClick = (lane) => console.log(`${lane} clicked`);
                     renderLinechart();
                 }
 

@@ -1299,7 +1299,7 @@ class LineChart extends TemporalXAxisComponent {
                     offset: offsetsAndHeights[i][0],
                     height: offsetsAndHeights[i][1],
                     label: this.chartOptions?.swimLaneOptions?.[swimLane]?.label,
-                    onClick: this.chartOptions?.swimLaneOptions?.[swimLane]?.onClick
+                    onClick: () => this.chartOptions?.swimLaneOptions?.[swimLane]?.onClick?.(swimLane)
                 }
             } else if(aggGroup.dataType !== DataTypes.Numeric){ // if lane contains non-numeric data and is being added to another lane
                 swimLaneLabels[aggGroup.swimLane].height += offsetsAndHeights[i][1]; // add heights (non-numerics don't share Y axis)
