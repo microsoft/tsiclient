@@ -467,7 +467,7 @@ class LineChart extends TemporalXAxisComponent {
     }
 
     public unstickySeries = (aggKey, splitby = null) => {
-        if (this.getDataType(aggKey) !== DataTypes.Numeric) {
+        if (this.getDataType(aggKey) !== DataTypes.Numeric || !this.chartOptions.shouldSticky) {
             return;
         }
         this.chartComponentData.stickiedKey = null;
@@ -478,7 +478,7 @@ class LineChart extends TemporalXAxisComponent {
     }
 
     private stickySeries = (aggregateKey: string, splitBy: string = null) => {
-        if (this.getDataType(aggregateKey) !== DataTypes.Numeric) {
+        if (this.getDataType(aggregateKey) !== DataTypes.Numeric || !this.chartOptions.shouldSticky) {
             return;
         }
         var filteredValues = this.getFilteredAndSticky(this.chartComponentData.allValues);

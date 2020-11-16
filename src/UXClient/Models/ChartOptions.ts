@@ -3,6 +3,7 @@ import { quadtree } from 'd3';
 import Utils from '../Utils';
 import { Strings } from './Strings';
 import { DefaultHierarchyNavigationOptions } from '../Constants/Constants';
+import { InterpolationFunctions } from '../Constants/Enums';
 
 class ChartOptions {
     public aggTopMargin: number; // margin on top of each aggregate line(s)
@@ -69,6 +70,7 @@ class ChartOptions {
     public singleLineXAxisLabel: boolean; // whether x axis time labels are on a single line (else split into two lines)
     public snapBrush: boolean; // whether to snap linechart brush to closest value
     public stacked: boolean; //whether bars in barchart are stacked
+    public shouldSticky: boolean; // whether sticky is triggered in the linechart when stickySeries or unStickySeries is called
     public strings: any; // passed in key value pairs of strings -> strings
     public suppressResizeListener: boolean; // whether a component's resize function is ignored. Applies to components which draw an SVG
     public swimLaneOptions: any;  // mapping of swim lane number to information about that swimlane, including axis type
@@ -92,21 +94,21 @@ class ChartOptions {
     public stringsInstance: Strings = new Strings(); 
 
     private getInterpolationFunction (interpolationName: string) {
-        if (interpolationName == "curveLinear")
+        if (interpolationName == InterpolationFunctions.CurveLinear)
             return d3.curveLinear;
-        if (interpolationName == "curveStep") 
+        if (interpolationName == InterpolationFunctions.CurveStep) 
             return d3.curveStep;
-        if (interpolationName == "curveStepBefore") 
+        if (interpolationName == InterpolationFunctions.CurveStepBefore) 
             return d3.curveStepBefore;
-        if (interpolationName == "curveStepAfter")
+        if (interpolationName == InterpolationFunctions.CurveStepAfter)
             return d3.curveStepAfter;
-        if (interpolationName == "curveBasis") 
+        if (interpolationName == InterpolationFunctions.CurveBasis) 
             return d3.curveBasis;
-        if (interpolationName == "curveCardinal") 
+        if (interpolationName == InterpolationFunctions.CurveCardinal) 
             return d3.curveCardinal;
-        if (interpolationName == "curveMonotoneX") 
+        if (interpolationName == InterpolationFunctions.CurveMonotoneX) 
             return d3.curveMonotoneX;
-        if (interpolationName == "curveCatmullRom") 
+        if (interpolationName == InterpolationFunctions.CurveCatmullRom) 
             return d3.curveCatmullRom;
         // default
         return d3.curveMonotoneX;
@@ -164,7 +166,7 @@ class ChartOptions {
         this.includeTimezones = this.mergeValue(chartOptionsObj, 'includeTimezones', true);
         this.availabilityLeftMargin = this.mergeValue(chartOptionsObj, 'availabilityLeftMargin', 60);
         this.onInstanceClick = this.mergeValue(chartOptionsObj, 'onInstanceClick', () => {return {}});
-        this.interpolationFunction = this.getInterpolationFunction(this.mergeValue(chartOptionsObj, 'interpolationFunction', ''));
+        this.interpolationFunction = this.getInterpolationFunction(this.mergeValue(chartOptionsObj, 'interpolationFunction', InterpolationFunctions.None));
         this.includeEnvelope = this.mergeValue(chartOptionsObj, 'includeEnvelope', false);
         this.canDownload = this.mergeValue(chartOptionsObj, 'canDownload', true);
         this.withContextMenu = this.mergeValue(chartOptionsObj, 'withContextMenu', false);
@@ -197,6 +199,7 @@ class ChartOptions {
         this.labelSeriesWithMarker = this.mergeValue(chartOptionsObj, 'labelSeriesWithMarker', false);
         this.onError = this.mergeValue(chartOptionsObj, 'onError', (titleKey, messageKey, xhr) => {});
         this.timeSeriesIdProperties = Utils.getValueOrDefault(chartOptionsObj, 'timeSeriesIdProperties', []);
+        this.shouldSticky = this.mergeValue(chartOptionsObj, 'shouldSticky', true);
     }
 
     private mergeStrings (strings) {
@@ -294,7 +297,8 @@ class ChartOptions {
             hierarchyOptions: this.hierarchyOptions,
             onError: this.onError,
             labelSeriesWithMarker: this.labelSeriesWithMarker,
-            timeSeriesIdProperties: this.timeSeriesIdProperties
+            timeSeriesIdProperties: this.timeSeriesIdProperties,
+            shouldSticky: this.shouldSticky
         }
     }
 }

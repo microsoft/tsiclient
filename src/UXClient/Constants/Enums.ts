@@ -13,6 +13,18 @@ export enum HierarchiesSort {Name = "Name", CumulativeInstanceCount = "Cumulativ
 export enum MetadataPropertyTypes {Double = "Double", String = "String", DateTime = "DateTime", Long = "Long"}
 export enum ShiftTypes {startAt = "Start at", shifted = "shifted"}
 
+export enum InterpolationFunctions {
+    None = '',
+    CurveLinear = "curveLinear",
+    CurveStep = "curveStep",
+    CurveStepBefore = "curveStepBefore",
+    CurveStepAfter = "curveStepAfter",
+    CurveBasis = "curveBasis",
+    CurveCardinal = "curveCardinal",
+    CurveMonotoneX = "curveMonotoneX",
+    CurveCatmullRom = "curveCatmullRom"
+}
+
 export enum ErrorCodes {
     InvalidInput = 'InvalidInput',
     PartialSuccess = 'PartialSuccess'

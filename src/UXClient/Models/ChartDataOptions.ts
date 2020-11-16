@@ -1,3 +1,4 @@
+import { InterpolationFunctions } from "../Constants/Enums";
 import Utils, {DataTypes, EventElementTypes} from "../Utils";
 
 const DEFAULT_HEIGHT = 40;
@@ -9,7 +10,7 @@ class ChartDataOptions {
     public alias: string;
     public contextMenu: any; // describes menu shown with a split by member on context menu, and actions
     public measureTypes: Array<string>;  // 
-    public interpolationFunction: string = '';
+    public interpolationFunction: string = InterpolationFunctions.None;
     public yExtent: any = null;
     public includeEnvelope: boolean = false;
     public includeDots: boolean = false;
@@ -27,6 +28,8 @@ class ChartDataOptions {
     public positionY: number;
     public swimLane: number;
     public variableAlias: any;
+    public connectPoints: boolean = false;
+    public pointConnectionMeasure: string = '';
     public positionXVariableName: string;
     public positionYVariableName: string;
     public image: string;
@@ -38,7 +41,7 @@ class ChartDataOptions {
         this.color = Utils.getValueOrDefault(optionsObject, 'color');
         this.alias = Utils.getValueOrDefault(optionsObject, 'alias');
         this.contextMenu = Utils.getValueOrDefault(optionsObject, 'contextMenu', []);
-        this.interpolationFunction = Utils.getValueOrDefault(optionsObject, 'interpolationFunction', '');
+        this.interpolationFunction = Utils.getValueOrDefault(optionsObject, 'interpolationFunction', InterpolationFunctions.None);
         this.includeEnvelope = Utils.getValueOrDefault(optionsObject, 'includeEnvelope', false);
         this.includeDots = Utils.getValueOrDefault(optionsObject, 'includeDots', false);
         this.visibilityState = Utils.getValueOrDefault(optionsObject, 'visibilityState');
@@ -55,6 +58,8 @@ class ChartDataOptions {
         this.positionY = Utils.getValueOrDefault(optionsObject, 'positionY', 0);
         this.swimLane = Utils.getValueOrDefault(optionsObject, 'swimLane', null);
         this.variableAlias = Utils.getValueOrDefault(optionsObject, 'variableAlias', null);
+        this.connectPoints = Utils.getValueOrDefault(optionsObject, "connectPoints", false)
+        this.pointConnectionMeasure = Utils.getValueOrDefault(optionsObject, 'pointConnectionMeasure', '')
         this.positionXVariableName = Utils.getValueOrDefault(optionsObject, 'positionXVariableName', null);
         this.positionYVariableName = Utils.getValueOrDefault(optionsObject, 'positionYVariableName', null);
         this.image = Utils.getValueOrDefault(optionsObject, 'image', null);
