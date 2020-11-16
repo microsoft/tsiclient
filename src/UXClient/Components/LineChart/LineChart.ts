@@ -1291,27 +1291,19 @@ class LineChart extends TemporalXAxisComponent {
         // Create swimlane label obj
         let swimLaneLabels = {};
 
-        // Function to return swimlane label (if present) otherwise null
-        const getSwimlaneLabel = (swimlaneIdx) => {
-            let swimLaneOptions = this.chartOptions?.swimLaneOptions
-            if(swimLaneOptions && swimlaneIdx in swimLaneOptions){
-                if(swimLaneOptions[swimlaneIdx]?.label){
-                    return swimLaneOptions[swimlaneIdx].label;
-                }
-            }
-            return null;
-        }
-
         // Creates object entry for each swimlane with offset, height, and label
         visibleCDOs.forEach((aggGroup, i) => {
+            console.log(`Index ${i}: `, aggGroup)
             let swimLaneIdx = aggGroup.swimLane - 1;
-            if(!(aggGroup.swimLane in swimLaneLabels)){
+            if(!(aggGroup.swimLane in swimLaneLabels)){ // Only add swimlanes once to swimLaneLabels map
                 swimLaneLabels[aggGroup.swimLane] = {
                     offset: offsetsAndHeights[i][0],
                     height: offsetsAndHeights[i][1],
                     label: this.chartOptions?.swimLaneOptions[swimLaneIdx]?.label,
                     onClick: this.chartOptions?.swimLaneOptions[swimLaneIdx]?.onClick
                 }
+            } else if(aggGroup.dataType !== DataTypes.Numeric){ // if lane contains non-numeric data and is being added to another lane
+                swimLaneLabels[aggGroup.swimLane].height += offsetsAndHeights[i][1]; // add heights (non-numerics don't share Y axis)
             }
         });
 
@@ -1332,6 +1324,8 @@ class LineChart extends TemporalXAxisComponent {
                 }
             }
         }
+
+        console.log(swimLaneLabels)
 
         // Map over swimLanes and create labels
         Object.keys(swimLaneLabels).forEach(lane => {
@@ -1479,7 +1473,7 @@ class LineChart extends TemporalXAxisComponent {
             }
     
             this.focus = g.append("g")
-                .attr("transform", "translate(-100,-100)")
+                .attr("transform", "translate(-200,-100)")
                 .attr("class", "tsi-focus");
             
             this.focus.append("line")
