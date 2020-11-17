@@ -33,8 +33,9 @@ class LineChart extends TemporalXAxisComponent {
     private hasStackedButton: boolean = false;
     private stackedButton: any = null;
     private visibleAggCount: number;
-    private swimLaneLabels: any;
+    private swimLaneLabelGroup: any;
     private horizontalLabelOffset = LINECHARTCHARTMARGINS.left + 40;
+    private swimLaneLabelHeightPadding = 8;
 
     private tooltip: Tooltip;
     private height: number;
@@ -1289,7 +1290,14 @@ class LineChart extends TemporalXAxisComponent {
 
     private createSwimlaneLabels(offsetsAndHeights, visibleCDOs){
         // Create swimlane label obj
-        let swimLaneLabels = {};
+        let swimLaneLabels: {
+            [key: number]: {
+                offset: number,
+                height: number,
+                label: string | null,
+                onClick: () => any;
+            }
+        } | {} = {};
 
         // Creates object entry for each swimlane with offset, height, and label
         visibleCDOs.forEach((aggGroup, i) => {
@@ -1301,17 +1309,17 @@ class LineChart extends TemporalXAxisComponent {
                     label: this.chartOptions?.swimLaneOptions?.[swimLane]?.label,
                     onClick: () => this.chartOptions?.swimLaneOptions?.[swimLane]?.onClick?.(swimLane)
                 }
-            } else if(aggGroup.dataType !== DataTypes.Numeric){ // if lane contains non-numeric data and is being added to another lane
+            } else if(aggGroup.dataType !== DataTypes.Numeric && aggGroup.swimLane in swimLaneLabels){ // if lane contains non-numeric data and is being added to another lane
                 swimLaneLabels[aggGroup.swimLane].height += offsetsAndHeights[i][1]; // add heights (non-numerics don't share Y axis)
             }
         });
 
         // Clear prior labels
-        this.swimLaneLabels.selectAll('*').remove();
+        this.swimLaneLabelGroup.selectAll('*').remove();
 
         // Function to trim labels to max height
         const truncateLabel = (labelRef: HTMLElement, data) => {
-            const maxHeight = data.height - 8; // 8px padding on actual lane height
+            const maxHeight = data.height - this.swimLaneLabelHeightPadding; // 8px padding on actual lane height
             if(data.label){
                 let labelClientRect = labelRef.getBoundingClientRect();
                 let labelText = labelRef.textContent;
@@ -1327,20 +1335,19 @@ class LineChart extends TemporalXAxisComponent {
         // Map over swimLanes and create labels
         Object.keys(swimLaneLabels).forEach(lane => {
             let labelData = [swimLaneLabels[lane]];
-            let label = this.swimLaneLabels.selectAll(`tsi-swimLaneLabel-${lane}`).data(labelData);
+            let label = this.swimLaneLabelGroup.selectAll(`tsi-swimLaneLabel-${lane}`).data(labelData);
 
-            label
-                .enter()
+            label.enter()
                 .append("text")
                 .attr("class", `tsi-swimLaneLabel-${lane} tsi-swimLaneLabel`)
                 .merge(label)
                 .style("text-anchor", "middle")
-                .attr("transform", d => "translate(" + ( -this.horizontalLabelOffset + 28 ) + " ," + (d.offset + d.height / 2) + ") rotate(-90)")
+                .attr("transform", d => `translate(${( -this.horizontalLabelOffset + 28 )},${(d.offset + d.height / 2)}) rotate(-90)`)
                 .text(d => d.label)
                 .attr("title", d => d.label)
                 .each(function(d){truncateLabel(this, d)})
                 .on("click", d => {
-                    if('onClick' in d && typeof d.onClick === 'function'){
+                    if(d.onClick && typeof d.onClick === 'function'){
                         d.onClick()
                     }
                 })
@@ -1506,7 +1513,7 @@ class LineChart extends TemporalXAxisComponent {
                 .attr('class', 'tsi-horizontalValueBar')
                 .style('display', 'none');        
 
-            this.swimLaneLabels = g.append("g").
+            this.swimLaneLabelGroup = g.append("g").
                 attr("class", "tsi-swimLaneLabels");
 
             if (!this.tooltip) {
