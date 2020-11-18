@@ -446,7 +446,8 @@ class HierarchyNavigation extends Component{
      // do exact search with tsid to retrieve all possible paths until that instance to traverse for expansion
      private doExactSearchWithPossiblePaths = (tsid, hNames) => {
         this.setModeAndRequestParamsForFilter();
-        this.searchString = '"' + tsid.join(" ").replace(":", " ") + '"'; //TODO: null vs string null check for exact search and escape for character : fix from backend will come here!!
+        let escapedTsidString = tsid.join(" ").replaceAll(/[^a-zA-Z\d]/g, "+"); //escaping non alphanumeric characters with + for exact search with quotes
+        this.searchString = `"${escapedTsidString}"`; //TODO: null vs string null check for exact search and escape for character : fix from backend will come here!!
 
         return Promise.all(hNames.map(hName => {
             let payload = hName ? this.requestPayload([hName]) : this.requestPayload(null);
