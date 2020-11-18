@@ -1289,7 +1289,8 @@ class LineChart extends TemporalXAxisComponent {
     }
 
     private createSwimlaneLabels(offsetsAndHeights, visibleCDOs){
-        // Create swimlane label obj
+       
+        // swimLaneLabels object contains data needed to render each lane label
         let swimLaneLabels: {
             [key: number]: {
                 offset: number,
@@ -1299,18 +1300,40 @@ class LineChart extends TemporalXAxisComponent {
             }
         } | {} = {};
 
-        // Creates object entry for each swimlane with offset, height, and label
-        visibleCDOs.forEach((aggGroup, i) => {
+        /* 
+            The logic below constructs swimlane labels. The first aggregate found in each
+            lane is used to position that lanes label. Numeric aggs are prioritized first,
+            as they share a y-Axis, meaning only the first numeric in each lane needs to be
+            considered.  Next, non-numerics are checked, if they are the first agg found in 
+            their lane, their position data is used, otherwise, their height is added to the 
+            current height of the lane. 
+        */
+       
+        const useAggForLaneLabel = (aggGroup) => {
             let swimLane = aggGroup.swimLane;
+            let aggIndex = visibleCDOs.findIndex(el => el.aggKey === aggGroup.aggKey);
+            swimLaneLabels[swimLane] = {
+                offset: offsetsAndHeights[aggIndex][0],
+                height: offsetsAndHeights[aggIndex][1],
+                label: this.chartOptions?.swimLaneOptions?.[swimLane]?.label,
+                onClick: () => this.chartOptions?.swimLaneOptions?.[swimLane]?.onClick?.(swimLane)
+            }
+        }
+
+        // First add numeric dataTypes (share Y-Axis) to label map
+        visibleCDOs.filter(aggGroup => aggGroup.dataType === DataTypes.Numeric).forEach(aggGroup => {
             if(!(aggGroup.swimLane in swimLaneLabels)){ // Only add swimlanes once to swimLaneLabels map
-                swimLaneLabels[aggGroup.swimLane] = {
-                    offset: offsetsAndHeights[i][0],
-                    height: offsetsAndHeights[i][1],
-                    label: this.chartOptions?.swimLaneOptions?.[swimLane]?.label,
-                    onClick: () => this.chartOptions?.swimLaneOptions?.[swimLane]?.onClick?.(swimLane)
-                }
-            } else if(aggGroup.dataType !== DataTypes.Numeric && aggGroup.swimLane in swimLaneLabels){ // if lane contains non-numeric data and is being added to another lane
-                swimLaneLabels[aggGroup.swimLane].height += offsetsAndHeights[i][1]; // add heights (non-numerics don't share Y axis)
+                useAggForLaneLabel(aggGroup);
+            }
+        })
+
+        // Then, map over any non-numeric dataType and increment heights if they're sharing a lane
+        visibleCDOs.filter(aggGroup => aggGroup.dataType !== DataTypes.Numeric).forEach(aggGroup => {
+            let aggIndex = visibleCDOs.findIndex(el => el.aggKey === aggGroup.aggKey);
+            if(!(aggGroup.swimLane in swimLaneLabels)){ // Only add swimlanes once to swimLaneLabels map
+                useAggForLaneLabel(aggGroup);
+            } else{ // if lane contains non-numeric data and is being added to another lane
+                swimLaneLabels[aggGroup.swimLane].height += offsetsAndHeights[aggIndex][1]; // add heights (non-numerics don't share Y axis)
             }
         });
 

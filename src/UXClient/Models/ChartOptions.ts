@@ -5,6 +5,14 @@ import { Strings } from './Strings';
 import { DefaultHierarchyNavigationOptions } from '../Constants/Constants';
 import { InterpolationFunctions } from '../Constants/Enums';
 
+// Interfaces
+interface swimLaneOption {
+    yAxisType: YAxisStates, 
+    label?: string, 
+    onClick?: (lane: number) => any, 
+    collapseEvents?: string
+}
+
 class ChartOptions {
     public aggTopMargin: number; // margin on top of each aggregate line(s)
     public arcWidthRatio: number; // number between 0 and 1 which determines how thic the pie chart arc is
@@ -73,7 +81,7 @@ class ChartOptions {
     public shouldSticky: boolean; // whether sticky is triggered in the linechart when stickySeries or unStickySeries is called
     public strings: any; // passed in key value pairs of strings -> strings
     public suppressResizeListener: boolean; // whether a component's resize function is ignored. Applies to components which draw an SVG
-    public swimLaneOptions: {[key: number]: {yAxisType?: YAxisStates, label?: string, onClick?: (lane: number) => any, collapseEvents?: string}} | null;  // mapping of swim lane number to information about that swimlane, including axis type
+    public swimLaneOptions: {[key: number]: swimLaneOption} | null;  // mapping of swim lane number to information about that swimlane, including axis type
     public theme: string; // theme for styling chart, light or dark
     public timeFrame: any; // from and to to specify range of an event or state series
     public timestamp: any; //For components with a slider, this is the selected timestamp
