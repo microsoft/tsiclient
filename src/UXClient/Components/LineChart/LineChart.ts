@@ -1355,6 +1355,13 @@ class LineChart extends TemporalXAxisComponent {
             }
         }
 
+        const boldYAxisText = (enabled: boolean, lane: string) => {
+            this.svgSelection.select('.svgGroup')
+                .selectAll(`.tsi-swimLaneAxis-${lane}`)
+                .selectAll('text')
+                .classed('boldYAxisText', enabled)
+        }
+
         // Map over swimLanes and create labels
         Object.keys(swimLaneLabels).forEach(lane => {
             let labelData = [swimLaneLabels[lane]];
@@ -1372,6 +1379,12 @@ class LineChart extends TemporalXAxisComponent {
                     if(d.onClick && typeof d.onClick === 'function'){
                         d.onClick()
                     }
+                })
+                .on("mouseover", () => {
+                   boldYAxisText(true, lane);
+                })
+                .on("mouseout", () => {
+                    boldYAxisText(false, lane);
                 })
                 .append("svg:title")
                     .text(d => d.label);

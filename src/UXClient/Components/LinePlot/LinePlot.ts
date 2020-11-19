@@ -115,28 +115,13 @@ class LinePlot extends Plot {
         var yAxis: any = this.aggregateGroup.selectAll(".yAxis")
                         .data([aggKey]);
         var visibleYAxis = (aggVisible && (this.yAxisState.axisType !== YAxisStates.Shared || visibleAggI === 0));
-        
+
         yAxis = yAxis.enter()
             .append("g")
-            .attr("class", `yAxis ${yAxisHasOnClick ? 'clickableYAxis' : ''}`)
+            .attr("class", `yAxis ${yAxisHasOnClick ? `clickableYAxis tsi-swimLaneAxis-${this.chartComponentData.displayState[aggKey].aggregateExpression.swimLane}` : ''}`)
             .merge(yAxis)
             .style("visibility", ((visibleYAxis && !this.chartOptions.yAxisHidden) ? "visible" : "hidden"));
 
-        // If yAxisOnClick present, attach to yAxis
-        if(yAxisHasOnClick){
-            yAxis.on("click", () => {
-                yAxisOnClick();
-            })
-            let label = document.getElementsByClassName(`tsi-swimLaneLabel-${agg.swimLane}`)[0];
-            if(label){
-                yAxis.on("mouseover", () => {
-                    label.classList.add("axisHover");
-                })
-                yAxis.on("mouseout", () => {
-                    label.classList.remove("axisHover");
-                })
-            }
-        }
         if (this.yAxisState.axisType === YAxisStates.Overlap) {
             yAxis.call(d3.axisLeft(aggY).tickFormat(Utils.formatYAxisNumber).tickValues(yExtent))
                 .selectAll("text")
@@ -148,6 +133,25 @@ class LinePlot extends Plot {
                 .ticks(Math.max(2, Math.ceil(this.height/(this.yAxisState.axisType === YAxisStates.Stacked ? this.visibleAggCount : 1)/90))))
                 .selectAll("text").classed("standardYAxisText", true)
         }
+
+        // If yAxisOnClick present, attach to yAxis
+        if(yAxisHasOnClick){
+            yAxis.on("click", () => {
+                yAxisOnClick();
+            })
+            let label = document.getElementsByClassName(`tsi-swimLaneLabel-${agg.swimLane}`)[0];
+            if(label){
+                yAxis.on("mouseover", () => {
+                    label.classList.add("axisHover");
+                    yAxis.selectAll("text").classed("boldYAxisText", true)
+                })
+                yAxis.on("mouseout", () => {
+                    label.classList.remove("axisHover");
+                    yAxis.selectAll("text").classed("boldYAxisText", false)
+                })
+            }
+        }
+
         yAxis.exit().remove();
         
         var guideLinesData = {
