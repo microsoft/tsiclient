@@ -1367,13 +1367,14 @@ class LineChart extends TemporalXAxisComponent {
                 .style("text-anchor", "middle")
                 .attr("transform", d => `translate(${( -this.horizontalLabelOffset + 28 )},${(d.offset + d.height / 2)}) rotate(-90)`)
                 .text(d => d.label)
-                .attr("title", d => d.label)
                 .each(function(d){truncateLabel(this, d)})
                 .on("click", d => {
                     if(d.onClick && typeof d.onClick === 'function'){
                         d.onClick()
                     }
                 })
+                .append("svg:title")
+                    .text(d => d.label);
 
             label.exit().remove();
         })
@@ -1771,10 +1772,15 @@ class LineChart extends TemporalXAxisComponent {
 
                             let axisState = new AxisState(self.getAggAxisType(agg), yExtent, positionInGroup);
 
+                            let yAxisOnClick = null;
+                            if(typeof self.chartOptions?.swimLaneOptions?.[swimLane]?.onClick === 'function'){
+                                yAxisOnClick = () => self.chartOptions.swimLaneOptions[swimLane].onClick?.(swimLane);
+                            }
+
                             self.plotComponents[aggKey].render(self.chartOptions, visibleNumericI, agg, true, d3.select(this), self.chartComponentData, axisState, 
                                 self.chartHeight, self.visibleAggCount, self.colorMap, self.previousAggregateData, 
                                 self.x, self.areaPath, self.strokeOpacity, self.y, self.yMap, defs, visibleCDOs[i], self.previousIncludeDots, offsetsAndHeights[i], 
-                                g, mouseoverFunction, mouseoutFunction);
+                                g, mouseoverFunction, mouseoutFunction, yAxisOnClick);
                             
                             //increment index of visible numerics if appropriate
                             visibleNumericI += (visibleCDOs[i].dataType === DataTypes.Numeric ? 1 : 0);

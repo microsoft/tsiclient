@@ -58,7 +58,13 @@
         .tsi-swimLaneLabel{
             font-weight: 600;
             font-size:13px;
+            opacity: .9;
             cursor: pointer;
+            &:hover, &.axisHover{
+                transition: all .2s ease-in-out;
+                font-size: 15px;
+                opacity: 1;
+            }
         }
     }
 

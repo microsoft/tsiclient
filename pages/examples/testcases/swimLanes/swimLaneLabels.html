@@ -193,11 +193,11 @@
                             {dataType: 'numeric', searchSpan: searchSpan, onElementClick: onElementClick, swimLane: 5}]; 
 
                 var swimLaneOptions = {
-                    1: {yAxisType: 'overlap', label: 'lane 1'},
-                    2: {yAxisType: 'shared', label: 'lane 2'},
-                    3: {yAxisType: 'overlap', label: 'lane 3'},
-                    4: {yAxisType: 'stacked', label: 'lane 4'},
-                    5: {yAxisType: 'stacked', label: 'lane 5'}
+                    1: {yAxisType: 'shared'},
+                    2: {yAxisType: 'overlap'},
+                    3: {yAxisType: 'shared'},
+                    4: {yAxisType: 'overlap'},
+                    5: {yAxisType: 'shared'}
                 }
 
                 var renderLinechart = function () {
@@ -216,6 +216,8 @@
                     swimLaneOptions[swimLane].onClick = (lane) => console.log(`${lane} clicked`);
                     renderLinechart();
                 }
+
+                Object.keys(swimLaneOptions).forEach((key) => changeLabelAndRender(key, `lane ${key}`))
 
                 // Swimlane change listeners
                 document.getElementById(`group0Select`).onchange = function(evt) { changeSwimLaneAndRender(0, Number(evt.target.value))};

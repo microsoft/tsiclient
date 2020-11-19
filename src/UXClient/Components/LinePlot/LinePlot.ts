@@ -48,7 +48,7 @@ class LinePlot extends Plot {
    // returns the next visibleAggI
     public render (chartOptions, visibleAggI, agg, aggVisible: boolean, aggregateGroup, chartComponentData, yAxisState: AxisState,  
         chartHeight, visibleAggCount, colorMap, previousAggregateData, x, areaPath, strokeOpacity, y, yMap, defs, chartDataOptions,
-        previousIncludeDots, yTopAndHeight, svgSelection, categoricalMouseover, categoricalMouseout) {
+        previousIncludeDots, yTopAndHeight, svgSelection, categoricalMouseover, categoricalMouseout, yAxisOnClick) {
         this.previousIncludeDots = previousIncludeDots;
         this.defs = defs;
         this.chartOptions = chartOptions;
@@ -59,6 +59,7 @@ class LinePlot extends Plot {
         this.y = y;
         let aggKey = agg.aggKey;
         this.aggregateGroup = aggregateGroup;
+        const yAxisHasOnClick = yAxisOnClick && typeof yAxisOnClick === "function";
 
         visibleAggI = yAxisState.positionInGroup;
 
@@ -117,9 +118,25 @@ class LinePlot extends Plot {
         
         yAxis = yAxis.enter()
             .append("g")
-            .attr("class", "yAxis")
+            .attr("class", `yAxis ${yAxisHasOnClick ? 'clickableYAxis' : ''}`)
             .merge(yAxis)
             .style("visibility", ((visibleYAxis && !this.chartOptions.yAxisHidden) ? "visible" : "hidden"));
+
+        // If yAxisOnClick present, attach to yAxis
+        if(yAxisHasOnClick){
+            yAxis.on("click", () => {
+                yAxisOnClick();
+            })
+            let label = document.getElementsByClassName(`tsi-swimLaneLabel-${agg.swimLane}`)[0];
+            if(label){
+                yAxis.on("mouseover", () => {
+                    label.classList.add("axisHover");
+                })
+                yAxis.on("mouseout", () => {
+                    label.classList.remove("axisHover");
+                })
+            }
+        }
         if (this.yAxisState.axisType === YAxisStates.Overlap) {
             yAxis.call(d3.axisLeft(aggY).tickFormat(Utils.formatYAxisNumber).tickValues(yExtent))
                 .selectAll("text")
