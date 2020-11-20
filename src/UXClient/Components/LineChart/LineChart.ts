@@ -1418,7 +1418,7 @@ class LineChart extends TemporalXAxisComponent {
         // Check if any swimlane labels present & modify left margin if so
         if(this.originalSwimLaneOptions && Object.keys(this.originalSwimLaneOptions).map(key => this.originalSwimLaneOptions[key]).reduce((acc, curr) => acc  || curr.label ? true: false, false)){
             this.chartMargins.left = this.horizontalLabelOffset;
-        } else{
+        } else if (this.chartMargins.left === this.horizontalLabelOffset){
             this.chartMargins.left = LINECHARTCHARTMARGINS.left;
         }
 
