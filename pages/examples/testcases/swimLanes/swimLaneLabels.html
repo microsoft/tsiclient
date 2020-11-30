@@ -54,6 +54,8 @@
             </select>
             <input id="group3Label" value="lane 4"></input>
             <label>Lane 4 label</label>
+            Collapse Events
+            <input type="checkbox" id="group3Collapse" unchecked>
             <br/>
             <span>group 4: </span>
             <select id='group4Select'>
@@ -110,7 +112,7 @@
                 var lines = {};
                 var events = {};
                 data.push({[`Factory3`]: events});
-                data.push({[`Factory 4`]: lines})
+                data.push({[`Factory 4`]: lines});
                 for(var j = 0; j < 1; j++){
                         var values = {};
                         lines[`Station${j}`] = values;
@@ -150,6 +152,7 @@
                             to = toLocal;
                     }
                 }
+                data.push({[`Factory5`]: events});
 
                 let searchSpan = {
                     from: from.toISOString(),
@@ -189,14 +192,15 @@
                 var chartDataOptions = [{dataType: 'numeric', searchSpan: searchSpan, swimLane: 1}, 
                             {dataType: 'numeric', searchSpan: searchSpan, swimLane: 2}, 
                             {dataType: 'categorical', valueMapping: valueMapping, height: 50, searchSpan: searchSpan, onElementClick: onElementClick, swimLane: 3},
-                            {dataType: 'events', valueMapping: eventValueMapping, height: 30, eventElementType: 'teardrop', onElementClick: onElementClick, swimLane: 4},
-                            {dataType: 'numeric', searchSpan: searchSpan, onElementClick: onElementClick, swimLane: 5}]; 
+                            {dataType: 'events', valueMapping: eventValueMapping, height: 20, eventElementType: 'teardrop', onElementClick: onElementClick, swimLane: 4},
+                            {dataType: 'numeric', searchSpan: searchSpan, onElementClick: onElementClick, swimLane: 5},
+                            {dataType: 'events', valueMapping: eventValueMapping, height: 40, eventElementType: 'diamond', onElementClick: onElementClick, swimLane: 4}]
 
                 var swimLaneOptions = {
                     1: {yAxisType: 'shared'},
                     2: {yAxisType: 'overlap'},
                     3: {yAxisType: 'shared'},
-                    4: {yAxisType: 'overlap'},
+                    4: {yAxisType: 'overlap', collapseEvents: false},
                     5: {yAxisType: 'shared'}
                 }
 
@@ -217,6 +221,11 @@
                     renderLinechart();
                 }
 
+                function changeEventsCollapse(swimLane){
+                    swimLaneOptions[swimLane].collapseEvents = !swimLaneOptions[swimLane].collapseEvents;
+                    renderLinechart();
+                }
+
                 Object.keys(swimLaneOptions).forEach((key) => changeLabelAndRender(key, `lane ${key}`))
 
                 // Swimlane change listeners
@@ -232,6 +241,9 @@
                 document.getElementById(`group2Label`).onchange = function(evt) { changeLabelAndRender(3,evt.target.value)};
                 document.getElementById(`group3Label`).onchange = function(evt) { changeLabelAndRender(4,evt.target.value)};
                 document.getElementById(`group4Label`).onchange = function(evt) { changeLabelAndRender(5,evt.target.value)};
+
+                // Collapse listener
+                document.getElementById(`group3Collapse`).onchange = function(evt) { changeEventsCollapse(4)};
             };
         </script>
     </body>
