@@ -424,7 +424,7 @@ class ServerClient {
         return setTimeout(method, retryDelay);
     }
 
-    private createBatchPostPromiseFromXhr = (url, payload, token, responseTextFormat, onProgressChange = (percentComplete) => {}, batchSize = 2, maxByteSize = 8000000) => {
+    private createBatchPostPromiseFromXhr = (url, payload, token, responseTextFormat, onProgressChange = (percentComplete) => {}, batchSize = 1000, maxByteSize = 8000000) => {
         let payloadObj = JSON.parse(payload);
         if (payloadObj.put || payloadObj.update) {
             let method = payloadObj.put ? "put" : "update";
