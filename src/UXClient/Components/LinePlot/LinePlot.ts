@@ -118,7 +118,7 @@ class LinePlot extends Plot {
 
         yAxis = yAxis.enter()
             .append("g")
-            .attr("class", `yAxis ${yAxisHasOnClick ? `clickableYAxis tsi-swimLaneAxis-${this.chartComponentData.displayState[aggKey].aggregateExpression.swimLane}` : ''}`)
+            .attr("class", `yAxis ${yAxisHasOnClick ? `tsi-clickableYAxis tsi-swimLaneAxis-${this.chartComponentData.displayState[aggKey].aggregateExpression.swimLane}` : ''}`)
             .merge(yAxis)
             .style("visibility", ((visibleYAxis && !this.chartOptions.yAxisHidden) ? "visible" : "hidden"));
 

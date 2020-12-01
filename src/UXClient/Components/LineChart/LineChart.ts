@@ -1289,7 +1289,7 @@ class LineChart extends TemporalXAxisComponent {
     }
 
     private createSwimlaneLabels(offsetsAndHeights, visibleCDOs){
-       
+
         // swimLaneLabels object contains data needed to render each lane label
         let swimLaneLabels: {
             [key: number]: {
@@ -1333,7 +1333,9 @@ class LineChart extends TemporalXAxisComponent {
             if(!(aggGroup.swimLane in swimLaneLabels)){ // Only add swimlanes once to swimLaneLabels map
                 useAggForLaneLabel(aggGroup);
             } else{ // if lane contains non-numeric data and is being added to another lane
-                swimLaneLabels[aggGroup.swimLane].height += offsetsAndHeights[aggIndex][1]; // add heights (non-numerics don't share Y axis)
+                if(!this.chartOptions?.swimLaneOptions?.[aggGroup.swimLane]?.collapseEvents){ // Only increment event heights if collapseEvents === false
+                    swimLaneLabels[aggGroup.swimLane].height += offsetsAndHeights[aggIndex][1]; // add heights (non-numerics don't share Y axis)
+                }
             }
         });
 
@@ -1413,13 +1415,6 @@ class LineChart extends TemporalXAxisComponent {
         
         if (this.chartOptions.hideChartControlPanel) {
             this.chartMargins.top += -28;
-        }
-
-        // Check if any swimlane labels present & modify left margin if so
-        if(this.originalSwimLaneOptions && Object.keys(this.originalSwimLaneOptions).map(key => this.originalSwimLaneOptions[key]).reduce((acc, curr) => acc  || curr.label ? true: false, false)){
-            this.chartMargins.left = this.horizontalLabelOffset;
-        } else if (this.chartMargins.left === this.horizontalLabelOffset){
-            this.chartMargins.left = LINECHARTCHARTMARGINS.left;
         }
 
         if (!this.chartOptions.brushRangeVisible && this.targetElement) {
@@ -1564,6 +1559,22 @@ class LineChart extends TemporalXAxisComponent {
                 this.horizontalValueBox.style("visibility", (this.chartOptions.focusHidden) ? "hidden" : "visible");
                 if (this.chartOptions.xAxisHidden && this.chartOptions.focusHidden) {
                     this.chartMargins.bottom = 5;
+                }
+
+                // Check if any swimlane labels present & modify left margin if so
+                let isLabelVisible = false;
+                this.aggregateExpressionOptions.filter((aggExpOpt) => {
+                    return this.chartComponentData.displayState[aggExpOpt.aggKey]["visible"];
+                }).forEach(visibleAgg => {
+                    if(this.originalSwimLaneOptions[visibleAgg.swimLane]?.label){
+                        isLabelVisible = true;
+                    }
+                });
+
+                if(isLabelVisible){
+                    this.chartMargins.left = this.horizontalLabelOffset;
+                } else if(this.chartMargins.left === this.horizontalLabelOffset){
+                    this.chartMargins.left = LINECHARTCHARTMARGINS.left;
                 }
 
                 this.width = Math.max((<any>d3.select(this.renderTarget).node()).clientWidth, this.MINWIDTH);
