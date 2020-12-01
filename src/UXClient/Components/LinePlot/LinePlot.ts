@@ -142,12 +142,12 @@ class LinePlot extends Plot {
             let label = document.getElementsByClassName(`tsi-swimLaneLabel-${agg.swimLane}`)[0];
             if(label){
                 yAxis.on("mouseover", () => {
-                    label.classList.add("axisHover");
-                    yAxis.selectAll("text").classed("boldYAxisText", true)
+                    label.classList.add("tsi-axisHover");
+                    yAxis.selectAll("text").classed("tsi-boldYAxisText", true)
                 })
                 yAxis.on("mouseout", () => {
-                    label.classList.remove("axisHover");
-                    yAxis.selectAll("text").classed("boldYAxisText", false)
+                    label.classList.remove("tsi-axisHover");
+                    yAxis.selectAll("text").classed("tsi-boldYAxisText", false)
                 })
             }
         }

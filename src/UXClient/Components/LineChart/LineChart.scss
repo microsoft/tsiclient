@@ -44,7 +44,7 @@
             fill: $gray1 !important;
         }
 
-        .boldYAxisText{
+        .tsi-boldYAxisText{
             font-weight: bolder !important;
         }
 
@@ -62,9 +62,14 @@
         .tsi-swimLaneLabel{
             font-weight: 500;
             font-size:13px;
-            cursor: pointer;
-            &:hover, &.axisHover{
+            &.tsi-axisHover{
                 font-weight: bolder;
+            }
+            &.tsi-boldOnHover{
+                cursor: pointer;
+                &:hover{
+                    font-weight: bolder;
+                }
             }
         }
     }

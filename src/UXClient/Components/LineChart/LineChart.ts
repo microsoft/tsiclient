@@ -15,6 +15,7 @@ import { CategoricalPlot } from '../CategoricalPlot/CategoricalPlot';
 import { EventsPlot } from '../EventsPlot/EventsPlot';
 import { AxisState } from '../../Models/AxisState';
 import { Marker } from '../Marker/Marker';
+import { swimlaneLabelConstants} from '../../Constants/Constants'
 
 class LineChart extends TemporalXAxisComponent {
     private targetElement: any;
@@ -34,8 +35,7 @@ class LineChart extends TemporalXAxisComponent {
     private stackedButton: any = null;
     private visibleAggCount: number;
     private swimLaneLabelGroup: any;
-    private horizontalLabelOffset = LINECHARTCHARTMARGINS.left + 40;
-    private swimLaneLabelHeightPadding = 8;
+    private horizontalLabelOffset = LINECHARTCHARTMARGINS.left + swimlaneLabelConstants.leftMarginOffset;
 
     private tooltip: Tooltip;
     private height: number;
@@ -1312,11 +1312,15 @@ class LineChart extends TemporalXAxisComponent {
         const useAggForLaneLabel = (aggGroup) => {
             let swimLane = aggGroup.swimLane;
             let aggIndex = visibleCDOs.findIndex(el => el.aggKey === aggGroup.aggKey);
+            let onClick = null;
+            if(typeof this.chartOptions?.swimLaneOptions?.[swimLane]?.onClick === 'function'){
+                onClick = () => this.chartOptions?.swimLaneOptions?.[swimLane]?.onClick?.(swimLane)
+            }
             swimLaneLabels[swimLane] = {
                 offset: offsetsAndHeights[aggIndex][0],
                 height: offsetsAndHeights[aggIndex][1],
                 label: this.chartOptions?.swimLaneOptions?.[swimLane]?.label,
-                onClick: () => this.chartOptions?.swimLaneOptions?.[swimLane]?.onClick?.(swimLane)
+                onClick
             }
         }
 
@@ -1344,7 +1348,7 @@ class LineChart extends TemporalXAxisComponent {
 
         // Function to trim labels to max height
         const truncateLabel = (labelRef: HTMLElement, data) => {
-            const maxHeight = data.height - this.swimLaneLabelHeightPadding; // 8px padding on actual lane height
+            const maxHeight = data.height - swimlaneLabelConstants.swimLaneLabelHeightPadding; // padding on actual lane height
             if(data.label){
                 let labelClientRect = labelRef.getBoundingClientRect();
                 let labelText = labelRef.textContent;
@@ -1361,9 +1365,11 @@ class LineChart extends TemporalXAxisComponent {
             this.svgSelection.select('.svgGroup')
                 .selectAll(`.tsi-swimLaneAxis-${lane}`)
                 .selectAll('text')
-                .classed('boldYAxisText', enabled)
+                .classed('tsi-boldYAxisText', enabled)
         }
 
+        const onClickPresentAndValid = (dp) => dp.onClick && typeof dp.onClick === 'function';
+        
         // Map over swimLanes and create labels
         Object.keys(swimLaneLabels).forEach(lane => {
             let labelData = [swimLaneLabels[lane]];
@@ -1371,19 +1377,21 @@ class LineChart extends TemporalXAxisComponent {
 
             label.enter()
                 .append("text")
-                .attr("class", `tsi-swimLaneLabel-${lane} tsi-swimLaneLabel`)
+                .attr("class", (d) => `tsi-swimLaneLabel-${lane} tsi-swimLaneLabel ${onClickPresentAndValid(d) ? 'tsi-boldOnHover' : ''}`)
                 .merge(label)
                 .style("text-anchor", "middle")
-                .attr("transform", d => `translate(${( -this.horizontalLabelOffset + 28 )},${(d.offset + d.height / 2)}) rotate(-90)`)
+                .attr("transform", d => `translate(${( -this.horizontalLabelOffset + swimlaneLabelConstants.labelLeftPadding )},${(d.offset + d.height / 2)}) rotate(-90)`)
                 .text(d => d.label)
                 .each(function(d){truncateLabel(this, d)})
                 .on("click", d => {
-                    if(d.onClick && typeof d.onClick === 'function'){
+                    if(onClickPresentAndValid(d)){
                         d.onClick()
                     }
                 })
-                .on("mouseover", () => {
-                   boldYAxisText(true, lane);
+                .on("mouseover", (d) => {
+                    if(onClickPresentAndValid(d)){
+                        boldYAxisText(true, lane);
+                    }
                 })
                 .on("mouseout", () => {
                     boldYAxisText(false, lane);
