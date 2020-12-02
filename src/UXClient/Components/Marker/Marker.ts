@@ -443,7 +443,7 @@ class Marker extends Component {
                 let tooltipHeight = MARKERVALUENUMERICHEIGHT;
                 tooltip.draw(d, self.chartComponentData, 0, MARKERVALUENUMERICHEIGHT/2, {right:0, left:0, top:0, bottom:0}, (tooltipTextElement) => {
                     self.tooltipFormat(d, tooltipTextElement, null, null);
-                }, null, 0, 0, self.colorMap[d.aggregateKey + "_" + d.splitBy]);
+                }, null, 0, 0, self.colorMap[d.aggregateKey + "_" + d.splitBy], false);
 
                 let markerValueCaret = d3.select(this).selectAll('.tsi-markerValueCaret')
                     .data([d]);

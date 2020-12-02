@@ -74,7 +74,7 @@ class Tooltip extends Component {
         
         // Element width is an optional parameter which ensures that the tooltip doesn't interfere with the element
         // when positioning to the right
-        this.draw = (d: any, chartComponentData: ChartComponentData, xPos, yPos, chartMargins, addText, elementWidth: number = null, xOffset = 20, yOffset = 20, borderColor: string = null) => {
+        this.draw = (d: any, chartComponentData: ChartComponentData, xPos, yPos, chartMargins, addText, elementWidth: number = null, xOffset = 20, yOffset = 20, borderColor: string = null, shouldYPosBound: boolean = true) => {
             this.tooltipDiv.style("display", "block"); 
             this.tooltipDivInner.text(null);
 
@@ -94,11 +94,11 @@ class Tooltip extends Component {
             translateX = Math.max(0 - xPos, translateX);
 
             let translateY =  0;
-           
+            
             if(this.isTopOffset(tooltipHeight, yPos, chartMargins)){ // Place tooltip @ bottom of point
                 translateY = yOffset;
             } else{
-                if(Math.round(yPos) - yOffset + topOffset - Math.round(tooltipHeight) <= 0){ // Upper bound check to keep tooltip within chart
+                if(shouldYPosBound && Math.round(yPos) - yOffset + topOffset - Math.round(tooltipHeight) <= 0){ // Upper bound check to keep tooltip within chart
                     translateY = -(Math.round(yPos) + topOffset);
                 }else{
                     translateY = (-Math.round(tooltipHeight) - yOffset); // Place tooltip @ top of point
