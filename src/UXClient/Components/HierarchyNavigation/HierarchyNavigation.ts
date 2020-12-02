@@ -446,7 +446,7 @@ class HierarchyNavigation extends Component{
      // do exact search with tsid to retrieve all possible paths until that instance to traverse for expansion
      private doExactSearchWithPossiblePaths = (tsid, hNames) => {
         this.setModeAndRequestParamsForFilter();
-        let escapedTsidString = tsid.join(" ").replaceAll(/[^a-zA-Z\d]/g, "+"); //escaping non alphanumeric characters with + for exact search with quotes
+        let escapedTsidString = tsid.join(" ").replaceAll(/["!\(\)\^\[\{:\]\}~/ @#\$%\&\*;'\+=._-]/g, '+'); //escaping non alphanumeric characters with + for exact search with quotes
         this.searchString = `"${escapedTsidString}"`; //TODO: null vs string null check for exact search and escape for character : fix from backend will come here!!
 
         return Promise.all(hNames.map(hName => {
@@ -535,7 +535,7 @@ class HierarchyNavigation extends Component{
 
         // locate the instance
         ulToLook = lastHierarchyNodeParent.getElementsByTagName("ul")[0];
-        nameSpan = Array.from((ulToLook as HTMLElement).getElementsByClassName("tsi-name")).find(e => (e as HTMLElement).innerText === this.instanceNodeStringToDisplay(instance));
+        nameSpan = Array.from((ulToLook as HTMLElement).getElementsByClassName("tsi-name")).find(e => (e as HTMLElement).innerText === this.instanceNodeString(instance));
         if (!nameSpan) {//if the instance node we are looking is not there after expansion, add it manually to prevent possible show more calls and dom insertions
             let instanceNode = new InstanceNode(instance.timeSeriesId, instance.name, this.envTypes[instance.typeId], instance.hierarchyIds, instance.highlights, isHierarchySelected || hierarchyNamesFromParam ? path.length - 1 : path.length);
             let li = d3.create("li").classed('tsi-leaf', true).attr("role", "none")
@@ -576,6 +576,7 @@ class HierarchyNavigation extends Component{
             let response;
             response = await this.getInstance(timeSeriesID);
             instance = response['get'][0]['instance'];
+            let instanceFieldValues = instance.instanceFields ? Object.values(instance.instanceFields) : [];
             
             if (instance) {
                 try {
@@ -591,14 +592,18 @@ class HierarchyNavigation extends Component{
                         } else { // under defined hierarchies
                             if (r.hierarchyNodes?.hits?.length) { // if the instance is under sub nodes in the hierarchy
                                 r.hierarchyNodes.hits.forEach(h => {
-                                    let path: Array<string> = [hNames[idx]];
                                     let currentHit = h;
-                                    path.push(currentHit.name);
-                                    while (currentHit.hierarchyNodes) {
-                                        currentHit = currentHit.hierarchyNodes.hits[0];
+                                    if(instanceFieldValues.indexOf(currentHit.name) !== -1) {
+                                        let path: Array<string> = [hNames[idx]];
                                         path.push(currentHit.name);
+                                        while (currentHit.hierarchyNodes) {
+                                            currentHit = currentHit.hierarchyNodes.hits[0];
+                                            if(instanceFieldValues?.indexOf(currentHit.name) !== -1) {
+                                                path.push(currentHit.name);
+                                            }
+                                        }
+                                        paths.push(path);
                                     }
-                                    paths.push(path);
                                 });
                             } else if (r.instances?.hitCount) { // if it is direct instance under the defined the hierarchy
                                 let path: Array<string> = [hNames[idx]];
@@ -678,11 +683,12 @@ class HierarchyNavigation extends Component{
 
         Object.keys(data).forEach(el => {
             let li, newListElem;
+            let nodeNameToCheckIfExists = data[el] instanceof InstanceNode && data[el].name !== this.getString("Show More Instances") ? this.instanceNodeString(data[el]) : el;
             if (locInTarget) {
-                let nodeNameToCheckIfExists = data[el] instanceof InstanceNode && data[el].name !== this.getString("Show More Instances") ? this.instanceNodeStringToDisplay(data[el]) : el;
                 if (target.selectAll(".tsi-name").nodes().find(e => e.innerText === nodeNameToCheckIfExists)) {return;}
                 li = target.insert('li', '.tsi-target-loc').classed('tsi-leaf', data[el].isLeaf);
             } else {
+                if (list.selectAll(".tsi-name").nodes().find(e => e.innerText === nodeNameToCheckIfExists)) {return;}
                 li = list.append('li').classed('tsi-leaf', data[el].isLeaf);
             }
             li.attr("role", "none");
@@ -1201,6 +1207,10 @@ class HierarchyNavigation extends Component{
     private instanceNodeStringToDisplay = (instance) => {
         return instance.highlights?.name || Utils.getHighlightedTimeSeriesIdToDisplay(instance)
                 || instance.name || Utils.getTimeSeriesIdToDisplay(instance, this.getString('Empty'));
+    }
+
+    private instanceNodeString = (instance) => {
+        return instance.name || Utils.getTimeSeriesIdString(instance);
     }
 
     private clearAndHideFilterPath = () => {
