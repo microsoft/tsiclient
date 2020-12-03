@@ -48,7 +48,7 @@ class LinePlot extends Plot {
    // returns the next visibleAggI
     public render (chartOptions, visibleAggI, agg, aggVisible: boolean, aggregateGroup, chartComponentData, yAxisState: AxisState,  
         chartHeight, visibleAggCount, colorMap, previousAggregateData, x, areaPath, strokeOpacity, y, yMap, defs, chartDataOptions,
-        previousIncludeDots, yTopAndHeight, svgSelection, categoricalMouseover, categoricalMouseout) {
+        previousIncludeDots, yTopAndHeight, svgSelection, categoricalMouseover, categoricalMouseout, yAxisOnClick) {
         this.previousIncludeDots = previousIncludeDots;
         this.defs = defs;
         this.chartOptions = chartOptions;
@@ -59,6 +59,7 @@ class LinePlot extends Plot {
         this.y = y;
         let aggKey = agg.aggKey;
         this.aggregateGroup = aggregateGroup;
+        const yAxisHasOnClick = yAxisOnClick && typeof yAxisOnClick === "function";
 
         visibleAggI = yAxisState.positionInGroup;
 
@@ -114,12 +115,13 @@ class LinePlot extends Plot {
         var yAxis: any = this.aggregateGroup.selectAll(".yAxis")
                         .data([aggKey]);
         var visibleYAxis = (aggVisible && (this.yAxisState.axisType !== YAxisStates.Shared || visibleAggI === 0));
-        
+
         yAxis = yAxis.enter()
             .append("g")
-            .attr("class", "yAxis")
+            .attr("class", `yAxis ${yAxisHasOnClick ? `tsi-clickableYAxis tsi-swimLaneAxis-${this.chartComponentData.displayState[aggKey].aggregateExpression.swimLane}` : ''}`)
             .merge(yAxis)
             .style("visibility", ((visibleYAxis && !this.chartOptions.yAxisHidden) ? "visible" : "hidden"));
+
         if (this.yAxisState.axisType === YAxisStates.Overlap) {
             yAxis.call(d3.axisLeft(aggY).tickFormat(Utils.formatYAxisNumber).tickValues(yExtent))
                 .selectAll("text")
@@ -131,6 +133,25 @@ class LinePlot extends Plot {
                 .ticks(Math.max(2, Math.ceil(this.height/(this.yAxisState.axisType === YAxisStates.Stacked ? this.visibleAggCount : 1)/90))))
                 .selectAll("text").classed("standardYAxisText", true)
         }
+
+        // If yAxisOnClick present, attach to yAxis
+        if(yAxisHasOnClick){
+            yAxis.on("click", () => {
+                yAxisOnClick();
+            })
+            let label = document.getElementsByClassName(`tsi-swimLaneLabel-${agg.swimLane}`)[0];
+            if(label){
+                yAxis.on("mouseover", () => {
+                    label.classList.add("tsi-axisHover");
+                    yAxis.selectAll("text").classed("tsi-boldYAxisText", true)
+                })
+                yAxis.on("mouseout", () => {
+                    label.classList.remove("tsi-axisHover");
+                    yAxis.selectAll("text").classed("tsi-boldYAxisText", false)
+                })
+            }
+        }
+
         yAxis.exit().remove();
         
         var guideLinesData = {

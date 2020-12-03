@@ -17,4 +17,10 @@ export const DefaultHierarchyContextMenuOptions = {
 
 export const nullTsidDisplayString = "null";
 
+export const swimlaneLabelConstants = {
+    leftMarginOffset: 40,
+    swimLaneLabelHeightPadding: 8,
+    labelLeftPadding: 28
+}
+
 export const CharactersToEscapeForExactSearchInstance = ['"', '`', '\'', '!', '(', ')', '^', '[', '{', ':', ']', '}', '~', '/', '\\', '@', '#', '$', '%', '&', '*', ';', '=', '.', '_', '-', '<', '>', ',', '?'];

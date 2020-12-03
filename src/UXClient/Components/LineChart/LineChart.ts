@@ -15,6 +15,7 @@ import { CategoricalPlot } from '../CategoricalPlot/CategoricalPlot';
 import { EventsPlot } from '../EventsPlot/EventsPlot';
 import { AxisState } from '../../Models/AxisState';
 import { Marker } from '../Marker/Marker';
+import { swimlaneLabelConstants} from '../../Constants/Constants'
 
 class LineChart extends TemporalXAxisComponent {
     private targetElement: any;
@@ -33,6 +34,8 @@ class LineChart extends TemporalXAxisComponent {
     private hasStackedButton: boolean = false;
     private stackedButton: any = null;
     private visibleAggCount: number;
+    private swimLaneLabelGroup: any;
+    private horizontalLabelOffset = LINECHARTCHARTMARGINS.left + swimlaneLabelConstants.leftMarginOffset;
 
     private tooltip: Tooltip;
     private height: number;
@@ -1222,10 +1225,9 @@ class LineChart extends TemporalXAxisComponent {
         heightNonNumeric += fixedEventsHeight;
         
         let heightPerNumeric = (useableHeight - heightNonNumeric) / countNumericLanes;
-
+        
         this.setSwimLaneYExtents(visibleGroups, visibleCDOs, Object.keys(swimLaneSet).filter((lane) => swimLaneSet[lane]).map((stringLane) => Number(stringLane)));
         return this.getSwimlaneOffsets(linechartTopPadding, visibleGroups, visibleCDOs, heightPerNumeric, swimLaneSet);
-
     }
 
     private heightNonNumeric () {
@@ -1286,9 +1288,124 @@ class LineChart extends TemporalXAxisComponent {
         this.chartOptions.swimLaneOptions = this.originalSwimLaneOptions;
     }
 
+    private createSwimlaneLabels(offsetsAndHeights, visibleCDOs){
+
+        // swimLaneLabels object contains data needed to render each lane label
+        let swimLaneLabels: {
+            [key: number]: {
+                offset: number,
+                height: number,
+                label: string | null,
+                onClick: () => any;
+            }
+        } | {} = {};
+
+        /* 
+            The logic below constructs swimlane labels. The first aggregate found in each
+            lane is used to position that lanes label. Numeric aggs are prioritized first,
+            as they share a y-Axis, meaning only the first numeric in each lane needs to be
+            considered.  Next, non-numerics are checked, if they are the first agg found in 
+            their lane, their position data is used, otherwise, their height is added to the 
+            current height of the lane. 
+        */
+       
+        const useAggForLaneLabel = (aggGroup) => {
+            let swimLane = aggGroup.swimLane;
+            let aggIndex = visibleCDOs.findIndex(el => el.aggKey === aggGroup.aggKey);
+            let onClick = null;
+            if(typeof this.chartOptions?.swimLaneOptions?.[swimLane]?.onClick === 'function'){
+                onClick = () => this.chartOptions?.swimLaneOptions?.[swimLane]?.onClick?.(swimLane)
+            }
+            swimLaneLabels[swimLane] = {
+                offset: offsetsAndHeights[aggIndex][0],
+                height: offsetsAndHeights[aggIndex][1],
+                label: this.chartOptions?.swimLaneOptions?.[swimLane]?.label,
+                onClick
+            }
+        }
+
+        // First add numeric dataTypes (share Y-Axis) to label map
+        visibleCDOs.filter(aggGroup => aggGroup.dataType === DataTypes.Numeric).forEach(aggGroup => {
+            if(!(aggGroup.swimLane in swimLaneLabels)){ // Only add swimlanes once to swimLaneLabels map
+                useAggForLaneLabel(aggGroup);
+            }
+        })
+
+        // Then, map over any non-numeric dataType and increment heights if they're sharing a lane
+        visibleCDOs.filter(aggGroup => aggGroup.dataType !== DataTypes.Numeric).forEach(aggGroup => {
+            let aggIndex = visibleCDOs.findIndex(el => el.aggKey === aggGroup.aggKey);
+            if(!(aggGroup.swimLane in swimLaneLabels)){ // Only add swimlanes once to swimLaneLabels map
+                useAggForLaneLabel(aggGroup);
+            } else{ // if lane contains non-numeric data and is being added to another lane
+                if(!this.chartOptions?.swimLaneOptions?.[aggGroup.swimLane]?.collapseEvents){ // Only increment event heights if collapseEvents === false
+                    swimLaneLabels[aggGroup.swimLane].height += offsetsAndHeights[aggIndex][1]; // add heights (non-numerics don't share Y axis)
+                }
+            }
+        });
+
+        // Clear prior labels
+        this.swimLaneLabelGroup.selectAll('*').remove();
+
+        // Function to trim labels to max height
+        const truncateLabel = (labelRef: HTMLElement, data) => {
+            const maxHeight = data.height - swimlaneLabelConstants.swimLaneLabelHeightPadding; // padding on actual lane height
+            if(data.label){
+                let labelClientRect = labelRef.getBoundingClientRect();
+                let labelText = labelRef.textContent;
+
+                while ( labelClientRect.height > maxHeight && labelText.length > 0) {
+                    labelText = labelText.slice(0, -1);
+                    labelRef.textContent = labelText + '...';
+                    labelClientRect = labelRef.getBoundingClientRect();
+                }
+            }
+        }
+
+        const boldYAxisText = (enabled: boolean, lane: string) => {
+            this.svgSelection.select('.svgGroup')
+                .selectAll(`.tsi-swimLaneAxis-${lane}`)
+                .selectAll('text')
+                .classed('tsi-boldYAxisText', enabled)
+        }
+
+        const onClickPresentAndValid = (dp) => dp.onClick && typeof dp.onClick === 'function';
+        
+        // Map over swimLanes and create labels
+        Object.keys(swimLaneLabels).forEach(lane => {
+            let labelData = [swimLaneLabels[lane]];
+            let label = this.swimLaneLabelGroup.selectAll(`tsi-swimLaneLabel-${lane}`).data(labelData);
+
+            label.enter()
+                .append("text")
+                .attr("class", (d) => `tsi-swimLaneLabel-${lane} tsi-swimLaneLabel ${onClickPresentAndValid(d) ? 'tsi-boldOnHover' : ''}`)
+                .merge(label)
+                .style("text-anchor", "middle")
+                .attr("transform", d => `translate(${( -this.horizontalLabelOffset + swimlaneLabelConstants.labelLeftPadding )},${(d.offset + d.height / 2)}) rotate(-90)`)
+                .text(d => d.label)
+                .each(function(d){truncateLabel(this, d)})
+                .on("click", d => {
+                    if(onClickPresentAndValid(d)){
+                        d.onClick()
+                    }
+                })
+                .on("mouseover", (d) => {
+                    if(onClickPresentAndValid(d)){
+                        boldYAxisText(true, lane);
+                    }
+                })
+                .on("mouseout", () => {
+                    boldYAxisText(false, lane);
+                })
+                .append("svg:title")
+                    .text(d => d.label);
+
+            label.exit().remove();
+        })
+    }
+
     public render (data: any, options: any, aggregateExpressionOptions: any) {
         super.render(data, options, aggregateExpressionOptions);
-        
+
         this.originalSwimLanes = this.aggregateExpressionOptions.map((aEO) => {
             return aEO.swimLane;
         });
@@ -1400,7 +1517,7 @@ class LineChart extends TemporalXAxisComponent {
             }
     
             this.focus = g.append("g")
-                .attr("transform", "translate(-100,-100)")
+                .attr("transform", "translate(-200,-100)")
                 .attr("class", "tsi-focus");
             
             this.focus.append("line")
@@ -1436,6 +1553,9 @@ class LineChart extends TemporalXAxisComponent {
                 .attr('class', 'tsi-horizontalValueBar')
                 .style('display', 'none');        
 
+            this.swimLaneLabelGroup = g.append("g").
+                attr("class", "tsi-swimLaneLabels");
+
             if (!this.tooltip) {
                 this.tooltip = new Tooltip(d3.select(this.renderTarget));                        
             }
@@ -1447,6 +1567,22 @@ class LineChart extends TemporalXAxisComponent {
                 this.horizontalValueBox.style("visibility", (this.chartOptions.focusHidden) ? "hidden" : "visible");
                 if (this.chartOptions.xAxisHidden && this.chartOptions.focusHidden) {
                     this.chartMargins.bottom = 5;
+                }
+
+                // Check if any swimlane labels present & modify left margin if so
+                let isLabelVisible = false;
+                this.aggregateExpressionOptions.filter((aggExpOpt) => {
+                    return this.chartComponentData.displayState[aggExpOpt.aggKey]["visible"];
+                }).forEach(visibleAgg => {
+                    if(this.originalSwimLaneOptions[visibleAgg.swimLane]?.label){
+                        isLabelVisible = true;
+                    }
+                });
+
+                if(isLabelVisible){
+                    this.chartMargins.left = this.horizontalLabelOffset;
+                } else if(this.chartMargins.left === this.horizontalLabelOffset){
+                    this.chartMargins.left = LINECHARTCHARTMARGINS.left;
                 }
 
                 this.width = Math.max((<any>d3.select(this.renderTarget).node()).clientWidth, this.MINWIDTH);
@@ -1600,6 +1736,9 @@ class LineChart extends TemporalXAxisComponent {
                 });
                 let offsetsAndHeights = this.createYOffsets();
 
+                // Add swimlane labels to SVG
+                this.createSwimlaneLabels(offsetsAndHeights, visibleCDOs);
+
                 let swimLaneCounts = {};
 
                 // Reset public facing yExtents
@@ -1665,10 +1804,15 @@ class LineChart extends TemporalXAxisComponent {
 
                             let axisState = new AxisState(self.getAggAxisType(agg), yExtent, positionInGroup);
 
+                            let yAxisOnClick = null;
+                            if(typeof self.chartOptions?.swimLaneOptions?.[swimLane]?.onClick === 'function'){
+                                yAxisOnClick = () => self.chartOptions.swimLaneOptions[swimLane].onClick?.(swimLane);
+                            }
+
                             self.plotComponents[aggKey].render(self.chartOptions, visibleNumericI, agg, true, d3.select(this), self.chartComponentData, axisState, 
                                 self.chartHeight, self.visibleAggCount, self.colorMap, self.previousAggregateData, 
                                 self.x, self.areaPath, self.strokeOpacity, self.y, self.yMap, defs, visibleCDOs[i], self.previousIncludeDots, offsetsAndHeights[i], 
-                                g, mouseoverFunction, mouseoutFunction);
+                                g, mouseoverFunction, mouseoutFunction, yAxisOnClick);
                             
                             //increment index of visible numerics if appropriate
                             visibleNumericI += (visibleCDOs[i].dataType === DataTypes.Numeric ? 1 : 0);
