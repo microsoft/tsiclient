@@ -41,7 +41,7 @@
                 // render the data in a chart
                 var tsiClient = new TsiClient();
                 var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart1'));
-                lineChart.render(data, {theme: 'light', tooltip: true, legend: 'hidden', hideChartControlPanel: true});
+                lineChart.render(data, {theme: 'light', tooltip: true, legend: 'hidden', hideChartControlPanel: false});
 
                 var scatterplot = new tsiClient.ux.ScatterPlot(document.getElementById('chart2'));
                 scatterplot.render(data, {theme: 'light', legend: 'compact', tooltip: true, spMeasures: ['x', 'y', 'r']})
