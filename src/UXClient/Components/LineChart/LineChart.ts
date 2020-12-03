@@ -1574,7 +1574,7 @@ class LineChart extends TemporalXAxisComponent {
                 this.aggregateExpressionOptions.filter((aggExpOpt) => {
                     return this.chartComponentData.displayState[aggExpOpt.aggKey]["visible"];
                 }).forEach(visibleAgg => {
-                    if(this.originalSwimLaneOptions[visibleAgg.swimLane]?.label){
+                    if(this.originalSwimLaneOptions?.[visibleAgg.swimLane]?.label){
                         isLabelVisible = true;
                     }
                 });
