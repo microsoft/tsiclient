@@ -16,3 +16,5 @@ export const DefaultHierarchyContextMenuOptions = {
 }
 
 export const nullTsidDisplayString = "null";
+
+export const CharactersToEscapeForExactSearchInstance = ['"', '`', '\'', '!', '(', ')', '^', '[', '{', ':', ']', '}', '~', '/', '\\', '@', '#', '$', '%', '&', '*', ';', '=', '.', '_', '-', '<', '>', ',', '?'];

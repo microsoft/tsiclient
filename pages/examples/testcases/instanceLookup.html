@@ -14,7 +14,7 @@
             margin-top: 20px;">
             <div>
                 <label>Time Series ID</label>
-                <p style="font-size: 12px;">- Use commas without space for composite tsid.</p>
+                <p style="font-size: 12px;">- Use | (vertical bar) without space between ids for composite tsid.</p>
                 <p style="font-size: 12px;">- Enter nothing for null tsid.</p>
                 <input id="timeSeriesId" type="text"/>
                 <button onclick="lookup()">Show</button>
@@ -147,7 +147,7 @@
 
             lookup = function() {
                 let value = document.getElementById("timeSeriesId").value;
-                let timeSeriesIdArray = value.split(",").map(id => {return id === "" ? null : id}); // use , for composite tsid's
+                let timeSeriesIdArray = value.split("|").map(id => {return id === "" ? null : id}); // use , for composite tsid's
                 hierarchy.showInstance(timeSeriesIdArray, /*["f25720a3-82ca-4cfe-a242-e047ac7d1de2", "c282f60a-d257-440b-836b-6dc275e9971b"]*/);
             }
         </script>
