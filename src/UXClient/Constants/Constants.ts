@@ -22,3 +22,5 @@ export const swimlaneLabelConstants = {
     swimLaneLabelHeightPadding: 8,
     labelLeftPadding: 28
 }
+
+export const CharactersToEscapeForExactSearchInstance = ['"', '`', '\'', '!', '(', ')', '^', '[', '{', ':', ']', '}', '~', '/', '\\', '@', '#', '$', '%', '&', '*', ';', '=', '.', '_', '-', '<', '>', ',', '?'];
