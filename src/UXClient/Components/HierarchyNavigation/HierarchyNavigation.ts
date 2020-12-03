@@ -446,7 +446,7 @@ class HierarchyNavigation extends Component{
      // do exact search with tsid to retrieve all possible paths until that instance to traverse for expansion
      private doExactSearchWithPossiblePaths = (tsid, hNames) => {
         this.setModeAndRequestParamsForFilter();
-        let escapedTsidString = tsid.join(" ").replaceAll(/["!\(\)\^\[\{:\]\}~/ @#\$%\&\*;'\+=._-]/g, '+'); //escaping non alphanumeric characters with + for exact search with quotes
+        let escapedTsidString = Utils.escapedTsidForExactSearch(tsid?.join(" "));
         this.searchString = `"${escapedTsidString}"`; //TODO: null vs string null check for exact search and escape for character : fix from backend will come here!!
 
         return Promise.all(hNames.map(hName => {
@@ -634,6 +634,7 @@ class HierarchyNavigation extends Component{
         } catch (err) { // errors are already catched by inner functions
             this.prepareComponentForAfterLookup();
             this.hierarchyElem.style('display', 'block');
+            this.noResultsElem.style('display', 'block');
             this.instanceLookupLoadingElem.style('display', 'none');
         }
     }
