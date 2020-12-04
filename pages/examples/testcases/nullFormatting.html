@@ -44,7 +44,7 @@
 
                 // render the data in a chart
                 var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart1'));
-                lineChart.render(data, {theme: 'light', tooltip: true});
+                lineChart.render(data, {theme: 'light', tooltip: true, labelSeriesWithMarker: true});
 
                 var barChart = new tsiClient.ux.BarChart(document.getElementById('chart2'));
                 barChart.render(data, {theme: 'dark', grid: true, tooltip: true, legend: 'compact'});
