@@ -34,6 +34,7 @@ class ChartDataOptions {
     public positionYVariableName: string;
     public image: string;
     public isRawData: boolean;
+    public isVariableAliasShownOnTooltip: boolean;
 
     constructor (optionsObject: Object){
         this.searchSpan = Utils.getValueOrDefault(optionsObject, 'searchSpan');
@@ -65,6 +66,7 @@ class ChartDataOptions {
         this.image = Utils.getValueOrDefault(optionsObject, 'image', null);
         this.startAt = Utils.getValueOrDefault(optionsObject, 'startAt', null);
         this.isRawData = Utils.getValueOrDefault(optionsObject, 'isRawData', false);
+        this.isVariableAliasShownOnTooltip = Utils.getValueOrDefault(optionsObject, 'isVariableAliasShownOnTooltip', true);
     }
 }
 export {ChartDataOptions}
