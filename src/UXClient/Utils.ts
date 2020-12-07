@@ -3,7 +3,7 @@ import moment from 'moment-timezone';
 import Grid from "./Components/Grid/Grid";
 import { ChartOptions } from './Models/ChartOptions';
 import { ChartComponentData } from './Models/ChartComponentData';
-import { nullTsidDisplayString } from './Constants/Constants';
+import { CharactersToEscapeForExactSearchInstance, nullTsidDisplayString } from './Constants/Constants';
 
 export const NONNUMERICTOPMARGIN = 8;
 export const LINECHARTTOPPADDING = 16;
@@ -1101,6 +1101,16 @@ class Utils {
             .classed(additionalClassName, options && options.additionalClassName)
             .text(d => d.str);
         children.exit().remove();
+    }
+
+    static escapedTsidForExactSearch = (tsid: string) => {
+        let escapedTsid = tsid || '';
+        if (tsid) {
+            CharactersToEscapeForExactSearchInstance.forEach(c => { //escaping some special characters with + for exact instance search in quotes
+                escapedTsid = escapedTsid.split(c).join('+');
+            });
+        }
+        return escapedTsid;
     }
 
     static memorySizeOf (obj) {

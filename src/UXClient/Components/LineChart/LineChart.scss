@@ -44,6 +44,10 @@
             fill: $gray1 !important;
         }
 
+        .tsi-boldYAxisText{
+            font-weight: bolder !important;
+        }
+
         .xAxisBaseline {
             stroke: $gray1 !important;
             pointer-events: none;
@@ -53,6 +57,20 @@
         }
         .tsi-horizontalValueBar {
             stroke: rgba($gray1, .8);
+        }
+
+        .tsi-swimLaneLabel{
+            font-weight: 500;
+            font-size:13px;
+            &.tsi-axisHover{
+                font-weight: bolder;
+            }
+            &.tsi-boldOnHover{
+                cursor: pointer;
+                &:hover{
+                    font-weight: bolder;
+                }
+            }
         }
     }
 
