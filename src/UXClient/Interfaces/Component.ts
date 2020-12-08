@@ -49,7 +49,7 @@ class Component {
 			Utils.appendFormattedElementsFromString(splitBy, d.splitBy);
 		}
 		
-		if (cDO.variableAlias){
+		if (cDO.variableAlias && cDO.isVariableAliasShownOnTooltip){
 			group.append('h4')
 				.text(cDO.variableAlias)
 				.attr('class', 'tsi-tooltipVariableAlias tsi-tooltipSubtitle');
