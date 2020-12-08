@@ -220,6 +220,7 @@
             }
             &.tsi-isExpanded {
                 max-height: unset;
+                min-width: 108px;
                 .tsi-splitBy, .tsi-timeShift, .tsi-variableAlias {
                     display: block;
                 }
