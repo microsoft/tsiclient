@@ -406,11 +406,9 @@ class Utils {
     static setSeriesLabelSubtitleText (subtitle, isInFocus: boolean = false) {
         let subtitleDatum = subtitle.data()[0];
         if (!subtitle.select('.tsi-splitBy').empty()) {
-            subtitle.select('.tsi-splitBy')
-                .text(d => {
-                    let textAfterSplitByExists = subtitleDatum.timeShift !== '' || subtitleDatum.variableAlias;
-                    return `${subtitleDatum.splitBy}${(textAfterSplitByExists && !isInFocus) ? ', ' : ''}`;    
-                });
+            let textAfterSplitByExists = subtitleDatum.timeShift !== '' || subtitleDatum.variableAlias;
+            let splitByString = `${subtitleDatum.splitBy}${(textAfterSplitByExists && !isInFocus) ? ', ' : ''}`;
+            Utils.appendFormattedElementsFromString(subtitle.select('.tsi-splitBy'), splitByString);
         }
         if (subtitle.select('.tsi-timeShift')) {
             subtitle.select('.tsi-timeShift')
