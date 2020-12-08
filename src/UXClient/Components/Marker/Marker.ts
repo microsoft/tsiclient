@@ -393,6 +393,9 @@ class Marker extends Component {
                 let filteredValues = values.filter((v) => {
                     return (v.aggregateKey === aggKey && v.splitBy === splitBy && this.getValueOfVisible(v) !== null);
                 });
+                if (filteredValues.length === 0) {
+                    return;
+                }
                 if (filteredValues.length === 1 && (this.getValueOfVisible(filteredValues[0]) !== null)) {
                     valueArray.push(filteredValues[0]);
                 } else {
