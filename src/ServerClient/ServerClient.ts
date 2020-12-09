@@ -318,6 +318,11 @@ class ServerClient {
         return this.createPromiseFromXhr(uri, "PUT", JSON.stringify(dataSet), token, (responseText) => {return JSON.parse(responseText);});
     }
 
+    public getGen1Environment(token: string, resourceId: string, endpoint= "https://management.azure.com"){
+        var uri = endpoint + resourceId + this.referenceDataAPIVersion;
+        return this.createPromiseFromXhr(uri, "GET", {}, token, (responseText) => {return JSON.parse(responseText);});
+    }
+
     public getEnvironments(token: string, endpoint = 'https://api.timeseries.azure.com'){
         var uri = endpoint + '/environments' + this.apiVersionUrlParam;
         return this.createPromiseFromXhr(uri, "GET", {}, token, (responseText) => {return JSON.parse(responseText);});
