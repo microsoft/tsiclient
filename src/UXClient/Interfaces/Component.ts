@@ -21,10 +21,10 @@ class Component {
 	
 	protected themify(targetElement: any, theme: string){
 		var theme = Utils.getTheme(theme);
-		targetElement.classed(this.currentTheme, false);
-		targetElement.classed('tsi-light', false);
-		targetElement.classed('tsi-dark', false);
-		targetElement.classed(theme, true);
+		targetElement?.classed(this.currentTheme, false);
+		targetElement?.classed('tsi-light', false);
+		targetElement?.classed('tsi-dark', false);
+		targetElement?.classed(theme, true);
 		this.currentTheme = theme;
 	}
 
@@ -49,7 +49,7 @@ class Component {
 			Utils.appendFormattedElementsFromString(splitBy, d.splitBy);
 		}
 		
-		if (cDO.variableAlias){
+		if (cDO.variableAlias && cDO.isVariableAliasShownOnTooltip){
 			group.append('h4')
 				.text(cDO.variableAlias)
 				.attr('class', 'tsi-tooltipVariableAlias tsi-tooltipSubtitle');
