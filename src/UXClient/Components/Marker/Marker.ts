@@ -392,9 +392,6 @@ class Marker extends Component {
                 let filteredValues = values.filter((v) => {
                     return (v.aggregateKey === aggKey && v.splitBy === splitBy && this.getValueOfVisible(v) !== null);
                 });
-                if (filteredValues.length === 0) {
-                    return;
-                }
                 if (filteredValues.length === 1 && (this.getValueOfVisible(filteredValues[0]) !== null)) {
                     valueArray.push(filteredValues[0]);
                 } else {
@@ -403,7 +400,9 @@ class Marker extends Component {
                         valueArray.push(interpolatedValue);
                     } else {
                         let lastValue = this.chartComponentData.findLastTimestampWithValue(aggKey, splitBy);
-                        valueArray.push(this.chartComponentData.findLastTimestampWithValue(aggKey, splitBy));
+                        if (lastValue !== null) {
+                            valueArray.push(lastValue);
+                        }
                     }
                 }
             });
@@ -445,7 +444,7 @@ class Marker extends Component {
                 let tooltipHeight = MARKERVALUENUMERICHEIGHT;
                 tooltip.draw(d, self.chartComponentData, 0, MARKERVALUENUMERICHEIGHT/2, {right:0, left:0, top:0, bottom:0}, (tooltipTextElement) => {
                     self.tooltipFormat(d, tooltipTextElement, null, null);
-                }, null, 0, 0, self.colorMap[d.aggregateKey + "_" + d.splitBy], false);
+                }, null, 0, 0, self.colorMap[d.aggregateKey + "_" + d.splitBy], true);
 
                 let markerValueCaret = d3.select(this).selectAll('.tsi-markerValueCaret')
                     .data([d]);
