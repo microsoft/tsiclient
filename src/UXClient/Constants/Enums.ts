@@ -24,3 +24,8 @@ export enum InterpolationFunctions {
     CurveMonotoneX = "curveMonotoneX",
     CurveCatmullRom = "curveCatmullRom"
 }
+
+export enum ErrorCodes {
+    InvalidInput = 'InvalidInput',
+    PartialSuccess = 'PartialSuccess'
+}
