@@ -1655,7 +1655,7 @@ class LineChart extends TemporalXAxisComponent {
                 if (this.brushElem) {
                     var self = this;
                     this.brush = d3.brushX()
-                    .extent([[this.xLowerBound, this.chartOptions.aggTopMargin],
+                    .extent([[this.xLowerBound, Math.min(this.chartHeight, this.chartOptions.aggTopMargin)],
                              [this.xUpperBound, this.chartHeight]])
                     .on("start", function() {
                         if (self.activeMarker !== null && self.isDroppingMarker) {

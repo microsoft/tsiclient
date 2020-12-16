@@ -63,7 +63,7 @@ class HeatmapCanvas extends ChartComponent {
             .attr("x", this.legendWidth - this.gradientWidth)
             .attr("y", 6)
             .attr("width", this.gradientWidth)
-            .attr("height", this.height - 12)
+            .attr("height", Math.max(0, this.height - 12))
             .style("fill", "url(#gradient" + String(this.aggI) + gradientGuid + ")");
 
         var highlightedValueY = null;
