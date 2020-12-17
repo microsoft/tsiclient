@@ -25,7 +25,7 @@ class CategoricalPlot extends Plot {
                 return this.x(new Date(d.dateTime))
             })
             .attr('width', rectWidth)
-            .attr('height', this.chartHeight + 1 - LINECHARTTOPPADDING)
+            .attr('height', Math.max(0, this.chartHeight + 1 - LINECHARTTOPPADDING))
             .attr('fill', () => {
                 return visibleMeasures.length === 1 ? this.getColorForValue(visibleMeasures[0]) : 'none'
             });
