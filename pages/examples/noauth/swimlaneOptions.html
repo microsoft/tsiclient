@@ -49,11 +49,8 @@
 
                         for(let k = 0; k < numberOfBuckets; k++){
                             to = new Date(from.valueOf() + 1000*60*k);
-                            let val = Math.random() * 100000;
-                            let val2 = Math.random()* 100000;
-                            let val3 = Math.random()* 100000;
-                            let val4 = Math.random()* 100000;
-                            values[to.toISOString()] = {avg: val, x: val2, y: val3, r: val4};
+                            let val = Math.random() * Math.pow(10,i);
+                            values[to.toISOString()] = {avg: val};
                         } 
                     }
 
@@ -81,10 +78,10 @@
                     <div style={{marginBottom: '10px'}}>
                         <label style={{marginRight: '20px'}}>{`Factory ${props.idx} lane`}</label>
                         <select value={props.lane} onChange={(e) => props.handleLaneChange(e, props.idx)}>
-                            <option value="0">Lane 1</option>
-                            <option value="1">Lane 2</option>
-                            <option value="2">Lane 3</option>
-                            <option value="3">Lane 4</option>
+                            <option value="0">Lane 0</option>
+                            <option value="1">Lane 1</option>
+                            <option value="2">Lane 2</option>
+                            <option value="3">Lane 3</option>
                         </select>
                     </div>
                 )
@@ -157,10 +154,10 @@
 
             const App = props => {
                 const [swimLaneOptions, setSwimlaneOptions] = useState({
-                    0: {yAxisType: 'shared', label: 'Lane 1', onClick: () => alert("'Lane 1' label/axis clicked")},
-                    1: {yAxisType: 'shared', label: 'Lane 2', onClick: () => alert("'Lane 2' label/axis clicked")},
-                    2: {yAxisType: 'shared', label: 'Lane 3', onClick: () => alert("'Lane 3' label/axis clicked")},
-                    3: {yAxisType: 'shared', label: 'Lane 4', onClick: () => alert("'Lane 4' label/axis clicked")}
+                    0: {yAxisType: 'shared', label: 'Lane 0', onClick: () => alert("'Lane 0' label/axis clicked")},
+                    1: {yAxisType: 'shared', label: 'Lane 1', onClick: () => alert("'Lane 1' label/axis clicked")},
+                    2: {yAxisType: 'shared', label: 'Lane 2', onClick: () => alert("'Lane 2' label/axis clicked")},
+                    3: {yAxisType: 'shared', label: 'Lane 3', onClick: () => alert("'Lane 3' label/axis clicked")}
                 })
 
                 const [chartDataOptions, setChartDataOptions] = useState([
