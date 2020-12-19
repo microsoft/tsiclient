@@ -138,13 +138,11 @@
         }
     }
 
-    .tsi-search-global {
-        a {
-            color: $gray6;
-            &:hover, &:focus {
-                outline: none;
-                text-decoration: underline;
-            }
+    a {
+        color: $gray6;
+        &:hover, &:focus {
+            outline: none;
+            text-decoration: underline;
         }
     }
 
@@ -155,6 +153,10 @@
             background: $gray3 !important;
             border: 1px solid rgba($gray1, .2);
         }
+    }
+
+    .tsi-notFound {
+        background: rgba($gray6, .2);
     }
 }   
 
@@ -196,6 +198,10 @@
         .tsi-search-icon {
             background-image: url(../../Icons/Search_Dark.svg);
         }
+
+        .tsi-clear{
+            background-image: url(../../Icons/Close_Icon_Dark_Theme.svg);                    
+        }
     }
     &.tsi-light{
         $grays: grays('light');
@@ -229,6 +235,10 @@
         
         .tsi-search-icon {
             background-image: url(../../Icons/Search_Light.svg);
+        }
+
+        .tsi-clear{
+            background-image: url(../../Icons/Close_Icon_Light_Theme.svg);                    
         }
     }
 
@@ -411,9 +421,7 @@
     .tsi-instance-lookup-loading {
         display: none;
         animation: fade-in .2s ease-in-out;
-        padding: 12px 18px 8px;
-        position: absolute;
-        top: 92px;
+        padding: 8px 18px 0px;
         align-items: center;
         width: 100%;
 
@@ -446,8 +454,37 @@
         .tsi-noResults {
             display: block;
             white-space: nowrap;
-            margin-left: 20px;
+            padding: 0 20px;
             font-size: 14px;
+        }
+
+        .tsi-notFound {
+            display: flex;
+            align-items: center;
+            padding: 4px 20px;
+            line-height: 14px;
+            font-size: 13px;
+            animation: fade-in .2s ease-in-out;
+
+            span {
+                display: block;
+                flex-grow: 1;
+                font-weight: 600;
+            }
+
+            a {
+                float: unset;
+                cursor: pointer;
+                white-space: nowrap;
+            }
+
+            .tsi-clear {
+                width: 18px;
+                height: 18px;
+                cursor: pointer;
+                background-repeat: no-repeat;
+                background-position: 50%;
+            }
         }
 
         .tsi-hierarchy {

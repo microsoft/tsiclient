@@ -19,6 +19,7 @@ class HierarchyNavigation extends Component{
     private hierarchyListWrapperElem;
     private hierarchyListElem;
     private noResultsElem;
+    private notFoundElem;
     private hierarchyElem;
     private instanceListElem;
     private instanceListWrapperElem;
@@ -30,12 +31,14 @@ class HierarchyNavigation extends Component{
     private viewType = ViewType.Hierarchy;
     private viewTypesElem;
     private searchGloballyElem;
+    private lookupGloballyElem;
     private instanceLookupLoadingElem;
     private mode = State.Navigate;
     private searchString = "";  
     private path: Array<string> = [];
     private contextMenu: any;
     private contextMenuProps: {};
+    private timeSeriesIdForLookup: Array<string|null>;
 
     constructor(renderTarget: Element){ 
         super(renderTarget); 
@@ -245,6 +248,25 @@ class HierarchyNavigation extends Component{
                         let results = hierarchyNavWrapper.append('div').classed('tsi-hierarchy-or-list-wrapper', true);
                         // no results
                         this.noResultsElem = results.append('div').text(this.getString("No results")).classed('tsi-noResults', true).attr("role", "alert").style('display', 'none');
+                        // could not find the reverse lookup item under the selected hierarchy
+                        this.notFoundElem = results.append('div').classed('tsi-notFound', true).style('display', 'none');
+                        this.notFoundElem.append('span').text(this.getString("Not found")).attr("role", "alert");
+                        this.lookupGloballyElem = this.notFoundElem.append('a').text(this.getString("Lookup globally")).style('display', 'none')
+                                                .attr('title', this.getString("Lookup globally"))
+                                                .attr('tabindex', 0)
+                                                .attr('arialabel', this.getString("Lookup globally"))
+                                                .on('click keydown', function () {
+                                                    if (Utils.isKeyDownAndNotEnter(d3.event)) {return; }
+                                                    self.selectHierarchy(HierarchySelectionValues.All, false);
+                                                    self.showInstance(self.timeSeriesIdForLookup);
+                                                });
+                        this.notFoundElem.append('div').attr('class', 'tsi-clear')
+                            .attr('title', this.getString("Dismiss"))
+                            .attr("tabindex", "0").attr("role", "button")
+                            .attr("aria-label", this.getString("Dismiss"))
+                            .on('click keydown', function() {
+                                self.notFoundElem.style('display', 'none');
+                            });
                         // hierarchy
                         this.hierarchyElem = results.append('div').classed('tsi-hierarchy', true).attr("role", "navigation").on('scroll', function(){
                             self.closeContextMenu();
@@ -460,10 +482,8 @@ class HierarchyNavigation extends Component{
 
     // clear dom and reset some variables for fresh navigation experience 
     private prepareComponentForLookup = timeSeriesID => {
-        this.instanceListElem.text('');
-        this.hierarchyElem.text('');
-        this.hierarchyElem.style('display', 'none');
         this.noResultsElem.style('display', 'none');
+        this.notFoundElem.style('display', 'none');
         this.instanceLookupLoadingElem.select('.tsi-lookup-instance').text(this.getString("Looking for") + " " + timeSeriesID.join(" "));
         this.instanceLookupLoadingElem.style('display', 'flex');
         this.clearAndHideFilterPath();
@@ -564,7 +584,8 @@ class HierarchyNavigation extends Component{
         this.viewType = ViewType.Hierarchy;
     }
 
-    public async showInstance (timeSeriesID: Array<string>, hierarchyIds: Array<string> = null) {
+    public async showInstance (timeSeriesID: Array<string|null>, hierarchyIds: Array<string> = null) {
+        this.timeSeriesIdForLookup = timeSeriesID;
         let isHierarchySelected = this.selectedHierarchyName !== HierarchySelectionValues.All && this.selectedHierarchyName !== HierarchySelectionValues.Unparented;
         let hierarchyNamesFromParam = hierarchyIds ? hierarchyIds.map(hId => Object.keys(this.envHierarchies).find(n => this.envHierarchies[n].id === hId)) : null;
         let hNames = hierarchyNamesFromParam ? hierarchyNamesFromParam : isHierarchySelected ? [null, this.selectedHierarchyName] : [null, ...Object.keys(this.envHierarchies)]; // adding null for search with direct instances
@@ -618,7 +639,12 @@ class HierarchyNavigation extends Component{
                         await this.clearAndGetResults(); // get a fresh hierarchy with defaulf settings for navigation, ready to expand and locate
                         await Promise.all(paths.map(p => this.simulateExpand(p, hierarchyNamesFromParam, instance)));
                     } else {
-                        this.noResultsElem.style('display', 'block');
+                        this.notFoundElem.style('display', 'flex');
+                        if (this.selectedHierarchyName !== HierarchySelectionValues.All) {
+                            this.lookupGloballyElem.style('display', 'block');
+                        } else {
+                            this.lookupGloballyElem.style('display', 'none');
+                        }
                     }
                     this.hierarchyElem.style('display', 'block');
                     this.instanceLookupLoadingElem.style('display', 'none');
@@ -628,13 +654,29 @@ class HierarchyNavigation extends Component{
             } else {
                 this.prepareComponentForAfterLookup();
                 this.instanceLookupLoadingElem.style('display', 'none');
-                this.noResultsElem.style('display', 'block');
+                this.notFoundElem.style('display', 'flex');
+                if (this.selectedHierarchyName !== HierarchySelectionValues.All) {
+                    this.lookupGloballyElem.style('display', 'block');
+                } else {
+                    this.lookupGloballyElem.style('display', 'none');
+                    if (this.hierarchyElem.text() === '') {
+                        this.clearAndGetResults();
+                    }
+                }
                 this.hierarchyElem.style('display', 'block');
             }
         } catch (err) { // errors are already catched by inner functions
             this.prepareComponentForAfterLookup();
             this.hierarchyElem.style('display', 'block');
-            this.noResultsElem.style('display', 'block');
+            this.notFoundElem.style('display', 'flex');
+            if (this.selectedHierarchyName !== HierarchySelectionValues.All) {
+                this.lookupGloballyElem.style('display', 'block');
+            } else {
+                this.lookupGloballyElem.style('display', 'none');
+                if (this.hierarchyElem.text() === '') {
+                    this.clearAndGetResults();
+                }
+            }
             this.instanceLookupLoadingElem.style('display', 'none');
         }
     }
@@ -1232,6 +1274,7 @@ class HierarchyNavigation extends Component{
         this.clearAndHideFilterPath();
         this.isHierarchySelectionActive = false;
         this.hierarchyListWrapperElem.style('display', 'none');
+        this.notFoundElem.style('display', 'none');
     }
 
     private resettingVariablesForEnvChange = () => {

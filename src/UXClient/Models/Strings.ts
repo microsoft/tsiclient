@@ -39,6 +39,7 @@ class Strings {
         "Drop a Marker": "Drop a Marker",
         "Search Time Series Instances": "Search Time Series Instances",
         "No results": "No results",
+        "Not found": "Not found",
         "Show more": "Show more",
         "No description": "No description",
         "Time Series ID": "Time Series ID",
@@ -50,7 +51,8 @@ class Strings {
         "Previous Month": "Previous Month",
         "Next Month": "Next Month",
         "Unassigned Time Series Instances": "Unassigned Time Series Instances",
-        "Search Globally": "Search Globally",
+        "Search Globally": "Search globally",
+        "Lookup globally": "Lookup globally",
         "Show More Instances": "Show more instances",
         "Show More Hierarchies": "Show more hierarchies",
         "Add to Filter Path": "Add to Filter Path",
@@ -106,7 +108,8 @@ class Strings {
         "Add": "Add",
         "Search": "Search",
         "Marker": "Marker",
-        "Start at": "Start at"
+        "Start at": "Start at",
+        "Dismiss": "Dismiss"
     };
   
     private stringValues: any = {};
