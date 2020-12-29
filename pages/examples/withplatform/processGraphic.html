@@ -27,7 +27,7 @@
               {
                 Max: {
                   kind: 'numeric',
-                  value: { tsx: '$event.[data].Double' },
+                  value: { tsx: '$event.data.Double' },
                   filter: null,
                   aggregation: { tsx: 'max($value)' }
                 }
@@ -46,7 +46,7 @@
               {
                 Max: {
                   kind: 'numeric',
-                  value: { tsx: '$event.[data].Double' },
+                  value: { tsx: '$event.data.Double' },
                   filter: null,
                   aggregation: { tsx: 'max($value)' }
                 }
@@ -66,7 +66,7 @@
               }
             );
 
-            let processGraphic = tsiClient.ux.ProcessGraphic(container);
+            let processGraphic = new tsiClient.ux.ProcessGraphic(container);
             let processGraphicOptions = { theme: 'dark', throttleSlider: true, xAxisHidden: false, bucketSizeMillis: 60000, updateInterval: 200, initialValue: new Date('8/10/2017 16:00:00') };
             let image = '../images/vat.png';
             processGraphic.render(environmentFqdn, authContext.getTsiToken, image, [tsqExpression1, tsqExpression2], processGraphicOptions);
