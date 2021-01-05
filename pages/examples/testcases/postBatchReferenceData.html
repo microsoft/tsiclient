@@ -1,0 +1,87 @@
+<!DOCTYPE html> 
+<html>
+    <head>
+        <title>Post Batch Data for Reference Data Set</title>
+
+        <!-- styles are only used for styling header and auth elements, where possible -->
+        <link rel="stylesheet" type="text/css" href="../styles.css" />
+
+        <!-- boilerplate headers are injected with head.js, grab them from the live example header, or include a link to head.js -->
+        <script src="../boilerplate/head.js"></script>
+
+        <!-- boilerplate auth code is injected with auth.js, check it out for auth setup -->
+        <script src="../boilerplate/auth.js"></script>
+    </head>
+    <body style="font-family: 'Segoe UI', sans-serif; color: white;">
+        <div style="padding: 60px 20px;">
+            <p>Set the data set name that you want to update and select reference data set items json file to push into Gen1_UXTest environment:</p>
+            <div>
+                <label for="myfile">Enter reference data set name:</label>
+                <input type="text" id="name" onChange="handleSetNameChange(event.target.value)">
+            </div>
+            <div>
+                <label for="myfile">Select file:</label>
+                <input type="file" id="myfile" name="myfile" onChange="handleFile(event.target.files[0])"> 
+            </div>
+            <div style="padding: 8px;">
+                <textarea id="uploadedFile" cols="30" rows="10" disabled></textarea>
+            </div>
+            <div>
+                <button onclick="sendData()">Send</button>
+            </div>
+            <div id="progress" style='width:200px; margin-top: 20px; border: 2px solid grey;'>
+                <div id="bar" style="height:24px; width:0%; background-color: grey; transition : width .4s ease-in-out;">0%</div>
+            </div>
+            <div style="width: 50%; margin-top: 20px;">
+                Result:
+                <div id="result"></div>
+            </div>
+        </div>
+        
+        <script>
+            let items = [];
+            let referenceDataSetName = '';
+
+            handleSetNameChange = (name) => { // json file content should include array of reference data items e.g. [{"Id": "Sensor_1", "color": "red"}, {"Id": "Sensor_2", "color": "blue"}]
+                referenceDataSetName = name;
+            }
+            handleFile = (file) => { // json file content should include array of reference data items e.g. [{"Id": "Sensor_1", "color": "red"}, {"Id": "Sensor_2", "color": "blue"}]
+                let reader = new FileReader();
+                reader.onload = (evt) => {
+                    let text = evt.target.result;
+                    try {
+                        items = JSON.parse(text);
+                        document.getElementById("uploadedFile").value = text;
+                    } catch (err) {
+                        alert("Error in JSON parse");
+                    }
+                }
+                reader.readAsText(file, "UTF-8");
+            }
+            window.onload = function() {
+                initAuth('Post Batch Data for Reference Data Set');  // initiate auth objects, header, and login modal
+                var tsiClient = new TsiClient();
+
+                sendData = () => {
+                    var onProgress = (p) => {// you can set the throttling option to a slow one in the network options in your browser to see the effect more
+                        document.getElementById('bar').style.width = `${p}%`;
+                        document.getElementById('bar').textContent = `${Math.round(p)}%`;
+                    };
+
+                    //clear contents
+                    document.getElementById('bar').style.width = '0%';
+                    document.getElementById('bar').textContent = '0%';
+                    document.getElementById('result').textContent = '';
+
+                    setTimeout(()=> {
+                        authContext.getTsiToken().then(function(token){
+                            tsiClient.server.postReferenceDatasetRows(token, 'af759f02-52b2-4f7d-8767-918543c30f5a.env.timeseries.azure.com', referenceDataSetName, items, p => onProgress(p)).then(function(result){// change batch size in this function for test
+                                document.getElementById('result').textContent = JSON.stringify(result);
+                            });
+                        });
+                    }, 500);
+                }
+            };
+        </script>
+    </body>
+</html>

@@ -1,3 +1,4 @@
+import { ErrorCodes } from '../UXClient/Constants/Enums';
 import Utils from '../UXClient/Utils';
 
 type progressChange = (p: number) => void;
@@ -6,6 +7,7 @@ class ServerClient {
     private apiVersionUrlParam = "?api-version=2016-12-12";
     private oldTsmTsqApiVersion = "?api-version=2018-11-01-preview";
     private tsmTsqApiVersion = "?api-version=2020-07-31";
+    private referenceDataAPIVersion = "?api-version=2017-11-15";
     public maxRetryCount = 3;
     public sessionId = Utils.guid();
     public retriableStatusCodes = [408, 429, 500, 503];
@@ -55,7 +57,7 @@ class ServerClient {
                 }
                 xhr.open(httpMethod, uri);
                 clientRequestId = this.setStandardHeaders(xhr, token);
-                if(httpMethod == 'POST')
+                if(httpMethod == 'POST' || httpMethod == 'PUT')
                     xhr.setRequestHeader('Content-Type', 'application/json');
                 if (continuationToken)
                     xhr.setRequestHeader('x-ms-continuation', continuationToken);
@@ -296,6 +298,31 @@ class ServerClient {
         });
     }
 
+    public postReferenceDatasetRows(token: string, environmentFqdn: string, datasetName: string, rows: Array<any>, onProgressChange : progressChange = p => {}) {
+        var uri = "https://" + environmentFqdn + "/referencedatasets/" + datasetName + "/$batch" + this.apiVersionUrlParam;
+        return this.createPromiseFromXhrForBatchData(uri, JSON.stringify({put: rows}), token, (responseText) => {return JSON.parse(responseText);}, onProgressChange);
+    }
+
+    public getReferenceDatasets(token: string, resourceId: string, endpoint= "https://management.azure.com") {
+        var uri = endpoint + resourceId + "/referencedatasets" + this.referenceDataAPIVersion;
+        return this.createPromiseFromXhr(uri, "GET", {}, token, (responseText) => {return JSON.parse(responseText);});
+    }
+
+    public deleteReferenceDataSet(token: string, resourceId: string, datasetName: string, endpoint= "https://management.azure.com") {
+        var uri = endpoint + resourceId + "/referencedatasets/" + datasetName + this.referenceDataAPIVersion;
+        return this.createPromiseFromXhr(uri, "DELETE", {}, token, (responseText) => {return JSON.parse(responseText);});
+    }
+
+    public putReferenceDataSet(token: string, resourceId: string, datasetName: string, dataSet: any, endpoint= "https://management.azure.com") {
+        var uri = endpoint + resourceId + "/referencedatasets/" + datasetName + this.referenceDataAPIVersion;
+        return this.createPromiseFromXhr(uri, "PUT", JSON.stringify(dataSet), token, (responseText) => {return JSON.parse(responseText);});
+    }
+
+    public getGen1Environment(token: string, resourceId: string, endpoint= "https://management.azure.com"){
+        var uri = endpoint + resourceId + this.referenceDataAPIVersion;
+        return this.createPromiseFromXhr(uri, "GET", {}, token, (responseText) => {return JSON.parse(responseText);});
+    }
+
     public getEnvironments(token: string, endpoint = 'https://api.timeseries.azure.com'){
         var uri = endpoint + '/environments' + this.apiVersionUrlParam;
         return this.createPromiseFromXhr(uri, "GET", {}, token, (responseText) => {return JSON.parse(responseText);});
@@ -400,6 +427,106 @@ class ServerClient {
     private retryWithDelay(retryNumber, method) {
         let retryDelay = (Math.exp(retryNumber - 1) + Math.random()*2) * 1000;
         return setTimeout(method, retryDelay);
+    }
+
+    // this function returns a promise which resolve empty object after request is done and 
+    // keeps track of the items and changes the values in the passed parameters 
+    // based on the response if it is erroneous
+    private sendBatchDataPostRequestPromise = (requestParams, batchParams) => {
+        const {url, token, method, onProgressChange, batch} = requestParams;
+
+        return new Promise((resolve) => {
+            let batchObject = {};
+            batchObject[method] = batch;
+            
+            let xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = () => {
+                if (xhr.readyState !== 4) { 
+                    return;
+                }
+
+                if (xhr.status === 200 || xhr.status === 202) {
+                    let result = JSON.parse(xhr.responseText);
+                    if (result?.error) {
+                        batchParams.erroneousDataCount += batch.length;
+                        batchParams.resultErrorMessage += result.error.message ? ' Item ' + batchParams.dataIndex + "-" + (batchParams.dataIndex + batch.length) + ": " + result.error.message : '';
+                        batchParams.dataIndex += batch.length;
+                        return;
+                    } else {
+                        result[method].forEach((i) => {
+                            batchParams.dataIndex++;
+                            if (i?.error || i?.code === ErrorCodes.InvalidInput) {
+                                batchParams.erroneousDataCount++;
+                                batchParams.resultErrorMessage += `\n>Item-${batchParams.dataIndex}: ${i?.error?.message || i?.message}`;
+                            }
+                        });
+                    }
+                }
+                else {
+                    batchParams.erroneousDataCount += batch.length;
+                    batchParams.resultErrorMessage += ' Item ' + batchParams.dataIndex + "-" + (batchParams.dataIndex + batch.length) + ": Server error!";
+                    batchParams.dataIndex += batch.length;
+                }
+                batchParams.completedDataCount += batch.length;
+                let percentComplete = batchParams.completedDataCount * 100 / batchParams.totalItemCount;
+                onProgressChange(percentComplete);
+                resolve({});
+            };
+            xhr.open('POST', url);
+            this.setStandardHeaders(xhr, token);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.send(JSON.stringify(batchObject));
+        });
+    }
+
+    private createPostBatchPromise = (url, data, token, method, responseTextFormat, onProgressChange, batchSize, maxByteSize) => {
+        let batchParams = {
+            dataIndex: 0,
+            erroneousDataCount: 0,
+            completedDataCount: 0,
+            totalItemCount: data.length,
+            resultErrorMessage: ''
+        }
+
+        let batches = [];
+        while(data.length) {
+            let batch = [];
+            while (batch.length < batchSize && Utils.memorySizeOf(batch.concat(data[0])) < maxByteSize) {// create the batch of data to send based on limits provided
+                batch = batch.concat(data.splice(0, 1));
+                if (data.length === 0) {
+                    break;
+                }
+            }
+            
+            if (batch.length) {
+                batches.push(batch);
+            }
+        }
+
+        //returns a promise with result object which waits for inner promises to make batch requests and resolve
+        return batches.reduce((p, batch) => {
+            return p.then(() => this.sendBatchDataPostRequestPromise({url, token, method, onProgressChange, batch}, batchParams)); // send batches in sequential order
+         }, Promise.resolve())
+         .then(() => {// construct the result of the main promise based on the batchParams variables updated through inner batch promises
+            let result = {};
+            if (batchParams.erroneousDataCount === 0) {
+                result[method] = [{}];
+            } else {
+                result[method] = [{error: {code: ErrorCodes.PartialSuccess, message: "Error in " + batchParams.erroneousDataCount + "/" + batchParams.totalItemCount + ` items.  ${batchParams.resultErrorMessage}`}}];
+            }
+            return responseTextFormat(JSON.stringify(result));
+        });
+    }
+
+    private createPromiseFromXhrForBatchData = (url, payload, token, responseTextFormat, onProgressChange = (percentComplete) => {}, batchSize = 1000, maxByteSize = 8000000) => {
+        let payloadObj = JSON.parse(payload);
+        if (payloadObj.put || payloadObj.update) {
+            let method = payloadObj.put ? "put" : "update";
+            let data = payloadObj[method];
+            return this.createPostBatchPromise(url, data, token, method, responseTextFormat, onProgressChange, batchSize, maxByteSize);
+        } else {
+            return this.createPromiseFromXhr(url, 'POST', payload, token, (responseText) => {return JSON.parse(responseText);});
+        }
     }
 }
 

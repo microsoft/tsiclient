@@ -23,7 +23,7 @@ class ProcessGraphic extends HistoryPlayback {
   }
 
   protected loadResources(): Promise<GraphicInfo> {
-    return new Promise(function(resolve, reject) {
+    return new Promise((resolve, reject) => {
       let image = new Image();
 
       image.onload = () => {
@@ -31,7 +31,7 @@ class ProcessGraphic extends HistoryPlayback {
         this.graphicOriginalWidth = image.width;
         this.graphicOriginalHeight = image.height;
         
-        this.component.append(this.graphic);
+        (this.component.node() as any).appendChild(this.graphic);
         
         resolve();
       }
@@ -91,21 +91,23 @@ class ProcessGraphic extends HistoryPlayback {
   }
 
   protected getDataPoints(results: Array<IProcessGraphicLabelInfo>){
-    let dataPoints = results.map((r, i): IProcessGraphicLabelInfo => {
-      let value = this.parseTsqResponse(r);
-      let color = typeof(this.tsqExpressions[i].color) === 'function'
-        ? (<Function>this.tsqExpressions[i].color)(value)
-        : this.tsqExpressions[i].color;
-      return {
-        value,
-        alias: this.tsqExpressions[i].alias,
-        x: this.tsqExpressions[i].positionX,
-        y: this.tsqExpressions[i].positionY,
-        color: this.sanitizeAttribute(color),
-        onClick: this.tsqExpressions[i].onElementClick
-      };
-    });
-    this.updateDataMarkers(dataPoints);
+    if(Array.isArray(results)){
+      let dataPoints = results.map((r, i): IProcessGraphicLabelInfo => {
+        let value = this.parseTsqResponse(r);
+        let color = typeof(this.tsqExpressions[i].color) === 'function'
+          ? (<Function>this.tsqExpressions[i].color)(value)
+          : this.tsqExpressions[i].color;
+        return {
+          value,
+          alias: this.tsqExpressions[i].alias,
+          x: this.tsqExpressions[i].positionX,
+          y: this.tsqExpressions[i].positionY,
+          color: this.sanitizeAttribute(color),
+          onClick: this.tsqExpressions[i].onElementClick
+        };
+      });
+      this.updateDataMarkers(dataPoints);
+    }
   }
   protected updateDataMarkers(graphicValues: Array<IProcessGraphicLabelInfo>) {
     let textElements = this.component.selectAll('div')

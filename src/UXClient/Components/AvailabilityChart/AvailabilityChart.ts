@@ -398,7 +398,7 @@ class AvailabilityChart extends ChartComponent{
                 warmRect.attr("x", Math.max(this.timePickerLineChart.x(boundedWarmStart)))
                     .attr("y", this.chartOptions.isCompact ? 12 : -8)
                     .attr("width", this.timePickerLineChart.x(boundedWarmEnd) - this.timePickerLineChart.x(boundedWarmStart))
-                    .attr("height", this.chartOptions.isCompact ? 4 : (this.targetElement.select('.tsi-timePickerContainer').select(".tsi-lineChartSVG").node().getBoundingClientRect().height - 44))
+                    .attr("height", this.chartOptions.isCompact ? 4 : Math.max((this.targetElement.select('.tsi-timePickerContainer').select(".tsi-lineChartSVG").node().getBoundingClientRect().height - 44), 0))
                     .attr("fill-opacity", this.chartOptions.isCompact ? .8 : .08)
                     .attr('stroke-opacity', this.chartOptions.isCompact ? 0 : .5)
                     .attr("pointer-events", "none");
