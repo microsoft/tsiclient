@@ -484,7 +484,7 @@ class HierarchyNavigation extends Component{
         }
         
         this.noResultsElem.classed('border-top', this.filterPathElem.classed('visible'));
-        this.noResultsElem.select(".tsi-not-found-message").text(this.mode === State.Search ? this.getString("No search result") : this.getString("No instances"));
+        this.noResultsElem.select(".tsi-not-found-message").node().childNodes[0].textContent = this.mode === State.Search ? this.getString("No search result") : this.getString("No instances");
         this.noResultsElem.style('display', 'flex');
     }
 
