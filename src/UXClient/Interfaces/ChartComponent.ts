@@ -1,4 +1,6 @@
-import Utils, { DataTypes, TooltipMeasureFormat, GRIDCONTAINERCLASS } from "./../Utils";
+import Utils from "./../Utils";
+import { DataTypes, TooltipMeasureFormat } from "./../Constants/Enums";
+import { GRIDCONTAINERCLASS } from "./../Constants/Constants";
 import {Component} from "./Component";
 import {ChartComponentData} from './../Models/ChartComponentData'; 
 import {ChartOptions} from './../Models/ChartOptions';

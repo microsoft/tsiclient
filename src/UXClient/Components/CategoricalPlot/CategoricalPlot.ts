@@ -1,6 +1,8 @@
 import * as d3 from 'd3';
 import { Plot } from '../../Interfaces/Plot';
-import Utils, { NONNUMERICTOPMARGIN, DataTypes, LINECHARTTOPPADDING } from '../../Utils';
+import Utils from '../../Utils';
+import { DataTypes } from "../../Constants/Enums";
+import { NONNUMERICTOPMARGIN, LINECHARTTOPPADDING } from "../../Constants/Constants";
 
 const TOPMARGIN = 4;
 

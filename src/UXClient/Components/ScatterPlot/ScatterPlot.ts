@@ -5,7 +5,8 @@ import { Legend } from './../Legend/Legend';
 import { ScatterPlotData } from '../../Models/ScatterPlotData';
 import Slider from './../Slider/Slider';
 import { Tooltip } from '../Tooltip/Tooltip';
-import Utils, { TooltipMeasureFormat } from './../../Utils';
+import Utils from './../../Utils';
+import { TooltipMeasureFormat } from "./../../Constants/Enums";
 
 class ScatterPlot extends ChartVisualizationComponent {
     private activeDot: any = null;

@@ -3,30 +3,8 @@ import moment from 'moment-timezone';
 import Grid from "./Components/Grid/Grid";
 import { ChartOptions } from './Models/ChartOptions';
 import { ChartComponentData } from './Models/ChartComponentData';
-import { CharactersToEscapeForExactSearchInstance, nullTsidDisplayString } from './Constants/Constants';
-
-export const NONNUMERICTOPMARGIN = 8;
-export const LINECHARTTOPPADDING = 16;
-export const GRIDCONTAINERCLASS = 'tsi-gridContainer';
-export const LINECHARTCHARTMARGINS = {
-    top: 40,
-    bottom: 40,
-    left: 70, 
-    right: 60
-}
-export const LINECHARTXOFFSET = 8;
-export const MARKERVALUENUMERICHEIGHT = 20;
-export const VALUEBARHEIGHT = 3;
-export const SERIESLABELWIDTH = 92;
-
-
-// Linechart stack states
-export enum YAxisStates {Stacked = "stacked", Shared = "shared", Overlap = "overlap" };
-export enum DataTypes {Numeric = 'numeric', Categorical = 'categorical', Events = 'events'};
-export enum EventElementTypes {Diamond = 'diamond', Teardrop = 'teardrop'};
-export enum TooltipMeasureFormat {Enveloped = 'Enveloped', SingleValue = 'SingleValue', Scatter = 'Scatter'};
-export enum valueTypes {String = 'String', Double = 'Double', Long = 'Long', Dynamic = 'Dynamic', Boolean = 'Boolean', DateTime = 'DateTime'};
-
+import { CharactersToEscapeForExactSearchInstance, nullTsidDisplayString, GRIDCONTAINERCLASS, NONNUMERICTOPMARGIN } from './Constants/Constants';
+import { YAxisStates, valueTypes } from './Constants/Enums';
 
 class Utils { 
     static guidForNullTSID = Utils.guid();
