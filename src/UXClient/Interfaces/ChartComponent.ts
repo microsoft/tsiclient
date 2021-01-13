@@ -1,4 +1,4 @@
-import Utils from "./../Utils";
+import Utils from "../Utils/Utils";
 import { DataTypes, TooltipMeasureFormat } from "./../Constants/Enums";
 import { GRIDCONTAINERCLASS } from "./../Constants/Constants";
 import {Component} from "./Component";
@@ -9,6 +9,7 @@ import * as d3 from 'd3';
 import Split from 'split.js';
 import { Legend } from "../Components/Legend/Legend";
 import { ShiftTypes } from "../Constants/Enums";
+import Grid from "../Components/Grid/Grid";
 
 
 class ChartComponent extends Component {
@@ -38,7 +39,7 @@ class ChartComponent extends Component {
 	}
 
 	public showGrid () {
-		Utils.showGrid(this.renderTarget, this.chartOptions, this.aggregateExpressionOptions, this.chartComponentData);
+		Grid.showGrid(this.renderTarget, this.chartOptions, this.aggregateExpressionOptions, this.chartComponentData);
 	}
 
 	public gatedShowGrid () {
@@ -48,7 +49,7 @@ class ChartComponent extends Component {
 	}
 
 	public hideGrid () {
-		Utils.hideGrid(this.renderTarget);
+		Grid.hideGrid(this.renderTarget);
 	}
 
 	public isGridVisible () {
@@ -67,7 +68,7 @@ class ChartComponent extends Component {
 
 			var ellipsisItems = [];
 			if (this.chartOptions.grid) {
-				ellipsisItems.push(Utils.createGridEllipsisOption(this.renderTarget, this.chartOptions, this.aggregateExpressionOptions, this.chartComponentData, this.getString("Display Grid")));
+				ellipsisItems.push(Grid.createGridEllipsisOption(this.renderTarget, this.chartOptions, this.aggregateExpressionOptions, this.chartComponentData, this.getString("Display Grid")));
 			}
 			if (this.chartOptions.canDownload) {
 				ellipsisItems.push(Utils.createDownloadEllipsisOption(() => this.chartComponentData.generateCSVString(this.chartOptions.offset, this.chartOptions.dateLocale), () => Utils.focusOnEllipsisButton(this.renderTarget) ,this.getString("Download as CSV")));

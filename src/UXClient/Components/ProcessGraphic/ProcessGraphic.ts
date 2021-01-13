@@ -2,7 +2,7 @@ import * as d3 from 'd3';
 import './ProcessGraphic.scss';
 import { HistoryPlayback, GraphicInfo } from "./../../Components/HistoryPlayback/HistoryPlayback";
 import ServerClient from '../../../ServerClient/ServerClient';
-import Utils from '../../Utils';
+import Utils from '../../Utils/Utils';
 import TsqExpression from '../../Models/TsqExpression';
 
 class ProcessGraphic extends HistoryPlayback {

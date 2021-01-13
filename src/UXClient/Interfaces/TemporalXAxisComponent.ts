@@ -1,5 +1,5 @@
 import * as d3 from 'd3';
-import Utils from "./../Utils";
+import Utils from "../Utils/Utils";
 import {ChartComponentData} from './../Models/ChartComponentData'; 
 import {ChartOptions} from './../Models/ChartOptions';
 import EllipsisMenu from "../Components/EllipsisMenu/EllipsisMenu";

@@ -3,7 +3,7 @@ import './DateTimeButtonRange.scss';
 import { ChartDataOptions } from '../../Models/ChartDataOptions';
 import { DateTimeButton } from '../../Interfaces/DateTimeButton';
 import DateTimePicker from '../DateTimePicker/DateTimePicker';
-import Utils from '../../Utils';
+import Utils from '../../Utils/Utils';
 
 class DateTimeButtonRange extends DateTimeButton {    
     private onCancel;

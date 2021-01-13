@@ -1,6 +1,6 @@
 import * as d3 from 'd3';
 import './EllipsisMenu.scss';
-import Utils from "./../../Utils";
+import Utils from "../../Utils/Utils";
 import {Component} from "./../../Interfaces/Component";
 
 class EllipsisMenu extends Component {

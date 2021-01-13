@@ -6,7 +6,7 @@ import './DateTimePicker.scss';
 import { ChartComponent } from '../../Interfaces/ChartComponent';
 import TimezonePicker from '../TimezonePicker/TimezonePicker';
 import { entries } from 'd3';
-import Utils from "./../../Utils";
+import Utils from "../../Utils/Utils";
 
 class DateTimePicker extends ChartComponent{
     private calendar: any;

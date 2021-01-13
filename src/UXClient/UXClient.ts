@@ -12,7 +12,7 @@ import EventsTable from "./Components/EventsTable/EventsTable";
 import ModelSearch from "./Components/ModelSearch/ModelSearch"; 
 import DateTimePicker from "./Components/DateTimePicker/DateTimePicker";
 import TimezonePicker from "./Components/TimezonePicker/TimezonePicker";
-import Utils from "./Utils";
+import Utils from "./Utils/Utils";
 import './styles.scss'
 import  EllipsisMenu  from "./Components/EllipsisMenu/EllipsisMenu";
 import  TsqExpression  from "./Models/TsqExpression";

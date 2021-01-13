@@ -1,5 +1,5 @@
 import {Component} from "./Component";
-import Utils from '../Utils';
+import Utils from '../Utils/Utils';
 import { NONNUMERICTOPMARGIN } from "../Constants/Constants";
 
 class Plot extends Component {

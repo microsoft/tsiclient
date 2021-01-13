@@ -1,6 +1,6 @@
 import * as d3 from 'd3';
 import './ContextMenu.scss';
-import Utils from "./../../Utils";
+import Utils from "../../Utils/Utils";
 import {Component} from "./../../Interfaces/Component";
 
 const ACTIONELEMENTHEIGHT = 28;

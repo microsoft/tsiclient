@@ -5,7 +5,7 @@ import moment from 'moment';
 import './SingleDateTimePicker.scss';
 import { ChartComponent } from '../../Interfaces/ChartComponent';
 import { entries } from 'd3';
-import Utils from "./../../Utils";
+import Utils from "../../Utils/Utils";
 
 class SingleDateTimePicker extends ChartComponent{
     private calendar: any;

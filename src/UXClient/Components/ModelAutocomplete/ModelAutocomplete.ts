@@ -5,7 +5,7 @@ import { Component } from '../../Interfaces/Component';
 import { ChartOptions } from '../../Models/ChartOptions';
 import ServerClient from '../../../ServerClient/ServerClient';
 import { KeyCodes } from '../../Constants/Enums';
-import Utils from '../../Utils';
+import Utils from '../../Utils/Utils';
 
 class ModelAutocomplete extends Component{
     public chartOptions: any = new ChartOptions();  // TODO handle onkeyup and oninput in chart options

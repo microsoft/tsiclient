@@ -1,4 +1,4 @@
-import Utils from "./../Utils";
+import Utils from "../Utils/Utils";
 import { ChartDataOptions } from "./ChartDataOptions";
 import { ShiftTypes,  DataTypes, valueTypes  } from "../Constants/Enums";
 

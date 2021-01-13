@@ -1,6 +1,6 @@
 import * as d3 from 'd3';
 import { quadtree } from 'd3';
-import Utils from '../Utils';
+import Utils from '../Utils/Utils';
 import { Strings } from './Strings';
 import { DefaultHierarchyNavigationOptions } from '../Constants/Constants';
 import { InterpolationFunctions, YAxisStates } from '../Constants/Enums';

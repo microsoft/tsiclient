@@ -1,6 +1,6 @@
 import * as d3 from 'd3';
 import './PieChart.scss';
-import Utils from "./../../Utils";
+import Utils from "../../Utils/Utils";
 import { TooltipMeasureFormat } from "./../../Constants/Enums";
 import {Legend} from './../Legend/Legend';
 import {ContextMenu} from './../ContextMenu/ContextMenu';

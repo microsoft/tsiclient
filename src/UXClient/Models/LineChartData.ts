@@ -1,4 +1,4 @@
-import Utils from "./../Utils";
+import Utils from "../Utils/Utils";
 import {ChartComponentData} from "./ChartComponentData";
 
 class LineChartData extends ChartComponentData {

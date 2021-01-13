@@ -1,6 +1,6 @@
 import * as d3 from 'd3';
 import './HeatmapCanvas.scss';
-import Utils from "./../../Utils";
+import Utils from "../../Utils/Utils";
 import {Component} from "./../../Interfaces/Component";
 import { ChartComponent } from "../../Interfaces/ChartComponent";
 import { HeatmapData } from "../../Models/HeatmapData";

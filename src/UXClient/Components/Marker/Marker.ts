@@ -1,6 +1,6 @@
 import * as d3 from 'd3';
 import './Marker.scss';
-import Utils from "./../../Utils";
+import Utils from "../../Utils/Utils";
 import { LINECHARTCHARTMARGINS, MARKERVALUENUMERICHEIGHT, LINECHARTXOFFSET } from "./../../Constants/Constants";
 import {Component} from "./../../Interfaces/Component";
 import { ChartOptions } from '../../Models/ChartOptions';

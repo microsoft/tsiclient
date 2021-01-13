@@ -1,7 +1,7 @@
 import * as d3 from 'd3';
 import './EventsPlot.scss';
 import { Plot } from '../../Interfaces/Plot';
-import Utils from '../../Utils';
+import Utils from '../../Utils/Utils';
 import { EventElementTypes, DataTypes } from "../../Constants/Enums";
 import { NONNUMERICTOPMARGIN, LINECHARTTOPPADDING } from "../../Constants/Constants";
 

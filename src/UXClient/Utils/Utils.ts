@@ -1,12 +1,12 @@
 import * as d3 from 'd3';
 import moment from 'moment-timezone';
-import Grid from "./Components/Grid/Grid";
-import { ChartOptions } from './Models/ChartOptions';
-import { ChartComponentData } from './Models/ChartComponentData';
-import { CharactersToEscapeForExactSearchInstance, nullTsidDisplayString, GRIDCONTAINERCLASS, NONNUMERICTOPMARGIN } from './Constants/Constants';
-import { YAxisStates, valueTypes } from './Constants/Enums';
+import Grid from "../Components/Grid/Grid";
+import { ChartOptions } from '../Models/ChartOptions';
+import { ChartComponentData } from '../Models/ChartComponentData';
+import { CharactersToEscapeForExactSearchInstance, nullTsidDisplayString, GRIDCONTAINERCLASS, NONNUMERICTOPMARGIN } from '../Constants/Constants';
+import { YAxisStates, valueTypes } from '../Constants/Enums';
 
-class Utils { 
+export default class Utils { 
     static guidForNullTSID = Utils.guid();
 
     static formatYAxisNumber (val: number) {
@@ -613,38 +613,6 @@ class Utils {
         return str;
     }
 
-    static hideGrid (renderTarget: any) {
-        d3.select(renderTarget).selectAll(`.${GRIDCONTAINERCLASS}`).remove();
-    }
-
-    static showGrid(renderTarget: any, chartOptions: ChartOptions, aggregateExpressionOptions: any, 
-            chartComponentData: ChartComponentData) {
-        chartOptions.fromChart = true; 
-        d3.select(renderTarget).selectAll(`.${GRIDCONTAINERCLASS}`).remove();
-        let gridContainer: any = d3.select(renderTarget).append('div')
-                .attr('class', GRIDCONTAINERCLASS)
-                .style('width', '100%')
-                .style('height', '100%');
-
-        var gridComponent: Grid = new Grid(gridContainer.node());
-        gridComponent.usesSeconds = chartComponentData.usesSeconds;
-        gridComponent.usesMillis = chartComponentData.usesMillis; 
-        var grid = gridComponent.renderFromAggregates(chartComponentData.data, chartOptions, aggregateExpressionOptions, chartComponentData);
-        gridComponent.focus(0,0);
-    }
-
-    static createGridEllipsisOption (renderTarget: any, chartOptions: ChartOptions, aggregateExpressionOptions: any, 
-                                     chartComponentData: ChartComponentData, labelText = 'Display Grid') {
-        return {
-            iconClass: "grid",
-            label: labelText,
-            action: () => { 
-                this.showGrid(renderTarget, chartOptions, aggregateExpressionOptions, chartComponentData);
-            },
-            description: ""
-        };
-    }
-
     static focusOnEllipsisButton (renderTarget) {
         let ellipsisContainer = d3.select(renderTarget).select(".tsi-ellipsisContainerDiv");
         if (!ellipsisContainer.empty()) {
@@ -1124,5 +1092,3 @@ class Utils {
         return sizeOf(obj);
     }
 }
-
-export default Utils;

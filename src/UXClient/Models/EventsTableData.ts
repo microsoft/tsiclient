@@ -1,4 +1,4 @@
-import Utils from "./../Utils";
+import Utils from "../Utils/Utils";
 import { valueTypes } from "./../Constants/Enums";
 import {ChartComponentData} from "./ChartComponentData";
 import {TimeSeriesEvent} from "./TimeSeriesEvent";

@@ -13,7 +13,7 @@ export default {
         // TsiClient core
         ServerClient: 'src/ServerClient/ServerClient.ts',
         UXClient: 'src/UXClient/UXClient.ts',
-        Utils: 'src/UXClient/Utils.ts',
+        Utils: 'src/UXClient/Utils/index.ts',
         tsiclient: 'src/TsiClient.ts', // Used to generated correctly referenced tsiclient.d.ts file.  
         
         // Direct component imports 

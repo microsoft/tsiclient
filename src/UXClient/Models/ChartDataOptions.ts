@@ -1,5 +1,5 @@
 import { InterpolationFunctions, DataTypes, EventElementTypes } from "../Constants/Enums";
-import Utils from "../Utils";
+import Utils from "../Utils/Utils";
 
 const DEFAULT_HEIGHT = 40;
 // Represents an expression that is suitable for use as the expression options parameter in a chart component
