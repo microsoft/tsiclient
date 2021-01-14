@@ -1,7 +1,6 @@
 import * as d3 from 'd3';
 import './Grid.scss';
-import Utils from "../../Utils/Utils";
-import { DataTypes } from "./../../Constants/Enums";
+import Utils from "../../Utils";
 import { Component } from "./../../Interfaces/Component";
 import { ChartOptions } from '../../Models/ChartOptions';
 import { ChartComponentData } from '../../Models/ChartComponentData';

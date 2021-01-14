@@ -1,16 +1,12 @@
 import * as d3 from 'd3';
 import './PieChart.scss';
-import Utils from "../../Utils/Utils";
+import Utils from "../../Utils";
 import { TooltipMeasureFormat } from "./../../Constants/Enums";
-import {Legend} from './../Legend/Legend';
-import {ContextMenu} from './../ContextMenu/ContextMenu';
-import { ChartComponentData } from '../../Models/ChartComponentData';
+import Legend from './../Legend';
+import ContextMenu from './../ContextMenu';
 import { PieChartData } from '../../Models/PieChartData';
-import Slider from '../Slider/Slider';
-import { Tooltip } from '../Tooltip/Tooltip';
-import { ChartOptions } from '../../Models/ChartOptions';
-import EllipsisMenu from '../EllipsisMenu/EllipsisMenu';
-import { ChartDataOptions } from '../../Models/ChartDataOptions';
+import Slider from '../Slider';
+import Tooltip from '../Tooltip';
 import { ChartVisualizationComponent } from '../../Interfaces/ChartVisualizationComponent';
 
 

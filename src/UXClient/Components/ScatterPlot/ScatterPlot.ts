@@ -1,11 +1,11 @@
 import * as d3 from 'd3';
 import './ScatterPlot.scss';
 import { ChartVisualizationComponent } from './../../Interfaces/ChartVisualizationComponent';
-import { Legend } from './../Legend/Legend';
+import Legend from './../Legend';
 import { ScatterPlotData } from '../../Models/ScatterPlotData';
-import Slider from './../Slider/Slider';
-import { Tooltip } from '../Tooltip/Tooltip';
-import Utils from '../../Utils/Utils';
+import Slider from './../Slider';
+import Tooltip from '../Tooltip';
+import Utils from '../../Utils';
 import { TooltipMeasureFormat } from "./../../Constants/Enums";
 
 class ScatterPlot extends ChartVisualizationComponent {

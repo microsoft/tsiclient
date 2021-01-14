@@ -1,5 +1,5 @@
 import { ErrorCodes } from '../UXClient/Constants/Enums';
-import Utils from '../UXClient/Utils/Utils';
+import Utils from '../UXClient/Utils';
 
 type progressChange = (p: number) => void;
 

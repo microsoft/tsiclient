@@ -1,6 +1,6 @@
 import * as d3 from 'd3';
 import { Plot } from '../../Interfaces/Plot';
-import Utils from '../../Utils/Utils';
+import Utils from '../../Utils';
 import { DataTypes } from "../../Constants/Enums";
 import { NONNUMERICTOPMARGIN, LINECHARTTOPPADDING } from "../../Constants/Constants";
 
@@ -187,4 +187,4 @@ class CategoricalPlot extends Plot {
         
     }
 }
-export {CategoricalPlot}
+export default CategoricalPlot;

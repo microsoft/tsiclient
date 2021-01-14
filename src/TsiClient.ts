@@ -1,6 +1,6 @@
 import ServerClient from "./ServerClient/ServerClient";
 import UXClient from "./UXClient/UXClient";
-import Utils from "./UXClient/Utils/Utils";
+import Utils from "./UXClient/Utils";
 
 class TsiClient {
     public server = new ServerClient();

@@ -1,12 +1,11 @@
 import * as d3 from 'd3';
 import './Marker.scss';
-import Utils from "../../Utils/Utils";
-import { LINECHARTCHARTMARGINS, MARKERVALUENUMERICHEIGHT, LINECHARTXOFFSET } from "./../../Constants/Constants";
+import Utils from "../../Utils";
+import { MARKERVALUENUMERICHEIGHT, LINECHARTXOFFSET } from "./../../Constants/Constants";
 import {Component} from "./../../Interfaces/Component";
 import { ChartOptions } from '../../Models/ChartOptions';
 import { LineChartData } from '../../Models/LineChartData';
-import { Tooltip } from '../Tooltip/Tooltip';
-import { ChartComponentData } from '../../Models/ChartComponentData';
+import Tooltip  from '../Tooltip';
 import { KeyCodes, ShiftTypes, DataTypes, TooltipMeasureFormat } from '../../Constants/Enums';
 
 const MARKERSTRINGMAXLENGTH = 250;
@@ -577,4 +576,4 @@ class Marker extends Component {
     }
 }
 
-export {Marker}
+export default Marker;

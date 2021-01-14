@@ -10,38 +10,37 @@ import visualizer from 'rollup-plugin-visualizer';
 /* Used to generate direct import bundle for each component, associated types, and unminified css */
 export default {
     input: {
-        // TsiClient core
-        ServerClient: 'src/ServerClient/ServerClient.ts',
-        UXClient: 'src/UXClient/UXClient.ts',
+        // TsiClient core and models
+        ServerClient: 'src/ServerClient/index.ts',
+        UXClient: 'src/UXClient/index.ts',
         Utils: 'src/UXClient/Utils/index.ts',
         tsiclient: 'src/TsiClient.ts', // Used to generated correctly referenced tsiclient.d.ts file.  
+        Models: 'src/UXClient/Models/index.ts',
         
-        // Direct component imports 
-        LineChart: 'src/UXClient/Components/LineChart/LineChart.ts',
-        AvailabilityChart: 'src/UXClient/Components/AvailabilityChart/AvailabilityChart.ts',
-        PieChart: 'src/UXClient/Components/PieChart/PieChart.ts',
-        ScatterPlot: 'src/UXClient/Components/ScatterPlot/ScatterPlot.ts',
-        GroupedBarChart: 'src/UXClient/Components/GroupedBarChart/GroupedBarChart.ts',
-        Grid: 'src/UXClient/Components/Grid/Grid.ts',
-        Slider: 'src/UXClient/Components/Slider/Slider.ts',
-        Hierarchy: 'src/UXClient/Components/Hierarchy/Hierarchy.ts',
-        AggregateExpression: 'src/UXClient/Models/AggregateExpression.ts',
-        Heatmap: 'src/UXClient/Components/Heatmap/Heatmap.ts',
-        EventsTable: 'src/UXClient/Components/EventsTable/EventsTable.ts',
-        ModelSearch: 'src/UXClient/Components/ModelSearch/ModelSearch.ts',
-        DateTimePicker: 'src/UXClient/Components/DateTimePicker/DateTimePicker.ts',
-        TimezonePicker: 'src/UXClient/Components/TimezonePicker/TimezonePicker.ts',
-        EllipsisMenu: 'src/UXClient/Components/EllipsisMenu/EllipsisMenu.ts',
-        TsqExpression: 'src/UXClient/Models/TsqExpression.ts',
-        ModelAutocomplete: 'src/UXClient/Components/ModelAutocomplete/ModelAutocomplete.ts',
-        HierarchyNavigation: 'src/UXClient/Components/HierarchyNavigation/HierarchyNavigation.ts',
-        SingleDateTimePicker:'src/UXClient/Components/SingleDateTimePicker/SingleDateTimePicker.ts',
-        DateTimeButtonSingle: 'src/UXClient/Components/DateTimeButtonSingle/DateTimeButtonSingle.ts',
-        DateTimeButtonRange: 'src/UXClient/Components/DateTimeButtonRange/DateTimeButtonRange.ts',
-        ProcessGraphic: 'src/UXClient/Components/ProcessGraphic/ProcessGraphic.ts',
-        PlaybackControls: 'src/UXClient/Components/PlaybackControls/PlaybackControls.ts',
-        ColorPicker: 'src/UXClient/Components/ColorPicker/ColorPicker.ts',
-        GeoProcessGraphic: 'src/UXClient/Components/GeoProcessGraphic/GeoProcessGraphic.ts'
+        // Component imports 
+        LineChart: 'src/UXClient/Components/LineChart/index.ts',
+        AvailabilityChart: 'src/UXClient/Components/AvailabilityChart/index.ts',
+        PieChart: 'src/UXClient/Components/PieChart/index.ts',
+        ScatterPlot: 'src/UXClient/Components/ScatterPlot/index.ts',
+        GroupedBarChart: 'src/UXClient/Components/GroupedBarChart/index.ts',
+        Grid: 'src/UXClient/Components/Grid/index.ts',
+        Slider: 'src/UXClient/Components/Slider/index.ts',
+        Hierarchy: 'src/UXClient/Components/Hierarchy/index.ts',
+        Heatmap: 'src/UXClient/Components/Heatmap/index.ts',
+        EventsTable: 'src/UXClient/Components/EventsTable/index.ts',
+        ModelSearch: 'src/UXClient/Components/ModelSearch/index.ts',
+        DateTimePicker: 'src/UXClient/Components/DateTimePicker/index.ts',
+        TimezonePicker: 'src/UXClient/Components/TimezonePicker/index.ts',
+        EllipsisMenu: 'src/UXClient/Components/EllipsisMenu/index.ts',
+        ModelAutocomplete: 'src/UXClient/Components/ModelAutocomplete/index.ts',
+        HierarchyNavigation: 'src/UXClient/Components/HierarchyNavigation/index.ts',
+        SingleDateTimePicker:'src/UXClient/Components/SingleDateTimePicker/index.ts',
+        DateTimeButtonSingle: 'src/UXClient/Components/DateTimeButtonSingle/index.ts',
+        DateTimeButtonRange: 'src/UXClient/Components/DateTimeButtonRange/index.ts',
+        ProcessGraphic: 'src/UXClient/Components/ProcessGraphic/index.ts',
+        PlaybackControls: 'src/UXClient/Components/PlaybackControls/index.ts',
+        ColorPicker: 'src/UXClient/Components/ColorPicker/index.ts',
+        GeoProcessGraphic: 'src/UXClient/Components/GeoProcessGraphic/index.ts'
     },
     output: {
         dir: 'dist',

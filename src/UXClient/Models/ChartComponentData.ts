@@ -1,5 +1,4 @@
-import Utils from "../Utils/Utils";
-import { ChartDataOptions } from "./ChartDataOptions";
+import Utils from "../Utils";
 import { ShiftTypes,  DataTypes, valueTypes  } from "../Constants/Enums";
 
 class ChartComponentData {

@@ -1,4 +1,4 @@
-import Utils from "../Utils/Utils";
+import Utils from "../Utils";
 import { ChartDataOptions } from "./ChartDataOptions";
 
 class TsqExpression extends ChartDataOptions {
