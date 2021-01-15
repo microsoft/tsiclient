@@ -479,10 +479,12 @@ class HierarchyNavigation extends Component{
 
     private showNoResultsForSearch = () => {
         (this.viewTypesElem.node() as any).style.display = 'none';
-        if ((this.selectedHierarchyName !== HierarchySelectionValues.All) || this.filterPathElem.classed('visible')) {
+        if (this.mode === State.Search && ((this.selectedHierarchyName !== HierarchySelectionValues.All) || this.filterPathElem.classed('visible'))) {
             this.searchGloballyElem.style('display', 'inline');
+            this.noResultsElem.select(".tsi-clear").style('display', 'inline-block');
         } else {
             this.searchGloballyElem.style('display', 'none');
+            this.noResultsElem.select(".tsi-clear").style('display', 'none');
         }
         
         this.noResultsElem.classed('border-top', this.filterPathElem.classed('visible'));
