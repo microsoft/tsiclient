@@ -251,6 +251,8 @@ class HierarchyNavigation extends Component{
                             .attr("aria-label", this.getString("Dismiss"))
                             .on('click keydown', function() {
                                 if (Utils.isKeyDownAndNotEnter(d3.event)) {return; }
+                                self.searchWrapperElem.select("input").node().value = "";
+                                self.searchWrapperElem.select(".tsi-clear").dispatch('click');
                                 self.noResultsElem.style('display', 'none');
                             });
                             
