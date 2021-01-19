@@ -296,7 +296,7 @@ class LineChart extends TemporalXAxisComponent {
 
     private setHorizontalValuePosAndText (d: any, xPos: number, xValue: any, shiftMillis: number) {
         var bucketSize = this.chartComponentData.displayState[d.aggregateKey].bucketSize;
-        var endValue = bucketSize ? (new Date(xValue.valueOf() + bucketSize)) : null;
+        var endValue = bucketSize && !this.chartComponentData.displayState[d.aggregateKey].aggregateExpression.isRawData ? (new Date(xValue.valueOf() + bucketSize)) : null;
         
         this.horizontalValueBox.text('')
             .style('left', `${xPos}px`)
@@ -344,7 +344,7 @@ class LineChart extends TemporalXAxisComponent {
         this.setVerticalValueAndPosition(yValue, yPos + this.chartMargins.top);
         
         var bucketSize = this.chartComponentData.displayState[d.aggregateKey].bucketSize;
-        var endValue = bucketSize ? (new Date(xValue.valueOf() + bucketSize)) : null;
+        var endValue = bucketSize && !this.chartComponentData.displayState[d.aggregateKey].aggregateExpression.isRawData ? (new Date(xValue.valueOf() + bucketSize)) : null;
 
         if (endValue) {
             let barWidth = this.x(endValue) - this.x(xValue);
