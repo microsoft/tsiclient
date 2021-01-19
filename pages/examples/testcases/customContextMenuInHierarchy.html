@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <!-- styles are only used for styling header and auth elements, where possible -->
+        <link rel="stylesheet" type="text/css" href="../styles.css" />
+        <title>Custom Context Menu in Hierarchy Navigation</title>
+    </head>
+    <body style="font-family: 'Segoe UI', sans-serif;">
+        <div id="hierarchyNav" style="
+                width: 308px;
+                height: calc(100% - 40px);
+                position: fixed;top: 40px;">
+        </div>
+        <script>
+            var hierarchy;
+            var environmentFqdn = '6988946f-2b5c-4f84-9921-530501fbab45.env.timeseries.azure.com';
+            var tsiClient;
+            onInstanceClick = function(instance) {
+                let contextMenuActions = [];
+                authContext.getTsiToken().then(token => { //TODO: change this to Observable with Observable.from with .takeUntil(Observable.of(true).delay(2000)) to return default type variables, or maybe move this onclick into HierarchyNavigation component using rxjs lib
+                    tsiClient.server.getTimeseriesTypes(token, environmentFqdn, [instance.type.id]).then(r => {
+                        if (r.get && Array.isArray(r.get)) {
+                            r.get.forEach((t) => {
+                                let type = t.timeSeriesType;
+                                Object.keys(type.variables).forEach((vName) => {
+                                    let option = {};
+                                    if (type.variables[vName].aggregation && type.variables[vName].aggregation.tsx === 'avg($value)') {
+                                        let newType = this.getTsmTypeFromVariable(type.variables[vName]);
+                                        option.name = vName;
+                                        option.kind = type.variables[vName].kind;
+                                        option.action = () => alert(JSON.stringify(newType.variables));
+                                    } else {
+                                        option.name = vName;
+                                        option.kind = type.variables[vName].kind;
+                                        option.action = () => alert(JSON.stringify(type.variables));//addInstanceAction(type, vName);
+                                    }
+                                    contextMenuActions.push(option);
+                                });
+                            });
+                            hierarchy.drawContextMenu(contextMenuActions, {
+                                isSelectionEnabled: contextMenuActions.length > 1 ? true : false, 
+                                isFilterEnabled: contextMenuActions.length > 5 ? true : false,
+                                onClose: () => hierarchy.closeContextMenu()
+                            });
+                        }
+                    }).catch(function (err) {
+                        let typeVariables = instance.type.variables;
+                        
+                        Object.keys(typeVariables).forEach((vName) => {
+                            let option = {};
+                            if (typeVariables[vName].aggregation && typeVariables[vName].aggregation.tsx === 'avg($value)') {
+                                let newType = this.getTsmTypeFromVariable(typeVariables[vName]);
+                                option.name = vName;
+                                option.kind = typeVariables[vName].kind;
+                                option.action = () => alert(JSON.stringify(newType.variables));
+                            } else {
+                                option.name = vName;
+                                option.kind = typeVariables[vName].kind;
+                                option.action = () => alert(JSON.stringify(instance.type.variables));//addInstanceAction(type, vName);
+                            }
+                            contextMenuActions.push(option);
+                        });
+                        hierarchy.drawContextMenu(contextMenuActions, {
+                            isSelectionEnabled: contextMenuActions.length > 1 ? true : false, 
+                            isFilterEnabled: contextMenuActions.length > 5 ? true : false
+                        });
+                    });
+                });
+            }
+
+            onHierarchyNodeClick = function(hierarchy, path) {
+                console.log("Hierarchy: " + hierarchy);
+                path.forEach(p => {
+                    console.log("Instance Field: " + JSON.stringify(p));
+                });
+            }
+
+            getTsmTypeFromVariable = (v) => {
+                let type = {variables: {
+                    avg: 
+                        {kind: 'numeric', 
+                        value: v.value, 
+                        filter: v.filter ? v.filter : null, 
+                        aggregation: {
+                            tsx: 'avg($value)'
+                            }
+                        }
+                    ,
+                    min: 
+                        {kind: 'numeric', 
+                        value: v.value, 
+                        filter: v.filter ? v.filter : null, 
+                        aggregation: {
+                            tsx: 'min($value)'
+                            }
+                        }
+                    ,
+                    max: 
+                        {kind: 'numeric', 
+                        value: v.value, 
+                        filter: v.filter ? v.filter : null,
+                        aggregation: {
+                            tsx: 'max($value)'
+                            }
+                        }
+                }};
+                return type;
+            }
+
+            var hierarchyNavOptions = {
+                theme: 'light',
+                hierarchyOptions: {
+                    instancesPageSize: 10,
+                    hierarchiesPageSize: 10,
+                    isInstancesRecursive: false,
+                    isInstancesHighlighted: true,
+                    instancesSort: "DisplayName",
+                    hierarchiesExpand: "OneLevel",
+                    hierarchiesSort: "Name"
+                }
+            }
+
+            toggleHierarchyNavigationOption = function(property, value = null) {
+                hierarchyNavOptions[property] = (value === null) ? !hierarchyNavOptions[property] : value; 
+                hierarchy.render(environmentFqdn, authContext.getTsiToken, Object.assign({}, hierarchyNavOptions, {
+                    onInstanceClick: instance => this.onInstanceClick(instance),
+                    onHierarchyNodeClick: (hierarchy, path) => this.onHierarchyNodeClick(hierarchy, path)
+                }));
+            }
+
+            window.onload = function() {
+                initAuth('Custom Context Menu in Hierarchy Navigation');  // initiate auth objects, header, and login modal
+                tsiClient = new TsiClient();
+                
+                hierarchy = new tsiClient.ux.HierarchyNavigation(document.getElementById('hierarchyNav'));
+                hierarchy.render(environmentFqdn, authContext.getTsiToken, Object.assign({}, hierarchyNavOptions, {
+                    onInstanceClick: instance => this.onInstanceClick(instance),
+                    onHierarchyNodeClick: (hierarchy, path) => this.onHierarchyNodeClick(hierarchy, path)
+                }));
+
+            }
+        </script>
+    </body>
+    <!-- boilerplate headers are injected with head.js, grab them from the live example header, or include a link to head.js -->
+    <script src="../boilerplate/head.js"></script>
+
+    <!-- boilerplate auth code is injected with auth.js, check it out for auth setup -->
+    <script src="../boilerplate/auth.js"></script>
+</html>

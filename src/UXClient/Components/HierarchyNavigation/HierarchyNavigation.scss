@@ -189,6 +189,10 @@
             background-image: url(../../Icons/Filter_Icon_Dark_Theme.svg);
         }
 
+        .tsi-stacked-icon {
+            background-image: url(../../Icons/stacked.svg);
+        }
+
         .tsi-spinner-icon {
             background-image: url(../../Icons/Spinner.svg);
         }
@@ -221,6 +225,10 @@
 
         .tsi-filter-icon {
             background-image: url(../../Icons/Filter_Icon_Light_Theme.svg);
+        }
+
+        .tsi-stacked-icon {
+            background-image: url(../../Icons/stacked.svg);
         }
 
         .tsi-spinner-icon {
@@ -351,13 +359,6 @@
             align-items: center;
             flex-direction: row;
             padding: 0;
-
-            .tsi-filter-icon {
-                width: 12px;
-                height: 10px;
-                cursor: auto;
-                margin-right: 4px;
-            }
     
             .tsi-path-list {
                 display: flex;
@@ -511,7 +512,7 @@
         }
     }
 
-    .tsi-filter-icon {
+    .tsi-filter-icon, .tsi-stacked-icon {
         z-index: 3 !important;
         right: 20px;
         position: absolute;
@@ -523,6 +524,10 @@
         background-size: 11px;
         background-position: center;
         top: 6px;
+    }
+
+    .tsi-stacked-icon {
+        right: 40px;
     }
 
     .tsi-down-caret-icon {

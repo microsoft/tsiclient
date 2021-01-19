@@ -1046,6 +1046,7 @@ class HierarchyNavigation extends Component{
                 if (isHierarchyNode) {
                     if (d3.event.relatedTarget != d3.select(this.parentNode).select('.tsi-filter-icon').node()) {
                         (d3.select(this.parentNode).select('.tsi-filter-icon').node() as any).style.visibility = 'visible';
+                        (d3.select(this.parentNode).select('.tsi-stacked-icon').node() as any).style.visibility = 'visible';
                     }
                 }
             })
@@ -1053,6 +1054,7 @@ class HierarchyNavigation extends Component{
                 if (isHierarchyNode) {
                     if (d3.event.relatedTarget != d3.select(this.parentNode).select('.tsi-filter-icon').node()) {
                         (d3.select(this.parentNode).select('.tsi-filter-icon').node() as any).style.visibility = 'hidden';
+                        (d3.select(this.parentNode).select('.tsi-stacked-icon').node() as any).style.visibility = 'hidden';
                     }
                 }
             });
@@ -1098,6 +1100,28 @@ class HierarchyNavigation extends Component{
                         (this as any).style.visibility = 'hidden';
                     }
                 });
+            if (self.chartOptions.onHierarchyNodeClick) {
+                hierarchyItemElem.append('div').classed('tsi-stacked-icon', true).attr('title', this.getString('Build fleet query'))
+                .attr('tabindex', 0)
+                .attr('arialabel', this.getString('Build fleet query'))
+                .attr('role', 'button')
+                .on('click keydown', function() {
+                    if (Utils.isKeyDownAndNotEnter(d3.event)) {return; }
+                    d3.event.preventDefault();
+                    d3.event.stopPropagation();
+                    let path = [];
+                    hORi.path.forEach((p, idx) => {
+                        if (idx === 0) return;
+                        let property = {instanceFieldName: self.envHierarchies[hORi.path[0]].source.instanceFieldNames[idx-1], instanceFieldValue: p};
+                        path.push(property);
+                    });
+                    self.chartOptions.onHierarchyNodeClick(self.selectedHierarchyName === HierarchySelectionValues.All || self.selectedHierarchyName === HierarchySelectionValues.Unparented ? hORi.path[0] : self.selectedHierarchyName, path);
+                }).on('mouseleave blur', function() {
+                    if (d3.event.relatedTarget != d3.select((this as HTMLElement).parentNode)) {
+                        (this as any).style.visibility = 'hidden';
+                    }
+                });
+            }
         } else {
             let spanElem = hierarchyItemElem.append('span').classed('tsi-name', true);
             Utils.appendFormattedElementsFromString(spanElem, this.instanceNodeStringToDisplay(hORi));

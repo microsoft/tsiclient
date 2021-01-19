@@ -13,6 +13,11 @@ interface swimLaneOption {
     collapseEvents?: string
 }
 
+interface hierarchyNodePath {
+    instanceFieldName: string,
+    instanceFieldValue: string
+}
+
 class ChartOptions {
     public aggTopMargin: number; // margin on top of each aggregate line(s)
     public arcWidthRatio: number; // number between 0 and 1 which determines how thic the pie chart arc is
@@ -62,6 +67,7 @@ class ChartOptions {
     public onClick: (d3Event: any) => void; // for handling click, e.g. clicking on color picker
     public onInput: (searchText: string, event) => void; // for handling after input actions in ModelAutocomplete
     public onInstanceClick: (instance: any) => any;  // for model search, takes an instance and returns an object of context menu actions
+    public onHierarchyNodeClick: (hierarchyName: string, path: Array<hierarchyNodePath>) => any; // takes the path to that node when you click on a non-leaf/non-instance hierarchy node to trigger a custom context menu for fleet query etc.
     public onKeydown: (d3Event: any, awesompleteObject: any) => void;  // for handling keydown actions in ModelAutocomplete
     public onMarkersChange: (markers: Array<number>) => any; //triggered when a marker is either added or removed in the linechart
     public onMouseout: () => void;
@@ -174,6 +180,7 @@ class ChartOptions {
         this.includeTimezones = this.mergeValue(chartOptionsObj, 'includeTimezones', true);
         this.availabilityLeftMargin = this.mergeValue(chartOptionsObj, 'availabilityLeftMargin', 60);
         this.onInstanceClick = this.mergeValue(chartOptionsObj, 'onInstanceClick', () => {return {}});
+        this.onHierarchyNodeClick = this.mergeValue(chartOptionsObj, 'onHierarchyNodeClick', () => {});
         this.interpolationFunction = this.getInterpolationFunction(this.mergeValue(chartOptionsObj, 'interpolationFunction', InterpolationFunctions.None));
         this.includeEnvelope = this.mergeValue(chartOptionsObj, 'includeEnvelope', false);
         this.canDownload = this.mergeValue(chartOptionsObj, 'canDownload', true);
@@ -272,6 +279,7 @@ class ChartOptions {
             includeTimezones: this.includeTimezones,
             availabilityLeftMargin: this.availabilityLeftMargin,
             onInstanceClick: this.onInstanceClick,
+            onHierarchyNodeClick: this.onHierarchyNodeClick,
             interpolationFunction: this.interpolationFunction,
             includeEnvelope: this.includeEnvelope,
             canDownload: this.canDownload,
