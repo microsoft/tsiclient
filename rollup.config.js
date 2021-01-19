@@ -10,12 +10,15 @@ import visualizer from 'rollup-plugin-visualizer';
 /* Used to generate direct import bundle for each component, associated types, and unminified css */
 export default {
     input: {
-        // TsiClient core and models
+        // TsiClient core
         ServerClient: 'src/ServerClient/index.ts',
         UXClient: 'src/UXClient/index.ts',
         Utils: 'src/UXClient/Utils/index.ts',
         tsiclient: 'src/TsiClient.ts', // Used to generated correctly referenced tsiclient.d.ts file.  
-        Models: 'src/UXClient/Models/index.ts',
+
+        // TsiClient models
+        TsqExpression: 'src/UXClient/Models/TsqExpression.ts',
+        AggregateExpression: 'src/UXClient/Models/AggregateExpression.ts',
         
         // Component imports 
         LineChart: 'src/UXClient/Components/LineChart/index.ts',
