@@ -67,7 +67,7 @@ class ChartOptions {
     public onClick: (d3Event: any) => void; // for handling click, e.g. clicking on color picker
     public onInput: (searchText: string, event) => void; // for handling after input actions in ModelAutocomplete
     public onInstanceClick: (instance: any) => any;  // for model search, takes an instance and returns an object of context menu actions
-    public onHierarchyNodeClick: (hierarchyName: string, path: Array<hierarchyNodePath>) => any; // takes the path to that node when you click on a non-leaf/non-instance hierarchy node to trigger a custom context menu for fleet query etc.
+    public onHierarchyNodeClick: (hierarchyName: string, path: Array<HierarchyNodePath>) => any; // takes the path to that node when you click on a non-leaf/non-instance hierarchy node to trigger a custom context menu for fleet query etc.
     public onKeydown: (d3Event: any, awesompleteObject: any) => void;  // for handling keydown actions in ModelAutocomplete
     public onMarkersChange: (markers: Array<number>) => any; //triggered when a marker is either added or removed in the linechart
     public onMouseout: () => void;
