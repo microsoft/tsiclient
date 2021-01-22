@@ -1,6 +1,5 @@
 import * as d3 from 'd3';
 import './DateTimeButtonRange.scss';
-import { ChartDataOptions } from '../../Models/ChartDataOptions';
 import { DateTimeButton } from '../../Interfaces/DateTimeButton';
 import DateTimePicker from '../DateTimePicker/DateTimePicker';
 import Utils from '../../Utils';
@@ -90,4 +89,4 @@ class DateTimeButtonRange extends DateTimeButton {
         });
     }
 }
-export default DateTimeButtonRange
+export default DateTimeButtonRange;

@@ -1,7 +1,7 @@
 import * as d3 from 'd3';
 import { Component } from "./../../Interfaces/Component";
-import PlaybackControls from '../PlaybackControls/PlaybackControls';
-import ServerClient from '../../../ServerClient/ServerClient';
+import PlaybackControls from '../PlaybackControls';
+import ServerClient from '../../../ServerClient';
 import { TsqRange } from '../../Models/TsqRange';
 import TsqExpression from '../../Models/TsqExpression';
 
@@ -225,4 +225,4 @@ abstract class HistoryPlayback extends Component {
     return { from, to };
   }
 }
-export { HistoryPlayback };
+export default HistoryPlayback;

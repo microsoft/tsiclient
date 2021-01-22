@@ -3,8 +3,7 @@ import './ModelAutocomplete.scss';
 import 'awesomplete';
 import { Component } from '../../Interfaces/Component';
 import { ChartOptions } from '../../Models/ChartOptions';
-import ServerClient from '../../../ServerClient/ServerClient';
-import { KeyCodes } from '../../Constants/Enums';
+import ServerClient from '../../../ServerClient';
 import Utils from '../../Utils';
 
 class ModelAutocomplete extends Component{
@@ -101,4 +100,4 @@ class ModelAutocomplete extends Component{
 
 }
 
-export default ModelAutocomplete
+export default ModelAutocomplete;

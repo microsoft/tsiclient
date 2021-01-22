@@ -1,20 +1,19 @@
 import * as d3 from 'd3';
-import { interpolatePath } from 'd3-interpolate-path';
 import './LineChart.scss';
-import Utils, { DataTypes, YAxisStates, LINECHARTTOPPADDING, TooltipMeasureFormat, LINECHARTCHARTMARGINS, VALUEBARHEIGHT, SERIESLABELWIDTH} from "./../../Utils";
-import {Legend} from "./../Legend/Legend";
+import Utils from "../../Utils";
+import { DataTypes, YAxisStates, TooltipMeasureFormat } from "./../../Constants/Enums";
+import { LINECHARTTOPPADDING, LINECHARTCHARTMARGINS, VALUEBARHEIGHT, SERIESLABELWIDTH } from "./../../Constants/Constants";
+import Legend from "./../Legend";
 import {TemporalXAxisComponent} from "./../../Interfaces/TemporalXAxisComponent";
 import {LineChartData} from "./../../Models/LineChartData";
-import { ContextMenu } from '../ContextMenu/ContextMenu';
-import { Tooltip } from '../Tooltip/Tooltip';
-import { ChartOptions } from '../../Models/ChartOptions';
-import EllipsisMenu from '../EllipsisMenu/EllipsisMenu';
+import ContextMenu  from '../ContextMenu';
+import Tooltip  from '../Tooltip';
 import { ChartDataOptions } from '../../Models/ChartDataOptions';
-import { LinePlot } from '../LinePlot/LinePlot';
-import { CategoricalPlot } from '../CategoricalPlot/CategoricalPlot';
-import { EventsPlot } from '../EventsPlot/EventsPlot';
+import LinePlot from '../LinePlot';
+import CategoricalPlot from '../CategoricalPlot';
+import EventsPlot from '../EventsPlot';
 import { AxisState } from '../../Models/AxisState';
-import { Marker } from '../Marker/Marker';
+import Marker from '../Marker';
 import { swimlaneLabelConstants} from '../../Constants/Constants'
 
 class LineChart extends TemporalXAxisComponent {

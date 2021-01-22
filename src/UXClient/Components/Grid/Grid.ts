@@ -1,9 +1,10 @@
 import * as d3 from 'd3';
 import './Grid.scss';
-import Utils, { DataTypes } from "./../../Utils";
+import Utils from "../../Utils";
 import { Component } from "./../../Interfaces/Component";
 import { ChartOptions } from '../../Models/ChartOptions';
 import { ChartComponentData } from '../../Models/ChartComponentData';
+import { GRIDCONTAINERCLASS } from '../../Constants/Constants';
 
 class Grid extends Component {
 	private gridComponent: any;
@@ -24,7 +25,39 @@ class Grid extends Component {
 
 	constructor(renderTarget: Element){
 		super(renderTarget);
-	}
+    }
+    
+    static hideGrid (renderTarget: any) {
+        d3.select(renderTarget).selectAll(`.${GRIDCONTAINERCLASS}`).remove();
+    }
+
+    static showGrid(renderTarget: any, chartOptions: ChartOptions, aggregateExpressionOptions: any, 
+            chartComponentData: ChartComponentData) {
+        chartOptions.fromChart = true; 
+        d3.select(renderTarget).selectAll(`.${GRIDCONTAINERCLASS}`).remove();
+        let gridContainer: any = d3.select(renderTarget).append('div')
+                .attr('class', GRIDCONTAINERCLASS)
+                .style('width', '100%')
+                .style('height', '100%');
+
+        var gridComponent: Grid = new Grid(gridContainer.node());
+        gridComponent.usesSeconds = chartComponentData.usesSeconds;
+        gridComponent.usesMillis = chartComponentData.usesMillis; 
+        var grid = gridComponent.renderFromAggregates(chartComponentData.data, chartOptions, aggregateExpressionOptions, chartComponentData);
+        gridComponent.focus(0,0);
+    }
+
+    static createGridEllipsisOption (renderTarget: any, chartOptions: ChartOptions, aggregateExpressionOptions: any, 
+                                     chartComponentData: ChartComponentData, labelText = 'Display Grid') {
+        return {
+            iconClass: "grid",
+            label: labelText,
+            action: () => { 
+                this.showGrid(renderTarget, chartOptions, aggregateExpressionOptions, chartComponentData);
+            },
+            description: ""
+        };
+    }
 
 	Grid() {
 	}
