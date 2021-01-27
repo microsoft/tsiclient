@@ -1,34 +1,12 @@
 import * as d3 from 'd3';
 import moment from 'moment-timezone';
-import Grid from "./Components/Grid/Grid";
-import { ChartOptions } from './Models/ChartOptions';
-import { ChartComponentData } from './Models/ChartComponentData';
-import { CharactersToEscapeForExactSearchInstance, nullTsidDisplayString } from './Constants/Constants';
+import Grid from "../Components/Grid/Grid";
+import { ChartOptions } from '../Models/ChartOptions';
+import { ChartComponentData } from '../Models/ChartComponentData';
+import { CharactersToEscapeForExactSearchInstance, nullTsidDisplayString, GRIDCONTAINERCLASS, NONNUMERICTOPMARGIN } from '../Constants/Constants';
+import { YAxisStates, valueTypes } from '../Constants/Enums';
 
-export const NONNUMERICTOPMARGIN = 8;
-export const LINECHARTTOPPADDING = 16;
-export const GRIDCONTAINERCLASS = 'tsi-gridContainer';
-export const LINECHARTCHARTMARGINS = {
-    top: 40,
-    bottom: 40,
-    left: 70, 
-    right: 60
-}
-export const LINECHARTXOFFSET = 8;
-export const MARKERVALUENUMERICHEIGHT = 20;
-export const VALUEBARHEIGHT = 3;
-export const SERIESLABELWIDTH = 92;
-
-
-// Linechart stack states
-export enum YAxisStates {Stacked = "stacked", Shared = "shared", Overlap = "overlap" };
-export enum DataTypes {Numeric = 'numeric', Categorical = 'categorical', Events = 'events'};
-export enum EventElementTypes {Diamond = 'diamond', Teardrop = 'teardrop'};
-export enum TooltipMeasureFormat {Enveloped = 'Enveloped', SingleValue = 'SingleValue', Scatter = 'Scatter'};
-export enum valueTypes {String = 'String', Double = 'Double', Long = 'Long', Dynamic = 'Dynamic', Boolean = 'Boolean', DateTime = 'DateTime'};
-
-
-class Utils { 
+export default class Utils { 
     static guidForNullTSID = Utils.guid();
 
     static formatYAxisNumber (val: number) {
@@ -635,38 +613,6 @@ class Utils {
         return str;
     }
 
-    static hideGrid (renderTarget: any) {
-        d3.select(renderTarget).selectAll(`.${GRIDCONTAINERCLASS}`).remove();
-    }
-
-    static showGrid(renderTarget: any, chartOptions: ChartOptions, aggregateExpressionOptions: any, 
-            chartComponentData: ChartComponentData) {
-        chartOptions.fromChart = true; 
-        d3.select(renderTarget).selectAll(`.${GRIDCONTAINERCLASS}`).remove();
-        let gridContainer: any = d3.select(renderTarget).append('div')
-                .attr('class', GRIDCONTAINERCLASS)
-                .style('width', '100%')
-                .style('height', '100%');
-
-        var gridComponent: Grid = new Grid(gridContainer.node());
-        gridComponent.usesSeconds = chartComponentData.usesSeconds;
-        gridComponent.usesMillis = chartComponentData.usesMillis; 
-        var grid = gridComponent.renderFromAggregates(chartComponentData.data, chartOptions, aggregateExpressionOptions, chartComponentData);
-        gridComponent.focus(0,0);
-    }
-
-    static createGridEllipsisOption (renderTarget: any, chartOptions: ChartOptions, aggregateExpressionOptions: any, 
-                                     chartComponentData: ChartComponentData, labelText = 'Display Grid') {
-        return {
-            iconClass: "grid",
-            label: labelText,
-            action: () => { 
-                this.showGrid(renderTarget, chartOptions, aggregateExpressionOptions, chartComponentData);
-            },
-            description: ""
-        };
-    }
-
     static focusOnEllipsisButton (renderTarget) {
         let ellipsisContainer = d3.select(renderTarget).select(".tsi-ellipsisContainerDiv");
         if (!ellipsisContainer.empty()) {
@@ -1146,5 +1092,3 @@ class Utils {
         return sizeOf(obj);
     }
 }
-
-export default Utils;

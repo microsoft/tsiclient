@@ -1,4 +1,5 @@
-import Utils, {TooltipMeasureFormat} from "./../Utils";
+import Utils from "../Utils";
+import { TooltipMeasureFormat } from "./../Constants/Enums";
 import { ChartOptions } from "../Models/ChartOptions";
 
 class Component {

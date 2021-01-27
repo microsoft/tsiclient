@@ -1,9 +1,8 @@
 import * as d3 from 'd3';
-import { quadtree } from 'd3';
-import Utils, { YAxisStates } from '../Utils';
+import Utils from '../Utils';
 import { Strings } from './Strings';
 import { DefaultHierarchyNavigationOptions } from '../Constants/Constants';
-import { InterpolationFunctions } from '../Constants/Enums';
+import { InterpolationFunctions, YAxisStates } from '../Constants/Enums';
 import { HierarchyNodeOptions, HierarchyNodePath } from '../Components/HierarchyNavigation/HierarchyNavigation';
 
 // Interfaces

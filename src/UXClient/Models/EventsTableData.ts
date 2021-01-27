@@ -1,8 +1,6 @@
-import Utils, {valueTypes} from "./../Utils";
-import {ChartComponentData} from "./ChartComponentData";
+import Utils from "../Utils";
+import { valueTypes } from "./../Constants/Enums";
 import {TimeSeriesEvent} from "./TimeSeriesEvent";
-import * as d3 from 'd3';
-import { TimeSeriesEventCell } from "./TimeSeriesEventCell";
 
 class EventsTableData {
     public columns = {};

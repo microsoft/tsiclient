@@ -1,9 +1,6 @@
 import * as d3 from 'd3';
-import Utils from "./../Utils";
+import Utils from "../Utils";
 import {ChartComponent} from "./ChartComponent";
-import {ChartComponentData} from './../Models/ChartComponentData'; 
-import {ChartOptions} from './../Models/ChartOptions';
-import DateTimePicker from '../Components/DateTimePicker/DateTimePicker';
 
 class DateTimeButton extends ChartComponent {
 

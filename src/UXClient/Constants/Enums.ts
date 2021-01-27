@@ -29,3 +29,10 @@ export enum ErrorCodes {
     InvalidInput = 'InvalidInput',
     PartialSuccess = 'PartialSuccess'
 }
+
+// Linechart stack states
+export enum YAxisStates { Stacked = "stacked", Shared = "shared", Overlap = "overlap" };
+export enum DataTypes { Numeric = 'numeric', Categorical = 'categorical', Events = 'events' };
+export enum EventElementTypes { Diamond = 'diamond', Teardrop = 'teardrop' };
+export enum TooltipMeasureFormat { Enveloped = 'Enveloped', SingleValue = 'SingleValue', Scatter = 'Scatter' };
+export enum valueTypes { String = 'String', Double = 'Double', Long = 'Long', Dynamic = 'Dynamic', Boolean = 'Boolean', DateTime = 'DateTime' };

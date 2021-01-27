@@ -136,13 +136,11 @@
         }
     }
 
-    .tsi-search-global {
-        a {
-            color: $gray6;
-            &:hover, &:focus {
-                outline: none;
-                text-decoration: underline;
-            }
+    a {
+        color: $gray6;
+        &:hover, &:focus {
+            outline: none;
+            text-decoration: underline;
         }
     }
 
@@ -152,6 +150,13 @@
         &.tsi-notSelected{
             background: $gray3 !important;
             border: 1px solid rgba($gray1, .2);
+        }
+    }
+
+    .tsi-notFound, .tsi-noResults {
+        border-bottom: 1px solid $gray5;
+        &.border-top {
+            border-top: 1px solid $gray5;
         }
     }
 }   
@@ -194,6 +199,10 @@
         .tsi-search-icon {
             background-image: url(../../Icons/Search_Dark.svg);
         }
+
+        .tsi-clear{
+            background-image: url(../../Icons/Close_Icon_Dark_Theme.svg);                    
+        }
     }
     &.tsi-light{
         $grays: grays('light');
@@ -227,6 +236,10 @@
         
         .tsi-search-icon {
             background-image: url(../../Icons/Search_Light.svg);
+        }
+
+        .tsi-clear{
+            background-image: url(../../Icons/Close_Icon_Light_Theme.svg);                    
         }
     }
 
@@ -385,26 +398,10 @@
         }  
     }
 
-    .tsi-search-global {
-        display: none;
-        animation: fade-in .2s ease-in-out;
-        padding: 4px 20px 0px;
-
-        a {
-            text-decoration: none;
-            cursor: pointer;
-            font-size: 12px;
-            white-space: nowrap;
-            padding: 0 !important;
-        }
-    }
-
     .tsi-instance-lookup-loading {
         display: none;
         animation: fade-in .2s ease-in-out;
-        padding: 12px 18px 8px;
-        position: absolute;
-        top: 92px;
+        padding: 8px 18px 0px;
         align-items: center;
         width: 100%;
 
@@ -434,16 +431,10 @@
         padding-top: 8px;
         position: relative;
 
-        .tsi-noResults {
-            display: block;
-            white-space: nowrap;
-            margin-left: 20px;
-            font-size: 14px;
-        }
-
         .tsi-hierarchy {
             width: 100%;
             overflow-y: auto;
+            padding-bottom: 20px;
         }
 
         .tsi-list {
@@ -463,7 +454,10 @@
                     padding: 8px 20px;
                     .tsi-modelPK{
                         font-weight: 600;   
-                        font-size: 14px
+                        font-size: 14px;
+                        text-overflow: ellipsis;
+                        overflow: hidden;
+                        white-space: nowrap;
                     }
                     .tsi-modelHighlights{
                         font-size: 12px;
@@ -499,6 +493,35 @@
             span {
                 cursor: pointer !important;
             }
+        }
+    }
+
+    .tsi-notFound, .tsi-noResults {
+        display: flex;
+        align-items: center;
+        margin: 4px 20px;
+        padding: 4px 0px;
+        animation: fade-in .2s ease-in-out;
+
+        .tsi-not-found-message {
+            width: calc(100% - 12px);
+            padding-right: 4px;
+            font-size: 12px;
+            line-height: 17px;
+
+            .tsi-search-globally-link {
+                padding-left: 4px;
+                cursor: pointer;
+            }
+        }
+
+        .tsi-clear {
+            width: 12px;
+            height: 12px;
+            cursor: pointer;
+            display: inline-block;
+            background-size: contain;
+            background-repeat: no-repeat;
         }
     }
 

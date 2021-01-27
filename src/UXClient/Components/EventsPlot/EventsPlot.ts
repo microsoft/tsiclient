@@ -1,9 +1,9 @@
 import * as d3 from 'd3';
 import './EventsPlot.scss';
 import { Plot } from '../../Interfaces/Plot';
-import Utils, { NONNUMERICTOPMARGIN, EventElementTypes, DataTypes, LINECHARTTOPPADDING } from '../../Utils';
-
-const TOPMARGIN = 4;
+import Utils from '../../Utils';
+import { EventElementTypes, DataTypes } from "../../Constants/Enums";
+import { NONNUMERICTOPMARGIN, LINECHARTTOPPADDING } from "../../Constants/Constants";
 
 class EventsPlot extends Plot {
     private defs;
@@ -296,4 +296,4 @@ class EventsPlot extends Plot {
         gradients.exit().remove();
     }
 }
-export {EventsPlot}
+export default EventsPlot;

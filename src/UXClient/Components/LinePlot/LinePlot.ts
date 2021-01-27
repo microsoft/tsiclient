@@ -2,9 +2,9 @@ import * as d3 from 'd3';
 import { interpolatePath } from 'd3-interpolate-path';
 import './LinePlot.scss';
 import { Plot } from '../../Interfaces/Plot';
-import Utils, { DataTypes, YAxisStates } from '../../Utils';
+import Utils from '../../Utils';
+import { DataTypes, YAxisStates } from "../../Constants/Enums";
 import { AxisState } from '../../Models/AxisState';
-import { InterpolationFunctions } from '../../Constants/Enums';
 
 class LinePlot extends Plot {
     private defs;
@@ -343,4 +343,4 @@ class LinePlot extends Plot {
             splitByGroups.exit().remove();
     }
 }
-export {LinePlot}
+export default LinePlot;
