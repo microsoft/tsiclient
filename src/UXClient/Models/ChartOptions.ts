@@ -4,6 +4,7 @@ import Utils, { YAxisStates } from '../Utils';
 import { Strings } from './Strings';
 import { DefaultHierarchyNavigationOptions } from '../Constants/Constants';
 import { InterpolationFunctions } from '../Constants/Enums';
+import { HierarchyNodeOptions, HierarchyNodePath } from '../Components/HierarchyNavigation/HierarchyNavigation';
 
 // Interfaces
 interface SwimLaneOption {
@@ -11,11 +12,6 @@ interface SwimLaneOption {
     label?: string, 
     onClick?: (lane: number) => any, 
     collapseEvents?: string
-}
-
-interface HierarchyNodePath {
-    instanceFieldName: string,
-    instanceFieldValue: string
 }
 
 class ChartOptions {
@@ -67,7 +63,6 @@ class ChartOptions {
     public onClick: (d3Event: any) => void; // for handling click, e.g. clicking on color picker
     public onInput: (searchText: string, event) => void; // for handling after input actions in ModelAutocomplete
     public onInstanceClick: (instance: any) => any;  // for model search, takes an instance and returns an object of context menu actions
-    public onHierarchyNodeClick: (hierarchyName: string, path: Array<HierarchyNodePath>) => any; // takes the path to that node when you click on a non-leaf/non-instance hierarchy node to trigger a custom context menu for fleet query etc.
     public onKeydown: (d3Event: any, awesompleteObject: any) => void;  // for handling keydown actions in ModelAutocomplete
     public onMarkersChange: (markers: Array<number>) => any; //triggered when a marker is either added or removed in the linechart
     public onMouseout: () => void;
@@ -104,6 +99,7 @@ class ChartOptions {
     public hierarchyOptions: any; // hierarchy navigation related options for search api
     public onError: (titleKey, messageKey, xhr) => any;
     public timeSeriesIdProperties: Array<{name: string, type: any}>; // time series id properties to highlight and prioritize in events table
+    public hierarchyNodeOptions: (hierarchyName: string, path: Array<HierarchyNodePath>) => HierarchyNodeOptions | null; // hierarchy node related options including onHierarchyNodeClick and custom icon
 
     public stringsInstance: Strings = new Strings(); 
 
@@ -180,7 +176,6 @@ class ChartOptions {
         this.includeTimezones = this.mergeValue(chartOptionsObj, 'includeTimezones', true);
         this.availabilityLeftMargin = this.mergeValue(chartOptionsObj, 'availabilityLeftMargin', 60);
         this.onInstanceClick = this.mergeValue(chartOptionsObj, 'onInstanceClick', () => {return {}});
-        this.onHierarchyNodeClick = this.mergeValue(chartOptionsObj, 'onHierarchyNodeClick', () => {});
         this.interpolationFunction = this.getInterpolationFunction(this.mergeValue(chartOptionsObj, 'interpolationFunction', InterpolationFunctions.None));
         this.includeEnvelope = this.mergeValue(chartOptionsObj, 'includeEnvelope', false);
         this.canDownload = this.mergeValue(chartOptionsObj, 'canDownload', true);
@@ -215,6 +210,7 @@ class ChartOptions {
         this.onError = this.mergeValue(chartOptionsObj, 'onError', (titleKey, messageKey, xhr) => {});
         this.timeSeriesIdProperties = Utils.getValueOrDefault(chartOptionsObj, 'timeSeriesIdProperties', []);
         this.shouldSticky = this.mergeValue(chartOptionsObj, 'shouldSticky', true);
+        this.hierarchyNodeOptions = this.mergeValue(chartOptionsObj, 'hierarchyNodeOptions', null);
     }
 
     private mergeStrings (strings) {
@@ -279,7 +275,6 @@ class ChartOptions {
             includeTimezones: this.includeTimezones,
             availabilityLeftMargin: this.availabilityLeftMargin,
             onInstanceClick: this.onInstanceClick,
-            onHierarchyNodeClick: this.onHierarchyNodeClick,
             interpolationFunction: this.interpolationFunction,
             includeEnvelope: this.includeEnvelope,
             canDownload: this.canDownload,
@@ -314,7 +309,8 @@ class ChartOptions {
             onError: this.onError,
             labelSeriesWithMarker: this.labelSeriesWithMarker,
             timeSeriesIdProperties: this.timeSeriesIdProperties,
-            shouldSticky: this.shouldSticky
+            shouldSticky: this.shouldSticky,
+            hierarchyNodeOptions: this.hierarchyNodeOptions,
         }
     }
 }

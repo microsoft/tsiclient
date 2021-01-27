@@ -4,6 +4,16 @@
         <!-- styles are only used for styling header and auth elements, where possible -->
         <link rel="stylesheet" type="text/css" href="../styles.css" />
         <title>Custom Context Menu in Hierarchy Navigation</title>
+
+        <style>
+            .boat-icon {
+                background-image: url(../images/boat.png);
+            }
+
+            .vat-icon {
+                background-image: url(../images/vat.png);
+            }
+        </style>
     </head>
     <body style="font-family: 'Segoe UI', sans-serif;">
         <div id="hierarchyNav" style="
@@ -68,6 +78,14 @@
                 });
             }
 
+            hierarchyNodeOptions = function(hierarchy, path) {
+                return {
+                    iconClass: "vat-icon",
+                    iconLabel: "Create fleet query",
+                    onHierarchyNodeClick: onHierarchyNodeClick
+                }
+            }
+
             onHierarchyNodeClick = function(hierarchy, path) {
                 console.log("Hierarchy: " + hierarchy);
                 path.forEach(p => {
@@ -120,22 +138,14 @@
                 }
             }
 
-            toggleHierarchyNavigationOption = function(property, value = null) {
-                hierarchyNavOptions[property] = (value === null) ? !hierarchyNavOptions[property] : value; 
-                hierarchy.render(environmentFqdn, authContext.getTsiToken, Object.assign({}, hierarchyNavOptions, {
-                    onInstanceClick: instance => this.onInstanceClick(instance),
-                    onHierarchyNodeClick: (hierarchy, path) => this.onHierarchyNodeClick(hierarchy, path)
-                }));
-            }
-
             window.onload = function() {
-                initAuth('Custom Context Menu in Hierarchy Navigation');  // initiate auth objects, header, and login modal
+                initAuth('Custom Context Menu in Hierarchy');  // initiate auth objects, header, and login modal
                 tsiClient = new TsiClient();
                 
                 hierarchy = new tsiClient.ux.HierarchyNavigation(document.getElementById('hierarchyNav'));
                 hierarchy.render(environmentFqdn, authContext.getTsiToken, Object.assign({}, hierarchyNavOptions, {
-                    onInstanceClick: instance => this.onInstanceClick(instance),
-                    onHierarchyNodeClick: (hierarchy, path) => this.onHierarchyNodeClick(hierarchy, path)
+                    onInstanceClick: instance => onInstanceClick(instance),
+                    hierarchyNodeOptions: hierarchyNodeOptions
                 }));
 
             }

@@ -71,13 +71,11 @@
             outline: none;
         }
     }
-    .tsi-leaf {
-        &.tsi-selected {
-            background: $gray2;
-            .tsi-hierarchyItem{
-                &:hover{
-                    background: $gray2;
-                }
+    .tsi-selected {
+        background: $gray2;
+        .tsi-hierarchyItem{
+            &:hover{
+                background: $gray2;
             }
         }
     }
@@ -189,10 +187,6 @@
             background-image: url(../../Icons/Filter_Icon_Dark_Theme.svg);
         }
 
-        .tsi-stacked-icon {
-            background-image: url(../../Icons/stacked.svg);
-        }
-
         .tsi-spinner-icon {
             background-image: url(../../Icons/Spinner.svg);
         }
@@ -225,10 +219,6 @@
 
         .tsi-filter-icon {
             background-image: url(../../Icons/Filter_Icon_Light_Theme.svg);
-        }
-
-        .tsi-stacked-icon {
-            background-image: url(../../Icons/stacked.svg);
         }
 
         .tsi-spinner-icon {
@@ -512,7 +502,7 @@
         }
     }
 
-    .tsi-filter-icon, .tsi-stacked-icon {
+    .tsi-filter-icon, .tsi-hierarchy-node-custom-icon {
         z-index: 3 !important;
         right: 20px;
         position: absolute;
@@ -526,7 +516,7 @@
         top: 6px;
     }
 
-    .tsi-stacked-icon {
+    .tsi-hierarchy-node-custom-icon {
         right: 40px;
     }
 
