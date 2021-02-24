@@ -522,7 +522,7 @@ class ChartComponentData {
         }
 
         var csvString = "";
-        var headerString = "Interval,";
+        var headerString = "Interval, Interval (UTC),";
 
         var rowMap = {};
         var rowOrder = [];
@@ -567,6 +567,7 @@ class ChartComponentData {
         this.allTimestampsArray.forEach((timeString: string) => {
             var millis = (new Date(timeString)).valueOf();
             csvString += Utils.timeFormat(this.usesSeconds, this.usesMillis, offset, null, null, null, dateLocale)(new Date(millis)) + ",";
+            csvString += Utils.timeFormat(this.usesSeconds, this.usesMillis, 0, null, null, null, dateLocale)(new Date(millis)) + ",";
             rowOrder.forEach((rowKey) => {
                 csvString += (rowMap[rowKey][millis] != undefined ? rowMap[rowKey][millis] : "")  + ",";
             });
