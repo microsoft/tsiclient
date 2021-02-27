@@ -8,8 +8,8 @@ module.exports = merge(common, {
   devtool: 'inline-source-map',
   devServer: {
     contentBase: 'pages/examples',
-    public: 'insights-local.timeseries.azure.com:443',
-    host: 'insights-local.timeseries.azure.com',
+    public: 't6dev.cloudapp.net:443',
+    host: 't6dev.cloudapp.net',
     port: 443,
     https: true
   },

@@ -29,6 +29,18 @@ class LinePlot extends Plot {
         return x(d.dateTime);
     }
 
+    private getValueDotXPosition (d, x) {
+        var bucketSize = this.chartComponentData.displayState[d.aggregateKey].bucketSize;
+        if (bucketSize) {
+            if (!this.chartComponentData.displayState[d.aggregateKey].isRawData && this.chartComponentData.displayState[d.aggregateKey].interpolationFunction === 'curveStep') {
+                return x(d.dateTime); // for aggregate series dots should be at the start of interval
+            } else {
+                return (x(d.dateTime) + x((new Date(d.dateTime.valueOf() + bucketSize)))) / 2;
+            }
+        }
+        return x(d.dateTime);
+    }
+
     private createAreaPath (y) {
         this.areaPath = d3.area()
         .curve(this.chartOptions.interpolationFunction)
@@ -270,7 +282,7 @@ class LinePlot extends Plot {
                         })
                         .ease(d3.easeExp)
                         .attr("fill", splitByColors[j])
-                        .attr('cx', (d: any) => self.getXPosition(d, self.x))
+                        .attr('cx', (d: any) => self.getValueDotXPosition(d, self.x))
                         .attr('cy', (d: any) => {     
                             return d.measures ? aggY(d.measures[self.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy)]) : null;
                         })
