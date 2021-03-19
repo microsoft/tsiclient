@@ -19,6 +19,9 @@ export default {
         // TsiClient models
         TsqExpression: 'src/UXClient/Models/TsqExpression.ts',
         AggregateExpression: 'src/UXClient/Models/AggregateExpression.ts',
+
+        // Transformers
+        Transformers: 'src/UXClient/Utils/Transformers.ts',
         
         // Component imports 
         LineChart: 'src/UXClient/Components/LineChart/index.ts',
