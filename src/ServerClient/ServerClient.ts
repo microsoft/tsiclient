@@ -189,7 +189,9 @@ class ServerClient {
         return (promiseAndTrigger as Array<any | Function>);
     }
 
-    public getTsqResults(token: string, uri: string, tsqArray: Array<any>, onProgressChange : progressChange = p => {}, mergeAccumulatedResults = false, storeType: string = null, hasCancelTrigger = false): PromiseLike<any> | Array<any | Function>{
+    public getTsqResults(token: string, uri: string, tsqArray: Array<any>, onProgressChange?: progressChange, mergeAccumulatedResults?: boolean, storeType?: string, hasCancelTrigger?: false): Promise<any>
+    public getTsqResults(token: string, uri: string, tsqArray: Array<any>, onProgressChange?: progressChange, mergeAccumulatedResults?: boolean, storeType?: string, hasCancelTrigger?: true): Array<any | Function>
+    public getTsqResults(token: string, uri: string, tsqArray: Array<any>, onProgressChange: progressChange = p => { }, mergeAccumulatedResults: boolean = false, storeType: string = null, hasCancelTrigger: boolean = false) {
         var tsqResults = [];
         tsqArray.forEach(tsq => {
             tsqResults.push({progress: 0});
