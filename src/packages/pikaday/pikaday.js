@@ -3,8 +3,7 @@
  *
  * Copyright © 2014 David Bushell | BSD & MIT license | https://github.com/dbushell/Pikaday
  */
-
-(function (root, factory)
+export default (function (root, factory)
 {
     'use strict';
 

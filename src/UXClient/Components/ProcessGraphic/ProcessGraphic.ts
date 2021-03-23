@@ -33,7 +33,7 @@ class ProcessGraphic extends HistoryPlayback {
         
         (this.component.node() as any).appendChild(this.graphic);
         
-        resolve();
+        resolve(null);
       }
 
       image.onerror = (errorMessage) => {
