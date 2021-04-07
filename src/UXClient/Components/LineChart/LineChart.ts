@@ -635,7 +635,7 @@ class LineChart extends TemporalXAxisComponent {
                             allOutOfTransition = allOutOfTransition && !d.inTransition;
                         });
                         if (allOutOfTransition){
-                            resolve();
+                            resolve(null);
                         } else {
                             checkAllLines(numberOfAttempts + 1);
                         }

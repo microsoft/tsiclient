@@ -25,6 +25,7 @@ import  ProcessGraphic  from './Components/ProcessGraphic/ProcessGraphic';
 import  PlaybackControls  from './Components/PlaybackControls/PlaybackControls';
 import  ColorPicker  from "./Components/ColorPicker/ColorPicker";
 import  GeoProcessGraphic  from "./Components/GeoProcessGraphic/GeoProcessGraphic";
+import { transformTsqResultsForVisualization } from "./Utils/Transformers";
 
 class UXClient {
     UXClient () {
@@ -57,6 +58,8 @@ class UXClient {
     public PlaybackControls: typeof PlaybackControls = PlaybackControls;
     public ColorPicker: typeof ColorPicker = ColorPicker;
     public GeoProcessGraphic: typeof GeoProcessGraphic = GeoProcessGraphic;
+
+    public transformTsqResultsForVisualization: typeof transformTsqResultsForVisualization = transformTsqResultsForVisualization;
 
     public transformTsxToEventsArray (events, options) {
         var timezoneOffset = options.timezoneOffset ? options.timezoneOffset : 0;
@@ -170,27 +173,6 @@ class UXClient {
             }
         }
         return [{"availabilityCount" : {"" : buckets}}];
-    }
-
-    public transformTsqResultsForVisualization(tsqResults: Array<any>, options): Array<any> {
-        var result = [];
-        tsqResults.forEach((tsqr, i) => {
-            var transformedAggregate = {};
-            var aggregatesObject = {};
-            transformedAggregate[options[i].alias] = {'': aggregatesObject};
-            
-            if(tsqr.hasOwnProperty('__tsiError__'))
-                transformedAggregate[''] = {};
-            else{
-                tsqr.timestamps.forEach((ts, j) => {
-                    aggregatesObject[ts] = tsqr.properties.reduce((p,c) => { // there can be multiple values for the same timestamp for a property, here we keep the latest non-null value if exist
-                        p[c.name] = aggregatesObject[ts] && aggregatesObject[ts][c.name] !== null ? aggregatesObject[ts][c.name] : c['values'][j]; return p;
-                    }, {});
-                }); 
-            }
-            result.push(transformedAggregate);
-        });
-        return result;
     }
 
     public transformAggregatesForVisualization(aggregates: Array<any>, options): Array<any> {

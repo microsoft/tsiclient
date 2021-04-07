@@ -344,6 +344,7 @@ class DateTimePicker extends ChartComponent{
             weekdaysShort : moment.localeData().weekdaysMin()
         };
 
+        //@ts-ignore
         this.calendarPicker = new Pikaday({ 
             bound: false,
             container: this.calendar.node(),
