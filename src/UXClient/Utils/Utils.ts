@@ -953,9 +953,18 @@ export default class Utils {
         let filteredColdDistribution = {};
         let filteredWarmDistribution = {};
         let minWarmTime = this.getMinWarmTime(warmStoreRange.from, retentionString);
-        let maxWarmTime = new Date(Math.min(new Date(warmStoreRange.to).valueOf(), new Date(coldAvailability.range.to).valueOf()));
-        let mergedAvailability = Object.assign({}, coldAvailability);
+        let warmStoreToMillis = new Date(warmStoreRange.to).valueOf();
+        let coldStoreToMillis = new Date(coldAvailability.range.to).valueOf();
 
+        // snap warm availability to cold availability if its lagging by less than 2 mins
+        if(coldStoreToMillis > warmStoreToMillis && coldStoreToMillis - warmStoreToMillis < 2*60*1000){
+            warmStoreToMillis = coldStoreToMillis;
+        }
+
+        // snap warm availability to cold availability if its ahead of cold
+        let maxWarmTime = new Date(Math.min(warmStoreToMillis, coldStoreToMillis));
+
+        let mergedAvailability = Object.assign({}, coldAvailability);
         mergedAvailability.warmStoreRange = [minWarmTime.toISOString(), maxWarmTime.toISOString()];
         if (retentionString !== null) {
             mergedAvailability.retentionPeriod = retentionString;
