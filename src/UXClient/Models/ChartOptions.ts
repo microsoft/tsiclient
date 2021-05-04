@@ -3,9 +3,10 @@ import Utils from '../Utils';
 import { Strings } from './Strings';
 import { DefaultHierarchyNavigationOptions } from '../Constants/Constants';
 import { InterpolationFunctions, YAxisStates } from '../Constants/Enums';
+import { HierarchyNodeOptions, HierarchyNodePath } from '../Components/HierarchyNavigation/HierarchyNavigation';
 
 // Interfaces
-interface swimLaneOption {
+interface SwimLaneOption {
     yAxisType: YAxisStates, 
     label?: string, 
     onClick?: (lane: number) => any, 
@@ -80,7 +81,7 @@ class ChartOptions {
     public shouldSticky: boolean; // whether sticky is triggered in the linechart when stickySeries or unStickySeries is called
     public strings: any; // passed in key value pairs of strings -> strings
     public suppressResizeListener: boolean; // whether a component's resize function is ignored. Applies to components which draw an SVG
-    public swimLaneOptions: {[key: number]: swimLaneOption} | null;  // mapping of swim lane number to information about that swimlane, including axis type
+    public swimLaneOptions: {[key: number]: SwimLaneOption} | null;  // mapping of swim lane number to information about that swimlane, including axis type
     public theme: string; // theme for styling chart, light or dark
     public timeFrame: any; // from and to to specify range of an event or state series
     public timestamp: any; //For components with a slider, this is the selected timestamp
@@ -97,6 +98,7 @@ class ChartOptions {
     public hierarchyOptions: any; // hierarchy navigation related options for search api
     public onError: (titleKey, messageKey, xhr) => any;
     public timeSeriesIdProperties: Array<{name: string, type: any}>; // time series id properties to highlight and prioritize in events table
+    public hierarchyNodeOptions: (hierarchyName: string, path: Array<HierarchyNodePath>) => HierarchyNodeOptions | null; // hierarchy node related options including onHierarchyNodeClick and custom icon
 
     public stringsInstance: Strings = new Strings(); 
 
@@ -207,6 +209,7 @@ class ChartOptions {
         this.onError = this.mergeValue(chartOptionsObj, 'onError', (titleKey, messageKey, xhr) => {});
         this.timeSeriesIdProperties = Utils.getValueOrDefault(chartOptionsObj, 'timeSeriesIdProperties', []);
         this.shouldSticky = this.mergeValue(chartOptionsObj, 'shouldSticky', true);
+        this.hierarchyNodeOptions = this.mergeValue(chartOptionsObj, 'hierarchyNodeOptions', null);
     }
 
     private mergeStrings (strings) {
@@ -305,7 +308,8 @@ class ChartOptions {
             onError: this.onError,
             labelSeriesWithMarker: this.labelSeriesWithMarker,
             timeSeriesIdProperties: this.timeSeriesIdProperties,
-            shouldSticky: this.shouldSticky
+            shouldSticky: this.shouldSticky,
+            hierarchyNodeOptions: this.hierarchyNodeOptions,
         }
     }
 }

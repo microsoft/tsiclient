@@ -71,13 +71,11 @@
             outline: none;
         }
     }
-    .tsi-leaf {
-        &.tsi-selected {
-            background: $gray2;
-            .tsi-hierarchyItem{
-                &:hover{
-                    background: $gray2;
-                }
+    .tsi-selected {
+        background: $gray2;
+        .tsi-hierarchyItem{
+            &:hover{
+                background: $gray2;
             }
         }
     }
@@ -364,13 +362,6 @@
             align-items: center;
             flex-direction: row;
             padding: 0;
-
-            .tsi-filter-icon {
-                width: 12px;
-                height: 10px;
-                cursor: auto;
-                margin-right: 4px;
-            }
     
             .tsi-path-list {
                 display: flex;
@@ -534,7 +525,7 @@
         }
     }
 
-    .tsi-filter-icon {
+    .tsi-filter-icon, .tsi-hierarchy-node-custom-icon {
         z-index: 3 !important;
         right: 20px;
         position: absolute;
@@ -546,6 +537,10 @@
         background-size: 11px;
         background-position: center;
         top: 6px;
+    }
+
+    .tsi-hierarchy-node-custom-icon {
+        right: 40px;
     }
 
     .tsi-down-caret-icon {

@@ -6,12 +6,38 @@ import ServerClient from '../../../ServerClient';
 import ModelAutocomplete from '../ModelAutocomplete';
 import { KeyCodes, InstancesSort, HierarchiesExpand, HierarchiesSort } from '../../Constants/Enums';
 
+interface ContextMenuItems {
+    name: string,
+    kind: string,
+    action: any
+};
+
+interface ContextMenuOptions {
+    isSelectionEnabled: boolean,
+    isFilterEnabled: boolean,
+    onClose: any
+};
+
+export interface HierarchyNodeOptions {
+    iconClass: string,
+    iconLabel: string,
+    onHierarchyNodeClick: (hierarchyName: string, path: Array<HierarchyNodePath>) => any
+};
+
+export interface HierarchyNodePath {
+    instanceFieldName: string,
+    instanceFieldValue: string
+}
+
+export enum HierarchySelectionValues {All = "0", Unparented = "-1"};
+export enum ViewType {Hierarchy, List};
+export enum State {Navigate, Search, Filter};
 
 class HierarchyNavigation extends Component{
     private server: ServerClient;
     private getToken;
     private environmentFqdn;
-    private clickedInstance;
+    private clickedHierarchyItem;
     private isHierarchySelectionActive;
     private hierarchySelectorElem;
     private filterPathElem;
@@ -49,7 +75,7 @@ class HierarchyNavigation extends Component{
             return d3.event.target === this || this.contains(d3.event.target);
         }
         d3.select("html").on("click. keydown." + Utils.guid(), () => { //close hierarchy selection dropdown or context menu if necessary 
-            if (this.clickedInstance && this.contextMenu) {
+            if (this.clickedHierarchyItem && this.contextMenu) {
                 if (d3.event.type && d3.event.type === 'keydown') {
                     if (!this.contextMenu.filter(isTarget).empty()) {
                         let key = d3.event.which || d3.event.keyCode;
@@ -963,23 +989,25 @@ class HierarchyNavigation extends Component{
     }
 
     public closeContextMenu = () => {
-        if(this.clickedInstance && this.contextMenu) {
-            this.contextMenu.remove();
+        if (this.clickedHierarchyItem) {
+            if (this.contextMenu) {
+                this.contextMenu.remove();
+            }
             d3.selectAll('li.tsi-selected').classed('tsi-selected', false);
         }
         d3.selectAll('.tsi-modelResultWrapper').classed('tsi-selected', false);
-        this.clickedInstance = null;
+        this.clickedHierarchyItem = null;
     }
 
-    private prepareForContextMenu = (instanceObj, target, wrapperMousePos, eltMousePos) => {
+    private prepareForContextMenu = (hierarchyItem, target, wrapperMousePos, eltMousePos) => {
         let contextMenuProps = {};
         contextMenuProps['target'] = target;
         contextMenuProps['wrapperMousePos'] = wrapperMousePos;
         contextMenuProps['eltMousePos'] = eltMousePos;
         this.contextMenuProps = contextMenuProps;
 
-        this.clickedInstance = instanceObj;
-        instanceObj.node.classed('tsi-selected', true);
+        this.clickedHierarchyItem = hierarchyItem;
+        hierarchyItem.node.classed('tsi-selected', true);
     }
 
     public drawContextMenu = (contextMenuItems: Array<ContextMenuItems>, contextMenuOptions: ContextMenuOptions) => {
@@ -1095,6 +1123,7 @@ class HierarchyNavigation extends Component{
                     self.prepareForContextMenu(hORi, target, mouseWrapper[1], mouseElt[1]);
                     self.chartOptions.onInstanceClick(hORi);
                 } else {
+                    self.closeContextMenu();
                     if (hORi.isExpanded) {
                         hORi.collapse();
                     } else {
@@ -1106,6 +1135,9 @@ class HierarchyNavigation extends Component{
                 if (isHierarchyNode) {
                     if (d3.event.relatedTarget != d3.select(this.parentNode).select('.tsi-filter-icon').node()) {
                         (d3.select(this.parentNode).select('.tsi-filter-icon').node() as any).style.visibility = 'visible';
+                        if (self.chartOptions.hierarchyNodeOptions) {
+                            (d3.select(this.parentNode).select('.tsi-hierarchy-node-custom-icon').node() as any).style.visibility = 'visible';
+                        }
                     }
                 }
             })
@@ -1113,6 +1145,9 @@ class HierarchyNavigation extends Component{
                 if (isHierarchyNode) {
                     if (d3.event.relatedTarget != d3.select(this.parentNode).select('.tsi-filter-icon').node()) {
                         (d3.select(this.parentNode).select('.tsi-filter-icon').node() as any).style.visibility = 'hidden';
+                        if (self.chartOptions.hierarchyNodeOptions) {
+                            (d3.select(this.parentNode).select('.tsi-hierarchy-node-custom-icon').node() as any).style.visibility = 'hidden';
+                        }
                     }
                 }
             });
@@ -1158,6 +1193,39 @@ class HierarchyNavigation extends Component{
                         (this as any).style.visibility = 'hidden';
                     }
                 });
+            if (self.chartOptions.hierarchyNodeOptions) {
+                let hierarchyName = this.selectedHierarchyName === HierarchySelectionValues.All || this.selectedHierarchyName === HierarchySelectionValues.Unparented ? hORi.path[0] : this.selectedHierarchyName;
+                let path = [];
+                hORi.path.forEach((p, idx) => {
+                    if (idx === 0) return;
+                    let property = {instanceFieldName: this.envHierarchies[hORi.path[0]].source.instanceFieldNames[idx-1], instanceFieldValue: p};
+                    path.push(property);
+                });
+
+                let options = self.chartOptions.hierarchyNodeOptions(hierarchyName, path);
+
+                hierarchyItemElem.append('div').classed('tsi-hierarchy-node-custom-icon', true)
+                    .classed(options.iconClass, true)
+                    .attr('title', options.iconLabel)
+                    .attr('tabindex', 0)
+                    .attr('arialabel', options.iconLabel)
+                    .attr('role', 'button')
+                    .on('click keydown', function() {
+                        if (Utils.isKeyDownAndNotEnter(d3.event)) {return; }
+                        d3.event.preventDefault();
+                        d3.event.stopPropagation();
+                        self.closeContextMenu();
+                        let mouseElt = d3.mouse(this as any);
+                        let target = self.hierarchyElem.select(function() { return this.parentNode});
+                        let mouseWrapper = d3.mouse(target.node());
+                        self.prepareForContextMenu(hORi, target, mouseWrapper[1], mouseElt[1]);
+                        options.onHierarchyNodeClick(hierarchyName, path);
+                    }).on('mouseleave blur', function() {
+                        if (d3.event.relatedTarget != d3.select((this as HTMLElement).parentNode)) {
+                            (this as any).style.visibility = 'hidden';
+                        }
+                    });
+            }
         } else {
             let spanElem = hierarchyItemElem.append('span').classed('tsi-name', true);
             Utils.appendFormattedElementsFromString(spanElem, this.instanceNodeStringToDisplay(hORi));
@@ -1305,7 +1373,7 @@ class HierarchyNavigation extends Component{
         this.envTypes = {};
         this.setModeAndRequestParamsForNavigate();
         this.viewType = ViewType.Hierarchy;
-        this.clickedInstance = null;
+        this.clickedHierarchyItem = null;
         this.isHierarchySelectionActive = false;
     }
 }
@@ -1333,21 +1401,5 @@ function InstanceNode (tsId, name = null, type, hierarchyIds, highlights, level)
     this.level = level;
     this.node = null;
 }
-
-interface ContextMenuItems {
-    name: string,
-    kind: string,
-    action: any
-};
-
-interface ContextMenuOptions {
-    isSelectionEnabled: boolean,
-    isFilterEnabled: boolean,
-    onClose: any
-};
-
-export enum HierarchySelectionValues {All = "0", Unparented = "-1"};
-export enum ViewType {Hierarchy, List};
-export enum State {Navigate, Search, Filter};
 
 export default HierarchyNavigation
