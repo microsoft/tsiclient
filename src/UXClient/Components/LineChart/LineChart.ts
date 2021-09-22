@@ -1268,7 +1268,12 @@ class LineChart extends TemporalXAxisComponent {
             this.aggregateExpressionOptions.forEach((aEO) => {
                 aEO.swimLane = 0;
             });
-            this.chartOptions.swimLaneOptions = {0: {yAxisType: this.chartOptions.yAxisState}};
+            // consolidate horizontal markers
+            const horizontalMarkers = [];
+            Object.values(this.chartOptions.swimLaneOptions).forEach((lane) => {
+                horizontalMarkers.push(...lane.horizontalMarkers);
+            });
+            this.chartOptions.swimLaneOptions = {0: {yAxisType: this.chartOptions.yAxisState, horizontalMarkers: horizontalMarkers}};
         } else {
             let minimumPresentSwimLane = this.aggregateExpressionOptions.reduce((currMin, aEO) => {
                 return Math.max(aEO.swimLane, currMin); 
@@ -1319,7 +1324,7 @@ class LineChart extends TemporalXAxisComponent {
             });
         }
 
-        if (this.chartOptions.yAxisState === YAxisStates.Stacked) {
+        if (this.chartOptions.yAxisState !== YAxisStates.Overlap) {
             Object.keys(this.chartOptions.swimLaneOptions).forEach((swimlaneNumber) => {
                 const swimlaneOptions = this.chartOptions.swimLaneOptions[swimlaneNumber];
                 swimlaneOptions.horizontalMarkers?.forEach((horizontalMarkerParams: HorizontalMarker) => {
