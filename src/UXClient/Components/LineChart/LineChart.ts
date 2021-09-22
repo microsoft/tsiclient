@@ -15,6 +15,7 @@ import EventsPlot from '../EventsPlot';
 import { AxisState } from '../../Models/AxisState';
 import Marker from '../Marker';
 import { swimlaneLabelConstants} from '../../Constants/Constants'
+import { HorizontalMarker } from '../../Utils/Interfaces';
 
 class LineChart extends TemporalXAxisComponent {
     private targetElement: any;
@@ -605,7 +606,7 @@ class LineChart extends TemporalXAxisComponent {
         marker.render(millis, this.chartOptions, this.chartComponentData, {
             chartMargins: this.chartMargins,
             x: this.x,
-            marginLeft: this.getMarkerMarginLeft(),
+            marginLeft: this.getMarkerMarginLeft() + (isSeriesLabels ? this.getAdditionalOffsetFromHorizontalMargin() : 0),
             colorMap: this.colorMap,
             yMap: this.yMap,
             onChange: onChange,
@@ -1287,6 +1288,102 @@ class LineChart extends TemporalXAxisComponent {
         this.chartOptions.swimLaneOptions = this.originalSwimLaneOptions;
     }
 
+    private getHorizontalMarkersWithYScales ()  {
+        let visibleCDOs = this.aggregateExpressionOptions.filter((cDO) => this.chartComponentData.displayState[cDO.aggKey]["visible"]);
+        const markerList = [];
+        const pushMarker = (cDO, marker, markerList) => {
+            if (this.chartOptions.yAxisState === YAxisStates.Overlap) {
+                return;
+            }
+            const domain = this.chartOptions.yAxisState === YAxisStates.Stacked ? 
+                this.swimlaneYExtents[cDO.swimLane] :
+                this.swimlaneYExtents[0];
+            // filter out markers not in the y range of that lane and in lanes that have overlap axis
+            if (domain && 
+                this.chartOptions.swimLaneOptions[cDO.swimLane]?.yAxisType !== YAxisStates.Overlap &&
+                marker.value >= domain[0] && 
+                marker.value <= domain[1]) {
+                markerList.push({yScale: this.yMap[cDO.aggKey], ...marker});
+            }
+        }
+        visibleCDOs.forEach((cDO) => {
+            cDO.horizontalMarkers.forEach((horizontalMarkerParams: HorizontalMarker) => {
+                pushMarker(cDO, horizontalMarkerParams, markerList);
+            });
+        });
+
+        // find a visible CDO for a swimlane 
+        const findFirstVisibleCDO = (swimlaneNumber) => {
+            return visibleCDOs.find((cDO) => {
+                return (cDO.swimLane === swimlaneNumber);
+            });
+        }
+
+        if (this.chartOptions.yAxisState === YAxisStates.Stacked) {
+            Object.keys(this.chartOptions.swimLaneOptions).forEach((swimlaneNumber) => {
+                const swimlaneOptions = this.chartOptions.swimLaneOptions[swimlaneNumber];
+                swimlaneOptions.horizontalMarkers?.forEach((horizontalMarkerParams: HorizontalMarker) => {
+                    const firstVisibleCDO = findFirstVisibleCDO(Number(swimlaneNumber));
+                    if (firstVisibleCDO) {
+                        pushMarker(firstVisibleCDO, horizontalMarkerParams, markerList);
+                    }
+                });
+            });
+        }
+        return markerList;
+    }
+
+    // having horizontal markers present should add additional right hand margin to allow space for series labels 
+    private getAdditionalOffsetFromHorizontalMargin () {
+        return this.getHorizontalMarkersWithYScales().length ? 16 : 0;
+    }
+
+    private drawHorizontalMarkers () {
+        const markerList = this.getHorizontalMarkersWithYScales();
+        const self = this;
+
+        const markerContainers = this.svgSelection.select('.svgGroup').selectAll('.tsi-horizontalMarker')
+            .data(markerList);
+        markerContainers
+            .enter()
+            .append('g')
+            .merge(markerContainers)
+            .attr('class', 'tsi-horizontalMarker')
+            .attr("transform", (marker) => {
+                return "translate(" + 0 + "," + marker.yScale(marker.value) + ")";
+            })
+            .each(function (marker) {
+                const valueText = d3.select(this)
+                    .selectAll('.tsi-horizontalMarkerText')
+                    .data([marker.value]);
+                valueText
+                    .enter() 
+                    .append('text')
+                    .merge(valueText)
+                    .attr('class', 'tsi-horizontalMarkerText')
+                    .attr('x', self.chartWidth)
+                    .attr('y', -4)
+                    .text((value) => value);
+                valueText.exit().remove();
+
+                const valueLine = d3.select(this)
+                    .selectAll('.tsi-horizontalMarkerLine')
+                    .data([marker]);
+                valueLine
+                    .enter()
+                    .append('line')
+                    .merge(valueLine)
+                    .attr('class', 'tsi-horizontalMarkerLine')
+                    .attr('stroke', marker => marker.color)
+                    .attr('x1', 0)
+                    .attr('y1', 0)
+                    .attr('x2', self.chartWidth)
+                    .attr('y2', 0);
+                valueLine.exit().remove();
+            });
+        markerContainers.exit().remove();
+    }
+
     private createSwimlaneLabels(offsetsAndHeights, visibleCDOs){
 
         // swimLaneLabels object contains data needed to render each lane label
@@ -1892,6 +1989,7 @@ class LineChart extends TemporalXAxisComponent {
                 }
 
                 this.renderAllMarkers();
+                this.drawHorizontalMarkers();
                 this.voronoiDiagram = this.voronoi(this.getFilteredAndSticky(this.chartComponentData.allValues));
             }
 
