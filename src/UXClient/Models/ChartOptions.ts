@@ -3,13 +3,15 @@ import Utils from '../Utils';
 import { Strings } from './Strings';
 import { DefaultHierarchyNavigationOptions } from '../Constants/Constants';
 import { InterpolationFunctions, YAxisStates } from '../Constants/Enums';
+import { HorizontalMarker } from '../Utils/Interfaces';
 
 // Interfaces
 interface swimLaneOption {
     yAxisType: YAxisStates, 
     label?: string, 
     onClick?: (lane: number) => any, 
-    collapseEvents?: string
+    collapseEvents?: string,
+    horizontalMarkers?: Array<HorizontalMarker>
 }
 
 class ChartOptions {

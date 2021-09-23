@@ -269,6 +269,15 @@
             }
         }
     }
+
+    .tsi-horizontalMarkerLine {
+        stroke-dasharray: 2,2;
+    }
+
+    .tsi-horizontalMarkerText {
+        font-style: italic;
+        text-anchor: end;
+    }
     
     &.tsi-dark{
         $grays: grays('dark');
