@@ -1305,7 +1305,7 @@ class LineChart extends TemporalXAxisComponent {
                 this.swimlaneYExtents[0];
             // filter out markers not in the y range of that lane and in lanes that have overlap axis
             if (domain && 
-                this.chartOptions.swimLaneOptions[cDO.swimLane]?.yAxisType !== YAxisStates.Overlap &&
+                this.chartOptions.swimLaneOptions?.[cDO.swimLane]?.yAxisType !== YAxisStates.Overlap &&
                 marker.value >= domain[0] && 
                 marker.value <= domain[1]) {
                 markerList.push({yScale: this.yMap[cDO.aggKey], ...marker});
@@ -1324,7 +1324,7 @@ class LineChart extends TemporalXAxisComponent {
             });
         }
 
-        if (this.chartOptions.yAxisState !== YAxisStates.Overlap) {
+        if (this.chartOptions.yAxisState !== YAxisStates.Overlap && this.chartOptions.swimLaneOptions) {
             Object.keys(this.chartOptions.swimLaneOptions).forEach((swimlaneNumber) => {
                 const swimlaneOptions = this.chartOptions.swimLaneOptions[swimlaneNumber];
                 swimlaneOptions.horizontalMarkers?.forEach((horizontalMarkerParams: HorizontalMarker) => {
