@@ -1140,10 +1140,18 @@ class LineChart extends TemporalXAxisComponent {
         return visibleGroupEndValues;
     }
 
-    private setSwimLaneYExtents (visibleGroups, visibleCDOs, swimLanes) {
+    private setSwimLaneYExtents (visibleGroups, visibleCDOs, swimLanes, swimLaneOptions) {
         let extents = {};
         swimLanes.forEach((lane) => {
             let extent = [];
+
+            // Check if swim lane options sets y-axis extents for this lane. If so use that
+            // value for yExtents.
+            if(swimLaneOptions && swimLaneOptions[lane] && swimLaneOptions[lane].yExtent) {
+                extents[lane] = swimLaneOptions[lane].yExtent;
+                return;
+            }
+
             visibleGroups.forEach((aggGroup, i) => {
                 let cDO = visibleCDOs[i];
                 if (cDO.dataType !== DataTypes.Numeric) {
@@ -1226,7 +1234,14 @@ class LineChart extends TemporalXAxisComponent {
         
         let heightPerNumeric = (useableHeight - heightNonNumeric) / countNumericLanes;
         
-        this.setSwimLaneYExtents(visibleGroups, visibleCDOs, Object.keys(swimLaneSet).filter((lane) => swimLaneSet[lane]).map((stringLane) => Number(stringLane)));
+        this.setSwimLaneYExtents(
+            visibleGroups, 
+            visibleCDOs, 
+            Object.keys(swimLaneSet)
+                .filter((lane) => swimLaneSet[lane])
+                .map((stringLane) => Number(stringLane)),
+            this.chartOptions.swimLaneOptions
+        );
         return this.getSwimlaneOffsets(linechartTopPadding, visibleGroups, visibleCDOs, heightPerNumeric, swimLaneSet);
     }
 
