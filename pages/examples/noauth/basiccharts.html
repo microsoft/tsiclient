@@ -40,10 +40,16 @@
                     }
                 }
 
+                var swimLaneOptions = {
+                    1: {yExtent: [0.2, 0.8], yAxisType: 'shared', label: 'Lane 1', onClick: () => alert("'Lane 1' label/axis clicked")},
+                    2: {yAxisType: 'shared', label: 'Lane 2', onClick: () => alert("'Lane 2' label/axis clicked")},
+                    3: {yAxisType: 'shared', label: 'Lane 3', onClick: () => alert("'Lane 3' label/axis clicked")}
+                };
+
                 // render the data in a chart
                 var tsiClient = new TsiClient();
                 var lineChart = new tsiClient.ux.LineChart(document.getElementById('chart1'));
-                lineChart.render(data, {theme: 'light'});
+                lineChart.render(data, {theme: 'light', swimLaneOptions});
 
                 var barChart = new tsiClient.ux.BarChart(document.getElementById('chart2'));
                 barChart.render(data, {theme: 'dark', grid: true, tooltip: true, legend: 'compact'});
