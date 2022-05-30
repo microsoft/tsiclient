@@ -310,14 +310,14 @@ class AvailabilityChart extends ChartComponent{
             .classed("tsi-zoomButtonContainer", true);
         buttonsDiv.append("button")
             .attr("class", "tsi-zoomButton tsi-zoomButtonIn")
-            .attr('aria-label', this.getString('zoom in'))
+            .attr('aria-label', this.getString('A line chart zoom in'))
             .attr('title', this.getString('zoom in'))
             .on("click", () => {
                 this.zoom("in", midpoint);
             });
         buttonsDiv.append("button")
             .attr("class", "tsi-zoomButton tsi-zoomButtonOut")
-            .attr('aria-label', this.getString('zoom out'))
+            .attr('aria-label', this.getString('A line chart zoom out'))
             .attr('title', this.getString('zoom out'))
             .on("click", () => {
                 this.zoom("out", midpoint);

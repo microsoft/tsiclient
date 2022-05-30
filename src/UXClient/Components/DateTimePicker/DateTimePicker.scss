@@ -74,6 +74,10 @@
     }
 }
 
+.tsi-timeRequired {
+    color: #a80000;
+}
+
 .tsi-dateTimePicker {
 
     animation: tsi-slideIn 0.367s cubic-bezier(0.1, 0.9, 0.2, 1) forwards;
@@ -260,7 +264,7 @@
                     border-radius: 2px;
                     line-height: 14px;
                     &.tsi-buttonDisabled {
-                        background-color: grey;
+                        background-color: grey !important;
                     }
                 }
         
@@ -273,8 +277,12 @@
     }
 
     .tsi-errorMessageContainer {
-        background-color: darkorange;
+        background-color: #B36200;
         color: white;
+        @media screen and (-ms-high-contrast: active) {
+                -ms-high-contrast-adjust: none;
+                background-color: #B36200;
+            }
         .tsi-errorMessage {
             padding: 8px;
         }
