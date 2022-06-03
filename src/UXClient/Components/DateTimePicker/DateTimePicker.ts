@@ -463,12 +463,12 @@ class DateTimePicker extends ChartComponent {
         let bothTimesValid = !isNaN(prospectiveFromMillis) && !isNaN(prospectiveToMillis);
 
         if (isNaN(prospectiveFromMillis)) {
-            accumulatedErrors.push("*Invalid start date/time");
+            accumulatedErrors.push("*Invalid Start date/time");
             isSaveable = false;
         }
 
         if (isNaN(prospectiveToMillis)) {
-            accumulatedErrors.push("*Invalid end date/time");
+            accumulatedErrors.push("*Invalid End date/time");
             isSaveable = false;
         }
 
