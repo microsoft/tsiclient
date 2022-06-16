@@ -1,7 +1,7 @@
 @import "../../styles";
 
 
-@mixin dateTimePickerColors($grays){
+@mixin dateTimePickerColors($grays) {
     $gray1: nth($grays, 1); // text
     $gray2: nth($grays, 2); // hover
     $gray3: nth($grays, 3); // element
@@ -22,40 +22,53 @@
                 border: 1px solid rgba($gray1, .3);
             }
         }
+
         .tsi-quickTimesPanel {
             .tsi-quickTime {
                 color: $gray1;
                 background-color: $gray3;
 
                 &.tsi-isSelected {
-                    background-color: rgba($gray2, .6) !important; 
+                    background-color: rgba($gray2, .6) !important;
                     color: $gray1;
                 }
             }
+
             .tsi-quickTime:hover {
                 background-color: $gray4;
             }
         }
     }
 
-    .tsi-select, .tsi-select option {
+    .tsi-select,
+    .tsi-select option {
         color: $gray1;
         background-color: $gray3;
     }
-    .pika-table th{
+
+    .pika-table th {
         color: $gray1;
         opacity: .6;
     }
-    .pika-single  {
-        .pika-select, .pika-select option, .pika-label, .pika-day, .pika-prev, .pika-next {
-            color: $gray1;
-            background-color: $gray3;    
-            &:focus {
-                border:1px solid $gray6;
-            }
-        } 
 
-        .pika-prev, .pika-next {
+    .pika-single {
+
+        .pika-select,
+        .pika-select option,
+        .pika-label,
+        .pika-day,
+        .pika-prev,
+        .pika-next {
+            color: $gray1;
+            background-color: $gray3;
+
+            &:focus {
+                border: 1px solid $gray6;
+            }
+        }
+
+        .pika-prev,
+        .pika-next {
             color: $gray6;
             background-color: white;
         }
@@ -63,8 +76,12 @@
         color: $gray1;
         background-color: $gray3;
     }
+
     .tsi-timeControlsContainer {
-        .tsi-startContainer, .tsi-endContainer, .tsi-timezoneContainer {
+
+        .tsi-startContainer,
+        .tsi-endContainer,
+        .tsi-timezoneContainer {
             .tsi-timeLabel {
                 .tsi-snapToEndRangeButton {
                     color: $gray6;
@@ -74,28 +91,36 @@
     }
 }
 
+.tsi-timeRequired {
+    color: #a80000;
+}
+
 .tsi-dateTimePicker {
 
     animation: tsi-slideIn 0.367s cubic-bezier(0.1, 0.9, 0.2, 1) forwards;
     box-shadow: 0 3px 6px 0 rgba(0, 0, 0, 0.16);
-    &.tsi-dark{
-		$grays: grays('dark');
+
+    &.tsi-dark {
+        $grays: grays('dark');
         @include dateTimePickerColors($grays);
+
         .pika-single {
             .is-inrange {
                 .pika-day {
-                    background-color: rgba(48, 157, 144, .4) !important; 
+                    background-color: rgba(48, 157, 144, .4) !important;
                 }
             }
+
             .is-selected {
                 .pika-day {
                     box-shadow: unset;
                 }
             }
-        }        
-	}
-	&.tsi-light{
-		$grays: grays('light');
+        }
+    }
+
+    &.tsi-light {
+        $grays: grays('light');
         @include dateTimePickerColors($grays);
     }
 
@@ -112,8 +137,9 @@
             width: 152px;
             float: left;
             height: auto;
+
             .tsi-quickTime {
-                text-align:left;
+                text-align: left;
                 border: none;
                 height: 10%;
                 padding-left: 20px;
@@ -126,59 +152,68 @@
 
 
         }
+
         .tsi-dateTimeSelectionPanel {
             float: right;
             width: 460px;
             padding-left: 8px;
+
             .pika-single {
                 border: none;
                 height: 250px;
+
                 .is-selected {
                     .pika-day {
                         box-shadow: unset;
                     }
                 }
-    
+
             }
-        
+
             .tsi-calendarPicker {
                 width: 100%;
                 margin-top: 8px;
             }
-    
+
             .tsi-select {
                 top: 4px;
                 margin: 0px;
                 padding-right: 28px;
+
                 option {
                     padding: 6px;
                 }
+
                 width: 100px;
                 background: url(../../Icons/chevron.svg) 16px / 16px no-repeat;
                 background-position-y: 12px;
                 background-position-x: calc(100% - 4px);
             }
-        
+
             .tsi-timeControlsContainer {
                 align-items: stretch;
                 width: calc(100% - 28px);
                 margin-left: 12px;
                 margin-right: 12px;
-        
+
                 .tsi-timeInputContainer {
                     display: inline-flex;
                     width: 100%;
+
                     .tsi-startContainer {
                         padding-right: 10px;
                     }
+
                     .tsi-endContainer {
                         padding-left: 6px;
                     }
-                    .tsi-startContainer, .tsi-endContainer {
+
+                    .tsi-startContainer,
+                    .tsi-endContainer {
                         padding-top: 12px;
                         width: 50%;
                         position: relative;
-        
+
                         .tsi-dateTimeInput {
                             margin-top: 4px;
                             width: 100%;
@@ -186,11 +221,15 @@
                             height: 30px;
                             box-sizing: border-box;
                         }
-        
-                        .tsi-startTimeInputContainer, .tsi-endTimeInputContainer {
-                            display:flex;
-                            .tsi-hoursInput, .tsi-minutesInput, .tsi-AMPMInput {
-                                display:flex;
+
+                        .tsi-startTimeInputContainer,
+                        .tsi-endTimeInputContainer {
+                            display: flex;
+
+                            .tsi-hoursInput,
+                            .tsi-minutesInput,
+                            .tsi-AMPMInput {
+                                display: flex;
                                 width: 33%;
                                 flex-grow: 1;
                                 height: 32px;
@@ -202,8 +241,9 @@
                     }
                 }
             }
-    
-            .tsi-timeControlsContainer, .tsi-timezoneContainer {
+
+            .tsi-timeControlsContainer,
+            .tsi-timezoneContainer {
                 .tsi-timeLabel {
                     font-weight: 600;
                     font-size: 14px;
@@ -213,6 +253,7 @@
                     line-height: 20px;
                     opacity: 1;
                 }
+
                 .tsi-snapToEndRangeButton {
                     text-decoration: underline;
                     background: transparent;
@@ -229,28 +270,33 @@
 
                 }
             }
-        
-        
+
+
             .tsi-timezoneContainer {
                 padding-bottom: 12px;
                 width: calc(100% - 32px);
                 margin: 0 16px 16px 16px;
+
                 .tsi-timezonePickerContainer {
                     width: 100%;
                     height: 100%;
+
                     .tsi-timezonePicker {
                         width: 100%;
                         background: url(../../Icons/chevron.svg) 16px/16px no-repeat;
                         background-position-y: 12px;
                         background-position-x: calc(100% - 4px);
-                    }    
+                    }
                 }
             }
+
             .tsi-saveButtonContainer {
                 width: 100%;
                 height: 48px;
-                margin-top:12px;
-                .tsi-saveButton, .tsi-cancelButton {
+                margin-top: 12px;
+
+                .tsi-saveButton,
+                .tsi-cancelButton {
                     width: 92px;
                     border: none;
                     float: right;
@@ -259,11 +305,12 @@
                     padding: 8px;
                     border-radius: 2px;
                     line-height: 14px;
+
                     &.tsi-buttonDisabled {
-                        background-color: grey;
+                        background-color: grey !important;
                     }
                 }
-        
+
                 .tsi-saveButton {
                     background-color: #309d90;
                     color: white;
@@ -273,8 +320,14 @@
     }
 
     .tsi-errorMessageContainer {
-        background-color: darkorange;
+        background-color: #B36200;
         color: white;
+
+        @media screen and (-ms-high-contrast: active) {
+            -ms-high-contrast-adjust: none;
+            background-color: #B36200;
+        }
+
         .tsi-errorMessage {
             padding: 8px;
         }

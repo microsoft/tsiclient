@@ -77,9 +77,12 @@ class Strings {
         "timezone selection": "timezone selection",
         "Start time input": "Start time input",
         "End time input": "End time input",
+        "*": "*",
         "snap end time to latest": "snap end time to latest",
         "zoom in": "zoom in",
         "zoom out": "zoom out",
+        "A line chart zoom in": "A line chart zoom in",
+        "A line chart zoom out": "A line chart zoom out",
         "select quick time of": "select quick time of",
         "a time selection control dialog": "a time selection control dialog.",
         "a button to launch a time selection dialog current selected time is ": "a button to launch a time selection dialog. current selected time is ",
@@ -113,14 +116,14 @@ class Strings {
         "Start at": "Start at",
         "Dismiss": "Dismiss"
     };
-  
+
     private stringValues: any = {};
 
-	constructor(){
+    constructor() {
         this.stringValues = this.stringValueDefaults;
     }
 
-    public mergeStrings (stringKeyValues: any) {
+    public mergeStrings(stringKeyValues: any) {
         Object.keys(this.stringValues).forEach((stringKey: string) => {
             if (stringKey in stringKeyValues) {
                 this.stringValues[stringKey] = stringKeyValues[stringKey];
@@ -128,20 +131,20 @@ class Strings {
         });
     }
 
-    public getString (stringKey: string) {
+    public getString(stringKey: string) {
         if (stringKey in this.stringValues) {
             return this.stringValues[stringKey];
         }
         return stringKey;
     }
 
-    public toObject () {
+    public toObject() {
         return this.stringValues;
     }
 
 }
 
-export {Strings}
+export { Strings }
 
 
 
