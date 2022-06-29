@@ -9,7 +9,7 @@
     .tsi-sliderTrack {
         stroke: $gray1;
         @media screen and (-ms-high-contrast: white-on-black) { 
-            stroke: white !important;          
+            stroke: white;          
         }
     }
 
