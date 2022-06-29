@@ -279,10 +279,13 @@
     .tsi-errorMessageContainer {
         background-color: #B36200;
         color: white;
+
+
         @media screen and (-ms-high-contrast: active) {
-                -ms-high-contrast-adjust: none;
-                background-color: #B36200;
-            }
+            -ms-high-contrast-adjust: none;
+            background-color: #B36200;
+        }
+
         .tsi-errorMessage {
             padding: 8px;
         }

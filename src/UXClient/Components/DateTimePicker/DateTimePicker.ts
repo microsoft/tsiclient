@@ -452,7 +452,9 @@ class DateTimePicker extends ChartComponent{
                 .append("div")
                 .classed("tsi-errorMessage", true)
                 .attr('role', 'alert')
-                .attr('aria-live','assertive')
+
+                .attr('aria-live', 'assertive')
+
                 .text(d => d);
                 
               
@@ -466,7 +468,9 @@ class DateTimePicker extends ChartComponent{
         let bothTimesValid = !isNaN(prospectiveFromMillis) && !isNaN(prospectiveToMillis);
 
         if (isNaN(prospectiveFromMillis)) {
-            accumulatedErrors.push("*Invalid Start date/time");  
+
+            accumulatedErrors.push("*Invalid Start date/time");
+
             isSaveable = false;
         }
 
@@ -553,7 +557,7 @@ class DateTimePicker extends ChartComponent{
                 .attr('required',true)
                 .attr('aria-label', `${startOrEnd === 'start' ? this.getString('Start time Checking') : this.getString('End time input')}`)
                 .text(this.getString(startOrEnd));
-            let timeRequired = timeLabel.append("span")
+            timeLabel.append("span")
                 .classed("tsi-timeRequired", true)
                 .text(this.getString('*'));
             let inputName = startOrEnd === 'start' ? 'fromInput' : 'toInput'
