@@ -6,7 +6,7 @@
         stroke-miterlimit: 1;
       }
 
-      .cls-1 {
+      .cls-1 { 
         stroke: rgba(33,33,33,0.5);
       }
 
