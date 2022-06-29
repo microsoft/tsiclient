@@ -3,7 +3,7 @@
     <style>
       .cls-1, .cls-3 {
         fill: none; 
-        stroke-miterlimit: 1;
+        stroke-miterlimit: 1; 
       } 
 
       .cls-1 {

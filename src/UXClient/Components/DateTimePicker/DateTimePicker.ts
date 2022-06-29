@@ -463,7 +463,6 @@ class DateTimePicker extends ChartComponent{
 
     private rangeIsValid (prospectiveFromMillis: number, prospectiveToMillis: number) {
         var accumulatedErrors = [];
-        var errorDiolge;
         var isSaveable = true;
         let bothTimesValid = !isNaN(prospectiveFromMillis) && !isNaN(prospectiveToMillis);
 
@@ -555,7 +554,7 @@ class DateTimePicker extends ChartComponent{
                 .attr('id', inputLabelID)
                 .attr('for', inputID)
                 .attr('required',true)
-                .attr('aria-label', `${startOrEnd === 'start' ? this.getString('Start time Checking') : this.getString('End time input')}`)
+                .attr('aria-label', `${startOrEnd === 'start' ? this.getString('Start time input') : this.getString('End time input')}`)
                 .text(this.getString(startOrEnd));
             timeLabel.append("span")
                 .classed("tsi-timeRequired", true)
