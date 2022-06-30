@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 13 14">
+  <defs>  
+    <style>
+      .cls-1, .cls-3 {
+        fill: none;
+        stroke-miterlimit: 1;
+      }
+
+      .cls-1 { 
+        stroke: rgba(33,33,33,0.5);
+      }
+
+      .cls-2 {
+        fill: rgba(33,33,33,0.1);
+      }
+
+      .cls-3 {
+        stroke: #FFFFFF;
+      }
+
+      .cls-4 {
+        fill: rgba(33,33,33,0.5);
+      }
+
+      .cls-5 {
+        fill: #FFFFFF;
+      }
+    </style>
+  </defs>
+  <g id="ZoomOut_Light_Theme" transform="translate(83.443 -8.354)">
+    <path id="Path_111461" data-name="Path 111461" class="cls-1" d="M305,39.3a6,6,0,1,1-6-6A5.975,5.975,0,0,1,305,39.3Z" transform="translate(-375.943 -23.446)"/>
+    <path id="Path_111462" data-name="Path 111462" class="cls-2" d="M299,44.3a6,6,0,1,0-6-6A5.975,5.975,0,0,0,299,44.3Z" transform="translate(-375.943 -23.446)"/>
+    <path id="Path_111463" data-name="Path 111463" class="cls-3" d="M305,38.3a6,6,0,1,1-6-6A5.975,5.975,0,0,1,305,38.3Z" transform="translate(-375.943 -23.446)"/>
+    <path id="Path_111465" data-name="Path 111465" class="cls-4" d="M0,0H5V1H0Z" transform="translate(-79.443 15.355)"/>
+    <path id="Path_111464" data-name="Path 111464" class="cls-5" d="M0,0H5V1H0Z" transform="translate(-79.443 14.468)"/>
+  </g>
+</svg>

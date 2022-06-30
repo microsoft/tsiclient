@@ -234,14 +234,20 @@
             height: 16px;
             padding: 0px;
             cursor: pointer;
-        }
+        } 
 
         .tsi-zoomButtonIn{
             background: url(../../Icons/ZoomIn_Light_Theme.svg) no-repeat;
+            @media screen and (-ms-high-contrast: white-on-black) {   
+                background: url(../../Icons/Zoomin_Dark_Theme.svg) no-repeat;             
+            }  
             background-size: 16px;
         }
         .tsi-zoomButtonOut{
             background: url(../../Icons/ZoomOut_Light_Theme.svg) no-repeat;
+            @media screen and (-ms-high-contrast: white-on-black) {    
+                 background: url(../../Icons/ZoomOut_Dark_Theme.svg) no-repeat;             
+            }   
             background-size: 16px;
             margin-top: 4px;
             margin-bottom: 4px;

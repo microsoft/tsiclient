@@ -116,14 +116,14 @@ class Strings {
         "Start at": "Start at",
         "Dismiss": "Dismiss"
     };
-
+  
     private stringValues: any = {};
 
-    constructor() {
+	constructor(){
         this.stringValues = this.stringValueDefaults;
     }
 
-    public mergeStrings(stringKeyValues: any) {
+    public mergeStrings (stringKeyValues: any) {
         Object.keys(this.stringValues).forEach((stringKey: string) => {
             if (stringKey in stringKeyValues) {
                 this.stringValues[stringKey] = stringKeyValues[stringKey];
@@ -131,20 +131,20 @@ class Strings {
         });
     }
 
-    public getString(stringKey: string) {
+    public getString (stringKey: string) {
         if (stringKey in this.stringValues) {
             return this.stringValues[stringKey];
         }
         return stringKey;
     }
 
-    public toObject() {
+    public toObject () {
         return this.stringValues;
     }
 
 }
 
-export { Strings }
+export {Strings}
 
 
 
