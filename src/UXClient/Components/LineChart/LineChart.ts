@@ -165,6 +165,8 @@ class LineChart extends TemporalXAxisComponent {
         this.targetElement.selectAll(".tsi-markerInstructions").remove();
         this.targetElement.append("div")
             .classed("tsi-markerInstructions", true)
+            .attr('role', 'alert')
+            .attr('aria-live', 'assertive')
             .text(this.getString("Click to drop marker") + "," + this.getString("drag to reposition") + "."); 
     }
 
