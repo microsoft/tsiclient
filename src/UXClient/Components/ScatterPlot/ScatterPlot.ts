@@ -442,7 +442,7 @@ class ScatterPlot extends ChartVisualizationComponent {
             .attr("class", 'tsi-lineSeries')
             .merge(connectedGroups)
             .each(function(seriesName){
-                let series = d3.select(this).selectAll(`.tsi-line`).data([connectedSeriesMap[seriesName].data], d => d[0].aggregateKeyI+d[0].splitBy);
+                let series : any = d3.select(this).selectAll(`.tsi-line`).data([connectedSeriesMap[seriesName].data], d => d[0].aggregateKeyI+d[0].splitBy);
 
                 series.exit().remove();
 

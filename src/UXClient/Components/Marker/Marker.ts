@@ -151,7 +151,7 @@ class Marker extends Component {
 
     private renderMarker () {
         let self = this;
-        let marker = d3.select(this.renderTarget).selectAll(`.tsi-markerContainer`)
+        let marker : any = d3.select(this.renderTarget).selectAll(`.tsi-markerContainer`)
             .filter((d: any) => d.guid === this.guid)
             .data([{guid: this.guid, timestamp: this.timestampMillis}]);
         this.markerContainer = marker.enter()
@@ -446,7 +446,7 @@ class Marker extends Component {
                     self.tooltipFormat(d, tooltipTextElement, null, null);
                 }, null, 0, 0, self.colorMap[d.aggregateKey + "_" + d.splitBy], true);
 
-                let markerValueCaret = d3.select(this).selectAll('.tsi-markerValueCaret')
+                let markerValueCaret : any = d3.select(this).selectAll('.tsi-markerValueCaret')
                     .data([d]);
                 markerValueCaret.enter().append('div')
                     .attr('class', 'tsi-markerValueCaret')

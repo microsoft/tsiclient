@@ -4,7 +4,7 @@ import * as d3 from 'd3';
 import { GroupedBarChartData } from "./GroupedBarChartData";
 
 class PieChartData extends GroupedBarChartData {
-    public timestamp;
+    
     public flatValueArray;
     public visibleValuesSum = 0;
 

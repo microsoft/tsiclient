@@ -1375,7 +1375,7 @@ class LineChart extends TemporalXAxisComponent {
                 return "translate(" + 0 + "," + marker.yScale(marker.value) + ")";
             })
             .each(function (marker) {
-                const valueText = d3.select(this)
+                const valueText : any = d3.select(this)
                     .selectAll('.tsi-horizontalMarkerText')
                     .data([marker.value]);
                 valueText
@@ -1388,7 +1388,7 @@ class LineChart extends TemporalXAxisComponent {
                     .text((value) => value);
                 valueText.exit().remove();
 
-                const valueLine = d3.select(this)
+                const valueLine : any = d3.select(this)
                     .selectAll('.tsi-horizontalMarkerLine')
                     .data([marker]);
                 valueLine

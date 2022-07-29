@@ -268,7 +268,7 @@ class GroupedBarChart extends ChartVisualizationComponent {
                 svgSelection.select('g').attr("transform", "translate(" + this.chartMargins.left + "," + this.chartMargins.top + ")")
                     .selectAll('.barGroup')
                     .attr("visibility", "hidden");
-                var barGroups = g.selectAll('.barGroup').data(Object.keys(this.chartComponentData.displayState));
+                var barGroups : any = g.selectAll('.barGroup').data(Object.keys(this.chartComponentData.displayState));
                 var spacePerAggregate = calcSpacePerAgg();
 
                 //map to x position
@@ -331,9 +331,9 @@ class GroupedBarChart extends ChartVisualizationComponent {
                     var splitByCount = filteredSplitBys.length;
                     var barWidth = spacePerAggregate / splitByCount;
 
-                    var valueElements = d3.select(this).selectAll('.tsi-valueElement').data(self.chartComponentData.getValueContainerData(aggKey));
+                    var valueElements : any = d3.select(this).selectAll('.tsi-valueElement').data(self.chartComponentData.getValueContainerData(aggKey));
 
-                    var labelGroup = d3.select(this).selectAll(".labelGroup").data([aggKey]);
+                    var labelGroup : any = d3.select(this).selectAll(".labelGroup").data([aggKey]);
                     var labelGroupEntered = labelGroup.enter()
                         .append("g")
                         .attr("class", "labelGroup");

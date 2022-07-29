@@ -247,7 +247,7 @@ class Legend extends Component {
         splitByLabelsEntered.each(function (splitBy, j) {
             let color = (self.chartComponentData.isFromHeatmap) ? self.chartComponentData.displayState[aggKey].color : colors[j];
             if (dataType === DataTypes.Numeric || noSplitBys || self.legendState === 'compact'){
-                let colorKey = d3.select(this).selectAll('.tsi-colorKey').data([color]);
+                let colorKey : any = d3.select(this).selectAll('.tsi-colorKey').data([color]);
                 let colorKeyEntered = colorKey.enter()
                     .append("div")
                     .attr("class", 'tsi-colorKey')
@@ -307,7 +307,7 @@ class Legend extends Component {
                 }
                 d3.select(this).select('.tsi-seriesTypeSelection')
                     .each(function (d) {
-                        var typeLabels = d3.select(this).selectAll('option')
+                        var typeLabels : any = d3.select(this).selectAll('option')
                         .data(data => self.chartComponentData.displayState[aggKey].splitBys[splitBy].types.map( (type) => {
                             return {
                                 type: type,
@@ -420,7 +420,7 @@ class Legend extends Component {
             let heightPerSplitBy = self.getHeightPerSplitBy(aggKey);
             var splitByLabelData = Object.keys(self.chartComponentData.timeArrays[aggKey]);
             var noSplitBys: boolean = splitByLabelData.length == 1 && splitByLabelData[0] == "";
-            var seriesNameLabel = d3.select(this).selectAll(".tsi-seriesNameLabel").data([aggKey]);
+            var seriesNameLabel : any = d3.select(this).selectAll(".tsi-seriesNameLabel").data([aggKey]);
             d3.select(this).classed('tsi-nsb', noSplitBys);
             var enteredSeriesNameLabel = seriesNameLabel.enter().append("button")
                 .merge(seriesNameLabel)
@@ -490,7 +490,7 @@ class Legend extends Component {
                 d3.select(this).style("height", "unset");
             }
 
-            var splitByContainer = d3.select(this).selectAll(".tsi-splitByContainer").data([aggKey]);
+            var splitByContainer : any = d3.select(this).selectAll(".tsi-splitByContainer").data([aggKey]);
             var splitByContainerEntered = splitByContainer.enter().append("div")
                 .merge(splitByContainer)
                 .classed("tsi-splitByContainer", true);

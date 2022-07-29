@@ -1104,15 +1104,15 @@ class HierarchyNavigation extends Component{
             })
             .on('mouseover focus', function() {
                 if (isHierarchyNode) {
-                    if (d3.event.relatedTarget != d3.select(this.parentNode).select('.tsi-filter-icon').node()) {
-                        (d3.select(this.parentNode).select('.tsi-filter-icon').node() as any).style.visibility = 'visible';
+                    if (d3.event.relatedTarget != d3.select(this.parentNode as any).select('.tsi-filter-icon').node()) {
+                        (d3.select(this.parentNode as any).select('.tsi-filter-icon').node() as any).style.visibility = 'visible';
                     }
                 }
             })
             .on('mouseleave blur', function() {
                 if (isHierarchyNode) {
-                    if (d3.event.relatedTarget != d3.select(this.parentNode).select('.tsi-filter-icon').node()) {
-                        (d3.select(this.parentNode).select('.tsi-filter-icon').node() as any).style.visibility = 'hidden';
+                    if (d3.event.relatedTarget != d3.select(this.parentNode as any).select('.tsi-filter-icon').node()) {
+                        (d3.select(this.parentNode as any).select('.tsi-filter-icon').node() as any).style.visibility = 'hidden';
                     }
                 }
             });
@@ -1154,7 +1154,7 @@ class HierarchyNavigation extends Component{
                     self.filterPathElem.classed('visible', true);
                     self.clearAndGetResults();
                 }).on('mouseleave blur', function() {
-                    if (d3.event.relatedTarget != d3.select((this as HTMLElement).parentNode)) {
+                    if (d3.event.relatedTarget != d3.select((this as HTMLElement).parentNode as any)) {
                         (this as any).style.visibility = 'hidden';
                     }
                 });
@@ -1185,7 +1185,7 @@ class HierarchyNavigation extends Component{
                     .data(hitTuples)
                     .enter()
                     .append("tr");
-                let cells = rows.selectAll("td")
+                let cells : any = rows.selectAll("td")
                     .data(function(d) {
                         return d;
                     });
@@ -1237,7 +1237,7 @@ class HierarchyNavigation extends Component{
             .data(hitTuples)
             .enter()
             .append("tr");
-        let cells = rows.selectAll("td")
+        let cells : any = rows.selectAll("td")
             .data(function(d) {
                 return d;
             });

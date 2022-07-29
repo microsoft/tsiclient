@@ -195,7 +195,7 @@ class LinePlot extends Plot {
                     return (self.chartOptions.noAnimate || previousUndefined) ? 0 : self.TRANSDURATION
                 }
 
-                var gapPath = d3.select(this).selectAll(".tsi-gapLine")
+                var gapPath : any = d3.select(this).selectAll(".tsi-gapLine")
                     .data(segments.map((d) => {
                         d.inTransition = true;
                         return d;
@@ -221,7 +221,7 @@ class LinePlot extends Plot {
                         d.inTransition = false;
                     });
 
-                var path = d3.select(this).selectAll(".tsi-valueLine")
+                var path : any = d3.select(this).selectAll(".tsi-valueLine")
                     .data([self.chartComponentData.timeArrays[aggKey][splitBy]].map(d => {
                         d.inTransition = true;
                         return d;
@@ -249,7 +249,7 @@ class LinePlot extends Plot {
                     });
 
                 if (self.chartOptions.includeDots || self.chartComponentData.displayState[aggKey].includeDots) {
-                    let dots = d3.select(this).selectAll(".tsi-valueDot")
+                    let dots : any = d3.select(this).selectAll(".tsi-valueDot")
                         .data(self.chartComponentData.timeArrays[aggKey][splitBy].filter((d) => {
                             return d && d.measures && d.measures[self.chartComponentData.getVisibleMeasure(d.aggregateKey, d.splitBy)] !== null;
                         }), (d: any, i) => {
@@ -287,7 +287,7 @@ class LinePlot extends Plot {
                 if ((self.chartComponentData.displayState[aggKey].includeEnvelope || self.chartOptions.includeEnvelope) && self.chartComponentData.isPossibleEnvelope(aggKey, splitBy)) {
                     envelopeData = self.chartComponentData.timeArrays[aggKey][splitBy].map((d: any) => ({...d, isEnvelope: true}));
                 } 
-                let envelope = d3.select(this).selectAll(".tsi-valueEnvelope")
+                let envelope : any = d3.select(this).selectAll(".tsi-valueEnvelope")
                         .data([envelopeData]);
                     
                 envelope.enter()
@@ -306,7 +306,7 @@ class LinePlot extends Plot {
 
                 if (self.chartOptions.isArea) {
                     self.createAreaPath(aggY);
-                    var area = d3.select(this).selectAll(".tsi-valueArea")
+                    var area : any = d3.select(this).selectAll(".tsi-valueArea")
                         .data([self.chartComponentData.timeArrays[aggKey][splitBy]]);
 
                     // logic for shiny gradient fill via url()
