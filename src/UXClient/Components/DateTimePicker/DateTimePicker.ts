@@ -553,7 +553,6 @@ class DateTimePicker extends ChartComponent{
                 .classed("tsi-timeLabel", true)
                 .attr('id', inputLabelID)
                 .attr('for', inputID)
-                .attr('required',true)
                 .attr('aria-label', `${startOrEnd === 'start' ? this.getString('Start time input') : this.getString('End time input')}`)
                 .text(this.getString(startOrEnd));
             timeLabel.append("span")
@@ -563,6 +562,7 @@ class DateTimePicker extends ChartComponent{
             this[inputName] = fromOrToContainer.append('input')
                 .attr('class', 'tsi-dateTimeInput', true)
                 .attr('aria-labelledby', inputLabelID)
+                .attr('required', true)
                 .attr('id', inputID)
                 .on('input', () => {
                     let rangeErrorCheck: any = this.checkDateTimeValidity();
