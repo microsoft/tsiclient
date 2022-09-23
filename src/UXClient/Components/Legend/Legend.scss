@@ -134,6 +134,7 @@
 						height: 10px;
 						width: 10px;
 						top: -3px;
+						forced-color-adjust: none;
 						&.tsi-eventsColorKey, &.tsi-categoricalColorKey {
 							height: 12px;
 							width: 12px;
@@ -346,6 +347,7 @@
 				border-radius: 6px;
 				position: relative;
 				top: -2px;
+				forced-color-adjust: none;
 				&.tsi-eventsColorKey, &.tsi-categoricalColorKey {
 					height: 16px;
 					width: 16px;
