@@ -60,8 +60,8 @@
         "@types/d3": "^4.13.0",
         "awesomplete": "^1.1.2",
         "azure-maps-control": "^2.0.26",
-        "d3": "^4.13.0",
-        "d3-interpolate-path": "^1.1.1",
+        "d3": "^7.6.1",
+        "d3-interpolate-path": "^2.3.0",
         "moment": "^2.27.0",
         "moment-timezone": "^0.5.31",
         "split.js": "^1.5.11"
