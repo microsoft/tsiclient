@@ -196,7 +196,6 @@ class AvailabilityChart extends ChartComponent{
         this.chartOptions.brushClearable = false;
         this.chartOptions.minBrushWidth = 1;
         this.chartOptions.brushHandlesVisible = true;
-        this.chartOptions.hideChartControlPanel = true;
 
         let brushMoveAction = this.chartOptions.brushMoveAction;
 
