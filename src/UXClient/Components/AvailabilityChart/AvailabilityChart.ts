@@ -54,7 +54,7 @@ class AvailabilityChart extends ChartComponent{
         return totalTimeRange / maxZoomFactor;
     }
 
-    private zoom (direction: string, xPos: number) {
+    private zoom (event: any, direction: string, xPos: number) {
         if (this.chartOptions.isCompact)
             return;
         var range = Math.max(this.getMinZoomedRange(), (this.zoomedToMillis - this.zoomedFromMillis));
@@ -82,7 +82,7 @@ class AvailabilityChart extends ChartComponent{
         this.sparkLineChart.setBrushStartTime(new Date(this.zoomedFromMillis));
         this.sparkLineChart.setBrush();
         this.timePickerLineChart.drawBrushRange();
-        d3.event.preventDefault && d3.event.preventDefault();
+        event.preventDefault && event.preventDefault();
     }
     private setChartOptions (chartOptions) {
         this.chartOptions.setOptions({ ...chartOptions, ...{
@@ -285,10 +285,10 @@ class AvailabilityChart extends ChartComponent{
         this.sparkLineChart.setBrush();
 
         var self = this;
-        this.timePickerChart.select(".brushElem").on("wheel.zoom", function (d) {
-            let direction = d3.event.deltaY > 0 ? 'out' : 'in';
-            let xPos = (d3.mouse(<any>this)[0]);
-            self.zoom(direction, xPos);
+        this.timePickerChart.select(".brushElem").on("wheel.zoom", function (event , d) {
+            let direction = event.deltaY > 0 ? 'out' : 'in';
+            let xPos = (d3.pointer(event)[0]);
+            self.zoom(event, direction, xPos);
         });
         if (!this.chartOptions.isCompact) {
             this.buildZoomButtons();
@@ -311,15 +311,15 @@ class AvailabilityChart extends ChartComponent{
             .attr("class", "tsi-zoomButton tsi-zoomButtonIn")
             .attr('aria-label', this.getString('A line chart zoom in'))
             .attr('title', this.getString('zoom in'))
-            .on("click", () => {
-                this.zoom("in", midpoint);
+            .on("click", (event) => {
+                this.zoom(event, "in", midpoint);
             });
         buttonsDiv.append("button")
             .attr("class", "tsi-zoomButton tsi-zoomButtonOut")
             .attr('aria-label', this.getString('A line chart zoom out'))
             .attr('title', this.getString('zoom out'))
-            .on("click", () => {
-                this.zoom("out", midpoint);
+            .on("click", (event) => {
+                this.zoom(event, "out", midpoint);
             });
     }
 

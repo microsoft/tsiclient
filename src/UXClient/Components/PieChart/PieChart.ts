@@ -183,11 +183,11 @@ class PieChart extends ChartVisualizationComponent {
                         .on("mouseover", pathMouseInteraction)
                         .on("mousemove" , pathMouseInteraction)
                         .on("mouseout", pathMouseout)
-                        .on("contextmenu", (d: any, i) => {
+                        .on("contextmenu", (e, d: any) => {
                             if (self.chartComponentData.displayState[d.data.aggKey].contextMenuActions && 
                                 self.chartComponentData.displayState[d.data.aggKey].contextMenuActions.length) {
-                                var mousePosition = d3.mouse(<any>targetElement.node());
-                                d3.event.preventDefault();
+                                var mousePosition = d3.pointer(e, <any>targetElement.node());
+                                e.preventDefault();
                                 self.contextMenu.draw(self.chartComponentData, self.renderTarget, self.chartOptions, 
                                                     mousePosition, d.data.aggKey, d.data.splitBy, mouseOutArcOnContextMenuClick,
                                                     new Date(self.chartComponentData.timestamp));

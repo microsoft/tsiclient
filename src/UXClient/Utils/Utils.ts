@@ -690,10 +690,6 @@ export default class Utils {
         }
     }
 
-    static equalToEventTarget = (function ()  {
-        return (this == d3.event.target);
-    });
-
     static getAggKeys (data) {
         let aggregateCounterMap = {};
         return data.map((aggregate) => {

@@ -48,15 +48,15 @@ class SingleDateTimePicker extends ChartComponent{
         this.millis = millis;
         this.onSet = onSet;
         this.targetElement = d3.select(this.renderTarget)
-            .classed("tsi-singleDateTimePicker", true)
+            .classed("tsi-singleDateTimePicker", true);
         this.targetElement.html('');
         super.themify(this.targetElement, this.chartOptions.theme);
 
         this.targetElement.on('keydown', (e) => {
-            if (d3.event.keyCode <= 40 && d3.event.keyCode >= 37) { //arrow key
-                d3.event.stopPropagation();
+            if (e.keyCode <= 40 && e.keyCode >= 37) { //arrow key
+                e.stopPropagation();
             }
-            if (d3.event.keyCode === 27 && this.chartOptions.dTPIsModal) { //escape
+            if (e.keyCode === 27 && this.chartOptions.dTPIsModal) { //escape
                 this.onSet();
             }
         });
@@ -70,10 +70,10 @@ class SingleDateTimePicker extends ChartComponent{
                     self.onSet(this.millis);
                 }
             })
-            .on('keydown', () => {
-                if (d3.event.keyCode === 9 && !d3.event.shiftKey && this.chartOptions.dTPIsModal) { // tab
+            .on('keydown', (e) => {
+                if (e.keyCode === 9 && !e.shiftKey && this.chartOptions.dTPIsModal) { // tab
                     this.timeInput.node().focus();
-                    d3.event.preventDefault();
+                    e.preventDefault();
                 }    
             })
         
@@ -235,10 +235,10 @@ class SingleDateTimePicker extends ChartComponent{
                     this.updateDisplayedDateTime(true);
                 }
             })
-            .on('keydown', () => {
-                if (d3.event.keyCode === 9 && d3.event.shiftKey && this.chartOptions.dTPIsModal) { // tab
+            .on('keydown', (e) => {
+                if (e.keyCode === 9 && e.shiftKey && this.chartOptions.dTPIsModal) { // tab
                     this.saveButton.node().focus();
-                    d3.event.preventDefault();
+                    e.preventDefault();
                 }        
             });
     }

@@ -186,8 +186,8 @@ class ScatterPlot extends ChartVisualizationComponent {
         this.draw();
         this.gatedShowGrid();
         
-        d3.select("html").on("click." + Utils.guid(), () => {
-            if (this.ellipsisContainer && d3.event.target != this.ellipsisContainer.select(".tsi-ellipsisButton").node()) {
+        d3.select("html").on("click." + Utils.guid(), (e) => {
+            if (this.ellipsisContainer && e.target != this.ellipsisContainer.select(".tsi-ellipsisButton").node()) {
                 this.ellipsisMenu.setMenuVisibility(false);
             }
         });
@@ -442,7 +442,7 @@ class ScatterPlot extends ChartVisualizationComponent {
             .attr("class", 'tsi-lineSeries')
             .merge(connectedGroups)
             .each(function(seriesName){
-                let series = d3.select(this).selectAll(`.tsi-line`).data([connectedSeriesMap[seriesName].data], d => d[0].aggregateKeyI+d[0].splitBy);
+                let series = d3.select(this).selectAll(`.tsi-line`).data([connectedSeriesMap[seriesName].data], d => d[0].aggregateKeyI+d[0].splitBy) as d3.Selection<SVGPathElement, any, any, unknown>;
 
                 series.exit().remove();
 
@@ -500,12 +500,15 @@ class ScatterPlot extends ChartVisualizationComponent {
         }
         const getOffset = () => (Math.random() < 0.5 ? -1 : 1) * getRandomInRange(0, .01);
         
-        this.voronoi = d3.voronoi()
-            .x((d:any) => this.xScale(d.measures[this.xMeasure]) + getOffset())
-            .y((d:any) => this.yScale(d.measures[this.yMeasure]) + getOffset())
-            .extent([[0, 0], [this.chartWidth, this.chartHeight]]);
+        const delaunay = d3.Delaunay.from(voronoiData);
+        this.voronoi = delaunay.voronoi([0, 0, this.chartWidth, this.chartHeight]);
 
-        this.voronoiDiagram = this.voronoi(voronoiData);
+        // this.voronoi = d3.voronoi()
+        //     .x((d:any) => this.xScale(d.measures[this.xMeasure]) + getOffset())
+        //     .y((d:any) => this.yScale(d.measures[this.yMeasure]) + getOffset())
+        //     .extent([[0, 0], [this.chartWidth, this.chartHeight]]);
+        //
+        // this.voronoiDiagram = this.voronoi(voronoiData);
 
         this.voronoiGroup
             .on("mousemove", function(){
