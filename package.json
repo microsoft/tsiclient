@@ -2,7 +2,7 @@
     "name": "tsiclient",
     "main": "tsiclient.js",
     "description": "",
-    "version": "1.4.24",
+    "version": "1.4.26-test",
     "types": "tsiclient.d.ts",
     "repository": {
         "type": "git",
