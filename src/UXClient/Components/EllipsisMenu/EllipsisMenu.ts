@@ -67,7 +67,6 @@ class EllipsisMenu extends Component {
         this.buttonElement = d3.select(this.renderTarget).insert("button")
             .attr("class", "tsi-ellipsisButton")
             .attr("aria-label", this.getString("Show ellipsis menu"))
-            .attr("role", "menu")
             .attr("title", this.getString("Show ellipsis menu"))
             .attr("type", "button")
             .on("click", function () {
@@ -80,7 +79,8 @@ class EllipsisMenu extends Component {
             });
         
         this.menuElement = d3.select(this.renderTarget).insert("div")
-            .attr("class", "tsi-ellipsisMenu");
+            .attr("class", "tsi-ellipsisMenu")
+            .attr("role", "menu");
 
         this.menuElement.selectAll(".tsi-ellipsisMenuItem").data(this.menuItems)
             .enter()
