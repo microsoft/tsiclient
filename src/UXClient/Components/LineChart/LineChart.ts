@@ -1287,9 +1287,12 @@ class LineChart extends TemporalXAxisComponent {
             });
             // consolidate horizontal markers
             const horizontalMarkers = [];
-            Object.values(this.chartOptions.swimLaneOptions).forEach((lane) => {
-                horizontalMarkers.push(...lane.horizontalMarkers);
-            });
+            if (this.chartOptions.swimLaneOptions){
+
+                Object.values(this.chartOptions.swimLaneOptions).forEach((lane) => {
+                    horizontalMarkers.push(...lane.horizontalMarkers);
+                });
+            }
             this.chartOptions.swimLaneOptions = {0: {yAxisType: this.chartOptions.yAxisState, horizontalMarkers: horizontalMarkers}};
         } else {
             let minimumPresentSwimLane = this.aggregateExpressionOptions.reduce((currMin, aEO) => {
