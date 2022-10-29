@@ -466,9 +466,10 @@ class AvailabilityChart extends ChartComponent{
 
     private buildFromAndToContainer () {
         let dateTimeContainer = this.timePickerTextContainer.append('div').classed('tsi-dateTimeContainer', true);
-        let timeframeLabel = dateTimeContainer.append("label").text(this.getString("Timeframe"));
+        let timeframeLabel = dateTimeContainer.append("label").text(this.getString("Timeframe")).attr("id", "time-frame-label");
         let dateTimeButtonContainer = dateTimeContainer.append("div")
-            .classed('tsi-dateTimeButtonContainer', true);
+            .classed('tsi-dateTimeButtonContainer', true)
+            .attr("aria-labelledby", 'time-frame-label');
         this.dateTimeButton = new DateTimeButtonRange(dateTimeButtonContainer.node());
     }
 
