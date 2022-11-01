@@ -169,9 +169,9 @@ class ScatterPlot extends ChartVisualizationComponent {
                 .text((d: string) => d);
 
             // Add Window Resize Listener
-            window.addEventListener("resize", () => {
+            window.addEventListener("resize", (event) => {
                 if (!this.chartOptions.suppressResizeListener) {
-                    this.draw();
+                    this.draw(true, event);
                 }
             });
 
@@ -186,8 +186,8 @@ class ScatterPlot extends ChartVisualizationComponent {
         this.draw();
         this.gatedShowGrid();
         
-        d3.select("html").on("click." + Utils.guid(), () => {
-            if (this.ellipsisContainer && d3.event.target != this.ellipsisContainer.select(".tsi-ellipsisButton").node()) {
+        d3.select("html").on("click." + Utils.guid(), (event) => {
+            if (this.ellipsisContainer && event.target != this.ellipsisContainer.select(".tsi-ellipsisButton").node()) {
                 this.ellipsisMenu.setMenuVisibility(false);
             }
         });
@@ -212,7 +212,7 @@ class ScatterPlot extends ChartVisualizationComponent {
     }
 
     /******** DRAW UPDATE FUNCTION ********/   
-    public draw = (isFromResize = false) => {
+    public draw = (isFromResize = false, event?: any) => {
         this.activeDot = null;
         this.chartComponentData.updateTemporalDataArray(this.chartOptions.isTemporal);
         
@@ -349,7 +349,7 @@ class ScatterPlot extends ChartVisualizationComponent {
         scatter.exit().remove();
         
         // Draw voronoi
-        this.drawVoronoi();
+        // this.drawVoronoi();
 
         // Resize controls
         this.setControlsPanelWidth();
@@ -374,8 +374,15 @@ class ScatterPlot extends ChartVisualizationComponent {
         }
 
         // Draw Legend
-        this.legendObject.draw(this.chartOptions.legend, this.chartComponentData, this.labelMouseOver.bind(this), 
-            this.svgSelection, this.chartOptions, this.labelMouseOut.bind(this), this.stickySeries);
+        this.legendObject.draw(
+            this.chartOptions.legend,
+            this.chartComponentData,
+            this.labelMouseOver.bind(this), 
+            this.svgSelection,
+            this.chartOptions,
+            this.labelMouseOut.bind(this),
+            this.stickySeries,
+            event);
 
         this.sliderWrapper
             .style("width", `${this.svgSelection.node().getBoundingClientRect().width + 10}px`);
@@ -442,7 +449,7 @@ class ScatterPlot extends ChartVisualizationComponent {
             .attr("class", 'tsi-lineSeries')
             .merge(connectedGroups)
             .each(function(seriesName){
-                let series = d3.select(this).selectAll(`.tsi-line`).data([connectedSeriesMap[seriesName].data], d => d[0].aggregateKeyI+d[0].splitBy);
+                let series = d3.select(this).selectAll<SVGPathElement, unknown>(`.tsi-line`).data([connectedSeriesMap[seriesName].data], d => d[0].aggregateKeyI+d[0].splitBy);
 
                 series.exit().remove();
 
@@ -490,64 +497,64 @@ class ScatterPlot extends ChartVisualizationComponent {
     }
 
     /******** CREATE VORONOI DIAGRAM FOR MOUSE EVENTS ********/
-    private drawVoronoi(){
-        let voronoiData = this.getVoronoiData(this.chartComponentData.temporalDataArray);
-        let self = this;
+    // private drawVoronoi(){
+    //     let voronoiData = this.getVoronoiData(this.chartComponentData.temporalDataArray);
+    //     let self = this;
 
-        // Create random offset to solve colinear data issue
-        const getRandomInRange = (min, max) => {
-            return Math.random() * (max - min) + min;
-        }
-        const getOffset = () => (Math.random() < 0.5 ? -1 : 1) * getRandomInRange(0, .01);
+    //     // Create random offset to solve colinear data issue
+    //     const getRandomInRange = (min, max) => {
+    //         return Math.random() * (max - min) + min;
+    //     }
+    //     const getOffset = () => (Math.random() < 0.5 ? -1 : 1) * getRandomInRange(0, .01);
         
-        this.voronoi = d3.voronoi()
-            .x((d:any) => this.xScale(d.measures[this.xMeasure]) + getOffset())
-            .y((d:any) => this.yScale(d.measures[this.yMeasure]) + getOffset())
-            .extent([[0, 0], [this.chartWidth, this.chartHeight]]);
+    //     this.voronoi = d3.voronoi()
+    //         .x((d:any) => this.xScale(d.measures[this.xMeasure]) + getOffset())
+    //         .y((d:any) => this.yScale(d.measures[this.yMeasure]) + getOffset())
+    //         .extent([[0, 0], [this.chartWidth, this.chartHeight]]);
 
-        this.voronoiDiagram = this.voronoi(voronoiData);
+    //     this.voronoiDiagram = this.voronoi(voronoiData);
 
-        this.voronoiGroup
-            .on("mousemove", function(){
-                let mouseEvent = d3.mouse(this);
-                self.voronoiMouseMove(mouseEvent);
-            })
-            .on("mouseover", function(){
-                let mouseEvent = d3.mouse(this);
-                self.voronoiMouseMove(mouseEvent);
-                let site = self.voronoiDiagram.find(mouseEvent[0],  mouseEvent[1]);
-                if(site != null)
-                    self.labelMouseOver(site.data.aggregateKey, site.data.splitBy);
-            })
-            .on("mouseout", function(){
-                self.voronoiMouseOut();
-            }) 
-            .on("click", function(){
-                let mouseEvent = d3.mouse(this);
-                self.voronoiClick(mouseEvent);
-            });
-    }
+    //     this.voronoiGroup
+    //         .on("mousemove", function(){
+    //             let mouseEvent = d3.mouse(this);
+    //             self.voronoiMouseMove(mouseEvent);
+    //         })
+    //         .on("mouseover", function(){
+    //             let mouseEvent = d3.mouse(this);
+    //             self.voronoiMouseMove(mouseEvent);
+    //             let site = self.voronoiDiagram.find(mouseEvent[0],  mouseEvent[1]);
+    //             if(site != null)
+    //                 self.labelMouseOver(site.data.aggregateKey, site.data.splitBy);
+    //         })
+    //         .on("mouseout", function(){
+    //             self.voronoiMouseOut();
+    //         }) 
+    //         .on("click", function(){
+    //             let mouseEvent = d3.mouse(this);
+    //             self.voronoiClick(mouseEvent);
+    //         });
+    // }
 
     /******** STICKY/UNSTICKY DATA GROUPS ON VORONOI DIAGRAM CLICK ********/
-    private voronoiClick(mouseEvent: any){
-        let site = this.voronoiDiagram.find(mouseEvent[0], mouseEvent[1]);
-        if(site == null) return;      
-        // Unsticky all
-        (<any>this.legendObject.legendElement.selectAll('.tsi-splitByLabel')).classed("stickied", false);
+    // private voronoiClick(mouseEvent: any){
+    //     let site = this.voronoiDiagram.find(mouseEvent[0], mouseEvent[1]);
+    //     if(site == null) return;      
+    //     // Unsticky all
+    //     (<any>this.legendObject.legendElement.selectAll('.tsi-splitByLabel')).classed("stickied", false);
         
-        if (this.chartComponentData.stickiedKey != null) {
-            this.chartComponentData.stickiedKey = null;
-            // Recompute Voronoi
-            this.voronoiDiagram = this.voronoi(this.getVoronoiData(this.chartComponentData.temporalDataArray));
-            site = this.voronoiDiagram.find(mouseEvent[0], mouseEvent[1]);
-            this.voronoiMouseMove(mouseEvent);
-            this.chartOptions.onUnsticky(site.data.aggregateKey, site.data.splitBy)
-            return;
-        }
+    //     if (this.chartComponentData.stickiedKey != null) {
+    //         this.chartComponentData.stickiedKey = null;
+    //         // Recompute Voronoi
+    //         this.voronoiDiagram = this.voronoi(this.getVoronoiData(this.chartComponentData.temporalDataArray));
+    //         site = this.voronoiDiagram.find(mouseEvent[0], mouseEvent[1]);
+    //         this.voronoiMouseMove(mouseEvent);
+    //         this.chartOptions.onUnsticky(site.data.aggregateKey, site.data.splitBy)
+    //         return;
+    //     }
 
-        this.stickySeries(site.data.aggregateKey, site.data.splitBy);
-        this.chartOptions.onSticky(site.data.aggregateKey, site.data.splitBy);
-    }
+    //     this.stickySeries(site.data.aggregateKey, site.data.splitBy);
+    //     this.chartOptions.onSticky(site.data.aggregateKey, site.data.splitBy);
+    // }
 
     /******** UPDATE STICKY SPLITBY  ********/
     public stickySeries  = (aggregateKey: string, splitBy: string = null) => {

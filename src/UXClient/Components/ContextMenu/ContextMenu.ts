@@ -202,8 +202,8 @@ class ContextMenu extends Component {
         this.positionAEC(actionContainerEntered, this.actions.length, 0, 0);
 
         let self = this;
-        d3.select(this.renderTarget).on("click", function () {
-            if (!d3.select(d3.event.srcElement).classed('tsi-actionElement')) {
+        d3.select(this.renderTarget).on("click", function (event) {
+            if (!d3.select(event.srcElement).classed('tsi-actionElement')) {
                 if (onClick) {
                     onClick();
                 }

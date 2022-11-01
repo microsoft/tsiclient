@@ -174,12 +174,12 @@ class EventsPlot extends Plot {
             .on('touchstart', (d) => {
                 this.eventOnClick(d);
             })
-            .on('keydown', function (d: any)  {
-                if (d3.event.keyCode === 9) {
+            .on('keydown', function (event, d: any)  {
+                if (event.keyCode === 9) {
                     sortEvents();
                     d3.select(this).node().focus();
                 }
-                if(d3.event.keyCode === 32 || d3.event.keyCode === 13){
+                if(event.keyCode === 32 || event.keyCode === 13){
                     self.eventOnClick(d);
                 }
             })

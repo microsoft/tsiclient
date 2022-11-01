@@ -41,11 +41,11 @@ class ColorPicker extends Component{
             .attr("title", this.getString('Select color'))
             .attr("aria-label", (this.selectedColor ? this.selectedColor : this.getString('No color')) + ' ' + this.getString('Select color'))
             .attr("aria-controls", `tsi-colorGrid_${this.componentId}`)
-            .on('click', () => {
+            .on('click', (event) => {
                 if (this.isColorGridVisible) {
                     this.hideColorGrid(true);
                 } else {
-                    this.chartOptions.onClick(d3.event); this.showColorGrid();
+                    this.chartOptions.onClick(event); this.showColorGrid();
                 }
             });
         if (this.selectedColor) {
@@ -68,24 +68,24 @@ class ColorPicker extends Component{
                 .attr("aria-label", c)
                 .attr("aria-selected", c === this.selectedColor)
                 .style("background-color", c)
-                .on('click', () => {
-                    d3.event.preventDefault();
-                    d3.event.stopPropagation();
+                .on('click', (event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
                     this.chartOptions.onSelect(c); this.hideColorGrid(true); this.setSelectedColor(c, gridItem);
                 })
-                .on('keydown', () => {
-                    if (d3.event.keyCode === KeyCodes.Tab && !d3.event.shiftKey && idx === this.chartOptions.colors.length - 1) { // tab
-                        d3.event.preventDefault();
+                .on('keydown', (event) => {
+                    if (event.keyCode === KeyCodes.Tab && !event.shiftKey && idx === this.chartOptions.colors.length - 1) { // tab
+                        event.preventDefault();
                         this.colorPickerElem.selectAll(".tsi-colorItem").nodes()[0].focus();
-                    } else if (d3.event.keyCode === KeyCodes.Enter) {
-                        d3.event.preventDefault();
-                        d3.event.stopPropagation();
+                    } else if (event.keyCode === KeyCodes.Enter) {
+                        event.preventDefault();
+                        event.stopPropagation();
                         this.chartOptions.onSelect(c); 
                         this.hideColorGrid(true); 
                         this.setSelectedColor(c, gridItem);
-                    } else if (d3.event.keyCode === KeyCodes.Esc) {
-                        d3.event.preventDefault();
-                        d3.event.stopPropagation();
+                    } else if (event.keyCode === KeyCodes.Esc) {
+                        event.preventDefault();
+                        event.stopPropagation();
                         this.hideColorGrid(true);
                     }
                 });

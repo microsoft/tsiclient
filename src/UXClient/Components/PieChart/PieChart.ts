@@ -44,7 +44,7 @@ class PieChart extends ChartVisualizationComponent {
             var tooltip = new Tooltip(d3.select(this.renderTarget));
             d3.select(this.renderTarget).append('div').classed('tsi-sliderWrapper', true);
 
-            this.draw = (isFromResize = false) => {
+            this.draw = (isFromResize = false, event) => {
                 // Determine the number of timestamps present, add margin for slider
                 if(this.chartComponentData.allTimestampsArray.length > 1)
                     this.chartMargins.bottom = 68;
@@ -118,8 +118,15 @@ class PieChart extends ChartVisualizationComponent {
                     }, null, 20, 20, color);
                 }
 
-                this.legendObject.draw(this.chartOptions.legend, this.chartComponentData, labelMouseover, 
-                    this.svgSelection, this.chartOptions, labelMouseout);
+                this.legendObject.draw(
+                    this.chartOptions.legend,
+                    this.chartComponentData,
+                    labelMouseover, 
+                    this.svgSelection,
+                    this.chartOptions,
+                    labelMouseout,
+                    null,
+                    event);
                 var pie = d3.pie()
                     .sort(null)
                     .value(function(d: any) { 
@@ -159,7 +166,7 @@ class PieChart extends ChartVisualizationComponent {
                     (<any>self.legendObject.legendElement.selectAll('.tsi-splitByLabel')).classed("inFocus", false);
                 } 
 
-                function pathMouseInteraction (d: any)  {
+                function pathMouseInteraction (event, d: any)  {
                     if (this.contextMenu && this.contextMenu.contextMenuVisible)
                         return;
                     pathMouseout(d); 
@@ -167,7 +174,7 @@ class PieChart extends ChartVisualizationComponent {
                     (<any>self.legendObject.legendElement.selectAll('.tsi-splitByLabel').filter(function (filteredSplitBy: string) {
                         return (d3.select(this.parentNode).datum() == d.data.aggKey) && (filteredSplitBy == d.data.splitBy);
                     })).classed("inFocus", true);
-                    drawTooltip(d, d3.mouse(self.svgSelection.node()));
+                    drawTooltip(d, d3.pointer(event, self.svgSelection.node()));
                 }
 
                 var mouseOutArcOnContextMenuClick = () => {
@@ -175,7 +182,7 @@ class PieChart extends ChartVisualizationComponent {
                 }
 
                 arcEntered.each(function () {
-                    var pathElem = d3.select(this).selectAll(".tsi-pie-path").data(d => [d]);
+                    var pathElem = d3.select(this).selectAll<SVGPathElement, unknown>(".tsi-pie-path").data(d => [d]);
                     var pathEntered = pathElem.enter()
                         .append("path")
                         .attr("class", "tsi-pie-path")
@@ -183,11 +190,11 @@ class PieChart extends ChartVisualizationComponent {
                         .on("mouseover", pathMouseInteraction)
                         .on("mousemove" , pathMouseInteraction)
                         .on("mouseout", pathMouseout)
-                        .on("contextmenu", (d: any, i) => {
+                        .on("contextmenu", (event, d: any) => {
                             if (self.chartComponentData.displayState[d.data.aggKey].contextMenuActions && 
                                 self.chartComponentData.displayState[d.data.aggKey].contextMenuActions.length) {
-                                var mousePosition = d3.mouse(<any>targetElement.node());
-                                d3.event.preventDefault();
+                                var mousePosition = d3.pointer(event, <any>targetElement.node());
+                                event.preventDefault();
                                 self.contextMenu.draw(self.chartComponentData, self.renderTarget, self.chartOptions, 
                                                     mousePosition, d.data.aggKey, d.data.splitBy, mouseOutArcOnContextMenuClick,
                                                     new Date(self.chartComponentData.timestamp));
@@ -239,8 +246,8 @@ class PieChart extends ChartVisualizationComponent {
         this.draw();
         this.gatedShowGrid();
 
-        d3.select("html").on("click." + Utils.guid(), () => {
-            if (this.ellipsisContainer && d3.event.target != this.ellipsisContainer.select(".tsi-ellipsisButton").node()) {
+        d3.select("html").on("click." + Utils.guid(), (event) => {
+            if (this.ellipsisContainer && event.target != this.ellipsisContainer.select(".tsi-ellipsisButton").node()) {
                 this.ellipsisMenu.setMenuVisibility(false);
             }
         });

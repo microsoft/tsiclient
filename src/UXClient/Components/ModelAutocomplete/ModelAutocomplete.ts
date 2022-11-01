@@ -37,8 +37,8 @@ class ModelAutocomplete extends Component{
         let clear = inputWrapper.append('div').attr('class', 'tsi-clear')
                     .attr("tabindex", "0").attr("role", "button")
                     .attr("aria-label", "Clear Search")
-                    .on('click keydown', function() {
-                        if (Utils.isKeyDownAndNotEnter(d3.event)) {return; }
+                    .on('click keydown', function(event) {
+                        if (Utils.isKeyDownAndNotEnter(event)) {return; }
                         (input.node() as any).value = ''; 
                         noSuggest = true; 
                         input.dispatch('input'); 
@@ -52,8 +52,8 @@ class ModelAutocomplete extends Component{
         let noSuggest = false;
         let justAwesompleted = false;
         (input.node() as any).addEventListener('awesomplete-selectcomplete', (event) => {noSuggest = true; input.dispatch('input'); this.ap.close(); justAwesompleted = true;});
-        input.on('keydown', () => {
-            this.chartOptions.onKeydown(d3.event, this.ap);
+        input.on('keydown', (event) => {
+            this.chartOptions.onKeydown(event, this.ap);
         });
 
         (input.node() as any).addEventListener('keyup', function(event){
@@ -71,7 +71,7 @@ class ModelAutocomplete extends Component{
         var searchText;
         var self = this;
         
-        input.on('input', function() {
+        input.on('input', function(event) {
             searchText = (<any>this).value;
             if(searchText.replace(/ /g,'') && !noSuggest){
                 getToken().then(token => {
@@ -92,7 +92,7 @@ class ModelAutocomplete extends Component{
             else{
                 self.ap.close();
             }
-            self.chartOptions.onInput(searchText, noSuggest ? {which: 13} : d3.event);
+            self.chartOptions.onInput(searchText, noSuggest ? {which: 13} : event);
             noSuggest = false;
             clear.classed('tsi-shown', searchText.length);
         })

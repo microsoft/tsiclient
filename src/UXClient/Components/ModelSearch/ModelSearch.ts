@@ -21,8 +21,8 @@ class ModelSearch extends Component{
 	constructor(renderTarget: Element){ 
         super(renderTarget); 
         this.server = new ServerClient();
-        d3.select("html").on("click." + Utils.guid(), () => {
-            if (this.clickedInstance && d3.event.target != this.clickedInstance && this.contextMenu) {
+        d3.select("html").on("click." + Utils.guid(), (event) => {
+            if (this.clickedInstance && event.target != this.clickedInstance && this.contextMenu) {
                 this.closeContextMenu();
                 this.clickedInstance = null;
             }
@@ -135,8 +135,8 @@ class ModelSearch extends Component{
                                     contextMenuActions.forEach((cma, cmaGroupIdx) => {
                                         Object.keys(cma).forEach((k, kIdx, kArray) => {
                                             let localActionIndex = currentActionIndex;
-                                            self.contextMenu.append('div').text(k).on('click', cma[k]).on('keydown', function(){
-                                                let evt = d3.event;
+                                            self.contextMenu.append('div').text(k).on('click', cma[k]).on('keydown', function(event){
+                                                let evt = event;
                                                 if(evt.keyCode === 13){
                                                     this.click();
                                                 }
@@ -168,13 +168,13 @@ class ModelSearch extends Component{
                                 }
                             }
                             this.instanceResults.append('div').html(self.getInstanceHtml(i)) // known unsafe usage of .html
-                            .on('click', function() {
-                                let mouseWrapper = d3.mouse(self.wrapper.node());
-                                let mouseElt = d3.mouse(this as any);
+                            .on('click', function(event) {
+                                let mouseWrapper = d3.pointer(event, self.wrapper.node());
+                                let mouseElt = d3.pointer(event);
                                 handleClick(this, mouseWrapper[1], mouseElt[1]);
                             })
-                            .on('keydown', () => {
-                                let evt = d3.event;
+                            .on('keydown', (event) => {
+                                let evt = event;
                                 if(evt.keyCode === 13){
                                     let resultsNodes = this.instanceResults.selectAll('.tsi-modelResultWrapper').nodes();
                                     let height = 0;

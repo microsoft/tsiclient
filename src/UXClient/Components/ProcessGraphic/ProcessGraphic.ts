@@ -110,7 +110,7 @@ class ProcessGraphic extends HistoryPlayback {
     }
   }
   protected updateDataMarkers(graphicValues: Array<IProcessGraphicLabelInfo>) {
-    let textElements = this.component.selectAll('div')
+    let textElements = this.component.selectAll<HTMLDivElement, unknown>('div')
       .data(graphicValues);
 
     let newElements = textElements.enter()

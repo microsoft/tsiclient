@@ -83,11 +83,11 @@ class Slider extends Component{
                 .attr("class", "track-overlay tsi-sliderTrackOverlay")
                 .call(d3.drag()
                     .on("start.interrupt", function() { slider.interrupt(); })
-                    .on("start drag", (d) => { 
-                        self.onDrag(d3.event.x); 
+                    .on("start drag", (event, d) => { 
+                        self.onDrag(event.x); 
                     })
-                    .on("end", (d) => {
-                        self.onDragEnd(d3.event.x);
+                    .on("end", (event, d) => {
+                        self.onDragEnd(event.x);
                     })
                 );
 
@@ -99,11 +99,11 @@ class Slider extends Component{
                 .attr("class", "tsi-sliderLabel")
                 .attr("tabindex", 0)
                 .attr("aria-label", selectedLabel)
-                .on("keydown", () => {
-                    if (d3.event.keyCode == 37) {
+                .on("keydown", (event) => {
+                    if (event.keyCode == 37) {
                         this.moveLeft();
                     }
-                    if (d3.event.keyCode == 39) {
+                    if (event.keyCode == 39) {
                         this.moveRight();
                     }
                 });

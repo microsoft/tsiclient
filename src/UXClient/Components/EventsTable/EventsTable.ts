@@ -165,8 +165,8 @@ class EventsTable extends ChartComponent{
             d3.select(this).select("button").append("div").attr("class", "tsi-onlyLabel").text(self.getString("only"))
                 .attr('tabindex', "0")
                 .attr('role', 'button')
-                .on("click", (d: any) => {
-                    d3.event.stopPropagation();
+                .on("click", (event, d: any) => {
+                    event.stopPropagation();
                     columns.forEach((column: any) => {
                         if (column.key == d.key)
                             column.visible = true;

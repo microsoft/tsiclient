@@ -138,11 +138,11 @@ class DateTimePicker extends ChartComponent{
 
         let group = this.targetElement.append('div')
             .classed('tsi-dateTimeGroup', true)
-            .on('keydown', (e) => {
-                if (d3.event.keyCode <= 40 && d3.event.keyCode >= 37) { //arrow key
-                    d3.event.stopPropagation();
+            .on('keydown', (event) => {
+                if (event.keyCode <= 40 && event.keyCode >= 37) { //arrow key
+                    event.stopPropagation();
                 }
-                if (d3.event.keyCode === 27 && this.chartOptions.dTPIsModal) { //escape
+                if (event.keyCode === 27 && this.chartOptions.dTPIsModal) { //escape
                     this.onCancel();
                     this.onSaveOrCancel();
                 }
@@ -175,13 +175,13 @@ class DateTimePicker extends ChartComponent{
                 this.onCancel();
                 this.onSaveOrCancel();
             })
-            .on('keydown', () => {
-                if (d3.event.keyCode === 9 && !d3.event.shiftKey && this.chartOptions.dTPIsModal) { // tab
+            .on('keydown', (event) => {
+                if (event.keyCode === 9 && !event.shiftKey && this.chartOptions.dTPIsModal) { // tab
                     this.quickTimesPanel.selectAll('.tsi-quickTime')
                         .filter((d, i) => i === 0)
                         .node()
                         .focus();
-                    d3.event.preventDefault();
+                    event.preventDefault();
                 }
             });
 
@@ -236,10 +236,10 @@ class DateTimePicker extends ChartComponent{
         let firstQuickTime = enteredQuickTimes.filter((d, i) => {
             return (i === 0);
         })            
-        .on('keydown', () => {
-            if (d3.event.keyCode === 9 && d3.event.shiftKey && this.chartOptions.dTPIsModal) { // shift tab
+        .on('keydown', (event) => {
+            if (event.keyCode === 9 && event.shiftKey && this.chartOptions.dTPIsModal) { // shift tab
                 this.dateTimeSelectionPanel.select(".tsi-saveButtonContainer").select(".tsi-cancelButton").node().focus();
-                d3.event.preventDefault();
+                event.preventDefault();
             }
         });
 

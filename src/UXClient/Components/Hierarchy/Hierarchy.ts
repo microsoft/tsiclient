@@ -26,15 +26,15 @@ class Hierarchy extends Component {
         this.root = this.buildTree(data);
         this.root.isExpanded = true;
         
-        d3.select("html").on("click." + Utils.guid(), () => {
-            if (this.clickedNode && d3.event.target != this.clickedNode && this.contextMenu) {
+        d3.select("html").on("click." + Utils.guid(), (event) => {
+            if (this.clickedNode && event.target != this.clickedNode && this.contextMenu) {
                 this.closeContextMenu();
                 this.clickedNode = null;
             }
         });
         
         var inputDebounceTimeout;
-        var filter = targetElement.append('div').classed('tsi-filterWrapper', true).append('input').attr('placeholder', 'Search...').on('input', function(){
+        var filter = targetElement.append('div').classed('tsi-filterWrapper', true).append('input').attr('placeholder', 'Search...').on('input', function(event){
             clearTimeout(inputDebounceTimeout);
             inputDebounceTimeout = setTimeout(() => {
                 self.filterText = (<any>this).value.trim();
@@ -64,7 +64,7 @@ class Hierarchy extends Component {
                 if(self.root.childrenInFilter == false)
                     list.append('ul').append('div').text(self.getString('No filter results'))
                 else
-                    self.expandCollapseList(self.root, list, false);
+                    self.expandCollapseList(self.root, list, false, event);
                 list.select('ul').classed('tsi-noPad', true);
             }, 250);
         });
@@ -76,12 +76,12 @@ class Hierarchy extends Component {
         var list = targetElement.append('div').classed('tsi-hierarchyList', true);
         this.hierarchyList = list;
 
-        allTab.on('click', () => {
+        allTab.on('click', (event) => {
             if(!allTab.classed('tsi-selected')){
                 allTab.classed('tsi-selected', true)
                 selectedTab.classed('tsi-selected', false)
                 list.html('').classed('tsi-expanded', false);
-                this.expandCollapseList(this.root, list, true);
+                this.expandCollapseList(this.root, list, true, event);
                 list.select('ul').classed('tsi-noPad', true);
                 filter.attr('disabled', null);
             }
@@ -111,7 +111,7 @@ class Hierarchy extends Component {
         list.select('ul').classed('tsi-noPad', true);
     }
 
-    public expandCollapseList = (node: HierarchyNode, el, isFromClick = false,) => {
+    public expandCollapseList = (node: HierarchyNode, el, isFromClick = false, event?: any) => {
         this.closeContextMenu();
         if(el.classed('tsi-expanded') && !(this.withContextMenu && node.isLeafParent)){
             el.selectAll('ul').remove();
@@ -132,8 +132,8 @@ class Hierarchy extends Component {
                         this.contextMenu.append('div').text(`${noTildeName}`).on('click', () => n.click(n));
                     })
                     this.contextMenu.classed('tsi-hierarchyContextMenu', true);
-                    let mouseWrapper = d3.mouse(this.hierarchyList.node());
-                    let mouseElt = d3.mouse(el.node());
+                    let mouseWrapper = d3.pointer(event);
+                    let mouseElt = d3.pointer(event, el.node());
                     this.contextMenu.attr('style', () => `top: ${mouseWrapper[1] - mouseElt[1]}px`);
                     el.classed('tsi-resultSelected', true);
                     this.hierarchyList.selectAll('.tsi-noPad').on('scroll', () => {this.closeContextMenu()});
@@ -161,9 +161,9 @@ class Hierarchy extends Component {
                                 selector.classed('tsi-selected', n.isSelected);
                             }
                             else{
-                                self.expandCollapseList(n, d3.select(this), true);
+                                self.expandCollapseList(n, d3.select(this), true, event);
                             }
-                            d3.event.stopPropagation();
+                            event.stopPropagation();
                         }
 
                         var li = list.append('li').classed('tsi-leaf', n.isLeaf)
@@ -177,7 +177,7 @@ class Hierarchy extends Component {
                         n.colorify(li);
 
                         if((n.isExpanded || n.childrenInFilter) && !n.isLeaf){
-                            this.expandCollapseList(n, li)
+                            this.expandCollapseList(n, li, isFromClick, event)
                         }
                     }
                 })

@@ -45,14 +45,14 @@ class HierarchyNavigation extends Component{
     constructor(renderTarget: Element){ 
         super(renderTarget); 
         this.server = new ServerClient();
-        function isTarget() {
-            return d3.event.target === this || this.contains(d3.event.target);
+        function isTarget(event) {
+            return event.target === this || this.contains(event.target);
         }
-        d3.select("html").on("click. keydown." + Utils.guid(), () => { //close hierarchy selection dropdown or context menu if necessary 
+        d3.select("html").on("click. keydown." + Utils.guid(), (event) => { //close hierarchy selection dropdown or context menu if necessary 
             if (this.clickedInstance && this.contextMenu) {
-                if (d3.event.type && d3.event.type === 'keydown') {
+                if (event.type && event.type === 'keydown') {
                     if (!this.contextMenu.filter(isTarget).empty()) {
-                        let key = d3.event.which || d3.event.keyCode;
+                        let key = event.which || event.keyCode;
                         if (key === KeyCodes.Esc) { // close context menu when pressed esc on it
                             this.closeContextMenu();
                         }
@@ -65,9 +65,9 @@ class HierarchyNavigation extends Component{
                 }
             }
             if (this.isHierarchySelectionActive) {
-                if (d3.event && d3.event.type && d3.event.type === 'keydown') {
+                if (event && event.type && event.type === 'keydown') {
                     if (!d3.select(this.hierarchyListWrapperElem.node().parentNode).filter(isTarget).empty()) {
-                        let key = d3.event.which || d3.event.keyCode;
+                        let key = event.which || event.keyCode;
                         if (key === KeyCodes.Esc) { // close hierarchy selection dropdown when pressed esc on it
                             this.isHierarchySelectionActive = false;
                             this.hierarchyListWrapperElem.style('display', 'none');
@@ -157,8 +157,8 @@ class HierarchyNavigation extends Component{
                         let hierarchySelectionWrapper = hierarchyNavWrapper.append('div').classed('tsi-hierarchy-selection-wrapper', true);
                         this.hierarchySelectorElem = hierarchySelectionWrapper.append('button').classed('tsi-hierarchy-select', true)
                             .attr("aria-haspopup", "listbox")
-                            .on('click keydown', () => {
-                                if (Utils.isKeyDownAndNotEnter(d3.event)) {return; }
+                            .on('click keydown', (event) => {
+                                if (Utils.isKeyDownAndNotEnter(event)) {return; }
                                 if (this.isHierarchySelectionActive) {
                                     this.hierarchyListWrapperElem.style('display', 'none');
                                     this.isHierarchySelectionActive = false;
@@ -194,8 +194,8 @@ class HierarchyNavigation extends Component{
                                                 .attr('tabindex', 0)
                                                 .attr('arialabel', 'Hierarchy View')
                                                 .attr('role', 'tab')
-                                                .on('click keydown', function () {
-                                                    if (Utils.isKeyDownAndNotEnter(d3.event)) {return; }
+                                                .on('click keydown', function (event) {
+                                                    if (Utils.isKeyDownAndNotEnter(event)) {return; }
                                                     self.switchToSearchView(ViewType.Hierarchy);
                                                 })
                                                 .append('i').classed('tsi-tree-icon', true)
@@ -206,8 +206,8 @@ class HierarchyNavigation extends Component{
                                                 .attr('arialabel', 'List View')
                                                 .attr('role', 'tab')
                                                 .attr('aria-selected', true)
-                                                .on('click keydown', function () {
-                                                    if (Utils.isKeyDownAndNotEnter(d3.event)) {return; }
+                                                .on('click keydown', function (event) {
+                                                    if (Utils.isKeyDownAndNotEnter(event)) {return; }
                                                     self.switchToSearchView(ViewType.List);
                                                 })
                                                 .append('i').classed('tsi-list-icon', true)
@@ -220,8 +220,8 @@ class HierarchyNavigation extends Component{
                             .attr('tabindex', 0)
                             .attr('arialabel', 'Clear Path Filter')
                             .attr('title', 'Clear Path Filter')
-                            .on('click keydown', function () {
-                                if (Utils.isKeyDownAndNotEnter(d3.event)) {return; }
+                            .on('click keydown', function (event) {
+                                if (Utils.isKeyDownAndNotEnter(event)) {return; }
                                 self.path = (self.selectedHierarchyName === HierarchySelectionValues.All || self.selectedHierarchyName === HierarchySelectionValues.Unparented) ? [] : [self.selectedHierarchyName];
                                 self.noResultsElem.style('display', 'none');
                                 self.clearAndGetResults();
@@ -239,8 +239,8 @@ class HierarchyNavigation extends Component{
                                                 .attr('title', this.getString("Search globally"))
                                                 .attr('tabindex', 0)
                                                 .attr('arialabel', this.getString("Search globally"))
-                                                .on('click keydown', function () {
-                                                    if (Utils.isKeyDownAndNotEnter(d3.event)) {return; }
+                                                .on('click keydown', function (event) {
+                                                    if (Utils.isKeyDownAndNotEnter(event)) {return; }
                                                     self.selectHierarchy(HierarchySelectionValues.All, false);
                                                     self.switchToSearchView(ViewType.List);
                                                     self.noResultsElem.style('display', 'none');
@@ -249,8 +249,8 @@ class HierarchyNavigation extends Component{
                             .attr('title', this.getString("Dismiss"))
                             .attr("tabindex", "0").attr("role", "button")
                             .attr("aria-label", this.getString("Dismiss"))
-                            .on('click keydown', function() {
-                                if (Utils.isKeyDownAndNotEnter(d3.event)) {return; }
+                            .on('click keydown', function(event) {
+                                if (Utils.isKeyDownAndNotEnter(event)) {return; }
                                 self.searchWrapperElem.select("input").node().value = "";
                                 self.searchWrapperElem.select(".tsi-clear").dispatch('click');
                                 self.noResultsElem.style('display', 'none');
@@ -263,8 +263,8 @@ class HierarchyNavigation extends Component{
                                                 .attr('title', this.getString("Lookup globally"))
                                                 .attr('tabindex', 0)
                                                 .attr('arialabel', this.getString("Lookup globally"))
-                                                .on('click keydown', function () {
-                                                    if (Utils.isKeyDownAndNotEnter(d3.event)) {return; }
+                                                .on('click keydown', function (event) {
+                                                    if (Utils.isKeyDownAndNotEnter(event)) {return; }
                                                     self.selectHierarchy(HierarchySelectionValues.All, false);
                                                     self.showInstance(self.timeSeriesIdForLookup);
                                                 });
@@ -272,8 +272,8 @@ class HierarchyNavigation extends Component{
                             .attr('title', this.getString("Dismiss"))
                             .attr("tabindex", "0").attr("role", "button")
                             .attr("aria-label", this.getString("Dismiss"))
-                            .on('click keydown', function() {
-                                if (Utils.isKeyDownAndNotEnter(d3.event)) {return; }
+                            .on('click keydown', function(event) {
+                                if (Utils.isKeyDownAndNotEnter(event)) {return; }
                                 self.notFoundElem.style('display', 'none');
                             });
 
@@ -373,10 +373,10 @@ class HierarchyNavigation extends Component{
                                             .attr('role', 'option')
                                             .attr('aria-selected', h === this.selectedHierarchyName)
                                             .attr('title', title)
-                                            .text(title).on('click keydown', function () {
-                                                if (d3.event && d3.event.type && d3.event.type === 'keydown') {
-                                                    d3.event.preventDefault();
-                                                    let key = d3.event.which || d3.event.keyCode;
+                                            .text(title).on('click keydown', function (event) {
+                                                if (event && event.type && event.type === 'keydown') {
+                                                    event.preventDefault();
+                                                    let key = event.which || event.keyCode;
                                                     if (key === KeyCodes.Down) {
                                                         if (this.nextElementSibling)
                                                             this.nextElementSibling.focus();
@@ -767,8 +767,8 @@ class HierarchyNavigation extends Component{
                         .classed('tsi-hierarchyItem', true)
                         .attr('tabindex', 0)
                         .attr("role", "treeitem").attr('aria-expanded', false)
-                        .attr('style', `padding-left: ${(data[el].level) * 18 + 20}px`).text(this.getString("Show more")).on('click keydown', function () {
-                    if (Utils.isKeyDownAndNotEnter(d3.event)) {return; }
+                        .attr('style', `padding-left: ${(data[el].level) * 18 + 20}px`).text(this.getString("Show more")).on('click keydown', function (event) {
+                    if (Utils.isKeyDownAndNotEnter(event)) {return; }
                     return data[el].onClick();    
                 });
             } else if (el === this.getString("Show More Instances")) {
@@ -777,8 +777,8 @@ class HierarchyNavigation extends Component{
                         .classed('tsi-hierarchyItem', true)
                         .attr('tabindex', 0)
                         .attr("role", "treeitem").attr('aria-expanded', false)
-                        .attr('style', `padding-left: ${(data[el].level) * 18 + 20}px`).text(this.getString("Show more")).on('click keydown', function () {
-                    if (Utils.isKeyDownAndNotEnter(d3.event)) {return; }
+                        .attr('style', `padding-left: ${(data[el].level) * 18 + 20}px`).text(this.getString("Show more")).on('click keydown', function (event) {
+                    if (Utils.isKeyDownAndNotEnter(event)) {return; }
                     data[el].onClick();
                 });
             } else {
@@ -816,27 +816,27 @@ class HierarchyNavigation extends Component{
             let div;
             if (data[i].name === this.getString("Show More Instances")) {
                 div = target.append('div').classed('tsi-show-more tsi-show-more-instance', true);
-                div.append('span').classed('tsi-markedName', true).attr('tabindex', 0).text(i).on('click keydown', function() {
-                    if (Utils.isKeyDownAndNotEnter(d3.event)) {return; }
+                div.append('span').classed('tsi-markedName', true).attr('tabindex', 0).text(i).on('click keydown', function(event) {
+                    if (Utils.isKeyDownAndNotEnter(event)) {return; }
                     data[i].onClick();
                 });
             } else {
                 div = target.append('div').classed('tsi-modelResultWrapper', true).attr('tabindex', 0);
                 let instanceElem = this.createInstanceElem(data[i]);
                 div.node().appendChild(instanceElem.node());
-                div.on('click keydown', function() {
+                div.on('click keydown', function(event) {
                     let clickInstance = () => {
-                        d3.event.stopPropagation();
+                        event.stopPropagation();
                         self.closeContextMenu();
                         let target = self.instanceListElem.select(function() { return this.parentNode.parentNode});
-                        let mouseWrapper = d3.mouse(target.node());
-                        let mouseElt = d3.mouse(this as any);
+                        let mouseWrapper = d3.pointer(event, target.node());
+                        let mouseElt = d3.pointer(event);
                         self.prepareForContextMenu(data[i], target, mouseWrapper[1], mouseElt[1]);
                         self.chartOptions.onInstanceClick(data[i]);
                     }
 
-                    if (d3.event && d3.event.type && d3.event.type === 'keydown') {
-                        let key = d3.event.which || d3.event.keyCode;
+                    if (event && event.type && event.type === 'keydown') {
+                        let key = event.which || event.keyCode;
                         if (key === 40) { // pressed down
                             if (this.nextElementSibling)
                                 this.nextElementSibling.focus();
@@ -1002,8 +1002,8 @@ class HierarchyNavigation extends Component{
                     li.attr('tabindex', 0)
                     .attr('arialabel', option)
                     .attr('title', option)
-                    .on('click keydown', () => {
-                        if (Utils.isKeyDownAndNotEnter(d3.event)) {return; }
+                    .on('click keydown', (event) => {
+                        if (Utils.isKeyDownAndNotEnter(event)) {return; }
                         item.action();
                         this.closeContextMenu();
                     });
@@ -1011,9 +1011,9 @@ class HierarchyNavigation extends Component{
                     Utils.appendFormattedElementsFromString(itemWrapperElem, Utils.mark(searchString, option), {splitByTag: 'mark'});
                 } else {
                     li.attr('tabindex', 0)
-                    .on('click keydown', () => {
-                        if (Utils.isKeyDownAndNotEnter(d3.event)) {return; }
-                        let elem = d3.select(d3.event.currentTarget).select(".tsi-hierarchyCheckbox");
+                    .on('click keydown', (event) => {
+                        if (Utils.isKeyDownAndNotEnter(event)) {return; }
+                        let elem = d3.select(event.currentTarget).select(".tsi-hierarchyCheckbox");
                         if (elem.classed("tsi-notSelected")) {
                             itemList.push(item);
                             elem.classed("tsi-notSelected", false);
@@ -1043,9 +1043,9 @@ class HierarchyNavigation extends Component{
             let searchBox = this.contextMenu.append('div').classed('tsi-search', true);
             searchBox.append('i').classed('tsi-search-icon', true);
             searchBox.append('input').classed('tsi-searchInput', true).attr('placeholder', this.getString('Search'))
-                .on('input', () => { 
-                    let regex = new RegExp(d3.event.currentTarget.value, 'gi');
-                    searchString = d3.event.currentTarget.value;
+                .on('input', (event) => { 
+                    let regex = new RegExp(event.currentTarget.value, 'gi');
+                    searchString = event.currentTarget.value;
                     renderList(contextMenuItems.filter(varObj => varObj.name.match(regex)));
                     itemList = [];
                     this.contextMenu.select("button").classed("disabled", true);
@@ -1084,14 +1084,14 @@ class HierarchyNavigation extends Component{
             .attr('arialabel', isHierarchyNode ? key : Utils.getTimeSeriesIdString(hORi))
             .attr('title', isHierarchyNode ? key : Utils.getTimeSeriesIdString(hORi))
             .attr("role", "treeitem").attr('aria-expanded', hORi.isExpanded)
-            .on('click keydown', async function() {
-                if (Utils.isKeyDownAndNotEnter(d3.event)) {return; }
+            .on('click keydown', async function(event) {
+                if (Utils.isKeyDownAndNotEnter(event)) {return; }
                 if (!isHierarchyNode) { // means it is an instance
-                    d3.event.stopPropagation();
+                    event.stopPropagation();
                     self.closeContextMenu();
-                    let mouseElt = d3.mouse(this as any);
+                    let mouseElt = d3.pointer(event);
                     let target = self.hierarchyElem.select(function() { return this.parentNode});
-                    let mouseWrapper = d3.mouse(target.node());
+                    let mouseWrapper = d3.pointer(event, target.node());
                     self.prepareForContextMenu(hORi, target, mouseWrapper[1], mouseElt[1]);
                     self.chartOptions.onInstanceClick(hORi);
                 } else {
@@ -1102,17 +1102,17 @@ class HierarchyNavigation extends Component{
                     }
                 }
             })
-            .on('mouseover focus', function() {
+            .on('mouseover focus', function(event) {
                 if (isHierarchyNode) {
-                    if (d3.event.relatedTarget != d3.select(this.parentNode).select('.tsi-filter-icon').node()) {
-                        (d3.select(this.parentNode).select('.tsi-filter-icon').node() as any).style.visibility = 'visible';
+                    if (event.relatedTarget != d3.select(event.parentNode).select('.tsi-filter-icon').node()) {
+                        (d3.select(event.parentNode).select('.tsi-filter-icon').node() as any).style.visibility = 'visible';
                     }
                 }
             })
-            .on('mouseleave blur', function() {
+            .on('mouseleave blur', function(event) {
                 if (isHierarchyNode) {
-                    if (d3.event.relatedTarget != d3.select(this.parentNode).select('.tsi-filter-icon').node()) {
-                        (d3.select(this.parentNode).select('.tsi-filter-icon').node() as any).style.visibility = 'hidden';
+                    if (event.relatedTarget != d3.select(event.parentNode).select('.tsi-filter-icon').node()) {
+                        (d3.select(event.parentNode).select('.tsi-filter-icon').node() as any).style.visibility = 'hidden';
                     }
                 }
             });
@@ -1127,8 +1127,8 @@ class HierarchyNavigation extends Component{
                 .attr('tabindex', 0)
                 .attr('arialabel', this.getString('Add to Filter Path'))
                 .attr('role', 'button')
-                .on('click keydown', function() {
-                    if (Utils.isKeyDownAndNotEnter(d3.event)) {return; }
+                .on('click keydown', function(event) {
+                    if (Utils.isKeyDownAndNotEnter(event)) {return; }
                     self.path = hORi.path;
                     let pathListElem = d3.select('.tsi-path-list');
                     pathListElem.text('');
@@ -1143,8 +1143,8 @@ class HierarchyNavigation extends Component{
                             .attr('title', pathName)
                             .attr('tabindex', 0)
                             .attr('arialabel', pathName)
-                            .on('click keydown', function () {
-                                if (Utils.isKeyDownAndNotEnter(d3.event)) {return; }
+                            .on('click keydown', function (event) {
+                                if (Utils.isKeyDownAndNotEnter(event)) {return; }
                                 self.path = self.path.slice(0, i + (self.selectedHierarchyName === HierarchySelectionValues.All ? 1 : 2));
                                 d3.selectAll(pathListElem.selectAll('span').nodes().splice((i * 2) + 1, pathListElem.selectAll('span').nodes().length)).remove();
                                 self.clearAndGetResults();
@@ -1153,8 +1153,8 @@ class HierarchyNavigation extends Component{
                     d3.select('.tsi-filter-clear').style('display', 'inline-block');
                     self.filterPathElem.classed('visible', true);
                     self.clearAndGetResults();
-                }).on('mouseleave blur', function() {
-                    if (d3.event.relatedTarget != d3.select((this as HTMLElement).parentNode)) {
+                }).on('mouseleave blur', function(event) {
+                    if (event.relatedTarget != d3.select(event.parentNode)) {
                         (this as any).style.visibility = 'hidden';
                     }
                 });
@@ -1185,7 +1185,7 @@ class HierarchyNavigation extends Component{
                     .data(hitTuples)
                     .enter()
                     .append("tr");
-                let cells = rows.selectAll("td")
+                let cells = rows.selectAll<HTMLTableCellElement, unknown>("td")
                     .data(function(d) {
                         return d;
                     });
@@ -1237,7 +1237,7 @@ class HierarchyNavigation extends Component{
             .data(hitTuples)
             .enter()
             .append("tr");
-        let cells = rows.selectAll("td")
+        let cells = rows.selectAll<HTMLTableCellElement, unknown>("td")
             .data(function(d) {
                 return d;
             });

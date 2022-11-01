@@ -115,7 +115,7 @@ class CategoricalPlot extends Plot {
             })
             .each(function (splitBy, j) {
                 let data = self.chartComponentData.timeArrays[aggKey][splitBy];
-                var categoricalBuckets = d3.select(this).selectAll(".tsi-categoricalBucket")
+                var categoricalBuckets = d3.select(this).selectAll<SVGRectElement, unknown>(".tsi-categoricalBucket")
                     .data(data);
 
                 var getWidth = (d, i) => {

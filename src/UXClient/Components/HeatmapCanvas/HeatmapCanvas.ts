@@ -115,8 +115,8 @@ class HeatmapCanvas extends ChartComponent {
 
         var self = this;
 
-        gradientRect.on("mousemove", function() {
-            var yPos = d3.mouse(this)[1];
+        gradientRect.on("mousemove", function(event) {
+            var yPos = d3.pointer(event)[1];
             var percentile = 1 - ((yPos - 6) / (self.height - 12));
 
             self.highlightedValue = self.colorScale.domain()[0] + (range * percentile);
@@ -178,8 +178,8 @@ class HeatmapCanvas extends ChartComponent {
         
         container.selectAll("svg").remove();
         var self = this;
-        this.canvas.on("mousemove", function () {
-            var mouseCoords = d3.mouse(this);
+        this.canvas.on("mousemove", function (event) {
+            var mouseCoords = d3.pointer(event);
             var indexesChanged = false;
             var newXIndex = self.calcCellXIndex(mouseCoords[0]);
             var newYIndex = self.calcCellYIndex(mouseCoords[1]);
