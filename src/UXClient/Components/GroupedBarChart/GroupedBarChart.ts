@@ -483,7 +483,7 @@ class GroupedBarChart extends ChartVisualizationComponent {
                             if (self.chartOptions.tooltip) {
                                 const e = valueElementsEntered.nodes();
                                 const i = e.indexOf(this);
-                                var mousePos = d3.pointer(event);
+                                var mousePos = d3.pointer(event, <any>g.node());
                                 tooltip.render(self.chartOptions.theme)
                                 tooltip.draw(d, self.chartComponentData, mousePos[0], mousePos[1], self.chartMargins,(text) => {
                                     self.tooltipFormat(self.convertToTimeValueFormat(d), text, TooltipMeasureFormat.SingleValue);
@@ -496,7 +496,7 @@ class GroupedBarChart extends ChartVisualizationComponent {
                         .on("contextmenu", (event, d: any) => {
                             if (self.chartComponentData.displayState[d.aggKey].contextMenuActions && 
                                     self.chartComponentData.displayState[d.aggKey].contextMenuActions.length) {
-                                var mousePosition = d3.pointer(event);
+                                var mousePosition = d3.pointer(event, <any>targetElement.node());
                                 event.preventDefault();
                                 self.contextMenu.draw(self.chartComponentData, self.renderTarget, self.chartOptions, 
                                                       mousePosition, d.aggKey, d.splitBy, mouseOutValueElementOnContextMenuClick,

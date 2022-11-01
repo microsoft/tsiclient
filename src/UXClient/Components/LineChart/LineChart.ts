@@ -1,4 +1,5 @@
 import * as d3 from 'd3';
+import * as d3Voronoi from 'd3-voronoi';
 import './LineChart.scss';
 import Utils from "../../Utils";
 import { DataTypes, YAxisStates, TooltipMeasureFormat } from "./../../Constants/Enums";
@@ -772,7 +773,7 @@ class LineChart extends TemporalXAxisComponent {
         const site: any = this.voronoiDiagram.find(mx, my);
         if (this.chartComponentData.displayState[site.data.aggregateKey].contextMenuActions && 
             this.chartComponentData.displayState[site.data.aggregateKey].contextMenuActions.length) {
-            var mousePosition = d3.pointer(mouseEvent);
+            var mousePosition = d3.pointer(mouseEvent, <any>this.targetElement.node());
 
             let sitePageCoords;
             if (this.hasBrush) {
@@ -966,7 +967,7 @@ class LineChart extends TemporalXAxisComponent {
             (mouseEvent.sourceEvent && mouseEvent.sourceEvent.type == 'mouseup')) {
             if (!this.chartOptions.brushContextMenuActions || this.chartOptions.brushContextMenuActions.length == 0)
                 return;
-            var mousePosition = d3.pointer(mouseEvent);
+            var mousePosition = d3.pointer(mouseEvent, <any>this.targetElement.node());
             //constrain the mouse position to the renderTarget
             var boundingCRect = this.targetElement.node().getBoundingClientRect();
             var correctedMousePositionX = Math.min(boundingCRect.width, Math.max(mousePosition[0], 0));
@@ -1943,45 +1944,45 @@ class LineChart extends TemporalXAxisComponent {
                     aggregateGroups.exit().remove();
                     /******************** Voronoi diagram for hover action ************************/
 
-                    // this.voronoi = d3.voronoi()
-                    //     .x(function(d: any) {
-                    //         return (d.bucketSize != undefined ? self.x(new Date(d.dateTime.valueOf() + (d.bucketSize / 2))) : self.x(d.dateTime))})
-                    //     .y(function(d: any) { 
-                    //         if (d.measures) {
-                    //             return self.yMap[d.aggregateKey] ? self.yMap[d.aggregateKey](self.getValueOfVisible(d)) : null;
-                    //         }
-                    //         return null;
-                    //     })
-                    //     .extent([[0, 0], [this.chartWidth, this.chartHeight]]);
+                    this.voronoi = d3Voronoi.voronoi()
+                        .x(function(d: any) {
+                            return (d.bucketSize != undefined ? self.x(new Date(d.dateTime.valueOf() + (d.bucketSize / 2))) : self.x(d.dateTime))})
+                        .y(function(d: any) { 
+                            if (d.measures) {
+                                return self.yMap[d.aggregateKey] ? self.yMap[d.aggregateKey](self.getValueOfVisible(d)) : null;
+                            }
+                            return null;
+                        })
+                        .extent([[0, 0], [this.chartWidth, this.chartHeight]]);
 
                     //if brushElem present then use the overlay, otherwise create a rect to put the voronoi on
-                    // var voronoiSelection = (this.brushElem ? this.brushElem.select(".overlay") : this.voronoiRegion);
+                    var voronoiSelection = (this.brushElem ? this.brushElem.select(".overlay") : this.voronoiRegion);
                     
-                    // voronoiSelection.on("mousemove", function (event) {
-                    //     let mouseEvent = d3.pointer(event);
-                    //     self.voronoiMousemove(mouseEvent);
-                    // })
-                    // .on("mouseout", function (event, d)  {
-                    //     if (!self.filteredValueExist() || !self.voronoiExists()) return;
-                    //     const [mx, my] = d3.pointer(event);
-                    //     const site = self.voronoiDiagram.find(mx, my);
-                    //     self.voronoiMouseout(event, site.data); 
-                    //     self.chartOptions.onMouseout();
-                    //     if (self.tooltip)
-                    //         self.tooltip.hide();
-                    // })
-                    // .on("contextmenu", function (d) {
-                    //     self.voronoiContextMenu(this);
-                    // })
-                    // .on("click", function (d) {
-                    //    self.voronoiClick(this);
-                    // });
+                    voronoiSelection.on("mousemove", function (event) {
+                        let mouseEvent = d3.pointer(event);
+                        self.voronoiMousemove(mouseEvent);
+                    })
+                    .on("mouseout", function (event, d)  {
+                        if (!self.filteredValueExist() || !self.voronoiExists()) return;
+                        const [mx, my] = d3.pointer(event);
+                        const site = self.voronoiDiagram.find(mx, my);
+                        self.voronoiMouseout(event, site.data); 
+                        self.chartOptions.onMouseout();
+                        if (self.tooltip)
+                            self.tooltip.hide();
+                    })
+                    .on("contextmenu", function (event, d) {
+                        self.voronoiContextMenu(event);
+                    })
+                    .on("click", function (event, d) {
+                       self.voronoiClick(event);
+                    });
 
                     if (this.brushElem) {
                         this.brushElem.selectAll(".selection, .handle").on("contextmenu", function (event, d) {
                             if (!self.chartOptions.brushContextMenuActions || self.chartOptions.brushContextMenuActions.length == 0 || self.chartOptions.autoTriggerBrushContextMenu)
                                 return;
-                            var mousePosition = d3.pointer(event);
+                            var mousePosition = d3.pointer(event, <any>self.targetElement.node());
                             event.preventDefault();
                             self.brushContextMenu.draw(self.chartComponentData, self.renderTarget, self.chartOptions, 
                                                 mousePosition, null, null, null, self.brushStartTime, self.brushEndTime);
