@@ -141,7 +141,7 @@ class ContextMenu extends Component {
                     self.removeSubMenusAboveLevel(d.subLevel);
                 }
             })
-            .on("click", function (d, i) {
+            .on("click", function (event, d) {
                 if (d.isNested) {
                     return;
                 }

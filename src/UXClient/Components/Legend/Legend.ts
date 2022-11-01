@@ -212,7 +212,7 @@ class Legend extends Component {
                     event.preventDefault();
                 }
             })
-            .on("click", function (splitBy: string, i: number) {
+            .on("click", function (event: any, splitBy: string) {
                 if (self.legendState == "compact") {
                     self.toggleSplitByVisible(aggKey, splitBy);
                 } else {

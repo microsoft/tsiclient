@@ -146,7 +146,7 @@ class EventsTable extends ChartComponent{
         toggleableColumnLisEntered.each(function (d) {
             d3.select(this).append("button").attr("class", "tsi-columnToggleButton")
                 .attr("aria-label", (d: any) => "toggle column " + d.key)
-                .on("click", (d: any) => {
+                .on("click", (event, d: any) => {
                     d.visible = !d.visible;
                     self.setLegendColumnStates();
                     self.buildTable();
@@ -262,7 +262,7 @@ class EventsTable extends ChartComponent{
                 var id = JSON.parse(JSON.stringify(d));
                 d3.select(this).append("button").attr("class", "tsi-sortColumnButton")
                     .attr("aria-label", title => "Sort by column " + title)
-                    .on("click", function (f, i) {
+                    .on("click", function (event, f) {
                         //set sort column and direction
                         if (self.sortColumn == d) {
                             self.isAscending = !self.isAscending;

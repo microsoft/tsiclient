@@ -158,7 +158,7 @@ class PieChart extends ChartVisualizationComponent {
                   }
 
                 var self = this;
-                function pathMouseout (d: any) {
+                function pathMouseout (event, d: any) {
                     if (self.contextMenu && self.contextMenu.contextMenuVisible)
                         return;
                     tooltip.hide();
@@ -169,7 +169,7 @@ class PieChart extends ChartVisualizationComponent {
                 function pathMouseInteraction (event, d: any)  {
                     if (this.contextMenu && this.contextMenu.contextMenuVisible)
                         return;
-                    pathMouseout(d); 
+                    pathMouseout(event, d); 
                     labelMouseover(d.data.aggKey, d.data.splitBy);
                     (<any>self.legendObject.legendElement.selectAll('.tsi-splitByLabel').filter(function (filteredSplitBy: string) {
                         return (d3.select(this.parentNode).datum() == d.data.aggKey) && (filteredSplitBy == d.data.splitBy);

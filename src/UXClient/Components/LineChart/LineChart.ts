@@ -1501,12 +1501,12 @@ class LineChart extends TemporalXAxisComponent {
                 .attr("transform", d => `translate(${( -this.horizontalLabelOffset + swimlaneLabelConstants.labelLeftPadding )},${(d.offset + d.height / 2)}) rotate(-90)`)
                 .text(d => d.label)
                 .each(function(d){truncateLabel(this, d)})
-                .on("click", d => {
+                .on("click", (event, d) => {
                     if(onClickPresentAndValid(d)){
                         d.onClick()
                     }
                 })
-                .on("mouseover", (d) => {
+                .on("mouseover", (event, d) => {
                     if(onClickPresentAndValid(d)){
                         boldYAxisText(true, lane);
                     }
@@ -1955,27 +1955,27 @@ class LineChart extends TemporalXAxisComponent {
                     //     .extent([[0, 0], [this.chartWidth, this.chartHeight]]);
 
                     //if brushElem present then use the overlay, otherwise create a rect to put the voronoi on
-                    var voronoiSelection = (this.brushElem ? this.brushElem.select(".overlay") : this.voronoiRegion);
+                    // var voronoiSelection = (this.brushElem ? this.brushElem.select(".overlay") : this.voronoiRegion);
                     
-                    voronoiSelection.on("mousemove", function (event) {
-                        let mouseEvent = d3.pointer(event);
-                        self.voronoiMousemove(mouseEvent);
-                    })
-                    .on("mouseout", function (event, d)  {
-                        if (!self.filteredValueExist() || !self.voronoiExists()) return;
-                        const [mx, my] = d3.pointer(event);
-                        const site = self.voronoiDiagram.find(mx, my);
-                        self.voronoiMouseout(event, site.data); 
-                        self.chartOptions.onMouseout();
-                        if (self.tooltip)
-                            self.tooltip.hide();
-                    })
-                    .on("contextmenu", function (d) {
-                        self.voronoiContextMenu(this);
-                    })
-                    .on("click", function (d) {
-                       self.voronoiClick(this);
-                    });
+                    // voronoiSelection.on("mousemove", function (event) {
+                    //     let mouseEvent = d3.pointer(event);
+                    //     self.voronoiMousemove(mouseEvent);
+                    // })
+                    // .on("mouseout", function (event, d)  {
+                    //     if (!self.filteredValueExist() || !self.voronoiExists()) return;
+                    //     const [mx, my] = d3.pointer(event);
+                    //     const site = self.voronoiDiagram.find(mx, my);
+                    //     self.voronoiMouseout(event, site.data); 
+                    //     self.chartOptions.onMouseout();
+                    //     if (self.tooltip)
+                    //         self.tooltip.hide();
+                    // })
+                    // .on("contextmenu", function (d) {
+                    //     self.voronoiContextMenu(this);
+                    // })
+                    // .on("click", function (d) {
+                    //    self.voronoiClick(this);
+                    // });
 
                     if (this.brushElem) {
                         this.brushElem.selectAll(".selection, .handle").on("contextmenu", function (event, d) {

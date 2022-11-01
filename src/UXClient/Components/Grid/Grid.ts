@@ -146,7 +146,11 @@ class Grid extends Component {
             .attr("tabindex", 1)
             .merge(headerCells)
             .attr("class", (d, i) => this.cellClass(0, i+1) + ' tsi-headerCell')
-            .on("keydown", (event, d, i) => {this.arrowNavigate(event, 0, i+1)})
+            .on("keydown", (event, d) => {
+                const e = headerCells.nodes();
+                const i = e.indexOf(this);
+                this.arrowNavigate(event, 0, i+1)
+            })
             .text(this.getFormattedDate)
             .attr('aria-label', (h) => {
                 return `${this.getString('column header for date')} ${this.getFormattedDate(h)}`
@@ -187,7 +191,7 @@ class Grid extends Component {
                     .attr("tabindex", 1)
                     .merge(headerCell)
                     .attr('class', (d, col) => `tsi-rowHeaderCell ${self.cellClass(i + 1, 0)}`)
-                    .on("keydown", (event, col) => {self.arrowNavigate(event, i + 1, 0)})
+                    .on("keydown", (event, d) => {self.arrowNavigate(event, i + 1, 0)})
                     .attr('aria-label', d => {
                         return `${self.getString('row header for')} ${Utils.stripNullGuid(getRowHeaderText(d))}`;
                     })
@@ -212,7 +216,11 @@ class Grid extends Component {
                     .append('td')
                     .merge(cells)
                     .attr('class', (d, col) => `tsi-valueCell ${self.cellClass(i + 1, col + 1)}`)
-                    .on("keydown", (event, col) => {self.arrowNavigate(event, i + 1, col + 1)})
+                    .on("keydown", (event, d) => {
+                        const e = cells.nodes();
+                        const col = e.indexOf(this);
+                        self.arrowNavigate(event, i + 1, col + 1)
+                    })
                     .attr("tabindex", 1)
                     .attr('aria-label', (d: any, i) => {
                         if (!d.measures || Object.keys(d.measures).length === 0) {

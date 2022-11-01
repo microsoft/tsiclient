@@ -361,7 +361,7 @@ class DateTimePicker extends ChartComponent{
                     return; 
                 var self = this;
                 this.calendar.select(".pika-single").selectAll(".pika-day")
-                    .on("mouseover", function (d) { 
+                    .on("mouseover", function () { 
                         var date = new Date( Number(d3.select(this).attr("data-pika-year")),
                                             Number(d3.select(this).attr("data-pika-month")), 
                                             Number(d3.select(this).attr("data-pika-day")));
