@@ -247,14 +247,14 @@ class Legend extends Component {
         splitByLabelsEntered.each(function (splitBy, j) {
             let color = (self.chartComponentData.isFromHeatmap) ? self.chartComponentData.displayState[aggKey].color : colors[j];
             if (dataType === DataTypes.Numeric || noSplitBys || self.legendState === 'compact'){
-                let colorKey = d3.select(this).selectAll<HTMLDivElement, unknown>('.tsi-colorKey').data([color]);
+                let colorKey = d3.select(this).selectAll<any, unknown>('.tsi-colorKey').data([color]);
                 let colorKeyEntered = colorKey.enter()
                     .append("div")
                     .attr("class", 'tsi-colorKey')
                     .merge(colorKey);
                 if (dataType === DataTypes.Numeric) {
                     colorKeyEntered.style('background-color', (d) => {
-                        return d;
+                        return String(d);
                     });
                 } else {
                     self.createNonNumericColorKey(dataType, colorKeyEntered, aggKey);
