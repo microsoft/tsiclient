@@ -1796,8 +1796,8 @@ class LineChart extends TemporalXAxisComponent {
                         self.brushBrush(event); 
                         self.drawBrushRange();
                     })
-                    .on("end", function () { 
-                        self.brushEnd(this);
+                    .on("end", function (event) { 
+                        self.brushEnd(event);
                         self.drawBrushRange();
                     });
                     this.brushElem.call(this.brush);

@@ -254,7 +254,8 @@ class Legend extends Component {
                     .merge(colorKey);
                 if (dataType === DataTypes.Numeric) {
                     colorKeyEntered.style('background-color', (d) => {
-                        return String(d);
+                        console.log(JSON.stringify(d));
+                        return JSON.stringify(d);
                     });
                 } else {
                     self.createNonNumericColorKey(dataType, colorKeyEntered, aggKey);
