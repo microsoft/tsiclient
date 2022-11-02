@@ -147,8 +147,13 @@ class Grid extends Component {
             .merge(headerCells)
             .attr("class", (d, i) => this.cellClass(0, i+1) + ' tsi-headerCell')
             .on("keydown", (event, d) => {
-                const e = headerCells.nodes();
+                const e = headerCellsEntered.nodes();
                 const i = e.indexOf(this);
+                const testI = e.indexOf(event.currentTarget);
+                console.log('addHeaderCells');
+                console.log(JSON.stringify(e));
+                console.log(`i: ${i}`);
+                console.log(`testI: ${testI}`);
                 this.arrowNavigate(event, 0, i+1)
             })
             .text(this.getFormattedDate)
@@ -191,7 +196,11 @@ class Grid extends Component {
                     .attr("tabindex", 1)
                     .merge(headerCell)
                     .attr('class', (d, col) => `tsi-rowHeaderCell ${self.cellClass(i + 1, 0)}`)
-                    .on("keydown", (event, d) => {self.arrowNavigate(event, i + 1, 0)})
+                    .on("keydown", (event, d) => {
+                        console.log('headerCell.enter');
+                        console.log(`i: ${i}`);
+                        self.arrowNavigate(event, i + 1, 0)
+                    })
                     .attr('aria-label', d => {
                         return `${self.getString('row header for')} ${Utils.stripNullGuid(getRowHeaderText(d))}`;
                     })
@@ -219,6 +228,12 @@ class Grid extends Component {
                     .on("keydown", (event, d) => {
                         const e = cells.nodes();
                         const col = e.indexOf(this);
+                        const testCol = e.indexOf(event.currentTarget);
+                        console.log('cells.enter');
+                        console.log(JSON.stringify(e));
+                        console.log(`i: ${i}`);
+                        console.log(`col: ${col}`);
+                        console.log(`testCol: ${testCol}`);
                         self.arrowNavigate(event, i + 1, col + 1)
                     })
                     .attr("tabindex", 1)
@@ -286,7 +301,10 @@ class Grid extends Component {
             this.tableHeaderRow.append('th')
                 .attr("tabindex", 0)
                 .attr("class", "tsi-topLeft " + this.cellClass(0,0))
-                .on("keydown", (event) => {this.arrowNavigate(event, 0, 0)})
+                .on("keydown", (event) => {
+                    console.log('render');
+                    this.arrowNavigate(event, 0, 0);
+                })
                 .attr("aria-label", `${this.getString('A grid of values')} - ${this.getString('Use the arrow keys to navigate the values of each cell')}`)
         }
 
@@ -315,8 +333,6 @@ class Grid extends Component {
     }
 
     private arrowNavigate = (d3event: any, rowIdx: number, colIdx: number) => {
-        console.log(`rowIndex: ${rowIdx}`);
-        console.log(`colIndex: ${colIdx}`);
         if(d3event.keyCode === 9){
             if (this.closeButton){
                 (this.closeButton.node()).focus();
@@ -330,18 +346,22 @@ class Grid extends Component {
             return;
         switch(codeIndex){
             case 0:
+                // left
                 this.focus(rowIdx, colIdx - 1);
                 d3event.preventDefault();
                 break;
             case 1:
+                // up
                 this.focus(rowIdx - 1, colIdx);
                 d3event.preventDefault();
                 break;
             case 2:
+                // right
                 this.focus(rowIdx, colIdx + 1);
                 d3event.preventDefault();
                 break;
             case 3:
+                // down
                 this.focus(rowIdx + 1, colIdx);
                 d3event.preventDefault();
                 break;
