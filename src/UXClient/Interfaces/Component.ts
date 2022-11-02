@@ -45,13 +45,13 @@ class Component {
 		Utils.appendFormattedElementsFromString(title, d.aggregateName);
 
 		if (d.splitBy && d.splitBy != ""){
-			let splitBy = group.append('h4')
+			let splitBy = group.append('p')
 				.attr('class', 'tsi-tooltipSeriesName tsi-tooltipSubtitle');
 			Utils.appendFormattedElementsFromString(splitBy, d.splitBy);
 		}
 		
 		if (cDO.variableAlias && cDO.isVariableAliasShownOnTooltip){
-			group.append('h4')
+			group.append('p')
 				.text(cDO.variableAlias)
 				.attr('class', 'tsi-tooltipVariableAlias tsi-tooltipSubtitle');
 		}
