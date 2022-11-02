@@ -315,6 +315,8 @@ class Grid extends Component {
     }
 
     private arrowNavigate = (d3event: any, rowIdx: number, colIdx: number) => {
+        console.log(`rowIndex: ${rowIdx}`);
+        console.log(`colIndex: ${colIdx}`);
         if(d3event.keyCode === 9){
             if (this.closeButton){
                 (this.closeButton.node()).focus();

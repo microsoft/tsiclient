@@ -91,10 +91,10 @@ class ColorPicker extends Component{
                 });
         });
 
-        d3.select("html").on("click." + this.componentId, () => {
-            if (this.colorPickerElem.select(".tsi-colorPickerButton").filter(Utils.equalToEventTarget).empty() && 
-                this.colorPickerElem.select(".tsi-colorPickerButton").selectAll("*").filter(Utils.equalToEventTarget).empty() &&
-                this.colorPickerElem.selectAll(".tsi-colorGrid").filter(Utils.equalToEventTarget).empty()) {
+        d3.select("html").on("click." + this.componentId, (event) => {
+            if (this.colorPickerElem.select(".tsi-colorPickerButton").filter(() => Utils.equalToEventTarget(event)).empty() && 
+                this.colorPickerElem.select(".tsi-colorPickerButton").selectAll("*").filter(() => Utils.equalToEventTarget(event)).empty() &&
+                this.colorPickerElem.selectAll(".tsi-colorGrid").filter(() => Utils.equalToEventTarget(event)).empty()) {
                     this.hideColorGrid();
             }
         });

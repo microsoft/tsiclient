@@ -243,6 +243,8 @@ class Legend extends Component {
             });
 
         var colors = Utils.createSplitByColors(self.chartComponentData.displayState, aggKey, self.chartOptions.keepSplitByColor);
+        console.log(JSON.stringify(colors));
+        console.log(self.chartComponentData.displayState);
 
         splitByLabelsEntered.each(function (splitBy, j) {
             let color = (self.chartComponentData.isFromHeatmap) ? self.chartComponentData.displayState[aggKey].color : colors[j];
@@ -253,9 +255,11 @@ class Legend extends Component {
                     .attr("class", 'tsi-colorKey')
                     .merge(colorKey);
                 if (dataType === DataTypes.Numeric) {
-                    colorKeyEntered.style('background-color', (d) => {
+                    colorKeyEntered.style('background-color', (d, i) => {
                         console.log(JSON.stringify(d));
-                        return JSON.stringify(d);
+                        const defaultColors = ['#008272', '#D869CB', '#FF8C00', '#8FE6D7', '#3195E3', '#F7727E', '#E0349E', '#C8E139', '#60B9AE', 
+                        '#93CFFB', '#854CC7', '#258225', '#0078D7', '#FF2828', '#FFF100'];
+                        return defaultColors[i % 15];
                     });
                 } else {
                     self.createNonNumericColorKey(dataType, colorKeyEntered, aggKey);
