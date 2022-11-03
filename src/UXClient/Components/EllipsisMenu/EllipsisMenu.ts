@@ -91,7 +91,7 @@ class EllipsisMenu extends Component {
             .attr("role", "menuitem")
             .on('keydown', (event, d) => {
                 const e = this.menuElement.nodes();
-                const i = e.indexOf(this);
+                const i = e.indexOf(event.currentTarget);
                 this.menuItemKeyHandler(event, d, i);
             })
             .on("click", (event, d: any) => {

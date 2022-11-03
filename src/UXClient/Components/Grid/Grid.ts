@@ -148,12 +148,10 @@ class Grid extends Component {
             .attr("class", (d, i) => this.cellClass(0, i+1) + ' tsi-headerCell')
             .on("keydown", (event, d) => {
                 const e = headerCellsEntered.nodes();
-                const i = e.indexOf(this);
-                const testI = e.indexOf(event.currentTarget);
+                const i = e.indexOf(event.currentTarget);
                 console.log('addHeaderCells');
                 console.log(JSON.stringify(e));
                 console.log(`i: ${i}`);
-                console.log(`testI: ${testI}`);
                 this.arrowNavigate(event, 0, i+1)
             })
             .text(this.getFormattedDate)
@@ -181,11 +179,11 @@ class Grid extends Component {
                 let aggKey = d[0];
                 let splitBy = d[1];
                 let seriesData = self.convertSeriesToGridData(allTimeStampMap, self.chartComponentData.timeArrays[aggKey][splitBy]);
-                let cells = d3.select(this).selectAll<HTMLTableCellElement, unknown>('.tsi-valueCell').data(seriesData);
+                let cells = d3.select(this).selectAll<any, unknown>('.tsi-valueCell').data(seriesData);
                 let measuresData = self.chartOptions.spMeasures ? self.chartOptions.spMeasures : self.chartComponentData.displayState[aggKey].splitBys[splitBy].types;
 
                 //Row header with the name of the series
-                let headerCell = d3.select(this).selectAll<HTMLTableCellElement, unknown>('tsi-rowHeaderCell').data([d]);
+                let headerCell = d3.select(this).selectAll<any, unknown>('tsi-rowHeaderCell').data([d]);
                 
                 let getRowHeaderText = (d) => {
                     return `${self.chartComponentData.displayState[aggKey].name}${(splitBy !== '' ? (': ' + splitBy) : '')}`;
@@ -198,6 +196,7 @@ class Grid extends Component {
                     .attr('class', (d, col) => `tsi-rowHeaderCell ${self.cellClass(i + 1, 0)}`)
                     .on("keydown", (event, d) => {
                         console.log('headerCell.enter');
+                        console.log(`headerCell: ${JSON.stringify(headerCell)}`);
                         console.log(`i: ${i}`);
                         self.arrowNavigate(event, i + 1, 0)
                     })
@@ -221,19 +220,17 @@ class Grid extends Component {
                     })
                 headerCell.exit().remove();
 
-                cells.enter()
+                let cellsEntered = cells.enter()
                     .append('td')
                     .merge(cells)
                     .attr('class', (d, col) => `tsi-valueCell ${self.cellClass(i + 1, col + 1)}`)
                     .on("keydown", (event, d) => {
-                        const e = cells.nodes();
-                        const col = e.indexOf(this);
-                        const testCol = e.indexOf(event.currentTarget);
+                        const e = cellsEntered.nodes();
+                        const col = e.indexOf(event.currentTarget);
                         console.log('cells.enter');
                         console.log(JSON.stringify(e));
                         console.log(`i: ${i}`);
                         console.log(`col: ${col}`);
-                        console.log(`testCol: ${testCol}`);
                         self.arrowNavigate(event, i + 1, col + 1)
                     })
                     .attr("tabindex", 1)
@@ -254,7 +251,7 @@ class Grid extends Component {
                             .text((measure: string) => d.measures ? d.measures[measure] : '');
                         measures.exit().remove(); 
                     });
-                cells.exit().remove();
+                cellsEntered.exit().remove();
             });
 
         rowsEntered.exit().remove();

@@ -255,11 +255,9 @@ class Legend extends Component {
                     .attr("class", 'tsi-colorKey')
                     .merge(colorKey);
                 if (dataType === DataTypes.Numeric) {
-                    colorKeyEntered.style('background-color', (d, i) => {
+                    colorKeyEntered.style('background-color', (d) => {
                         console.log(JSON.stringify(d));
-                        const defaultColors = ['#008272', '#D869CB', '#FF8C00', '#8FE6D7', '#3195E3', '#F7727E', '#E0349E', '#C8E139', '#60B9AE', 
-                        '#93CFFB', '#854CC7', '#258225', '#0078D7', '#FF2828', '#FFF100'];
-                        return defaultColors[i % 15];
+                        return d;
                     });
                 } else {
                     self.createNonNumericColorKey(dataType, colorKeyEntered, aggKey);

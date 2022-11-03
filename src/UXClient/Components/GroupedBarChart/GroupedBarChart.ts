@@ -451,7 +451,7 @@ class GroupedBarChart extends ChartVisualizationComponent {
                             labelMouseover(d.aggKey, d.splitBy);
 
                             const e = valueElementsEntered.nodes();
-                            const j = e.indexOf(this);
+                            const j = e.indexOf(event.currentTarget);
                             var yPos = calcYPos(d, j);
                             if (d.val < 0) {
                                 yPos = yPos + calcHeight(d, j);
@@ -482,7 +482,7 @@ class GroupedBarChart extends ChartVisualizationComponent {
                         .on("mousemove", function (event, d) {
                             if (self.chartOptions.tooltip) {
                                 const e = valueElementsEntered.nodes();
-                                const i = e.indexOf(this);
+                                const i = e.indexOf(event.currentTarget);
                                 var mousePos = d3.pointer(event, <any>g.node());
                                 tooltip.render(self.chartOptions.theme)
                                 tooltip.draw(d, self.chartComponentData, mousePos[0], mousePos[1], self.chartMargins,(text) => {
