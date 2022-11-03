@@ -82,7 +82,7 @@ class EllipsisMenu extends Component {
             .attr("class", "tsi-ellipsisMenu")
             .attr("role", "menu");
 
-        this.menuElement.selectAll(".tsi-ellipsisMenuItem").data(this.menuItems)
+        const menuElementEntered = this.menuElement.selectAll(".tsi-ellipsisMenuItem").data(this.menuItems)
             .enter()
             .append("button")
             .classed("tsi-ellipsisMenuItem", true)
@@ -90,7 +90,7 @@ class EllipsisMenu extends Component {
             .attr("type", "button")
             .attr("role", "menuitem")
             .on('keydown', (event, d) => {
-                const e = this.menuElement.nodes();
+                const e = menuElementEntered.nodes();
                 const i = e.indexOf(event.currentTarget);
                 this.menuItemKeyHandler(event, d, i);
             })

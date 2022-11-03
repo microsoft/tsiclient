@@ -492,11 +492,15 @@ export default class Utils {
             return this.generateColors(Object.keys(displayState[aggKey]["splitBys"]).length);
         }
         var aggColor = displayState[aggKey].color;
+        console.log(JSON.stringify(aggColor));
         var interpolateColor = d3.scaleLinear().domain([0,Object.keys(displayState[aggKey]["splitBys"]).length])
-            .range([<any>d3.hcl(aggColor).darker(), <any>d3.hcl(aggColor).brighter()]);
+            .range([d3.hcl(aggColor).darker().l, d3.hcl(aggColor).brighter().l]);
         var colors = [];
         for(var i = 0; i < Object.keys(displayState[aggKey]["splitBys"]).length; i++){
-            colors.push((interpolateColor(i) as any).formatHex());
+            const newColor = d3.hcl(aggColor);
+            newColor.l = interpolateColor(i);
+            console.log(JSON.stringify(newColor));
+            colors.push(newColor.formatHex());
         }
         return colors;
     }
@@ -519,9 +523,13 @@ export default class Utils {
         }
 
         var aggColor = displayState[aggKey].color;
+        console.log(JSON.stringify(aggColor));
         var interpolateColor = d3.scaleLinear().domain([0,Object.keys(displayState[aggKey]["splitBys"]).length])
-            .range([<any>d3.hcl(aggColor).darker(), <any>d3.hcl(aggColor).brighter()])
-        return (interpolateColor(splitByIndex) as any).formatHex();
+            .range([d3.hcl(aggColor).darker().l, d3.hcl(aggColor).brighter().l]);
+        const newColor = d3.hcl(aggColor);
+        newColor.l = interpolateColor(splitByIndex);
+        console.log(JSON.stringify(newColor));
+        return newColor.formatHex();
     }
     
     static getTheme(theme: any){
@@ -690,8 +698,8 @@ export default class Utils {
         }
     }
 
-    static equalToEventTarget = (function (event)  {
-        return (event.currentTarget == event.target);
+    static equalToEventTarget = (function (current, event)  {
+        return (current == event.target);
     });
 
     static getAggKeys (data) {

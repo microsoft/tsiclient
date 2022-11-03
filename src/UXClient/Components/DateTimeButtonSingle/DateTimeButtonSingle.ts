@@ -39,11 +39,11 @@ class DateTimeButtonSingle extends DateTimeButton {
         var dateTimeTextChildren = (targetElement.select(".tsi-dateTimePickerContainer")).selectAll("*");
         d3.select("html").on("click." + Utils.guid(), (event) => {
             let pickerContainerChildren = this.dateTimePickerContainer.selectAll("*");
-            var outside = dateTimeTextChildren.filter(() => Utils.equalToEventTarget(event)).empty() 
-                && targetElement.selectAll(".tsi-dateTimePickerContainer").filter(() => Utils.equalToEventTarget(event)).empty()
-                && targetElement.selectAll(".tsi-dateTimeButton").filter(() => Utils.equalToEventTarget(event)).empty()
-                && targetElement.selectAll(".tsi-saveButton").filter(() => Utils.equalToEventTarget(event)).empty();
-            var inClickTarget = pickerContainerChildren.filter(() => Utils.equalToEventTarget(event)).empty();
+            var outside = dateTimeTextChildren.filter(() => Utils.equalToEventTarget(this, event)).empty() 
+                && targetElement.selectAll(".tsi-dateTimePickerContainer").filter(() => Utils.equalToEventTarget(this, event)).empty()
+                && targetElement.selectAll(".tsi-dateTimeButton").filter(() => Utils.equalToEventTarget(this, event)).empty()
+                && targetElement.selectAll(".tsi-saveButton").filter(() => Utils.equalToEventTarget(this, event)).empty();
+            var inClickTarget = pickerContainerChildren.filter(() => Utils.equalToEventTarget(this, event)).empty();
             if (outside && inClickTarget && (this.dateTimePickerContainer.style('display') !== 'none')) {
                 this.closeSDTP();
             }

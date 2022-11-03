@@ -149,9 +149,6 @@ class Grid extends Component {
             .on("keydown", (event, d) => {
                 const e = headerCellsEntered.nodes();
                 const i = e.indexOf(event.currentTarget);
-                console.log('addHeaderCells');
-                console.log(JSON.stringify(e));
-                console.log(`i: ${i}`);
                 this.arrowNavigate(event, 0, i+1)
             })
             .text(this.getFormattedDate)
@@ -195,9 +192,6 @@ class Grid extends Component {
                     .merge(headerCell)
                     .attr('class', (d, col) => `tsi-rowHeaderCell ${self.cellClass(i + 1, 0)}`)
                     .on("keydown", (event, d) => {
-                        console.log('headerCell.enter');
-                        console.log(`headerCell: ${JSON.stringify(headerCell)}`);
-                        console.log(`i: ${i}`);
                         self.arrowNavigate(event, i + 1, 0)
                     })
                     .attr('aria-label', d => {
@@ -227,10 +221,6 @@ class Grid extends Component {
                     .on("keydown", (event, d) => {
                         const e = cellsEntered.nodes();
                         const col = e.indexOf(event.currentTarget);
-                        console.log('cells.enter');
-                        console.log(JSON.stringify(e));
-                        console.log(`i: ${i}`);
-                        console.log(`col: ${col}`);
                         self.arrowNavigate(event, i + 1, col + 1)
                     })
                     .attr("tabindex", 1)
@@ -299,7 +289,6 @@ class Grid extends Component {
                 .attr("tabindex", 0)
                 .attr("class", "tsi-topLeft " + this.cellClass(0,0))
                 .on("keydown", (event) => {
-                    console.log('render');
                     this.arrowNavigate(event, 0, 0);
                 })
                 .attr("aria-label", `${this.getString('A grid of values')} - ${this.getString('Use the arrow keys to navigate the values of each cell')}`)

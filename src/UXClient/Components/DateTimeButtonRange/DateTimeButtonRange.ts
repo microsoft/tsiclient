@@ -49,21 +49,23 @@ class DateTimeButtonRange extends DateTimeButton {
 
         this.setButtonText(fromMillis, toMillis, toMillis === maxMillis, this.toMillis - this.fromMillis);
 
-        let targetElement = <any>d3.select(this.renderTarget)
+        let targetElement = d3.select(this.renderTarget)
         var dateTimeTextChildren =   (targetElement.select(".tsi-dateTimeContainer")).selectAll("*");
         d3.select("html").on("click." + Utils.guid(), (event) => {
             let pickerContainerChildren = this.dateTimePickerContainer.selectAll("*");
-            var outside = dateTimeTextChildren.filter(() => Utils.equalToEventTarget(event)).empty() 
-                && targetElement.selectAll(".tsi-dateTimeContainer").filter(() => Utils.equalToEventTarget(event)).empty()
-                && targetElement.selectAll(".tsi-dateTimeButton").filter(() => Utils.equalToEventTarget(event)).empty();
-            var inClickTarget = pickerContainerChildren.filter(() => Utils.equalToEventTarget(event)).empty();
+            var outside = dateTimeTextChildren.filter(() => Utils.equalToEventTarget(this, event)).empty() 
+                && targetElement.selectAll(".tsi-dateTimeContainer").filter(() => Utils.equalToEventTarget(this, event)).empty()
+                && targetElement.selectAll(".tsi-dateTimeButton").filter(() => Utils.equalToEventTarget(this, event)).empty();
+            var inClickTarget = pickerContainerChildren.filter(() => Utils.equalToEventTarget(this, event)).empty();
             if (outside && inClickTarget && (this.dateTimePickerContainer.style('display') !== 'none')) {
+                console.log('html close');
                 this.onClose();
             }
         });
 
         this.dateTimeButton.on("click", () => {
             if(this.dateTimePickerContainer.style("display") !== "none"){
+                console.log('button close');
                 this.onClose();  // close if already open
             }
             else{
