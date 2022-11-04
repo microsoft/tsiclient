@@ -140,7 +140,7 @@ class ProcessGraphic extends HistoryPlayback {
       .on('animationend', function() {
         d3.select(this).classed(highlightCssClass, false);
       })
-      .on('click', (tsqe) => {
+      .on('click', (event, tsqe) => {
         if(typeof(tsqe.onClick) === 'function') {
           tsqe.onClick({
             timeStamp: this.playbackControls.currentTimeStamp,

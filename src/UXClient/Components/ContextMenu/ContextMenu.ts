@@ -130,7 +130,9 @@ class ContextMenu extends Component {
             .classed('tsi-hasSubMenu', d => d.isNested)
             .merge(actionElements)
             .text(d => d.name)
-            .on('mouseenter', function (d, i) {
+            .on('mouseenter', function (event, d) {
+                const e = actionElementsEntered.nodes();
+                const i = e.indexOf(event.currentTarget);
                 if (d.isNested) {
                     self.launchSubMenu(d3.select(this), d.subActions, subLevel + 1, self.getActionElementContainerTop(this));
                     self.subMenuFromActionIndex = i;

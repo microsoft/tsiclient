@@ -227,7 +227,7 @@ class DateTimePicker extends ChartComponent{
         let enteredQuickTimes = quickTimes.enter()
             .append('button')
             .attr('class', 'tsi-quickTime')
-            .on('click', (d) => {
+            .on('click', (event, d) => {
                 this.setFromQuickTimes(d[1]);
             })
             .text((d) => d[0])

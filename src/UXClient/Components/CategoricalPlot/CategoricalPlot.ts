@@ -125,14 +125,16 @@ class CategoricalPlot extends Plot {
                     return Math.max(xPos2 - xPos1, 1);
                 }	
 
-                categoricalBuckets.enter()
+                const categoricalBucketsEntered = categoricalBuckets.enter()
                     .append("rect")
                     .attr("class", "tsi-valueElement tsi-categoricalBucket")
                     .merge(categoricalBuckets)
                     .style("visibility", (d: any) => { 
                         return (self.chartComponentData.isSplitByVisible(aggKey, splitBy) && self.hasData(d)) ? "visible" : "hidden";
                     })
-                    .on('mouseover', (d: any, i) => {
+                    .on('mouseover', (event, d: any) => {
+                        const e = categoricalBucketsEntered.nodes();
+                        const i = e.indexOf(event.currentTarget);
                         let y = self.yTop + (j * (self.chartDataOptions.height / series.length));
                         let x = self.x(new Date(d.dateTime)) + (getWidth(d, i));
 
@@ -145,7 +147,7 @@ class CategoricalPlot extends Plot {
                         self.onMouseout();
                     })
                     .attr('cursor', (self.chartDataOptions.onElementClick ? 'pointer' : 'inherit'))
-                    .on('click', (d: any) => {
+                    .on('click', (event, d: any) => {
                         if (self.chartDataOptions.onElementClick) {
                             self.chartDataOptions.onElementClick(d.aggregateKey, d.splitBy, d.dateTime.toISOString(), d.measures);
                         }

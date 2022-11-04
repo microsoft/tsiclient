@@ -235,7 +235,7 @@ class Marker extends Component {
                 }
                 d3.select(this).selectAll('.tsi-markerTimeLabel,.tsi-markerLine,.tsi-markerLabel')
                     .call(d3.drag()
-                        .on('start', function(d: any) {
+                        .on('start', function(event, d: any) {
                             d.isDragging = true;
                             self.markerIsDragging = true;
                             self.bumpMarker();
