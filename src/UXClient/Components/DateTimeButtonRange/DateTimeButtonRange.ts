@@ -52,11 +52,29 @@ class DateTimeButtonRange extends DateTimeButton {
         let targetElement = d3.select(this.renderTarget)
         var dateTimeTextChildren =   (targetElement.select(".tsi-dateTimeContainer")).selectAll("*");
         d3.select("html").on("click." + Utils.guid(), (event) => {
+            console.log('html click');
+            console.log(JSON.stringify(event));
             let pickerContainerChildren = this.dateTimePickerContainer.selectAll("*");
-            var outside = dateTimeTextChildren.filter(() => Utils.equalToEventTarget(this, event)).empty() 
-                && targetElement.selectAll(".tsi-dateTimeContainer").filter(() => Utils.equalToEventTarget(this, event)).empty()
-                && targetElement.selectAll(".tsi-dateTimeButton").filter(() => Utils.equalToEventTarget(this, event)).empty();
-            var inClickTarget = pickerContainerChildren.filter(() => Utils.equalToEventTarget(this, event)).empty();
+            var outside = dateTimeTextChildren.filter(() => {
+                console.log('dateTimeTextChildren');
+                console.log(JSON.stringify(this));
+                return this === event.target;
+            }).empty() 
+                && targetElement.selectAll(".tsi-dateTimeContainer").filter(() => {
+                    console.log('tsi-dateTimeContainer');
+                    console.log(JSON.stringify(this));
+                    return this === event.target;
+                }).empty()
+                && targetElement.selectAll(".tsi-dateTimeButton").filter(() => {
+                    console.log('tsi-dateTimeButton');
+                    console.log(JSON.stringify(this));
+                    return this === event.target;
+                }).empty();
+            var inClickTarget = pickerContainerChildren.filter(() => {
+                console.log('pickerContainerChildren');
+                console.log(JSON.stringify(this));
+                return this === event.target;
+            }).empty();
             if (outside && inClickTarget && (this.dateTimePickerContainer.style('display') !== 'none')) {
                 console.log('html close');
                 this.onClose();
@@ -64,15 +82,18 @@ class DateTimeButtonRange extends DateTimeButton {
         });
 
         this.dateTimeButton.on("click", () => {
+            console.log('dateTimeButton click');
             if(this.dateTimePickerContainer.style("display") !== "none"){
                 console.log('button close');
                 this.onClose();  // close if already open
             }
             else{
+                console.log('render dateTimePicker');
                 this.chartOptions.dTPIsModal = true;
                 this.dateTimePickerContainer.style("display", "block");
                 this.dateTimePicker.render(this.chartOptions, minMillis, maxMillis, this.fromMillis, this.toMillis, 
                     (fromMillis, toMillis, offset, isRelative, currentQuickTime) => {
+                        console.log('onSet');
                         this.chartOptions.offset = offset;
 
                         this.fromMillis = fromMillis;
@@ -83,6 +104,7 @@ class DateTimeButtonRange extends DateTimeButton {
                         this.onClose();
                     }, 
                     () => {
+                        console.log('onCancel');
                         this.onClose();
                         this.onCancel();
                     }

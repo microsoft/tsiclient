@@ -32,7 +32,7 @@ class HeatmapCanvas extends ChartComponent {
         this.legendWidth = 80;
     }
 
-    private renderScale () {
+    private renderScale (aggColor: any, isOnlyAgg: boolean) {
         this.colorLegend.selectAll("*").remove();
         if (this.colorScale.domain() === null || isNaN(this.colorScale.domain()[0]) || isNaN(this.colorScale.domain()[1])) {
             return;
@@ -50,10 +50,11 @@ class HeatmapCanvas extends ChartComponent {
 
         var percentileCalc = (i) => i * (this.colorScale.domain()[1] - this.colorScale.domain()[0]) + this.colorScale.domain()[0]; 
         for (let i = 0; i <= 20; i++) {
-            let interpolatedColor = this.colorScale(percentileCalc(i / 20));
+            const color = this.getColor(aggColor, percentileCalc(i / 20), isOnlyAgg);
+
             gradient.append("stop")
                 .attr("offset", (i * 5) + "%")
-                .attr("stop-color", interpolatedColor)
+                .attr("stop-color", color)
                 .attr("stop-opacity", 1);
         }
 
@@ -232,10 +233,10 @@ class HeatmapCanvas extends ChartComponent {
             this.colorScale = d3.scaleSequential(d3.interpolateViridis).domain(this.getExtent());
         } else {
             this.colorScale = d3.scaleLinear().domain(this.getExtent())
-                .range([<any>d3.hcl(aggColor).brighter(), <any>d3.hcl(aggColor).darker()]);
+                .range([d3.hcl(aggColor).brighter().l, d3.hcl(aggColor).darker().l]);
         }
 
-        this.renderScale();
+        this.renderScale(aggColor, isOnlyAgg);
 
         var sortedTimes = Object.keys(this.heatmapData.timeValues).sort((a: string, b: string): number => {
             return ((new Date(a)).valueOf() < (new Date(b)).valueOf()) ? -1 : 1;
@@ -246,9 +247,9 @@ class HeatmapCanvas extends ChartComponent {
                 var cellData = this.heatmapData.timeValues[ts][splitBy];
                 if (cellData != null) {
                     if (highlightedSplitBy && highlightedSplitBy != splitBy) {
-                        this.drawCell(cellData.rowI, cellData.colI, cellData.value, true);
+                        this.drawCell(cellData.rowI, cellData.colI, cellData.value, aggColor, isOnlyAgg, true);
                     } else {
-                        this.drawCell(cellData.rowI, cellData.colI, cellData.value);
+                        this.drawCell(cellData.rowI, cellData.colI, cellData.value, aggColor, isOnlyAgg);
                     }
                 } 
             });
@@ -289,12 +290,25 @@ class HeatmapCanvas extends ChartComponent {
         return Math.min(i, this.cellHeightMod) + (this.rawCellHeight * i);
     }
 
-    private drawCell (rowI, colI, value, outOfFocus: boolean = false) {
+    private drawCell (rowI, colI, value, aggColor, isOnlyAgg, outOfFocus: boolean = false) {
         var x = this.calcCellX(colI);
         var y = this.calcCellY(rowI);
-        this.ctx.fillStyle = value !== null ? this.colorScale(value) : "transparent";
+        this.ctx.fillStyle = value !== null ? this.getColor(aggColor, value, isOnlyAgg) : "transparent";
         this.ctx.globalAlpha = outOfFocus ? .3 : 1;
         this.ctx.fillRect(this.calcCellX(colI), this.calcCellY(rowI), this.calcCellWidth(colI), this.calcCellHeight(rowI));
+    }
+
+    private getColor(aggColor: any, index: number, isOnlyAgg: boolean): string {
+        let color: string;
+        if (isOnlyAgg) {
+            color = this.colorScale(index);
+        } else {
+            const interpolatedColorLuminance = this.colorScale(index);
+            const newColor = d3.hcl(aggColor);
+            newColor.l = interpolatedColorLuminance;
+            color = newColor.formatHex();
+        }
+        return color;
     }
 }
 

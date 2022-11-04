@@ -92,9 +92,9 @@ class ColorPicker extends Component{
         });
 
         d3.select("html").on("click." + this.componentId, (event) => {
-            if (this.colorPickerElem.select(".tsi-colorPickerButton").filter(() => Utils.equalToEventTarget(this, event)).empty() && 
-                this.colorPickerElem.select(".tsi-colorPickerButton").selectAll("*").filter(() => Utils.equalToEventTarget(this, event)).empty() &&
-                this.colorPickerElem.selectAll(".tsi-colorGrid").filter(() => Utils.equalToEventTarget(this, event)).empty()) {
+            if (this.colorPickerElem.select(".tsi-colorPickerButton").filter(() => { return this === event.target; }).empty() && 
+                this.colorPickerElem.select(".tsi-colorPickerButton").selectAll("*").filter(() => { return this === event.target; }).empty() &&
+                this.colorPickerElem.selectAll(".tsi-colorGrid").filter(() => { return this === event.target; }).empty()) {
                     this.hideColorGrid();
             }
         });
