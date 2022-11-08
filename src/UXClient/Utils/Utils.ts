@@ -492,14 +492,12 @@ export default class Utils {
             return this.generateColors(Object.keys(displayState[aggKey]["splitBys"]).length);
         }
         var aggColor = displayState[aggKey].color;
-        console.log(JSON.stringify(aggColor));
         var interpolateColor = d3.scaleLinear().domain([0,Object.keys(displayState[aggKey]["splitBys"]).length])
             .range([d3.hcl(aggColor).darker().l, d3.hcl(aggColor).brighter().l]);
         var colors = [];
         for(var i = 0; i < Object.keys(displayState[aggKey]["splitBys"]).length; i++){
             const newColor = d3.hcl(aggColor);
             newColor.l = interpolateColor(i);
-            console.log(JSON.stringify(newColor));
             colors.push(newColor.formatHex());
         }
         return colors;
@@ -523,12 +521,10 @@ export default class Utils {
         }
 
         var aggColor = displayState[aggKey].color;
-        console.log(JSON.stringify(aggColor));
         var interpolateColor = d3.scaleLinear().domain([0,Object.keys(displayState[aggKey]["splitBys"]).length])
             .range([d3.hcl(aggColor).darker().l, d3.hcl(aggColor).brighter().l]);
         const newColor = d3.hcl(aggColor);
         newColor.l = interpolateColor(splitByIndex);
-        console.log(JSON.stringify(newColor));
         return newColor.formatHex();
     }
     

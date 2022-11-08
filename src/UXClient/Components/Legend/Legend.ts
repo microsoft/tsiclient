@@ -243,8 +243,6 @@ class Legend extends Component {
             });
 
         var colors = Utils.createSplitByColors(self.chartComponentData.displayState, aggKey, self.chartOptions.keepSplitByColor);
-        console.log(JSON.stringify(colors));
-        console.log(self.chartComponentData.displayState);
 
         splitByLabelsEntered.each(function (splitBy, j) {
             let color = (self.chartComponentData.isFromHeatmap) ? self.chartComponentData.displayState[aggKey].color : colors[j];
@@ -256,7 +254,6 @@ class Legend extends Component {
                     .merge(colorKey);
                 if (dataType === DataTypes.Numeric) {
                     colorKeyEntered.style('background-color', (d) => {
-                        console.log(JSON.stringify(d));
                         return d;
                     });
                 } else {

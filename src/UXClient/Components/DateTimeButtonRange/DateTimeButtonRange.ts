@@ -50,18 +50,14 @@ class DateTimeButtonRange extends DateTimeButton {
         this.setButtonText(fromMillis, toMillis, toMillis === maxMillis, this.toMillis - this.fromMillis);
 
         this.dateTimeButton.on("click", () => {
-            console.log('dateTimeButton click');
             if(this.dateTimePickerContainer.style("display") !== "none"){
-                console.log('button close');
                 this.onClose();  // close if already open
             }
             else{
-                console.log('render dateTimePicker');
                 this.chartOptions.dTPIsModal = true;
                 this.dateTimePickerContainer.style("display", "block");
                 this.dateTimePicker.render(this.chartOptions, minMillis, maxMillis, this.fromMillis, this.toMillis, 
                     (fromMillis, toMillis, offset, isRelative, currentQuickTime) => {
-                        console.log('onSet');
                         this.chartOptions.offset = offset;
 
                         this.fromMillis = fromMillis;
@@ -72,7 +68,6 @@ class DateTimeButtonRange extends DateTimeButton {
                         this.onClose();
                     }, 
                     () => {
-                        console.log('onCancel');
                         this.onClose();
                         this.onCancel();
                     }
