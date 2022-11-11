@@ -132,9 +132,11 @@ class Hierarchy extends Component {
                         this.contextMenu.append('div').text(`${noTildeName}`).on('click', () => n.click(n));
                     })
                     this.contextMenu.classed('tsi-hierarchyContextMenu', true);
-                    let mouseWrapper = d3.pointer(event, this.hierarchyList.node());
-                    let mouseElt = d3.pointer(event, el.node());
-                    this.contextMenu.attr('style', () => `top: ${mouseWrapper[1] - mouseElt[1]}px`);
+                    if (event) {
+                        let mouseWrapper = d3.pointer(event, this.hierarchyList.node());
+                        let mouseElt = d3.pointer(event, el.node());
+                        this.contextMenu.attr('style', () => `top: ${mouseWrapper[1] - mouseElt[1]}px`);
+                    }
                     el.classed('tsi-resultSelected', true);
                     this.hierarchyList.selectAll('.tsi-noPad').on('scroll', () => {this.closeContextMenu()});
                 }
