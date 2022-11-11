@@ -49,19 +49,6 @@ class DateTimeButtonRange extends DateTimeButton {
 
         this.setButtonText(fromMillis, toMillis, toMillis === maxMillis, this.toMillis - this.fromMillis);
 
-        let targetElement = <any>d3.select(this.renderTarget)
-        var dateTimeTextChildren =   (targetElement.select(".tsi-dateTimeContainer")).selectAll("*");
-        d3.select("html").on("click." + Utils.guid(), () => {
-            let pickerContainerChildren = this.dateTimePickerContainer.selectAll("*");
-            var outside = dateTimeTextChildren.filter(Utils.equalToEventTarget).empty() 
-                && targetElement.selectAll(".tsi-dateTimeContainer").filter(Utils.equalToEventTarget).empty()
-                && targetElement.selectAll(".tsi-dateTimeButton").filter(Utils.equalToEventTarget).empty();
-            var inClickTarget = pickerContainerChildren.filter(Utils.equalToEventTarget).empty();
-            if (outside && inClickTarget && (this.dateTimePickerContainer.style('display') !== 'none')) {
-                this.onClose();
-            }
-        });
-
         this.dateTimeButton.on("click", () => {
             if(this.dateTimePickerContainer.style("display") !== "none"){
                 this.onClose();  // close if already open

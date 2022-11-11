@@ -1,4 +1,5 @@
 import * as d3 from 'd3';
+import * as d3Voronoi from 'd3-voronoi';
 import './ScatterPlot.scss';
 import { ChartVisualizationComponent } from './../../Interfaces/ChartVisualizationComponent';
 import Legend from './../Legend';
@@ -169,9 +170,9 @@ class ScatterPlot extends ChartVisualizationComponent {
                 .text((d: string) => d);
 
             // Add Window Resize Listener
-            window.addEventListener("resize", () => {
+            window.addEventListener("resize", (event) => {
                 if (!this.chartOptions.suppressResizeListener) {
-                    this.draw();
+                    this.draw(true, event);
                 }
             });
 
@@ -186,8 +187,8 @@ class ScatterPlot extends ChartVisualizationComponent {
         this.draw();
         this.gatedShowGrid();
         
-        d3.select("html").on("click." + Utils.guid(), () => {
-            if (this.ellipsisContainer && d3.event.target != this.ellipsisContainer.select(".tsi-ellipsisButton").node()) {
+        d3.select("html").on("click." + Utils.guid(), (event) => {
+            if (this.ellipsisContainer && event.target != this.ellipsisContainer.select(".tsi-ellipsisButton").node()) {
                 this.ellipsisMenu.setMenuVisibility(false);
             }
         });
@@ -212,7 +213,7 @@ class ScatterPlot extends ChartVisualizationComponent {
     }
 
     /******** DRAW UPDATE FUNCTION ********/   
-    public draw = (isFromResize = false) => {
+    public draw = (isFromResize = false, event?: any) => {
         this.activeDot = null;
         this.chartComponentData.updateTemporalDataArray(this.chartOptions.isTemporal);
         
@@ -374,8 +375,15 @@ class ScatterPlot extends ChartVisualizationComponent {
         }
 
         // Draw Legend
-        this.legendObject.draw(this.chartOptions.legend, this.chartComponentData, this.labelMouseOver.bind(this), 
-            this.svgSelection, this.chartOptions, this.labelMouseOut.bind(this), this.stickySeries);
+        this.legendObject.draw(
+            this.chartOptions.legend,
+            this.chartComponentData,
+            this.labelMouseOver.bind(this), 
+            this.svgSelection,
+            this.chartOptions,
+            this.labelMouseOut.bind(this),
+            this.stickySeries,
+            event);
 
         this.sliderWrapper
             .style("width", `${this.svgSelection.node().getBoundingClientRect().width + 10}px`);
@@ -442,7 +450,7 @@ class ScatterPlot extends ChartVisualizationComponent {
             .attr("class", 'tsi-lineSeries')
             .merge(connectedGroups)
             .each(function(seriesName){
-                let series = d3.select(this).selectAll(`.tsi-line`).data([connectedSeriesMap[seriesName].data], d => d[0].aggregateKeyI+d[0].splitBy);
+                let series = d3.select(this).selectAll<SVGPathElement, unknown>(`.tsi-line`).data([connectedSeriesMap[seriesName].data], d => d[0].aggregateKeyI+d[0].splitBy);
 
                 series.exit().remove();
 
@@ -500,7 +508,7 @@ class ScatterPlot extends ChartVisualizationComponent {
         }
         const getOffset = () => (Math.random() < 0.5 ? -1 : 1) * getRandomInRange(0, .01);
         
-        this.voronoi = d3.voronoi()
+        this.voronoi = d3Voronoi.voronoi()
             .x((d:any) => this.xScale(d.measures[this.xMeasure]) + getOffset())
             .y((d:any) => this.yScale(d.measures[this.yMeasure]) + getOffset())
             .extent([[0, 0], [this.chartWidth, this.chartHeight]]);
@@ -508,12 +516,12 @@ class ScatterPlot extends ChartVisualizationComponent {
         this.voronoiDiagram = this.voronoi(voronoiData);
 
         this.voronoiGroup
-            .on("mousemove", function(){
-                let mouseEvent = d3.mouse(this);
+            .on("mousemove", function(event){
+                let mouseEvent = d3.pointer(event);
                 self.voronoiMouseMove(mouseEvent);
             })
-            .on("mouseover", function(){
-                let mouseEvent = d3.mouse(this);
+            .on("mouseover", function(event){
+                let mouseEvent = d3.pointer(event);
                 self.voronoiMouseMove(mouseEvent);
                 let site = self.voronoiDiagram.find(mouseEvent[0],  mouseEvent[1]);
                 if(site != null)
@@ -522,8 +530,8 @@ class ScatterPlot extends ChartVisualizationComponent {
             .on("mouseout", function(){
                 self.voronoiMouseOut();
             }) 
-            .on("click", function(){
-                let mouseEvent = d3.mouse(this);
+            .on("click", function(event){
+                let mouseEvent = d3.pointer(event);
                 self.voronoiClick(mouseEvent);
             });
     }

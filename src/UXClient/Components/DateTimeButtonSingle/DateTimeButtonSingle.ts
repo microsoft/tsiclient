@@ -1,7 +1,6 @@
 import * as d3 from 'd3';
 import './DateTimeButtonSingle.scss';
 import { DateTimeButton } from '../../Interfaces/DateTimeButton';
-import Utils from '../../Utils';
 import SingleDateTimePicker from '../SingleDateTimePicker/SingleDateTimePicker';
 
 class DateTimeButtonSingle extends DateTimeButton {    
@@ -37,17 +36,6 @@ class DateTimeButtonSingle extends DateTimeButton {
 
         let targetElement = <any>d3.select(this.renderTarget);
         var dateTimeTextChildren = (targetElement.select(".tsi-dateTimePickerContainer")).selectAll("*");
-        d3.select("html").on("click." + Utils.guid(), () => {
-            let pickerContainerChildren = this.dateTimePickerContainer.selectAll("*");
-            var outside = dateTimeTextChildren.filter(Utils.equalToEventTarget).empty() 
-                && targetElement.selectAll(".tsi-dateTimePickerContainer").filter(Utils.equalToEventTarget).empty()
-                && targetElement.selectAll(".tsi-dateTimeButton").filter(Utils.equalToEventTarget).empty()
-                && targetElement.selectAll(".tsi-saveButton").filter(Utils.equalToEventTarget).empty();
-            var inClickTarget = pickerContainerChildren.filter(Utils.equalToEventTarget).empty();
-            if (outside && inClickTarget && (this.dateTimePickerContainer.style('display') !== 'none')) {
-                this.closeSDTP();
-            }
-        });
 
         this.dateTimeButton.on("click", () => {
                 this.chartOptions.dTPIsModal = true;

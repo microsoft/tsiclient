@@ -151,7 +151,7 @@ class Marker extends Component {
 
     private renderMarker () {
         let self = this;
-        let marker = d3.select(this.renderTarget).selectAll(`.tsi-markerContainer`)
+        let marker = d3.select(this.renderTarget).selectAll<HTMLDivElement, unknown>(`.tsi-markerContainer`)
             .filter((d: any) => d.guid === this.guid)
             .data([{guid: this.guid, timestamp: this.timestampMillis}]);
         this.markerContainer = marker.enter()
@@ -193,9 +193,9 @@ class Marker extends Component {
                         .attr('class', 'tsi-markerLabelText')
                         .attr('contenteditable', 'true')
                         .text(self.labelText)
-                        .on('keydown', () =>{
-                            if (d3.event.keyCode === KeyCodes.Enter && !d3.event.shiftKey) {
-                                d3.event.preventDefault();
+                        .on('keydown', (event) =>{
+                            if (event.keyCode === KeyCodes.Enter && !event.shiftKey) {
+                                event.preventDefault();
                                 self.closeButton.node().focus();
                             }
                         })
@@ -212,8 +212,8 @@ class Marker extends Component {
                             d3.select(this.parentNode).classed('tsi-markerLabelTextFocused', false);
                             self.onChange(false, false, false);
                         })
-                        .on('mousedown', () => {
-                            d3.event.stopPropagation();
+                        .on('mousedown', (event) => {
+                            event.stopPropagation();
                         })
                         .on('mouseover', function () {
                             if (!self.isMarkerDragOccuring()) {
@@ -235,24 +235,24 @@ class Marker extends Component {
                 }
                 d3.select(this).selectAll('.tsi-markerTimeLabel,.tsi-markerLine,.tsi-markerLabel')
                     .call(d3.drag()
-                        .on('start', function(d: any) {
+                        .on('start', function(event, d: any) {
                             d.isDragging = true;
                             self.markerIsDragging = true;
                             self.bumpMarker();
                         })
-                        .on('drag', function (d) {
-                            if (d3.select(d3.event.sourceEvent.target).classed('tsi-closeButton')) {
+                        .on('drag', function (event, d) {
+                            if (d3.select(event.sourceEvent.target).classed('tsi-closeButton')) {
                                 return;
                             }
                             let marker = d3.select(<any>d3.select(this).node().parentNode);
                             let startPosition = self.x(new Date(self.timestampMillis));
-                            let newPosition = startPosition + d3.event.x;
+                            let newPosition = startPosition + event.x;
 
                             self.timestampMillis = Utils.findClosestTime(self.x.invert(newPosition).valueOf(), self.chartComponentData.timeMap);
                             self.setPositionsAndLabels(self.timestampMillis);
                         })
-                        .on('end', function (d: any) {
-                            if (!d3.select(d3.event.sourceEvent.target).classed('tsi-closeButton')) {
+                        .on('end', function (event, d: any) {
+                            if (!d3.select(event.sourceEvent.target).classed('tsi-closeButton')) {
                                 self.onChange(false, false);
                             }
                             d.isDragging = false;
@@ -446,7 +446,7 @@ class Marker extends Component {
                     self.tooltipFormat(d, tooltipTextElement, null, null);
                 }, null, 0, 0, self.colorMap[d.aggregateKey + "_" + d.splitBy], true);
 
-                let markerValueCaret = d3.select(this).selectAll('.tsi-markerValueCaret')
+                let markerValueCaret = d3.select(this).selectAll<HTMLDivElement, unknown>('.tsi-markerValueCaret')
                     .data([d]);
                 markerValueCaret.enter().append('div')
                     .attr('class', 'tsi-markerValueCaret')

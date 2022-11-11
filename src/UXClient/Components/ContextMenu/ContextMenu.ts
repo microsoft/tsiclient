@@ -130,7 +130,9 @@ class ContextMenu extends Component {
             .classed('tsi-hasSubMenu', d => d.isNested)
             .merge(actionElements)
             .text(d => d.name)
-            .on('mouseenter', function (d, i) {
+            .on('mouseenter', function (event, d) {
+                const e = actionElementsEntered.nodes();
+                const i = e.indexOf(event.currentTarget);
                 if (d.isNested) {
                     self.launchSubMenu(d3.select(this), d.subActions, subLevel + 1, self.getActionElementContainerTop(this));
                     self.subMenuFromActionIndex = i;
@@ -141,7 +143,7 @@ class ContextMenu extends Component {
                     self.removeSubMenusAboveLevel(d.subLevel);
                 }
             })
-            .on("click", function (d, i) {
+            .on("click", function (event, d) {
                 if (d.isNested) {
                     return;
                 }
@@ -202,8 +204,8 @@ class ContextMenu extends Component {
         this.positionAEC(actionContainerEntered, this.actions.length, 0, 0);
 
         let self = this;
-        d3.select(this.renderTarget).on("click", function () {
-            if (!d3.select(d3.event.srcElement).classed('tsi-actionElement')) {
+        d3.select(this.renderTarget).on("click", function (event) {
+            if (!d3.select(event.srcElement).classed('tsi-actionElement')) {
                 if (onClick) {
                     onClick();
                 }

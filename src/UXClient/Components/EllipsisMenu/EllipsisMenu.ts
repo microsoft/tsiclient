@@ -32,24 +32,24 @@ class EllipsisMenu extends Component {
         menuItem.node().focus();
     }
 
-    private menuItemKeyHandler (d, i) {
-        switch(d3.event.keyCode) {
+    private menuItemKeyHandler (event, d, i) {
+        switch(event.keyCode) {
             case 9: //tab
                 this.focusOnMenuItem(i + 1);
-                d3.event.preventDefault();
+                event.preventDefault();
                 break;
             case 27: //escape
                 this.setMenuVisibility(false);
                 this.buttonElement.node().focus();
-                d3.event.preventDefault();
+                event.preventDefault();
                 break;
             case 38: // up arrow
                 this.focusOnMenuItem(i - 1);
-                d3.event.preventDefault();
+                event.preventDefault();
                 break;
             case 40: // down arrow
                 this.focusOnMenuItem(i + 1);
-                d3.event.preventDefault();
+                event.preventDefault();
                 break;
         }
     }
@@ -82,15 +82,19 @@ class EllipsisMenu extends Component {
             .attr("class", "tsi-ellipsisMenu")
             .attr("role", "menu");
 
-        this.menuElement.selectAll(".tsi-ellipsisMenuItem").data(this.menuItems)
+        const menuElementEntered = this.menuElement.selectAll(".tsi-ellipsisMenuItem").data(this.menuItems)
             .enter()
             .append("button")
             .classed("tsi-ellipsisMenuItem", true)
             .attr("aria-label", d => d.label)
             .attr("type", "button")
             .attr("role", "menuitem")
-            .on('keydown', (d, i) => {this.menuItemKeyHandler(d, i)})
-            .on("click", (d: any) => {
+            .on('keydown', (event, d) => {
+                const e = menuElementEntered.nodes();
+                const i = e.indexOf(event.currentTarget);
+                this.menuItemKeyHandler(event, d, i);
+            })
+            .on("click", (event, d: any) => {
                 d.action();
             })
             .each(function () {

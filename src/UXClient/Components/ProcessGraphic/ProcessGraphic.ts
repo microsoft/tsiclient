@@ -110,7 +110,7 @@ class ProcessGraphic extends HistoryPlayback {
     }
   }
   protected updateDataMarkers(graphicValues: Array<IProcessGraphicLabelInfo>) {
-    let textElements = this.component.selectAll('div')
+    let textElements = this.component.selectAll<HTMLDivElement, unknown>('div')
       .data(graphicValues);
 
     let newElements = textElements.enter()
@@ -140,7 +140,7 @@ class ProcessGraphic extends HistoryPlayback {
       .on('animationend', function() {
         d3.select(this).classed(highlightCssClass, false);
       })
-      .on('click', (tsqe) => {
+      .on('click', (event, tsqe) => {
         if(typeof(tsqe.onClick) === 'function') {
           tsqe.onClick({
             timeStamp: this.playbackControls.currentTimeStamp,

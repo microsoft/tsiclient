@@ -52,11 +52,11 @@ class SingleDateTimePicker extends ChartComponent{
         this.targetElement.html('');
         super.themify(this.targetElement, this.chartOptions.theme);
 
-        this.targetElement.on('keydown', (e) => {
-            if (d3.event.keyCode <= 40 && d3.event.keyCode >= 37) { //arrow key
-                d3.event.stopPropagation();
+        this.targetElement.on('keydown', (event) => {
+            if (event.keyCode <= 40 && event.keyCode >= 37) { //arrow key
+                event.stopPropagation();
             }
-            if (d3.event.keyCode === 27 && this.chartOptions.dTPIsModal) { //escape
+            if (event.keyCode === 27 && this.chartOptions.dTPIsModal) { //escape
                 this.onSet();
             }
         });
@@ -70,10 +70,10 @@ class SingleDateTimePicker extends ChartComponent{
                     self.onSet(this.millis);
                 }
             })
-            .on('keydown', () => {
-                if (d3.event.keyCode === 9 && !d3.event.shiftKey && this.chartOptions.dTPIsModal) { // tab
+            .on('keydown', (event) => {
+                if (event.keyCode === 9 && !event.shiftKey && this.chartOptions.dTPIsModal) { // tab
                     this.timeInput.node().focus();
-                    d3.event.preventDefault();
+                    event.preventDefault();
                 }    
             })
         
@@ -235,10 +235,10 @@ class SingleDateTimePicker extends ChartComponent{
                     this.updateDisplayedDateTime(true);
                 }
             })
-            .on('keydown', () => {
-                if (d3.event.keyCode === 9 && d3.event.shiftKey && this.chartOptions.dTPIsModal) { // tab
+            .on('keydown', (event) => {
+                if (event.keyCode === 9 && event.shiftKey && this.chartOptions.dTPIsModal) { // tab
                     this.saveButton.node().focus();
-                    d3.event.preventDefault();
+                    event.preventDefault();
                 }        
             });
     }

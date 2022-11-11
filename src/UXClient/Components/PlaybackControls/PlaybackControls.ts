@@ -96,8 +96,8 @@ class PlaybackControls extends Component {
     gWrapper.call(d3.drag()
       .container(<any>sliderContainer.select('.tsi-playback-input').node())
       .on('start.interrupt', () => { gWrapper.interrupt(); })
-      .on('start drag', () => {
-        this.onDrag(d3.event.x);
+      .on('start drag', (event) => {
+        this.onDrag(event.x);
       })
       .on('end', () => {
         this.onDragEnd();
