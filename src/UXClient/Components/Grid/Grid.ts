@@ -290,8 +290,7 @@ class Grid extends Component {
                 .attr("class", "tsi-topLeft " + this.cellClass(0,0))
                 .on("keydown", (event) => {
                     this.arrowNavigate(event, 0, 0);
-                })
-                .attr("aria-label", `${this.getString('A grid of values')} - ${this.getString('Use the arrow keys to navigate the values of each cell')}`)
+                });
         }
 
         this.addHeaderCells();
