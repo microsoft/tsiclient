@@ -35,7 +35,7 @@ class DateTimeButton extends ChartComponent {
         if (!this.dateTimePickerContainer) {
             this.dateTimePickerContainer = dateTimeContainer.append('div').classed('tsi-dateTimePickerContainer', true)
                                             .attr('role', 'dialog')
-                                            .attr('aria-label', this.getString('a time selection control dialog'));
+                                            .attr('aria-label', this.getString('date selector'));
             this.dateTimePickerContainer.style('display', 'none');
         }
         super.themify(d3.select(this.renderTarget), this.chartOptions.theme);        
