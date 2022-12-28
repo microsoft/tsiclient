@@ -190,7 +190,7 @@ class DateTimePicker extends ChartComponent{
         this.setFromMillis(fromMillis);
         this.setToMillis(toMillis); 
         
-        this.targetElement.append("div").classed("tsi-errorMessageContainer", true);
+        this.targetElement.append("div").classed("tsi-errorMessageContainer", true).attr('aria-live', 'assertive');
         this.createTimePicker();
         this.createCalendar();
         this.calendarPicker.draw();
