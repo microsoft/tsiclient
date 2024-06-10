@@ -4,7 +4,7 @@
 [//]: <> (This content is similar to https://github.com/MicrosoftDocs/azure-docs/edit/main/includes/tsi-retirement.md)
 
 **NOTE**
->The Time Series Insights (TSI) service will no longer be supported after March 2025. Consider migrating existing TSI environments to alternative solutions as soon as possible. For more information on the deprecation and migration, visit our [documentation](https://aka.ms/tsi2adx).
+>The Time Series Insights (TSI) service will be retired on 7th July 2024. Consider migrating existing TSI environments to alternative solutions as soon as possible. For more information on the deprecation and migration, visit our [documentation](https://aka.ms/tsi2adx).
 ---
 
 <a href="https://tsiclientsample.azurewebsites.net"><img src="https://insights.timeseries.azure.com/favicon.ico" align="left" hspace="10" vspace="6" height="100px"></a>
